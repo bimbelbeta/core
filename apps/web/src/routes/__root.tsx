@@ -34,7 +34,7 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 				content: "#fdc10e",
 			},
 			{
-				title: "bimbelbeta",
+				title: "BimbelBeta",
 			},
 			...createMeta(),
 		],

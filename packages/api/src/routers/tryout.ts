@@ -90,7 +90,7 @@ const start = authed
 		method: "POST",
 		tags: ["Tryouts"],
 	})
-	.input(type({ id: "number", image: "string?" }))
+	.input(type({ id: "number", imageUrl: "string.url?" }))
 	.handler(async ({ input, context }) => {
 		const tryoutData = await db.query.tryout.findFirst({
 			where: eq(tryout.id, input.id),

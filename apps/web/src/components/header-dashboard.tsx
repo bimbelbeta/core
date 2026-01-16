@@ -34,8 +34,8 @@ const links = [
 	},
 	{
 		name: "Tryout",
-		to: "https://www.anycademy.com",
-		external: true,
+		to: "/tryout",
+		external: false,
 	},
 	{
 		name: "Premium",
@@ -73,7 +73,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
 							const isActive = !link.external && location.pathname.startsWith(link.to);
 							if (link.external) {
 								return (
-									<Button key={link.to} size="lg" variant="ghost" asChild>
+									<Button key={link.to} size="xl" variant="ghost" asChild>
 										<a href={link.to} target="_blank" rel="noopener noreferrer">
 											{link.name}
 										</a>
@@ -82,7 +82,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
 							}
 
 							return (
-								<Button key={link.to} size="lg" variant={isActive ? "default" : "ghost"} asChild>
+								<Button key={link.to} size="xl" variant={isActive ? "default" : "ghost"} asChild>
 									<Link to={link.to}>{link.name}</Link>
 								</Button>
 							);
@@ -93,7 +93,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
 					<div className="hidden md:flex md:items-center md:gap-4">
 						<DropdownMenu>
 							<DropdownMenuTrigger className="outline-none">
-								<div className="flex size-10 items-center justify-center rounded-[10px] bg-secondary-600 font-normal text-sm text-white transition-transform hover:scale-105 active:scale-95">
+								<div className="flex size-10 items-center justify-center rounded-default bg-secondary-600 font-normal text-sm text-white transition-transform hover:scale-105 active:scale-95">
 									{userInitials}
 								</div>
 							</DropdownMenuTrigger>

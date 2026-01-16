@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 
 export default function ErrorComponent({ error }: { error: Error }) {
-	const router = useRouter();
+	const _router = useRouter();
 
 	useEffect(() => {
 		console.error(error);
@@ -31,7 +31,7 @@ export default function ErrorComponent({ error }: { error: Error }) {
 					<Button
 						variant="outline"
 						onClick={() => {
-							router.invalidate();
+							window.location.reload();
 						}}
 					>
 						Coba Lagi
