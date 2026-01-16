@@ -39,8 +39,8 @@ export const LastClasses = () => {
 
 	return (
 		<section>
-			<h2 className="mb-2 font-medium">Kelas terakhirmu</h2>
-			<div className="space-y-2">
+			<h2 className="mb-4 font-medium text-xl">Kelas Terakhir</h2>
+			<div className="space-y-6">
 				{data.map((view, idx) => (
 					<LastContentViewedCard
 						key={view.contentId}

@@ -19,8 +19,6 @@ const buttonVariants = cva(
 				white: "bg-white text-primary-300 shadow-xs hover:bg-white/90",
 				ghost: "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
 				link: "text-primary underline-offset-4 hover:underline",
-				navbar:
-					"bg-inherit text-foreground hover:bg-primary/5 data-[active=true]:border-primary data-[active=true]:border-b-2 data-[active=true]:bg-primary/10",
 				// Light Blue
 				lightBlue: "bg-primary-300 text-white shadow-xs hover:bg-primary-300",
 			},
