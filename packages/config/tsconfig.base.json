@@ -11,6 +11,8 @@
 		"resolveJsonModule": true,
 		"allowSyntheticDefaultImports": true,
 		"esModuleInterop": true,
+		"incremental": true,
+		"tsBuildInfoFile": "dist/.tsbuildinfo",
 		"forceConsistentCasingInFileNames": true,
 		"isolatedModules": true,
 		"noUncheckedIndexedAccess": true,

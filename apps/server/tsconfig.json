@@ -3,6 +3,7 @@
 	"compilerOptions": {
 		"lib": ["ESNext", "DOM"],
 		"composite": true,
+		"tsBuildInfoFile": "dist/.tsbuildinfo",
 		"outDir": "dist",
 		"strictNullChecks": true,
 		"paths": {
