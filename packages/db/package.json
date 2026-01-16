@@ -13,7 +13,7 @@
 	},
 	"scripts": {
 		"build": "tsdown",
-		"check-types": "bunx @typescript/native-preview@latest --noEmit",
+		"check-types": "tsc --noEmit",
 		"db:push": "drizzle-kit push",
 		"db:studio": "drizzle-kit studio",
 		"db:generate": "drizzle-kit generate",
