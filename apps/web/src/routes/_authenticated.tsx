@@ -48,7 +48,7 @@ function AuthedLayout() {
 	const pathname = isPending ? stablePathnameRef.current : location.pathname;
 
 	return (
-		<main className="min-h-screen bg-radial from-neutral-100 via-66% via-primary-100 to-primary-300/80">
+		<main className="min-h-screen">
 			<HeaderDashboard />
 
 			{/^\/classes\/[^/]+\/[^/]+\/(video|notes|latihan-soal)/.test(pathname) ? (

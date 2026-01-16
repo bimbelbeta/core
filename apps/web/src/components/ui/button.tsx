@@ -14,7 +14,7 @@ const buttonVariants = cva(
 					"border border-primary-navy-700 bg-white text-primary-navy-700 shadow-xs hover:border-primary-navy-800 hover:bg-primary-100 hover:text-primary-navy-800",
 				tertiary: "bg-transparent text-primary-navy-700 hover:bg-primary-100 hover:text-primary-navy-800",
 				destructive: "bg-destructive text-white shadow-xs hover:bg-destructive/80",
-				outline: "border border-secondary-700 bg-transparent shadow-xs hover:bg-secondary-700/20",
+				outline: "border border-secondary-700 bg-white shadow-xs hover:bg-white/80",
 				ghost: "bg-secondary-700/0 hover:bg-secondary-700/20",
 				link: "text-primary underline-offset-4 hover:underline",
 				// Legacy variants kept for compatibility if needed, or mapped to new ones
