@@ -59,7 +59,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
 		: "U";
 
 	return (
-		<header className="fixed inset-x-0 top-0 z-50 bg-white/80 backdrop-blur-md">
+		<header className="fixed inset-x-0 top-0 z-50 bg-transparent backdrop-blur-md">
 			<div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 md:px-8">
 				<Link to="/" className="font-bold leading-none">
 					<span className="text-secondary-900">Bimbel</span>

@@ -16,15 +16,16 @@ export function Hero() {
 						transition={{ duration: 0.3, delay: 0 }}
 						className="font-bold font-sans text-3xl sm:text-4xl md:text-5xl"
 					>
-						Ubah Persiapan Ujian Menjadi{" "}
+						Rumah Baru untuk{" "}
 						<motion.span
-							className="inline-block text-primary-300"
+							className="text-primary-300"
 							initial={{ opacity: 0 }}
 							animate={{ opacity: 1 }}
 							transition={{ duration: 0.6, delay: 0.3 }}
 						>
-							Investasi Masa Depan
+							Persiapan UTBK-mu, Satu Tempat{" "}
 						</motion.span>
+						untuk Semua Targetmu!
 					</motion.h2>
 
 					<motion.p
@@ -33,8 +34,8 @@ export function Hero() {
 						transition={{ duration: 0.3, delay: 0.1 }}
 						className="text-sm sm:text-base"
 					>
-						Tidak hanya membantumu menaklukkan SNBT, tapi bimbelbeta juga membentuk growth mindset untuk tantangan masa
-						depan.
+						Nikmati ekosistem lengkap dari materi hingga simulasi ujian di satu tempat. Kamu fokus belajar biar kami
+						yang atur sistemnya.
 					</motion.p>
 
 					<motion.div

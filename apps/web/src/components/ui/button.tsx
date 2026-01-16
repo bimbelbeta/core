@@ -9,7 +9,7 @@ const buttonVariants = cva(
 	{
 		variants: {
 			variant: {
-				default: "bg-primary-navy-700 text-white shadow-xs hover:bg-primary-navy-800",
+				default: "bg-secondary-700 text-white shadow-xs hover:bg-secondary-700/80",
 				secondary:
 					"border border-primary-navy-700 bg-white text-primary-navy-700 shadow-xs hover:border-primary-navy-800 hover:bg-primary-100 hover:text-primary-navy-800",
 				tertiary: "bg-transparent text-primary-navy-700 hover:bg-primary-100 hover:text-primary-navy-800",
@@ -25,7 +25,7 @@ const buttonVariants = cva(
 			size: {
 				default: "h-10 px-4 py-2.5",
 				sm: "h-9 px-3.5 py-2",
-				lg: "h-11 px-4.5 py-2.5",
+				lg: "h-11 rounded-sm px-4.5 py-2.5",
 				xl: "h-11 px-5 py-3 text-base",
 				"2xl": "h-[60px] px-7 py-4 text-lg",
 				icon: "size-9",

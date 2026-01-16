@@ -29,7 +29,6 @@ const list = authed
 				title: tryout.title,
 				startsAt: tryout.startsAt,
 				endsAt: tryout.endsAt,
-				isPremium: tryout.isPremium,
 				attemptId: tryoutAttempt.id,
 				attemptStatus: tryoutAttempt.status,
 			})
@@ -81,7 +80,7 @@ const find = authed
 
 		return {
 			...tryoutData,
-			userAttempt: attempt,
+			userAttempt: attempt?.isRevoked ? null : attempt,
 		};
 	});
 
@@ -91,7 +90,7 @@ const start = authed
 		method: "POST",
 		tags: ["Tryouts"],
 	})
-	.input(type({ id: "number" }))
+	.input(type({ id: "number", image: "string?" }))
 	.handler(async ({ input, context }) => {
 		const tryoutData = await db.query.tryout.findFirst({
 			where: eq(tryout.id, input.id),
@@ -99,9 +98,9 @@ const start = authed
 
 		if (!tryoutData) throw new ORPCError("NOT_FOUND", { message: "Tryout not found" });
 
-		if (tryoutData.isPremium && !context.session.user.isPremium) {
+		if (!context.session.user.isPremium && !input.imageUrl) {
 			throw new ORPCError("FORBIDDEN", {
-				message: "Tryout ini khusus member premium",
+				message: "Upload bukti pembayaran untuk memulai tryout",
 			});
 		}
 
@@ -122,6 +121,7 @@ const start = authed
 			.values({
 				tryoutId: input.id,
 				userId: context.session.user.id,
+				submittedImageUrl: input.imageUrl,
 			})
 			.onConflictDoNothing()
 			.returning();
