@@ -1,6 +1,6 @@
 import { ListIcon, SignOutIcon, SpinnerIcon, XIcon } from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Link, useLocation, useNavigate } from "@tanstack/react-router";
+import { Link, useLocation, useNavigate, useRouteContext } from "@tanstack/react-router";
 import { useState } from "react";
 import {
 	AlertDialog,
@@ -44,8 +44,9 @@ const links = [
 	},
 ] as const;
 
-export function HeaderDashboard({ session }: { session: typeof authClient.$Infer.Session | null }) {
+export function HeaderDashboard() {
 	const location = useLocation();
+	const { session } = useRouteContext({ from: "/_authenticated" });
 	const [open, setOpen] = useState(false);
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -66,7 +67,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
 					<span className="text-tertiary-1000">Beta</span>
 				</Link>
 
-				<div className="flex items-center gap-2">
+				<div className="flex items-center gap-6">
 					{/* Desktop Navigation */}
 					<div className="hidden h-full items-center gap-2 md:flex">
 						{links.map((link) => {

@@ -32,7 +32,6 @@ export const Route = createFileRoute("/_authenticated")({
 });
 
 function AuthedLayout() {
-	const context = Route.useRouteContext();
 	const location = useLocation();
 	const routerState = useRouterState();
 	const stablePathnameRef = useRef(location.pathname);
@@ -49,8 +48,8 @@ function AuthedLayout() {
 	const pathname = isPending ? stablePathnameRef.current : location.pathname;
 
 	return (
-		<>
-			<HeaderDashboard session={context.session} />
+		<main className="min-h-screen bg-radial from-neutral-100 via-66% via-primary-100 to-primary-300/80">
+			<HeaderDashboard />
 
 			{/^\/classes\/[^/]+\/[^/]+\/(video|notes|latihan-soal)/.test(pathname) ? (
 				<Container className="flex flex-col gap-6 py-0">
@@ -61,6 +60,6 @@ function AuthedLayout() {
 					<Outlet />
 				</Container>
 			)}
-		</>
+		</main>
 	);
 }

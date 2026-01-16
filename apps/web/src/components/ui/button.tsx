@@ -15,7 +15,7 @@ const buttonVariants = cva(
 				tertiary: "bg-transparent text-primary-navy-700 hover:bg-primary-100 hover:text-primary-navy-800",
 				destructive: "bg-destructive text-white shadow-xs hover:bg-destructive/80",
 				outline: "border border-secondary-700 bg-transparent shadow-xs hover:bg-secondary-700/20",
-				ghost: "hover:bg-accent hover:text-accent-foreground",
+				ghost: "bg-secondary-700/0 hover:bg-secondary-700/20",
 				link: "text-primary underline-offset-4 hover:underline",
 				// Legacy variants kept for compatibility if needed, or mapped to new ones
 				darkBlue: "bg-primary-500 text-primary-foreground shadow-xs hover:bg-primary/90",

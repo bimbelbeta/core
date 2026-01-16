@@ -8,7 +8,6 @@ import { TryoutStartConfirmation } from "./tryout-start-confirmation";
 
 export function GuidelineActivity() {
 	const isPremium = true;
-	const hasSubmittedImage = false;
 
 	return (
 		<section className="flex flex-col gap-6">
@@ -16,7 +15,7 @@ export function GuidelineActivity() {
 				<CardHeader className="flex items-center justify-between gap-4">
 					<CardTitle className="font-semibold text-primary-800 sm:text-2xl">Mulai Tryout Sekarang</CardTitle>
 					<CardAction className="mt-auto">
-						<TryoutStartConfirmation isPremium={isPremium} hasSubmittedImage={hasSubmittedImage}>
+						<TryoutStartConfirmation isPremium={isPremium} tryoutId={1}>
 							<Button size={"icon"}>
 								<ArrowUpRightIcon weight="bold" />
 							</Button>

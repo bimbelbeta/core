@@ -25,7 +25,7 @@ function AdminDashboard() {
 					value={stats?.totalUsers}
 					isLoading={isLoading}
 					icon={Users}
-					className="bg-gradient-to-br from-blue-50 to-white dark:from-blue-950/20 dark:to-background"
+					className="bg-linear-to-br from-blue-50 to-white dark:from-blue-950/20 dark:to-background"
 					iconClassName="text-blue-500"
 				/>
 				<StatsCard
@@ -33,7 +33,7 @@ function AdminDashboard() {
 					value={stats?.totalPracticePacks}
 					isLoading={isLoading}
 					icon={Package}
-					className="bg-gradient-to-br from-purple-50 to-white dark:from-purple-950/20 dark:to-background"
+					className="bg-linear-to-br from-purple-50 to-white dark:from-purple-950/20 dark:to-background"
 					iconClassName="text-purple-500"
 				/>
 				<StatsCard
@@ -41,7 +41,7 @@ function AdminDashboard() {
 					value={stats?.totalQuestions}
 					isLoading={isLoading}
 					icon={Question}
-					className="bg-gradient-to-br from-orange-50 to-white dark:from-orange-950/20 dark:to-background"
+					className="bg-linear-to-br from-orange-50 to-white dark:from-orange-950/20 dark:to-background"
 					iconClassName="text-orange-500"
 				/>
 			</div>
