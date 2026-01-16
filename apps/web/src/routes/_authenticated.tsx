@@ -57,7 +57,7 @@ function AuthedLayout() {
 					<Outlet />
 				</Container>
 			) : (
-				<Container className={`flex flex-col gap-6 ${context.session?.user.isPremium ? "pt-30" : "pt-48 sm:pt-40"}`}>
+				<Container className={"flex flex-col gap-6 pt-30"}>
 					<Outlet />
 				</Container>
 			)}

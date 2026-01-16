@@ -22,7 +22,6 @@ export const tryout = pgTable("tryout", {
 	description: text(),
 	startsAt: timestamp("starts_at"),
 	endsAt: timestamp("ends_at"),
-	isPremium: boolean("is_premium").notNull().default(false),
 	createdAt: timestamp("created_at").defaultNow(),
 	updatedAt: timestamp("updated_at")
 		.defaultNow()
@@ -144,6 +143,8 @@ export const tryoutAttempt = pgTable(
 		completedAt: timestamp("completed_at"),
 		status: tryoutStatus("status").notNull().default("ongoing"),
 		score: integer("score"), // Can be calculated later
+		submittedImageUrl: text("submitted_image_url"),
+		isRevoked: boolean("is_revoked").notNull().default(false),
 	},
 	(t) => [unique("user_tryout_attempt").on(t.userId, t.tryoutId)],
 );

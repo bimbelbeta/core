@@ -1,7 +1,6 @@
-import { ArrowRightIcon, ListIcon, SignOutIcon, SpinnerIcon, XIcon } from "@phosphor-icons/react";
+import { ListIcon, SignOutIcon, SpinnerIcon, XIcon } from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
-import { Image } from "@unpic/react";
 import { useState } from "react";
 import {
 	AlertDialog,
@@ -13,8 +12,6 @@ import {
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { authClient } from "@/lib/auth-client";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import {
 	DropdownMenu,
@@ -28,14 +25,22 @@ const links = [
 	{
 		name: "Dashboard",
 		to: "/dashboard",
+		external: false,
 	},
 	{
 		name: "Kelas",
 		to: "/classes",
+		external: false,
+	},
+	{
+		name: "Tryout",
+		to: "https://www.anycademy.com",
+		external: true,
 	},
 	{
 		name: "Premium",
 		to: "/premium",
+		external: false,
 	},
 ] as const;
 
@@ -44,75 +49,78 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
 	const [open, setOpen] = useState(false);
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+	const userInitials = session?.user.name
+		? session.user.name
+				.split(" ")
+				.map((n) => n[0])
+				.join("")
+				.substring(0, 2)
+				.toUpperCase()
+		: "U";
+
 	return (
-		<header className="fixed inset-x-0 top-0 z-50">
-			{!session?.user.isPremium && !location.pathname.startsWith("/classes/") && (
-				<div className="flex items-center justify-center gap-2 bg-primary-200 p-2 text-white max-sm:flex-col max-sm:text-center sm:gap-4">
-					Dapatkan Semua Fitur dan Akses
-					<Button variant="default" size={"sm"} asChild>
-						<Link to="/premium">
-							Premium Sekarang <ArrowRightIcon />
-						</Link>
-					</Button>
-				</div>
-			)}
-			<div className="flex h-20 flex-row items-center justify-between gap-8 rounded-lg border-accent border-b-2 bg-white px-6 backdrop-blur-lg md:px-8">
-				<Link to="/" className="relative size-12">
-					<Image src="/logo.svg" alt="bimbelbeta Logo" layout="fullWidth" className="pointer-events-none select-none" />
+		<header className="fixed inset-x-0 top-0 z-50 bg-transparent backdrop-blur-md">
+			<div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 md:px-8">
+				<Link to="/" className="font-bold leading-none">
+					<span className="text-secondary-900">Bimbel</span>
+					<span className="text-tertiary-1000">Beta</span>
 				</Link>
 
-				<div className="hidden h-full items-center md:flex">
-					{links.map((link) => (
-						<Button
-							key={link.to}
-							variant={"navbar"}
-							size={"full"}
-							data-active={location.pathname.startsWith(link.to) ? "true" : "false"}
-							asChild
-						>
-							<Link to={link.to}>{link.name}</Link>
-						</Button>
-					))}
-				</div>
+				<div className="flex items-center gap-2">
+					{/* Desktop Navigation */}
+					<div className="hidden h-full items-center gap-2 md:flex">
+						{links.map((link) => {
+							const isActive = !link.external && location.pathname.startsWith(link.to);
+							if (link.external) {
+								return (
+									<Button key={link.to} size="lg" variant="ghost" asChild>
+										<a href={link.to} target="_blank" rel="noopener noreferrer">
+											{link.name}
+										</a>
+									</Button>
+								);
+							}
 
-				<div className="hidden md:flex md:items-center md:gap-4">
-					<DropdownMenu>
-						<DropdownMenuTrigger className="flex items-center gap-2">
-							{session?.user.isPremium && (
-								<Badge variant="secondary" className="bg-primary text-primary-foreground">
-									Premium
-								</Badge>
-							)}
-							<Avatar>
-								<AvatarImage src={session?.user.image as string} alt="User Profile Picture" />
-								<AvatarFallback>{session?.user.name.charAt(0).toUpperCase()}</AvatarFallback>
-							</Avatar>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end">
-							<DropdownMenuLabel>{session?.user.name}</DropdownMenuLabel>
-							<DropdownMenuItem variant="destructive" onSelect={() => setOpen(true)}>
-								<SignOutIcon />
-								Log Out
-							</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
-				</div>
+							return (
+								<Button key={link.to} size="lg" variant={isActive ? "default" : "ghost"} asChild>
+									<Link to={link.to}>{link.name}</Link>
+								</Button>
+							);
+						})}
+					</div>
 
-				<Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileMenuOpen(true)}>
-					<ListIcon className="size-6" />
-				</Button>
+					{/* Desktop User Profile */}
+					<div className="hidden md:flex md:items-center md:gap-4">
+						<DropdownMenu>
+							<DropdownMenuTrigger className="outline-none">
+								<div className="flex size-10 items-center justify-center rounded-[10px] bg-secondary-600 font-normal text-sm text-white transition-transform hover:scale-105 active:scale-95">
+									{userInitials}
+								</div>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align="end">
+								<DropdownMenuLabel>{session?.user.name}</DropdownMenuLabel>
+								<DropdownMenuItem variant="destructive" onSelect={() => setOpen(true)}>
+									<SignOutIcon className="mr-2 size-4" />
+									Log Out
+								</DropdownMenuItem>
+							</DropdownMenuContent>
+						</DropdownMenu>
+					</div>
+
+					{/* Mobile Menu Button */}
+					<Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileMenuOpen(true)}>
+						<ListIcon className="size-6" />
+					</Button>
+				</div>
 			</div>
 
+			{/* Mobile Menu Overlay */}
 			{mobileMenuOpen && (
-				<div className="fixed inset-x-0 top-0 z-50 flex flex-col bg-white p-6 shadow-lg md:hidden">
+				<div className="fixed inset-0 z-50 flex flex-col bg-white p-6 shadow-lg md:hidden">
 					<div className="flex items-center justify-between">
-						<Link to="/" className="relative size-12" onClick={() => setMobileMenuOpen(false)}>
-							<Image
-								src="/logo.svg"
-								alt="bimbelbeta Logo"
-								layout="fullWidth"
-								className="pointer-events-none select-none"
-							/>
+						<Link to="/" className="font-bold text-2xl leading-none" onClick={() => setMobileMenuOpen(false)}>
+							<span className="text-secondary-900">Bimbel</span>
+							<span className="text-tertiary-1000">Beta</span>
 						</Link>
 						<Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
 							<XIcon className="size-6" />
@@ -120,30 +128,45 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
 					</div>
 
 					<div className="mt-8 flex flex-col gap-4">
-						{links.map((link) => (
-							<Link
-								key={link.to}
-								to={link.to}
-								className="rounded-md px-4 py-3 font-medium text-lg hover:bg-accent"
-								onClick={() => setMobileMenuOpen(false)}
-							>
-								{link.name}
-							</Link>
-						))}
+						{links.map((link) => {
+							const isActive = !link.external && location.pathname.startsWith(link.to);
+
+							if (link.external) {
+								return (
+									<a
+										key={link.to}
+										href={link.to}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="rounded-md px-4 py-3 font-medium text-lg text-secondary-900 hover:bg-accent"
+										onClick={() => setMobileMenuOpen(false)}
+									>
+										{link.name}
+									</a>
+								);
+							}
+
+							return (
+								<Link
+									key={link.to}
+									to={link.to}
+									className={`rounded-md px-4 py-3 text-lg hover:bg-accent ${
+										isActive ? "bg-secondary-100/50 font-bold text-secondary-700" : "font-medium text-secondary-900"
+									}`}
+									onClick={() => setMobileMenuOpen(false)}
+								>
+									{link.name}
+								</Link>
+							);
+						})}
 					</div>
 
-					<div className="mt-12">
-						<div className="mb-4 flex items-center gap-3 px-4">
-							<Avatar>
-								<AvatarImage src={session?.user.image as string} alt="User Profile Picture" />
-								<AvatarFallback>{session?.user.name.charAt(0).toUpperCase()}</AvatarFallback>
-							</Avatar>
+					<div className="mt-auto border-neutral-200 border-t pt-6">
+						<div className="mb-4 flex items-center gap-3">
+							<div className="flex size-10 items-center justify-center rounded-[10px] bg-secondary-600 font-normal text-sm text-white">
+								{userInitials}
+							</div>
 							<span className="font-medium">{session?.user.name}</span>
-							{session?.user.isPremium && (
-								<Badge variant="default" className="bg-primary text-primary-foreground">
-									Premium
-								</Badge>
-							)}
 						</div>
 						<Button
 							variant="destructive"
@@ -153,7 +176,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
 								setOpen(true);
 							}}
 						>
-							<SignOutIcon className="mr-2" />
+							<SignOutIcon className="mr-2 size-4" />
 							Log Out
 						</Button>
 					</div>

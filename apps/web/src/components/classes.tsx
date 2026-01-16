@@ -44,13 +44,13 @@ export function SubtestHeader() {
 				{/* TEXT — mobile top, desktop LEFT */}
 				<div className="relative z-10 max-w-xl">
 					<h1 className="font-bold text-[24px] text-neutral-1000 leading-tight sm:text-[30px]">{title}</h1>
-					<p className="mt-2 text-[14px] text-neutral-1000 leading-[21px]">{description}</p>
+					<p className="mt-2 text-[14px] text-neutral-1000 leading-5">{description}</p>
 				</div>
 
 				{/* VISUAL */}
-				<div className="relative -mx-6 h-[110px] overflow-hidden sm:mx-0 sm:h-auto sm:overflow-visible">
+				<div className="relative -mx-6 h-27.5 overflow-hidden sm:mx-0 sm:h-auto sm:overflow-visible">
 					{/* Ellipse */}
-					<div className="absolute top-10 right-4 bottom-0 size-[180px] rounded-full bg-tertiary-400 sm:top-2" />
+					<div className="absolute top-10 right-4 bottom-0 size-45 rounded-full bg-tertiary-400 sm:top-2" />
 
 					{/* Avatar */}
 					<Image
@@ -58,7 +58,7 @@ export function SubtestHeader() {
 						alt="Subtest Header Avatar"
 						width={260}
 						height={260}
-						className="absolute right-0 size-[210px] -translate-y-10 select-none object-cover sm:bottom-0 sm:translate-y-1/2"
+						className="absolute right-0 size-52.5 -translate-y-10 select-none object-cover sm:bottom-0 sm:translate-y-1/2"
 					/>
 				</div>
 			</div>
@@ -290,6 +290,33 @@ const CONTENT_ACTIONS = [
 		icon: ExamIcon,
 		enabled: (i: ContentActionItem) => i.hasPracticeQuestions,
 		className: "bg-tertiary-200 text-neutral-1000",
+		width: "w-fit",
+	},
+] as const;
+
+const DASHBOARD_CONTENT_ACTIONS = [
+	{
+		key: "video",
+		label: "Video Materi",
+		icon: PlayCircleIcon,
+		enabled: (i: ContentActionItem) => i.hasVideo,
+		className: "bg-secondary-100 text-black hover:bg-secondary-200",
+		width: "w-fit",
+	},
+	{
+		key: "notes",
+		label: "Catatan Materi",
+		icon: NoteIcon,
+		enabled: (i: ContentActionItem) => i.hasNote,
+		className: "bg-tertiary-500 text-white hover:bg-tertiary-600",
+		width: "w-fit",
+	},
+	{
+		key: "latihan-soal",
+		label: "Quiz",
+		icon: ExamIcon,
+		enabled: (i: ContentActionItem) => i.hasPracticeQuestions,
+		className: "bg-primary-100 text-black hover:bg-primary-200",
 		width: "w-fit",
 	},
 ] as const;
@@ -551,7 +578,7 @@ export function LastContentViewedCard({
 
 			{/* Actions */}
 			<div className="flex gap-3 overflow-x-auto">
-				{CONTENT_ACTIONS.map(
+				{DASHBOARD_CONTENT_ACTIONS.map(
 					({ key, label, icon: Icon, enabled, className, width }) =>
 						enabled(item) && (
 							<Link

@@ -9,26 +9,25 @@ const buttonVariants = cva(
 	{
 		variants: {
 			variant: {
-				default: "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
-				darkBlue: "bg-primary-500 text-primary-foreground shadow-xs hover:bg-primary/90",
+				default: "bg-secondary-700 text-white shadow-xs hover:bg-secondary-700/80",
+				secondary:
+					"border border-primary-navy-700 bg-white text-primary-navy-700 shadow-xs hover:border-primary-navy-800 hover:bg-primary-100 hover:text-primary-navy-800",
+				tertiary: "bg-transparent text-primary-navy-700 hover:bg-primary-100 hover:text-primary-navy-800",
 				destructive: "bg-destructive text-white shadow-xs hover:bg-destructive/80",
-				outline: "border-3 bg-white text-muted-foreground hover:bg-accent hover:bg-background/20",
-				// Yellow
-				secondary: "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
-				// White
-				white: "bg-white text-primary-300 shadow-xs hover:bg-white/90",
-				ghost: "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
+				outline: "border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground",
+				ghost: "hover:bg-accent hover:text-accent-foreground",
 				link: "text-primary underline-offset-4 hover:underline",
-				navbar:
-					"bg-inherit text-foreground hover:bg-primary/5 data-[active=true]:border-primary data-[active=true]:border-b-2 data-[active=true]:bg-primary/10",
-				// Light Blue
+				// Legacy variants kept for compatibility if needed, or mapped to new ones
+				darkBlue: "bg-primary-500 text-primary-foreground shadow-xs hover:bg-primary/90",
+				white: "bg-white text-primary-300 shadow-xs hover:bg-white/90",
 				lightBlue: "bg-primary-300 text-white shadow-xs hover:bg-primary-300",
 			},
 			size: {
-				default: "h-10 px-6 py-2 has-[>svg]:px-4",
-				sm: "h-9 gap-1.5 rounded-md px-6 has-[>svg]:px-4",
-				lg: "h-11 rounded-sm px-8 has-[>svg]:px-6",
-				full: "h-full rounded-none px-6 py-2",
+				default: "h-10 px-4 py-2.5",
+				sm: "h-9 px-3.5 py-2",
+				lg: "h-11 rounded-sm px-4.5 py-2.5",
+				xl: "h-11 px-5 py-3 text-base",
+				"2xl": "h-[60px] px-7 py-4 text-lg",
 				icon: "size-9",
 				none: "",
 			},

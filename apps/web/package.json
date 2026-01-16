@@ -3,7 +3,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"dev": "bun --bun vite dev --port=3000 --debug",
+		"dev": "bun --bun vite dev --port=3000",
 		"build": "bun --bun vite build",
 		"start": "bun --bun .output/server/index.mjs --port=3000",
 		"check-types": "tsgo --noEmit"

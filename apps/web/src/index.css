@@ -165,4 +165,8 @@
 	/* Green */
 	--color-green-100: #84ebb4;
 	--color-green-200: #1fc16b;
+
+	/* Primary Navy */
+	--color-primary-navy-700: #0479ce;
+	--color-primary-navy-800: #045ca0;
 }
