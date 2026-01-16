@@ -23,12 +23,12 @@ function RouteComponent() {
 			<section className="flex items-center gap-2">
 				<div className="text-5xl">🔥</div>
 				<div className="space-y-1">
-					<h1 className="font-bold text-3xl text-tertiary-1000 leading-tight sm:text-4xl">Halo, {firstName}!</h1>
+					<h1 className="font-semibold text-3xl text-tertiary-1000 leading-tight sm:text-4xl">Halo, {firstName}!</h1>
 					<p className="text-sm sm:text-base">Kembali belajar bersama bimbel-beta</p>
 				</div>
 			</section>
 
-			<section className="grid gap-6 space-y-2 md:grid-cols-2">
+			<section className="grid gap-6 md:grid-cols-2">
 				<DashboardMainCard
 					title="Lihat semua kelas!"
 					description="Gabung kelas untuk dapat mengikuti pelajaran"

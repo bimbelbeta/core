@@ -1,4 +1,4 @@
-import { ArrowRightIcon } from "@phosphor-icons/react";
+import { ArrowRightIcon, WarningCircleIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { LastContentViewedCard } from "@/components/classes";
@@ -24,12 +24,12 @@ export const LastClasses = () => {
 		return (
 			<section className="">
 				<h2 className="font-medium">Kelas terakhirmu</h2>
-				<div className="flex flex-col items-center justify-center space-y-6 py-8 text-center">
-					<img src="/avatar/confused-avatar.webp" alt="Belum ada kelas" className="h-40 w-auto" />
-					<p className="font-bold text-2xl text-black">Kamu belum melihat kelas apapun</p>
+				<div className="flex flex-col items-center justify-center space-y-3 py-8 text-center">
+					<WarningCircleIcon size={80} />
+					<p className="text-black text-xl">Kamu belum melihat kelas apapun</p>
 					<Button asChild>
 						<Link to="/classes">
-							Kelas Sekarang <ArrowRightIcon className="" />
+							Belajar Sekarang <ArrowRightIcon className="" />
 						</Link>
 					</Button>
 				</div>

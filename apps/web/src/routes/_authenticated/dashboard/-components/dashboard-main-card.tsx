@@ -11,7 +11,7 @@ interface DashboardMainCardProps {
 
 export function DashboardMainCard({ title, description, to, href }: DashboardMainCardProps) {
 	return (
-		<div className="h-52 space-y-2 overflow-hidden rounded-sm border border-neutral-200 bg-white p-6">
+		<div className="h-full space-y-6 overflow-hidden rounded-sm border border-neutral-200 bg-white p-4">
 			<div className="flex h-21.5 w-full justify-end rounded-sm bg-secondary-100 p-1.5">
 				<Button asChild size="icon">
 					{to ? (
@@ -26,9 +26,9 @@ export function DashboardMainCard({ title, description, to, href }: DashboardMai
 				</Button>
 			</div>
 
-			<div className="text-secondary-800">
-				<h2 className="font-bold text-2xl leading-tight sm:text-[29px]">{title}</h2>
-				<p className="mt-1 font-normal text-base leading-normal">{description}</p>
+			<div className="space-y-1 text-secondary-800">
+				<h2 className="font-semibold text-2xl leading-tight">{title}</h2>
+				<p className="font-normal text-base leading-normal">{description}</p>
 			</div>
 		</div>
 	);

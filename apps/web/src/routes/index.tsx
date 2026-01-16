@@ -20,8 +20,8 @@ export const Route = createFileRoute("/")({
 function HomeComponent() {
 	return (
 		<>
-      <Header />
-      <Hero />
+			<Header />
+			<Hero />
 			<Statement />
 			<FAQ />
 			<Footer />
