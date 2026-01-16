@@ -205,4 +205,42 @@ export const DATA = {
 			// },
 		],
 	},
+	faq: [
+		{
+			id: 1,
+			question: "Apa perbedaan bimbelbeta dengan bimbel lain?",
+			answer:
+				"bimbelbeta berbeda karena kami tidak hanya fokus pada materi akademik, tetapi juga membentuk habit belajar dan mindset jangka panjang. Sistem kami dirancang untuk membangun disiplin dan konsistensi belajar yang berkelanjutan.",
+		},
+		{
+			id: 2,
+			question: "Bagaimana cara bergabung dengan bimbelbeta?",
+			answer:
+				"Anda bisa bergabung dengan memilih paket yang sesuai kebutuhan dan mengisi form pendaftaran melalui link yang tersedia. Setelah itu, Anda akan diarahkan ke grup belajar dan platform pembelajaran kami.",
+		},
+		{
+			id: 3,
+			question: "Apakah ada jaminan tembus PTN?",
+			answer:
+				"Kami tidak memberikan jaminan tembus PTN karena hasil akhir sangat bergantung pada usaha dan konsistensi masing-masing siswa. Namun, kami menjamin sistem dan materi terbaik untuk memaksimalkan peluang kesuksesan Anda.",
+		},
+		{
+			id: 4,
+			question: "Berapa lama durasi program bimbelbeta?",
+			answer:
+				"Program bimbelbeta berlangsung hingga pelaksanaan UTBK. Anda memiliki akses penuh ke materi, kelas live, dan latihan soal selama periode tersebut dengan dukungan mentor dari UI, ITB, dan UGM.",
+		},
+		{
+			id: 5,
+			question: "Apakah materi bisa diakses kapan saja?",
+			answer:
+				"Untuk paket Ultimate Bundling, Anda memiliki akses full website 24/7. Paket lain memiliki keterbatasan akses tertentu. Live class diadakan 3 kali per minggu dengan jadwal yang terstruktur.",
+		},
+		{
+			id: 6,
+			question: "Bagaimana sistem mentoring di bimbelbeta?",
+			answer:
+				"Sistem mentoring kami dibimbing langsung oleh mentor dari UI, ITB, dan UGM. Anda akan mendapatkan bimbingan intensif, pemantauan progress belajar, dan habit tracker untuk memastikan konsistensi belajar.",
+		},
+	],
 } as const;
