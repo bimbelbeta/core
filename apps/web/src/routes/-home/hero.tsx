@@ -1,3 +1,4 @@
+import { ArrowRightIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { motion } from "motion/react";
@@ -55,13 +56,15 @@ export function Hero() {
 						className="flex w-full flex-wrap items-center justify-center gap-2 *:max-sm:text-xs"
 					>
 						<motion.div variants={bounce} whileHover="whileHover">
-							<Button asChild size="sm" className="flex-1 px-3 sm:w-auto sm:flex-initial">
-								<Link to="/login">Mulai Belajar Sekarang</Link>
+							<Button asChild size="lg" className="flex-1 px-3 sm:w-auto sm:flex-initial">
+								<Link to="/login">
+									Mulai Perjalananmu <ArrowRightIcon size={20} weight="bold" />
+								</Link>
 							</Button>
 						</motion.div>
 						<motion.div variants={bounce} whileHover="whileHover">
-							<Button variant="outline" size="sm" className="flex-1 px-3 sm:w-auto sm:flex-initial">
-								<Link to="/dashboard">Cara Kerjanya</Link>
+							<Button variant="white" size="lg" className="flex-1 px-3 sm:w-auto sm:flex-initial">
+								<Link to="/dashboard">Pelajari Tentang Bimbel Beta</Link>
 							</Button>
 						</motion.div>
 					</motion.div>
