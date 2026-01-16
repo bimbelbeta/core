@@ -7,7 +7,7 @@
 		"compile": "bun build --production --compile --minify --sourcemap --bytecode ./src/index.ts --outfile ./bin/server",
 		"dev": "bun run --hot --port=3001 ./src/index.ts ",
 		"start": "bun ./dist/index.js",
-		"check-types": "tsc --noEmit"
+		"check-types": "tsgo --noEmit"
 	},
 	"dependencies": {
 		"@bimbelbeta/api": "workspace:*",

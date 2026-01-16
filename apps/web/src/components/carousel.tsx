@@ -3,6 +3,7 @@
 import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
 import type React from "react";
 import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
 import { Container } from "./ui/container";
 
 export interface CarouselItem {
@@ -163,10 +164,10 @@ const Carousel: React.FC<CarouselProps> = ({
 			translateY = 0;
 			zIndex = 10;
 		} else if (Math.abs(position) === 1) {
-			scale = 1;
+			scale = 0.9;
 			blur = 0;
 			opacity = 1;
-			translateY = 36;
+			translateY = 0;
 			zIndex = 5;
 		}
 
@@ -194,11 +195,14 @@ const Carousel: React.FC<CarouselProps> = ({
 				className={`mx-auto flex aspect-video w-full max-w-[90vw] flex-col overflow-hidden rounded-[20px] border border-neutral-200 shadow-sm transition sm:max-w-none ${bgColor}`}
 			>
 				<div className="flex flex-1 flex-col justify-between text-pretty p-4 text-left">
-					<p className="max-h-full overflow-y-auto font-light text-sm">{item.desc}</p>
-					<div>
-						<h3 className="font-medium text-lg">{item.name}</h3>
-						<h4 className="text-base">{item.title}</h4>
+					<div className="flex items-center space-x-2">
+						<div className="flex size-10 items-center justify-center rounded-full bg-white lg:size-13">a</div>
+						<div>
+							<h3 className={cn("font-medium text-base")}>{item.name}</h3>
+							<h4 className="text-sm">{item.title}</h4>
+						</div>
 					</div>
+					<p className="max-h-full overflow-y-auto font-light text-sm">{item.desc}</p>
 				</div>
 			</div>
 		);

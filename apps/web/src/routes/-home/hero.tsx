@@ -3,28 +3,39 @@ import { Image } from "@unpic/react";
 import { motion } from "motion/react";
 import { MotionFloat } from "@/components/motion/motion-components";
 import { Button } from "@/components/ui/button";
+import { Highlight } from "@/components/ui/highlight";
 import { bounce } from "@/lib/animation-variants";
+
+/*
+  [clip-path:polygon(0_0,100%_0,100%_70%,50%_85%,0%_70%)]
+  Sudut = 85%
+  Horizontal position = 50%
+  Tinggi garis = 70%
+*/
 
 export function Hero() {
 	return (
-		<section className="relative mx-auto flex w-full max-w-5xl flex-col items-center justify-start overflow-hidden bg-background pt-20">
+		<section className="relative mx-auto flex w-full flex-col items-center justify-start overflow-hidden bg-background pt-20 [clip-path:polygon(0_0,100%_0,100%_85%,50%_100%,0%_85%)] *:max-w-5xl">
 			<div className="container mx-auto flex max-w-5xl shrink-0 flex-col items-center px-4 pt-8 md:pt-20">
-				<div className="flex max-w-3xl flex-col items-center gap-3 text-center md:gap-4">
+				<div className="flex flex-col items-center gap-3 text-center md:gap-4">
 					<motion.h2
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ duration: 0.3, delay: 0 }}
-						className="font-bold font-sans text-3xl sm:text-4xl md:text-5xl"
+						className="text-3xl sm:text-4xl md:text-5xl"
 					>
-						Ubah Persiapan Ujian Menjadi{" "}
-						<motion.span
-							className="inline-block text-primary-300"
-							initial={{ opacity: 0 }}
-							animate={{ opacity: 1 }}
-							transition={{ duration: 0.6, delay: 0.3 }}
-						>
-							Investasi Masa Depan
-						</motion.span>
+						Rumah Baru untuk{" "}
+						<Highlight variant="darkBlue" weight={"bold"}>
+							Persiapan UTBK-mu,
+						</Highlight>
+						<Highlight variant="darkBlue" weight={"bold"}>
+							Satu Tempat
+						</Highlight>{" "}
+						untuk{" "}
+						<Highlight variant="darkBlue" weight={"bold"}>
+							Semua
+						</Highlight>{" "}
+						Targetmu!
 					</motion.h2>
 
 					<motion.p
@@ -33,8 +44,8 @@ export function Hero() {
 						transition={{ duration: 0.3, delay: 0.1 }}
 						className="text-sm sm:text-base"
 					>
-						Tidak hanya membantumu menaklukkan SNBT, tapi bimbelbeta juga membentuk growth mindset untuk tantangan masa
-						depan.
+						Nikmati ekosistem lengkap dari materi hingga simulasi ujian di satu tempat. <br />
+						Kamu fokus belajar biar kami yang atur sistemnya.
 					</motion.p>
 
 					<motion.div
@@ -58,7 +69,7 @@ export function Hero() {
 			</div>
 
 			<MotionFloat delay={0.3}>
-				<Image src="/images/hero-image.webp" alt="Hero Illustration" layout="fullWidth" className="" />
+				<Image src="/images/home/Hero Image.png" alt="Hero Illustration" layout="fullWidth" className="" />
 			</MotionFloat>
 		</section>
 	);

@@ -1,6 +1,23 @@
 import { InstagramLogoIcon, WhatsappLogoIcon, XLogoIcon } from "@phosphor-icons/react";
 
 export const DATA = {
+	stats: [
+		{
+			id: 1,
+			value: "85%",
+			desc: "Murid Bimbel Beta lolos PTN Impian",
+		},
+		{
+			id: 2,
+			value: "+120 Poin",
+			desc: "Rata-rata kenaikan skor tryout",
+		},
+		{
+			id: 3,
+			value: "15.000+",
+			desc: "Latihan soal telah dikerjakan",
+		},
+	],
 	testimone: [
 		{
 			id: 1,
@@ -53,28 +70,6 @@ export const DATA = {
 	],
 	pricing: {
 		plans: {
-			classroom: {
-				label: "Classroom",
-				price_monthly: "Rp50.000",
-				price_full: "Rp99.000",
-				suffix: "s.d UTBK",
-				features: [
-					{ label: "Akses Full Website", status: "excluded" },
-					{ label: "Google Classroom", status: "included" },
-					{ label: "Tugas Harian & Kuis", status: "included" },
-					{ label: "1000+ Latihan Soal", status: "included" },
-					{ label: "Habit Tracker & Grup", status: "included" },
-					{ label: "Matrikulasi Subtest", status: "included" },
-					{ label: "Live Class (3x/Minggu)", status: "excluded" },
-					{ label: "Mentor UI, ITB, UGM", status: "excluded" },
-					{ label: "Try Out & Pembahasan", status: "limited", value: "3x" },
-				],
-				cta: {
-					label: "Mulai Sekarang",
-					url: "http://lynk.id/bimbelbeta/64p096g69747",
-				},
-			},
-
 			mentoring_perintis: {
 				label: "Mentoring Perintis",
 				price_monthly: "Rp99.000",

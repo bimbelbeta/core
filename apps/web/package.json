@@ -6,7 +6,7 @@
 		"dev": "bun --bun vite dev --port=3000 --debug",
 		"build": "bun --bun vite build",
 		"start": "bun --bun .output/server/index.mjs --port=3000",
-		"check-types": "tsc --noEmit"
+		"check-types": "tsgo --noEmit"
 	},
 	"dependencies": {
 		"@bimbelbeta/api": "workspace:*",

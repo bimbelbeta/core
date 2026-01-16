@@ -3,92 +3,39 @@ import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { buttonVariants } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
+import { Highlight } from "@/components/ui/highlight";
 import { cn } from "@/lib/utils";
-import { DATA } from "./data";
+import { Heading } from "./-componenets/heading";
+import { Subheading } from "./-componenets/subheading";
+// import { DATA } from "./data";
 
 export function Pricing() {
-	const { plans } = DATA.pricing;
-
-	const planEntries = Object.values(plans);
-
-	const tryout = Object.values(DATA.pricing_tryout);
+	// const { plans } = DATA.pricing;
 
 	return (
 		<Container className="items-center gap-8 2xl:max-w-340">
 			<div className="space-y-2 text-center *:text-pretty">
-				<h2 className="font-bold text-2xl sm:text-3xl">
-					Investasi Cerdas untuk Hasil yang <span className="text-primary-300">Maksimal</span>
-				</h2>
-				<p className="text-pretty font-medium text-sm md:text-base">
-					Dapatkan materi lengkap plus strategi rahasia dari kakak-kakak TOP PTN!
-				</p>
+				<Subheading>Jangan sampai menyesal pas UTBK.</Subheading>
+				<Heading>
+					Mulai Simulasi dari<Highlight variant="primary">{" Hari Ini"}</Highlight>
+				</Heading>
 			</div>
 
 			<div className="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 lg:gap-6 2xl:grid-cols-4">
-				{planEntries.map((plan, index) =>
+				{/*{planEntries.map((plan, index) =>
 					index === planEntries.length - 1 ? (
 						<PremiumCard key={plan.label} data={plan} />
 					) : (
 						<BasicCard key={plan.label} data={plan} />
 					),
-				)}
-			</div>
-
-			{/* Paket Try Out */}
-			<div className="flex max-w-250 flex-col items-center justify-center gap-8">
-				<div className="flex h-11 w-full items-center justify-center rounded-2xl border border-neutral-200 bg-tertiary-100 text-center *:text-pretty">
-					<h3 className="font-bold text-base">Paket Try Out</h3>
-				</div>
-				<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:gap-6 xl:grid-cols-3">
-					{tryout.map((plan) => (
-						<TryOutCard key={plan.label} data={plan} />
-					))}
+				)}*/}
+				<div className="h-96 w-full rounded-default border border-neutral-200 bg-neutral-100 p-4 lg:p-6">a</div>
+				<div className="h-96 w-full rounded-default border border-neutral-200 bg-neutral-100 p-4 lg:p-6">a</div>
+				<div className="h-96 w-full rounded-default border border-neutral-200 bg-neutral-100 p-4 last:sm:col-span-2 last:sm:mx-auto last:sm:w-80 lg:p-6">
+					a
 				</div>
 			</div>
 		</Container>
-	);
-}
-
-type TryOutCardData = {
-	readonly label: string;
-	readonly price?: string;
-	readonly features: readonly string[];
-	readonly cta: { readonly label: string; readonly url: string };
-};
-
-function TryOutCard({ data }: { data: TryOutCardData }) {
-	return (
-		<motion.div
-			initial={{ opacity: 0, y: 24 }}
-			animate={{ opacity: 1, y: 0 }}
-			transition={{ duration: 0.4, ease: "easeOut" }}
-			className="relative flex flex-col justify-between overflow-hidden rounded-2xl border bg-white shadow-sm 2xl:min-w-80"
-		>
-			{/* Top */}
-			<div className="space-y-2 border-b bg-background p-6">
-				<h3 className="font-medium text-base">{data.label}</h3>
-
-				{data.price && <p className="font-bold text-3xl text-primary-300">{data.price}</p>}
-			</div>
-
-			{/* Features */}
-			<ul className="mt-4 space-y-2 px-6">
-				{data.features.map((feature) => (
-					<li key={feature} className="flex items-center gap-2 text-sm">
-						<FeatureIcon status="included" />
-						<span>{feature}</span>
-					</li>
-				))}
-			</ul>
-
-			{/* CTA */}
-			<div className="p-6">
-				<Link to={data.cta.url as string} className={cn(buttonVariants({ size: "sm", variant: "outline" }), "w-full")}>
-					{data.cta.label}
-					<ArrowRightIcon size={16} weight="bold" />
-				</Link>
-			</div>
-		</motion.div>
 	);
 }
 
@@ -116,7 +63,7 @@ type PlanData =
 			readonly cta: { readonly label: string; readonly url: string };
 	  };
 
-function BasicCard({ data }: { data: PlanData }) {
+function _BasicCard({ data }: { data: PlanData }) {
 	const isBasicPlan = "price_monthly" in data || "price_full" in data;
 	if (!isBasicPlan) return null;
 
@@ -178,7 +125,7 @@ function BasicCard({ data }: { data: PlanData }) {
 	);
 }
 
-function PremiumCard({ data }: { data: PlanData }) {
+function _PremiumCard({ data }: { data: PlanData }) {
 	const isPremiumPlan = "original_price" in data && "price_now" in data;
 	if (!isPremiumPlan) return null;
 
