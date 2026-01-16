@@ -36,10 +36,7 @@ const list = authed
 			.from(tryout)
 			.leftJoin(
 				tryoutAttempt,
-				and(
-					eq(tryoutAttempt.tryoutId, tryout.id),
-					eq(tryoutAttempt.userId, context.session.user.id),
-				),
+				and(eq(tryoutAttempt.tryoutId, tryout.id), eq(tryoutAttempt.userId, context.session.user.id)),
 			)
 			.where(
 				and(
@@ -52,8 +49,7 @@ const list = authed
 
 		return tryouts.map((t) => ({
 			...t,
-			isOpen:
-				(!t.startsAt || t.startsAt <= now) && (!t.endsAt || t.endsAt >= now),
+			isOpen: (!t.startsAt || t.startsAt <= now) && (!t.endsAt || t.endsAt >= now),
 		}));
 	});
 
@@ -74,14 +70,10 @@ const find = authed
 			},
 		});
 
-		if (!tryoutData)
-			throw new ORPCError("NOT_FOUND", { message: "Tryout not found" });
+		if (!tryoutData) throw new ORPCError("NOT_FOUND", { message: "Tryout not found" });
 
 		const attempt = await db.query.tryoutAttempt.findFirst({
-			where: and(
-				eq(tryoutAttempt.tryoutId, input.id),
-				eq(tryoutAttempt.userId, context.session.user.id),
-			),
+			where: and(eq(tryoutAttempt.tryoutId, input.id), eq(tryoutAttempt.userId, context.session.user.id)),
 			with: {
 				subtestAttempts: true,
 			},
@@ -105,8 +97,7 @@ const start = authed
 			where: eq(tryout.id, input.id),
 		});
 
-		if (!tryoutData)
-			throw new ORPCError("NOT_FOUND", { message: "Tryout not found" });
+		if (!tryoutData) throw new ORPCError("NOT_FOUND", { message: "Tryout not found" });
 
 		if (tryoutData.isPremium && !context.session.user.isPremium) {
 			throw new ORPCError("FORBIDDEN", {
@@ -138,12 +129,10 @@ const start = authed
 		if (!attempt) {
 			// Already exists, fetch it
 			const existing = await db.query.tryoutAttempt.findFirst({
-				where: and(
-					eq(tryoutAttempt.tryoutId, input.id),
-					eq(tryoutAttempt.userId, context.session.user.id),
-				),
+				where: and(eq(tryoutAttempt.tryoutId, input.id), eq(tryoutAttempt.userId, context.session.user.id)),
 			});
-			return existing!;
+			if (!existing) throw new ORPCError("NOT_FOUND", { message: "Attempt not found" });
+			return existing;
 		}
 
 		return attempt;
@@ -158,10 +147,7 @@ const startSubtest = authed
 	.input(type({ tryoutId: "number", subtestId: "number" }))
 	.handler(async ({ input, context }) => {
 		const attempt = await db.query.tryoutAttempt.findFirst({
-			where: and(
-				eq(tryoutAttempt.tryoutId, input.tryoutId),
-				eq(tryoutAttempt.userId, context.session.user.id),
-			),
+			where: and(eq(tryoutAttempt.tryoutId, input.tryoutId), eq(tryoutAttempt.userId, context.session.user.id)),
 		});
 
 		if (!attempt)
@@ -180,8 +166,7 @@ const startSubtest = authed
 		});
 
 		const currentSubtestIndex = subtests.findIndex((s) => s.id === input.subtestId);
-		if (currentSubtestIndex === -1)
-			throw new ORPCError("NOT_FOUND", { message: "Subtest not found" });
+		if (currentSubtestIndex === -1) throw new ORPCError("NOT_FOUND", { message: "Subtest not found" });
 
 		if (currentSubtestIndex > 0) {
 			const prevSubtest = subtests[currentSubtestIndex - 1];
@@ -219,7 +204,8 @@ const startSubtest = authed
 					eq(tryoutSubtestAttempt.subtestId, input.subtestId),
 				),
 			});
-			return existing!;
+			if (!existing) throw new ORPCError("NOT_FOUND", { message: "Subtest attempt not found" });
+			return existing;
 		}
 
 		return subAttempt;
@@ -234,10 +220,7 @@ const getSubtestQuestions = authed
 	.input(type({ tryoutId: "number", subtestId: "number" }))
 	.handler(async ({ input, context }) => {
 		const attempt = await db.query.tryoutAttempt.findFirst({
-			where: and(
-				eq(tryoutAttempt.tryoutId, input.tryoutId),
-				eq(tryoutAttempt.userId, context.session.user.id),
-			),
+			where: and(eq(tryoutAttempt.tryoutId, input.tryoutId), eq(tryoutAttempt.userId, context.session.user.id)),
 		});
 
 		if (!attempt) throw new ORPCError("FORBIDDEN", { message: "Access denied" });
@@ -252,25 +235,17 @@ const getSubtestQuestions = authed
 				choiceId: tryoutQuestionChoice.id,
 				choiceContent: tryoutQuestionChoice.content,
 				choiceCode: tryoutQuestionChoice.code,
+				choiceContentJson: tryoutQuestionChoice.contentJson,
 				userSelectedChoiceId: tryoutUserAnswer.selectedChoiceId,
 				userEssayAnswer: tryoutUserAnswer.essayAnswer,
 				userEssayAnswerJson: tryoutUserAnswer.essayAnswerJson,
 			})
 			.from(tryoutSubtestQuestion)
-			.innerJoin(
-				tryoutQuestion,
-				eq(tryoutQuestion.id, tryoutSubtestQuestion.questionId),
-			)
-			.leftJoin(
-				tryoutQuestionChoice,
-				eq(tryoutQuestionChoice.questionId, tryoutQuestion.id),
-			)
+			.innerJoin(tryoutQuestion, eq(tryoutQuestion.id, tryoutSubtestQuestion.questionId))
+			.leftJoin(tryoutQuestionChoice, eq(tryoutQuestionChoice.questionId, tryoutQuestion.id))
 			.leftJoin(
 				tryoutUserAnswer,
-				and(
-					eq(tryoutUserAnswer.questionId, tryoutQuestion.id),
-					eq(tryoutUserAnswer.attemptId, attempt.id),
-				),
+				and(eq(tryoutUserAnswer.questionId, tryoutQuestion.id), eq(tryoutUserAnswer.attemptId, attempt.id)),
 			)
 			.where(eq(tryoutSubtestQuestion.subtestId, input.subtestId))
 			.orderBy(tryoutSubtestQuestion.order);
@@ -299,6 +274,7 @@ const getSubtestQuestions = authed
 						id: row.choiceId,
 						content: row.choiceContent!,
 						code: row.choiceCode!,
+						contentJson: row.choiceContentJson,
 					});
 				}
 			}
@@ -343,14 +319,14 @@ const saveAnswer = authed
 				questionId: input.questionId,
 				selectedChoiceId: input.selectedChoiceId,
 				essayAnswer: input.essayAnswer,
-				essayAnswerJson: input.essayAnswerJson as any,
+				essayAnswerJson: input.essayAnswerJson as unknown,
 			})
 			.onConflictDoUpdate({
 				target: [tryoutUserAnswer.attemptId, tryoutUserAnswer.questionId],
 				set: {
 					selectedChoiceId: input.selectedChoiceId,
 					essayAnswer: input.essayAnswer,
-					essayAnswerJson: input.essayAnswerJson as any,
+					essayAnswerJson: input.essayAnswerJson as unknown,
 				},
 			});
 
@@ -366,14 +342,10 @@ const submitSubtest = authed
 	.input(type({ tryoutId: "number", subtestId: "number" }))
 	.handler(async ({ input, context }) => {
 		const attempt = await db.query.tryoutAttempt.findFirst({
-			where: and(
-				eq(tryoutAttempt.tryoutId, input.tryoutId),
-				eq(tryoutAttempt.userId, context.session.user.id),
-			),
+			where: and(eq(tryoutAttempt.tryoutId, input.tryoutId), eq(tryoutAttempt.userId, context.session.user.id)),
 		});
 
-		if (!attempt)
-			throw new ORPCError("BAD_REQUEST", { message: "Attempt not found" });
+		if (!attempt) throw new ORPCError("BAD_REQUEST", { message: "Attempt not found" });
 
 		await db
 			.update(tryoutSubtestAttempt)
@@ -382,10 +354,7 @@ const submitSubtest = authed
 				completedAt: new Date(),
 			})
 			.where(
-				and(
-					eq(tryoutSubtestAttempt.tryoutAttemptId, attempt.id),
-					eq(tryoutSubtestAttempt.subtestId, input.subtestId),
-				),
+				and(eq(tryoutSubtestAttempt.tryoutAttemptId, attempt.id), eq(tryoutSubtestAttempt.subtestId, input.subtestId)),
 			);
 
 		return { success: true };
@@ -407,8 +376,7 @@ const submitTryout = authed
 			),
 		});
 
-		if (!attempt)
-			throw new ORPCError("BAD_REQUEST", { message: "Attempt not found" });
+		if (!attempt) throw new ORPCError("BAD_REQUEST", { message: "Attempt not found" });
 
 		// Check if all subtests are finished?
 		// Or force finish.

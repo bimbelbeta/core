@@ -198,8 +198,7 @@ export const tryoutUserAnswer = pgTable(
 		questionId: integer("question_id")
 			.notNull()
 			.references(() => tryoutQuestion.id, { onDelete: "cascade" }),
-		selectedChoiceId: integer("selected_choice_id")
-			.references(() => tryoutQuestionChoice.id, { onDelete: "set null" }),
+		selectedChoiceId: integer("selected_choice_id").references(() => tryoutQuestionChoice.id, { onDelete: "set null" }),
 		essayAnswer: text("essay_answer"),
 		essayAnswerJson: jsonb("essay_answer_json"),
 	},

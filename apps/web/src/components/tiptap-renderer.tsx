@@ -40,7 +40,7 @@ export function TiptapRenderer({ content, className }: TiptapRendererProps) {
 
 	useEffect(() => {
 		if (editor && content) {
-			editor.commands.setContent(content as object, false);
+			editor.commands.setContent(content as object, { emitUpdate: false });
 		}
 	}, [editor, content]);
 

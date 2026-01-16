@@ -2,6 +2,7 @@ export type QuestionChoice = {
 	id: number;
 	content: string;
 	code: string;
+	contentJson: unknown | null;
 };
 
 export type TryoutQuestion = {
