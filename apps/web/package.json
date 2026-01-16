@@ -3,10 +3,10 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"dev": "bun --bun vite dev --port=3000",
+		"dev": "bun --bun vite dev --port=3000 --debug",
 		"build": "bun --bun vite build",
 		"start": "bun --bun .output/server/index.mjs --port=3000",
-		"check-types": "bunx @typescript/native-preview@latest --noEmit"
+		"check-types": "tsc --noEmit"
 	},
 	"dependencies": {
 		"@bimbelbeta/api": "workspace:*",

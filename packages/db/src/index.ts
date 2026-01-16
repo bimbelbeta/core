@@ -2,6 +2,7 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import * as flashcard from "./schema/flashcard";
 import * as practice from "./schema/practice-pack";
 import * as transaction from "./schema/transaction";
+import * as tryout from "./schema/tryout";
 
 export const db = drizzle({
 	connection: {
@@ -17,5 +18,6 @@ export const db = drizzle({
 		...practice,
 		...flashcard,
 		...transaction,
+		...tryout,
 	},
 });

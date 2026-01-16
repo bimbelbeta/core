@@ -274,7 +274,11 @@ function QuestionCard({
 					isUnused && "border-dashed bg-muted/30",
 				)}
 			>
-				<Link to={`/admin/questions/${question.id}`} className="flex flex-1 flex-col px-6 py-6">
+				<Link
+					to={"/admin/questions/$id"}
+					params={{ id: String(question.id) }}
+					className="flex flex-1 flex-col px-6 py-6"
+				>
 					<div className="mb-4 flex-1 space-y-3">
 						<div className="prose prose-sm line-clamp-3 max-w-none text-foreground">
 							<TiptapRenderer content={question.content} />

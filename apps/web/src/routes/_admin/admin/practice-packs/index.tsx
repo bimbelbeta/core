@@ -236,7 +236,13 @@ function PracticePackCard({ pack }: { pack: { id: number; title: string; descrip
 	return (
 		<>
 			<Card className="group relative flex flex-col overflow-hidden py-0 transition-all hover:shadow-md">
-				<Link to={`/admin/practice-packs/${pack.id}`} className="flex flex-1 flex-col px-6 py-6">
+				<Link
+					to={"/admin/practice-packs/$id"}
+					params={{
+						id: String(pack.id),
+					}}
+					className="flex flex-1 flex-col px-6 py-6"
+				>
 					<div className="mb-4 flex-1">
 						<h3 className="mb-2 font-bold text-lg tracking-tight group-hover:text-primary">{pack.title}</h3>
 						<p className="line-clamp-2 text-muted-foreground text-sm leading-relaxed">

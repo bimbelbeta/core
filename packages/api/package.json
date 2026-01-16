@@ -13,7 +13,7 @@
 	"type": "module",
 	"scripts": {
 		"build": "tsdown",
-		"check-types": "bunx @typescript/native-preview@latest --noEmit"
+		"check-types": "tsc --noEmit"
 	},
 	"devDependencies": {
 		"@bimbelbeta/config": "workspace:*",

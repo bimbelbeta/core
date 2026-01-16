@@ -95,6 +95,7 @@ export const questionAnswerOption = pgTable(
 			.notNull()
 			.references(() => question.id, { onDelete: "cascade" }),
 		content: text().notNull(),
+		contentJson: jsonb("content_json"),
 		isCorrect: boolean("is_correct").notNull().default(false),
 	},
 	(t) => [unique("question_answer_option_question_id_code_unique").on(t.questionId, t.code)],
