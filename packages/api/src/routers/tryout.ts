@@ -402,6 +402,7 @@ const history = authed
 		const attempts = await db.query.tryoutAttempt.findMany({
 			where: eq(tryoutAttempt.userId, context.session.user.id),
 			columns: {
+        id: true,
 				score: true,
 				status: true,
 				startedAt: true,
@@ -411,6 +412,7 @@ const history = authed
 			with: {
 				tryout: {
 					columns: {
+            id: true,
 						title: true,
 					},
 				},

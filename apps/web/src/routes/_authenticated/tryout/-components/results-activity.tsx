@@ -18,7 +18,7 @@ export function ResultsActivity() {
 					<ResultsActivitySkeleton />
 					<ResultsActivitySkeleton />
 				</>
-			) : attempts.data?.length === 0 ? (
+			) : attempts.data?.length === 0 || attempts.isError ? (
 				<div className="col-span-full flex flex-col items-center justify-center space-y-3 py-8 text-center">
 					<WarningCircleIcon size={80} />
 					<p className="text-xl">Kamu belum mengikuti tryout apapun</p>
