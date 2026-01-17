@@ -1,20 +1,51 @@
+import { ArrowRightIcon, WarningCircleIcon } from "@phosphor-icons/react";
+import { useQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
+import { orpc } from "@/utils/orpc";
 
 export function ResultsActivity() {
-	const mockResults = [
-		{ id: 1, title: "Tryout UTBK 1", totalScore: 750, score: 750 },
-		{ id: 2, title: "Tryout UTBK 2", totalScore: 820, score: 820 },
-		{ id: 3, title: "Tryout UTBK 3", totalScore: 680, score: 680 },
-	];
+	const attempts = useQuery(orpc.tryout.history.queryOptions());
 
 	return (
-		<div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-			{mockResults.map((result) => (
-				<ResultCard key={result.id} title={result.title} score={result.score} />
-			))}
+		<div className="col-span-full grid grid-cols-1 gap-4 sm:grid-cols-3">
+			{attempts.isPending ? (
+				<>
+					<ResultsActivitySkeleton />
+					<ResultsActivitySkeleton />
+					<ResultsActivitySkeleton />
+				</>
+			) : attempts.data?.length === 0 ? (
+				<div className="col-span-full flex flex-col items-center justify-center space-y-3 py-8 text-center">
+					<WarningCircleIcon size={80} />
+					<p className="text-xl">Kamu belum mengikuti tryout apapun</p>
+					<Button asChild>
+						<Link to="/tryout">
+							Mulai Tryout <ArrowRightIcon className="" />
+						</Link>
+					</Button>
+				</div>
+			) : (
+				attempts.data?.map((result) => <ResultCard key={result.id} title={result.title} score={result.score} />)
+			)}
 		</div>
+	);
+}
+
+function ResultsActivitySkeleton() {
+	return (
+		<Card className="flex flex-col gap-2 p-4">
+			<Skeleton className="h-5 w-24" />
+			<Separator className="my-0" />
+			<Skeleton className="h-4 w-20" />
+			<div className="mt-auto flex items-center justify-between">
+				<Skeleton className="h-8 w-20" />
+				<Skeleton className="h-8 w-20" />
+			</div>
+		</Card>
 	);
 }
 
