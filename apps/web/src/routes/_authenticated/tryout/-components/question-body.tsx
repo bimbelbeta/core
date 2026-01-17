@@ -9,7 +9,7 @@ interface QuestionBodyProps {
 
 export function QuestionBody({ tryoutId, question }: QuestionBodyProps) {
 	return (
-		<div className="grid min-h-[400px] grid-cols-1 gap-4 lg:grid-cols-2">
+		<div className="grid min-h-100 grid-cols-1 gap-4 lg:grid-cols-2">
 			<QuestionPanel content={question.content} />
 			<AnswerPanel tryoutId={tryoutId} questionId={question.id} choices={question.choices} />
 		</div>

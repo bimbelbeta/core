@@ -39,7 +39,7 @@ export function AnswerPanel({ tryoutId, questionId, choices }: AnswerPanelProps)
 			<div className="border-b bg-secondary/50 p-3">
 				<span className="font-medium text-sm">Jawaban</span>
 			</div>
-			<div className="flex-1 space-y-3 overflow-y-auto p-4">
+			<div className="flex-1 grid-cols-1 gap-2 overflow-y-auto p-4">
 				{choices.map((choice) => (
 					<AnswerOption
 						key={choice.id}
