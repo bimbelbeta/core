@@ -49,8 +49,6 @@ export function Hero() {
             Nikmati ekosistem lengkap dari materi hingga simulasi ujian di satu tempat. <br />
             Kamu fokus belajar biar kami yang atur sistemnya.
           </motion.p>
-
-<<<<<<< HEAD
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
@@ -72,30 +70,6 @@ export function Hero() {
 					</motion.div>
 				</div>
 			</div>
-=======
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.2 }}
-            className="flex w-full flex-wrap items-center justify-center gap-2 *:max-sm:text-xs"
-          >
-            <motion.div variants={bounce} whileHover="whileHover">
-              <Button asChild size="sm" className="flex-1 px-3 font-semibold sm:w-auto sm:flex-initial">
-                <Link to="/login">
-                  Mulai Belajar Sekarang
-                  <ArrowRightIcon weight="bold" />
-                </Link>
-              </Button>
-            </motion.div>
-            <motion.div variants={bounce} whileHover="whileHover">
-              <Button variant="outline" size="sm" className="flex-1 px-3 font-semibold sm:w-auto sm:flex-initial">
-                <Link to="/dashboard">Cara Kerjanya</Link>
-              </Button>
-            </motion.div>
-          </motion.div>
-        </div>
-      </div>
->>>>>>> e0809427301706583d47bb3aacb2f72272b58725
 
       <MotionFloat delay={0.3}>
         <Image src="/images/home/Hero Image.png" alt="Hero Illustration" layout="fullWidth" className="" />
