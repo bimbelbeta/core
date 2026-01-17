@@ -392,6 +392,34 @@ const submitTryout = authed
 		return { success: true };
 	});
 
+const history = authed
+	.route({
+		path: "/tryouts/history",
+		method: "GET",
+		tags: ["Tryouts"],
+	})
+	.handler(async ({ context }) => {
+		const attempts = await db.query.tryoutAttempt.findMany({
+			where: eq(tryoutAttempt.userId, context.session.user.id),
+			columns: {
+				score: true,
+				status: true,
+				startedAt: true,
+				completedAt: true,
+			},
+			orderBy: desc(tryoutAttempt.startedAt),
+			with: {
+				tryout: {
+					columns: {
+						title: true,
+					},
+				},
+			},
+		});
+
+		return attempts;
+	});
+
 export const tryoutRouter = {
 	list,
 	find,
@@ -401,4 +429,5 @@ export const tryoutRouter = {
 	saveAnswer,
 	submitSubtest,
 	submitTryout,
+	history,
 };

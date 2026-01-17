@@ -3,20 +3,18 @@
 	"exports": {
 		".": {
 			"types": "./dist/index.d.mts",
-			"import": "./dist/index.mjs",
-			"require": "./dist/index.cjs"
+			"import": "./dist/index.mjs"
 		},
 		"./*": {
 			"types": "./dist/*.d.mts",
-			"import": "./dist/*.mjs",
-			"require": "./dist/*.cjs"
+			"import": "./dist/*.mjs"
 		}
 	},
 	"type": "module",
 	"scripts": {
 		"build": "tsdown",
 		"auth:generate": "bunx @better-auth/cli@latest generate --output ../db/src/schema/auth.ts --config ./src/index.ts --yes",
-		"check-types": "tsgo --noEmit"
+		"check-types": "tsc --noEmit"
 	},
 	"devDependencies": {
 		"tsdown": "catalog:",
@@ -30,6 +28,6 @@
 		"arktype": "catalog:",
 		"better-auth": "catalog:",
 		"dotenv": "catalog:",
-		"resend": "^6.6.0"
+		"resend": "^6.7.0"
 	}
 }

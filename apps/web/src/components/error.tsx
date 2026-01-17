@@ -1,12 +1,9 @@
 import { WarningOctagon } from "@phosphor-icons/react";
-import { useRouter } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 
 export default function ErrorComponent({ error }: { error: Error }) {
-	const _router = useRouter();
-
 	useEffect(() => {
 		console.error(error);
 	}, [error]);

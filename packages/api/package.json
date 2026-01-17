@@ -3,19 +3,17 @@
 	"exports": {
 		".": {
 			"types": "./dist/index.d.mts",
-			"import": "./dist/index.mjs",
-			"require": "./dist/index.cjs"
+			"import": "./dist/index.mjs"
 		},
 		"./*": {
 			"types": "./dist/*.d.mts",
-			"import": "./dist/*.mjs",
-			"require": "./dist/*.cjs"
+			"import": "./dist/*.mjs"
 		}
 	},
 	"type": "module",
 	"scripts": {
 		"build": "tsdown",
-		"check-types": "tsgo --noEmit"
+		"check-types": "tsc --noEmit"
 	},
 	"devDependencies": {
 		"@bimbelbeta/config": "workspace:*",
