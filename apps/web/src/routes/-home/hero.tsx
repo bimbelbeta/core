@@ -6,7 +6,6 @@ import { MotionFloat } from "@/components/motion/motion-components";
 import { Button } from "@/components/ui/button";
 import { Highlight } from "@/components/ui/highlight";
 import { bounce } from "@/lib/animation-variants";
-import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 
 /*
   [clip-path:polygon(0_0,100%_0,100%_70%,50%_85%,0%_70%)]
