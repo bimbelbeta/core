@@ -5,8 +5,6 @@ import { DATA } from "./data";
 
 export function FAQ() {
 	const midPoint = Math.ceil(DATA.faq.length / 2);
-	const _leftColumn = DATA.faq.slice(0, midPoint);
-	const _rightColumn = DATA.faq.slice(midPoint);
 
 	return (
 		<Container>
