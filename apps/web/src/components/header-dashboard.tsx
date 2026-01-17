@@ -1,6 +1,6 @@
 import { ListIcon, SignOutIcon, SpinnerIcon, XIcon } from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Link, useLocation, useNavigate } from "@tanstack/react-router";
+import { Link, useLocation, useNavigate, useRouteContext } from "@tanstack/react-router";
 import { useState } from "react";
 import {
 	AlertDialog,
@@ -34,8 +34,8 @@ const links = [
 	},
 	{
 		name: "Tryout",
-		to: "https://www.anycademy.com",
-		external: true,
+		to: "/tryout",
+		external: false,
 	},
 	{
 		name: "Premium",
@@ -44,8 +44,9 @@ const links = [
 	},
 ] as const;
 
-export function HeaderDashboard({ session }: { session: typeof authClient.$Infer.Session | null }) {
+export function HeaderDashboard() {
 	const location = useLocation();
+	const { session } = useRouteContext({ from: "/_authenticated" });
 	const [open, setOpen] = useState(false);
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -66,14 +67,14 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
 					<span className="text-tertiary-1000">Beta</span>
 				</Link>
 
-				<div className="flex items-center gap-2">
+				<div className="flex items-center gap-6">
 					{/* Desktop Navigation */}
 					<div className="hidden h-full items-center gap-2 md:flex">
 						{links.map((link) => {
 							const isActive = !link.external && location.pathname.startsWith(link.to);
 							if (link.external) {
 								return (
-									<Button key={link.to} size="lg" variant="ghost" asChild>
+									<Button key={link.to} size="xl" variant="ghost" asChild>
 										<a href={link.to} target="_blank" rel="noopener noreferrer">
 											{link.name}
 										</a>
@@ -82,7 +83,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
 							}
 
 							return (
-								<Button key={link.to} size="lg" variant={isActive ? "default" : "ghost"} asChild>
+								<Button key={link.to} size="xl" variant={isActive ? "default" : "ghost"} asChild>
 									<Link to={link.to}>{link.name}</Link>
 								</Button>
 							);
@@ -93,7 +94,7 @@ export function HeaderDashboard({ session }: { session: typeof authClient.$Infer
 					<div className="hidden md:flex md:items-center md:gap-4">
 						<DropdownMenu>
 							<DropdownMenuTrigger className="outline-none">
-								<div className="flex size-10 items-center justify-center rounded-[10px] bg-secondary-600 font-normal text-sm text-white transition-transform hover:scale-105 active:scale-95">
+								<div className="flex size-10 items-center justify-center rounded-default bg-secondary-600 font-normal text-sm text-white transition-transform hover:scale-105 active:scale-95">
 									{userInitials}
 								</div>
 							</DropdownMenuTrigger>

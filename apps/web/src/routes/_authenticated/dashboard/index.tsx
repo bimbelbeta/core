@@ -37,7 +37,7 @@ function RouteComponent() {
 				<DashboardMainCard
 					title="Tryout UTBK"
 					description="Yuk belajar bersama untuk sukses dalam UTBK!"
-					href="https://www.anycademy.com"
+					to="/tryout"
 				/>
 			</section>
 

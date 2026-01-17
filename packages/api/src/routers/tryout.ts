@@ -90,7 +90,7 @@ const start = authed
 		method: "POST",
 		tags: ["Tryouts"],
 	})
-	.input(type({ id: "number", image: "string?" }))
+	.input(type({ id: "number", imageUrl: "string.url?" }))
 	.handler(async ({ input, context }) => {
 		const tryoutData = await db.query.tryout.findFirst({
 			where: eq(tryout.id, input.id),
@@ -392,6 +392,36 @@ const submitTryout = authed
 		return { success: true };
 	});
 
+const history = authed
+	.route({
+		path: "/tryouts/history",
+		method: "GET",
+		tags: ["Tryouts"],
+	})
+	.handler(async ({ context }) => {
+		const attempts = await db.query.tryoutAttempt.findMany({
+			where: eq(tryoutAttempt.userId, context.session.user.id),
+			columns: {
+        id: true,
+				score: true,
+				status: true,
+				startedAt: true,
+				completedAt: true,
+			},
+			orderBy: desc(tryoutAttempt.startedAt),
+			with: {
+				tryout: {
+					columns: {
+            id: true,
+						title: true,
+					},
+				},
+			},
+		});
+
+		return attempts;
+	});
+
 export const tryoutRouter = {
 	list,
 	find,
@@ -401,4 +431,5 @@ export const tryoutRouter = {
 	saveAnswer,
 	submitSubtest,
 	submitTryout,
+	history,
 };

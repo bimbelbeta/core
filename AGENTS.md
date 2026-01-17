@@ -5,7 +5,7 @@
 ```bash
 # Linting and formatting
 bun lint           # Check code with Biome
-bun lint:fix       # Auto-fix issues
+bun lint:fix --unsafe       # Auto-fix issues
 
 # Type checking
 bun check-types    # Type check all packages

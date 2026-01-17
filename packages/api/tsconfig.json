@@ -6,6 +6,8 @@
 		"declarationMap": true,
 		"sourceMap": true,
 		"outDir": "dist",
-		"composite": true
+		"composite": true,
+		"emitDeclarationOnly": true,
+		"tsBuildInfoFile": "dist/.tsbuildinfo"
 	}
 }
