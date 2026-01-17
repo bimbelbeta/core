@@ -29,6 +29,13 @@
       "when": 1768538328754,
       "tag": "0003_outstanding_doctor_faustus",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1768674629248,
+      "tag": "0004_narrow_terrax",
+      "breakpoints": true
     }
   ]
 }

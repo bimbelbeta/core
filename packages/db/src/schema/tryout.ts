@@ -40,8 +40,9 @@ export const tryoutSubtest = pgTable(
 		tryoutId: integer("tryout_id")
 			.notNull()
 			.references(() => tryout.id, { onDelete: "cascade" }),
-		name: text().notNull(), // e.g. "Penalaran Umum"
-		duration: integer().notNull(), // in minutes
+		name: text().notNull(),
+		description: text(),
+		duration: integer().notNull(),
 		order: integer().notNull().default(1),
 	},
 	(t) => [unique("tryout_subtest_order").on(t.tryoutId, t.order)],
@@ -174,6 +175,7 @@ export const tryoutSubtestAttempt = pgTable(
 			.references(() => tryoutSubtest.id, { onDelete: "cascade" }),
 		startedAt: timestamp("started_at").notNull().defaultNow(),
 		completedAt: timestamp("completed_at"),
+		deadline: timestamp("deadline").notNull(),
 		status: tryoutStatus("status").notNull().default("ongoing"),
 	},
 	(t) => [unique("user_tryout_subtest_attempt").on(t.tryoutAttemptId, t.subtestId)],

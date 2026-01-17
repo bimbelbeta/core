@@ -1,5 +1,5 @@
-import { useMutation } from "@tanstack/react-query";
-import { useRouter } from "@tanstack/react-router";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useRouteContext, useRouter } from "@tanstack/react-router";
 import { type } from "arktype";
 import * as m from "motion/react-m";
 import { useState } from "react";
@@ -17,8 +17,6 @@ import { Input } from "@/components/ui/input";
 import { orpc } from "@/utils/orpc";
 
 interface TryoutStartConfirmationProps {
-	isPremium: boolean;
-	tryoutId: number;
 	children: React.ReactNode;
 }
 
@@ -26,7 +24,12 @@ const urlSchema = type("string.url");
 
 type DialogStep = "notice" | "submit-url" | "premium";
 
-export function TryoutStartConfirmation({ isPremium, tryoutId, children }: TryoutStartConfirmationProps) {
+export function TryoutStartConfirmation({ children }: TryoutStartConfirmationProps) {
+	const { session } = useRouteContext({ from: "/_authenticated" });
+	const isPremium = session?.user.isPremium;
+
+	const { data } = useQuery(orpc.tryout.featured.queryOptions());
+
 	const [imageUrl, setImageUrl] = useState("");
 	const [errors, setErrors] = useState<string | null>(null);
 	const [isOpen, setIsOpen] = useState(false);
@@ -36,23 +39,24 @@ export function TryoutStartConfirmation({ isPremium, tryoutId, children }: Tryou
 	const startTryoutMutation = useMutation(
 		orpc.tryout.start.mutationOptions({
 			onSuccess: () => {
-				router.invalidate();
 				setIsOpen(false);
+				if (data) router.navigate({ to: "/tryout/$tryoutId", params: { tryoutId: data?.id.toString() } });
 			},
 		}),
 	);
+	if (!data) return null;
 
 	const handleStart = () => {
 		setErrors(null);
 		if (isPremium) {
-			startTryoutMutation.mutate({ id: tryoutId });
+			startTryoutMutation.mutate({ id: data.id });
 		} else {
 			const parsed = urlSchema(imageUrl);
 			if (parsed instanceof type.errors) {
 				setErrors(parsed.summary);
 				return;
 			}
-			startTryoutMutation.mutate({ id: tryoutId, imageUrl });
+			startTryoutMutation.mutate({ id: data.id, imageUrl: parsed });
 		}
 	};
 
@@ -128,8 +132,12 @@ export function TryoutStartConfirmation({ isPremium, tryoutId, children }: Tryou
 								type="text"
 								placeholder="https://example.com/proof.jpg"
 								value={imageUrl}
-								onChange={(e) => setImageUrl(e.target.value)}
+								onChange={(e) => {
+									setImageUrl(e.target.value);
+									setErrors(null);
+								}}
 							/>
+							{errors && <p>{errors}</p>}
 							<DialogFooter>
 								<Button
 									onClick={handleStart}

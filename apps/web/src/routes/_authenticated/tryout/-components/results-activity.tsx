@@ -29,7 +29,9 @@ export function ResultsActivity() {
 					</Button>
 				</div>
 			) : (
-				attempts.data?.map((result) => <ResultCard key={result.id} title={result.title} score={result.score} />)
+				attempts.data?.map((result) => (
+					<ResultCard key={result.id} title={result.tryout.title} score={result.score ?? 0} />
+				))
 			)}
 		</div>
 	);
@@ -38,12 +40,12 @@ export function ResultsActivity() {
 function ResultsActivitySkeleton() {
 	return (
 		<Card className="flex flex-col gap-2 p-4">
-			<Skeleton className="h-5 w-24" />
+			<Skeleton className="h-6 w-3/4" />
 			<Separator className="my-0" />
-			<Skeleton className="h-4 w-20" />
+			<Skeleton className="h-6 w-20 translate-y-1" />
 			<div className="mt-auto flex items-center justify-between">
-				<Skeleton className="h-8 w-20" />
-				<Skeleton className="h-8 w-20" />
+				<Skeleton className="h-9 w-24" />
+				<Skeleton className="h-8 w-24" />
 			</div>
 		</Card>
 	);

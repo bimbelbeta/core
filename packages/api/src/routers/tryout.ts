@@ -4,7 +4,6 @@ import {
 	tryoutAttempt,
 	tryoutQuestion,
 	tryoutQuestionChoice,
-	tryoutSubtest,
 	tryoutSubtestAttempt,
 	tryoutSubtestQuestion,
 	tryoutUserAnswer,
@@ -37,13 +36,6 @@ const list = authed
 				tryoutAttempt,
 				and(eq(tryoutAttempt.tryoutId, tryout.id), eq(tryoutAttempt.userId, context.session.user.id)),
 			)
-			.where(
-				and(
-					// Show if started or starts in future (user can see upcoming)
-					// And hasn't ended or ended recently? Usually just show all available.
-					// Maybe filter by premium if needed, but UI can handle "locked" state.
-				),
-			)
 			.orderBy(desc(tryout.startsAt));
 
 		return tryouts.map((t) => ({
@@ -51,6 +43,31 @@ const list = authed
 			isOpen: (!t.startsAt || t.startsAt <= now) && (!t.endsAt || t.endsAt >= now),
 		}));
 	});
+
+const featured = authed.handler(async ({ errors, context }) => {
+	const [data] = await db
+		.select({
+			id: tryout.id,
+			title: tryout.title,
+			startsAt: tryout.startsAt,
+			endsAt: tryout.endsAt,
+			attemptId: tryoutAttempt.id,
+			attemptStatus: tryoutAttempt.status,
+		})
+		.from(tryout)
+		.leftJoin(
+			tryoutAttempt,
+			and(eq(tryoutAttempt.tryoutId, tryout.id), eq(tryoutAttempt.userId, context.session.user.id)),
+		)
+		.orderBy(desc(tryout.startsAt));
+
+	if (!data)
+		throw errors.NOT_FOUND({
+			message: "Gagal menemukan paket Tryout!",
+		});
+
+	return data;
+});
 
 const find = authed
 	.route({
@@ -78,154 +95,76 @@ const find = authed
 			},
 		});
 
-		return {
-			...tryoutData,
-			userAttempt: attempt?.isRevoked ? null : attempt,
-		};
-	});
-
-const start = authed
-	.route({
-		path: "/tryouts/{id}/start",
-		method: "POST",
-		tags: ["Tryouts"],
-	})
-	.input(type({ id: "number", imageUrl: "string.url?" }))
-	.handler(async ({ input, context }) => {
-		const tryoutData = await db.query.tryout.findFirst({
-			where: eq(tryout.id, input.id),
-		});
-
-		if (!tryoutData) throw new ORPCError("NOT_FOUND", { message: "Tryout not found" });
-
-		if (!context.session.user.isPremium && !input.imageUrl) {
-			throw new ORPCError("FORBIDDEN", {
-				message: "Upload bukti pembayaran untuk memulai tryout",
-			});
+		if (!attempt || attempt.isRevoked) {
+			return {
+				...tryoutData,
+				attempt: null,
+				currentSubtest: null,
+				overallDeadline: null,
+				totalSubtests: tryoutData.subtests.length,
+				completedSubtests: 0,
+			};
 		}
 
-		const now = new Date();
-		if (tryoutData.startsAt && tryoutData.startsAt > now) {
-			throw new ORPCError("BAD_REQUEST", {
-				message: "Tryout belum dimulai",
-			});
-		}
-		if (tryoutData.endsAt && tryoutData.endsAt < now) {
-			throw new ORPCError("BAD_REQUEST", {
-				message: "Tryout sudah selesai",
-			});
-		}
-
-		const [attempt] = await db
-			.insert(tryoutAttempt)
-			.values({
-				tryoutId: input.id,
-				userId: context.session.user.id,
-				submittedImageUrl: input.imageUrl,
-			})
-			.onConflictDoNothing()
-			.returning();
-
-		if (!attempt) {
-			// Already exists, fetch it
-			const existing = await db.query.tryoutAttempt.findFirst({
-				where: and(eq(tryoutAttempt.tryoutId, input.id), eq(tryoutAttempt.userId, context.session.user.id)),
-			});
-			if (!existing) throw new ORPCError("NOT_FOUND", { message: "Attempt not found" });
-			return existing;
+		if (attempt.status === "finished") {
+			const overallDeadline = attempt.subtestAttempts.reduce((max, sa) => {
+				return sa.deadline && sa.deadline > max ? sa.deadline : max;
+			}, new Date());
+			return {
+				...tryoutData,
+				attempt,
+				currentSubtest: null,
+				overallDeadline,
+				totalSubtests: tryoutData.subtests.length,
+				completedSubtests: tryoutData.subtests.length,
+			};
 		}
 
-		return attempt;
-	});
+		const completedSubtestIds = new Set(
+			attempt.subtestAttempts.filter((sa) => sa.status === "finished").map((sa) => sa.subtestId),
+		);
 
-const startSubtest = authed
-	.route({
-		path: "/tryouts/{tryoutId}/subtests/{subtestId}/start",
-		method: "POST",
-		tags: ["Tryouts"],
-	})
-	.input(type({ tryoutId: "number", subtestId: "number" }))
-	.handler(async ({ input, context }) => {
-		const attempt = await db.query.tryoutAttempt.findFirst({
-			where: and(eq(tryoutAttempt.tryoutId, input.tryoutId), eq(tryoutAttempt.userId, context.session.user.id)),
-		});
+		const currentSubtest = tryoutData.subtests.find((s) => !completedSubtestIds.has(s.id));
 
-		if (!attempt)
-			throw new ORPCError("BAD_REQUEST", {
-				message: "Anda belum memulai tryout ini",
-			});
-
-		// Check sequence? usually previous subtest must be finished.
-		// For simplicity, let's allow starting if previous are finished or not started (but usually strict order).
-		// Let's enforce strict order if "continuous".
-		// Assuming subtest.order defines the sequence.
-
-		const subtests = await db.query.tryoutSubtest.findMany({
-			where: eq(tryoutSubtest.tryoutId, input.tryoutId),
-			orderBy: (t, { asc }) => [asc(t.order)],
-		});
-
-		const currentSubtestIndex = subtests.findIndex((s) => s.id === input.subtestId);
-		if (currentSubtestIndex === -1) throw new ORPCError("NOT_FOUND", { message: "Subtest not found" });
-
-		if (currentSubtestIndex > 0) {
-			const prevSubtest = subtests[currentSubtestIndex - 1];
-			if (!prevSubtest) {
-				throw new ORPCError("INTERNAL_SERVER_ERROR", {
-					message: "Gagal menemukan subtest sebelumnya",
-				});
-			}
-			const prevAttempt = await db.query.tryoutSubtestAttempt.findFirst({
-				where: and(
-					eq(tryoutSubtestAttempt.tryoutAttemptId, attempt.id),
-					eq(tryoutSubtestAttempt.subtestId, prevSubtest.id),
-				),
-			});
-			if (!prevAttempt || prevAttempt.status !== "finished") {
-				throw new ORPCError("BAD_REQUEST", {
-					message: "Selesaikan subtest sebelumnya terlebih dahulu",
-				});
-			}
+		if (!currentSubtest) {
+			const overallDeadline = attempt.subtestAttempts.reduce((max, sa) => {
+				return sa.deadline && sa.deadline > max ? sa.deadline : max;
+			}, new Date());
+			return {
+				...tryoutData,
+				attempt,
+				currentSubtest: null,
+				overallDeadline,
+				totalSubtests: tryoutData.subtests.length,
+				completedSubtests: completedSubtestIds.size,
+			};
 		}
 
-		const [subAttempt] = await db
-			.insert(tryoutSubtestAttempt)
-			.values({
-				tryoutAttemptId: attempt.id,
-				subtestId: input.subtestId,
-			})
-			.onConflictDoNothing()
-			.returning();
+		const currentSubtestAttempt = attempt.subtestAttempts.find((sa) => sa.subtestId === currentSubtest.id);
 
-		if (!subAttempt) {
-			const existing = await db.query.tryoutSubtestAttempt.findFirst({
-				where: and(
-					eq(tryoutSubtestAttempt.tryoutAttemptId, attempt.id),
-					eq(tryoutSubtestAttempt.subtestId, input.subtestId),
-				),
-			});
-			if (!existing) throw new ORPCError("NOT_FOUND", { message: "Subtest attempt not found" });
-			return existing;
+		if (!currentSubtestAttempt) {
+			const overallDeadline = attempt.subtestAttempts.reduce((max, sa) => {
+				return sa.deadline && sa.deadline > max ? sa.deadline : max;
+			}, new Date());
+			return {
+				...tryoutData,
+				attempt,
+				currentSubtest: {
+					...currentSubtest,
+					questions: [],
+					deadline: null,
+					status: "ongoing",
+				},
+				overallDeadline,
+				totalSubtests: tryoutData.subtests.length,
+				completedSubtests: completedSubtestIds.size,
+			};
 		}
 
-		return subAttempt;
-	});
+		const overallDeadline = attempt.subtestAttempts.reduce((max, sa) => {
+			return sa.deadline && sa.deadline > max ? sa.deadline : max;
+		}, new Date());
 
-const getSubtestQuestions = authed
-	.route({
-		path: "/tryouts/{tryoutId}/subtests/{subtestId}",
-		method: "GET",
-		tags: ["Tryouts"],
-	})
-	.input(type({ tryoutId: "number", subtestId: "number" }))
-	.handler(async ({ input, context }) => {
-		const attempt = await db.query.tryoutAttempt.findFirst({
-			where: and(eq(tryoutAttempt.tryoutId, input.tryoutId), eq(tryoutAttempt.userId, context.session.user.id)),
-		});
-
-		if (!attempt) throw new ORPCError("FORBIDDEN", { message: "Access denied" });
-
-		// Fetch questions and choices
 		const rows = await db
 			.select({
 				questionId: tryoutQuestion.id,
@@ -247,10 +186,9 @@ const getSubtestQuestions = authed
 				tryoutUserAnswer,
 				and(eq(tryoutUserAnswer.questionId, tryoutQuestion.id), eq(tryoutUserAnswer.attemptId, attempt.id)),
 			)
-			.where(eq(tryoutSubtestQuestion.subtestId, input.subtestId))
+			.where(eq(tryoutSubtestQuestion.subtestId, currentSubtest.id))
 			.orderBy(tryoutSubtestQuestion.order);
 
-		// Group by question
 		const questionsMap = new Map<number, TryoutQuestion>();
 		for (const row of rows) {
 			if (!questionsMap.has(row.questionId)) {
@@ -280,7 +218,172 @@ const getSubtestQuestions = authed
 			}
 		}
 
-		return Array.from(questionsMap.values());
+		return {
+			...tryoutData,
+			attempt,
+			currentSubtest: {
+				...currentSubtest,
+				questions: Array.from(questionsMap.values()),
+				deadline: currentSubtestAttempt.deadline,
+				status: currentSubtestAttempt.status,
+			},
+			overallDeadline,
+			totalSubtests: tryoutData.subtests.length,
+			completedSubtests: completedSubtestIds.size,
+		};
+	});
+
+const start = authed
+	.route({
+		path: "/tryouts/{id}/start",
+		method: "POST",
+		tags: ["Tryouts"],
+	})
+	.input(type({ id: "number", imageUrl: "string.url?" }))
+	.handler(async ({ input, context }) => {
+		const tryoutData = await db.query.tryout.findFirst({
+			where: eq(tryout.id, input.id),
+			with: {
+				subtests: {
+					orderBy: (subtests, { asc }) => [asc(subtests.order)],
+				},
+			},
+		});
+
+		if (!tryoutData) throw new ORPCError("NOT_FOUND", { message: "Tryout not found" });
+
+		if (!context.session.user.isPremium && !input.imageUrl) {
+			throw new ORPCError("FORBIDDEN", {
+				message: "Upload bukti pembayaran untuk memulai tryout",
+			});
+		}
+
+		const now = new Date();
+		if (tryoutData.startsAt && tryoutData.startsAt > now) {
+			throw new ORPCError("BAD_REQUEST", {
+				message: "Tryout belum dimulai",
+			});
+		}
+		if (tryoutData.endsAt && tryoutData.endsAt < now) {
+			throw new ORPCError("BAD_REQUEST", {
+				message: "Tryout sudah selesai",
+			});
+		}
+
+		const existingAttempt = await db.query.tryoutAttempt.findFirst({
+			where: and(eq(tryoutAttempt.tryoutId, input.id), eq(tryoutAttempt.userId, context.session.user.id)),
+		});
+
+		if (existingAttempt) {
+			if (existingAttempt.isRevoked) {
+				throw new ORPCError("FORBIDDEN", { message: "Attempt telah dibatalkan" });
+			}
+			return existingAttempt;
+		}
+
+		if (tryoutData.subtests.length === 0) {
+			throw new ORPCError("BAD_REQUEST", { message: "Tryout tidak memiliki subtest" });
+		}
+
+		let cumulativeMinutes = 0;
+		const deadlineMap = new Map<number, Date>();
+
+		for (const subtest of tryoutData.subtests) {
+			cumulativeMinutes += subtest.duration;
+			const deadline = new Date(now.getTime() + cumulativeMinutes * 60 * 1000);
+			deadlineMap.set(subtest.id, deadline);
+		}
+
+		const overallDeadline = deadlineMap.get(tryoutData.subtests[tryoutData.subtests.length - 1]!.id)!;
+
+		const [attempt] = await db
+			.insert(tryoutAttempt)
+			.values({
+				tryoutId: input.id,
+				userId: context.session.user.id,
+				submittedImageUrl: input.imageUrl,
+			})
+			.returning();
+
+		if (!attempt) throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Failed to create attempt" });
+
+		const firstSubtest = tryoutData.subtests[0]!;
+		await db.insert(tryoutSubtestAttempt).values({
+			tryoutAttemptId: attempt.id,
+			subtestId: firstSubtest.id,
+			deadline: deadlineMap.get(firstSubtest.id)!,
+		});
+
+		return { ...attempt, overallDeadline };
+	});
+
+const startSubtest = authed
+	.route({
+		path: "/tryouts/{tryoutId}/subtests/{subtestId}/start",
+		method: "POST",
+		tags: ["Tryouts"],
+	})
+	.input(type({ tryoutId: "number", subtestId: "number" }))
+	.handler(async ({ input, context }) => {
+		const attempt = await db.query.tryoutAttempt.findFirst({
+			where: and(eq(tryoutAttempt.tryoutId, input.tryoutId), eq(tryoutAttempt.userId, context.session.user.id)),
+			with: {
+				subtestAttempts: true,
+			},
+		});
+
+		if (!attempt) throw new ORPCError("BAD_REQUEST", { message: "Anda belum memulai tryout ini" });
+
+		const existingSubtestAttempt = attempt.subtestAttempts.find((sa) => sa.subtestId === input.subtestId);
+		if (existingSubtestAttempt) {
+			return existingSubtestAttempt;
+		}
+
+		const tryoutData = await db.query.tryout.findFirst({
+			where: eq(tryout.id, input.tryoutId),
+			with: {
+				subtests: {
+					orderBy: (subtests, { asc }) => [asc(subtests.order)],
+				},
+			},
+		});
+
+		if (!tryoutData) throw new ORPCError("NOT_FOUND", { message: "Tryout not found" });
+
+		const currentIndex = tryoutData.subtests.findIndex((s) => s.id === input.subtestId);
+		if (currentIndex === -1) throw new ORPCError("NOT_FOUND", { message: "Subtest not found" });
+
+		const currentSubtest = tryoutData.subtests[currentIndex]!;
+
+		if (currentIndex > 0) {
+			const prevSubtest = tryoutData.subtests[currentIndex - 1]!;
+			const prevAttempt = attempt.subtestAttempts.find((sa) => sa.subtestId === prevSubtest.id);
+			if (!prevAttempt || prevAttempt.status !== "finished") {
+				throw new ORPCError("BAD_REQUEST", {
+					message: "Selesaikan subtest sebelumnya terlebih dahulu",
+				});
+			}
+		}
+
+		const prevSubtestAttempt =
+			currentIndex > 0
+				? attempt.subtestAttempts.find((sa) => sa.subtestId === tryoutData.subtests[currentIndex - 1]!.id)
+				: null;
+
+		const deadline = prevSubtestAttempt
+			? new Date(prevSubtestAttempt.deadline.getTime() + currentSubtest.duration * 60 * 1000)
+			: new Date(Date.now() + currentSubtest.duration * 60 * 1000);
+
+		const [subAttempt] = await db
+			.insert(tryoutSubtestAttempt)
+			.values({
+				tryoutAttemptId: attempt.id,
+				subtestId: input.subtestId,
+				deadline,
+			})
+			.returning();
+
+		return subAttempt;
 	});
 
 const saveAnswer = authed
@@ -295,7 +398,7 @@ const saveAnswer = authed
 			questionId: "number",
 			selectedChoiceId: "number?",
 			essayAnswer: "string?",
-			essayAnswerJson: "unknown?", // using unknown for jsonb
+			essayAnswerJson: "unknown?",
 		}),
 	)
 	.handler(async ({ input, context }) => {
@@ -305,12 +408,27 @@ const saveAnswer = authed
 				eq(tryoutAttempt.userId, context.session.user.id),
 				eq(tryoutAttempt.status, "ongoing"),
 			),
+			with: {
+				subtestAttempts: true,
+			},
 		});
 
 		if (!attempt)
 			throw new ORPCError("BAD_REQUEST", {
 				message: "No active attempt found",
 			});
+
+		const currentSubtestAttempt = attempt.subtestAttempts.find((sa) => sa.status === "ongoing");
+		if (!currentSubtestAttempt)
+			throw new ORPCError("BAD_REQUEST", {
+				message: "No active subtest found",
+			});
+
+		if (currentSubtestAttempt.deadline && currentSubtestAttempt.deadline < new Date()) {
+			throw new ORPCError("BAD_REQUEST", {
+				message: "Subtest deadline has passed",
+			});
+		}
 
 		await db
 			.insert(tryoutUserAnswer)
@@ -342,22 +460,72 @@ const submitSubtest = authed
 	.input(type({ tryoutId: "number", subtestId: "number" }))
 	.handler(async ({ input, context }) => {
 		const attempt = await db.query.tryoutAttempt.findFirst({
-			where: and(eq(tryoutAttempt.tryoutId, input.tryoutId), eq(tryoutAttempt.userId, context.session.user.id)),
+			where: and(
+				eq(tryoutAttempt.tryoutId, input.tryoutId),
+				eq(tryoutAttempt.userId, context.session.user.id),
+				eq(tryoutAttempt.status, "ongoing"),
+			),
+			with: {
+				subtestAttempts: true,
+			},
 		});
 
 		if (!attempt) throw new ORPCError("BAD_REQUEST", { message: "Attempt not found" });
 
+		const currentSubtestAttempt = attempt.subtestAttempts.find(
+			(sa) => sa.subtestId === input.subtestId && sa.status === "ongoing",
+		);
+
+		if (!currentSubtestAttempt) throw new ORPCError("BAD_REQUEST", { message: "Subtest not active" });
+
+		if (currentSubtestAttempt.deadline && currentSubtestAttempt.deadline < new Date()) {
+			await db
+				.update(tryoutSubtestAttempt)
+				.set({ status: "finished", completedAt: new Date() })
+				.where(eq(tryoutSubtestAttempt.id, currentSubtestAttempt.id));
+
+			await db
+				.update(tryoutAttempt)
+				.set({ status: "finished", completedAt: new Date() })
+				.where(eq(tryoutAttempt.id, attempt.id));
+
+			return { success: true, tryoutCompleted: true };
+		}
+
+		const tryoutData = await db.query.tryout.findFirst({
+			where: eq(tryout.id, input.tryoutId),
+			with: {
+				subtests: {
+					orderBy: (subtests, { asc }) => [asc(subtests.order)],
+				},
+			},
+		});
+
+		if (!tryoutData) throw new ORPCError("NOT_FOUND", { message: "Tryout not found" });
+
+		const currentIndex = tryoutData.subtests.findIndex((s) => s.id === input.subtestId);
+		if (currentIndex === -1) throw new ORPCError("NOT_FOUND", { message: "Subtest not found" });
+
 		await db
 			.update(tryoutSubtestAttempt)
-			.set({
-				status: "finished",
-				completedAt: new Date(),
-			})
-			.where(
-				and(eq(tryoutSubtestAttempt.tryoutAttemptId, attempt.id), eq(tryoutSubtestAttempt.subtestId, input.subtestId)),
-			);
+			.set({ status: "finished", completedAt: new Date() })
+			.where(eq(tryoutSubtestAttempt.id, currentSubtestAttempt.id));
 
-		return { success: true };
+		const nextSubtest = tryoutData.subtests[currentIndex + 1];
+		if (nextSubtest) {
+			const nextDeadline = new Date(currentSubtestAttempt.deadline.getTime() + nextSubtest.duration * 60 * 1000);
+			await db.insert(tryoutSubtestAttempt).values({
+				tryoutAttemptId: attempt.id,
+				subtestId: nextSubtest.id,
+				deadline: nextDeadline,
+			});
+			return { success: true, nextSubtestId: nextSubtest.id };
+		}
+		await db
+			.update(tryoutAttempt)
+			.set({ status: "finished", completedAt: new Date() })
+			.where(eq(tryoutAttempt.id, attempt.id));
+		return { success: true, tryoutCompleted: true };
 	});
 
 const submitTryout = authed
@@ -377,9 +545,6 @@ const submitTryout = authed
 		});
 
 		if (!attempt) throw new ORPCError("BAD_REQUEST", { message: "Attempt not found" });
-
-		// Check if all subtests are finished?
-		// Or force finish.
 
 		await db
 			.update(tryoutAttempt)
@@ -402,7 +567,7 @@ const history = authed
 		const attempts = await db.query.tryoutAttempt.findMany({
 			where: eq(tryoutAttempt.userId, context.session.user.id),
 			columns: {
-        id: true,
+				id: true,
 				score: true,
 				status: true,
 				startedAt: true,
@@ -412,7 +577,7 @@ const history = authed
 			with: {
 				tryout: {
 					columns: {
-            id: true,
+						id: true,
 						title: true,
 					},
 				},
@@ -426,8 +591,8 @@ export const tryoutRouter = {
 	list,
 	find,
 	start,
+	featured,
 	startSubtest,
-	getSubtestQuestions,
 	saveAnswer,
 	submitSubtest,
 	submitTryout,
