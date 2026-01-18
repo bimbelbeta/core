@@ -15,7 +15,7 @@ export function TryoutQuestions({ tryoutId }: TryoutQuestionsProps) {
 		}),
 	);
 
-	const { currentQuestionIndex, setCurrentQuestion } = useTryoutStore();
+	const { view, currentQuestionIndex, setCurrentQuestion } = useTryoutStore();
 
 	const questions = data?.currentSubtest?.questions ?? [];
 	const deadline = data?.currentSubtest?.deadline ?? null;
@@ -29,7 +29,7 @@ export function TryoutQuestions({ tryoutId }: TryoutQuestionsProps) {
 	const currentQuestion = questions[currentQuestionIndex];
 	const isLastQuestion = currentQuestionIndex === questions.length - 1;
 
-	if (!data?.currentSubtest || !currentQuestion) {
+	if (!data?.currentSubtest || !currentQuestion || view === "greeting") {
 		return null;
 	}
 

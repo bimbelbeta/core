@@ -1,4 +1,5 @@
 import { ClockIcon } from "@phosphor-icons/react";
+import { buttonVariants } from "@/components/ui/button";
 import useCountdown from "@/lib/hooks/use-countdown";
 import { cn } from "@/lib/utils";
 
@@ -18,11 +19,14 @@ export function QuestionHeader({ currentIndex, totalQuestions, deadline }: Quest
 				Soal {currentIndex + 1} dari {totalQuestions}
 			</span>
 			{deadline && (
-				<div className={cn("flex items-center gap-1", isExpired && "text-red-500")}>
+				<div
+					className={cn(
+						buttonVariants({ size: "sm", variant: "outline", className: "text-secondary-700" }),
+						isExpired && "text-red-500",
+					)}
+				>
 					<ClockIcon className="size-5" />
-					<span className="font-medium font-mono">
-						{hours}:{minutes}:{seconds}
-					</span>
+					{hours}:{minutes}:{seconds}
 				</div>
 			)}
 		</div>

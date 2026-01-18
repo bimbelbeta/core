@@ -44,30 +44,45 @@ const list = authed
 		}));
 	});
 
-const featured = authed.handler(async ({ errors, context }) => {
-	const [data] = await db
-		.select({
-			id: tryout.id,
-			title: tryout.title,
-			startsAt: tryout.startsAt,
-			endsAt: tryout.endsAt,
-			attemptId: tryoutAttempt.id,
-			attemptStatus: tryoutAttempt.status,
-		})
-		.from(tryout)
-		.leftJoin(
-			tryoutAttempt,
-			and(eq(tryoutAttempt.tryoutId, tryout.id), eq(tryoutAttempt.userId, context.session.user.id)),
-		)
-		.orderBy(desc(tryout.startsAt));
+const featured = authed
+	.route({
+		path: "/tryouts/featured",
+		method: "GET",
+		tags: ["Tryouts"],
+	})
+	.handler(async ({ errors, context }) => {
+		let status: "finished" | "not_started" | "ongoing" = "not_started";
+		const [data] = await db
+			.select({
+				id: tryout.id,
+				title: tryout.title,
+				startsAt: tryout.startsAt,
+				endsAt: tryout.endsAt,
+				startedAt: tryoutAttempt.startedAt,
+				completedAt: tryoutAttempt.completedAt,
+				attemptId: tryoutAttempt.id,
+				attemptStatus: tryoutAttempt.status,
+			})
+			.from(tryout)
+			.leftJoin(
+				tryoutAttempt,
+				and(eq(tryoutAttempt.tryoutId, tryout.id), eq(tryoutAttempt.userId, context.session.user.id)),
+			)
+			.orderBy(desc(tryout.startsAt));
 
-	if (!data)
-		throw errors.NOT_FOUND({
-			message: "Gagal menemukan paket Tryout!",
-		});
+		if (!data)
+			throw errors.NOT_FOUND({
+				message: "Gagal menemukan paket Tryout!",
+			});
 
-	return data;
-});
+		if (data.startedAt) status = "ongoing";
+		if (data.completedAt) status = "finished";
+
+		return {
+			...data,
+			status,
+		};
+	});
 
 const find = authed
 	.route({
@@ -478,20 +493,6 @@ const submitSubtest = authed
 
 		if (!currentSubtestAttempt) throw new ORPCError("BAD_REQUEST", { message: "Subtest not active" });
 
-		if (currentSubtestAttempt.deadline && currentSubtestAttempt.deadline < new Date()) {
-			await db
-				.update(tryoutSubtestAttempt)
-				.set({ status: "finished", completedAt: new Date() })
-				.where(eq(tryoutSubtestAttempt.id, currentSubtestAttempt.id));
-
-			await db
-				.update(tryoutAttempt)
-				.set({ status: "finished", completedAt: new Date() })
-				.where(eq(tryoutAttempt.id, attempt.id));
-
-			return { success: true, tryoutCompleted: true };
-		}
-
 		const tryoutData = await db.query.tryout.findFirst({
 			where: eq(tryout.id, input.tryoutId),
 			with: {
@@ -513,7 +514,7 @@ const submitSubtest = authed
 
 		const nextSubtest = tryoutData.subtests[currentIndex + 1];
 		if (nextSubtest) {
-			const nextDeadline = new Date(currentSubtestAttempt.deadline.getTime() + nextSubtest.duration * 60 * 1000);
+			const nextDeadline = new Date(Date.now() + nextSubtest.duration * 60 * 1000);
 			await db.insert(tryoutSubtestAttempt).values({
 				tryoutAttemptId: attempt.id,
 				subtestId: nextSubtest.id,

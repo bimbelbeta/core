@@ -27,7 +27,7 @@ export const Route = createFileRoute("/_auth/reset-password")({
 
 function RouteComponent() {
 	return (
-		<main className="flex min-h-screen w-full flex-col items-center pt-24">
+		<main className="flex min-h-screen w-full flex-col items-center pt-32">
 			<ResetPasswordForm />
 		</main>
 	);

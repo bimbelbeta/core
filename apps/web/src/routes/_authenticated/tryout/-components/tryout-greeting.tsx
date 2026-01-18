@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import useCountdown from "@/lib/hooks/use-countdown";
 import { orpc } from "@/utils/orpc";
+import { useTryoutStore } from "../-hooks/use-tryout-store";
 
 interface TryoutGreetingProps {
 	tryoutId: number;
@@ -18,6 +19,7 @@ export function TryoutGreeting({ tryoutId }: TryoutGreetingProps) {
 	);
 
 	const queryClient = useQueryClient();
+	const { view, setView } = useTryoutStore();
 	const [, hours, minutes, seconds] = useCountdown(data?.currentSubtest?.deadline || 0);
 
 	const startSubtestMutation = useMutation(
@@ -28,23 +30,23 @@ export function TryoutGreeting({ tryoutId }: TryoutGreetingProps) {
 		}),
 	);
 
-	if (!data?.currentSubtest) return null;
+	if (view !== "greeting" || !data || !data.currentSubtest) return null;
 
 	const isCompletedSubtest =
-		hours === "00" && minutes === "00" && seconds === "00" && data.currentSubtest.deadline !== null;
+		hours === "00" && minutes === "00" && seconds === "00" && data.currentSubtest?.deadline !== null;
 
 	return (
-		<Card className="mx-auto flex max-w-xl flex-col gap-6 p-6">
+		<Card className="flex w-full flex-col gap-6 p-6">
 			<div className="space-y-2">
-				<h1 className="font-bold text-2xl">{data.currentSubtest.name}</h1>
-				{data.currentSubtest.description && (
+				<h1 className="font-bold text-2xl">{data.currentSubtest?.name}</h1>
+				{data.currentSubtest?.description && (
 					<div className="text-muted-foreground">
 						<TiptapRenderer content={data.currentSubtest.description} />
 					</div>
 				)}
 			</div>
 
-			{data.currentSubtest.deadline && (
+			{data.currentSubtest?.deadline && (
 				<div className="flex items-center gap-2 text-lg">
 					<ClockIcon className="text-primary" />
 					<span>
@@ -56,7 +58,9 @@ export function TryoutGreeting({ tryoutId }: TryoutGreetingProps) {
 			<Button
 				size="lg"
 				className="w-full"
-				onClick={() => startSubtestMutation.mutate({ tryoutId, subtestId: data.currentSubtest.id })}
+				onClick={() => {
+					setView("questions");
+				}}
 				disabled={startSubtestMutation.isPending || isCompletedSubtest}
 			>
 				{startSubtestMutation.isPending ? "Memuat..." : isCompletedSubtest ? "Waktu Habis" : "Mulai"}

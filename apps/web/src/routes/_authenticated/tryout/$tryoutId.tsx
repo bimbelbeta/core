@@ -23,7 +23,7 @@ function RouteComponent() {
 		}),
 	);
 
-	const { setView, reset, setCurrentQuestion } = useTryoutStore();
+	const { reset, setCurrentQuestion } = useTryoutStore();
 	const prevSubtestIdRef = useRef<number | null>(null);
 
 	useEffect(() => {
@@ -51,13 +51,7 @@ function RouteComponent() {
 			setCurrentQuestion(0);
 			prevSubtestIdRef.current = data.currentSubtest.id;
 		}
-
-		if (data.currentSubtest.questions.length === 0) {
-			setView("greeting");
-		} else {
-			setView("questions");
-		}
-	}, [data, router, setView, reset, setCurrentQuestion]);
+	}, [data, router, reset, setCurrentQuestion]);
 
 	if (isPending) {
 		return (

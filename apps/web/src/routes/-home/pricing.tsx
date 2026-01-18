@@ -209,7 +209,7 @@ function TiketSobatBetaCard() {
 		<motion.div
 			initial={{ opacity: 0, y: 20 }}
 			animate={{ opacity: 1, y: 0 }}
-			className="flex flex-col justify-between rounded-default border border-primary-300 bg-linear-to-b from-primary-100 to-primary-400 p-[23px]"
+			className="flex flex-col justify-between rounded-default border border-primary-300 bg-linear-to-b from-primary-100 to-primary-400 p-5.75"
 		>
 			{/* Title */}
 			<div className="space-y-2">
@@ -217,13 +217,13 @@ function TiketSobatBetaCard() {
 
 				{/* Price */}
 				<div className="flex items-end gap-1.5">
-					<p className="font-bold text-[34px] text-primary-900 leading-[51px]">Rp 25.000</p>
+					<p className="font-bold text-[34px] text-primary-900 leading-12.75">Rp 25.000</p>
 					<p className="text-base text-neutral-1000">/Tryout</p>
 				</div>
 			</div>
 
 			{/* Features */}
-			<div className="mt-6 space-y-[18px]">
+			<div className="mt-6 space-y-4.5">
 				<ul className="space-y-2">
 					<li className="flex items-center gap-2">
 						<CheckIcon size={24} weight="bold" className="shrink-0 text-neutral-1000" />
@@ -259,7 +259,7 @@ function TiketSobatBetaCard() {
 
 				{/* Button */}
 				<Link
-					to="/auth/register"
+					to="/register"
 					className={cn(
 						buttonVariants({ size: "sm" }),
 						"w-full bg-primary-900 text-neutral-100 hover:bg-primary-900/90",
@@ -277,7 +277,7 @@ function PaketPremiumCard() {
 		<motion.div
 			initial={{ opacity: 0, y: 20 }}
 			animate={{ opacity: 1, y: 0 }}
-			className="flex flex-col justify-between rounded-default border border-neutral-200 bg-neutral-100 p-[23px]"
+			className="flex flex-col justify-between rounded-default border border-neutral-200 bg-neutral-100 p-5.75"
 		>
 			{/* Title */}
 			<div className="space-y-2">
@@ -285,13 +285,13 @@ function PaketPremiumCard() {
 
 				{/* Price */}
 				<div className="flex items-end gap-1.5">
-					<p className="font-bold text-[34px] text-neutral-1000 leading-[51px]">Rp 25.000</p>
+					<p className="font-bold text-[34px] text-neutral-1000 leading-12.75">Rp 25.000</p>
 					<p className="text-base text-neutral-1000">/Tryout</p>
 				</div>
 			</div>
 
 			{/* Features */}
-			<div className="mt-6 space-y-[18px]">
+			<div className="mt-6 space-y-4.5">
 				<ul className="space-y-2">
 					<li className="flex items-center gap-2">
 						<CheckIcon size={24} weight="bold" className="shrink-0 text-neutral-1000" />
@@ -324,7 +324,7 @@ function PaketPremiumCard() {
 				</ul>
 
 				{/* Button */}
-				<Link to="/auth/register" className={cn(buttonVariants({ size: "sm" }), "w-full")}>
+				<Link to="/register" className={cn(buttonVariants({ size: "sm" }), "w-full")}>
 					Daftar Akun
 				</Link>
 			</div>
@@ -337,14 +337,14 @@ function PaketPemulaCard() {
 		<motion.div
 			initial={{ opacity: 0, y: 20 }}
 			animate={{ opacity: 1, y: 0 }}
-			className="flex flex-col justify-between rounded-default border border-neutral-200 bg-neutral-100 p-[23px]"
+			className="flex flex-col justify-between rounded-default border border-neutral-200 bg-neutral-100 p-5.75"
 		>
 			{/* Title */}
 			<div className="space-y-2">
 				<h3 className="text-base text-neutral-1000">Paket Pemula</h3>
 
 				{/* Price */}
-				<p className="font-bold text-[34px] text-neutral-1000 leading-[51px]">Gratis</p>
+				<p className="font-bold text-[34px] text-neutral-1000 leading-12.75">Gratis</p>
 
 				{/* Special text */}
 				<p className="text-base text-neutral-1000">
@@ -353,7 +353,7 @@ function PaketPemulaCard() {
 			</div>
 
 			{/* Features */}
-			<div className="mt-6 space-y-[18px]">
+			<div className="mt-6 space-y-4.5">
 				<ul className="space-y-2">
 					<li className="flex items-center gap-2">
 						<CheckIcon size={24} weight="bold" className="shrink-0 text-neutral-1000" />
@@ -388,7 +388,7 @@ function PaketPemulaCard() {
 				</ul>
 
 				{/* Button */}
-				<Link to="/auth/register" className={cn(buttonVariants({ size: "sm" }), "w-full")}>
+				<Link to="/register" className={cn(buttonVariants({ size: "sm" }), "w-full")}>
 					Daftar Akun
 				</Link>
 			</div>
