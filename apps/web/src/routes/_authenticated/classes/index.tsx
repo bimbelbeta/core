@@ -24,7 +24,7 @@ function RouteComponent() {
 	const subtests = useQuery(orpc.subtest.listSubtests.queryOptions());
 
 	return (
-		<div className="mt-4 sm:-mt-3">
+		<div className="-mt-5 sm:-mt-3">
 			<SubtestHeader />
 
 			<hr className="my-3 sm:my-4" />

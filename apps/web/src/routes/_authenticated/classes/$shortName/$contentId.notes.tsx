@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
-import { Image } from "@unpic/react";
 import { useEffect } from "react";
+import { EmptyContentState } from "@/components/classes/empty-content-state";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { orpc } from "@/utils/orpc";
 
@@ -55,15 +55,7 @@ function RouteComponent() {
 		return (
 			<div className="space-y-4">
 				<p className="font-semibold text-base text-primary-300">Catatan Materi</p>
-
-				<div className="flex flex-col items-center justify-center gap-2 text-pretty text-center">
-					<Image src="/avatar/confused-avatar.webp" alt="Empty State" width={150} height={150} />
-					<p>
-						Ups, kontennya belum tersedia,
-						<br />
-						Tunggu kontennya diracik dulu ya!
-					</p>
-				</div>
+				<EmptyContentState />
 			</div>
 		);
 	}

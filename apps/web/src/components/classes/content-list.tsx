@@ -1,10 +1,10 @@
 import { PlusIcon } from "@phosphor-icons/react";
-import { Image } from "@unpic/react";
 import { Reorder } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useIsAdmin } from "@/utils/is-admin";
 import { ContentCard } from "./content-card";
+import { EmptyContentState } from "./empty-content-state";
 import { ReorderableContentCard } from "./reorderable-content-card";
 import type { ContentListItem, ContentFilter } from "./classes-types";
 
@@ -125,12 +125,7 @@ export function ContentList({
 
 			{error && <p className="text-red-500 text-sm">{error}</p>}
 
-			{!isLoading && !error && (!localItems || localItems.length === 0) && (
-				<div className="flex flex-col items-center justify-center gap-2">
-					<Image src="/avatar/confused-avatar.webp" alt="Empty State" width={150} height={150} />
-					<p>Tunggu kontennya diracik dulu ya!</p>
-				</div>
-			)}
+			{!isLoading && !error && (!localItems || localItems.length === 0) && <EmptyContentState />}
 
 			{localItems &&
 				localItems.length > 0 &&

@@ -15,7 +15,7 @@ export function ClassHeader({ subtest }: { subtest: SubtestListItem }) {
 	const forceTextWhite = backgroundClass.includes("text-white");
 
 	return (
-		<div className={cn(backgroundClass, "relative overflow-hidden rounded-[10px]")}>
+		<div className={cn(backgroundClass, "relative overflow-hidden rounded-default")}>
 			{/* Back button */}
 			<div className="z-10 mt-6 ml-6 sm:mt-10 sm:ml-10">
 				<BackButton to={isAdmin ? "/admin/classes" : "/classes"} />

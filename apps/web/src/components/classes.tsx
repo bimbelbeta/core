@@ -8,6 +8,7 @@ export { ContentList } from "./classes/content-list";
 export { PracticeQuestionHeader } from "./classes/practice-question-header";
 export { AnswerCollapsible } from "./classes/answer-collapsible";
 export { PracticeQuestion } from "./classes/practice-question";
+export { EmptyContentState } from "./classes/empty-content-state";
 
 // Re-export types for convenience
 export type { SubtestListItem, ContentListItem, ContentActionItem, LastContentViewedItem, ContentFilter } from "./classes/classes-types";
