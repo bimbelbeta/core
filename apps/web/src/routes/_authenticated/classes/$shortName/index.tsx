@@ -107,7 +107,7 @@ function RouteComponent() {
 	if (!matchedClass) return notFound();
 
 	return (
-		<div className="-mt-16 space-y-4">
+		<div className="mt-4 sm:-mt-3 space-y-4">
 			<ClassHeader subtest={matchedClass} />
 			<div className="space-y-4">
 				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
