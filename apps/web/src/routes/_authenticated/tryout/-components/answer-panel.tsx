@@ -1,17 +1,19 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Card } from "@/components/ui/card";
+import { useParams } from "@tanstack/react-router";
 import { orpc } from "@/utils/orpc";
 import { useTryoutStore } from "../-hooks/use-tryout-store";
 import type { QuestionChoice } from "../-types/tryout";
 import { AnswerOption } from "./answer-option";
 
 interface AnswerPanelProps {
-	tryoutId: number;
 	questionId: number;
 	choices: QuestionChoice[];
 }
 
-export function AnswerPanel({ tryoutId, questionId, choices }: AnswerPanelProps) {
+export function AnswerPanel({ questionId, choices }: AnswerPanelProps) {
+	const { tryoutId: stringTryoutId } = useParams({ from: "/_authenticated/tryout/$tryoutId" });
+	const tryoutId = Number(stringTryoutId);
+
 	const queryClient = useQueryClient();
 	const { answers, setAnswer } = useTryoutStore();
 
@@ -35,11 +37,8 @@ export function AnswerPanel({ tryoutId, questionId, choices }: AnswerPanelProps)
 	};
 
 	return (
-		<Card className="flex h-full flex-col overflow-hidden">
-			<div className="border-b bg-secondary/50 p-3">
-				<span className="font-medium text-sm">Jawaban</span>
-			</div>
-			<div className="flex-1 grid-cols-1 gap-2 overflow-y-auto p-4">
+		<div className="flex h-full flex-col overflow-hidden px-4">
+			<div className="flex flex-col gap-2">
 				{choices.map((choice) => (
 					<AnswerOption
 						key={choice.id}
@@ -51,6 +50,6 @@ export function AnswerPanel({ tryoutId, questionId, choices }: AnswerPanelProps)
 					/>
 				))}
 			</div>
-		</Card>
+		</div>
 	);
 }

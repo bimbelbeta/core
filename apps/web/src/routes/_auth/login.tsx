@@ -25,7 +25,7 @@ export const Route = createFileRoute("/_auth/login")({
 
 function RouteComponent() {
 	return (
-		<main className="relative flex min-h-screen w-full flex-col items-center justify-center px-4">
+		<main className="relative flex min-h-screen w-full flex-col items-center px-4 pt-40 pb-12">
 			<Button
 				asChild
 				variant="outline"

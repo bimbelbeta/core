@@ -141,6 +141,7 @@ export const tryoutAttempt = pgTable(
 			.notNull()
 			.references(() => tryout.id, { onDelete: "cascade" }),
 		startedAt: timestamp("started_at").notNull().defaultNow(),
+		deadline: timestamp("deadline").notNull(),
 		completedAt: timestamp("completed_at"),
 		status: tryoutStatus("status").notNull().default("ongoing"),
 		score: integer("score"), // Can be calculated later

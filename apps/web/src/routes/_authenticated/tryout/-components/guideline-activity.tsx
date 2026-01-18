@@ -1,24 +1,57 @@
 import { ArrowUpRightIcon } from "@phosphor-icons/react";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
+import { orpc } from "@/utils/orpc";
 import { TryoutStartConfirmation } from "./tryout-start-confirmation";
 
 export function GuidelineActivity() {
+	const { data } = useQuery(orpc.tryout.featured.queryOptions());
+
 	return (
 		<section className="flex flex-col gap-6">
 			<Card className="border border-secondary-500 bg-secondary-500/20">
 				<CardHeader className="flex items-center justify-between gap-4">
-					<CardTitle className="font-semibold text-primary-800 sm:text-2xl">Mulai Tryout Sekarang</CardTitle>
-					<CardAction className="mt-auto">
-						<TryoutStartConfirmation>
-							<Button size={"icon"}>
+					<CardTitle className="font-semibold text-primary-800 sm:text-2xl">
+						{data?.status === "finished"
+							? "Lihat Hasil"
+							: data?.status === "ongoing"
+								? "Lanjutkan Pengerjaan Tryout"
+								: "Mulai Tryout Sekarang"}
+					</CardTitle>
+					{data?.status === "finished" ? (
+						<Button size={"icon"} asChild>
+							{/* TODO: Change to result page */}
+							<Link
+								to="/tryout/$tryoutId"
+								params={{
+									tryoutId: data.id.toString(),
+								}}
+							>
 								<ArrowUpRightIcon weight="bold" />
-							</Button>
-						</TryoutStartConfirmation>
-					</CardAction>
+							</Link>
+						</Button>
+					) : data?.status === "ongoing" ? (
+						<Button size={"icon"} asChild>
+							<Link
+								to="/tryout/$tryoutId"
+								params={{
+									tryoutId: data.id.toString(),
+								}}
+							>
+								<ArrowUpRightIcon weight="bold" />
+							</Link>
+						</Button>
+					) : (
+						<CardAction className="mt-auto">
+							<TryoutStartConfirmation>
+								<Button size={"icon"}>
+									<ArrowUpRightIcon weight="bold" />
+								</Button>
+							</TryoutStartConfirmation>
+						</CardAction>
+					)}
 				</CardHeader>
 			</Card>
 

@@ -16,7 +16,7 @@ export function AnswerOption({ code, content, selected, onSelect, disabled }: An
 			disabled={disabled}
 			onClick={onSelect}
 			className={cn(
-				"inline-flex items-center gap-3 rounded-md border p-4 text-start transition-all",
+				"flex items-center gap-3 rounded-md border p-4 text-start transition-all",
 				selected ? "border-primary bg-primary/5" : "border-border hover:bg-secondary/50",
 				disabled && "cursor-not-allowed opacity-50",
 			)}

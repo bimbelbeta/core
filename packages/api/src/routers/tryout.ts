@@ -44,30 +44,45 @@ const list = authed
 		}));
 	});
 
-const featured = authed.handler(async ({ errors, context }) => {
-	const [data] = await db
-		.select({
-			id: tryout.id,
-			title: tryout.title,
-			startsAt: tryout.startsAt,
-			endsAt: tryout.endsAt,
-			attemptId: tryoutAttempt.id,
-			attemptStatus: tryoutAttempt.status,
-		})
-		.from(tryout)
-		.leftJoin(
-			tryoutAttempt,
-			and(eq(tryoutAttempt.tryoutId, tryout.id), eq(tryoutAttempt.userId, context.session.user.id)),
-		)
-		.orderBy(desc(tryout.startsAt));
+const featured = authed
+	.route({
+		path: "/tryouts/featured",
+		method: "GET",
+		tags: ["Tryouts"],
+	})
+	.handler(async ({ errors, context }) => {
+		let status: "finished" | "not_started" | "ongoing" = "not_started";
+		const [data] = await db
+			.select({
+				id: tryout.id,
+				title: tryout.title,
+				startsAt: tryout.startsAt,
+				endsAt: tryout.endsAt,
+				startedAt: tryoutAttempt.startedAt,
+				completedAt: tryoutAttempt.completedAt,
+				attemptId: tryoutAttempt.id,
+				attemptStatus: tryoutAttempt.status,
+			})
+			.from(tryout)
+			.leftJoin(
+				tryoutAttempt,
+				and(eq(tryoutAttempt.tryoutId, tryout.id), eq(tryoutAttempt.userId, context.session.user.id)),
+			)
+			.orderBy(desc(tryout.startsAt));
 
-	if (!data)
-		throw errors.NOT_FOUND({
-			message: "Gagal menemukan paket Tryout!",
-		});
+		if (!data)
+			throw errors.NOT_FOUND({
+				message: "Gagal menemukan paket Tryout!",
+			});
 
-	return data;
-});
+		if (data.startedAt) status = "ongoing";
+		if (data.completedAt) status = "finished";
+
+		return {
+			...data,
+			status,
+		};
+	});
 
 const find = authed
 	.route({
@@ -107,14 +122,11 @@ const find = authed
 		}
 
 		if (attempt.status === "finished") {
-			const overallDeadline = attempt.subtestAttempts.reduce((max, sa) => {
-				return sa.deadline && sa.deadline > max ? sa.deadline : max;
-			}, new Date());
 			return {
 				...tryoutData,
 				attempt,
 				currentSubtest: null,
-				overallDeadline,
+				overallDeadline: attempt.deadline,
 				totalSubtests: tryoutData.subtests.length,
 				completedSubtests: tryoutData.subtests.length,
 			};
@@ -127,14 +139,11 @@ const find = authed
 		const currentSubtest = tryoutData.subtests.find((s) => !completedSubtestIds.has(s.id));
 
 		if (!currentSubtest) {
-			const overallDeadline = attempt.subtestAttempts.reduce((max, sa) => {
-				return sa.deadline && sa.deadline > max ? sa.deadline : max;
-			}, new Date());
 			return {
 				...tryoutData,
 				attempt,
 				currentSubtest: null,
-				overallDeadline,
+				overallDeadline: attempt.deadline,
 				totalSubtests: tryoutData.subtests.length,
 				completedSubtests: completedSubtestIds.size,
 			};
@@ -143,9 +152,6 @@ const find = authed
 		const currentSubtestAttempt = attempt.subtestAttempts.find((sa) => sa.subtestId === currentSubtest.id);
 
 		if (!currentSubtestAttempt) {
-			const overallDeadline = attempt.subtestAttempts.reduce((max, sa) => {
-				return sa.deadline && sa.deadline > max ? sa.deadline : max;
-			}, new Date());
 			return {
 				...tryoutData,
 				attempt,
@@ -155,15 +161,11 @@ const find = authed
 					deadline: null,
 					status: "ongoing",
 				},
-				overallDeadline,
+				overallDeadline: attempt.deadline,
 				totalSubtests: tryoutData.subtests.length,
 				completedSubtests: completedSubtestIds.size,
 			};
 		}
-
-		const overallDeadline = attempt.subtestAttempts.reduce((max, sa) => {
-			return sa.deadline && sa.deadline > max ? sa.deadline : max;
-		}, new Date());
 
 		const rows = await db
 			.select({
@@ -227,7 +229,7 @@ const find = authed
 				deadline: currentSubtestAttempt.deadline,
 				status: currentSubtestAttempt.status,
 			},
-			overallDeadline,
+			overallDeadline: attempt.deadline,
 			totalSubtests: tryoutData.subtests.length,
 			completedSubtests: completedSubtestIds.size,
 		};
@@ -302,6 +304,7 @@ const start = authed
 				tryoutId: input.id,
 				userId: context.session.user.id,
 				submittedImageUrl: input.imageUrl,
+				deadline: overallDeadline,
 			})
 			.returning();
 
@@ -370,9 +373,11 @@ const startSubtest = authed
 				? attempt.subtestAttempts.find((sa) => sa.subtestId === tryoutData.subtests[currentIndex - 1]!.id)
 				: null;
 
-		const deadline = prevSubtestAttempt
+		const proposedDeadline = prevSubtestAttempt
 			? new Date(prevSubtestAttempt.deadline.getTime() + currentSubtest.duration * 60 * 1000)
 			: new Date(Date.now() + currentSubtest.duration * 60 * 1000);
+
+		const deadline = new Date(Math.min(proposedDeadline.getTime(), attempt.deadline.getTime()));
 
 		const [subAttempt] = await db
 			.insert(tryoutSubtestAttempt)
@@ -478,20 +483,6 @@ const submitSubtest = authed
 
 		if (!currentSubtestAttempt) throw new ORPCError("BAD_REQUEST", { message: "Subtest not active" });
 
-		if (currentSubtestAttempt.deadline && currentSubtestAttempt.deadline < new Date()) {
-			await db
-				.update(tryoutSubtestAttempt)
-				.set({ status: "finished", completedAt: new Date() })
-				.where(eq(tryoutSubtestAttempt.id, currentSubtestAttempt.id));
-
-			await db
-				.update(tryoutAttempt)
-				.set({ status: "finished", completedAt: new Date() })
-				.where(eq(tryoutAttempt.id, attempt.id));
-
-			return { success: true, tryoutCompleted: true };
-		}
-
 		const tryoutData = await db.query.tryout.findFirst({
 			where: eq(tryout.id, input.tryoutId),
 			with: {
@@ -506,6 +497,13 @@ const submitSubtest = authed
 		const currentIndex = tryoutData.subtests.findIndex((s) => s.id === input.subtestId);
 		if (currentIndex === -1) throw new ORPCError("NOT_FOUND", { message: "Subtest not found" });
 
+		const now = new Date();
+		if (attempt.deadline && attempt.deadline < now) {
+			throw new ORPCError("BAD_REQUEST", {
+				message: "Tryout telah berakhir",
+			});
+		}
+
 		await db
 			.update(tryoutSubtestAttempt)
 			.set({ status: "finished", completedAt: new Date() })
@@ -513,7 +511,8 @@ const submitSubtest = authed
 
 		const nextSubtest = tryoutData.subtests[currentIndex + 1];
 		if (nextSubtest) {
-			const nextDeadline = new Date(currentSubtestAttempt.deadline.getTime() + nextSubtest.duration * 60 * 1000);
+			const proposedNextDeadline = new Date(Date.now() + nextSubtest.duration * 60 * 1000);
+			const nextDeadline = new Date(Math.min(proposedNextDeadline.getTime(), attempt.deadline.getTime()));
 			await db.insert(tryoutSubtestAttempt).values({
 				tryoutAttemptId: attempt.id,
 				subtestId: nextSubtest.id,

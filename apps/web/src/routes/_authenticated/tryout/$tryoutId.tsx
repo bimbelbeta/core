@@ -1,6 +1,6 @@
 import { ArrowLeftIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, useParams, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_authenticated/tryout/$tryoutId")({
 });
 
 function RouteComponent() {
-	const { tryoutId } = useParams({ from: "/_authenticated/tryout/$tryoutId" });
+	const { tryoutId } = Route.useParams();
 	const router = useRouter();
 	const { data, isPending, error } = useQuery(
 		orpc.tryout.find.queryOptions({
@@ -23,7 +23,7 @@ function RouteComponent() {
 		}),
 	);
 
-	const { setView, reset, setCurrentQuestion } = useTryoutStore();
+	const { reset, setCurrentQuestion } = useTryoutStore();
 	const prevSubtestIdRef = useRef<number | null>(null);
 
 	useEffect(() => {
@@ -51,13 +51,7 @@ function RouteComponent() {
 			setCurrentQuestion(0);
 			prevSubtestIdRef.current = data.currentSubtest.id;
 		}
-
-		if (data.currentSubtest.questions.length === 0) {
-			setView("greeting");
-		} else {
-			setView("questions");
-		}
-	}, [data, router, setView, reset, setCurrentQuestion]);
+	}, [data, router, reset, setCurrentQuestion]);
 
 	if (isPending) {
 		return (
@@ -90,17 +84,16 @@ function RouteComponent() {
 	return (
 		<div className="flex flex-col gap-4">
 			<div className="flex items-center gap-2">
-				<Button variant="ghost" size="sm" asChild>
+				<Button variant="default" size="sm" asChild>
 					<Link to="/tryout">
 						<ArrowLeftIcon />
 						Kembali
 					</Link>
 				</Button>
-				<h1 className="font-semibold">{data.currentSubtest?.name}</h1>
 			</div>
 
-			<TryoutGreeting tryoutId={Number(tryoutId)} />
-			<TryoutQuestions tryoutId={Number(tryoutId)} />
+			<TryoutGreeting />
+			<TryoutQuestions />
 		</div>
 	);
 }
