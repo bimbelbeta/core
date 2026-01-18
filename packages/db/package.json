@@ -4,16 +4,16 @@
 	"exports": {
 		".": {
 			"types": "./dist/index.d.mts",
-			"import": "./dist/index.mjs"
+			"default": "./dist/index.mjs"
 		},
 		"./*": {
 			"types": "./dist/*.d.mts",
-			"import": "./dist/*.mjs"
+			"default": "./dist/*.mjs"
 		}
 	},
 	"scripts": {
 		"build": "tsdown",
-		"check-types": "tsgo --noEmit",
+		"check-types": "tsc --noEmit",
 		"db:push": "drizzle-kit push",
 		"db:studio": "drizzle-kit studio",
 		"db:generate": "drizzle-kit generate",

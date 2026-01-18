@@ -8,7 +8,7 @@ bun lint           # Check code with Biome
 bun lint:fix --unsafe       # Auto-fix issues
 
 # Type checking
-bun check-types    # Type check all packages
+bun lint:fix --unsafe && bun check-types    # Always run Biome fix before type checking all packages
 
 # Building
 bun build          # Build all packages

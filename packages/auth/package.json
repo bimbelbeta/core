@@ -3,18 +3,18 @@
 	"exports": {
 		".": {
 			"types": "./dist/index.d.mts",
-			"import": "./dist/index.mjs"
+			"default": "./dist/index.mjs"
 		},
 		"./*": {
 			"types": "./dist/*.d.mts",
-			"import": "./dist/*.mjs"
+			"default": "./dist/*.mjs"
 		}
 	},
 	"type": "module",
 	"scripts": {
 		"build": "tsdown",
 		"auth:generate": "bunx @better-auth/cli@latest generate --output ../db/src/schema/auth.ts --config ./src/index.ts --yes",
-		"check-types": "tsgo --noEmit"
+		"check-types": "tsc --noEmit"
 	},
 	"devDependencies": {
 		"tsdown": "catalog:",

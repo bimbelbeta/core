@@ -2,7 +2,7 @@ import { db } from "@bimbelbeta/db";
 import { programYearlyData, studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, ilike } from "drizzle-orm";
 import { authed } from "../index";
 
 const list = authed
@@ -18,101 +18,40 @@ const list = authed
 			search: "string?",
 		}),
 	)
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const limit = Math.min(input.limit ?? 20, 100);
 		const cursor = input.cursor ?? 0;
 
-		const conditions = [];
-		if (input.search) {
-			conditions.push(
-				sql`(${university.name} ILIKE ${`%${input.search}%`} OR ${university.location} ILIKE ${`%${input.search}%`})`,
-			);
-		}
-
-		const universitiesData = await db
+		const data = await db
 			.select({
 				id: university.id,
 				name: university.name,
 				slug: university.slug,
 				logo: university.logo,
+				studyProgram: studyProgram.name,
+				score: programYearlyData.passingGrade,
 				location: university.location,
 				rank: university.rank,
 			})
 			.from(university)
-			.where(conditions.length > 0 ? and(...conditions) : undefined)
+			.innerJoin(universityStudyProgram, eq(university.id, universityStudyProgram.universityId))
+			.innerJoin(studyProgram, eq(universityStudyProgram.studyProgramId, studyProgram.id))
+			.innerJoin(programYearlyData, eq(universityStudyProgram.id, programYearlyData.universityStudyProgramId))
+			.where(and(input.search && input.search.length > 0 ? ilike(university.name, input.search) : undefined))
 			.orderBy(university.id)
 			.limit(limit + 1)
 			.offset(cursor);
 
-		const hasMore = universitiesData.length > limit;
-		const results = hasMore ? universitiesData.slice(0, limit) : universitiesData;
+		if (!data)
+			throw errors.NOT_FOUND({
+				message: "Gagal menemukan data Universitas. Silahkan coba lagi nanti.",
+			});
+
+		const hasMore = data.length > limit;
+		const results = hasMore ? data.slice(0, limit) : data;
 		const nextCursor = hasMore ? results[results.length - 1]!.id : undefined;
 
-		const universityIds = results.map((u) => u.id);
-
-		const studyProgramsData = await db
-			.select({
-				universityId: universityStudyProgram.universityId,
-				id: studyProgram.id,
-				name: studyProgram.name,
-				category: studyProgram.category,
-				year: programYearlyData.year,
-				averageGrade: programYearlyData.averageGrade,
-				passingGrade: programYearlyData.passingGrade,
-			})
-			.from(universityStudyProgram)
-			.innerJoin(studyProgram, eq(studyProgram.id, universityStudyProgram.studyProgramId))
-			.leftJoin(programYearlyData, eq(programYearlyData.universityStudyProgramId, universityStudyProgram.id))
-			.where(sql`${universityStudyProgram.universityId} IN ${universityIds}`)
-			.orderBy(studyProgram.name);
-
-		const studyProgramsMap = new Map<
-			number,
-			Array<{
-				id: number;
-				name: string;
-				category: "SAINTEK" | "SOSHUM";
-				latestData: { year: number; averageGrade: number | null; passingGrade: number | null } | null;
-			}>
-		>();
-
-		for (const sp of studyProgramsData) {
-			const existing = studyProgramsMap.get(sp.universityId) || [];
-			const existingProgram = existing.find((p) => p.id === sp.id);
-
-			if (existingProgram) {
-				if (sp.year !== null && sp.year > (existingProgram.latestData?.year ?? 0)) {
-					existingProgram.latestData = {
-						year: sp.year,
-						averageGrade: sp.averageGrade,
-						passingGrade: sp.passingGrade,
-					};
-				}
-			} else {
-				existing.push({
-					id: sp.id,
-					name: sp.name,
-					category: sp.category ?? "SAINTEK",
-					latestData:
-						sp.year !== null ? { year: sp.year, averageGrade: sp.averageGrade, passingGrade: sp.passingGrade } : null,
-				});
-				studyProgramsMap.set(sp.universityId, existing);
-			}
-		}
-
-		const data = results.map((u) => ({
-			university: {
-				id: u.id,
-				name: u.name,
-				slug: u.slug,
-				logo: u.logo,
-				location: u.location,
-				rank: u.rank,
-			},
-			studyPrograms: studyProgramsMap.get(u.id) || [],
-		}));
-
-		return { data, nextCursor };
+		return { data: results, nextCursor };
 	});
 
 const find = authed
