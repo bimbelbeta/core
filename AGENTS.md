@@ -105,10 +105,12 @@ apps/web/src/routes/
 ### Best Practices
 - Keep functions focused and under 50 lines when possible
 - Use custom hooks for reusable logic in `hooks/` directories
+- Do not clear `.turbo` or other cache directories
 - Avoid prop drilling - use context or state management (zustand)
 - Server state: TanStack Query, client state: zustand
 - Forms: TanStack Form with Arktype validators
 - Minimize comments - code should be self-documenting
+- Run `bun build:packages` after any changes to files under `packages/` since they are referenced from their build outputs
 - Run `bun lint:fix` and `bun check-types` before pushing
 
 ### Testing
