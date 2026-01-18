@@ -5,6 +5,7 @@ import * as practice from "./schema/practice-pack";
 import * as subject from "./schema/subject";
 import * as transaction from "./schema/transaction";
 import * as tryout from "./schema/tryout";
+import * as university from "./schema/university";
 
 export const db: PostgresJsDatabase = drizzle({
 	connection: {
@@ -22,5 +23,6 @@ export const db: PostgresJsDatabase = drizzle({
 		...transaction,
 		...tryout,
 		...subject,
+		...university,
 	},
 });

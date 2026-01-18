@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
+import ErrorComponent from "@/components/error";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/utils/orpc";
@@ -71,14 +72,7 @@ function RouteComponent() {
 	}
 
 	if (error || !data) {
-		return (
-			<div className="flex flex-col items-center justify-center gap-4 py-8">
-				<p className="text-red-500">Gagal memuat tryout</p>
-				<Button asChild variant="outline">
-					<Link to="/tryout">Kembali ke Tryout</Link>
-				</Button>
-			</div>
-		);
+		return <ErrorComponent error={error} />;
 	}
 
 	return (

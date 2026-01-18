@@ -3,12 +3,15 @@ import { type } from "arktype";
 import { pub } from "../index";
 import { adminPracticePackRouter } from "./admin/practice-pack";
 import { adminSubjectRouter } from "./admin/subject";
+import { adminSubtestRouter } from "./admin/subtest";
+import { adminUniversityRouter } from "./admin/university";
 import { flashcardRouter } from "./flashcard";
 import { practicePackRouter } from "./practice-pack";
 import { socialRouter } from "./social";
 import { subjectRouter } from "./subject";
 import { transactionRouter } from "./transaction";
 import { tryoutRouter } from "./tryout";
+import { universityRouter } from "./university";
 
 export const appRouter = {
 	healthCheck: pub
@@ -26,9 +29,12 @@ export const appRouter = {
 	flashcard: flashcardRouter,
 	subject: subjectRouter,
 	tryout: tryoutRouter,
+	university: universityRouter,
 	admin: {
 		practicePack: adminPracticePackRouter,
 		subject: adminSubjectRouter,
+		subtest: adminSubtestRouter,
+		university: adminUniversityRouter,
 	},
 	transaction: transactionRouter,
 };
