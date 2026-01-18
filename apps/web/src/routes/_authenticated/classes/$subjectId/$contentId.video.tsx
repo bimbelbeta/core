@@ -7,7 +7,7 @@ import YouTubePlayer from "@/components/youtube-player";
 import { orpc } from "@/utils/orpc";
 import { extractYouTubeId } from "@/utils/youtube";
 
-export const Route = createFileRoute("/_authenticated/classes/$shortName/$contentId/video")({
+export const Route = createFileRoute("/_authenticated/classes/$subjectId/$contentId/video")({
 	component: RouteComponent,
 });
 

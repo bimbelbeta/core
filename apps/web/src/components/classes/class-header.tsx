@@ -5,7 +5,7 @@ export function ClassHeader({ subject }: { subject: SubjectListItem }) {
 		<div className="relative flex items-center justify-start overflow-hidden rounded-default bg-tertiary-200 p-6 sm:p-8">
 			<div className="relative z-10 flex size-28 items-center justify-center rounded-full bg-white shadow-md sm:size-32">
 				<div className="flex size-full items-center justify-center">
-					<span className="text-2xl sm:text-3xl">📚</span>
+					<span className="text-2xl sm:text-3xl text-black">{subject?.id}</span>
 				</div>
 			</div>
 			<div className="ml-4 flex-1">

@@ -46,7 +46,7 @@ export function ContentList({
 	onReorder,
 	userIsPremium,
 	userRole,
-	shortName,
+	subjectId,
 	subtestOrder,
 	searchQuery,
 	showCount,
@@ -64,7 +64,7 @@ export function ContentList({
 	onReorder?: (newItems: ContentListItem[]) => void;
 	userIsPremium?: boolean;
 	userRole?: string;
-	shortName?: string;
+	subjectId?: number;
 	subtestOrder?: number;
 	searchQuery?: string;
 	showCount?: boolean;
@@ -153,7 +153,7 @@ export function ContentList({
 								onDelete={onDelete ? () => onDelete(item) : undefined}
 								userIsPremium={userIsPremium}
 								userRole={userRole}
-								shortName={shortName}
+								subjectId={subjectId}
 								subtestOrder={subtestOrder}
 							/>
 						))}

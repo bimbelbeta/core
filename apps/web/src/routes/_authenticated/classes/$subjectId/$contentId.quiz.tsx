@@ -8,7 +8,7 @@ import { PracticeQuestionHeader } from "@/components/classes/practice-question-h
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { orpc } from "@/utils/orpc";
 
-export const Route = createFileRoute("/_authenticated/classes/$shortName/$contentId/latihan-soal")({
+export const Route = createFileRoute("/_authenticated/classes/$subjectId/$contentId/quiz")({
 	component: RouteComponent,
 });
 
@@ -44,7 +44,7 @@ function RouteComponent() {
 	}, [content.data?.practiceQuestions, contentId, updateProgressMutation.mutate]);
 
 	if (content.isPending) {
-		return <p className="animate-pulse text-sm">Memuat latihan soal...</p>;
+		return <p className="animate-pulse text-sm">Memuat quiz...</p>;
 	}
 
 	if (content.isError) {
@@ -57,7 +57,7 @@ function RouteComponent() {
 	if (!practiceQuestions) {
 		return (
 			<div className="space-y-4">
-				<p className="font-semibold text-base text-primary-300">Latihan Soal</p>
+				<p className="font-semibold text-base text-primary-300">Quiz</p>
 
 				<PracticeQuestionHeader content={content.data.title} />
 
@@ -70,7 +70,7 @@ function RouteComponent() {
 
 	return (
 		<div className="space-y-4">
-			<p className="font-semibold text-base text-primary-300">Latihan Soal Materi</p>
+			<p className="font-semibold text-base text-primary-300">Quiz Materi</p>
 
 			<PracticeQuestionHeader content={content.data.title} />
 
@@ -111,7 +111,7 @@ function RouteComponent() {
 					/>
 				))
 			) : (
-				<p className="text-muted-foreground text-sm">Belum ada latihan soal untuk materi ini.</p>
+				<p className="text-muted-foreground text-sm">Belum ada quiz untuk materi ini.</p>
 			)}
 		</div>
 	);

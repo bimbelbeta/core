@@ -15,17 +15,13 @@ export const subject = pgTable("subject", {
 	description: text(),
 	order: integer().notNull().default(1),
 	category: subjectCategoryEnum("category").notNull().default("utbk"),
+	gradeLevel: integer("grade_level"),
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 /*
-  Content Type Enum
-*/
-export const contentTypeEnum = pgEnum("content_type", ["material", "tips_and_trick"]);
-
-/*
-  Content Item ( material | tips_and_trick )
+  Content Item
 */
 export const contentItem = pgTable(
 	"content_item",
@@ -34,13 +30,12 @@ export const contentItem = pgTable(
 		subjectId: integer("subject_id")
 			.notNull()
 			.references(() => subject.id, { onDelete: "cascade" }),
-		type: contentTypeEnum("type").notNull(),
 		title: text().notNull(),
 		order: integer().notNull(),
 		createdAt: timestamp("created_at").notNull().defaultNow(),
 		updatedAt: timestamp("updated_at").notNull().defaultNow(),
 	},
-	(t) => [unique("unique_content_order").on(t.subjectId, t.type, t.order)],
+	(t) => [unique("unique_content_order").on(t.subjectId, t.order)],
 );
 
 /*
@@ -136,10 +131,31 @@ export const recentContentView = pgTable(
 );
 
 /*
+  User Subject View (Track which subjects a user has opened)
+*/
+export const userSubjectView = pgTable(
+	"user_subject_view",
+	{
+		id: integer().primaryKey().generatedAlwaysAsIdentity(),
+		userId: text("user_id")
+			.notNull()
+			.references(() => user.id, { onDelete: "cascade" }),
+		subjectId: integer("subject_id")
+			.notNull()
+			.references(() => subject.id, { onDelete: "cascade" }),
+		viewedAt: timestamp("viewed_at").notNull().defaultNow(),
+		createdAt: timestamp("created_at").notNull().defaultNow(),
+		updatedAt: timestamp("updated_at").notNull().defaultNow(),
+	},
+	(t) => [unique("unique_user_subject").on(t.userId, t.subjectId), index("idx_user_subject_view_user").on(t.userId)],
+);
+
+/*
   Relations
 */
 export const subjectRelations = relations(subject, ({ many }) => ({
 	contentItems: many(contentItem),
+	userSubjectViews: many(userSubjectView),
 }));
 
 export const contentItemRelations = relations(contentItem, ({ one, many }) => ({
@@ -204,6 +220,17 @@ export const recentContentViewRelations = relations(recentContentView, ({ one })
 	contentItem: one(contentItem, {
 		fields: [recentContentView.contentItemId],
 		references: [contentItem.id],
+	}),
+}));
+
+export const userSubjectViewRelations = relations(userSubjectView, ({ one }) => ({
+	user: one(user, {
+		fields: [userSubjectView.userId],
+		references: [user.id],
+	}),
+	subject: one(subject, {
+		fields: [userSubjectView.subjectId],
+		references: [subject.id],
 	}),
 }));
 

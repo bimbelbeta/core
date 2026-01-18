@@ -8,12 +8,12 @@ import { Container } from "@/components/ui/container";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { orpc } from "@/utils/orpc";
 
-export const Route = createFileRoute("/_authenticated/classes/$shortName/$contentId")({
+export const Route = createFileRoute("/_authenticated/classes/$subjectId/$contentId")({
 	component: RouteComponent,
 });
 
 function RouteComponent() {
-	const { shortName, contentId } = Route.useParams();
+	const { subjectId, contentId } = Route.useParams();
 	const navigate = useNavigate();
 	const location = useLocation();
 	const queryClient = useQueryClient();
@@ -77,7 +77,7 @@ function RouteComponent() {
 	// Handle premium modal close - redirect back to class list
 	const handlePremiumModalClose = () => {
 		setShowPremiumModal(false);
-		navigate({ to: `/classes/${shortName}` });
+		navigate({ to: `/classes/${subjectId}` });
 	};
 
 	// Show premium modal for forbidden content
@@ -90,21 +90,21 @@ function RouteComponent() {
 	}
 
 	const currentPath = location.pathname;
-	const currentTab: "video" | "notes" | "latihan-soal" = currentPath.endsWith("/notes")
+	const currentTab: "video" | "notes" | "quiz" = currentPath.endsWith("/notes")
 		? "notes"
-		: currentPath.endsWith("/latihan-soal")
-			? "latihan-soal"
+		: currentPath.endsWith("/quiz")
+			? "quiz"
 			: "video";
 
 	const handleTabChange = (value: string) => {
 		navigate({
 			to:
 				value === "video"
-					? `/classes/${shortName}/${contentId}/video`
+					? `/classes/${subjectId}/${contentId}/video`
 					: value === "notes"
-						? `/classes/${shortName}/${contentId}/notes`
-						: `/classes/${shortName}/${contentId}/latihan-soal`,
-			params: { shortName, contentId },
+						? `/classes/${subjectId}/${contentId}/notes`
+						: `/classes/${subjectId}/${contentId}/quiz`,
+			params: { subjectId, contentId },
 		});
 	};
 
@@ -114,21 +114,21 @@ function RouteComponent() {
 				<BackButton
 					to={
 						currentTab === "video"
-							? `/classes/${shortName}`
+							? `/classes/${subjectId}`
 							: currentTab === "notes"
-								? `/classes/${shortName}/${contentId}/video`
-								: `/classes/${shortName}/${contentId}/notes`
+								? `/classes/${subjectId}/${contentId}/video`
+								: `/classes/${subjectId}/${contentId}/notes`
 					}
 				/>
 				{currentTab === "video" && (
 					<NextButton
-						to={`/classes/${shortName}/${contentId}/notes`}
+						to={`/classes/${subjectId}/${contentId}/notes`}
 						className={!location.pathname.includes("/video") ? "hidden" : ""}
 					/>
 				)}
 				{currentTab === "notes" && (
 					<NextButton
-						to={`/classes/${shortName}/${contentId}/latihan-soal`}
+						to={`/classes/${subjectId}/${contentId}/quiz`}
 						className={!location.pathname.includes("/notes") ? "hidden" : ""}
 					/>
 				)}

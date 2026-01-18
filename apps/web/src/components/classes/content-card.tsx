@@ -36,8 +36,8 @@ const CONTENT_ACTIONS = [
 		width: "w-fit",
 	},
 	{
-		key: "latihan-soal",
-		label: "Latihan Soal",
+		key: "quiz",
+		label: "Quiz",
 		icon: ExamIcon,
 		enabled: (i: ContentActionItem) => i.hasPracticeQuestions,
 		className: "bg-tertiary-200 text-neutral-1000",
@@ -54,7 +54,7 @@ export function ContentCard({
 	dragControls,
 	userIsPremium,
 	userRole,
-	shortName,
+	subjectId,
 	subtestOrder,
 }: {
 	item: ContentListItem;
@@ -65,21 +65,21 @@ export function ContentCard({
 	dragControls?: ReturnType<typeof useDragControls>;
 	userIsPremium?: boolean;
 	userRole?: string;
-	shortName?: string;
+	subjectId?: number;
 	subtestOrder?: number;
 }) {
 	const isAdmin = useIsAdmin();
 	const location = useLocation();
 	const basePath = isAdmin ? "/admin/classes" : "/classes";
-	const shortNameIndex = isAdmin ? 3 : 2;
-	const subtestShortName = shortName || location.pathname.split("/")[shortNameIndex] || "";
+	const subjectIdIndex = isAdmin ? 3 : 2;
+	const subtestSubjectId = subjectId || Number(location.pathname.split("/")[subjectIdIndex]) || 0;
 	// Use canAccessContent to determine if this content is premium locked
-	// item.order is the content order (1-based), subtestOrder is the subtest order
+	// item.order is = content order (1-based), subtestOrder is = subtest order
 	const isPremiumContent =
 		!isAdmin && !canAccessContent(userIsPremium ?? false, userRole, subtestOrder ?? 1, item.order);
 
 	const params = {
-		shortName: subtestShortName,
+		subjectId: subtestSubjectId.toString(),
 		contentId: item.id.toString(),
 	};
 
@@ -168,10 +168,10 @@ export function ContentCard({
 						enabled(item) && (
 							<Link
 								key={key}
-								to={`${basePath}/$shortName/$contentId/${key}`}
+								to={`${basePath}/$subjectId/$contentId/${key}`}
 								params={params}
 								className={cn(
-									"flex items-center gap-1.5 rounded-lg px-3 py-2 transition-all hover:scale-105 active:scale-95 sm:gap-2 sm:px-4 sm:py-2.5",
+									"flex items-center gap-1.5 rounded-lg px-3 py-2 sm:gap-2 sm:px-4 sm:py-2.5",
 									"w-full sm:w-auto",
 									className,
 									width,

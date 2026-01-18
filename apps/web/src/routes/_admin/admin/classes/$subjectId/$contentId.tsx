@@ -6,12 +6,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { orpc } from "@/utils/orpc";
 
-export const Route = createFileRoute("/_admin/admin/classes/$shortName/$contentId")({
+export const Route = createFileRoute("/_admin/admin/classes/$subjectId/$contentId")({
 	component: RouteComponent,
 });
 
 function RouteComponent() {
-	const { shortName, contentId } = Route.useParams();
+	const { subjectId, contentId } = Route.useParams();
 	const navigate = useNavigate();
 	const location = useLocation();
 
@@ -23,21 +23,21 @@ function RouteComponent() {
 
 	// Biar tab sinkron sama URL child-nya
 	const currentPath = location.pathname;
-	const currentTab: "video" | "notes" | "latihan-soal" = currentPath.endsWith("/notes")
+	const currentTab: "video" | "notes" | "quiz" = currentPath.endsWith("/notes")
 		? "notes"
-		: currentPath.endsWith("/latihan-soal")
-			? "latihan-soal"
+		: currentPath.endsWith("/quiz")
+			? "quiz"
 			: "video"; // default ke video
 
 	const handleTabChange = (value: string) => {
 		navigate({
 			to:
 				value === "video"
-					? "/admin/classes/$shortName/$contentId/video"
+					? "/admin/classes/$subjectId/$contentId/video"
 					: value === "notes"
-						? "/admin/classes/$shortName/$contentId/notes"
-						: "/admin/classes/$shortName/$contentId/latihan-soal",
-			params: { shortName, contentId },
+						? "/admin/classes/$subjectId/$contentId/notes"
+						: "/admin/classes/$subjectId/$contentId/quiz",
+			params: { subjectId, contentId },
 		});
 	};
 
@@ -46,7 +46,7 @@ function RouteComponent() {
 	return (
 		<Container className="gap-3 p-0">
 			<div className="w-fit">
-				<BackButton to={"/admin/classes/$shortName"} />
+				<BackButton to={`/admin/classes/${subjectId}`} />
 				{content.isPending ? (
 					<Skeleton className="mt-3 h-7 w-full" />
 				) : content.isError ? (
@@ -60,7 +60,7 @@ function RouteComponent() {
 				<TabsList>
 					<TabsTrigger value="video">Video</TabsTrigger>
 					<TabsTrigger value="notes">Catatan</TabsTrigger>
-					<TabsTrigger value="latihan-soal">Latihan Soal</TabsTrigger>
+					<TabsTrigger value="quiz">Quiz</TabsTrigger>
 				</TabsList>
 
 				<TabsContent value={currentTab} className="pt-4">

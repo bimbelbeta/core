@@ -28,10 +28,34 @@ const createSubject = admin
 			description: "string?",
 			order: "number?",
 			category: type("'sd' | 'smp' | 'sma' | 'utbk'")?.optional(),
+			gradeLevel: "number?",
 		}),
 	)
 	.output(type({ message: "string", id: "number" }))
 	.handler(async ({ input }) => {
+		// Validate gradeLevel based on category
+		if (input.gradeLevel !== undefined && input.gradeLevel !== null) {
+			const validGradeRange: Record<string, [number, number]> = {
+				sd: [1, 6],
+				smp: [7, 9],
+				sma: [10, 12],
+			};
+
+			const category = input.category ?? "utbk";
+			if (category === "utbk") {
+				throw new ORPCError("BAD_REQUEST", {
+					message: "UTBK tidak boleh memiliki gradeLevel",
+				});
+			}
+
+			const [min, max] = validGradeRange[category];
+			if (input.gradeLevel < min || input.gradeLevel > max) {
+				throw new ORPCError("BAD_REQUEST", {
+					message: `GradeLevel harus antara ${min} dan ${max} untuk kategori ${category.toUpperCase()}`,
+				});
+			}
+		}
+
 		const [created] = await db
 			.insert(subject)
 			.values({
@@ -40,6 +64,7 @@ const createSubject = admin
 				description: input.description ?? null,
 				order: input.order ?? 1,
 				category: input.category ?? "utbk",
+				gradeLevel: input.gradeLevel ?? null,
 			})
 			.returning();
 
@@ -72,16 +97,54 @@ const updateSubject = admin
 			description: "string?",
 			order: "number?",
 			category: type("'sd' | 'smp' | 'sma' | 'utbk'")?.optional(),
+			gradeLevel: "number?",
 		}),
 	)
 	.output(type({ message: "string" }))
 	.handler(async ({ input }) => {
+		// Validate gradeLevel based on category if both provided or fetch existing
+		if (input.gradeLevel !== undefined) {
+			let category = input.category;
+
+			// If category not provided, fetch existing
+			if (!category) {
+				const [existing] = await db
+					.select({ category: subject.category })
+					.from(subject)
+					.where(eq(subject.id, input.id))
+					.limit(1);
+				if (existing) category = existing.category;
+			}
+
+			if (input.gradeLevel !== null && category) {
+				const validGradeRange: Record<string, [number, number]> = {
+					sd: [1, 6],
+					smp: [7, 9],
+					sma: [10, 12],
+				};
+
+				if (category === "utbk") {
+					throw new ORPCError("BAD_REQUEST", {
+						message: "UTBK tidak boleh memiliki gradeLevel",
+					});
+				}
+
+				const [min, max] = validGradeRange[category];
+				if (input.gradeLevel < min || input.gradeLevel > max) {
+					throw new ORPCError("BAD_REQUEST", {
+						message: `GradeLevel harus antara ${min} dan ${max} untuk kategori ${category.toUpperCase()}`,
+					});
+				}
+			}
+		}
+
 		const updateData: {
 			name?: string;
 			shortName?: string;
 			description?: string | null;
 			order?: number;
 			category?: "sd" | "smp" | "sma" | "utbk";
+			gradeLevel?: number | null;
 			updatedAt: Date;
 		} = {
 			updatedAt: new Date(),
@@ -92,6 +155,7 @@ const updateSubject = admin
 		if (input.description !== undefined) updateData.description = input.description ?? null;
 		if (input.order !== undefined) updateData.order = input.order;
 		if (input.category !== undefined) updateData.category = input.category;
+		if (input.gradeLevel !== undefined) updateData.gradeLevel = input.gradeLevel ?? null;
 
 		const [updatedRow] = await db.update(subject).set(updateData).where(eq(subject.id, input.id)).returning();
 
@@ -167,7 +231,6 @@ const createContent = admin
 	.input(
 		type({
 			subjectId: "number",
-			type: "'material' | 'tips_and_trick'",
 			title: "string",
 			order: "number",
 			video: "object?",
@@ -193,13 +256,6 @@ const createContent = admin
 		if (!hasVideo && !hasNote && !hasPracticeQuestions) {
 			throw new ORPCError("BAD_REQUEST", {
 				message: "Konten harus memiliki minimal salah satu: video, catatan, atau latihan soal",
-			});
-		}
-
-		// Validate that tips_and_trick cannot have practice questions
-		if (input.type === "tips_and_trick" && hasPracticeQuestions) {
-			throw new ORPCError("BAD_REQUEST", {
-				message: "Tips & Trick tidak boleh memiliki latihan soal",
 			});
 		}
 
@@ -236,7 +292,6 @@ const createContent = admin
 				.insert(contentItem)
 				.values({
 					subjectId: input.subjectId,
-					type: input.type,
 					title: input.title,
 					order: input.order,
 				})
@@ -280,8 +335,8 @@ const createContent = admin
 				if (note) createdMaterials.note = note.id;
 			}
 
-			// Insert practice questions if provided (only for material type)
-			if (hasPracticeQuestions && input.practiceQuestionIds && input.type === "material") {
+			// Insert practice questions if provided
+			if (hasPracticeQuestions && input.practiceQuestionIds) {
 				await tx.insert(contentPracticeQuestions).values(
 					input.practiceQuestionIds.map((questionId: number, index: number) => ({
 						contentItemId: newContent.id,
@@ -378,7 +433,6 @@ const reorderContent = admin
 	.input(
 		type({
 			subjectId: "number",
-			type: "'material' | 'tips_and_trick'",
 			items: "unknown",
 		}),
 	)
@@ -411,13 +465,7 @@ const reorderContent = admin
 				await tx
 					.update(contentItem)
 					.set({ order: -(i + 1000), updatedAt: new Date() })
-					.where(
-						and(
-							eq(contentItem.id, item.id),
-							eq(contentItem.subjectId, input.subjectId),
-							eq(contentItem.type, input.type),
-						),
-					);
+					.where(and(eq(contentItem.id, item.id), eq(contentItem.subjectId, input.subjectId)));
 			}
 
 			// Step 2: Set final order values
@@ -425,13 +473,7 @@ const reorderContent = admin
 				await tx
 					.update(contentItem)
 					.set({ order: item.order, updatedAt: new Date() })
-					.where(
-						and(
-							eq(contentItem.id, item.id),
-							eq(contentItem.subjectId, input.subjectId),
-							eq(contentItem.type, input.type),
-						),
-					);
+					.where(and(eq(contentItem.id, item.id), eq(contentItem.subjectId, input.subjectId)));
 			}
 		});
 

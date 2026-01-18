@@ -23,7 +23,7 @@ const DASHBOARD_CONTENT_ACTIONS = [
 		width: "w-fit",
 	},
 	{
-		key: "latihan-soal",
+		key: "quiz",
 		label: "Quiz",
 		icon: ExamIcon,
 		enabled: (i: ContentActionItem) => i.hasPracticeQuestions,

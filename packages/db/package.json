@@ -23,7 +23,8 @@
 		"db:stop": "docker compose stop",
 		"db:down": "docker compose down",
 		"db:reset": "docker compose down -v && docker compose up -d && sleep 2 && bun db:push && bun db:seed",
-		"db:seed": "bun run src/seed/index.ts"
+		"db:seed": "bun run src/seed/index.ts",
+		"db:seed:content": "bun run src/seed/content.seed.ts"
 	},
 	"devDependencies": {
 		"@bimbelbeta/config": "workspace:*",

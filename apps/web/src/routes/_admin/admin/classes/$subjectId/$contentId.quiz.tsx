@@ -30,7 +30,7 @@ import { useDebounceValue } from "@/hooks/use-debounce-value";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 
-export const Route = createFileRoute("/_admin/admin/classes/$shortName/$contentId/latihan-soal")({
+export const Route = createFileRoute("/_admin/admin/classes/$subjectId/$contentId/quiz")({
 	component: RouteComponent,
 });
 
@@ -96,7 +96,7 @@ function RouteComponent() {
 				});
 			},
 			onError: (error) => {
-				toast.error(error.message || "Gagal menyimpan latihan soal");
+				toast.error(error.message || "Gagal menyimpan quiz");
 			},
 		}),
 	);
@@ -113,7 +113,7 @@ function RouteComponent() {
 				setSelectedQuestionIds([]);
 			},
 			onError: (error) => {
-				toast.error(error.message || "Gagal menghapus latihan soal");
+				toast.error(error.message || "Gagal menghapus quiz");
 			},
 		}),
 	);
@@ -153,7 +153,7 @@ function RouteComponent() {
 	};
 
 	if (content.isPending) {
-		return <p className="animate-pulse text-sm">Memuat latihan soal...</p>;
+		return <p className="animate-pulse text-sm">Memuat quiz...</p>;
 	}
 
 	if (content.isError) {
@@ -183,7 +183,7 @@ function RouteComponent() {
 	return (
 		<div className="space-y-6">
 			<div className="flex flex-col items-start justify-between space-y-1 sm:flex-row sm:items-center">
-				<h2 className="font-semibold text-lg">Edit Latihan Soal</h2>
+				<h2 className="font-semibold text-lg">Edit Quiz</h2>
 
 				<div className="flex gap-4">
 					<Button
@@ -192,7 +192,7 @@ function RouteComponent() {
 						size="sm"
 						disabled={selectedQuestionIds.length === 0 || saveMutation.isPending}
 					>
-						{saveMutation.isPending ? "Menyimpan..." : "Simpan Latihan Soal"}
+						{saveMutation.isPending ? "Menyimpan..." : "Simpan Quiz"}
 					</Button>
 
 					{hasPracticeQuestions && (
@@ -205,14 +205,14 @@ function RouteComponent() {
 									size="sm"
 									className="w-1/2 sm:w-auto"
 								>
-									Hapus Latihan Soal
+									Hapus Quiz
 								</Button>
 							</AlertDialogTrigger>
 							<AlertDialogContent>
 								<AlertDialogHeader>
-									<AlertDialogTitle>Hapus Latihan Soal?</AlertDialogTitle>
+									<AlertDialogTitle>Hapus Quiz?</AlertDialogTitle>
 									<AlertDialogDescription>
-										Apakah Anda yakin ingin menghapus latihan soal ini? Tindakan ini tidak dapat dibatalkan.
+										Apakah Anda yakin ingin menghapus quiz ini? Tindakan ini tidak dapat dibatalkan.
 									</AlertDialogDescription>
 								</AlertDialogHeader>
 								<AlertDialogFooter>

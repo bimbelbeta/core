@@ -2,6 +2,8 @@ import type { BodyOutputs } from "@/utils/orpc";
 
 export type SubjectListItem = NonNullable<BodyOutputs["subject"]["listSubjects"]>[number] & {
 	category?: "sd" | "smp" | "sma" | "utbk";
+	gradeLevel?: number | null;
+	hasViewed?: boolean;
 };
 
 export type ContentListItem = NonNullable<BodyOutputs["subject"]["listContentBySubjectCategory"]>[number];
@@ -17,5 +19,4 @@ export type LastContentViewedItem = ContentActionItem & {
 	title: string;
 };
 
-export type ContentFilter = "all" | "material" | "tips_and_trick";
 export type SubjectFilter = "all" | "sd" | "smp" | "sma" | "utbk";

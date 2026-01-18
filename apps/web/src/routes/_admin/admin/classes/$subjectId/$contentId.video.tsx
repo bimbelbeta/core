@@ -26,7 +26,7 @@ import { useDebounceValue } from "@/hooks/use-debounce-value";
 import { orpc } from "@/utils/orpc";
 import { extractYouTubeId } from "@/utils/youtube";
 
-export const Route = createFileRoute("/_admin/admin/classes/$shortName/$contentId/video")({
+export const Route = createFileRoute("/_admin/admin/classes/$subjectId/$contentId/video")({
 	component: RouteComponent,
 });
 
@@ -227,13 +227,7 @@ function RouteComponent() {
 					{(field) => (
 						<div className="space-y-2">
 							<Label>Konten Video (Deskripsi)</Label>
-							{/* <TiptapEditor
-                content={field.state.value}
-                onChange={(content) => field.handleChange(content)}
-              /> */}
-
 							<TiptapSimpleEditor content={field.state.value} onChange={(content) => field.handleChange(content)} />
-
 							{field.state.meta.errors.map((error) => (
 								<p key={error?.message} className="text-red-500 text-sm">
 									{error?.message}

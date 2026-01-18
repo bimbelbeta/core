@@ -5,9 +5,7 @@ import { type } from "arktype";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ClassHeader } from "@/components/classes/class-header";
-import { ContentFilters } from "@/components/classes/content-filters";
 import { ContentList } from "@/components/classes/content-list";
-// import { ClassHeader, ContentFilters, ContentList } from "@/components/classes";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -35,10 +33,10 @@ import { SearchInput } from "@/components/ui/search-input";
 import type { BodyOutputs } from "@/utils/orpc";
 import { orpc } from "@/utils/orpc";
 
-export const Route = createFileRoute("/_admin/admin/classes/$shortName/")({
+export const Route = createFileRoute("/_admin/admin/classes/$subjectId/")({
 	params: {
 		parse: (raw) => ({
-			shortName: raw.shortName?.toLowerCase(),
+			subjectId: Number(raw.subjectId),
 		}),
 	},
 	component: RouteComponent,
@@ -48,15 +46,13 @@ type ContentListItem = NonNullable<BodyOutputs["subject"]["listContentBySubjectC
 
 type Search = {
 	q?: string;
-	category?: "material" | "tips_and_trick" | undefined;
 	page?: number;
 };
 
 function RouteComponent() {
-	const { shortName } = Route.useParams();
+	const { subjectId } = Route.useParams();
 	const queryClient = useQueryClient();
 	const [createDialogOpen, setCreateDialogOpen] = useState(false);
-	const [createDialogType, setCreateDialogType] = useState<"material" | "tips_and_trick">("material");
 	const [editDialogOpen, setEditDialogOpen] = useState(false);
 	const [editingItem, setEditingItem] = useState<ContentListItem | null>(null);
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -64,7 +60,6 @@ function RouteComponent() {
 
 	const searchParams = Route.useSearch();
 	const searchQuery = (searchParams as Search).q ?? "";
-	const activeFilter: "all" | "material" | "tips_and_trick" = (searchParams as Search).category ?? "all";
 	const page = (searchParams as Search).page ?? 0;
 
 	const navigate = Route.useNavigate();
@@ -74,52 +69,28 @@ function RouteComponent() {
 		if (updates.q !== undefined) {
 			newSearch.q = updates.q || undefined;
 		}
-		if (updates.category !== undefined) {
-			newSearch.category = updates.category || undefined;
-		}
 		if (updates.page !== undefined) {
 			newSearch.page = updates.page;
 		}
 
-		if (
-			(updates.q !== undefined && updates.q !== (searchParams as Search).q) ||
-			(updates.category !== undefined && updates.category !== (searchParams as Search).category)
-		) {
+		if (updates.q !== undefined && updates.q !== (searchParams as Search).q) {
 			newSearch.page = 0;
 		}
 
-		// Remove undefined values to avoid ?category=undefined in URL
+		// Remove undefined values to avoid ?q=undefined in URL
 		const cleanSearch = Object.fromEntries(Object.entries(newSearch).filter(([, value]) => value !== undefined));
 
 		navigate({ search: cleanSearch });
 	};
 
-	const subtests = useQuery(orpc.subject.listSubjects.queryOptions());
-	const matchedClass = subtests.data?.find((item) => item.shortName?.toLowerCase() === shortName);
-
 	const contents = useQuery(
 		orpc.subject.listContentBySubjectCategory.queryOptions({
-			input: (() => {
-				const input: {
-					subjectId: number;
-					category?: "material" | "tips_and_trick";
-					search?: string;
-					limit: number;
-					offset: number;
-				} = {
-					subjectId: matchedClass?.id ?? 0,
-					limit: 20,
-					offset: page * 20,
-				};
-				if (activeFilter !== "all") {
-					input.category = activeFilter as "material" | "tips_and_trick";
-				}
-				if (searchQuery) {
-					input.search = searchQuery;
-				}
-				return input;
-			})(),
-			enabled: Boolean(matchedClass?.id),
+			input: {
+				subjectId: Number(subjectId),
+				search: searchQuery || undefined,
+				limit: 20,
+				offset: page * 20,
+			},
 		}),
 	);
 
@@ -182,8 +153,8 @@ function RouteComponent() {
 			withNote: true,
 		},
 		onSubmit: async ({ value }) => {
-			if (!matchedClass) return;
-			const items = contents.data;
+			if (!contents.data?.subject?.id) return;
+			const items = contents.data.items;
 			const maxOrder = items && items.length > 0 ? Math.max(...items.map((i) => i.order ?? 0)) : 0;
 
 			if (!value.withNote) {
@@ -192,8 +163,7 @@ function RouteComponent() {
 			}
 
 			createMutation.mutate({
-				subjectId: matchedClass.id,
-				type: createDialogType,
+				subjectId: contents.data.subject.id,
 				title: value.title,
 				order: maxOrder + 1,
 				note: value.withNote ? { content: {} } : undefined,
@@ -224,8 +194,7 @@ function RouteComponent() {
 		},
 	});
 
-	const handleCreate = (type: "material" | "tips_and_trick") => {
-		setCreateDialogType(type);
+	const handleCreate = () => {
 		setCreateDialogOpen(true);
 		createForm.reset();
 	};
@@ -242,12 +211,7 @@ function RouteComponent() {
 	};
 
 	const handleReorder = (newItems: ContentListItem[]) => {
-		if (!matchedClass || newItems.length === 0) return;
-
-		if (activeFilter === "all") {
-			// Disable reordering when filter is "all" - types could be mixed
-			return;
-		}
+		if (!contents.data?.subject?.id || newItems.length === 0) return;
 
 		const updatedItems = newItems.map((item, index) => ({
 			id: item.id,
@@ -255,13 +219,12 @@ function RouteComponent() {
 		}));
 
 		reorderMutation.mutate({
-			subjectId: matchedClass.id,
-			type: activeFilter,
+			subjectId: contents.data.subject.id,
 			items: updatedItems,
 		});
 	};
 
-	if (subtests.isPending) {
+	if (contents.isPending) {
 		return (
 			<div className="mx-auto max-w-6xl">
 				<Container className="pt-12">
@@ -271,50 +234,42 @@ function RouteComponent() {
 		);
 	}
 
-	if (subtests.isError) {
+	if (contents.isError) {
 		return (
 			<div className="mx-auto max-w-6xl">
 				<Container className="pt-12">
-					<p className="text-red-500 text-sm">Error: {subtests.error.message}</p>
+					<p className="text-red-500 text-sm">Error: {contents.error.message}</p>
 				</Container>
 			</div>
 		);
 	}
-	if (!matchedClass) return notFound();
+	if (!contents.data) return notFound();
 
 	return (
 		<Container className="px-0 pt-0">
-			<ClassHeader subject={matchedClass} />
+			<ClassHeader subject={contents.data.subject} />
 			<div className="sticky top-0 z-10 space-y-4 border-b bg-background/95 pb-4 backdrop-blur">
 				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 					<div className="w-full flex-1 sm:max-w-md">
 						<SearchInput value={searchQuery} onChange={(q) => updateSearch({ q })} placeholder="Cari konten..." />
 					</div>
-					<ContentFilters
-						activeFilter={activeFilter}
-						onChange={(category) =>
-							updateSearch({ category: category === "all" ? undefined : (category as "material" | "tips_and_trick") })
-						}
-					/>
 				</div>
 			</div>
 
 			<div className="space-y-4">
 				<ContentList
-					items={contents.data}
+					items={contents.data.items}
 					isLoading={contents.isPending}
 					error={contents.isError ? contents.error.message : undefined}
 					searchQuery={searchQuery}
 					showCount={Boolean(searchQuery)}
-					hasMore={contents.data?.length === 20}
+					hasMore={contents.data.items?.length === 20}
 					onLoadMore={() => updateSearch({ page: page + 1 })}
-					onCreate={() =>
-						handleCreate(activeFilter === "all" ? "material" : (activeFilter as "material" | "tips_and_trick"))
-					}
+					onCreate={handleCreate}
 					onEdit={handleEdit}
 					onDelete={handleDelete}
 					onReorder={handleReorder}
-					activeFilter={activeFilter}
+					subjectId={Number(subjectId)}
 				/>
 			</div>
 
@@ -323,9 +278,7 @@ function RouteComponent() {
 				<DialogContent>
 					<DialogHeader>
 						<DialogTitle>Tambah Konten</DialogTitle>
-						<DialogDescription>
-							Buat konten baru untuk {createDialogType === "material" ? "Materi" : "Tips & Trick"}
-						</DialogDescription>
+						<DialogDescription>Buat konten baru</DialogDescription>
 					</DialogHeader>
 					<form
 						onSubmit={(e) => {

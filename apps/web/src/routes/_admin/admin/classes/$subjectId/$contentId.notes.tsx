@@ -18,7 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { orpc } from "@/utils/orpc";
 
-export const Route = createFileRoute("/_admin/admin/classes/$shortName/$contentId/notes")({
+export const Route = createFileRoute("/_admin/admin/classes/$subjectId/$contentId/notes")({
 	component: RouteComponent,
 });
 

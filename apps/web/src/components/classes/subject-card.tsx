@@ -41,9 +41,13 @@ export function SubjectCard({ subject }: { subject: SubjectListItem }) {
 					<h3 className="text-pretty font-semibold text-lg leading-tight xl:text-2xl">{subject?.name}</h3>
 					{/*<p className="font-light text-sm"> {subject?.totalContent} Konten</p>*/}
 
-					<p className="font-light text-sm">
-						<span className="uppercase">{subject.category}</span> Kelas #
-					</p>
+					{subject.category === "utbk" ? (
+						<p className="font-light text-sm">SMA Kelas 12</p>
+					) : (
+						<p className="font-light text-sm">
+							<span className="uppercase">{subject.category}</span> Kelas {subject.gradeLevel ?? "-"}
+						</p>
+					)}
 				</div>
 
 				{isLocked ? (
@@ -55,13 +59,12 @@ export function SubjectCard({ subject }: { subject: SubjectListItem }) {
 					<div className="flex flex-col items-end justify-between gap-y-4.5">
 						<div className="space-x-3">
 							{subject?.category && <Badge className="font-normal uppercase">{subject?.category}</Badge>}
-							{/* Todo: update logic */}
-							<Badge className="font-normal">Sudah Pernah Dibuka</Badge>
+							{subject.hasViewed && <Badge className="font-normal">Sudah Pernah Dibuka</Badge>}
 						</div>
 
 						<Link
-							to={isAdmin ? "/admin/classes/$shortName" : "/classes/$shortName"}
-							params={{ shortName: subject?.shortName?.toLowerCase() }}
+							to={isAdmin ? "/admin/classes/$subjectId" : "/classes/$subjectId"}
+							params={{ subjectId: subject?.id?.toString() }}
 							className={cn(buttonVariants({ size: "icon" }), "z-10 mt-auto mb-0")}
 						>
 							{isAdmin ? <PencilSimpleIcon size={18} weight="bold" /> : <ArrowRightIcon size={18} weight="bold" />}

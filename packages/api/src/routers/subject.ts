@@ -7,6 +7,7 @@ import {
 	recentContentView,
 	subject,
 	userProgress,
+	userSubjectView,
 	videoMaterial,
 } from "@bimbelbeta/db/schema/subject";
 import { ORPCError } from "@orpc/client";
@@ -48,16 +49,16 @@ const listSubjects = authed
 	})
 	.input(
 		type({
-			category: type("'sd' | 'smp' | 'sma' | 'utbk'").optional(),
-			search: type("string").optional(),
-		}),
+			"category?": "'sd' | 'smp' | 'sma' | 'utbk'",
+			"search?": "string",
+		}).or(type({})),
 	)
-	.handler(async ({ input }) => {
+	.handler(async ({ input, context }) => {
 		const conditions = [];
-		if (input.category) {
+		if (input?.category) {
 			conditions.push(eq(subject.category, input.category));
 		}
-		if (input.search) {
+		if (input?.search) {
 			conditions.push(ilike(subject.name, `%${escapeLikePattern(input.search)}%`));
 		}
 
@@ -69,12 +70,26 @@ const listSubjects = authed
 				description: subject.description,
 				order: subject.order,
 				category: subject.category,
+				gradeLevel: subject.gradeLevel,
 				totalContent: sql<number>`COUNT(${contentItem.id})`,
+				hasViewed: sql<boolean>`EXISTS(
+					SELECT 1 FROM ${userSubjectView}
+					WHERE ${userSubjectView.userId} = ${context.session.user.id}
+					AND ${userSubjectView.subjectId} = ${subject.id}
+				)`,
 			})
 			.from(subject)
 			.leftJoin(contentItem, eq(contentItem.subjectId, subject.id))
 			.where(conditions.length > 0 ? and(...conditions) : undefined)
-			.groupBy(subject.id, subject.name, subject.shortName, subject.description, subject.order, subject.category)
+			.groupBy(
+				subject.id,
+				subject.name,
+				subject.shortName,
+				subject.description,
+				subject.order,
+				subject.category,
+				subject.gradeLevel,
+			)
 			.orderBy(subject.order);
 
 		return subjects;
@@ -84,7 +99,7 @@ const listSubjects = authed
  * Get content items by subject and category
  * Returns ALL content items with metadata (no content detail)
  * Frontend will show lock overlay for premium content
- * GET /api/subjects/{subjectId}/content
+ * GET /api/subjects/{subjectId}/content or /api/subjects/by-shortname/{shortName}/content
  */
 const listContentBySubjectCategory = authedRateLimited
 	.route({
@@ -95,15 +110,22 @@ const listContentBySubjectCategory = authedRateLimited
 	.input(
 		type({
 			subjectId: "number",
-			category: type("'material' | 'tips_and_trick'").optional(),
-			search: type("string").optional(),
-			limit: type("number >= 1").optional(),
-			offset: type("number >= 0").optional(),
+			"search?": "string",
+			"limit?": "number >= 1",
+			"offset?": "number >= 0",
 		}),
 	)
 	.handler(async ({ input, context }) => {
 		const [targetSubject] = await db
-			.select({ order: subject.order })
+			.select({
+				id: subject.id,
+				name: subject.name,
+				shortName: subject.shortName,
+				description: subject.description,
+				order: subject.order,
+				category: subject.category,
+				gradeLevel: subject.gradeLevel,
+			})
 			.from(subject)
 			.where(eq(subject.id, input.subjectId))
 			.limit(1);
@@ -113,9 +135,6 @@ const listContentBySubjectCategory = authedRateLimited
 		}
 
 		const conditions = [eq(contentItem.subjectId, input.subjectId)];
-		if (input.category) {
-			conditions.push(eq(contentItem.type, input.category));
-		}
 		if (input.search) {
 			conditions.push(ilike(contentItem.title, `%${escapeLikePattern(input.search)}%`));
 		}
@@ -156,7 +175,10 @@ const listContentBySubjectCategory = authedRateLimited
 				userProgress.lastViewedAt,
 			);
 
-		return items;
+		return {
+			subject: targetSubject,
+			items,
+		};
 	});
 
 const getContentById = authedRateLimited
@@ -175,7 +197,6 @@ const getContentById = authedRateLimited
 			.select({
 				id: contentItem.id,
 				title: contentItem.title,
-				type: contentItem.type,
 				order: contentItem.order,
 				subjectId: contentItem.subjectId,
 				subtestOrder: subject.order,
@@ -275,7 +296,6 @@ const getContentById = authedRateLimited
 		return {
 			id: row.id,
 			title: row.title,
-			type: row.type,
 			subjectId: row.subjectId,
 			video: row.videoId
 				? {
@@ -421,7 +441,6 @@ const getRecentViews = authedRateLimited
 				viewedAt: recentContentView.viewedAt,
 				contentId: contentItem.id,
 				contentTitle: contentItem.title,
-				contentType: contentItem.type,
 				subjectId: subject.id,
 				subtestName: subject.name,
 				subtestShortName: subject.shortName,
@@ -440,7 +459,6 @@ const getRecentViews = authedRateLimited
 				recentContentView.viewedAt,
 				contentItem.id,
 				contentItem.title,
-				contentItem.type,
 				subject.id,
 				subject.name,
 				subject.shortName,
@@ -465,6 +483,43 @@ const getRecentViews = authedRateLimited
 		return Array.from(finalMap.values())
 			.sort((a, b) => new Date(b.viewedAt).getTime() - new Date(a.viewedAt).getTime())
 			.slice(0, 5);
+	});
+
+/**
+ * Track subject view (when user opens a subject)
+ * POST /api/subjects/{subjectId}/view
+ */
+const trackSubjectView = authed
+	.route({
+		path: "/subjects/{subjectId}/view",
+		method: "POST",
+		tags: ["Content"],
+	})
+	.input(type({ subjectId: "number" }))
+	.output(type({ message: "string" }))
+	.handler(async ({ input, context }) => {
+		const [targetSubject] = await db
+			.select({ id: subject.id })
+			.from(subject)
+			.where(eq(subject.id, input.subjectId))
+			.limit(1);
+
+		if (!targetSubject) {
+			throw new ORPCError("NOT_FOUND", { message: "Subject tidak ditemukan" });
+		}
+
+		await db
+			.insert(userSubjectView)
+			.values({
+				userId: context.session.user.id,
+				subjectId: input.subjectId,
+			})
+			.onConflictDoUpdate({
+				target: [userSubjectView.userId, userSubjectView.subjectId],
+				set: { viewedAt: new Date(), updatedAt: new Date() },
+			});
+
+		return { message: "Berhasil mencatat aktivitas" };
 	});
 
 /**
@@ -557,6 +612,7 @@ export const subjectRouter = {
 	listContentBySubjectCategory,
 	getContentById,
 	trackView,
+	trackSubjectView,
 	getRecentViews,
 	updateProgress,
 	getProgressStats,

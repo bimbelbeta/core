@@ -1,5 +1,13 @@
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
-import { contentItem, noteMaterial, recentContentView, subject, userProgress, videoMaterial } from "../schema/subject";
+import {
+	contentItem,
+	contentPracticeQuestions,
+	noteMaterial,
+	recentContentView,
+	subject,
+	userProgress,
+	videoMaterial,
+} from "../schema/subject";
 
 const UTBK_DATA = [
 	{
@@ -60,6 +68,7 @@ const SD_DATA = [
 		description: "Materi matematika untuk siswa Sekolah Dasar.",
 		order: 1,
 		category: "sd" as const,
+		gradeLevel: 6,
 	},
 	{
 		name: "Bahasa Indonesia SD",
@@ -67,6 +76,7 @@ const SD_DATA = [
 		description: "Materi bahasa Indonesia untuk siswa Sekolah Dasar.",
 		order: 2,
 		category: "sd" as const,
+		gradeLevel: 5,
 	},
 	{
 		name: "Ilmu Pengetahuan Alam SD",
@@ -74,6 +84,7 @@ const SD_DATA = [
 		description: "Materi IPA untuk siswa Sekolah Dasar.",
 		order: 3,
 		category: "sd" as const,
+		gradeLevel: 6,
 	},
 	{
 		name: "Ilmu Pengetahuan Sosial SD",
@@ -81,6 +92,7 @@ const SD_DATA = [
 		description: "Materi IPS untuk siswa Sekolah Dasar.",
 		order: 4,
 		category: "sd" as const,
+		gradeLevel: 5,
 	},
 ];
 
@@ -91,6 +103,7 @@ const SMP_DATA = [
 		description: "Materi matematika untuk siswa Sekolah Menengah Pertama.",
 		order: 1,
 		category: "smp" as const,
+		gradeLevel: 9,
 	},
 	{
 		name: "Bahasa Indonesia SMP",
@@ -98,6 +111,7 @@ const SMP_DATA = [
 		description: "Materi bahasa Indonesia untuk siswa Sekolah Menengah Pertama.",
 		order: 2,
 		category: "smp" as const,
+		gradeLevel: 8,
 	},
 	{
 		name: "Bahasa Inggris SMP",
@@ -105,6 +119,7 @@ const SMP_DATA = [
 		description: "Materi bahasa Inggris untuk siswa Sekolah Menengah Pertama.",
 		order: 3,
 		category: "smp" as const,
+		gradeLevel: 9,
 	},
 	{
 		name: "Ilmu Pengetahuan Alam SMP",
@@ -112,6 +127,7 @@ const SMP_DATA = [
 		description: "Materi IPA untuk siswa Sekolah Menengah Pertama.",
 		order: 4,
 		category: "smp" as const,
+		gradeLevel: 8,
 	},
 	{
 		name: "Ilmu Pengetahuan Sosial SMP",
@@ -119,6 +135,7 @@ const SMP_DATA = [
 		description: "Materi IPS untuk siswa Sekolah Menengah Pertama.",
 		order: 5,
 		category: "smp" as const,
+		gradeLevel: 9,
 	},
 ];
 
@@ -129,6 +146,7 @@ const SMA_DATA = [
 		description: "Materi matematika untuk siswa Sekolah Menengah Atas.",
 		order: 1,
 		category: "sma" as const,
+		gradeLevel: 12,
 	},
 	{
 		name: "Bahasa Indonesia SMA",
@@ -136,6 +154,7 @@ const SMA_DATA = [
 		description: "Materi bahasa Indonesia untuk siswa Sekolah Menengah Atas.",
 		order: 2,
 		category: "sma" as const,
+		gradeLevel: 11,
 	},
 	{
 		name: "Bahasa Inggris SMA",
@@ -143,6 +162,7 @@ const SMA_DATA = [
 		description: "Materi bahasa Inggris untuk siswa Sekolah Menengah Atas.",
 		order: 3,
 		category: "sma" as const,
+		gradeLevel: 12,
 	},
 	{
 		name: "Fisika SMA",
@@ -150,6 +170,7 @@ const SMA_DATA = [
 		description: "Materi fisika untuk siswa Sekolah Menengah Atas.",
 		order: 4,
 		category: "sma" as const,
+		gradeLevel: 11,
 	},
 	{
 		name: "Kimia SMA",
@@ -157,6 +178,7 @@ const SMA_DATA = [
 		description: "Materi kimia untuk siswa Sekolah Menengah Atas.",
 		order: 5,
 		category: "sma" as const,
+		gradeLevel: 11,
 	},
 	{
 		name: "Biologi SMA",
@@ -164,6 +186,7 @@ const SMA_DATA = [
 		description: "Materi biologi untuk siswa Sekolah Menengah Atas.",
 		order: 6,
 		category: "sma" as const,
+		gradeLevel: 12,
 	},
 	{
 		name: "Ekonomi SMA",
@@ -171,6 +194,7 @@ const SMA_DATA = [
 		description: "Materi ekonomi untuk siswa Sekolah Menengah Atas.",
 		order: 7,
 		category: "sma" as const,
+		gradeLevel: 10,
 	},
 	{
 		name: "Sosiologi SMA",
@@ -178,6 +202,7 @@ const SMA_DATA = [
 		description: "Materi sosiologi untuk siswa Sekolah Menengah Atas.",
 		order: 8,
 		category: "sma" as const,
+		gradeLevel: 10,
 	},
 	{
 		name: "Sejarah SMA",
@@ -185,6 +210,7 @@ const SMA_DATA = [
 		description: "Materi sejarah untuk siswa Sekolah Menengah Atas.",
 		order: 9,
 		category: "sma" as const,
+		gradeLevel: 11,
 	},
 	{
 		name: "Geografi SMA",
@@ -192,6 +218,7 @@ const SMA_DATA = [
 		description: "Materi geografi untuk siswa Sekolah Menengah Atas.",
 		order: 10,
 		category: "sma" as const,
+		gradeLevel: 10,
 	},
 ];
 
@@ -249,5 +276,386 @@ export async function seedSubtest(db: NodePgDatabase) {
 		console.log(`  - SD: ${insertedSubjects.filter((s) => s.category === "sd").length}`);
 		console.log(`  - SMP: ${insertedSubjects.filter((s) => s.category === "smp").length}`);
 		console.log(`  - SMA: ${insertedSubjects.filter((s) => s.category === "sma").length}`);
+	});
+}
+
+const CONTENT_DATA = [
+	{
+		subjectId: 27,
+		title: "Pengantar Penalaran Deduktif",
+		order: 1,
+		videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+		noteContent: {
+			type: "doc",
+			content: [
+				{
+					type: "heading",
+					attrs: { level: 1 },
+					content: [{ type: "text", text: "Penalaran Deduktif" }],
+				},
+				{
+					type: "paragraph",
+					content: [
+						{
+							type: "text",
+							text: "Penalaran deduktif adalah proses penalaran yang bergerak dari pernyataan umum ke pernyataan khusus. Metode ini sering disebut sebagai pendekatan top-down.",
+						},
+					],
+				},
+				{
+					type: "heading",
+					attrs: { level: 2 },
+					content: [{ type: "text", text: "Ciri-ciri Penalaran Deduktif" }],
+				},
+				{
+					type: "bulletList",
+					content: [
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Dimulai dari prinsip atau hukum umum" }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Menuju kesimpulan yang lebih spesifik" }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Menggunakan silogisme sebagai dasar penalaran" }],
+								},
+							],
+						},
+					],
+				},
+				{
+					type: "heading",
+					attrs: { level: 2 },
+					content: [{ type: "text", text: "Contoh Penalaran Deduktif" }],
+				},
+				{
+					type: "paragraph",
+					content: [
+						{
+							type: "text",
+							text: "Semua manusia akan mati (premis mayor). Socrates adalah manusia (premis minor). Therefore, Socrates akan mati (kesimpulan).",
+						},
+					],
+				},
+			],
+		},
+	},
+	{
+		subjectId: 27,
+		title: "Penalaran Induktif",
+		order: 2,
+		videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+		noteContent: {
+			type: "doc",
+			content: [
+				{
+					type: "heading",
+					attrs: { level: 1 },
+					content: [{ type: "text", text: "Penalaran Induktif" }],
+				},
+				{
+					type: "paragraph",
+					content: [
+						{
+							type: "text",
+							text: "Penalaran induktif adalah proses penalaran yang bergerak dari pernyataan khusus ke pernyataan umum. Metode ini sering disebut sebagai pendekatan bottom-up.",
+						},
+					],
+				},
+				{
+					type: "heading",
+					attrs: { level: 2 },
+					content: [{ type: "text", text: "Ciri-ciri Penalaran Induktif" }],
+				},
+				{
+					type: "bulletList",
+					content: [
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Dimulai dari fakta-fakta khusus" }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Menuju kesimpulan yang bersifat umum" }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Kesimpulan bersifat probabilistik (tidak pasti)" }],
+								},
+							],
+						},
+					],
+				},
+				{
+					type: "heading",
+					attrs: { level: 2 },
+					content: [{ type: "text", text: "Contoh Penalaran Induktif" }],
+				},
+				{
+					type: "paragraph",
+					content: [
+						{
+							type: "text",
+							text: "Burung elang terbang, burung pipit terbang, burung gagak terbang. Therefore, semua burung dapat terbang (kesimpulan yang tidak selalu benar).",
+						},
+					],
+				},
+			],
+		},
+	},
+	{
+		subjectId: 27,
+		title: "Logika dan Himpunan",
+		order: 3,
+		videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+		noteContent: {
+			type: "doc",
+			content: [
+				{
+					type: "heading",
+					attrs: { level: 1 },
+					content: [{ type: "text", text: "Logika dan Himpunan" }],
+				},
+				{
+					type: "paragraph",
+					content: [
+						{
+							type: "text",
+							text: "Himpunan adalah kumpulan objek yang memiliki definisi yang jelas. Dalam penalaran, himpunan digunakan untuk mengklasifikasikan dan mengorganisir informasi.",
+						},
+					],
+				},
+				{
+					type: "heading",
+					attrs: { level: 2 },
+					content: [{ type: "text", text: "Operasi Himpunan" }],
+				},
+				{
+					type: "bulletList",
+					content: [
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Irisan (∩): Elemen yang dimiliki kedua himpunan" }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Gabungan (∪): Elemen yang dimiliki minimal satu himpunan" }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Komplemen (A^c): Elemen yang tidak dimiliki himpunan" }],
+								},
+							],
+						},
+					],
+				},
+				{
+					type: "heading",
+					attrs: { level: 2 },
+					content: [{ type: "text", text: "Penerapan dalam Penalaran" }],
+				},
+				{
+					type: "paragraph",
+					content: [
+						{
+							type: "text",
+							text: "Konsep himpunan sering digunakan dalam soal penalaran untuk menguji kemampuan logika dan kemampuan membedakan kategori.",
+						},
+					],
+				},
+			],
+		},
+	},
+	{
+		subjectId: 27,
+		title: "Pola Bilangan dan Deret",
+		order: 4,
+		videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+		noteContent: {
+			type: "doc",
+			content: [
+				{
+					type: "heading",
+					attrs: { level: 1 },
+					content: [{ type: "text", text: "Pola Bilangan dan Deret" }],
+				},
+				{
+					type: "paragraph",
+					content: [
+						{
+							type: "text",
+							text: "Pola bilangan adalah susunan bilangan yang mengikuti aturan tertentu. Deret adalah penjumlahan dari urutan bilangan.",
+						},
+					],
+				},
+				{
+					type: "heading",
+					attrs: { level: 2 },
+					content: [{ type: "text", text: "Jenis-jenis Pola Bilangan" }],
+				},
+				{
+					type: "bulletList",
+					content: [
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Pola bilangan ganjil: 1, 3, 5, 7, 9, ..." }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Pola bilangan genap: 2, 4, 6, 8, 10, ..." }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Pola bilangan segitiga: 1, 3, 6, 10, 15, ..." }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Pola bilangan kuadrat: 1, 4, 9, 16, 25, ..." }],
+								},
+							],
+						},
+					],
+				},
+			],
+		},
+	},
+];
+
+export async function clearContent(db: NodePgDatabase) {
+	try {
+		await db.delete(userProgress);
+	} catch {
+		console.log("user_progress table not found, skipping clear");
+	}
+
+	try {
+		await db.delete(recentContentView);
+	} catch {
+		console.log("recent_content_view table not found, skipping clear");
+	}
+
+	try {
+		await db.delete(contentPracticeQuestions);
+	} catch {
+		console.log("content_practice_questions table not found, skipping clear");
+	}
+
+	try {
+		await db.delete(videoMaterial);
+	} catch {
+		console.log("video_material table not found, skipping clear");
+	}
+
+	try {
+		await db.delete(noteMaterial);
+	} catch {
+		console.log("note_material table not found, skipping clear");
+	}
+
+	try {
+		await db.delete(contentItem);
+	} catch {
+		console.log("content_item table not found, skipping clear");
+	}
+}
+
+export async function seedContent(db: NodePgDatabase) {
+	await db.transaction(async (tx) => {
+		const insertedContents = await tx
+			.insert(contentItem)
+			.values(
+				CONTENT_DATA.map((c) => ({
+					subjectId: c.subjectId,
+					title: c.title,
+					order: c.order,
+				})),
+			)
+			.returning({
+				id: contentItem.id,
+				subjectId: contentItem.subjectId,
+				title: contentItem.title,
+			});
+
+		console.log(`Content: ${insertedContents.length} created`);
+
+		for (const content of insertedContents) {
+			const sourceContent = CONTENT_DATA.find((c) => c.title === content.title && c.subjectId === content.subjectId);
+			if (!sourceContent) continue;
+
+			await tx.insert(videoMaterial).values({
+				contentItemId: content.id,
+				videoUrl: sourceContent.videoUrl,
+				content: {},
+			});
+
+			await tx.insert(noteMaterial).values({
+				contentItemId: content.id,
+				content: sourceContent.noteContent,
+			});
+
+			console.log(`  - ${content.title}: video + notes created`);
+		}
+
+		console.log("Content seed completed!");
 	});
 }

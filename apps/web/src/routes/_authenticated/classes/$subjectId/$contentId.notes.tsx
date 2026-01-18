@@ -5,7 +5,7 @@ import { EmptyContentState } from "@/components/classes/empty-content-state";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { orpc } from "@/utils/orpc";
 
-export const Route = createFileRoute("/_authenticated/classes/$shortName/$contentId/notes")({
+export const Route = createFileRoute("/_authenticated/classes/$subjectId/$contentId/notes")({
 	component: RouteComponent,
 });
 
