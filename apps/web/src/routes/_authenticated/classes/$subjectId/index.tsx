@@ -54,8 +54,8 @@ function RouteComponent() {
 		navigate({ search: cleanSearch });
 	};
 
-	const contents = useQuery(
-		orpc.subject.listContentBySubjectCategory.queryOptions({
+	const contents = useQuery({
+		...orpc.subject.listContentBySubjectCategory.queryOptions({
 			input: {
 				subjectId: Number(subjectId),
 				search: searchQuery || undefined,
@@ -63,7 +63,8 @@ function RouteComponent() {
 				offset: page * 20,
 			},
 		}),
-	);
+		placeholderData: (previousData) => previousData,
+	});
 
 	const trackSubjectViewMutation = useMutation(orpc.subject.trackSubjectView.mutationOptions());
 
@@ -89,9 +90,9 @@ function RouteComponent() {
 			</Container>
 		);
 	}
-  if (!contents.data) return notFound();
+	if (!contents.data) return notFound();
 
-  console.log(contents.data.subject);
+	console.log(contents.data.subject);
 
 	return (
 		<div className="-mt-5 space-y-4 sm:-mt-3">
