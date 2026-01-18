@@ -13,14 +13,14 @@ const list = authed
 	})
 	.input(
 		type({
-			cursor: "number?",
-			limit: "number?",
+			cursor: "number? = 0",
+			limit: "number? = 20",
 			search: "string?",
 		}),
 	)
 	.handler(async ({ input, errors }) => {
-		const limit = Math.min(input.limit ?? 20, 100);
-		const cursor = input.cursor ?? 0;
+		const limit = Math.min(input.limit, 100);
+		const cursor = input.cursor;
 
 		const data = await db
 			.select({
