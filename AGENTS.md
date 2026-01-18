@@ -106,7 +106,7 @@ apps/web/src/routes/
 - Keep functions focused and under 50 lines when possible
 - Use custom hooks for reusable logic in `hooks/` directories
 - Do not clear `.turbo` or other cache directories
-- Avoid prop drilling - use context or state management (zustand)
+- IMPORTANT: Avoid prop drilling - use context (leverage Tanstack Query and Router for path and data context) or state management (zustand)
 - Server state: TanStack Query, client state: zustand
 - Forms: TanStack Form with Arktype validators
 - Minimize comments - code should be self-documenting

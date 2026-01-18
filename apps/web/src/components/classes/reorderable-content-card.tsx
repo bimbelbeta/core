@@ -1,6 +1,6 @@
 import { Reorder, useDragControls } from "motion/react";
-import { ContentCard } from "./content-card";
 import type { ContentListItem } from "./classes-types";
+import { ContentCard } from "./content-card";
 
 export function ReorderableContentCard({
 	item,

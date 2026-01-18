@@ -1,16 +1,19 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useParams } from "@tanstack/react-router";
 import { orpc } from "@/utils/orpc";
 import { useTryoutStore } from "../-hooks/use-tryout-store";
 import type { QuestionChoice } from "../-types/tryout";
 import { AnswerOption } from "./answer-option";
 
 interface AnswerPanelProps {
-	tryoutId: number;
 	questionId: number;
 	choices: QuestionChoice[];
 }
 
-export function AnswerPanel({ tryoutId, questionId, choices }: AnswerPanelProps) {
+export function AnswerPanel({ questionId, choices }: AnswerPanelProps) {
+	const { tryoutId: stringTryoutId } = useParams({ from: "/_authenticated/tryout/$tryoutId" });
+	const tryoutId = Number(stringTryoutId);
+
 	const queryClient = useQueryClient();
 	const { answers, setAnswer } = useTryoutStore();
 

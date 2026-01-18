@@ -2,7 +2,7 @@ import { ArrowRightIcon, LockIcon, LockKeyIcon, PencilSimpleIcon } from "@phosph
 import { Link } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { Card } from "@/components/ui/card";
-import { canAccessContent, isSubtestPremium } from "@/lib/premium-config";
+import { isSubtestPremium } from "@/lib/premium-config";
 import { cn } from "@/lib/utils";
 import { useIsAdmin } from "@/utils/is-admin";
 import { buttonVariants } from "../ui/button";
@@ -29,10 +29,7 @@ export function SubtestCard({
 
 	return (
 		<Card
-			className={cn(
-				backgroundClass,
-				"relative min-h-40 overflow-hidden border-0 p-4 shadow-md/20 hover:shadow-lg/20",
-			)}
+			className={cn(backgroundClass, "relative min-h-40 overflow-hidden border-0 p-4 shadow-md/20 hover:shadow-lg/20")}
 		>
 			{/* Lock overlay for premium content */}
 			{isLocked && (

@@ -1,5 +1,6 @@
 import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useParams } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -15,27 +16,26 @@ import {
 import { orpc } from "@/utils/orpc";
 import { useTryoutStore } from "../-hooks/use-tryout-store";
 
-interface QuestionFooterProps {
-	tryoutId: number;
-	subtestId: number;
-	currentIndex: number;
-	isLastQuestion: boolean;
-}
+export function QuestionFooter() {
+	const { tryoutId: stringTryoutId } = useParams({ from: "/_authenticated/tryout/$tryoutId" });
+	const tryoutId = Number(stringTryoutId);
 
-export function QuestionFooter({ tryoutId, subtestId, currentIndex, isLastQuestion }: QuestionFooterProps) {
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 	const queryClient = useQueryClient();
-	const { setView, nextQuestion, prevQuestion, toggleRaguRagu } = useTryoutStore();
+	const { currentQuestionIndex, setView, nextQuestion, prevQuestion, toggleRaguRagu } = useTryoutStore();
 
-	const { data: tryout } = useQuery(
+	const { data } = useQuery(
 		orpc.tryout.find.queryOptions({
 			input: { id: tryoutId },
 		}),
 	);
 
-	const subtests = tryout?.subtests ?? [];
+	const questions = data?.currentSubtest?.questions ?? [];
+	const subtestId = data?.currentSubtest?.id;
+	const subtests = data?.subtests ?? [];
 	const currentSubtestIndex = subtests.findIndex((s) => s.id === subtestId);
 	const nextSubtest = subtests[currentSubtestIndex + 1];
+	const isLastQuestion = currentQuestionIndex === questions.length - 1;
 
 	const submitSubtestMutation = useMutation(
 		orpc.tryout.submitSubtest.mutationOptions({
@@ -62,6 +62,7 @@ export function QuestionFooter({ tryoutId, subtestId, currentIndex, isLastQuesti
 	};
 
 	const handleConfirmSubmit = () => {
+		if (!subtestId) return;
 		submitSubtestMutation.mutate({ tryoutId, subtestId });
 	};
 
@@ -76,7 +77,11 @@ export function QuestionFooter({ tryoutId, subtestId, currentIndex, isLastQuesti
 	return (
 		<>
 			<div className="flex items-center justify-between">
-				<Button variant="outline" onClick={handlePrev} disabled={currentIndex === 0 || submitSubtestMutation.isPending}>
+				<Button
+					variant="outline"
+					onClick={handlePrev}
+					disabled={currentQuestionIndex === 0 || submitSubtestMutation.isPending}
+				>
 					<ArrowLeftIcon />
 					Sebelumnya
 				</Button>

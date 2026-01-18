@@ -3,10 +3,10 @@ import { Reorder } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useIsAdmin } from "@/utils/is-admin";
+import type { ContentFilter, ContentListItem } from "./classes-types";
 import { ContentCard } from "./content-card";
 import { EmptyContentState } from "./empty-content-state";
 import { ReorderableContentCard } from "./reorderable-content-card";
-import type { ContentListItem, ContentFilter } from "./classes-types";
 
 /**
  * Check if a content item is completed based on available components

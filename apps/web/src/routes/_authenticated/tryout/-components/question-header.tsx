@@ -1,22 +1,35 @@
 import { ClockIcon } from "@phosphor-icons/react";
+import { useQuery } from "@tanstack/react-query";
+import { useParams } from "@tanstack/react-router";
 import { buttonVariants } from "@/components/ui/button";
 import useCountdown from "@/lib/hooks/use-countdown";
 import { cn } from "@/lib/utils";
+import { orpc } from "@/utils/orpc";
+import { useTryoutStore } from "../-hooks/use-tryout-store";
 
-interface QuestionHeaderProps {
-	currentIndex: number;
-	totalQuestions: number;
-	deadline: Date | null;
-}
+export function QuestionHeader() {
+	const { tryoutId: stringTryoutId } = useParams({ from: "/_authenticated/tryout/$tryoutId" });
+	const tryoutId = Number(stringTryoutId);
 
-export function QuestionHeader({ currentIndex, totalQuestions, deadline }: QuestionHeaderProps) {
+	const { currentQuestionIndex } = useTryoutStore();
+
+	const { data } = useQuery(
+		orpc.tryout.find.queryOptions({
+			input: { id: tryoutId },
+		}),
+	);
+
+	const questions = data?.currentSubtest?.questions ?? [];
+	const totalQuestions = questions.length;
+	const deadline = data?.currentSubtest?.deadline ?? null;
+
 	const [, hours, minutes, seconds] = useCountdown(deadline || 0);
 	const isExpired = hours === "00" && minutes === "00" && seconds === "00" && deadline !== null;
 
 	return (
 		<div className="flex items-center justify-between">
 			<span className="font-medium text-lg">
-				Soal {currentIndex + 1} dari {totalQuestions}
+				Soal {currentQuestionIndex + 1} dari {totalQuestions}
 			</span>
 			{deadline && (
 				<div

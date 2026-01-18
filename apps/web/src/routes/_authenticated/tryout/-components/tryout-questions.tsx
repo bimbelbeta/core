@@ -1,14 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
+import { useParams } from "@tanstack/react-router";
 import { useEffect } from "react";
+import { Card } from "@/components/ui/card";
 import { orpc } from "@/utils/orpc";
 import { useTryoutStore } from "../-hooks/use-tryout-store";
-import { QuestionCard } from "./question-card";
+import { QuestionBody } from "./question-body";
+import { QuestionFooter } from "./question-footer";
+import { QuestionHeader } from "./question-header";
 
-interface TryoutQuestionsProps {
-	tryoutId: number;
-}
+export function TryoutQuestions() {
+	const { tryoutId: stringTryoutId } = useParams({ from: "/_authenticated/tryout/$tryoutId" });
+	const tryoutId = Number(stringTryoutId);
 
-export function TryoutQuestions({ tryoutId }: TryoutQuestionsProps) {
 	const { data } = useQuery(
 		orpc.tryout.find.queryOptions({
 			input: { id: tryoutId },
@@ -18,7 +21,6 @@ export function TryoutQuestions({ tryoutId }: TryoutQuestionsProps) {
 	const { view, currentQuestionIndex, setCurrentQuestion } = useTryoutStore();
 
 	const questions = data?.currentSubtest?.questions ?? [];
-	const deadline = data?.currentSubtest?.deadline ?? null;
 
 	useEffect(() => {
 		if (currentQuestionIndex >= questions.length) {
@@ -27,21 +29,16 @@ export function TryoutQuestions({ tryoutId }: TryoutQuestionsProps) {
 	}, [questions.length, currentQuestionIndex, setCurrentQuestion]);
 
 	const currentQuestion = questions[currentQuestionIndex];
-	const isLastQuestion = currentQuestionIndex === questions.length - 1;
 
 	if (!data?.currentSubtest || !currentQuestion || view === "greeting") {
 		return null;
 	}
 
 	return (
-		<QuestionCard
-			tryoutId={tryoutId}
-			subtestId={data.currentSubtest.id}
-			question={currentQuestion}
-			currentIndex={currentQuestionIndex}
-			totalQuestions={questions.length}
-			isLastQuestion={isLastQuestion}
-			deadline={deadline}
-		/>
+		<Card className="flex flex-col gap-4 p-4">
+			<QuestionHeader />
+			<QuestionBody question={currentQuestion} />
+			<QuestionFooter />
+		</Card>
 	);
 }
