@@ -17,21 +17,21 @@ function RouteComponent() {
 	const hasUpdatedProgress = useRef(false);
 
 	const content = useQuery(
-		orpc.subtest.getContentById.queryOptions({
+		orpc.subject.getContentById.queryOptions({
 			input: { contentId: Number(contentId) },
 		}),
 	);
 
 	const updateProgressMutation = useMutation(
-		orpc.subtest.updateProgress.mutationOptions({
+		orpc.subject.updateProgress.mutationOptions({
 			onSuccess: () => {
 				console.log("Progress updated successfully for video:", contentId);
 				queryClient.invalidateQueries({
-					queryKey: orpc.subtest.getProgressStats.key(),
+					queryKey: orpc.subject.getProgressStats.key(),
 				});
 				// Also invalidate the content list to refresh completed status
 				queryClient.invalidateQueries({
-					queryKey: orpc.subtest.listContentByCategory.key(),
+					queryKey: orpc.subject.listContentBySubjectCategory.key(),
 				});
 			},
 			onError: (error) => {

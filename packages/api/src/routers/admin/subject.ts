@@ -3,21 +3,21 @@ import {
 	contentItem,
 	contentPracticeQuestions,
 	noteMaterial,
-	subtest,
+	subject,
 	videoMaterial,
-} from "@bimbelbeta/db/schema/subtest";
+} from "@bimbelbeta/db/schema/subject";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { and, eq } from "drizzle-orm";
 import { admin } from "../..";
 
 /**
- * Create new subtest (class)
- * POST /api/admin/subtests
+ * Create new subject (class)
+ * POST /api/admin/subjects
  */
-const createSubtest = admin
+const createSubject = admin
 	.route({
-		path: "/admin/subtests",
+		path: "/admin/subjects",
 		method: "POST",
 		tags: ["Admin - Classes"],
 	})
@@ -27,17 +27,19 @@ const createSubtest = admin
 			shortName: "string",
 			description: "string?",
 			order: "number?",
+			category: type("'sd' | 'smp' | 'sma' | 'utbk'")?.optional(),
 		}),
 	)
 	.output(type({ message: "string", id: "number" }))
 	.handler(async ({ input }) => {
 		const [created] = await db
-			.insert(subtest)
+			.insert(subject)
 			.values({
 				name: input.name,
 				shortName: input.shortName,
 				description: input.description ?? null,
 				order: input.order ?? 1,
+				category: input.category ?? "utbk",
 			})
 			.returning();
 
@@ -53,12 +55,12 @@ const createSubtest = admin
 	});
 
 /**
- * Update subtest (class)
- * PATCH /api/admin/subtests/{id}
+ * Update subject (class)
+ * PATCH /api/admin/subjects/{id}
  */
-const updateSubtest = admin
+const updateSubject = admin
 	.route({
-		path: "/admin/subtests/{id}",
+		path: "/admin/subjects/{id}",
 		method: "PATCH",
 		tags: ["Admin - Classes"],
 	})
@@ -69,6 +71,7 @@ const updateSubtest = admin
 			shortName: "string?",
 			description: "string?",
 			order: "number?",
+			category: type("'sd' | 'smp' | 'sma' | 'utbk'")?.optional(),
 		}),
 	)
 	.output(type({ message: "string" }))
@@ -78,6 +81,7 @@ const updateSubtest = admin
 			shortName?: string;
 			description?: string | null;
 			order?: number;
+			category?: "sd" | "smp" | "sma" | "utbk";
 			updatedAt: Date;
 		} = {
 			updatedAt: new Date(),
@@ -87,8 +91,9 @@ const updateSubtest = admin
 		if (input.shortName !== undefined) updateData.shortName = input.shortName;
 		if (input.description !== undefined) updateData.description = input.description ?? null;
 		if (input.order !== undefined) updateData.order = input.order;
+		if (input.category !== undefined) updateData.category = input.category;
 
-		const [updatedRow] = await db.update(subtest).set(updateData).where(eq(subtest.id, input.id)).returning();
+		const [updatedRow] = await db.update(subject).set(updateData).where(eq(subject.id, input.id)).returning();
 
 		if (!updatedRow)
 			throw new ORPCError("NOT_FOUND", {
@@ -99,19 +104,19 @@ const updateSubtest = admin
 	});
 
 /**
- * Delete subtest (class)
- * DELETE /api/admin/subtests/{id}
+ * Delete subject (class)
+ * DELETE /api/admin/subjects/{id}
  */
-const deleteSubtest = admin
+const deleteSubject = admin
 	.route({
-		path: "/admin/subtests/{id}",
+		path: "/admin/subjects/{id}",
 		method: "DELETE",
 		tags: ["Admin - Classes"],
 	})
 	.input(type({ id: "number" }))
 	.output(type({ message: "string" }))
 	.handler(async ({ input }) => {
-		const [deletedRow] = await db.delete(subtest).where(eq(subtest.id, input.id)).returning();
+		const [deletedRow] = await db.delete(subject).where(eq(subject.id, input.id)).returning();
 
 		if (!deletedRow)
 			throw new ORPCError("NOT_FOUND", {
@@ -123,11 +128,11 @@ const deleteSubtest = admin
 
 /**
  * Reorder subtests (classes)
- * PATCH /api/admin/subtests/reorder
+ * PATCH /api/admin/subjects/reorder
  */
-const reorderSubtests = admin
+const reorderSubjects = admin
 	.route({
-		path: "/admin/subtests/reorder",
+		path: "/admin/subjects/reorder",
 		method: "PATCH",
 		tags: ["Admin - Classes"],
 	})
@@ -142,7 +147,7 @@ const reorderSubtests = admin
 
 		await db.transaction(async (tx) => {
 			for (const item of items) {
-				await tx.update(subtest).set({ order: item.order, updatedAt: new Date() }).where(eq(subtest.id, item.id));
+				await tx.update(subject).set({ order: item.order, updatedAt: new Date() }).where(eq(subject.id, item.id));
 			}
 		});
 
@@ -161,7 +166,7 @@ const createContent = admin
 	})
 	.input(
 		type({
-			subtestId: "number",
+			subjectId: "number",
 			type: "'material' | 'tips_and_trick'",
 			title: "string",
 			order: "number",
@@ -230,7 +235,7 @@ const createContent = admin
 			const [newContent] = await tx
 				.insert(contentItem)
 				.values({
-					subtestId: input.subtestId,
+					subjectId: input.subjectId,
 					type: input.type,
 					title: input.title,
 					order: input.order,
@@ -372,7 +377,7 @@ const reorderContent = admin
 	})
 	.input(
 		type({
-			subtestId: "number",
+			subjectId: "number",
 			type: "'material' | 'tips_and_trick'",
 			items: "unknown",
 		}),
@@ -409,7 +414,7 @@ const reorderContent = admin
 					.where(
 						and(
 							eq(contentItem.id, item.id),
-							eq(contentItem.subtestId, input.subtestId),
+							eq(contentItem.subjectId, input.subjectId),
 							eq(contentItem.type, input.type),
 						),
 					);
@@ -423,7 +428,7 @@ const reorderContent = admin
 					.where(
 						and(
 							eq(contentItem.id, item.id),
-							eq(contentItem.subtestId, input.subtestId),
+							eq(contentItem.subjectId, input.subjectId),
 							eq(contentItem.type, input.type),
 						),
 					);
@@ -671,11 +676,11 @@ const unlinkPracticeQuestions = admin
 		return { message: "Latihan soal berhasil dihapus dari konten" };
 	});
 
-export const adminSubtestRouter = {
-	createSubtest,
-	updateSubtest,
-	deleteSubtest,
-	reorderSubtests,
+export const adminSubjectRouter = {
+	createSubject,
+	updateSubject,
+	deleteSubject,
+	reorderSubjects,
 	createContent,
 	updateContent,
 	deleteContent,

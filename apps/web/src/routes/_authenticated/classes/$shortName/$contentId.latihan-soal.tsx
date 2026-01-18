@@ -1,7 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { EmptyContentState, PracticeQuestion, PracticeQuestionHeader } from "@/components/classes";
+import { EmptyContentState } from "@/components/classes/empty-content-state";
+import { PracticeQuestion } from "@/components/classes/practice-question";
+import { PracticeQuestionHeader } from "@/components/classes/practice-question-header";
+// import { EmptyContentState, PracticeQuestion, PracticeQuestionHeader } from "@/components/classes";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { orpc } from "@/utils/orpc";
 
@@ -14,16 +17,16 @@ function RouteComponent() {
 	const queryClient = useQueryClient();
 
 	const content = useQuery(
-		orpc.subtest.getContentById.queryOptions({
+		orpc.subject.getContentById.queryOptions({
 			input: { contentId: Number(contentId) },
 		}),
 	);
 
 	const updateProgressMutation = useMutation(
-		orpc.subtest.updateProgress.mutationOptions({
+		orpc.subject.updateProgress.mutationOptions({
 			onSuccess: () => {
 				queryClient.invalidateQueries({
-					queryKey: orpc.subtest.getProgressStats.key(),
+					queryKey: orpc.subject.getProgressStats.key(),
 				});
 			},
 		}),

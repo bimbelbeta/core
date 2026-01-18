@@ -1,8 +1,10 @@
 import type { BodyOutputs } from "@/utils/orpc";
 
-export type SubtestListItem = NonNullable<BodyOutputs["subtest"]["listSubtests"]>[number];
+export type SubjectListItem = NonNullable<BodyOutputs["subject"]["listSubjects"]>[number] & {
+	category?: "sd" | "smp" | "sma" | "utbk";
+};
 
-export type ContentListItem = NonNullable<BodyOutputs["subtest"]["listContentByCategory"]>[number];
+export type ContentListItem = NonNullable<BodyOutputs["subject"]["listContentBySubjectCategory"]>[number];
 
 export type ContentActionItem = {
 	hasVideo: boolean;
@@ -16,3 +18,4 @@ export type LastContentViewedItem = ContentActionItem & {
 };
 
 export type ContentFilter = "all" | "material" | "tips_and_trick";
+export type SubjectFilter = "all" | "sd" | "smp" | "sma" | "utbk";

@@ -4,7 +4,10 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { type } from "arktype";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ClassHeader, ContentFilters, ContentList } from "@/components/classes";
+import { ClassHeader } from "@/components/classes/class-header";
+import { ContentFilters } from "@/components/classes/content-filters";
+import { ContentList } from "@/components/classes/content-list";
+// import { ClassHeader, ContentFilters, ContentList } from "@/components/classes";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -41,7 +44,7 @@ export const Route = createFileRoute("/_admin/admin/classes/$shortName/")({
 	component: RouteComponent,
 });
 
-type ContentListItem = NonNullable<BodyOutputs["subtest"]["listContentByCategory"]>[number];
+type ContentListItem = NonNullable<BodyOutputs["subject"]["listContentBySubjectCategory"]>[number];
 
 type Search = {
 	q?: string;
@@ -91,20 +94,20 @@ function RouteComponent() {
 		navigate({ search: cleanSearch });
 	};
 
-	const subtests = useQuery(orpc.subtest.listSubtests.queryOptions());
+	const subtests = useQuery(orpc.subject.listSubjects.queryOptions());
 	const matchedClass = subtests.data?.find((item) => item.shortName?.toLowerCase() === shortName);
 
 	const contents = useQuery(
-		orpc.subtest.listContentByCategory.queryOptions({
+		orpc.subject.listContentBySubjectCategory.queryOptions({
 			input: (() => {
 				const input: {
-					subtestId: number;
+					subjectId: number;
 					category?: "material" | "tips_and_trick";
 					search?: string;
 					limit: number;
 					offset: number;
 				} = {
-					subtestId: matchedClass?.id ?? 0,
+					subjectId: matchedClass?.id ?? 0,
 					limit: 20,
 					offset: page * 20,
 				};
@@ -121,7 +124,7 @@ function RouteComponent() {
 	);
 
 	const createMutation = useMutation(
-		orpc.admin.subtest.createContent.mutationOptions({
+		orpc.admin.subject.createContent.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
 				queryClient.invalidateQueries();
@@ -134,7 +137,7 @@ function RouteComponent() {
 	);
 
 	const updateMutation = useMutation(
-		orpc.admin.subtest.updateContent.mutationOptions({
+		orpc.admin.subject.updateContent.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
 				queryClient.invalidateQueries();
@@ -148,7 +151,7 @@ function RouteComponent() {
 	);
 
 	const deleteMutation = useMutation(
-		orpc.admin.subtest.deleteContent.mutationOptions({
+		orpc.admin.subject.deleteContent.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
 				queryClient.invalidateQueries();
@@ -162,7 +165,7 @@ function RouteComponent() {
 	);
 
 	const reorderMutation = useMutation(
-		orpc.admin.subtest.reorderContent.mutationOptions({
+		orpc.admin.subject.reorderContent.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
 				queryClient.invalidateQueries();
@@ -189,7 +192,7 @@ function RouteComponent() {
 			}
 
 			createMutation.mutate({
-				subtestId: matchedClass.id,
+				subjectId: matchedClass.id,
 				type: createDialogType,
 				title: value.title,
 				order: maxOrder + 1,
@@ -252,7 +255,7 @@ function RouteComponent() {
 		}));
 
 		reorderMutation.mutate({
-			subtestId: matchedClass.id,
+			subjectId: matchedClass.id,
 			type: activeFilter,
 			items: updatedItems,
 		});
@@ -281,7 +284,7 @@ function RouteComponent() {
 
 	return (
 		<Container className="px-0 pt-0">
-			<ClassHeader subtest={matchedClass} />
+			<ClassHeader subject={matchedClass} />
 			<div className="sticky top-0 z-10 space-y-4 border-b bg-background/95 pb-4 backdrop-blur">
 				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 					<div className="w-full flex-1 sm:max-w-md">

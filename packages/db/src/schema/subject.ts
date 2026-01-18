@@ -4,14 +4,17 @@ import { user } from "./auth";
 import { question } from "./practice-pack";
 
 /*
-  Subtest (Classes)
+  Subject (Classes)
 */
-export const subtest = pgTable("subtest", {
+export const subjectCategoryEnum = pgEnum("subject_category", ["sd", "smp", "sma", "utbk"]);
+
+export const subject = pgTable("subject", {
 	id: integer().primaryKey().generatedAlwaysAsIdentity(),
 	name: text().notNull(),
 	shortName: text("short_name").notNull().unique(),
 	description: text(),
 	order: integer().notNull().default(1),
+	category: subjectCategoryEnum("category").notNull().default("utbk"),
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -28,16 +31,16 @@ export const contentItem = pgTable(
 	"content_item",
 	{
 		id: integer().primaryKey().generatedAlwaysAsIdentity(),
-		subtestId: integer("subtest_id")
+		subjectId: integer("subject_id")
 			.notNull()
-			.references(() => subtest.id, { onDelete: "cascade" }),
+			.references(() => subject.id, { onDelete: "cascade" }),
 		type: contentTypeEnum("type").notNull(),
 		title: text().notNull(),
 		order: integer().notNull(),
 		createdAt: timestamp("created_at").notNull().defaultNow(),
 		updatedAt: timestamp("updated_at").notNull().defaultNow(),
 	},
-	(t) => [unique("unique_content_order").on(t.subtestId, t.type, t.order)],
+	(t) => [unique("unique_content_order").on(t.subjectId, t.type, t.order)],
 );
 
 /*
@@ -135,14 +138,14 @@ export const recentContentView = pgTable(
 /*
   Relations
 */
-export const subtestRelations = relations(subtest, ({ many }) => ({
+export const subjectRelations = relations(subject, ({ many }) => ({
 	contentItems: many(contentItem),
 }));
 
 export const contentItemRelations = relations(contentItem, ({ one, many }) => ({
-	subtest: one(subtest, {
-		fields: [contentItem.subtestId],
-		references: [subtest.id],
+	subject: one(subject, {
+		fields: [contentItem.subjectId],
+		references: [subject.id],
 	}),
 	videoMaterial: one(videoMaterial, {
 		fields: [contentItem.id],
@@ -203,3 +206,7 @@ export const recentContentViewRelations = relations(recentContentView, ({ one })
 		references: [contentItem.id],
 	}),
 }));
+
+// Backward compatibility aliases for tryout system
+export const subtest = subject;
+export type Subtest = typeof subject;

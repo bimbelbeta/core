@@ -1,6 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { SubtestCard, SubtestHeader } from "@/components/classes";
+import { NotFoundContentState } from "@/components/classes/not-found-content-state";
+import { SubjectFilters } from "@/components/classes/subject-filters";
+import { SubjectHeader } from "@/components/classes/subject-header";
+import { SubjectList } from "@/components/classes/subject-list";
+import { SearchInput } from "@/components/ui/search-input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth-client";
 import { createMeta } from "@/lib/seo-utils";
@@ -17,37 +21,90 @@ export const Route = createFileRoute("/_authenticated/classes/")({
 	component: RouteComponent,
 });
 
+type Search = {
+	q?: string;
+	category?: "sd" | "smp" | "sma" | "utbk" | undefined;
+};
+
 function RouteComponent() {
 	const session = authClient.useSession();
-	const userIsPremium = session.data?.user?.isPremium ?? false;
+	const _userIsPremium = session.data?.user?.isPremium ?? false;
 	const userRole = session.data?.user?.role;
-	const subtests = useQuery(orpc.subtest.listSubtests.queryOptions());
+	const isAdmin = userRole === "admin";
+
+	const searchParams = Route.useSearch();
+	const searchQuery = (searchParams as Search).q ?? "";
+	const activeFilter: "all" | "sd" | "smp" | "sma" | "utbk" = (searchParams as Search).category ?? "all";
+
+	const navigate = Route.useNavigate();
+	const updateSearch = (updates: Partial<Search>) => {
+		const newSearch: Partial<Search> = {};
+
+		if (updates.q !== undefined) {
+			newSearch.q = updates.q || undefined;
+		}
+		if (updates.category !== undefined) {
+			newSearch.category = updates.category || undefined;
+		}
+
+		const cleanSearch = Object.fromEntries(Object.entries(newSearch).filter(([, value]) => value !== undefined));
+
+		navigate({ search: cleanSearch });
+	};
+
+	const subjectsQuery = useQuery(
+		orpc.subject.listSubjects.queryOptions({
+			input: {
+				category: activeFilter === "all" ? undefined : activeFilter,
+				search: searchQuery || undefined,
+			},
+		}),
+	);
 
 	return (
 		<div className="-mt-5 sm:-mt-3">
-			<SubtestHeader />
+			<SubjectHeader />
 
-			<hr className="my-3 sm:my-4" />
+			{/*<hr className="my-3 sm:my-4" />*/}
+
+			<div className="my-3 space-y-4 sm:my-4">
+				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+					<SubjectFilters
+						activeFilter={activeFilter}
+						onChange={(category) => updateSearch({ category: category === "all" ? undefined : category })}
+					/>
+					<div className="max-w-md flex-1">
+						<SearchInput value={searchQuery} onChange={(q) => updateSearch({ q })} placeholder="Cari kelas..." />
+					</div>
+				</div>
+			</div>
 
 			<div>
-				{subtests.isPending && (
-					<div className="grid h-full grid-cols-1 gap-2 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
+				{subjectsQuery.isPending && (
+					<div className="flex h-full flex-col gap-2 sm:gap-5">
 						{Array.from({ length: 9 }).map((_, i) => (
 							<Skeleton key={i.toString()} className="h-40 w-full" />
 						))}
 					</div>
 				)}
 
-				{subtests.isError && <p className="text-red-500">Error: {subtests.error.message}</p>}
+				{subjectsQuery.isError && <p className="text-red-500">Error: {subjectsQuery.error.message}</p>}
 
-				{subtests.data && subtests.data.length === 0 && <p className="text-muted-foreground">No subtests yet</p>}
+				{subjectsQuery.data && subjectsQuery.data.length === 0 && (
+					<NotFoundContentState
+						title="Tidak ada kelas yang ditemukan"
+						desc="Coba cari dengan kata kunci lain atau hubungi admin."
+					/>
+				)}
 
-				{subtests.data && subtests.data.length > 0 && (
-					<div className="grid h-full grid-cols-1 gap-3 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
-						{subtests.data.map((subtest) => (
-							<SubtestCard key={subtest.id} subtest={subtest} userIsPremium={userIsPremium} userRole={userRole} />
-						))}
-					</div>
+				{subjectsQuery.data && subjectsQuery.data.length > 0 && (
+					<SubjectList
+						items={subjectsQuery.data}
+						isLoading={subjectsQuery.isPending}
+						error={subjectsQuery.isError ? subjectsQuery.error.message : undefined}
+						searchQuery={searchQuery}
+						onCreate={isAdmin ? () => {} : undefined}
+					/>
 				)}
 			</div>
 		</div>

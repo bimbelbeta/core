@@ -5,7 +5,7 @@ import { questionAnswerOption } from "@bimbelbeta/db/schema/practice-pack";
 import { type } from "arktype";
 import { and, desc, eq, gte, isNull, sql } from "drizzle-orm";
 import { authed, premium } from "..";
-import { convertToTiptap } from "./subtest";
+import { convertToTiptap } from "./subject";
 
 const FLASHCARD_SESSION_DURATION_MINUTES = 10;
 // Grace period to allow submitting after deadline

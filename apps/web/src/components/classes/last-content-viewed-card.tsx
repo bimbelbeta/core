@@ -54,7 +54,7 @@ export function LastContentViewedCard({
 	};
 
 	return (
-		<Card className="rounded-[10px] border border-neutral-200 p-4 sm:p-5">
+		<Card className="rounded-default border border-neutral-200 p-4 sm:p-5">
 			{/* Header */}
 			<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 				{/* Left: badge + title */}

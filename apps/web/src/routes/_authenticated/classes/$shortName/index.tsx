@@ -1,6 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
-import { ClassHeader, ContentFilters, ContentList } from "@/components/classes";
+import { ClassHeader } from "@/components/classes/class-header";
+import { ContentFilters } from "@/components/classes/content-filters";
+import { ContentList } from "@/components/classes/content-list";
+// import { ClassHeader, ContentFilters, ContentList } from "@/components/classes";
 import { Container } from "@/components/ui/container";
 import { SearchInput } from "@/components/ui/search-input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -60,20 +63,20 @@ function RouteComponent() {
 		navigate({ search: cleanSearch });
 	};
 
-	const subtests = useQuery(orpc.subtest.listSubtests.queryOptions());
-	const matchedClass = subtests.data?.find((item) => item.shortName?.toLowerCase() === shortName);
+	const subtests = useQuery(orpc.subject.listSubjects.queryOptions());
+	const matchedSubject = subtests.data?.find((item) => item.shortName?.toLowerCase() === shortName);
 
 	const contents = useQuery(
-		orpc.subtest.listContentByCategory.queryOptions({
+		orpc.subject.listContentBySubjectCategory.queryOptions({
 			input: (() => {
 				const input: {
-					subtestId: number;
+					subjectId: number;
 					category?: "material" | "tips_and_trick";
 					search?: string;
 					limit: number;
 					offset: number;
 				} = {
-					subtestId: matchedClass?.id ?? 0,
+					subjectId: matchedSubject?.id ?? 0,
 					limit: 20,
 					offset: page * 20,
 				};
@@ -85,7 +88,7 @@ function RouteComponent() {
 				}
 				return input;
 			})(),
-			enabled: Boolean(matchedClass?.id),
+			enabled: Boolean(matchedSubject?.id),
 		}),
 	);
 
@@ -104,11 +107,11 @@ function RouteComponent() {
 			</Container>
 		);
 	}
-	if (!matchedClass) return notFound();
+	if (!matchedSubject) return notFound();
 
 	return (
-		<div className="-mt-5 sm:-mt-3 space-y-4">
-			<ClassHeader subtest={matchedClass} />
+		<div className="-mt-5 space-y-4 sm:-mt-3">
+			<ClassHeader subject={matchedSubject} />
 			<div className="space-y-4">
 				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 					<ContentFilters
@@ -134,7 +137,6 @@ function RouteComponent() {
 					onLoadMore={() => updateSearch({ page: page + 1 })}
 					userIsPremium={userIsPremium}
 					userRole={userRole}
-					subtestOrder={matchedClass.order}
 					shortName={shortName}
 				/>
 			</div>

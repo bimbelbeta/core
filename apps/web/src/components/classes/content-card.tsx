@@ -1,6 +1,16 @@
-import { CaretRightIcon, CheckCircleIcon, DotsNineIcon, ExamIcon, LockIcon, NoteIcon, PencilSimpleIcon, PlayCircleIcon, TrashIcon } from "@phosphor-icons/react";
+import {
+	CaretRightIcon,
+	CheckCircleIcon,
+	DotsNineIcon,
+	ExamIcon,
+	LockIcon,
+	NoteIcon,
+	PencilSimpleIcon,
+	PlayCircleIcon,
+	TrashIcon,
+} from "@phosphor-icons/react";
 import { Link, useLocation } from "@tanstack/react-router";
-import { useDragControls } from "motion/react";
+import type { useDragControls } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { canAccessContent } from "@/lib/premium-config";

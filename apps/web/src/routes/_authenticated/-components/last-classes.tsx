@@ -1,12 +1,13 @@
 import { ArrowRightIcon, WarningCircleIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { LastContentViewedCard } from "@/components/classes";
+import { LastContentViewedCard } from "@/components/classes/last-content-viewed-card";
+// import { LastContentViewedCard } from "@/components/classes";
 import { Button } from "@/components/ui/button";
 import { orpc } from "@/utils/orpc";
 
 export const LastClasses = () => {
-	const { data, isPending } = useQuery(orpc.subtest.getRecentViews.queryOptions());
+	const { data, isPending } = useQuery(orpc.subject.getRecentViews.queryOptions());
 
 	if (isPending) {
 		return (

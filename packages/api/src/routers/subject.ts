@@ -5,10 +5,10 @@ import {
 	contentPracticeQuestions,
 	noteMaterial,
 	recentContentView,
-	subtest,
+	subject,
 	userProgress,
 	videoMaterial,
-} from "@bimbelbeta/db/schema/subtest";
+} from "@bimbelbeta/db/schema/subject";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { and, desc, eq, ilike, inArray, sql } from "drizzle-orm";
@@ -37,48 +37,64 @@ function escapeLikePattern(value: string): string {
 }
 
 /**
- * Get all subtests with basic info
- * GET /api/subtests
+ * Get all subjects with basic info
+ * GET /api/subjects
  */
-const listSubtests = authed
+const listSubjects = authed
 	.route({
-		path: "/subtests",
-		method: "GET",
-		tags: ["Content"],
-	})
-	.handler(async () => {
-		const subtests = await db
-			.select({
-				id: subtest.id,
-				name: subtest.name,
-				shortName: subtest.shortName,
-				description: subtest.description,
-				order: subtest.order,
-				totalContent: sql<number>`COUNT(${contentItem.id})`,
-			})
-			.from(subtest)
-			.leftJoin(contentItem, eq(contentItem.subtestId, subtest.id))
-			.groupBy(subtest.id, subtest.name, subtest.shortName, subtest.description, subtest.order)
-			.orderBy(subtest.order);
-
-		return subtests;
-	});
-
-/**
- * Get content items by subtest and category
- * Returns ALL content items with metadata (no content detail)
- * Frontend will show lock overlay for premium content
- * GET /api/subtests/{subtestId}/content/{category}
- */
-const listContentByCategory = authedRateLimited
-	.route({
-		path: "/subtests/{subtestId}/content",
+		path: "/subjects",
 		method: "GET",
 		tags: ["Content"],
 	})
 	.input(
 		type({
-			subtestId: "number",
+			category: type("'sd' | 'smp' | 'sma' | 'utbk'").optional(),
+			search: type("string").optional(),
+		}),
+	)
+	.handler(async ({ input }) => {
+		const conditions = [];
+		if (input.category) {
+			conditions.push(eq(subject.category, input.category));
+		}
+		if (input.search) {
+			conditions.push(ilike(subject.name, `%${escapeLikePattern(input.search)}%`));
+		}
+
+		const subjects = await db
+			.select({
+				id: subject.id,
+				name: subject.name,
+				shortName: subject.shortName,
+				description: subject.description,
+				order: subject.order,
+				category: subject.category,
+				totalContent: sql<number>`COUNT(${contentItem.id})`,
+			})
+			.from(subject)
+			.leftJoin(contentItem, eq(contentItem.subjectId, subject.id))
+			.where(conditions.length > 0 ? and(...conditions) : undefined)
+			.groupBy(subject.id, subject.name, subject.shortName, subject.description, subject.order, subject.category)
+			.orderBy(subject.order);
+
+		return subjects;
+	});
+
+/**
+ * Get content items by subject and category
+ * Returns ALL content items with metadata (no content detail)
+ * Frontend will show lock overlay for premium content
+ * GET /api/subjects/{subjectId}/content
+ */
+const listContentBySubjectCategory = authedRateLimited
+	.route({
+		path: "/subjects/{subjectId}/content",
+		method: "GET",
+		tags: ["Content"],
+	})
+	.input(
+		type({
+			subjectId: "number",
 			category: type("'material' | 'tips_and_trick'").optional(),
 			search: type("string").optional(),
 			limit: type("number >= 1").optional(),
@@ -86,17 +102,17 @@ const listContentByCategory = authedRateLimited
 		}),
 	)
 	.handler(async ({ input, context }) => {
-		const [targetSubtest] = await db
-			.select({ order: subtest.order })
-			.from(subtest)
-			.where(eq(subtest.id, input.subtestId))
+		const [targetSubject] = await db
+			.select({ order: subject.order })
+			.from(subject)
+			.where(eq(subject.id, input.subjectId))
 			.limit(1);
 
-		if (!targetSubtest) {
-			throw new ORPCError("NOT_FOUND", { message: "Subtest tidak ditemukan" });
+		if (!targetSubject) {
+			throw new ORPCError("NOT_FOUND", { message: "Subject tidak ditemukan" });
 		}
 
-		const conditions = [eq(contentItem.subtestId, input.subtestId)];
+		const conditions = [eq(contentItem.subjectId, input.subjectId)];
 		if (input.category) {
 			conditions.push(eq(contentItem.type, input.category));
 		}
@@ -161,8 +177,8 @@ const getContentById = authedRateLimited
 				title: contentItem.title,
 				type: contentItem.type,
 				order: contentItem.order,
-				subtestId: contentItem.subtestId,
-				subtestOrder: subtest.order,
+				subjectId: contentItem.subjectId,
+				subtestOrder: subject.order,
 
 				videoId: videoMaterial.id,
 				videoUrl: videoMaterial.videoUrl,
@@ -172,7 +188,7 @@ const getContentById = authedRateLimited
 				noteContent: noteMaterial.content,
 			})
 			.from(contentItem)
-			.innerJoin(subtest, eq(subtest.id, contentItem.subtestId))
+			.innerJoin(subject, eq(subject.id, contentItem.subjectId))
 			.leftJoin(videoMaterial, eq(videoMaterial.contentItemId, contentItem.id))
 			.leftJoin(noteMaterial, eq(noteMaterial.contentItemId, contentItem.id))
 			.where(eq(contentItem.id, input.contentId))
@@ -260,7 +276,7 @@ const getContentById = authedRateLimited
 			id: row.id,
 			title: row.title,
 			type: row.type,
-			subtestId: row.subtestId,
+			subjectId: row.subjectId,
 			video: row.videoId
 				? {
 						id: row.videoId,
@@ -406,16 +422,16 @@ const getRecentViews = authedRateLimited
 				contentId: contentItem.id,
 				contentTitle: contentItem.title,
 				contentType: contentItem.type,
-				subtestId: subtest.id,
-				subtestName: subtest.name,
-				subtestShortName: subtest.shortName,
+				subjectId: subject.id,
+				subtestName: subject.name,
+				subtestShortName: subject.shortName,
 				hasVideo: sql<boolean>`${videoMaterial.id} IS NOT NULL`,
 				hasNote: sql<boolean>`${noteMaterial.id} IS NOT NULL`,
 				hasPracticeQuestions: sql<boolean>`${contentPracticeQuestions.contentItemId} IS NOT NULL`,
 			})
 			.from(recentContentView)
 			.innerJoin(contentItem, eq(contentItem.id, recentContentView.contentItemId))
-			.innerJoin(subtest, eq(subtest.id, contentItem.subtestId))
+			.innerJoin(subject, eq(subject.id, contentItem.subjectId))
 			.leftJoin(videoMaterial, eq(videoMaterial.contentItemId, contentItem.id))
 			.leftJoin(noteMaterial, eq(noteMaterial.contentItemId, contentItem.id))
 			.leftJoin(contentPracticeQuestions, eq(contentPracticeQuestions.contentItemId, contentItem.id))
@@ -425,9 +441,9 @@ const getRecentViews = authedRateLimited
 				contentItem.id,
 				contentItem.title,
 				contentItem.type,
-				subtest.id,
-				subtest.name,
-				subtest.shortName,
+				subject.id,
+				subject.name,
+				subject.shortName,
 				videoMaterial.id,
 				noteMaterial.id,
 				contentPracticeQuestions.contentItemId,
@@ -536,9 +552,9 @@ const getProgressStats = authed
 		};
 	});
 
-export const subtestRouter = {
-	listSubtests,
-	listContentByCategory,
+export const subjectRouter = {
+	listSubjects,
+	listContentBySubjectCategory,
 	getContentById,
 	trackView,
 	getRecentViews,

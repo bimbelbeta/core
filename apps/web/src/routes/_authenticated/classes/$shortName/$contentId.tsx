@@ -20,7 +20,7 @@ function RouteComponent() {
 	const [showPremiumModal, setShowPremiumModal] = useState(false);
 
 	const content = useQuery({
-		...orpc.subtest.getContentById.queryOptions({
+		...orpc.subject.getContentById.queryOptions({
 			input: { contentId: Number(contentId) },
 		}),
 		// Don't retry on 403 FORBIDDEN - user doesn't have access
@@ -34,7 +34,7 @@ function RouteComponent() {
 		},
 	});
 
-	const trackViewMutation = useMutation(orpc.subtest.trackView.mutationOptions());
+	const trackViewMutation = useMutation(orpc.subject.trackView.mutationOptions());
 
 	// Check if error is FORBIDDEN (premium content)
 	const isForbiddenError = content.isError && content.error?.message?.includes("premium");
@@ -65,7 +65,7 @@ function RouteComponent() {
 						// Update last tracked timestamp
 						sessionStorage.setItem(storageKey, now.toString());
 						queryClient.invalidateQueries({
-							queryKey: orpc.subtest.getRecentViews.key(),
+							queryKey: orpc.subject.getRecentViews.key(),
 						});
 					},
 				},

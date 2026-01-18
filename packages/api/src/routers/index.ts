@@ -2,11 +2,11 @@ import type { RouterClient } from "@orpc/server";
 import { type } from "arktype";
 import { pub } from "../index";
 import { adminPracticePackRouter } from "./admin/practice-pack";
-import { adminSubtestRouter } from "./admin/subtest";
+import { adminSubjectRouter } from "./admin/subject";
 import { flashcardRouter } from "./flashcard";
 import { practicePackRouter } from "./practice-pack";
 import { socialRouter } from "./social";
-import { subtestRouter } from "./subtest";
+import { subjectRouter } from "./subject";
 import { transactionRouter } from "./transaction";
 import { tryoutRouter } from "./tryout";
 
@@ -24,11 +24,11 @@ export const appRouter = {
 	social: socialRouter,
 	practicePack: practicePackRouter,
 	flashcard: flashcardRouter,
-	subtest: subtestRouter,
+	subject: subjectRouter,
 	tryout: tryoutRouter,
 	admin: {
 		practicePack: adminPracticePackRouter,
-		subtest: adminSubtestRouter,
+		subject: adminSubjectRouter,
 	},
 	transaction: transactionRouter,
 };

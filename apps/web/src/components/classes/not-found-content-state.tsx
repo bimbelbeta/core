@@ -1,7 +1,7 @@
-import { CookingPotIcon } from "@phosphor-icons/react";
+import { SmileyXEyesIcon } from "@phosphor-icons/react";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 
-export function EmptyContentState({ title, desc }: { title?: string; desc?: string }) {
+export function NotFoundContentState({ title, desc }: { title?: string; desc?: string }) {
 	const defaultTitle = "Ups, kontennya belum tersedia";
 	const defaultDesc = "Tunggu kontennya diracik dulu ya!";
 
@@ -9,7 +9,7 @@ export function EmptyContentState({ title, desc }: { title?: string; desc?: stri
 		<Empty className="">
 			<EmptyHeader>
 				<EmptyMedia variant="icon">
-					<CookingPotIcon />
+					<SmileyXEyesIcon />
 				</EmptyMedia>
 				<EmptyTitle>{title || defaultTitle}</EmptyTitle>
 				<EmptyDescription>{desc || defaultDesc}</EmptyDescription>

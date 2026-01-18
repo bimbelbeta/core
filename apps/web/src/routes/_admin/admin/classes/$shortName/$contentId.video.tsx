@@ -36,17 +36,17 @@ function RouteComponent() {
 	const [showPreview, setShowPreview] = useState(true);
 
 	const content = useQuery(
-		orpc.subtest.getContentById.queryOptions({
+		orpc.subject.getContentById.queryOptions({
 			input: { contentId: Number(contentId) },
 		}),
 	);
 
 	const saveMutation = useMutation(
-		orpc.admin.subtest.upsertVideo.mutationOptions({
+		orpc.admin.subject.upsertVideo.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
 				queryClient.invalidateQueries({
-					queryKey: orpc.subtest.getContentById.queryKey({
+					queryKey: orpc.subject.getContentById.queryKey({
 						input: {
 							contentId: Number(contentId),
 						},
@@ -60,11 +60,11 @@ function RouteComponent() {
 	);
 
 	const deleteMutation = useMutation(
-		orpc.admin.subtest.deleteVideo.mutationOptions({
+		orpc.admin.subject.deleteVideo.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
 				queryClient.invalidateQueries({
-					queryKey: orpc.subtest.getContentById.queryKey({
+					queryKey: orpc.subject.getContentById.queryKey({
 						input: {
 							contentId: Number(contentId),
 						},
