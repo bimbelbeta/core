@@ -1,9 +1,7 @@
 import { relations } from "drizzle-orm";
 import {
 	boolean,
-	char,
 	integer,
-	jsonb,
 	pgEnum,
 	pgTable,
 	primaryKey,
@@ -12,6 +10,7 @@ import {
 	unique,
 } from "drizzle-orm/pg-core";
 import { user } from "./auth";
+import { question,questionChoice } from "./question";
 
 /*
   Tryout & Subtests
@@ -56,46 +55,6 @@ export const tryoutSubtestRelations = relations(tryoutSubtest, ({ one, many }) =
 	questions: many(tryoutSubtestQuestion),
 }));
 
-/*
-  Questions & Answers
-*/
-export const tryoutQuestionType = pgEnum("tryout_question_type", ["multiple_choice", "essay"]);
-
-export const tryoutQuestion = pgTable("tryout_question", {
-	id: integer().primaryKey().generatedAlwaysAsIdentity(),
-	type: tryoutQuestionType("type").notNull().default("multiple_choice"),
-	content: text("content").notNull(),
-	discussion: text("discussion"),
-	contentJson: jsonb("content_json"),
-	discussionJson: jsonb("discussion_json"),
-});
-
-export const tryoutQuestionRelations = relations(tryoutQuestion, ({ many }) => ({
-	choices: many(tryoutQuestionChoice),
-	subtests: many(tryoutSubtestQuestion),
-}));
-
-export const tryoutQuestionChoice = pgTable(
-	"tryout_question_choice",
-	{
-		id: integer().primaryKey().generatedAlwaysAsIdentity(),
-		questionId: integer("question_id")
-			.notNull()
-			.references(() => tryoutQuestion.id, { onDelete: "cascade" }),
-		code: char({ length: 1 }).notNull(), // A, B, C...
-		content: text().notNull(),
-		contentJson: jsonb("content_json"),
-		isCorrect: boolean("is_correct").notNull().default(false),
-	},
-	(t) => [unique("tryout_question_choice_unique").on(t.questionId, t.code)],
-);
-
-export const tryoutQuestionChoiceRelations = relations(tryoutQuestionChoice, ({ one }) => ({
-	question: one(tryoutQuestion, {
-		fields: [tryoutQuestionChoice.questionId],
-		references: [tryoutQuestion.id],
-	}),
-}));
 
 /*
   Linking Questions to Subtests
@@ -108,7 +67,7 @@ export const tryoutSubtestQuestion = pgTable(
 			.references(() => tryoutSubtest.id, { onDelete: "cascade" }),
 		questionId: integer("question_id")
 			.notNull()
-			.references(() => tryoutQuestion.id, { onDelete: "cascade" }),
+			.references(() => question.id, { onDelete: "cascade" }),
 		order: integer().default(1),
 	},
 	(t) => [primaryKey({ columns: [t.subtestId, t.questionId] })],
@@ -119,9 +78,9 @@ export const tryoutSubtestQuestionRelations = relations(tryoutSubtestQuestion, (
 		fields: [tryoutSubtestQuestion.subtestId],
 		references: [tryoutSubtest.id],
 	}),
-	question: one(tryoutQuestion, {
+	question: one(question, {
 		fields: [tryoutSubtestQuestion.questionId],
-		references: [tryoutQuestion.id],
+		references: [question.id],
 	}),
 }));
 
@@ -201,10 +160,9 @@ export const tryoutUserAnswer = pgTable(
 			.references(() => tryoutAttempt.id, { onDelete: "cascade" }),
 		questionId: integer("question_id")
 			.notNull()
-			.references(() => tryoutQuestion.id, { onDelete: "cascade" }),
-		selectedChoiceId: integer("selected_choice_id").references(() => tryoutQuestionChoice.id, { onDelete: "set null" }),
+			.references(() => question.id, { onDelete: "cascade" }),
+		selectedChoiceId: integer("selected_choice_id").references(() => questionChoice.id, { onDelete: "set null" }),
 		essayAnswer: text("essay_answer"),
-		essayAnswerJson: jsonb("essay_answer_json"),
 	},
 	(t) => [primaryKey({ columns: [t.attemptId, t.questionId] })],
 );
@@ -214,12 +172,12 @@ export const tryoutUserAnswerRelations = relations(tryoutUserAnswer, ({ one }) =
 		fields: [tryoutUserAnswer.attemptId],
 		references: [tryoutAttempt.id],
 	}),
-	question: one(tryoutQuestion, {
+	question: one(question, {
 		fields: [tryoutUserAnswer.questionId],
-		references: [tryoutQuestion.id],
+		references: [question.id],
 	}),
-	selectedChoice: one(tryoutQuestionChoice, {
+	selectedChoice: one(questionChoice, {
 		fields: [tryoutUserAnswer.selectedChoiceId],
-		references: [tryoutQuestionChoice.id],
+		references: [questionChoice.id],
 	}),
 }));

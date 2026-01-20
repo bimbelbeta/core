@@ -2,8 +2,8 @@ import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import {
 	tryout,
 	tryoutAttempt,
-	tryoutQuestion,
-	tryoutQuestionChoice,
+	question,
+	questionChoice,
 	tryoutSubtest,
 	tryoutSubtestAttempt,
 	tryoutSubtestQuestion,
@@ -276,12 +276,12 @@ export async function seedTryout(db: NodePgDatabase) {
 
 			for (const questionData of questionGroup.questions) {
 				const questionResult = await tx
-					.insert(tryoutQuestion)
+					.insert(question)
 					.values({
 						type: questionData.type,
 						content: questionData.content,
 					})
-					.returning({ id: tryoutQuestion.id });
+					.returning({ id: question.id });
 				const questionRow = questionResult[0];
 				if (!questionRow) throw new Error("Failed to create question");
 
@@ -291,7 +291,7 @@ export async function seedTryout(db: NodePgDatabase) {
 				});
 
 				for (const choiceData of questionData.choices) {
-					await tx.insert(tryoutQuestionChoice).values({
+					await tx.insert(questionChoice).values({
 						questionId: questionRow.id,
 						code: choiceData.code,
 						content: choiceData.content,
@@ -320,13 +320,13 @@ export async function clearTryout(db: NodePgDatabase) {
 	}
 
 	try {
-		await db.delete(tryoutQuestionChoice);
+		await db.delete(questionChoice);
 	} catch {
 		console.log("tryout_question_choice table not found, skipping clear");
 	}
 
 	try {
-		await db.delete(tryoutQuestion);
+		await db.delete(question);
 	} catch {
 		console.log("tryout_question table not found, skipping clear");
 	}
