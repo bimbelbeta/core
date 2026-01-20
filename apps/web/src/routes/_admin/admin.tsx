@@ -1,8 +1,11 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { AdminSidebar } from "@/components/admin/sidebar";
 
 export const Route = createFileRoute("/_admin/admin")({
 	component: AdminLayout,
+  loader: () => {
+    throw redirect("/admin/dashboard");
+	}
 });
 
 function AdminLayout() {

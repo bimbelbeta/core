@@ -1,4 +1,4 @@
-import { ArrowLeft, GoogleLogoIcon } from "@phosphor-icons/react";
+import { ArrowLeftIcon, GoogleLogoIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute, Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
@@ -31,7 +31,7 @@ function RouteComponent() {
 				className="absolute top-4 left-4 border border-primary/50 bg-white text-primary hover:bg-primary/10"
 			>
 				<Link to="/">
-					<ArrowLeft />
+					<ArrowLeftIcon />
 					Kembali
 				</Link>
 			</Button>
@@ -64,7 +64,7 @@ function SignUpForm() {
 				{
 					onSuccess: () => {
 						navigate({
-							to: "/dashboard",
+							to: "/login",
 						});
 					},
 					onError: (error) => {
@@ -75,9 +75,15 @@ function SignUpForm() {
 		},
 		validators: {
 			onSubmit: type({
-				name: type("string >= 2").describe("Minimal 2 karakter"),
-				email: type("string.email"),
-				password: type("string >= 8").describe("Minimal 8 karakter"),
+				name: type("string >= 2").configure({
+					message: "Nama harus memiliki minimal 2 karakter",
+				}),
+				email: type("string.email").configure({
+					message: "Email tidak valid",
+				}),
+				password: type("string >= 8").configure({
+					message: "Password harus memiliki minimal 8 karakter",
+				}),
 			}),
 		},
 	});

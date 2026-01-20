@@ -1,9 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { orpc } from "@/utils/orpc";
+import { SmileySadIcon } from "@phosphor-icons/react";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 
 export function PassingGradeActivity() {
 	const [searchQuery, setSearchQuery] = useState("");
@@ -45,7 +46,7 @@ export function PassingGradeActivity() {
 						) : universities?.data.length === 0 ? (
 							<TableRow>
 								<TableCell colSpan={4} className="h-20 text-center text-muted-foreground">
-									Belum terdapat data Passing Grade
+									Belum terdapat data Passing Grade. <SmileySadIcon className="inline" />
 								</TableCell>
 							</TableRow>
 						) : (
