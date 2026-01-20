@@ -14,6 +14,7 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 import { orpc } from "@/utils/orpc";
 
 interface TryoutStartConfirmationProps {
@@ -149,7 +150,13 @@ export function TryoutStartConfirmation({ children }: TryoutStartConfirmationPro
 				{step === "premium" && (
 					<DialogFooter>
 						<Button onClick={handleStart} disabled={startTryoutMutation.isPending} className="w-full">
-							{startTryoutMutation.isPending ? "Memproses..." : "Mulai Tryout"}
+							{startTryoutMutation.isPending ? (
+								<>
+									<Spinner /> Memulai...
+								</>
+							) : (
+								"Mulai Tryout"
+							)}
 						</Button>
 					</DialogFooter>
 				)}

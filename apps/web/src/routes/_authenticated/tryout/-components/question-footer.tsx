@@ -13,6 +13,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
+import { Spinner } from "@/components/ui/spinner";
 import { orpc } from "@/utils/orpc";
 import { useTryoutStore } from "../-hooks/use-tryout-store";
 
@@ -107,9 +108,14 @@ export function QuestionFooter() {
 					<DialogHeader>
 						<DialogTitle>Selesaikan Subtest?</DialogTitle>
 						<DialogDescription>
-							{nextSubtest
-								? `Anda akan melanjutkan ke subtest berikutnya: ${nextSubtest.name}.`
-								: "Anda akan menyelesaikan tryout ini."}
+							{nextSubtest ? (
+								<span>
+									Anda akan melanjutkan ke subtest berikutnya: <strong>{nextSubtest.name}</strong>. Anda tidak akan
+									dapat mengubah jawaban Anda lagi, pastikan semua jawaban sudah sesuai.
+								</span>
+							) : (
+								"Anda akan menyelesaikan tryout ini."
+							)}
 						</DialogDescription>
 					</DialogHeader>
 					<DialogFooter>
@@ -117,7 +123,14 @@ export function QuestionFooter() {
 							<Button variant="outline">Batal</Button>
 						</DialogClose>
 						<Button onClick={handleConfirmSubmit} disabled={submitSubtestMutation.isPending}>
-							{submitSubtestMutation.isPending ? "Memproses..." : "Ya, Lanjutkan"}
+							{submitSubtestMutation.isPending ? (
+								<>
+									<Spinner />
+									Memindahkan...
+								</>
+							) : (
+								"Ya, Lanjutkan"
+							)}
 						</Button>
 					</DialogFooter>
 				</DialogContent>

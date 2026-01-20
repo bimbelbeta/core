@@ -20,35 +20,23 @@ import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AuthForgotPasswordRouteImport } from './routes/_auth/forgot-password'
 import { Route as AdminAdminRouteImport } from './routes/_admin/admin'
 import { Route as AuthenticatedTryoutIndexRouteImport } from './routes/_authenticated/tryout/index'
-import { Route as AuthenticatedLatihanSoalIndexRouteImport } from './routes/_authenticated/latihan-soal/index'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
 import { Route as AuthenticatedClassesIndexRouteImport } from './routes/_authenticated/classes/index'
 import { Route as AdminAdminIndexRouteImport } from './routes/_admin/admin/index'
 import { Route as AuthenticatedTryoutTryoutIdRouteImport } from './routes/_authenticated/tryout/$tryoutId'
-import { Route as AuthenticatedLatihanSoalIdRouteImport } from './routes/_authenticated/latihan-soal/$id'
 import { Route as AdminAdminDashboardRouteImport } from './routes/_admin/admin/dashboard'
-import { Route as AuthenticatedLatihanSoalRiwayatIndexRouteImport } from './routes/_authenticated/latihan-soal/riwayat/index'
-import { Route as AuthenticatedDashboardFlashcardIndexRouteImport } from './routes/_authenticated/dashboard/flashcard.index'
 import { Route as AuthenticatedClassesSubjectIdIndexRouteImport } from './routes/_authenticated/classes/$subjectId/index'
-import { Route as AdminAdminQuestionsIndexRouteImport } from './routes/_admin/admin/questions/index'
-import { Route as AdminAdminPracticePacksIndexRouteImport } from './routes/_admin/admin/practice-packs/index'
 import { Route as AdminAdminClassesIndexRouteImport } from './routes/_admin/admin/classes/index'
 import { Route as AuthenticatedPremiumPaymentUnfinishRouteImport } from './routes/_authenticated/premium/payment/unfinish'
 import { Route as AuthenticatedPremiumPaymentFinishRouteImport } from './routes/_authenticated/premium/payment/finish'
 import { Route as AuthenticatedPremiumPaymentErrorRouteImport } from './routes/_authenticated/premium/payment/error'
-import { Route as AuthenticatedLatihanSoalRiwayatIdRouteImport } from './routes/_authenticated/latihan-soal/riwayat/$id'
-import { Route as AuthenticatedDashboardFlashcardResultRouteImport } from './routes/_authenticated/dashboard/flashcard.result'
 import { Route as AuthenticatedClassesSubjectIdContentIdRouteImport } from './routes/_authenticated/classes/$subjectId/$contentId'
-import { Route as AdminAdminQuestionsIdRouteImport } from './routes/_admin/admin/questions/$id'
-import { Route as AdminAdminPracticePacksCreateRouteImport } from './routes/_admin/admin/practice-packs/create'
-import { Route as AdminAdminPracticePacksIdRouteImport } from './routes/_admin/admin/practice-packs/$id'
 import { Route as AdminAdminClassesSubjectIdIndexRouteImport } from './routes/_admin/admin/classes/$subjectId/index'
 import { Route as AuthenticatedClassesSubjectIdContentIdVideoRouteImport } from './routes/_authenticated/classes/$subjectId/$contentId.video'
 import { Route as AuthenticatedClassesSubjectIdContentIdQuizRouteImport } from './routes/_authenticated/classes/$subjectId/$contentId.quiz'
 import { Route as AuthenticatedClassesSubjectIdContentIdNotesRouteImport } from './routes/_authenticated/classes/$subjectId/$contentId.notes'
 import { Route as AdminAdminClassesSubjectIdContentIdRouteImport } from './routes/_admin/admin/classes/$subjectId/$contentId'
 import { Route as AdminAdminClassesSubjectIdContentIdVideoRouteImport } from './routes/_admin/admin/classes/$subjectId/$contentId.video'
-import { Route as AdminAdminClassesSubjectIdContentIdQuizRouteImport } from './routes/_admin/admin/classes/$subjectId/$contentId.quiz'
 import { Route as AdminAdminClassesSubjectIdContentIdNotesRouteImport } from './routes/_admin/admin/classes/$subjectId/$contentId.notes'
 
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
@@ -104,12 +92,6 @@ const AuthenticatedTryoutIndexRoute =
     path: '/tryout/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedLatihanSoalIndexRoute =
-  AuthenticatedLatihanSoalIndexRouteImport.update({
-    id: '/latihan-soal/',
-    path: '/latihan-soal/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
 const AuthenticatedDashboardIndexRoute =
   AuthenticatedDashboardIndexRouteImport.update({
     id: '/dashboard/',
@@ -133,46 +115,16 @@ const AuthenticatedTryoutTryoutIdRoute =
     path: '/tryout/$tryoutId',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedLatihanSoalIdRoute =
-  AuthenticatedLatihanSoalIdRouteImport.update({
-    id: '/latihan-soal/$id',
-    path: '/latihan-soal/$id',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
 const AdminAdminDashboardRoute = AdminAdminDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => AdminAdminRoute,
 } as any)
-const AuthenticatedLatihanSoalRiwayatIndexRoute =
-  AuthenticatedLatihanSoalRiwayatIndexRouteImport.update({
-    id: '/latihan-soal/riwayat/',
-    path: '/latihan-soal/riwayat/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedDashboardFlashcardIndexRoute =
-  AuthenticatedDashboardFlashcardIndexRouteImport.update({
-    id: '/dashboard/flashcard/',
-    path: '/dashboard/flashcard/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
 const AuthenticatedClassesSubjectIdIndexRoute =
   AuthenticatedClassesSubjectIdIndexRouteImport.update({
     id: '/classes/$subjectId/',
     path: '/classes/$subjectId/',
     getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AdminAdminQuestionsIndexRoute =
-  AdminAdminQuestionsIndexRouteImport.update({
-    id: '/questions/',
-    path: '/questions/',
-    getParentRoute: () => AdminAdminRoute,
-  } as any)
-const AdminAdminPracticePacksIndexRoute =
-  AdminAdminPracticePacksIndexRouteImport.update({
-    id: '/practice-packs/',
-    path: '/practice-packs/',
-    getParentRoute: () => AdminAdminRoute,
   } as any)
 const AdminAdminClassesIndexRoute = AdminAdminClassesIndexRouteImport.update({
   id: '/classes/',
@@ -197,40 +149,11 @@ const AuthenticatedPremiumPaymentErrorRoute =
     path: '/payment/error',
     getParentRoute: () => AuthenticatedPremiumRoute,
   } as any)
-const AuthenticatedLatihanSoalRiwayatIdRoute =
-  AuthenticatedLatihanSoalRiwayatIdRouteImport.update({
-    id: '/latihan-soal/riwayat/$id',
-    path: '/latihan-soal/riwayat/$id',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedDashboardFlashcardResultRoute =
-  AuthenticatedDashboardFlashcardResultRouteImport.update({
-    id: '/dashboard/flashcard/result',
-    path: '/dashboard/flashcard/result',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
 const AuthenticatedClassesSubjectIdContentIdRoute =
   AuthenticatedClassesSubjectIdContentIdRouteImport.update({
     id: '/classes/$subjectId/$contentId',
     path: '/classes/$subjectId/$contentId',
     getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AdminAdminQuestionsIdRoute = AdminAdminQuestionsIdRouteImport.update({
-  id: '/questions/$id',
-  path: '/questions/$id',
-  getParentRoute: () => AdminAdminRoute,
-} as any)
-const AdminAdminPracticePacksCreateRoute =
-  AdminAdminPracticePacksCreateRouteImport.update({
-    id: '/practice-packs/create',
-    path: '/practice-packs/create',
-    getParentRoute: () => AdminAdminRoute,
-  } as any)
-const AdminAdminPracticePacksIdRoute =
-  AdminAdminPracticePacksIdRouteImport.update({
-    id: '/practice-packs/$id',
-    path: '/practice-packs/$id',
-    getParentRoute: () => AdminAdminRoute,
   } as any)
 const AdminAdminClassesSubjectIdIndexRoute =
   AdminAdminClassesSubjectIdIndexRouteImport.update({
@@ -268,12 +191,6 @@ const AdminAdminClassesSubjectIdContentIdVideoRoute =
     path: '/video',
     getParentRoute: () => AdminAdminClassesSubjectIdContentIdRoute,
   } as any)
-const AdminAdminClassesSubjectIdContentIdQuizRoute =
-  AdminAdminClassesSubjectIdContentIdQuizRouteImport.update({
-    id: '/quiz',
-    path: '/quiz',
-    getParentRoute: () => AdminAdminClassesSubjectIdContentIdRoute,
-  } as any)
 const AdminAdminClassesSubjectIdContentIdNotesRoute =
   AdminAdminClassesSubjectIdContentIdNotesRouteImport.update({
     id: '/notes',
@@ -290,35 +207,23 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof AuthResetPasswordRoute
   '/premium': typeof AuthenticatedPremiumRouteWithChildren
   '/admin/dashboard': typeof AdminAdminDashboardRoute
-  '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
   '/tryout/$tryoutId': typeof AuthenticatedTryoutTryoutIdRoute
   '/admin/': typeof AdminAdminIndexRoute
   '/classes/': typeof AuthenticatedClassesIndexRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
-  '/latihan-soal/': typeof AuthenticatedLatihanSoalIndexRoute
   '/tryout/': typeof AuthenticatedTryoutIndexRoute
-  '/admin/practice-packs/$id': typeof AdminAdminPracticePacksIdRoute
-  '/admin/practice-packs/create': typeof AdminAdminPracticePacksCreateRoute
-  '/admin/questions/$id': typeof AdminAdminQuestionsIdRoute
   '/classes/$subjectId/$contentId': typeof AuthenticatedClassesSubjectIdContentIdRouteWithChildren
-  '/dashboard/flashcard/result': typeof AuthenticatedDashboardFlashcardResultRoute
-  '/latihan-soal/riwayat/$id': typeof AuthenticatedLatihanSoalRiwayatIdRoute
   '/premium/payment/error': typeof AuthenticatedPremiumPaymentErrorRoute
   '/premium/payment/finish': typeof AuthenticatedPremiumPaymentFinishRoute
   '/premium/payment/unfinish': typeof AuthenticatedPremiumPaymentUnfinishRoute
   '/admin/classes/': typeof AdminAdminClassesIndexRoute
-  '/admin/practice-packs/': typeof AdminAdminPracticePacksIndexRoute
-  '/admin/questions/': typeof AdminAdminQuestionsIndexRoute
   '/classes/$subjectId/': typeof AuthenticatedClassesSubjectIdIndexRoute
-  '/dashboard/flashcard/': typeof AuthenticatedDashboardFlashcardIndexRoute
-  '/latihan-soal/riwayat/': typeof AuthenticatedLatihanSoalRiwayatIndexRoute
   '/admin/classes/$subjectId/$contentId': typeof AdminAdminClassesSubjectIdContentIdRouteWithChildren
   '/classes/$subjectId/$contentId/notes': typeof AuthenticatedClassesSubjectIdContentIdNotesRoute
   '/classes/$subjectId/$contentId/quiz': typeof AuthenticatedClassesSubjectIdContentIdQuizRoute
   '/classes/$subjectId/$contentId/video': typeof AuthenticatedClassesSubjectIdContentIdVideoRoute
   '/admin/classes/$subjectId/': typeof AdminAdminClassesSubjectIdIndexRoute
   '/admin/classes/$subjectId/$contentId/notes': typeof AdminAdminClassesSubjectIdContentIdNotesRoute
-  '/admin/classes/$subjectId/$contentId/quiz': typeof AdminAdminClassesSubjectIdContentIdQuizRoute
   '/admin/classes/$subjectId/$contentId/video': typeof AdminAdminClassesSubjectIdContentIdVideoRoute
 }
 export interface FileRoutesByTo {
@@ -329,35 +234,23 @@ export interface FileRoutesByTo {
   '/reset-password': typeof AuthResetPasswordRoute
   '/premium': typeof AuthenticatedPremiumRouteWithChildren
   '/admin/dashboard': typeof AdminAdminDashboardRoute
-  '/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
   '/tryout/$tryoutId': typeof AuthenticatedTryoutTryoutIdRoute
   '/admin': typeof AdminAdminIndexRoute
   '/classes': typeof AuthenticatedClassesIndexRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
-  '/latihan-soal': typeof AuthenticatedLatihanSoalIndexRoute
   '/tryout': typeof AuthenticatedTryoutIndexRoute
-  '/admin/practice-packs/$id': typeof AdminAdminPracticePacksIdRoute
-  '/admin/practice-packs/create': typeof AdminAdminPracticePacksCreateRoute
-  '/admin/questions/$id': typeof AdminAdminQuestionsIdRoute
   '/classes/$subjectId/$contentId': typeof AuthenticatedClassesSubjectIdContentIdRouteWithChildren
-  '/dashboard/flashcard/result': typeof AuthenticatedDashboardFlashcardResultRoute
-  '/latihan-soal/riwayat/$id': typeof AuthenticatedLatihanSoalRiwayatIdRoute
   '/premium/payment/error': typeof AuthenticatedPremiumPaymentErrorRoute
   '/premium/payment/finish': typeof AuthenticatedPremiumPaymentFinishRoute
   '/premium/payment/unfinish': typeof AuthenticatedPremiumPaymentUnfinishRoute
   '/admin/classes': typeof AdminAdminClassesIndexRoute
-  '/admin/practice-packs': typeof AdminAdminPracticePacksIndexRoute
-  '/admin/questions': typeof AdminAdminQuestionsIndexRoute
   '/classes/$subjectId': typeof AuthenticatedClassesSubjectIdIndexRoute
-  '/dashboard/flashcard': typeof AuthenticatedDashboardFlashcardIndexRoute
-  '/latihan-soal/riwayat': typeof AuthenticatedLatihanSoalRiwayatIndexRoute
   '/admin/classes/$subjectId/$contentId': typeof AdminAdminClassesSubjectIdContentIdRouteWithChildren
   '/classes/$subjectId/$contentId/notes': typeof AuthenticatedClassesSubjectIdContentIdNotesRoute
   '/classes/$subjectId/$contentId/quiz': typeof AuthenticatedClassesSubjectIdContentIdQuizRoute
   '/classes/$subjectId/$contentId/video': typeof AuthenticatedClassesSubjectIdContentIdVideoRoute
   '/admin/classes/$subjectId': typeof AdminAdminClassesSubjectIdIndexRoute
   '/admin/classes/$subjectId/$contentId/notes': typeof AdminAdminClassesSubjectIdContentIdNotesRoute
-  '/admin/classes/$subjectId/$contentId/quiz': typeof AdminAdminClassesSubjectIdContentIdQuizRoute
   '/admin/classes/$subjectId/$contentId/video': typeof AdminAdminClassesSubjectIdContentIdVideoRoute
 }
 export interface FileRoutesById {
@@ -373,35 +266,23 @@ export interface FileRoutesById {
   '/_auth/reset-password': typeof AuthResetPasswordRoute
   '/_authenticated/premium': typeof AuthenticatedPremiumRouteWithChildren
   '/_admin/admin/dashboard': typeof AdminAdminDashboardRoute
-  '/_authenticated/latihan-soal/$id': typeof AuthenticatedLatihanSoalIdRoute
   '/_authenticated/tryout/$tryoutId': typeof AuthenticatedTryoutTryoutIdRoute
   '/_admin/admin/': typeof AdminAdminIndexRoute
   '/_authenticated/classes/': typeof AuthenticatedClassesIndexRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
-  '/_authenticated/latihan-soal/': typeof AuthenticatedLatihanSoalIndexRoute
   '/_authenticated/tryout/': typeof AuthenticatedTryoutIndexRoute
-  '/_admin/admin/practice-packs/$id': typeof AdminAdminPracticePacksIdRoute
-  '/_admin/admin/practice-packs/create': typeof AdminAdminPracticePacksCreateRoute
-  '/_admin/admin/questions/$id': typeof AdminAdminQuestionsIdRoute
   '/_authenticated/classes/$subjectId/$contentId': typeof AuthenticatedClassesSubjectIdContentIdRouteWithChildren
-  '/_authenticated/dashboard/flashcard/result': typeof AuthenticatedDashboardFlashcardResultRoute
-  '/_authenticated/latihan-soal/riwayat/$id': typeof AuthenticatedLatihanSoalRiwayatIdRoute
   '/_authenticated/premium/payment/error': typeof AuthenticatedPremiumPaymentErrorRoute
   '/_authenticated/premium/payment/finish': typeof AuthenticatedPremiumPaymentFinishRoute
   '/_authenticated/premium/payment/unfinish': typeof AuthenticatedPremiumPaymentUnfinishRoute
   '/_admin/admin/classes/': typeof AdminAdminClassesIndexRoute
-  '/_admin/admin/practice-packs/': typeof AdminAdminPracticePacksIndexRoute
-  '/_admin/admin/questions/': typeof AdminAdminQuestionsIndexRoute
   '/_authenticated/classes/$subjectId/': typeof AuthenticatedClassesSubjectIdIndexRoute
-  '/_authenticated/dashboard/flashcard/': typeof AuthenticatedDashboardFlashcardIndexRoute
-  '/_authenticated/latihan-soal/riwayat/': typeof AuthenticatedLatihanSoalRiwayatIndexRoute
   '/_admin/admin/classes/$subjectId/$contentId': typeof AdminAdminClassesSubjectIdContentIdRouteWithChildren
   '/_authenticated/classes/$subjectId/$contentId/notes': typeof AuthenticatedClassesSubjectIdContentIdNotesRoute
   '/_authenticated/classes/$subjectId/$contentId/quiz': typeof AuthenticatedClassesSubjectIdContentIdQuizRoute
   '/_authenticated/classes/$subjectId/$contentId/video': typeof AuthenticatedClassesSubjectIdContentIdVideoRoute
   '/_admin/admin/classes/$subjectId/': typeof AdminAdminClassesSubjectIdIndexRoute
   '/_admin/admin/classes/$subjectId/$contentId/notes': typeof AdminAdminClassesSubjectIdContentIdNotesRoute
-  '/_admin/admin/classes/$subjectId/$contentId/quiz': typeof AdminAdminClassesSubjectIdContentIdQuizRoute
   '/_admin/admin/classes/$subjectId/$contentId/video': typeof AdminAdminClassesSubjectIdContentIdVideoRoute
 }
 export interface FileRouteTypes {
@@ -415,35 +296,23 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/premium'
     | '/admin/dashboard'
-    | '/latihan-soal/$id'
     | '/tryout/$tryoutId'
     | '/admin/'
     | '/classes/'
     | '/dashboard/'
-    | '/latihan-soal/'
     | '/tryout/'
-    | '/admin/practice-packs/$id'
-    | '/admin/practice-packs/create'
-    | '/admin/questions/$id'
     | '/classes/$subjectId/$contentId'
-    | '/dashboard/flashcard/result'
-    | '/latihan-soal/riwayat/$id'
     | '/premium/payment/error'
     | '/premium/payment/finish'
     | '/premium/payment/unfinish'
     | '/admin/classes/'
-    | '/admin/practice-packs/'
-    | '/admin/questions/'
     | '/classes/$subjectId/'
-    | '/dashboard/flashcard/'
-    | '/latihan-soal/riwayat/'
     | '/admin/classes/$subjectId/$contentId'
     | '/classes/$subjectId/$contentId/notes'
     | '/classes/$subjectId/$contentId/quiz'
     | '/classes/$subjectId/$contentId/video'
     | '/admin/classes/$subjectId/'
     | '/admin/classes/$subjectId/$contentId/notes'
-    | '/admin/classes/$subjectId/$contentId/quiz'
     | '/admin/classes/$subjectId/$contentId/video'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -454,35 +323,23 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/premium'
     | '/admin/dashboard'
-    | '/latihan-soal/$id'
     | '/tryout/$tryoutId'
     | '/admin'
     | '/classes'
     | '/dashboard'
-    | '/latihan-soal'
     | '/tryout'
-    | '/admin/practice-packs/$id'
-    | '/admin/practice-packs/create'
-    | '/admin/questions/$id'
     | '/classes/$subjectId/$contentId'
-    | '/dashboard/flashcard/result'
-    | '/latihan-soal/riwayat/$id'
     | '/premium/payment/error'
     | '/premium/payment/finish'
     | '/premium/payment/unfinish'
     | '/admin/classes'
-    | '/admin/practice-packs'
-    | '/admin/questions'
     | '/classes/$subjectId'
-    | '/dashboard/flashcard'
-    | '/latihan-soal/riwayat'
     | '/admin/classes/$subjectId/$contentId'
     | '/classes/$subjectId/$contentId/notes'
     | '/classes/$subjectId/$contentId/quiz'
     | '/classes/$subjectId/$contentId/video'
     | '/admin/classes/$subjectId'
     | '/admin/classes/$subjectId/$contentId/notes'
-    | '/admin/classes/$subjectId/$contentId/quiz'
     | '/admin/classes/$subjectId/$contentId/video'
   id:
     | '__root__'
@@ -497,35 +354,23 @@ export interface FileRouteTypes {
     | '/_auth/reset-password'
     | '/_authenticated/premium'
     | '/_admin/admin/dashboard'
-    | '/_authenticated/latihan-soal/$id'
     | '/_authenticated/tryout/$tryoutId'
     | '/_admin/admin/'
     | '/_authenticated/classes/'
     | '/_authenticated/dashboard/'
-    | '/_authenticated/latihan-soal/'
     | '/_authenticated/tryout/'
-    | '/_admin/admin/practice-packs/$id'
-    | '/_admin/admin/practice-packs/create'
-    | '/_admin/admin/questions/$id'
     | '/_authenticated/classes/$subjectId/$contentId'
-    | '/_authenticated/dashboard/flashcard/result'
-    | '/_authenticated/latihan-soal/riwayat/$id'
     | '/_authenticated/premium/payment/error'
     | '/_authenticated/premium/payment/finish'
     | '/_authenticated/premium/payment/unfinish'
     | '/_admin/admin/classes/'
-    | '/_admin/admin/practice-packs/'
-    | '/_admin/admin/questions/'
     | '/_authenticated/classes/$subjectId/'
-    | '/_authenticated/dashboard/flashcard/'
-    | '/_authenticated/latihan-soal/riwayat/'
     | '/_admin/admin/classes/$subjectId/$contentId'
     | '/_authenticated/classes/$subjectId/$contentId/notes'
     | '/_authenticated/classes/$subjectId/$contentId/quiz'
     | '/_authenticated/classes/$subjectId/$contentId/video'
     | '/_admin/admin/classes/$subjectId/'
     | '/_admin/admin/classes/$subjectId/$contentId/notes'
-    | '/_admin/admin/classes/$subjectId/$contentId/quiz'
     | '/_admin/admin/classes/$subjectId/$contentId/video'
   fileRoutesById: FileRoutesById
 }
@@ -615,13 +460,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTryoutIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/latihan-soal/': {
-      id: '/_authenticated/latihan-soal/'
-      path: '/latihan-soal'
-      fullPath: '/latihan-soal/'
-      preLoaderRoute: typeof AuthenticatedLatihanSoalIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/dashboard/': {
       id: '/_authenticated/dashboard/'
       path: '/dashboard'
@@ -650,13 +488,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTryoutTryoutIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/latihan-soal/$id': {
-      id: '/_authenticated/latihan-soal/$id'
-      path: '/latihan-soal/$id'
-      fullPath: '/latihan-soal/$id'
-      preLoaderRoute: typeof AuthenticatedLatihanSoalIdRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_admin/admin/dashboard': {
       id: '/_admin/admin/dashboard'
       path: '/dashboard'
@@ -664,40 +495,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminDashboardRouteImport
       parentRoute: typeof AdminAdminRoute
     }
-    '/_authenticated/latihan-soal/riwayat/': {
-      id: '/_authenticated/latihan-soal/riwayat/'
-      path: '/latihan-soal/riwayat'
-      fullPath: '/latihan-soal/riwayat/'
-      preLoaderRoute: typeof AuthenticatedLatihanSoalRiwayatIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/dashboard/flashcard/': {
-      id: '/_authenticated/dashboard/flashcard/'
-      path: '/dashboard/flashcard'
-      fullPath: '/dashboard/flashcard/'
-      preLoaderRoute: typeof AuthenticatedDashboardFlashcardIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/classes/$subjectId/': {
       id: '/_authenticated/classes/$subjectId/'
       path: '/classes/$subjectId'
       fullPath: '/classes/$subjectId/'
       preLoaderRoute: typeof AuthenticatedClassesSubjectIdIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
-    }
-    '/_admin/admin/questions/': {
-      id: '/_admin/admin/questions/'
-      path: '/questions'
-      fullPath: '/admin/questions/'
-      preLoaderRoute: typeof AdminAdminQuestionsIndexRouteImport
-      parentRoute: typeof AdminAdminRoute
-    }
-    '/_admin/admin/practice-packs/': {
-      id: '/_admin/admin/practice-packs/'
-      path: '/practice-packs'
-      fullPath: '/admin/practice-packs/'
-      preLoaderRoute: typeof AdminAdminPracticePacksIndexRouteImport
-      parentRoute: typeof AdminAdminRoute
     }
     '/_admin/admin/classes/': {
       id: '/_admin/admin/classes/'
@@ -727,47 +530,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPremiumPaymentErrorRouteImport
       parentRoute: typeof AuthenticatedPremiumRoute
     }
-    '/_authenticated/latihan-soal/riwayat/$id': {
-      id: '/_authenticated/latihan-soal/riwayat/$id'
-      path: '/latihan-soal/riwayat/$id'
-      fullPath: '/latihan-soal/riwayat/$id'
-      preLoaderRoute: typeof AuthenticatedLatihanSoalRiwayatIdRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/dashboard/flashcard/result': {
-      id: '/_authenticated/dashboard/flashcard/result'
-      path: '/dashboard/flashcard/result'
-      fullPath: '/dashboard/flashcard/result'
-      preLoaderRoute: typeof AuthenticatedDashboardFlashcardResultRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/classes/$subjectId/$contentId': {
       id: '/_authenticated/classes/$subjectId/$contentId'
       path: '/classes/$subjectId/$contentId'
       fullPath: '/classes/$subjectId/$contentId'
       preLoaderRoute: typeof AuthenticatedClassesSubjectIdContentIdRouteImport
       parentRoute: typeof AuthenticatedRoute
-    }
-    '/_admin/admin/questions/$id': {
-      id: '/_admin/admin/questions/$id'
-      path: '/questions/$id'
-      fullPath: '/admin/questions/$id'
-      preLoaderRoute: typeof AdminAdminQuestionsIdRouteImport
-      parentRoute: typeof AdminAdminRoute
-    }
-    '/_admin/admin/practice-packs/create': {
-      id: '/_admin/admin/practice-packs/create'
-      path: '/practice-packs/create'
-      fullPath: '/admin/practice-packs/create'
-      preLoaderRoute: typeof AdminAdminPracticePacksCreateRouteImport
-      parentRoute: typeof AdminAdminRoute
-    }
-    '/_admin/admin/practice-packs/$id': {
-      id: '/_admin/admin/practice-packs/$id'
-      path: '/practice-packs/$id'
-      fullPath: '/admin/practice-packs/$id'
-      preLoaderRoute: typeof AdminAdminPracticePacksIdRouteImport
-      parentRoute: typeof AdminAdminRoute
     }
     '/_admin/admin/classes/$subjectId/': {
       id: '/_admin/admin/classes/$subjectId/'
@@ -811,13 +579,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminClassesSubjectIdContentIdVideoRouteImport
       parentRoute: typeof AdminAdminClassesSubjectIdContentIdRoute
     }
-    '/_admin/admin/classes/$subjectId/$contentId/quiz': {
-      id: '/_admin/admin/classes/$subjectId/$contentId/quiz'
-      path: '/quiz'
-      fullPath: '/admin/classes/$subjectId/$contentId/quiz'
-      preLoaderRoute: typeof AdminAdminClassesSubjectIdContentIdQuizRouteImport
-      parentRoute: typeof AdminAdminClassesSubjectIdContentIdRoute
-    }
     '/_admin/admin/classes/$subjectId/$contentId/notes': {
       id: '/_admin/admin/classes/$subjectId/$contentId/notes'
       path: '/notes'
@@ -830,7 +591,6 @@ declare module '@tanstack/react-router' {
 
 interface AdminAdminClassesSubjectIdContentIdRouteChildren {
   AdminAdminClassesSubjectIdContentIdNotesRoute: typeof AdminAdminClassesSubjectIdContentIdNotesRoute
-  AdminAdminClassesSubjectIdContentIdQuizRoute: typeof AdminAdminClassesSubjectIdContentIdQuizRoute
   AdminAdminClassesSubjectIdContentIdVideoRoute: typeof AdminAdminClassesSubjectIdContentIdVideoRoute
 }
 
@@ -838,8 +598,6 @@ const AdminAdminClassesSubjectIdContentIdRouteChildren: AdminAdminClassesSubject
   {
     AdminAdminClassesSubjectIdContentIdNotesRoute:
       AdminAdminClassesSubjectIdContentIdNotesRoute,
-    AdminAdminClassesSubjectIdContentIdQuizRoute:
-      AdminAdminClassesSubjectIdContentIdQuizRoute,
     AdminAdminClassesSubjectIdContentIdVideoRoute:
       AdminAdminClassesSubjectIdContentIdVideoRoute,
   }
@@ -852,12 +610,7 @@ const AdminAdminClassesSubjectIdContentIdRouteWithChildren =
 interface AdminAdminRouteChildren {
   AdminAdminDashboardRoute: typeof AdminAdminDashboardRoute
   AdminAdminIndexRoute: typeof AdminAdminIndexRoute
-  AdminAdminPracticePacksIdRoute: typeof AdminAdminPracticePacksIdRoute
-  AdminAdminPracticePacksCreateRoute: typeof AdminAdminPracticePacksCreateRoute
-  AdminAdminQuestionsIdRoute: typeof AdminAdminQuestionsIdRoute
   AdminAdminClassesIndexRoute: typeof AdminAdminClassesIndexRoute
-  AdminAdminPracticePacksIndexRoute: typeof AdminAdminPracticePacksIndexRoute
-  AdminAdminQuestionsIndexRoute: typeof AdminAdminQuestionsIndexRoute
   AdminAdminClassesSubjectIdContentIdRoute: typeof AdminAdminClassesSubjectIdContentIdRouteWithChildren
   AdminAdminClassesSubjectIdIndexRoute: typeof AdminAdminClassesSubjectIdIndexRoute
 }
@@ -865,12 +618,7 @@ interface AdminAdminRouteChildren {
 const AdminAdminRouteChildren: AdminAdminRouteChildren = {
   AdminAdminDashboardRoute: AdminAdminDashboardRoute,
   AdminAdminIndexRoute: AdminAdminIndexRoute,
-  AdminAdminPracticePacksIdRoute: AdminAdminPracticePacksIdRoute,
-  AdminAdminPracticePacksCreateRoute: AdminAdminPracticePacksCreateRoute,
-  AdminAdminQuestionsIdRoute: AdminAdminQuestionsIdRoute,
   AdminAdminClassesIndexRoute: AdminAdminClassesIndexRoute,
-  AdminAdminPracticePacksIndexRoute: AdminAdminPracticePacksIndexRoute,
-  AdminAdminQuestionsIndexRoute: AdminAdminQuestionsIndexRoute,
   AdminAdminClassesSubjectIdContentIdRoute:
     AdminAdminClassesSubjectIdContentIdRouteWithChildren,
   AdminAdminClassesSubjectIdIndexRoute: AdminAdminClassesSubjectIdIndexRoute,
@@ -946,40 +694,24 @@ const AuthenticatedClassesSubjectIdContentIdRouteWithChildren =
 
 interface AuthenticatedRouteChildren {
   AuthenticatedPremiumRoute: typeof AuthenticatedPremiumRouteWithChildren
-  AuthenticatedLatihanSoalIdRoute: typeof AuthenticatedLatihanSoalIdRoute
   AuthenticatedTryoutTryoutIdRoute: typeof AuthenticatedTryoutTryoutIdRoute
   AuthenticatedClassesIndexRoute: typeof AuthenticatedClassesIndexRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
-  AuthenticatedLatihanSoalIndexRoute: typeof AuthenticatedLatihanSoalIndexRoute
   AuthenticatedTryoutIndexRoute: typeof AuthenticatedTryoutIndexRoute
   AuthenticatedClassesSubjectIdContentIdRoute: typeof AuthenticatedClassesSubjectIdContentIdRouteWithChildren
-  AuthenticatedDashboardFlashcardResultRoute: typeof AuthenticatedDashboardFlashcardResultRoute
-  AuthenticatedLatihanSoalRiwayatIdRoute: typeof AuthenticatedLatihanSoalRiwayatIdRoute
   AuthenticatedClassesSubjectIdIndexRoute: typeof AuthenticatedClassesSubjectIdIndexRoute
-  AuthenticatedDashboardFlashcardIndexRoute: typeof AuthenticatedDashboardFlashcardIndexRoute
-  AuthenticatedLatihanSoalRiwayatIndexRoute: typeof AuthenticatedLatihanSoalRiwayatIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedPremiumRoute: AuthenticatedPremiumRouteWithChildren,
-  AuthenticatedLatihanSoalIdRoute: AuthenticatedLatihanSoalIdRoute,
   AuthenticatedTryoutTryoutIdRoute: AuthenticatedTryoutTryoutIdRoute,
   AuthenticatedClassesIndexRoute: AuthenticatedClassesIndexRoute,
   AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
-  AuthenticatedLatihanSoalIndexRoute: AuthenticatedLatihanSoalIndexRoute,
   AuthenticatedTryoutIndexRoute: AuthenticatedTryoutIndexRoute,
   AuthenticatedClassesSubjectIdContentIdRoute:
     AuthenticatedClassesSubjectIdContentIdRouteWithChildren,
-  AuthenticatedDashboardFlashcardResultRoute:
-    AuthenticatedDashboardFlashcardResultRoute,
-  AuthenticatedLatihanSoalRiwayatIdRoute:
-    AuthenticatedLatihanSoalRiwayatIdRoute,
   AuthenticatedClassesSubjectIdIndexRoute:
     AuthenticatedClassesSubjectIdIndexRoute,
-  AuthenticatedDashboardFlashcardIndexRoute:
-    AuthenticatedDashboardFlashcardIndexRoute,
-  AuthenticatedLatihanSoalRiwayatIndexRoute:
-    AuthenticatedLatihanSoalRiwayatIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
