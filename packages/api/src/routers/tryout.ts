@@ -1,4 +1,5 @@
 import { db } from "@bimbelbeta/db";
+import { question, questionChoice } from "@bimbelbeta/db/schema/question";
 import {
   tryout,
   tryoutAttempt,
@@ -6,7 +7,6 @@ import {
   tryoutSubtestQuestion,
   tryoutUserAnswer,
 } from "@bimbelbeta/db/schema/tryout";
-import { question, questionChoice } from "@bimbelbeta/db/src/schema/question";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { and, desc, eq } from "drizzle-orm";
@@ -175,10 +175,8 @@ const find = authed
         choiceId: questionChoice.id,
         choiceContent: questionChoice.content,
         choiceCode: questionChoice.code,
-        choiceContentJson: questionChoice.contentJson,
         userSelectedChoiceId: tryoutUserAnswer.selectedChoiceId,
         userEssayAnswer: tryoutUserAnswer.essayAnswer,
-        userEssayAnswerJson: tryoutUserAnswer.essayAnswerJson,
       })
       .from(tryoutSubtestQuestion)
       .innerJoin(question, eq(question.id, tryoutSubtestQuestion.questionId))
@@ -202,7 +200,6 @@ const find = authed
           userAnswer: {
             selectedChoiceId: row.userSelectedChoiceId,
             essayAnswer: row.userEssayAnswer,
-            essayAnswerJson: row.userEssayAnswerJson,
           },
         });
       }
@@ -213,7 +210,6 @@ const find = authed
             id: row.choiceId,
             content: row.choiceContent!,
             code: row.choiceCode!,
-            contentJson: row.choiceContentJson,
           });
         }
       }
@@ -402,7 +398,6 @@ const saveAnswer = authed
       questionId: "number",
       selectedChoiceId: "number?",
       essayAnswer: "string?",
-      essayAnswerJson: "unknown?",
     }),
   )
   .handler(async ({ input, context }) => {
@@ -441,14 +436,12 @@ const saveAnswer = authed
         questionId: input.questionId,
         selectedChoiceId: input.selectedChoiceId,
         essayAnswer: input.essayAnswer,
-        essayAnswerJson: input.essayAnswerJson as unknown,
       })
       .onConflictDoUpdate({
         target: [tryoutUserAnswer.attemptId, tryoutUserAnswer.questionId],
         set: {
           selectedChoiceId: input.selectedChoiceId,
           essayAnswer: input.essayAnswer,
-          essayAnswerJson: input.essayAnswerJson as unknown,
         },
       });
 

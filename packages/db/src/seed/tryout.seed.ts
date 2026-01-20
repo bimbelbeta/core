@@ -1,9 +1,12 @@
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import {
-	tryout,
-	tryoutAttempt,
+
 	question,
 	questionChoice,
+} from "../schema/question"
+import {
+	tryout,
+	tryoutAttempt,
 	tryoutSubtest,
 	tryoutSubtestAttempt,
 	tryoutSubtestQuestion,

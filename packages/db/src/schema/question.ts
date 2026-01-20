@@ -27,7 +27,6 @@ export const questionChoice = pgTable(
 			.references(() => question.id, { onDelete: "cascade" }),
 		code: char({ length: 1 }).notNull(), // A, B, C...
 		content: text().notNull(),
-		contentJson: jsonb("content_json"),
 		isCorrect: boolean("is_correct").notNull().default(false),
 	},
 	(t) => [unique("question_choice_unique").on(t.questionId, t.code)],
