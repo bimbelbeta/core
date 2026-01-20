@@ -173,10 +173,14 @@ const getContentById = authedRateLimited
 	})
 	.input(
 		type({
-			contentId: "number",
+			contentId: type("number"),
 		}),
 	)
 	.handler(async ({ input, context }) => {
+		if (!Number.isFinite(input.contentId) || input.contentId <= 0) {
+			throw new ORPCError("BAD_REQUEST", { message: "Invalid content ID" });
+		}
+
 		const [row] = await db
 			.select({
 				id: contentItem.id,

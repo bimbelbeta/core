@@ -154,27 +154,24 @@ export function ContentCard({
 
 			{/* Actions - Links still work but will be caught by route guard */}
 			<div className="mt-2 flex gap-2 overflow-x-auto sm:gap-3">
-				{CONTENT_ACTIONS.map(
-					({ key, label, icon: Icon, enabled, className, width }) =>
-						enabled(item) && (
-							<Link
-								key={key}
-								to={`${basePath}/$subjectId/$contentId/${key}`}
-								params={params}
-								className={cn(
-									"flex items-center gap-1.5 rounded-lg px-3 py-2 sm:gap-2 sm:px-4 sm:py-2.5",
-									"w-full sm:w-auto",
-									className,
-									width,
-									isPremiumContent && "pointer-events-none opacity-60",
-								)}
-							>
-								<Icon className="size-4 sm:size-[18px]" weight="bold" />
-								<span className="whitespace-nowrap font-medium text-xs sm:text-[14px]">{label}</span>
-								<CaretRightIcon className="ml-auto size-4 sm:size-[18px]" weight="bold" />
-							</Link>
-						),
-				)}
+				{CONTENT_ACTIONS.filter(({ enabled }) => enabled(item)).map(({ key, label, icon: Icon, className, width }) => (
+					<Link
+						key={key}
+						to={`${basePath}/$subjectId/$contentId/${key}`}
+						params={params}
+						className={cn(
+							"flex items-center gap-1.5 rounded-lg px-3 py-2 sm:gap-2 sm:px-4 sm:py-2.5",
+							"w-full sm:w-auto",
+							className,
+							width,
+							isPremiumContent && "pointer-events-none opacity-60",
+						)}
+					>
+						<Icon className="size-4 sm:size-[18px]" weight="bold" />
+						<span className="whitespace-nowrap font-medium text-xs sm:text-[14px]">{label}</span>
+						<CaretRightIcon className="ml-auto size-4 sm:size-[18px]" weight="bold" />
+					</Link>
+				))}
 			</div>
 		</Card>
 	);

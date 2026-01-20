@@ -90,11 +90,20 @@ function RouteComponent() {
 	}
 
 	const currentPath = location.pathname;
-	const currentTab: "video" | "notes" = currentPath.endsWith("/notes") ? "notes" : "video";
+	const currentTab: "video" | "notes" | "latihan-soal" = currentPath.endsWith("/latihan-soal")
+		? "latihan-soal"
+		: currentPath.endsWith("/notes")
+			? "notes"
+			: "video";
 
 	const handleTabChange = (value: string) => {
 		navigate({
-			to: value === "video" ? `/classes/${subjectId}/${contentId}/video` : `/classes/${subjectId}/${contentId}/notes`,
+			to:
+				value === "video"
+					? `/classes/${subjectId}/${contentId}/video`
+					: value === "notes"
+						? `/classes/${subjectId}/${contentId}/notes`
+						: `/classes/${subjectId}/${contentId}/latihan-soal`,
 			params: { subjectId, contentId },
 		});
 	};
@@ -109,6 +118,12 @@ function RouteComponent() {
 					<NextButton
 						to={`/classes/${subjectId}/${contentId}/notes`}
 						className={!location.pathname.includes("/video") ? "hidden" : ""}
+					/>
+				)}
+				{currentTab === "latihan-soal" && (
+					<NextButton
+						to={`/classes/${subjectId}/${contentId}/notes`}
+						className={!location.pathname.includes("/latihan-soal") ? "hidden" : ""}
 					/>
 				)}
 			</div>

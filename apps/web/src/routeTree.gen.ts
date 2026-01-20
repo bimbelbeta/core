@@ -33,8 +33,8 @@ import { Route as AuthenticatedPremiumPaymentErrorRouteImport } from './routes/_
 import { Route as AuthenticatedClassesSubjectIdContentIdRouteImport } from './routes/_authenticated/classes/$subjectId/$contentId'
 import { Route as AdminAdminClassesSubjectIdIndexRouteImport } from './routes/_admin/admin/classes/$subjectId/index'
 import { Route as AuthenticatedClassesSubjectIdContentIdVideoRouteImport } from './routes/_authenticated/classes/$subjectId/$contentId.video'
-import { Route as AuthenticatedClassesSubjectIdContentIdQuizRouteImport } from './routes/_authenticated/classes/$subjectId/$contentId.quiz'
 import { Route as AuthenticatedClassesSubjectIdContentIdNotesRouteImport } from './routes/_authenticated/classes/$subjectId/$contentId.notes'
+import { Route as AuthenticatedClassesSubjectIdContentIdLatihanSoalRouteImport } from './routes/_authenticated/classes/$subjectId/$contentId.latihan-soal'
 import { Route as AdminAdminClassesSubjectIdContentIdRouteImport } from './routes/_admin/admin/classes/$subjectId/$contentId'
 import { Route as AdminAdminClassesSubjectIdContentIdVideoRouteImport } from './routes/_admin/admin/classes/$subjectId/$contentId.video'
 import { Route as AdminAdminClassesSubjectIdContentIdNotesRouteImport } from './routes/_admin/admin/classes/$subjectId/$contentId.notes'
@@ -167,16 +167,16 @@ const AuthenticatedClassesSubjectIdContentIdVideoRoute =
     path: '/video',
     getParentRoute: () => AuthenticatedClassesSubjectIdContentIdRoute,
   } as any)
-const AuthenticatedClassesSubjectIdContentIdQuizRoute =
-  AuthenticatedClassesSubjectIdContentIdQuizRouteImport.update({
-    id: '/quiz',
-    path: '/quiz',
-    getParentRoute: () => AuthenticatedClassesSubjectIdContentIdRoute,
-  } as any)
 const AuthenticatedClassesSubjectIdContentIdNotesRoute =
   AuthenticatedClassesSubjectIdContentIdNotesRouteImport.update({
     id: '/notes',
     path: '/notes',
+    getParentRoute: () => AuthenticatedClassesSubjectIdContentIdRoute,
+  } as any)
+const AuthenticatedClassesSubjectIdContentIdLatihanSoalRoute =
+  AuthenticatedClassesSubjectIdContentIdLatihanSoalRouteImport.update({
+    id: '/latihan-soal',
+    path: '/latihan-soal',
     getParentRoute: () => AuthenticatedClassesSubjectIdContentIdRoute,
   } as any)
 const AdminAdminClassesSubjectIdContentIdRoute =
@@ -219,8 +219,8 @@ export interface FileRoutesByFullPath {
   '/admin/classes/': typeof AdminAdminClassesIndexRoute
   '/classes/$subjectId/': typeof AuthenticatedClassesSubjectIdIndexRoute
   '/admin/classes/$subjectId/$contentId': typeof AdminAdminClassesSubjectIdContentIdRouteWithChildren
+  '/classes/$subjectId/$contentId/latihan-soal': typeof AuthenticatedClassesSubjectIdContentIdLatihanSoalRoute
   '/classes/$subjectId/$contentId/notes': typeof AuthenticatedClassesSubjectIdContentIdNotesRoute
-  '/classes/$subjectId/$contentId/quiz': typeof AuthenticatedClassesSubjectIdContentIdQuizRoute
   '/classes/$subjectId/$contentId/video': typeof AuthenticatedClassesSubjectIdContentIdVideoRoute
   '/admin/classes/$subjectId/': typeof AdminAdminClassesSubjectIdIndexRoute
   '/admin/classes/$subjectId/$contentId/notes': typeof AdminAdminClassesSubjectIdContentIdNotesRoute
@@ -246,8 +246,8 @@ export interface FileRoutesByTo {
   '/admin/classes': typeof AdminAdminClassesIndexRoute
   '/classes/$subjectId': typeof AuthenticatedClassesSubjectIdIndexRoute
   '/admin/classes/$subjectId/$contentId': typeof AdminAdminClassesSubjectIdContentIdRouteWithChildren
+  '/classes/$subjectId/$contentId/latihan-soal': typeof AuthenticatedClassesSubjectIdContentIdLatihanSoalRoute
   '/classes/$subjectId/$contentId/notes': typeof AuthenticatedClassesSubjectIdContentIdNotesRoute
-  '/classes/$subjectId/$contentId/quiz': typeof AuthenticatedClassesSubjectIdContentIdQuizRoute
   '/classes/$subjectId/$contentId/video': typeof AuthenticatedClassesSubjectIdContentIdVideoRoute
   '/admin/classes/$subjectId': typeof AdminAdminClassesSubjectIdIndexRoute
   '/admin/classes/$subjectId/$contentId/notes': typeof AdminAdminClassesSubjectIdContentIdNotesRoute
@@ -278,8 +278,8 @@ export interface FileRoutesById {
   '/_admin/admin/classes/': typeof AdminAdminClassesIndexRoute
   '/_authenticated/classes/$subjectId/': typeof AuthenticatedClassesSubjectIdIndexRoute
   '/_admin/admin/classes/$subjectId/$contentId': typeof AdminAdminClassesSubjectIdContentIdRouteWithChildren
+  '/_authenticated/classes/$subjectId/$contentId/latihan-soal': typeof AuthenticatedClassesSubjectIdContentIdLatihanSoalRoute
   '/_authenticated/classes/$subjectId/$contentId/notes': typeof AuthenticatedClassesSubjectIdContentIdNotesRoute
-  '/_authenticated/classes/$subjectId/$contentId/quiz': typeof AuthenticatedClassesSubjectIdContentIdQuizRoute
   '/_authenticated/classes/$subjectId/$contentId/video': typeof AuthenticatedClassesSubjectIdContentIdVideoRoute
   '/_admin/admin/classes/$subjectId/': typeof AdminAdminClassesSubjectIdIndexRoute
   '/_admin/admin/classes/$subjectId/$contentId/notes': typeof AdminAdminClassesSubjectIdContentIdNotesRoute
@@ -308,8 +308,8 @@ export interface FileRouteTypes {
     | '/admin/classes/'
     | '/classes/$subjectId/'
     | '/admin/classes/$subjectId/$contentId'
+    | '/classes/$subjectId/$contentId/latihan-soal'
     | '/classes/$subjectId/$contentId/notes'
-    | '/classes/$subjectId/$contentId/quiz'
     | '/classes/$subjectId/$contentId/video'
     | '/admin/classes/$subjectId/'
     | '/admin/classes/$subjectId/$contentId/notes'
@@ -335,8 +335,8 @@ export interface FileRouteTypes {
     | '/admin/classes'
     | '/classes/$subjectId'
     | '/admin/classes/$subjectId/$contentId'
+    | '/classes/$subjectId/$contentId/latihan-soal'
     | '/classes/$subjectId/$contentId/notes'
-    | '/classes/$subjectId/$contentId/quiz'
     | '/classes/$subjectId/$contentId/video'
     | '/admin/classes/$subjectId'
     | '/admin/classes/$subjectId/$contentId/notes'
@@ -366,8 +366,8 @@ export interface FileRouteTypes {
     | '/_admin/admin/classes/'
     | '/_authenticated/classes/$subjectId/'
     | '/_admin/admin/classes/$subjectId/$contentId'
+    | '/_authenticated/classes/$subjectId/$contentId/latihan-soal'
     | '/_authenticated/classes/$subjectId/$contentId/notes'
-    | '/_authenticated/classes/$subjectId/$contentId/quiz'
     | '/_authenticated/classes/$subjectId/$contentId/video'
     | '/_admin/admin/classes/$subjectId/'
     | '/_admin/admin/classes/$subjectId/$contentId/notes'
@@ -551,18 +551,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedClassesSubjectIdContentIdVideoRouteImport
       parentRoute: typeof AuthenticatedClassesSubjectIdContentIdRoute
     }
-    '/_authenticated/classes/$subjectId/$contentId/quiz': {
-      id: '/_authenticated/classes/$subjectId/$contentId/quiz'
-      path: '/quiz'
-      fullPath: '/classes/$subjectId/$contentId/quiz'
-      preLoaderRoute: typeof AuthenticatedClassesSubjectIdContentIdQuizRouteImport
-      parentRoute: typeof AuthenticatedClassesSubjectIdContentIdRoute
-    }
     '/_authenticated/classes/$subjectId/$contentId/notes': {
       id: '/_authenticated/classes/$subjectId/$contentId/notes'
       path: '/notes'
       fullPath: '/classes/$subjectId/$contentId/notes'
       preLoaderRoute: typeof AuthenticatedClassesSubjectIdContentIdNotesRouteImport
+      parentRoute: typeof AuthenticatedClassesSubjectIdContentIdRoute
+    }
+    '/_authenticated/classes/$subjectId/$contentId/latihan-soal': {
+      id: '/_authenticated/classes/$subjectId/$contentId/latihan-soal'
+      path: '/latihan-soal'
+      fullPath: '/classes/$subjectId/$contentId/latihan-soal'
+      preLoaderRoute: typeof AuthenticatedClassesSubjectIdContentIdLatihanSoalRouteImport
       parentRoute: typeof AuthenticatedClassesSubjectIdContentIdRoute
     }
     '/_admin/admin/classes/$subjectId/$contentId': {
@@ -672,17 +672,17 @@ const AuthenticatedPremiumRouteWithChildren =
   AuthenticatedPremiumRoute._addFileChildren(AuthenticatedPremiumRouteChildren)
 
 interface AuthenticatedClassesSubjectIdContentIdRouteChildren {
+  AuthenticatedClassesSubjectIdContentIdLatihanSoalRoute: typeof AuthenticatedClassesSubjectIdContentIdLatihanSoalRoute
   AuthenticatedClassesSubjectIdContentIdNotesRoute: typeof AuthenticatedClassesSubjectIdContentIdNotesRoute
-  AuthenticatedClassesSubjectIdContentIdQuizRoute: typeof AuthenticatedClassesSubjectIdContentIdQuizRoute
   AuthenticatedClassesSubjectIdContentIdVideoRoute: typeof AuthenticatedClassesSubjectIdContentIdVideoRoute
 }
 
 const AuthenticatedClassesSubjectIdContentIdRouteChildren: AuthenticatedClassesSubjectIdContentIdRouteChildren =
   {
+    AuthenticatedClassesSubjectIdContentIdLatihanSoalRoute:
+      AuthenticatedClassesSubjectIdContentIdLatihanSoalRoute,
     AuthenticatedClassesSubjectIdContentIdNotesRoute:
       AuthenticatedClassesSubjectIdContentIdNotesRoute,
-    AuthenticatedClassesSubjectIdContentIdQuizRoute:
-      AuthenticatedClassesSubjectIdContentIdQuizRoute,
     AuthenticatedClassesSubjectIdContentIdVideoRoute:
       AuthenticatedClassesSubjectIdContentIdVideoRoute,
   }

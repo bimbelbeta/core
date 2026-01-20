@@ -62,7 +62,7 @@ export function SubjectCard({ subject }: { subject: SubjectListItem }) {
 
 						<Link
 							to={isAdmin ? "/admin/classes/$subjectId" : "/classes/$subjectId"}
-							params={{ subjectId: String(subject.id) }}
+							params={{ subjectId: Number(subject.id) }}
 							className={cn(buttonVariants({ size: "icon" }), "z-10 mt-auto mb-0")}
 						>
 							{isAdmin ? <PencilSimpleIcon size={18} weight="bold" /> : <ArrowRightIcon size={18} weight="bold" />}

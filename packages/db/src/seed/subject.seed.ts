@@ -280,8 +280,9 @@ export async function seedSubtest(db: NodePgDatabase) {
 }
 
 const CONTENT_DATA = [
+	// UTBK - Kemampuan Penalaran Umum (PU)
 	{
-		subjectId: 27,
+		subjectId: 1,
 		title: "Pengantar Penalaran Deduktif",
 		order: 1,
 		videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
@@ -357,7 +358,7 @@ const CONTENT_DATA = [
 		},
 	},
 	{
-		subjectId: 27,
+		subjectId: 1,
 		title: "Penalaran Induktif",
 		order: 2,
 		videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
@@ -433,7 +434,7 @@ const CONTENT_DATA = [
 		},
 	},
 	{
-		subjectId: 27,
+		subjectId: 1,
 		title: "Logika dan Himpunan",
 		order: 3,
 		videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
@@ -509,7 +510,7 @@ const CONTENT_DATA = [
 		},
 	},
 	{
-		subjectId: 27,
+		subjectId: 1,
 		title: "Pola Bilangan dan Deret",
 		order: 4,
 		videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
@@ -571,6 +572,902 @@ const CONTENT_DATA = [
 								{
 									type: "paragraph",
 									content: [{ type: "text", text: "Pola bilangan kuadrat: 1, 4, 9, 16, 25, ..." }],
+								},
+							],
+						},
+					],
+				},
+			],
+		},
+	},
+	{
+		subjectId: 1,
+		title: "Analogi Verbal",
+		order: 5,
+		videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+		noteContent: {
+			type: "doc",
+			content: [
+				{
+					type: "heading",
+					attrs: { level: 1 },
+					content: [{ type: "text", text: "Analogi Verbal" }],
+				},
+				{
+					type: "paragraph",
+					content: [
+						{
+							type: "text",
+							text: "Analogi verbal adalah hubungan kemiripan antara dua pasang kata yang memiliki pola atau relasi yang sama.",
+						},
+					],
+				},
+				{
+					type: "heading",
+					attrs: { level: 2 },
+					content: [{ type: "text", text: "Jenis-jenis Relasi" }],
+				},
+				{
+					type: "bulletList",
+					content: [
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Sinonim: Kata yang memiliki makna sama" }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Antonim: Kata yang memiliki makna berlawanan" }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Bagian-keseluruhan: Hubungan bagian dengan keseluruhan" }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Sebab-akibat: Hubungan kausal antara dua hal" }],
+								},
+							],
+						},
+					],
+				},
+			],
+		},
+	},
+	// UTBK - Pengetahuan Kuantitatif (PK)
+	{
+		subjectId: 4,
+		title: "Aritmatika Dasar",
+		order: 1,
+		videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+		noteContent: {
+			type: "doc",
+			content: [
+				{
+					type: "heading",
+					attrs: { level: 1 },
+					content: [{ type: "text", text: "Aritmatika Dasar" }],
+				},
+				{
+					type: "paragraph",
+					content: [
+						{
+							type: "text",
+							text: "Aritmatika mencakup operasi dasar matematika: penjumlahan, pengurangan, perkalian, dan pembagian.",
+						},
+					],
+				},
+				{
+					type: "heading",
+					attrs: { level: 2 },
+					content: [{ type: "text", text: "Sifat-sifat Operasi" }],
+				},
+				{
+					type: "bulletList",
+					content: [
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Komutatif: a + b = b + a" }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Asosiatif: (a + b) + c = a + (b + c)" }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Distributif: a × (b + c) = (a × b) + (a × c)" }],
+								},
+							],
+						},
+					],
+				},
+			],
+		},
+	},
+	{
+		subjectId: 4,
+		title: "Perbandingan dan Proporsi",
+		order: 2,
+		videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+		noteContent: {
+			type: "doc",
+			content: [
+				{
+					type: "heading",
+					attrs: { level: 1 },
+					content: [{ type: "text", text: "Perbandingan dan Proporsi" }],
+				},
+				{
+					type: "paragraph",
+					content: [
+						{
+							type: "text",
+							text: "Perbandingan adalah hubungan antara dua atau lebih kuantitas. Proporsi adalah pernyataan bahwa dua perbandingan adalah sama.",
+						},
+					],
+				},
+				{
+					type: "heading",
+					attrs: { level: 2 },
+					content: [{ type: "text", text: "Jenis Perbandingan" }],
+				},
+				{
+					type: "bulletList",
+					content: [
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Perbandingan senilai: Jika x naik, y naik" }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Perbandingan berbalik nilai: Jika x naik, y turun" }],
+								},
+							],
+						},
+					],
+				},
+			],
+		},
+	},
+	{
+		subjectId: 4,
+		title: "Statistika Dasar",
+		order: 3,
+		videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+		noteContent: {
+			type: "doc",
+			content: [
+				{
+					type: "heading",
+					attrs: { level: 1 },
+					content: [{ type: "text", text: "Statistika Dasar" }],
+				},
+				{
+					type: "paragraph",
+					content: [
+						{
+							type: "text",
+							text: "Statistika adalah ilmu yang mempelajari pengumpulan, pengolahan, analisis, dan interpretasi data.",
+						},
+					],
+				},
+				{
+					type: "heading",
+					attrs: { level: 2 },
+					content: [{ type: "text", text: "Ukuran Pemusatan Data" }],
+				},
+				{
+					type: "bulletList",
+					content: [
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Mean (rata-rata): Jumlah data dibagi banyaknya data" }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Median: Nilai tengah setelah data diurutkan" }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Modus: Nilai yang paling sering muncul" }],
+								},
+							],
+						},
+					],
+				},
+			],
+		},
+	},
+	// SD - Matematika SD
+	{
+		subjectId: 8,
+		title: "Operasi Hitung Bilangan Bulat",
+		order: 1,
+		videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+		noteContent: {
+			type: "doc",
+			content: [
+				{
+					type: "heading",
+					attrs: { level: 1 },
+					content: [{ type: "text", text: "Operasi Hitung Bilangan Bulat" }],
+				},
+				{
+					type: "paragraph",
+					content: [
+						{
+							type: "text",
+							text: "Bilangan bulat terdiri dari bilangan positif, negatif, dan nol. Kita dapat melakukan berbagai operasi hitung dengan bilangan bulat.",
+						},
+					],
+				},
+				{
+					type: "heading",
+					attrs: { level: 2 },
+					content: [{ type: "text", text: "Aturan Penjumlahan dan Pengurangan" }],
+				},
+				{
+					type: "bulletList",
+					content: [
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Positif + Positif = Positif" }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Negatif + Negatif = Negatif" }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Positif + Negatif = Selisih (tanda mengikuti yang lebih besar)" }],
+								},
+							],
+						},
+					],
+				},
+			],
+		},
+	},
+	{
+		subjectId: 8,
+		title: "Pecahan dan Desimal",
+		order: 2,
+		videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+		noteContent: {
+			type: "doc",
+			content: [
+				{
+					type: "heading",
+					attrs: { level: 1 },
+					content: [{ type: "text", text: "Pecahan dan Desimal" }],
+				},
+				{
+					type: "paragraph",
+					content: [
+						{
+							type: "text",
+							text: "Pecahan adalah bilangan yang menunjukkan bagian dari keseluruhan. Desimal adalah cara lain untuk menuliskan pecahan.",
+						},
+					],
+				},
+				{
+					type: "heading",
+					attrs: { level: 2 },
+					content: [{ type: "text", text: "Jenis-jenis Pecahan" }],
+				},
+				{
+					type: "bulletList",
+					content: [
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Pecahan biasa: pembilang < penyebut" }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Pecahan campuran: bilangan bulat + pecahan" }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Pecahan desimal: ditulis dengan koma" }],
+								},
+							],
+						},
+					],
+				},
+			],
+		},
+	},
+	{
+		subjectId: 8,
+		title: "Geometri Bangun Datar",
+		order: 3,
+		videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+		noteContent: {
+			type: "doc",
+			content: [
+				{
+					type: "heading",
+					attrs: { level: 1 },
+					content: [{ type: "text", text: "Geometri Bangun Datar" }],
+				},
+				{
+					type: "paragraph",
+					content: [
+						{
+							type: "text",
+							text: "Bangun datar adalah bangun dua dimensi yang memiliki panjang dan lebar.",
+						},
+					],
+				},
+				{
+					type: "heading",
+					attrs: { level: 2 },
+					content: [{ type: "text", text: "Macam-macam Bangun Datar" }],
+				},
+				{
+					type: "bulletList",
+					content: [
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Persegi: 4 sisi sama panjang, 4 sudut siku-siku" }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Persegi panjang: sisi berhadapan sama panjang, 4 sudut siku-siku" }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Segitiga: 3 sisi, 3 sudut" }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Lingkaran: kurva tertutup dengan jarak sama ke titik pusat" }],
+								},
+							],
+						},
+					],
+				},
+			],
+		},
+	},
+	// SMP - Matematika SMP
+	{
+		subjectId: 15,
+		title: "Aljabar dan Persamaan Linear",
+		order: 1,
+		videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+		noteContent: {
+			type: "doc",
+			content: [
+				{
+					type: "heading",
+					attrs: { level: 1 },
+					content: [{ type: "text", text: "Aljabar dan Persamaan Linear" }],
+				},
+				{
+					type: "paragraph",
+					content: [
+						{
+							type: "text",
+							text: "Aljabar adalah cabang matematika yang menggunakan huruf untuk mewakili bilangan. Persamaan linear adalah persamaan dengan pangkat tertinggi 1.",
+						},
+					],
+				},
+				{
+					type: "heading",
+					attrs: { level: 2 },
+					content: [{ type: "text", text: "Bentuk Umum Persamaan Linear" }],
+				},
+				{
+					type: "paragraph",
+					content: [
+						{
+							type: "text",
+							text: "Persamaan linear satu variabel: ax + b = 0",
+						},
+					],
+				},
+				{
+					type: "paragraph",
+					content: [
+						{
+							type: "text",
+							text: "Persamaan linear dua variabel: ax + by = c",
+						},
+					],
+				},
+			],
+		},
+	},
+	{
+		subjectId: 15,
+		title: "Pythagoras dan Teorema Pythagoras",
+		order: 2,
+		videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+		noteContent: {
+			type: "doc",
+			content: [
+				{
+					type: "heading",
+					attrs: { level: 1 },
+					content: [{ type: "text", text: "Teorema Pythagoras" }],
+				},
+				{
+					type: "paragraph",
+					content: [
+						{
+							type: "text",
+							text: "Teorema Pythagoras menyatakan bahwa pada segitiga siku-siku, kuadrat sisi miring sama dengan jumlah kuadrat kedua sisi lainnya.",
+						},
+					],
+				},
+				{
+					type: "heading",
+					attrs: { level: 2 },
+					content: [{ type: "text", text: "Rumus Pythagoras" }],
+				},
+				{
+					type: "paragraph",
+					content: [
+						{
+							type: "text",
+							text: "c² = a² + b²",
+						},
+					],
+				},
+				{
+					type: "paragraph",
+					content: [
+						{
+							type: "text",
+							text: "Di mana c adalah sisi miring (hipotenusa), a dan b adalah sisi-sisi lainnya.",
+						},
+					],
+				},
+			],
+		},
+	},
+	// SMA - Matematika SMA
+	{
+		subjectId: 22,
+		title: "Fungsi dan Grafik",
+		order: 1,
+		videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+		noteContent: {
+			type: "doc",
+			content: [
+				{
+					type: "heading",
+					attrs: { level: 1 },
+					content: [{ type: "text", text: "Fungsi dan Grafik" }],
+				},
+				{
+					type: "paragraph",
+					content: [
+						{
+							type: "text",
+							text: "Fungsi adalah relasi yang memetakan setiap anggota domain ke tepat satu anggota kodomain.",
+						},
+					],
+				},
+				{
+					type: "heading",
+					attrs: { level: 2 },
+					content: [{ type: "text", text: "Jenis-jenis Fungsi" }],
+				},
+				{
+					type: "bulletList",
+					content: [
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Fungsi linear: f(x) = ax + b" }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Fungsi kuadrat: f(x) = ax² + bx + c" }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Fungsi eksponen: f(x) = aˣ" }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Fungsi logaritma: f(x) = ᵃlog x" }],
+								},
+							],
+						},
+					],
+				},
+			],
+		},
+	},
+	{
+		subjectId: 22,
+		title: "Trigonometri",
+		order: 2,
+		videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+		noteContent: {
+			type: "doc",
+			content: [
+				{
+					type: "heading",
+					attrs: { level: 1 },
+					content: [{ type: "text", text: "Trigonometri" }],
+				},
+				{
+					type: "paragraph",
+					content: [
+						{
+							type: "text",
+							text: "Trigonometri adalah cabang matematika yang mempelajari hubungan antara sudut dan sisi dalam segitiga.",
+						},
+					],
+				},
+				{
+					type: "heading",
+					attrs: { level: 2 },
+					content: [{ type: "text", text: "Perbandingan Trigonometri" }],
+				},
+				{
+					type: "bulletList",
+					content: [
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "sin α = depan / miring" }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "cos α = samping / miring" }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "tan α = depan / samping" }],
+								},
+							],
+						},
+					],
+				},
+			],
+		},
+	},
+	{
+		subjectId: 22,
+		title: "Limit Fungsi",
+		order: 3,
+		videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+		noteContent: {
+			type: "doc",
+			content: [
+				{
+					type: "heading",
+					attrs: { level: 1 },
+					content: [{ type: "text", text: "Limit Fungsi" }],
+				},
+				{
+					type: "paragraph",
+					content: [
+						{
+							type: "text",
+							text: "Limit adalah nilai yang didekati suatu fungsi ketika variabelnya mendekati suatu nilai tertentu.",
+						},
+					],
+				},
+				{
+					type: "heading",
+					attrs: { level: 2 },
+					content: [{ type: "text", text: "Sifat-sifat Limit" }],
+				},
+				{
+					type: "bulletList",
+					content: [
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Limit jumlah = jumlah limit" }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Limit selisih = selisih limit" }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Limit kali = kali limit" }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Limit bagi = bagi limit (penyebut ≠ 0)" }],
+								},
+							],
+						},
+					],
+				},
+			],
+		},
+	},
+	// SMA - Fisika SMA
+	{
+		subjectId: 25,
+		title: "Gerak Lurus",
+		order: 1,
+		videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+		noteContent: {
+			type: "doc",
+			content: [
+				{
+					type: "heading",
+					attrs: { level: 1 },
+					content: [{ type: "text", text: "Gerak Lurus" }],
+				},
+				{
+					type: "paragraph",
+					content: [
+						{
+							type: "text",
+							text: "Gerak lurus adalah gerak benda pada lintasan garis lurus.",
+						},
+					],
+				},
+				{
+					type: "heading",
+					attrs: { level: 2 },
+					content: [{ type: "text", text: "Jenis Gerak Lurus" }],
+				},
+				{
+					type: "bulletList",
+					content: [
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "GLB (Gerak Lurus Beraturan): kecepatan konstan" }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "GLBB (Gerak Lurus Berubah Beraturan): percepatan konstan" }],
+								},
+							],
+						},
+					],
+				},
+				{
+					type: "heading",
+					attrs: { level: 2 },
+					content: [{ type: "text", text: "Rumus-rumus Penting" }],
+				},
+				{
+					type: "paragraph",
+					content: [
+						{
+							type: "text",
+							text: "v = s/t (kecepatan = jarak/waktu)",
+						},
+					],
+				},
+				{
+					type: "paragraph",
+					content: [
+						{
+							type: "text",
+							text: "a = Δv/t (percepatan = perubahan kecepatan/waktu)",
+						},
+					],
+				},
+			],
+		},
+	},
+	{
+		subjectId: 25,
+		title: "Hukum Newton",
+		order: 2,
+		videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+		noteContent: {
+			type: "doc",
+			content: [
+				{
+					type: "heading",
+					attrs: { level: 1 },
+					content: [{ type: "text", text: "Hukum Newton" }],
+				},
+				{
+					type: "paragraph",
+					content: [
+						{
+							type: "text",
+							text: "Hukum Newton menjelaskan hubungan antara gaya, massa, dan percepatan benda.",
+						},
+					],
+				},
+				{
+					type: "heading",
+					attrs: { level: 2 },
+					content: [{ type: "text", text: "Tiga Hukum Newton" }],
+				},
+				{
+					type: "bulletList",
+					content: [
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [
+										{
+											type: "text",
+											text: "Hukum I (Inersia): Benda diam tetap diam, benda bergerak tetap bergerak dengan kecepatan konstan jika tidak ada gaya luar",
+										},
+									],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: "Hukum II: F = m × a (gaya = massa × percepatan)" }],
+								},
+							],
+						},
+						{
+							type: "listItem",
+							content: [
+								{
+									type: "paragraph",
+									content: [
+										{
+											type: "text",
+											text: "Hukum III (Aksi-Reaksi): Setiap aksi memiliki reaksi yang sama besar tetapi berlawanan arah",
+										},
+									],
 								},
 							],
 						},

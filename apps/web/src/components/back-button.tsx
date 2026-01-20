@@ -3,14 +3,17 @@ import { Link } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "./ui/button";
 
-export function BackButton({ to }: { to: string }) {
+type BackButtonProps = {
+	to: string;
+	search?: Record<string, string | number | boolean | undefined>;
+};
+
+export function BackButton({ to, search }: BackButtonProps) {
 	return (
 		<Link
 			to={to}
-			className={cn(
-				buttonVariants({ variant: "lightBlue", size: "sm" }),
-				"gap-2 px-3.5 py-2 text-white text-xs shadow-xs",
-			)}
+			search={search}
+			className={cn(buttonVariants({ size: "sm" }), "gap-2 px-3.5 py-2 text-white text-xs shadow-xs")}
 		>
 			<ArrowLeftIcon size={20} weight="bold" />
 			Kembali

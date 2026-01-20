@@ -2,7 +2,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { config } from "dotenv";
 import { drizzle } from "drizzle-orm/node-postgres";
-import { clearSubtest, seedSubtest } from "./subject.seed";
+import { clearContent, clearSubtest, seedContent, seedSubtest } from "./subject.seed";
 import { clearTryout, seedTryout } from "./tryout.seed";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -29,6 +29,8 @@ async function main() {
 	await seedSubtest(db);
 	await clearTryout(db);
 	await seedTryout(db);
+	await clearContent(db);
+	await seedContent(db);
 	// await seedPractice(db);
 
 	console.log("Seed completed");

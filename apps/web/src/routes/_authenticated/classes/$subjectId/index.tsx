@@ -3,8 +3,14 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { ClassHeader } from "@/components/classes/class-header";
 import { ContentList } from "@/components/classes/content-list";
+import {
+	Breadcrumb,
+	BreadcrumbItem,
+	BreadcrumbLink,
+	BreadcrumbList,
+	BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { Container } from "@/components/ui/container";
-import { SearchInput } from "@/components/ui/search-input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/utils/orpc";
@@ -64,6 +70,7 @@ function RouteComponent() {
 			},
 		}),
 		placeholderData: (previousData) => previousData,
+		staleTime: 1000 * 60 * 5,
 	});
 
 	const trackSubjectViewMutation = useMutation(orpc.subject.trackSubjectView.mutationOptions());
@@ -97,19 +104,39 @@ function RouteComponent() {
 	return (
 		<div className="-mt-5 space-y-4 sm:-mt-3">
 			<ClassHeader subject={contents.data.subject} />
-			<div className="space-y-4">
+
+			{/* Since search is admin only feature */}
+			{/*<div className="space-y-4">
 				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 					<div className="max-w-md flex-1">
 						<SearchInput value={searchQuery} onChange={(q) => updateSearch({ q })} placeholder="Cari konten..." />
 					</div>
 				</div>
-			</div>
+			</div>*/}
+
+			<Breadcrumb>
+				<BreadcrumbList>
+					<BreadcrumbItem>
+						<BreadcrumbLink href="/classes">Kelas</BreadcrumbLink>
+					</BreadcrumbItem>
+					<BreadcrumbSeparator />
+					<BreadcrumbItem className="uppercase">
+						<BreadcrumbLink href={`/classes/?category=${contents.data.subject.category}`}>
+							{contents.data.subject.category}
+						</BreadcrumbLink>
+					</BreadcrumbItem>
+					<BreadcrumbSeparator />
+					<BreadcrumbItem>
+						<BreadcrumbLink href={`/classes/${contents.data.subject.id}`}>{contents.data.subject.name}</BreadcrumbLink>
+					</BreadcrumbItem>
+				</BreadcrumbList>
+			</Breadcrumb>
 
 			<div className="space-y-4">
 				<ContentList
 					items={contents.data.items}
 					isLoading={contents.isPending}
-					error={contents.isError ? contents.error.message : undefined}
+					error={undefined}
 					searchQuery={searchQuery}
 					showCount={Boolean(searchQuery)}
 					hasMore={contents.data.items?.length === 20}

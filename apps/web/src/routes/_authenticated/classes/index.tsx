@@ -50,14 +50,16 @@ function RouteComponent() {
 		navigate({ search: cleanSearch });
 	};
 
-	const subjectsQuery = useQuery(
-		orpc.subject.listSubjects.queryOptions({
+	const subjectsQuery = useQuery({
+		...orpc.subject.listSubjects.queryOptions({
 			input: {
 				category: activeFilter === "all" ? undefined : activeFilter,
 				search: searchQuery || undefined,
 			},
 		}),
-	);
+		placeholderData: (previousData) => previousData,
+		staleTime: 1000 * 60 * 5,
+	});
 
 	return (
 		<div className="-mt-5 sm:-mt-3">
@@ -78,7 +80,7 @@ function RouteComponent() {
 			</div>
 
 			<div>
-				{subjectsQuery.isPending && (
+				{!subjectsQuery.data && subjectsQuery.isPending && (
 					<div className="flex h-full flex-col gap-2 sm:gap-5">
 						{Array.from({ length: 9 }).map((_, i) => (
 							<Skeleton key={i.toString()} className="h-40 w-full" />
@@ -98,7 +100,7 @@ function RouteComponent() {
 				{subjectsQuery.data && subjectsQuery.data.length > 0 && (
 					<SubjectList
 						items={subjectsQuery.data}
-						isLoading={subjectsQuery.isPending}
+						isLoading={subjectsQuery.isPending && !subjectsQuery.data}
 						error={subjectsQuery.isError ? subjectsQuery.error.message : undefined}
 						searchQuery={searchQuery}
 						onCreate={isAdmin ? () => {} : undefined}

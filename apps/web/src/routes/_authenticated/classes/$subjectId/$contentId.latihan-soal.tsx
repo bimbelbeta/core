@@ -1,19 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useEffect } from "react";
+import { BackButton } from "@/components/back-button";
 import { EmptyContentState } from "@/components/classes/empty-content-state";
 import { PracticeQuestion } from "@/components/classes/practice-question";
 import { PracticeQuestionHeader } from "@/components/classes/practice-question-header";
-// import { EmptyContentState, PracticeQuestion, PracticeQuestionHeader } from "@/components/classes";
+import { NextButton } from "@/components/next-button";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { orpc } from "@/utils/orpc";
 
-export const Route = createFileRoute("/_authenticated/classes/$subjectId/$contentId/quiz")({
+export const Route = createFileRoute("/_authenticated/classes/$subjectId/$contentId/latihan-soal")({
 	component: RouteComponent,
 });
 
 function RouteComponent() {
-	const { contentId } = Route.useParams();
+	const { subjectId, contentId } = Route.useParams();
 	const queryClient = useQueryClient();
 
 	const content = useQuery(
@@ -44,7 +45,7 @@ function RouteComponent() {
 	}, [content.data?.practiceQuestions, contentId, updateProgressMutation.mutate]);
 
 	if (content.isPending) {
-		return <p className="animate-pulse text-sm">Memuat quiz...</p>;
+		return <p className="animate-pulse text-sm">Memuat latihan soal...</p>;
 	}
 
 	if (content.isError) {
@@ -57,7 +58,10 @@ function RouteComponent() {
 	if (!practiceQuestions) {
 		return (
 			<div className="space-y-4">
-				<p className="font-semibold text-base text-primary-300">Quiz</p>
+				<div className="flex justify-start">
+					<BackButton to={`/classes/${subjectId}/${contentId}/video`} />
+				</div>
+				<p className="font-semibold text-base text-primary-300">Latihan Soal</p>
 
 				<PracticeQuestionHeader content={content.data.title} />
 
@@ -70,7 +74,11 @@ function RouteComponent() {
 
 	return (
 		<div className="space-y-4">
-			<p className="font-semibold text-base text-primary-300">Quiz Materi</p>
+			<div className="flex justify-between">
+				<BackButton to={`/classes/${subjectId}/${contentId}/video`} />
+				<NextButton to={`/classes/${subjectId}/${contentId}/notes`} />
+			</div>
+			<p className="font-semibold text-base text-primary-300">Latihan Soal</p>
 
 			<PracticeQuestionHeader content={content.data.title} />
 
@@ -111,7 +119,7 @@ function RouteComponent() {
 					/>
 				))
 			) : (
-				<p className="text-muted-foreground text-sm">Belum ada quiz untuk materi ini.</p>
+				<p className="text-muted-foreground text-sm">Belum ada latihan soal untuk materi ini.</p>
 			)}
 		</div>
 	);

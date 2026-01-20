@@ -66,25 +66,24 @@ export function LastContentViewedCard({
 
 			{/* Actions */}
 			<div className="flex gap-3 overflow-x-auto">
-				{DASHBOARD_CONTENT_ACTIONS.map(
-					({ key, label, icon: Icon, enabled, className, width }) =>
-						enabled(item) && (
-							<Link
-								key={key}
-								to={`${basePath}/$subjectId/$contentId/${key}`}
-								params={params}
-								className={cn(
-									"flex items-center gap-2 rounded-[5px] px-4 py-2.5 transition-opacity hover:opacity-90",
-									"w-full sm:w-auto",
-									className,
-									width,
-								)}
-							>
-								<Icon size={18} weight="bold" />
-								<span className="whitespace-nowrap font-medium text-[14px]">{label}</span>
-								<CaretRightIcon size={18} className="ml-auto" weight="bold" />
-							</Link>
-						),
+				{DASHBOARD_CONTENT_ACTIONS.filter(({ enabled }) => enabled(item)).map(
+					({ key, label, icon: Icon, className, width }) => (
+						<Link
+							key={key}
+							to={`${basePath}/$subjectId/$contentId/${key}`}
+							params={params}
+							className={cn(
+								"flex items-center gap-2 rounded-[5px] px-4 py-2.5 transition-opacity hover:opacity-90",
+								"w-full sm:w-auto",
+								className,
+								width,
+							)}
+						>
+							<Icon size={18} weight="bold" />
+							<span className="whitespace-nowrap font-medium text-[14px]">{label}</span>
+							<CaretRightIcon size={18} className="ml-auto" weight="bold" />
+						</Link>
+					),
 				)}
 			</div>
 		</Card>
