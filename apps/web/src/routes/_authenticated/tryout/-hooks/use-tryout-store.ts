@@ -1,13 +1,16 @@
+import type { TryoutQuestion } from "@bimbelbeta/api/types/tryout";
 import { create } from "zustand";
 
 interface TryoutStore {
 	view: "greeting" | "questions";
+	currentQuestion: TryoutQuestion | null;
 	currentQuestionIndex: number;
 	answers: Record<number, number>;
 	raguRaguIds: Set<number>;
 
 	setView: (view: "greeting" | "questions") => void;
-	setCurrentQuestion: (index: number) => void;
+	setCurrentQuestion: (question: TryoutQuestion | null) => void;
+	setCurrentQuestionIndex: (index: number) => void;
 	setAnswer: (questionId: number, choiceId: number) => void;
 	removeAnswer: (questionId: number) => void;
 	toggleRaguRagu: (questionId: number) => void;
@@ -18,13 +21,20 @@ interface TryoutStore {
 
 export const useTryoutStore = create<TryoutStore>((set, _get) => ({
 	view: "greeting",
+	currentQuestion: null,
 	currentQuestionIndex: 0,
 	answers: {},
 	raguRaguIds: new Set(),
 
 	setView: (view) => set({ view }),
 
-	setCurrentQuestion: (index) => set({ currentQuestionIndex: index }),
+	setCurrentQuestion: (question) =>
+		set((state) => {
+			if (state.currentQuestion?.id === question?.id) return {};
+			return { currentQuestion: question };
+		}),
+
+	setCurrentQuestionIndex: (index) => set({ currentQuestionIndex: index }),
 
 	setAnswer: (questionId, choiceId) =>
 		set((state) => ({

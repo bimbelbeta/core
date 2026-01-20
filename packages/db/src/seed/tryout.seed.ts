@@ -1,9 +1,5 @@
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
-import {
-
-	question,
-	questionChoice,
-} from "../schema/question"
+import { question, questionChoice } from "../schema/question";
 import {
 	tryout,
 	tryoutAttempt,
@@ -282,6 +278,7 @@ export async function seedTryout(db: NodePgDatabase) {
 					.insert(question)
 					.values({
 						type: questionData.type,
+						discussion: "Dummy Discussion",
 						content: questionData.content,
 					})
 					.returning({ id: question.id });
@@ -302,7 +299,7 @@ export async function seedTryout(db: NodePgDatabase) {
 					});
 				}
 			}
-			console.log(`  Questions created for ${questionGroup.subtestName}: ${questionGroup.questions.length}`);
+			console.log(`Questions created for ${questionGroup.subtestName}: ${questionGroup.questions.length}`);
 		}
 
 		console.log("Tryout seed completed");

@@ -28,6 +28,6 @@
 		"arktype": "catalog:",
 		"better-auth": "catalog:",
 		"dotenv": "catalog:",
-		"resend": "^6.7.0"
+		"resend": "^6.8.0"
 	}
 }

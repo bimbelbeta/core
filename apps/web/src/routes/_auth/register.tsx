@@ -75,9 +75,9 @@ function SignUpForm() {
 		},
 		validators: {
 			onSubmit: type({
-				name: "string >= 2",
-				email: "string.email",
-				password: "string >= 8",
+				name: type("string >= 2").describe("Minimal 2 karakter"),
+				email: type("string.email"),
+				password: type("string >= 8").describe("Minimal 8 karakter"),
 			}),
 		},
 	});
@@ -121,7 +121,7 @@ function SignUpForm() {
 										autoFocus
 									/>
 									{field.state.meta.errors.map((error) => (
-										<p key={error?.message} className="text-red-500">
+										<p key={error?.message} className="text-red-500 text-xs">
 											{error?.message}
 										</p>
 									))}
@@ -144,7 +144,7 @@ function SignUpForm() {
 										onChange={(e) => field.handleChange(e.target.value)}
 									/>
 									{field.state.meta.errors.map((error) => (
-										<p key={error?.message} className="text-red-500">
+										<p key={error?.message} className="text-red-500 text-xs">
 											{error?.message}
 										</p>
 									))}
@@ -167,7 +167,7 @@ function SignUpForm() {
 										onChange={(e) => field.handleChange(e.target.value)}
 									/>
 									{field.state.meta.errors.map((error) => (
-										<p key={error?.message} className="text-red-500">
+										<p key={error?.message} className="text-red-500 text-xs">
 											{error?.message}
 										</p>
 									))}

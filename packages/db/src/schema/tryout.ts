@@ -1,16 +1,7 @@
 import { relations } from "drizzle-orm";
-import {
-	boolean,
-	integer,
-	pgEnum,
-	pgTable,
-	primaryKey,
-	text,
-	timestamp,
-	unique,
-} from "drizzle-orm/pg-core";
+import { boolean, integer, pgEnum, pgTable, primaryKey, text, timestamp, unique } from "drizzle-orm/pg-core";
 import { user } from "./auth";
-import { question,questionChoice } from "./question";
+import { question, questionChoice } from "./question";
 
 /*
   Tryout & Subtests
@@ -54,7 +45,6 @@ export const tryoutSubtestRelations = relations(tryoutSubtest, ({ one, many }) =
 	}),
 	questions: many(tryoutSubtestQuestion),
 }));
-
 
 /*
   Linking Questions to Subtests

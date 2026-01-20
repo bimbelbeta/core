@@ -1,5 +1,5 @@
 import { db } from "@bimbelbeta/db";
-import { question, questionAnswerOption } from "@bimbelbeta/db/schema/practice-pack";
+import { question, questionChoice } from "@bimbelbeta/db/schema/question";
 import {
 	contentItem,
 	contentPracticeQuestions,
@@ -12,26 +12,10 @@ import {
 } from "@bimbelbeta/db/schema/subject";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { and, desc, eq, ilike, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, inArray, isNotNull, sql } from "drizzle-orm";
 import { authed, authedRateLimited } from "../index";
 import { canAccessContent } from "../lib/content-access";
-
-export function convertToTiptap(text: string) {
-	try {
-		const parsed = JSON.parse(text);
-		if (parsed && parsed.type === "doc") return parsed;
-	} catch {}
-
-	return {
-		type: "doc",
-		content: [
-			{
-				type: "paragraph",
-				content: [{ type: "text", text }],
-			},
-		],
-	};
-}
+import { convertToTiptap } from "../lib/convert-to-tiptap";
 
 function escapeLikePattern(value: string): string {
 	return value.replace(/[%_\\]/g, (char) => `\\${char}`);
@@ -51,7 +35,7 @@ const listSubjects = authed
 		type({
 			"category?": "'sd' | 'smp' | 'sma' | 'utbk'",
 			"search?": "string",
-		}).or(type({})),
+		}),
 	)
 	.handler(async ({ input, context }) => {
 		const conditions = [];
@@ -144,9 +128,9 @@ const listContentBySubjectCategory = authedRateLimited
 				id: contentItem.id,
 				title: contentItem.title,
 				order: contentItem.order,
-				hasVideo: sql<boolean>`${videoMaterial.id} IS NOT NULL`,
-				hasNote: sql<boolean>`${noteMaterial.id} IS NOT NULL`,
-				hasPracticeQuestions: sql<boolean>`${contentPracticeQuestions.contentItemId} IS NOT NULL`,
+				hasVideo: isNotNull(videoMaterial.id),
+				hasNote: isNotNull(noteMaterial.id),
+				hasPracticeQuestions: isNotNull(contentPracticeQuestions.contentItemId),
 				videoCompleted: userProgress.videoCompleted,
 				noteCompleted: userProgress.noteCompleted,
 				practiceQuestionsCompleted: userProgress.practiceQuestionsCompleted,
@@ -239,16 +223,16 @@ const getContentById = authedRateLimited
 				questionContentJson: question.contentJson,
 				questionDiscussion: question.discussion,
 				questionDiscussionJson: question.discussionJson,
-				answerId: questionAnswerOption.id,
-				answerContent: questionAnswerOption.content,
-				answerCode: questionAnswerOption.code,
-				answerIsCorrect: questionAnswerOption.isCorrect,
+				answerId: questionChoice.id,
+				answerContent: questionChoice.content,
+				answerCode: questionChoice.code,
+				answerIsCorrect: questionChoice.isCorrect,
 			})
 			.from(contentPracticeQuestions)
 			.innerJoin(question, eq(question.id, contentPracticeQuestions.questionId))
-			.innerJoin(questionAnswerOption, eq(questionAnswerOption.questionId, question.id))
+			.innerJoin(questionChoice, eq(questionChoice.questionId, question.id))
 			.where(eq(contentPracticeQuestions.contentItemId, input.contentId))
-			.orderBy(contentPracticeQuestions.order, questionAnswerOption.code);
+			.orderBy(contentPracticeQuestions.order, questionChoice.code);
 
 		// Group questions and their answers
 		const questionMap = new Map<
@@ -444,9 +428,9 @@ const getRecentViews = authedRateLimited
 				subjectId: subject.id,
 				subtestName: subject.name,
 				subtestShortName: subject.shortName,
-				hasVideo: sql<boolean>`${videoMaterial.id} IS NOT NULL`,
-				hasNote: sql<boolean>`${noteMaterial.id} IS NOT NULL`,
-				hasPracticeQuestions: sql<boolean>`${contentPracticeQuestions.contentItemId} IS NOT NULL`,
+				hasVideo: isNotNull(videoMaterial.id),
+				hasNote: isNotNull(noteMaterial.id),
+				hasPracticeQuestions: isNotNull(contentPracticeQuestions.contentItemId),
 			})
 			.from(recentContentView)
 			.innerJoin(contentItem, eq(contentItem.id, recentContentView.contentItemId))

@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { boolean, char, integer, jsonb, pgEnum,pgTable,text,unique } from "drizzle-orm/pg-core";
+import { boolean, char, integer, jsonb, pgEnum, pgTable, text, unique } from "drizzle-orm/pg-core";
 import { tryoutSubtestQuestion } from "./tryout";
 
 export const questionType = pgEnum("question_type", ["multiple_choice", "essay"]);
@@ -8,7 +8,7 @@ export const question = pgTable("question", {
 	id: integer().primaryKey().generatedAlwaysAsIdentity(),
 	type: questionType("type").notNull().default("multiple_choice"),
 	content: text("content").notNull(),
-	discussion: text("discussion"),
+	discussion: text("discussion").notNull(),
 	contentJson: jsonb("content_json"),
 	discussionJson: jsonb("discussion_json"),
 });

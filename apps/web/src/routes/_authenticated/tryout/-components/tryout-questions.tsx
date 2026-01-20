@@ -18,17 +18,21 @@ export function TryoutQuestions() {
 		}),
 	);
 
-	const { view, currentQuestionIndex, setCurrentQuestion } = useTryoutStore();
+	const { view, currentQuestion, currentQuestionIndex, setCurrentQuestionIndex, setCurrentQuestion } = useTryoutStore();
 
 	const questions = data?.currentSubtest?.questions ?? [];
 
+	// Update stores when current index is past max
 	useEffect(() => {
 		if (currentQuestionIndex >= questions.length) {
-			setCurrentQuestion(questions.length - 1);
+			setCurrentQuestionIndex(questions.length - 1);
 		}
-	}, [questions.length, currentQuestionIndex, setCurrentQuestion]);
+	}, [questions.length, currentQuestionIndex, setCurrentQuestionIndex]);
 
-	const currentQuestion = questions[currentQuestionIndex];
+	// Update store to store current question information
+	useEffect(() => {
+		setCurrentQuestion(questions[currentQuestionIndex]);
+	}, [questions, currentQuestionIndex, setCurrentQuestion]);
 
 	if (!data?.currentSubtest || !currentQuestion || view === "greeting") {
 		return null;
@@ -37,7 +41,7 @@ export function TryoutQuestions() {
 	return (
 		<Card className="flex flex-col gap-4 p-4">
 			<QuestionHeader />
-			<QuestionBody question={currentQuestion} />
+			<QuestionBody />
 			<QuestionFooter />
 		</Card>
 	);
