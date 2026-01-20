@@ -1,6 +1,7 @@
 import { ArrowRightIcon, WarningCircleIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
+import { memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -56,7 +57,7 @@ type ResultCardProps = {
 	score: number;
 };
 
-function ResultCard({ title, score }: ResultCardProps) {
+const ResultCard = memo(function ResultCard({ title, score }: ResultCardProps) {
 	return (
 		<Card className="flex flex-col gap-2 p-4">
 			<h3 className="text-base">{title}</h3>
@@ -70,4 +71,4 @@ function ResultCard({ title, score }: ResultCardProps) {
 			</div>
 		</Card>
 	);
-}
+});

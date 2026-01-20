@@ -60,16 +60,10 @@ export function TryoutStartConfirmation({ children }: TryoutStartConfirmationPro
 		}
 	};
 
-	const handleClose = (open: boolean) => {
-		if (!open) {
-			setIsOpen(false);
-			setStep("notice");
-			setImageUrl("");
-		} else {
-			setIsOpen(true);
-			setStep("notice");
-			setImageUrl("");
-		}
+	const handleClose = (_open: boolean) => {
+		setIsOpen(false);
+		setStep("notice");
+		setImageUrl("");
 	};
 
 	const handleTryoutGratis = () => {

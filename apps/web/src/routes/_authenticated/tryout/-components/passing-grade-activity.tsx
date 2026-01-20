@@ -4,14 +4,16 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useDebounceValue } from "@/hooks/use-debounce-value";
 import { orpc } from "@/utils/orpc";
 
 export function PassingGradeActivity() {
 	const [searchQuery, setSearchQuery] = useState("");
+	const debouncedSearchQuery = useDebounceValue(searchQuery, 300);
 	const { data: universities, isPending } = useQuery(
 		orpc.university.list.queryOptions({
 			input: {
-				search: searchQuery,
+				search: debouncedSearchQuery,
 			},
 		}),
 	);
