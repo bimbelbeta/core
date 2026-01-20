@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import ErrorComponent from "@/components/error";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 import { TryoutGreeting } from "./-components/tryout-greeting";
 import { TryoutQuestions } from "./-components/tryout-questions";
@@ -24,7 +25,7 @@ function RouteComponent() {
 		}),
 	);
 
-	const { reset } = useTryoutStore();
+	const { reset, view } = useTryoutStore();
 	const prevSubtestIdRef = useRef<number | null>(null);
 
 	useEffect(() => {
@@ -75,18 +76,19 @@ function RouteComponent() {
 	}
 
 	return (
-		<div className="flex flex-col gap-4">
-			<div className="flex items-center gap-2">
-				<Button variant="default" size="sm" asChild>
-					<Link to="/tryout">
-						<ArrowLeftIcon />
-						Kembali
-					</Link>
-				</Button>
-			</div>
+		<div className={cn("flex flex-col gap-4", view === "questions" && "h-[calc(100vh-2rem)]")}>
+			{view === "greeting" && (
+				<div className="flex items-center gap-2">
+					<Button variant="ghost" size="sm" asChild>
+						<Link to="/tryout">
+							<ArrowLeftIcon />
+							Kembali
+						</Link>
+					</Button>
+				</div>
+			)}
 
-			<TryoutGreeting />
-			<TryoutQuestions />
+			{view === "greeting" ? <TryoutGreeting /> : <TryoutQuestions />}
 		</div>
 	);
 }

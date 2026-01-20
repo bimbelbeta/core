@@ -6,12 +6,14 @@ interface TryoutStore {
 	currentQuestion: TryoutQuestion | null;
 	currentQuestionIndex: number;
 	answers: Record<number, number>;
+	essayAnswers: Record<number, string>;
 	raguRaguIds: Set<number>;
 
 	setView: (view: "greeting" | "questions") => void;
 	setCurrentQuestion: (question: TryoutQuestion | null) => void;
 	setCurrentQuestionIndex: (index: number) => void;
 	setAnswer: (questionId: number, choiceId: number) => void;
+	setEssayAnswer: (questionId: number, answer: string) => void;
 	removeAnswer: (questionId: number) => void;
 	toggleRaguRagu: (questionId: number) => void;
 	nextQuestion: () => void;
@@ -24,6 +26,7 @@ export const useTryoutStore = create<TryoutStore>((set, _get) => ({
 	currentQuestion: null,
 	currentQuestionIndex: 0,
 	answers: {},
+	essayAnswers: {},
 	raguRaguIds: new Set(),
 
 	setView: (view) => set({ view }),
@@ -39,6 +42,11 @@ export const useTryoutStore = create<TryoutStore>((set, _get) => ({
 	setAnswer: (questionId, choiceId) =>
 		set((state) => ({
 			answers: { ...state.answers, [questionId]: choiceId },
+		})),
+
+	setEssayAnswer: (questionId, answer) =>
+		set((state) => ({
+			essayAnswers: { ...state.essayAnswers, [questionId]: answer },
 		})),
 
 	removeAnswer: (questionId) =>
@@ -74,6 +82,7 @@ export const useTryoutStore = create<TryoutStore>((set, _get) => ({
 			currentQuestion: null,
 			currentQuestionIndex: 0,
 			answers: {},
+			essayAnswers: {},
 			raguRaguIds: new Set(),
 		}),
 }));

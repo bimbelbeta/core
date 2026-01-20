@@ -1,21 +1,24 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
-import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 import { useTryoutStore } from "../-hooks/use-tryout-store";
+import { EssayForm } from "./essay-form";
 
 export function AnswerPanel() {
 	const { tryoutId: stringTryoutId } = useParams({ from: "/_authenticated/tryout/$tryoutId" });
 	const tryoutId = Number(stringTryoutId);
 
 	const queryClient = useQueryClient();
-	const { answers, setAnswer, currentQuestion } = useTryoutStore();
+	const { answers, setAnswer, currentQuestion, setEssayAnswer } = useTryoutStore();
 	const questionId = currentQuestion?.id;
 
 	const saveAnswerMutation = useMutation(
 		orpc.tryout.saveAnswer.mutationOptions({
-			onSuccess: () => {
+			onSuccess: (_data, variables) => {
+				if (variables.essayAnswer !== undefined) {
+					setEssayAnswer(variables.questionId, variables.essayAnswer);
+				}
 				queryClient.invalidateQueries({ queryKey: orpc.tryout.find.key({ input: { id: tryoutId } }) });
 			},
 		}),
@@ -30,6 +33,10 @@ export function AnswerPanel() {
 			questionId,
 			selectedChoiceId: choiceId,
 		});
+	};
+
+	const handleSaveEssayAnswer = (data: { tryoutId: number; questionId: number; essayAnswer: string }) => {
+		saveAnswerMutation.mutate(data);
 	};
 
 	if (!currentQuestion) return null;
@@ -48,9 +55,14 @@ export function AnswerPanel() {
 							disabled={saveAnswerMutation.isPending}
 						/>
 					))
-				) : (
-					<Input placeholder="Tuliskan jawabamu disini" className="w-full" />
-				)}
+				) : questionId ? (
+					<EssayForm
+						tryoutId={tryoutId}
+						questionId={questionId}
+						saveAnswer={handleSaveEssayAnswer}
+						isPending={saveAnswerMutation.isPending}
+					/>
+				) : null}
 			</div>
 		</div>
 	);

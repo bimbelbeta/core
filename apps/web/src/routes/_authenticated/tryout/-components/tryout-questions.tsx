@@ -18,7 +18,8 @@ export function TryoutQuestions() {
 		}),
 	);
 
-	const { view, currentQuestion, currentQuestionIndex, setCurrentQuestionIndex, setCurrentQuestion } = useTryoutStore();
+	const { view, currentQuestion, currentQuestionIndex, setCurrentQuestionIndex, setCurrentQuestion, setEssayAnswer } =
+		useTryoutStore();
 
 	const questions = data?.currentSubtest?.questions ?? [];
 
@@ -33,6 +34,15 @@ export function TryoutQuestions() {
 	useEffect(() => {
 		setCurrentQuestion(questions[currentQuestionIndex]);
 	}, [questions, currentQuestionIndex, setCurrentQuestion]);
+
+	// Sync saved essay answers from API to store
+	useEffect(() => {
+		questions.forEach((question) => {
+			if (question.userAnswer?.essayAnswer) {
+				setEssayAnswer(question.id, question.userAnswer.essayAnswer);
+			}
+		});
+	}, [questions, setEssayAnswer]);
 
 	if (!data?.currentSubtest || !currentQuestion || view === "greeting") {
 		return null;
