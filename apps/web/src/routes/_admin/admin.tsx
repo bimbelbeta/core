@@ -3,9 +3,11 @@ import { AdminSidebar } from "@/components/admin/sidebar";
 
 export const Route = createFileRoute("/_admin/admin")({
 	component: AdminLayout,
-  loader: () => {
-    throw redirect("/admin/dashboard");
-	}
+	loader: () => {
+		throw redirect({
+			to: "/admin/dashboard",
+		});
+	},
 });
 
 function AdminLayout() {

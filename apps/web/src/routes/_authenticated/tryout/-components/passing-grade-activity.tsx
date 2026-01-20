@@ -1,10 +1,10 @@
+import { SmileySadIcon } from "@phosphor-icons/react";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { orpc } from "@/utils/orpc";
-import { SmileySadIcon } from "@phosphor-icons/react";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
 
 export function PassingGradeActivity() {
 	const [searchQuery, setSearchQuery] = useState("");

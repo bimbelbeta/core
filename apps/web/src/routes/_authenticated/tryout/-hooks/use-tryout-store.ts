@@ -71,6 +71,7 @@ export const useTryoutStore = create<TryoutStore>((set, _get) => ({
 	reset: () =>
 		set({
 			view: "greeting",
+			currentQuestion: null,
 			currentQuestionIndex: 0,
 			answers: {},
 			raguRaguIds: new Set(),

@@ -1,4 +1,4 @@
-import { CaretRightIcon, ExamIcon, NoteIcon, PlayCircleIcon } from "@phosphor-icons/react";
+import { CaretRightIcon, NoteIcon, PlayCircleIcon } from "@phosphor-icons/react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -22,14 +22,6 @@ const DASHBOARD_CONTENT_ACTIONS = [
 		className: "bg-tertiary-500 text-white hover:bg-tertiary-600",
 		width: "w-fit",
 	},
-	{
-		key: "quiz",
-		label: "Quiz",
-		icon: ExamIcon,
-		enabled: (i: ContentActionItem) => i.hasPracticeQuestions,
-		className: "bg-primary-100 text-black hover:bg-primary-200",
-		width: "w-fit",
-	},
 ] as const;
 
 export function LastContentViewedCard({
@@ -44,12 +36,12 @@ export function LastContentViewedCard({
 	const isAdmin = useIsAdmin();
 	const location = useLocation();
 	const basePath = isAdmin ? "/admin/classes" : "/classes";
-	const shortNameIndex = isAdmin ? 3 : 2;
-	const shortNameFromPath = location.pathname.split("/")[shortNameIndex] || "";
-	const shortName = shortNameProp || shortNameFromPath;
+	const subjectIdIndex = isAdmin ? 3 : 2;
+	const subjectIdFromPath = location.pathname.split("/")[subjectIdIndex] || "";
+	const subjectId = shortNameProp || subjectIdFromPath;
 
 	const params = {
-		shortName: shortName.toLowerCase(),
+		subjectId: subjectId.toString(),
 		contentId: item.id.toString(),
 	};
 
@@ -68,7 +60,7 @@ export function LastContentViewedCard({
 
 				{/* Right: label + admin actions */}
 				<div className="flex items-center gap-2 sm:flex-col sm:items-end">
-					{shortName && <span className="text-muted-foreground text-xs">{shortName}</span>}
+					{subjectId && <span className="text-muted-foreground text-xs">{subjectId}</span>}
 				</div>
 			</div>
 
@@ -79,7 +71,7 @@ export function LastContentViewedCard({
 						enabled(item) && (
 							<Link
 								key={key}
-								to={`${basePath}/$shortName/$contentId/${key}`}
+								to={`${basePath}/$subjectId/$contentId/${key}`}
 								params={params}
 								className={cn(
 									"flex items-center gap-2 rounded-[5px] px-4 py-2.5 transition-opacity hover:opacity-90",

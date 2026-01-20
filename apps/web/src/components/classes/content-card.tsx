@@ -2,7 +2,6 @@ import {
 	CaretRightIcon,
 	CheckCircleIcon,
 	DotsNineIcon,
-	ExamIcon,
 	LockIcon,
 	NoteIcon,
 	PencilSimpleIcon,
@@ -33,14 +32,6 @@ const CONTENT_ACTIONS = [
 		icon: NoteIcon,
 		enabled: (i: ContentActionItem) => i.hasNote,
 		className: "bg-secondary-300 text-neutral-1000",
-		width: "w-fit",
-	},
-	{
-		key: "quiz",
-		label: "Quiz",
-		icon: ExamIcon,
-		enabled: (i: ContentActionItem) => i.hasPracticeQuestions,
-		className: "bg-tertiary-200 text-neutral-1000",
 		width: "w-fit",
 	},
 ] as const;

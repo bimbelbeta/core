@@ -11,8 +11,6 @@ export function SubjectList({
 	isLoading,
 	error,
 	onCreate,
-	onEdit,
-	onDelete,
 	onReorder,
 	searchQuery,
 }: {
@@ -20,8 +18,6 @@ export function SubjectList({
 	isLoading?: boolean;
 	error?: string;
 	onCreate?: () => void;
-	onEdit?: (item: SubjectListItem) => void;
-	onDelete?: (item: SubjectListItem) => void;
 	onReorder?: (newItems: SubjectListItem[]) => void;
 	searchQuery?: string;
 }) {
@@ -86,12 +82,7 @@ export function SubjectList({
 				(isAdmin && onReorder ? (
 					<Reorder.Group as="div" axis="y" values={localItems} onReorder={handleReorder} className="space-y-2">
 						{localItems.map((item, _index) => (
-							<SubjectCard
-								key={item.id}
-								subject={item}
-								onEdit={onEdit ? () => onEdit(item) : undefined}
-								onDelete={onDelete ? () => onDelete(item) : undefined}
-							/>
+							<SubjectCard key={item.id} subject={item} />
 						))}
 					</Reorder.Group>
 				) : (

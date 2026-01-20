@@ -1,4 +1,4 @@
-import { BooksIcon, House, List, Package, Question, SignOut, UserSwitchIcon, X } from "@phosphor-icons/react";
+import { BooksIcon, House, List, SignOut, UserSwitchIcon, X } from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
@@ -21,16 +21,6 @@ const adminNavLinks = [
 		name: "Dashboard",
 		to: "/admin/dashboard" as const,
 		icon: House,
-	},
-	{
-		name: "Practice Packs",
-		to: "/admin/practice-packs" as const,
-		icon: Package,
-	},
-	{
-		name: "Questions",
-		to: "/admin/questions" as const,
-		icon: Question,
 	},
 	{
 		name: "Classes",

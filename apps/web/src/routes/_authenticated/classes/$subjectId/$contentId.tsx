@@ -90,20 +90,11 @@ function RouteComponent() {
 	}
 
 	const currentPath = location.pathname;
-	const currentTab: "video" | "notes" | "quiz" = currentPath.endsWith("/notes")
-		? "notes"
-		: currentPath.endsWith("/quiz")
-			? "quiz"
-			: "video";
+	const currentTab: "video" | "notes" = currentPath.endsWith("/notes") ? "notes" : "video";
 
 	const handleTabChange = (value: string) => {
 		navigate({
-			to:
-				value === "video"
-					? `/classes/${subjectId}/${contentId}/video`
-					: value === "notes"
-						? `/classes/${subjectId}/${contentId}/notes`
-						: `/classes/${subjectId}/${contentId}/quiz`,
+			to: value === "video" ? `/classes/${subjectId}/${contentId}/video` : `/classes/${subjectId}/${contentId}/notes`,
 			params: { subjectId, contentId },
 		});
 	};
@@ -112,24 +103,12 @@ function RouteComponent() {
 		<Container className="min-h-screen border-neutral-200 border-x bg-white pt-28 sm:gap-6">
 			<div className="flex justify-between">
 				<BackButton
-					to={
-						currentTab === "video"
-							? `/classes/${subjectId}`
-							: currentTab === "notes"
-								? `/classes/${subjectId}/${contentId}/video`
-								: `/classes/${subjectId}/${contentId}/notes`
-					}
+					to={currentTab === "video" ? `/classes/${subjectId}` : `/classes/${subjectId}/${contentId}/video`}
 				/>
 				{currentTab === "video" && (
 					<NextButton
 						to={`/classes/${subjectId}/${contentId}/notes`}
 						className={!location.pathname.includes("/video") ? "hidden" : ""}
-					/>
-				)}
-				{currentTab === "notes" && (
-					<NextButton
-						to={`/classes/${subjectId}/${contentId}/quiz`}
-						className={!location.pathname.includes("/notes") ? "hidden" : ""}
 					/>
 				)}
 			</div>

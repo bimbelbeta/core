@@ -42,7 +42,7 @@ export const Route = createFileRoute("/_admin/admin/classes/$subjectId/")({
 	component: RouteComponent,
 });
 
-type ContentListItem = NonNullable<BodyOutputs["subject"]["listContentBySubjectCategory"]>[number];
+type ContentListItem = NonNullable<BodyOutputs["subject"]["listContentBySubjectCategory"]>["items"][number];
 
 type Search = {
 	q?: string;
@@ -260,7 +260,7 @@ function RouteComponent() {
 				<ContentList
 					items={contents.data.items}
 					isLoading={contents.isPending}
-					error={contents.isError ? contents.error.message : undefined}
+					error={undefined}
 					searchQuery={searchQuery}
 					showCount={Boolean(searchQuery)}
 					hasMore={contents.data.items?.length === 20}

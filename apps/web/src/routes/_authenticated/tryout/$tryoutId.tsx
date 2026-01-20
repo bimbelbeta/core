@@ -24,7 +24,7 @@ function RouteComponent() {
 		}),
 	);
 
-	const { reset, setCurrentQuestion } = useTryoutStore();
+	const { reset } = useTryoutStore();
 	const prevSubtestIdRef = useRef<number | null>(null);
 
 	useEffect(() => {
@@ -49,10 +49,9 @@ function RouteComponent() {
 
 		if (prevSubtestIdRef.current !== data.currentSubtest.id) {
 			reset();
-			setCurrentQuestion(0);
 			prevSubtestIdRef.current = data.currentSubtest.id;
 		}
-	}, [data, router, reset, setCurrentQuestion]);
+	}, [data, router, reset]);
 
 	if (isPending) {
 		return (

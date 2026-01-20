@@ -35,12 +35,6 @@ const createSubject = admin
 	.handler(async ({ input }) => {
 		// Validate gradeLevel based on category
 		if (input.gradeLevel !== undefined && input.gradeLevel !== null) {
-			const validGradeRange: Record<string, [number, number]> = {
-				sd: [1, 6],
-				smp: [7, 9],
-				sma: [10, 12],
-			};
-
 			const category = input.category ?? "utbk";
 			if (category === "utbk") {
 				throw new ORPCError("BAD_REQUEST", {
@@ -48,7 +42,20 @@ const createSubject = admin
 				});
 			}
 
-			const [min, max] = validGradeRange[category];
+			const validGradeRange: Record<string, [number, number]> = {
+				sd: [1, 6],
+				smp: [7, 9],
+				sma: [10, 12],
+			};
+
+			const range = validGradeRange[category];
+			if (!range) {
+				throw new ORPCError("BAD_REQUEST", {
+					message: `Kategori ${category} tidak valid`,
+				});
+			}
+
+			const [min, max] = range;
 			if (input.gradeLevel < min || input.gradeLevel > max) {
 				throw new ORPCError("BAD_REQUEST", {
 					message: `GradeLevel harus antara ${min} dan ${max} untuk kategori ${category.toUpperCase()}`,
@@ -117,19 +124,26 @@ const updateSubject = admin
 			}
 
 			if (input.gradeLevel !== null && category) {
-				const validGradeRange: Record<string, [number, number]> = {
-					sd: [1, 6],
-					smp: [7, 9],
-					sma: [10, 12],
-				};
-
 				if (category === "utbk") {
 					throw new ORPCError("BAD_REQUEST", {
 						message: "UTBK tidak boleh memiliki gradeLevel",
 					});
 				}
 
-				const [min, max] = validGradeRange[category];
+				const validGradeRange: Record<string, [number, number]> = {
+					sd: [1, 6],
+					smp: [7, 9],
+					sma: [10, 12],
+				};
+
+				const range = validGradeRange[category];
+				if (!range) {
+					throw new ORPCError("BAD_REQUEST", {
+						message: `Kategori ${category} tidak valid`,
+					});
+				}
+
+				const [min, max] = range;
 				if (input.gradeLevel < min || input.gradeLevel > max) {
 					throw new ORPCError("BAD_REQUEST", {
 						message: `GradeLevel harus antara ${min} dan ${max} untuk kategori ${category.toUpperCase()}`,
@@ -648,7 +662,7 @@ const deleteNote = admin
 	});
 
 /**
- * Link practice questions to content (only for Material type)
+ * Link practice questions to content
  * POST /api/admin/content/{id}/practice-questions
  */
 const linkPracticeQuestions = admin
@@ -665,24 +679,6 @@ const linkPracticeQuestions = admin
 	)
 	.output(type({ message: "string" }))
 	.handler(async ({ input }) => {
-		// Check if content exists and is Material type
-		const [content] = await db
-			.select({ id: contentItem.id, type: contentItem.type })
-			.from(contentItem)
-			.where(eq(contentItem.id, input.id))
-			.limit(1);
-
-		if (!content)
-			throw new ORPCError("NOT_FOUND", {
-				message: "Content not found",
-			});
-
-		if (content.type === "tips_and_trick") {
-			throw new ORPCError("BAD_REQUEST", {
-				message: "Tips & Trick cannot have practice questions",
-			});
-		}
-
 		// Delete existing practice question links
 		await db.delete(contentPracticeQuestions).where(eq(contentPracticeQuestions.contentItemId, input.id));
 

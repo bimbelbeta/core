@@ -19,7 +19,7 @@ const list = authed
 		}),
 	)
 	.handler(async ({ input, errors }) => {
-		const limit = Math.min(input.limit , 100);
+		const limit = Math.min(input.limit, 100);
 		const cursor = input.cursor;
 
 		const data = await db

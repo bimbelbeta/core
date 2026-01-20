@@ -23,20 +23,12 @@ function RouteComponent() {
 
 	// Biar tab sinkron sama URL child-nya
 	const currentPath = location.pathname;
-	const currentTab: "video" | "notes" | "quiz" = currentPath.endsWith("/notes")
-		? "notes"
-		: currentPath.endsWith("/quiz")
-			? "quiz"
-			: "video"; // default ke video
+	const currentTab: "video" | "notes" = currentPath.endsWith("/notes") ? "notes" : "video";
 
 	const handleTabChange = (value: string) => {
 		navigate({
 			to:
-				value === "video"
-					? "/admin/classes/$subjectId/$contentId/video"
-					: value === "notes"
-						? "/admin/classes/$subjectId/$contentId/notes"
-						: "/admin/classes/$subjectId/$contentId/quiz",
+				value === "video" ? "/admin/classes/$subjectId/$contentId/video" : "/admin/classes/$subjectId/$contentId/notes",
 			params: { subjectId, contentId },
 		});
 	};
@@ -60,7 +52,6 @@ function RouteComponent() {
 				<TabsList>
 					<TabsTrigger value="video">Video</TabsTrigger>
 					<TabsTrigger value="notes">Catatan</TabsTrigger>
-					<TabsTrigger value="quiz">Quiz</TabsTrigger>
 				</TabsList>
 
 				<TabsContent value={currentTab} className="pt-4">
