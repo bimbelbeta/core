@@ -64,7 +64,7 @@ export function EssayForm({
 									});
 								}
 							}}
-							onChange={(e) => field.handleChange(e.target.value)}
+							onChange={(e) => field.handleChange(e.target.value.trimStart())}
 							disabled={isPending}
 							className="min-h-[150px]"
 						/>

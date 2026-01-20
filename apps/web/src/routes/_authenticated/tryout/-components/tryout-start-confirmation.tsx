@@ -60,10 +60,12 @@ export function TryoutStartConfirmation({ children }: TryoutStartConfirmationPro
 		}
 	};
 
-	const handleClose = (_open: boolean) => {
-		setIsOpen(false);
-		setStep("notice");
-		setImageUrl("");
+	const handleOpenChange = (open: boolean) => {
+		setIsOpen(open);
+		if (!open) {
+			setStep(isPremium ? "premium" : "notice");
+			setImageUrl("");
+		}
 	};
 
 	const handleTryoutGratis = () => {
@@ -76,7 +78,7 @@ export function TryoutStartConfirmation({ children }: TryoutStartConfirmationPro
 	};
 
 	return (
-		<Dialog open={isOpen} onOpenChange={handleClose}>
+		<Dialog open={isOpen} onOpenChange={handleOpenChange}>
 			<DialogTrigger asChild>{children}</DialogTrigger>
 			<DialogContent>
 				{step === "premium" ? (

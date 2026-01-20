@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { orpc } from "@/utils/orpc";
 import { useTryoutStore } from "../-hooks/use-tryout-store";
@@ -22,10 +22,11 @@ export function TryoutQuestions() {
 		useTryoutStore();
 
 	const questions = data?.currentSubtest?.questions ?? [];
+	const hasInitialized = useRef(false);
 
 	// Update stores when current index is past max
 	useEffect(() => {
-		if (currentQuestionIndex >= questions.length) {
+		if (questions.length > 0 && currentQuestionIndex >= questions.length) {
 			setCurrentQuestionIndex(questions.length - 1);
 		}
 	}, [questions.length, currentQuestionIndex, setCurrentQuestionIndex]);
@@ -35,8 +36,11 @@ export function TryoutQuestions() {
 		setCurrentQuestion(questions[currentQuestionIndex]);
 	}, [questions, currentQuestionIndex, setCurrentQuestion]);
 
-	// Sync saved essay answers from API to store
+	// Sync saved essay answers from API to store (once on mount)
 	useEffect(() => {
+		if (hasInitialized.current) return;
+		hasInitialized.current = true;
+
 		questions.forEach((question) => {
 			if (question.userAnswer?.essayAnswer) {
 				setEssayAnswer(question.id, question.userAnswer.essayAnswer);
