@@ -91,7 +91,7 @@ const find = authed
 		tags: ["Tryouts"],
 	})
 	.input(type({ id: "number" }))
-	.handler(async ({ input, context }) => {
+	.handler(async ({ input, context, errors }) => {
 		const tryoutData = await db.query.tryout.findFirst({
 			where: eq(tryout.id, input.id),
 			with: {
@@ -101,7 +101,9 @@ const find = authed
 			},
 		});
 
-		if (!tryoutData) throw new ORPCError("NOT_FOUND", { message: "Tryout not found" });
+		if (!tryoutData) throw new ORPCError("NOT_FOUND", { message: "Tryout tidak ditemukan." });
+		if (tryoutData.endsAt && tryoutData.endsAt.getTime() < Date.now()) throw errors.UNPROCESSABLE_CONTENT({ message: "Tryout ini sudah ditutup." });
+		if (tryoutData.startsAt && tryoutData.startsAt.getTime() < Date.now()) throw errors.UNPROCESSABLE_CONTENT({ message: "Tryout ini belum dibuka." });
 
 		const attempt = await db.query.tryoutAttempt.findFirst({
 			where: and(eq(tryoutAttempt.tryoutId, input.id), eq(tryoutAttempt.userId, context.session.user.id)),
@@ -110,18 +112,11 @@ const find = authed
 			},
 		});
 
-		if (!attempt || attempt.isRevoked) {
-			return {
-				...tryoutData,
-				attempt: null,
-				currentSubtest: null,
-				overallDeadline: null,
-				totalSubtests: tryoutData.subtests.length,
-				completedSubtests: 0,
-			};
-		}
+    if (!attempt || attempt.isRevoked) throw errors.UNAUTHORIZED({
+      message: "Gagal menemukan pengerjaan tryout."
+		})
 
-		if (attempt.status === "finished") {
+    if (attempt.status === "finished") {
 			return {
 				...tryoutData,
 				attempt,
