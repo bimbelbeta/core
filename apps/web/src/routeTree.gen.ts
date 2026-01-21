@@ -14,13 +14,13 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
-import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 import { Route as AuthenticatedPremiumRouteImport } from './routes/_authenticated/premium'
 import { Route as AuthResetPasswordRouteImport } from './routes/_auth/reset-password'
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AuthForgotPasswordRouteImport } from './routes/_auth/forgot-password'
 import { Route as AdminPassingGradesIndexRouteImport } from './routes/admin/passing-grades/index'
+import { Route as AdminDashboardIndexRouteImport } from './routes/admin/dashboard/index'
 import { Route as AdminClassesIndexRouteImport } from './routes/admin/classes/index'
 import { Route as AuthenticatedTryoutIndexRouteImport } from './routes/_authenticated/tryout/index'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
@@ -63,11 +63,6 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminDashboardRoute = AdminDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => AdminRoute,
-} as any)
 const AuthenticatedPremiumRoute = AuthenticatedPremiumRouteImport.update({
   id: '/premium',
   path: '/premium',
@@ -96,6 +91,11 @@ const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
 const AdminPassingGradesIndexRoute = AdminPassingGradesIndexRouteImport.update({
   id: '/passing-grades/',
   path: '/passing-grades/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminDashboardIndexRoute = AdminDashboardIndexRouteImport.update({
+  id: '/dashboard/',
+  path: '/dashboard/',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminClassesIndexRoute = AdminClassesIndexRouteImport.update({
@@ -214,7 +214,6 @@ export interface FileRoutesByFullPath {
   '/register': typeof AuthRegisterRoute
   '/reset-password': typeof AuthResetPasswordRoute
   '/premium': typeof AuthenticatedPremiumRouteWithChildren
-  '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/': typeof AdminIndexRoute
   '/tryout/$tryoutId': typeof AuthenticatedTryoutTryoutIdRoute
   '/admin/passing-grades/$universityId': typeof AdminPassingGradesUniversityIdRoute
@@ -222,6 +221,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/tryout/': typeof AuthenticatedTryoutIndexRoute
   '/admin/classes/': typeof AdminClassesIndexRoute
+  '/admin/dashboard/': typeof AdminDashboardIndexRoute
   '/admin/passing-grades/': typeof AdminPassingGradesIndexRoute
   '/classes/$subjectId/$contentId': typeof AuthenticatedClassesSubjectIdContentIdRouteWithChildren
   '/premium/payment/error': typeof AuthenticatedPremiumPaymentErrorRoute
@@ -243,7 +243,6 @@ export interface FileRoutesByTo {
   '/register': typeof AuthRegisterRoute
   '/reset-password': typeof AuthResetPasswordRoute
   '/premium': typeof AuthenticatedPremiumRouteWithChildren
-  '/admin/dashboard': typeof AdminDashboardRoute
   '/admin': typeof AdminIndexRoute
   '/tryout/$tryoutId': typeof AuthenticatedTryoutTryoutIdRoute
   '/admin/passing-grades/$universityId': typeof AdminPassingGradesUniversityIdRoute
@@ -251,6 +250,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/tryout': typeof AuthenticatedTryoutIndexRoute
   '/admin/classes': typeof AdminClassesIndexRoute
+  '/admin/dashboard': typeof AdminDashboardIndexRoute
   '/admin/passing-grades': typeof AdminPassingGradesIndexRoute
   '/classes/$subjectId/$contentId': typeof AuthenticatedClassesSubjectIdContentIdRouteWithChildren
   '/premium/payment/error': typeof AuthenticatedPremiumPaymentErrorRoute
@@ -276,7 +276,6 @@ export interface FileRoutesById {
   '/_auth/register': typeof AuthRegisterRoute
   '/_auth/reset-password': typeof AuthResetPasswordRoute
   '/_authenticated/premium': typeof AuthenticatedPremiumRouteWithChildren
-  '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/': typeof AdminIndexRoute
   '/_authenticated/tryout/$tryoutId': typeof AuthenticatedTryoutTryoutIdRoute
   '/admin/passing-grades/$universityId': typeof AdminPassingGradesUniversityIdRoute
@@ -284,6 +283,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/tryout/': typeof AuthenticatedTryoutIndexRoute
   '/admin/classes/': typeof AdminClassesIndexRoute
+  '/admin/dashboard/': typeof AdminDashboardIndexRoute
   '/admin/passing-grades/': typeof AdminPassingGradesIndexRoute
   '/_authenticated/classes/$subjectId/$contentId': typeof AuthenticatedClassesSubjectIdContentIdRouteWithChildren
   '/_authenticated/premium/payment/error': typeof AuthenticatedPremiumPaymentErrorRoute
@@ -308,7 +308,6 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/premium'
-    | '/admin/dashboard'
     | '/admin/'
     | '/tryout/$tryoutId'
     | '/admin/passing-grades/$universityId'
@@ -316,6 +315,7 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/tryout/'
     | '/admin/classes/'
+    | '/admin/dashboard/'
     | '/admin/passing-grades/'
     | '/classes/$subjectId/$contentId'
     | '/premium/payment/error'
@@ -337,7 +337,6 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/premium'
-    | '/admin/dashboard'
     | '/admin'
     | '/tryout/$tryoutId'
     | '/admin/passing-grades/$universityId'
@@ -345,6 +344,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/tryout'
     | '/admin/classes'
+    | '/admin/dashboard'
     | '/admin/passing-grades'
     | '/classes/$subjectId/$contentId'
     | '/premium/payment/error'
@@ -369,7 +369,6 @@ export interface FileRouteTypes {
     | '/_auth/register'
     | '/_auth/reset-password'
     | '/_authenticated/premium'
-    | '/admin/dashboard'
     | '/admin/'
     | '/_authenticated/tryout/$tryoutId'
     | '/admin/passing-grades/$universityId'
@@ -377,6 +376,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/'
     | '/_authenticated/tryout/'
     | '/admin/classes/'
+    | '/admin/dashboard/'
     | '/admin/passing-grades/'
     | '/_authenticated/classes/$subjectId/$contentId'
     | '/_authenticated/premium/payment/error'
@@ -436,13 +436,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/dashboard': {
-      id: '/admin/dashboard'
-      path: '/dashboard'
-      fullPath: '/admin/dashboard'
-      preLoaderRoute: typeof AdminDashboardRouteImport
-      parentRoute: typeof AdminRoute
-    }
     '/_authenticated/premium': {
       id: '/_authenticated/premium'
       path: '/premium'
@@ -483,6 +476,13 @@ declare module '@tanstack/react-router' {
       path: '/passing-grades'
       fullPath: '/admin/passing-grades/'
       preLoaderRoute: typeof AdminPassingGradesIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/dashboard/': {
+      id: '/admin/dashboard/'
+      path: '/dashboard'
+      fullPath: '/admin/dashboard/'
+      preLoaderRoute: typeof AdminDashboardIndexRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/classes/': {
@@ -713,20 +713,20 @@ const AdminClassesSubjectIdContentIdRouteWithChildren =
   )
 
 interface AdminRouteChildren {
-  AdminDashboardRoute: typeof AdminDashboardRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminPassingGradesUniversityIdRoute: typeof AdminPassingGradesUniversityIdRoute
   AdminClassesIndexRoute: typeof AdminClassesIndexRoute
+  AdminDashboardIndexRoute: typeof AdminDashboardIndexRoute
   AdminPassingGradesIndexRoute: typeof AdminPassingGradesIndexRoute
   AdminClassesSubjectIdContentIdRoute: typeof AdminClassesSubjectIdContentIdRouteWithChildren
   AdminClassesSubjectIdIndexRoute: typeof AdminClassesSubjectIdIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
-  AdminDashboardRoute: AdminDashboardRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminPassingGradesUniversityIdRoute: AdminPassingGradesUniversityIdRoute,
   AdminClassesIndexRoute: AdminClassesIndexRoute,
+  AdminDashboardIndexRoute: AdminDashboardIndexRoute,
   AdminPassingGradesIndexRoute: AdminPassingGradesIndexRoute,
   AdminClassesSubjectIdContentIdRoute:
     AdminClassesSubjectIdContentIdRouteWithChildren,

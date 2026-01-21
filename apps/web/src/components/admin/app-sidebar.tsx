@@ -9,7 +9,7 @@ import { NavMain } from "./nav-main";
 const adminNavLinks = [
 	{
 		title: "Dashboard",
-		url: "/admin/dashboard",
+		url: "/admin/dashboard/",
 		icon: HouseIcon,
 	},
 	{

@@ -1,22 +1,8 @@
 "use client";
 
-import { SignOutIcon } from "@phosphor-icons/react";
-import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate, useRouteContext } from "@tanstack/react-router";
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { useRouteContext } from "@tanstack/react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { SidebarGroup, SidebarMenu, SidebarMenuItem } from "@/components/ui/sidebar";
-import { authClient } from "@/lib/auth-client";
 
 export function NavFooter() {
 	const { session } = useRouteContext({ from: "/admin" });
@@ -47,36 +33,5 @@ export function NavFooter() {
 				</SidebarMenuItem>
 			</SidebarMenu>
 		</SidebarGroup>
-	);
-}
-
-function _LogoutDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
-	const navigate = useNavigate();
-	const queryClient = useQueryClient();
-
-	return (
-		<AlertDialog open={open} onOpenChange={onOpenChange}>
-			<AlertDialogContent>
-				<AlertDialogHeader>
-					<AlertDialogTitle>Apakah anda yakin ingin keluar?</AlertDialogTitle>
-					<AlertDialogDescription>Anda akan logout dari panel admin.</AlertDialogDescription>
-				</AlertDialogHeader>
-				<AlertDialogFooter>
-					<AlertDialogCancel>Kembali</AlertDialogCancel>
-					<AlertDialogAction asChild>
-						<Button
-							onClick={async () => {
-								await authClient.signOut();
-								queryClient.removeQueries();
-								navigate({ to: "/login" });
-							}}
-							variant="destructive"
-						>
-							<SignOutIcon /> Keluar
-						</Button>
-					</AlertDialogAction>
-				</AlertDialogFooter>
-			</AlertDialogContent>
-		</AlertDialog>
 	);
 }
