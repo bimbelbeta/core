@@ -233,7 +233,3 @@ export const userSubjectViewRelations = relations(userSubjectView, ({ one }) => 
 		references: [subject.id],
 	}),
 }));
-
-// Backward compatibility aliases for tryout system
-export const subtest = subject;
-export type Subtest = typeof subject;

@@ -18,6 +18,9 @@ export type ContentActionItem = {
 	hasVideo: boolean | unknown;
 	hasNote: boolean | unknown;
 	hasPracticeQuestions: boolean | unknown;
+	videoCompleted?: boolean | null;
+	noteCompleted?: boolean | null;
+	practiceQuestionsCompleted?: boolean | null;
 };
 
 export type LastContentViewedItem = ContentActionItem & {

@@ -23,7 +23,7 @@ const CONTENT_ACTIONS = [
 		label: "Video Materi",
 		icon: PlayCircleIcon,
 		enabled: (i: ContentActionItem) => i.hasVideo,
-		className: "bg-primary-300 text-white",
+		className: (completed?: boolean | null) => (completed ? "bg-neutral-100 text-neutral-1000" : "bg-secondary-100"),
 		width: "w-fit",
 	},
 	{
@@ -31,7 +31,17 @@ const CONTENT_ACTIONS = [
 		label: "Catatan Materi",
 		icon: NoteIcon,
 		enabled: (i: ContentActionItem) => i.hasNote,
-		className: "bg-secondary-300 text-neutral-1000",
+		className: (completed?: boolean | null) =>
+			completed ? "bg-green-100 text-green-700" : "bg-tertiary-500 text-neutral-100",
+		width: "w-fit",
+	},
+	{
+		key: "practiceQuestions",
+		label: "Latihan Soal",
+		icon: NoteIcon,
+		enabled: (i: ContentActionItem) => i.hasPracticeQuestions,
+		className: (completed?: boolean | null) =>
+			completed ? "bg-green-100 text-green-700" : "bg-primary-100 text-neutral-1000",
 		width: "w-fit",
 	},
 ] as const;
@@ -78,7 +88,7 @@ export function ContentCard({
 		<Card
 			className={cn(
 				"relative gap-3 rounded-xl border border-border/50 p-3 shadow-sm transition-all duration-300 sm:gap-6 sm:p-4 lg:p-5",
-				!isAdmin && completed && "border-tertiary-300 bg-tertiary-50",
+				!isAdmin && completed && "border-neutral-200 bg-secondary-100",
 				isPremiumContent ? "overflow-hidden opacity-90" : "hover:border-primary/50 hover:shadow-md",
 			)}
 		>
@@ -100,7 +110,7 @@ export function ContentCard({
 			{/* Completed indicator */}
 			{!isAdmin && completed && !isPremiumContent && (
 				<div className="absolute top-2 right-2 sm:top-3 sm:right-3">
-					<CheckCircleIcon className="size-5 text-fourtiary-300 sm:size-6" weight="fill" />
+					<CheckCircleIcon className="size-5 text-green-200 sm:size-6" weight="fill" />
 				</div>
 			)}
 
@@ -117,7 +127,7 @@ export function ContentCard({
 							<DotsNineIcon className="size-6" weight="bold" />
 						</div>
 					)}
-					<div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 font-bold text-primary text-sm shadow-sm sm:size-9">
+					<div className={cn("flex size-8 shrink-0 items-center justify-center rounded-lg  font-bold text-primary text-sm shadow-sm sm:size-9", completed ? "bg-neutral-100 text-neutral-1000" : "bg-primary/10")}>
 						{index + 1}
 					</div>
 
@@ -154,24 +164,27 @@ export function ContentCard({
 
 			{/* Actions - Links still work but will be caught by route guard */}
 			<div className="mt-2 flex gap-2 overflow-x-auto sm:gap-3">
-				{CONTENT_ACTIONS.filter(({ enabled }) => enabled(item)).map(({ key, label, icon: Icon, className, width }) => (
-					<Link
-						key={key}
-						to={`${basePath}/$subjectId/$contentId/${key}`}
-						params={params}
-						className={cn(
-							"flex items-center gap-1.5 rounded-lg px-3 py-2 sm:gap-2 sm:px-4 sm:py-2.5",
-							"w-full sm:w-auto",
-							className,
-							width,
-							isPremiumContent && "pointer-events-none opacity-60",
-						)}
-					>
-						<Icon className="size-4 sm:size-[18px]" weight="bold" />
-						<span className="whitespace-nowrap font-medium text-xs sm:text-[14px]">{label}</span>
-						<CaretRightIcon className="ml-auto size-4 sm:size-[18px]" weight="bold" />
-					</Link>
-				))}
+				{CONTENT_ACTIONS.filter(({ enabled }) => enabled(item)).map(({ key, label, icon: Icon, className, width }) => {
+					const completed = item[`${key}Completed` as keyof ContentActionItem] as boolean | undefined;
+					return (
+						<Link
+							key={key}
+							to={`${basePath}/$subjectId/$contentId/${key}`}
+							params={params}
+							className={cn(
+								"flex items-center gap-1.5 rounded-lg px-3 py-2 sm:gap-2 sm:px-4 sm:py-2.5",
+								"w-full sm:w-auto",
+								className(completed),
+								width,
+								isPremiumContent && "pointer-events-none opacity-60",
+							)}
+						>
+							<Icon className="size-4 sm:size-[18px]" weight="bold" />
+							<span className="whitespace-nowrap font-medium text-xs sm:text-[14px]">{label}</span>
+							<CaretRightIcon className="ml-auto size-4 sm:size-[18px]" weight="bold" />
+						</Link>
+					);
+				})}
 			</div>
 		</Card>
 	);

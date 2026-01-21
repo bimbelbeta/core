@@ -100,7 +100,7 @@ function RouteComponent() {
 				{subjectsQuery.data && subjectsQuery.data.length > 0 && (
 					<SubjectList
 						items={subjectsQuery.data}
-						isLoading={subjectsQuery.isPending && !subjectsQuery.data}
+						isLoading={subjectsQuery.isPending}
 						error={subjectsQuery.isError ? subjectsQuery.error.message : undefined}
 						searchQuery={searchQuery}
 						onCreate={isAdmin ? () => {} : undefined}
