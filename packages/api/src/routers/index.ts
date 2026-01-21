@@ -1,9 +1,7 @@
 import type { RouterClient } from "@orpc/server";
 import { type } from "arktype";
 import { pub } from "../index";
-import { adminDashboardRouter } from "./admin/dashboard";
-import { adminSubjectRouter } from "./admin/subject";
-import { adminUniversityRouter } from "./admin/university";
+import { adminRouter } from "./admin";
 import { subjectRouter } from "./subject";
 import { transactionRouter } from "./transaction";
 import { tryoutRouter } from "./tryout";
@@ -23,11 +21,7 @@ export const appRouter = {
 	subject: subjectRouter,
 	tryout: tryoutRouter,
 	university: universityRouter,
-	admin: {
-		dashboard: adminDashboardRouter,
-		subject: adminSubjectRouter,
-		university: adminUniversityRouter,
-	},
+	admin: adminRouter,
 	transaction: transactionRouter,
 };
 

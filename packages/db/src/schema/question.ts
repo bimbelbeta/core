@@ -11,6 +11,7 @@ export const question = pgTable("question", {
 	discussion: text("discussion").notNull(),
 	contentJson: jsonb("content_json"),
 	discussionJson: jsonb("discussion_json"),
+	tags: text("tags").array(),
 });
 
 export const questionRelations = relations(question, ({ many }) => ({

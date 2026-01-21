@@ -5,11 +5,17 @@ import { question, questionChoice } from "./question";
 
 /*
   Tryout & Subtests
-*/
+ */
+export const tryoutCategory = pgEnum("tryout_category", ["sd", "smp", "sma", "utbk"]);
+export const tryoutStatus = pgEnum("tryout_status", ["draft", "published", "archived"]);
+
 export const tryout = pgTable("tryout", {
 	id: integer().primaryKey().generatedAlwaysAsIdentity(),
 	title: text().notNull(),
 	description: text(),
+	category: tryoutCategory("category").notNull().default("utbk"),
+	duration: integer().notNull(), // total duration in minutes
+	status: tryoutStatus("status").notNull().default("draft"),
 	startsAt: timestamp("starts_at"),
 	endsAt: timestamp("ends_at"),
 	createdAt: timestamp("created_at").defaultNow(),
@@ -33,6 +39,7 @@ export const tryoutSubtest = pgTable(
 		name: text().notNull(),
 		description: text(),
 		duration: integer().notNull(),
+		questionOrder: text("question_order").notNull().default("sequential"), // "random" | "sequential"
 		order: integer().notNull().default(1),
 	},
 	(t) => [unique("tryout_subtest_order").on(t.tryoutId, t.order)],
@@ -48,7 +55,7 @@ export const tryoutSubtestRelations = relations(tryoutSubtest, ({ one, many }) =
 
 /*
   Linking Questions to Subtests
-*/
+ */
 export const tryoutSubtestQuestion = pgTable(
 	"tryout_subtest_question",
 	{
@@ -76,8 +83,8 @@ export const tryoutSubtestQuestionRelations = relations(tryoutSubtestQuestion, (
 
 /*
   Attempts & User Answers
-*/
-export const tryoutStatus = pgEnum("tryout_status", ["not_started", "ongoing", "finished"]);
+ */
+export const tryoutAttemptStatus = pgEnum("tryout_attempt_status", ["not_started", "ongoing", "finished"]);
 
 export const tryoutAttempt = pgTable(
 	"tryout_attempt",
@@ -92,7 +99,7 @@ export const tryoutAttempt = pgTable(
 		startedAt: timestamp("started_at").notNull().defaultNow(),
 		deadline: timestamp("deadline").notNull(),
 		completedAt: timestamp("completed_at"),
-		status: tryoutStatus("status").notNull().default("ongoing"),
+		status: tryoutAttemptStatus("status").notNull().default("ongoing"),
 		score: integer("score"), // Can be calculated later
 		submittedImageUrl: text("submitted_image_url"),
 		isRevoked: boolean("is_revoked").notNull().default(false),
@@ -126,7 +133,7 @@ export const tryoutSubtestAttempt = pgTable(
 		startedAt: timestamp("started_at").notNull().defaultNow(),
 		completedAt: timestamp("completed_at"),
 		deadline: timestamp("deadline").notNull(),
-		status: tryoutStatus("status").notNull().default("ongoing"),
+		status: tryoutAttemptStatus("status").notNull().default("ongoing"),
 	},
 	(t) => [unique("user_tryout_subtest_attempt").on(t.tryoutAttemptId, t.subtestId)],
 );
