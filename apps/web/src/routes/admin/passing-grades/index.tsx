@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { SearchInput } from "@/components/ui/search-input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { orpc } from "@/utils/orpc";
+import { AddUniversityDialog } from "./-components/add-university-dialog";
 
 export const Route = createFileRoute("/admin/passing-grades/")({
 	component: RouteComponent,
@@ -25,7 +26,7 @@ function RouteComponent() {
 
 	const [searchInput, setSearchInput] = useState(search ?? "");
 
-	const { data, isLoading } = useQuery(
+	const { data, isLoading, refetch } = useQuery(
 		orpc.admin.university.universities.list.queryOptions({
 			input: {
 				cursor: (page ?? 0) * 10,
@@ -34,6 +35,8 @@ function RouteComponent() {
 			},
 		}),
 	);
+
+	const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
 	const handleSearch = (value: string) => {
 		setSearchInput(value);
@@ -60,6 +63,13 @@ function RouteComponent() {
 					onChange={handleSearch}
 					placeholder="Cari universitas..."
 					className="max-w-md"
+				/>
+				<AddUniversityDialog
+					open={isAddDialogOpen}
+					onOpenChange={setIsAddDialogOpen}
+					onSuccess={() => {
+						refetch();
+					}}
 				/>
 			</div>
 

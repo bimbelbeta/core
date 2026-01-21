@@ -39,9 +39,6 @@ import { Route as AdminClassesSubjectIdContentIdNotesRouteImport } from './route
 import { Route as AuthenticatedClassesSubjectIdContentIdVideoRouteImport } from './routes/_authenticated/classes/$subjectId/$contentId.video'
 import { Route as AuthenticatedClassesSubjectIdContentIdNotesRouteImport } from './routes/_authenticated/classes/$subjectId/$contentId.notes'
 import { Route as AuthenticatedClassesSubjectIdContentIdLatihanSoalRouteImport } from './routes/_authenticated/classes/$subjectId/$contentId.latihan-soal'
-import { Route as AdminAdminClassesSubjectIdContentIdRouteImport } from './routes/_admin/admin/classes/$subjectId/$contentId'
-import { Route as AdminAdminClassesSubjectIdContentIdVideoRouteImport } from './routes/_admin/admin/classes/$subjectId/$contentId.video'
-import { Route as AdminAdminClassesSubjectIdContentIdNotesRouteImport } from './routes/_admin/admin/classes/$subjectId/$contentId.notes'
 
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
@@ -208,24 +205,6 @@ const AuthenticatedClassesSubjectIdContentIdLatihanSoalRoute =
     path: '/latihan-soal',
     getParentRoute: () => AuthenticatedClassesSubjectIdContentIdRoute,
   } as any)
-const AdminAdminClassesSubjectIdContentIdRoute =
-  AdminAdminClassesSubjectIdContentIdRouteImport.update({
-    id: '/classes/$subjectId/$contentId',
-    path: '/classes/$subjectId/$contentId',
-    getParentRoute: () => AdminAdminRoute,
-  } as any)
-const AdminAdminClassesSubjectIdContentIdVideoRoute =
-  AdminAdminClassesSubjectIdContentIdVideoRouteImport.update({
-    id: '/video',
-    path: '/video',
-    getParentRoute: () => AdminAdminClassesSubjectIdContentIdRoute,
-  } as any)
-const AdminAdminClassesSubjectIdContentIdNotesRoute =
-  AdminAdminClassesSubjectIdContentIdNotesRouteImport.update({
-    id: '/notes',
-    path: '/notes',
-    getParentRoute: () => AdminAdminClassesSubjectIdContentIdRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -250,9 +229,8 @@ export interface FileRoutesByFullPath {
   '/premium/payment/unfinish': typeof AuthenticatedPremiumPaymentUnfinishRoute
   '/admin/classes/$subjectId/$contentId': typeof AdminClassesSubjectIdContentIdRouteWithChildren
   '/classes/$subjectId/': typeof AuthenticatedClassesSubjectIdIndexRoute
-  '/admin/classes/$subjectId/$contentId': typeof AdminAdminClassesSubjectIdContentIdRouteWithChildren
-  '/classes/$subjectId/$contentId/latihan-soal': typeof AuthenticatedClassesSubjectIdContentIdLatihanSoalRoute
   '/admin/classes/$subjectId/': typeof AdminClassesSubjectIdIndexRoute
+  '/classes/$subjectId/$contentId/latihan-soal': typeof AuthenticatedClassesSubjectIdContentIdLatihanSoalRoute
   '/classes/$subjectId/$contentId/notes': typeof AuthenticatedClassesSubjectIdContentIdNotesRoute
   '/classes/$subjectId/$contentId/video': typeof AuthenticatedClassesSubjectIdContentIdVideoRoute
   '/admin/classes/$subjectId/$contentId/notes': typeof AdminClassesSubjectIdContentIdNotesRoute
@@ -280,9 +258,8 @@ export interface FileRoutesByTo {
   '/premium/payment/unfinish': typeof AuthenticatedPremiumPaymentUnfinishRoute
   '/admin/classes/$subjectId/$contentId': typeof AdminClassesSubjectIdContentIdRouteWithChildren
   '/classes/$subjectId': typeof AuthenticatedClassesSubjectIdIndexRoute
-  '/admin/classes/$subjectId/$contentId': typeof AdminAdminClassesSubjectIdContentIdRouteWithChildren
-  '/classes/$subjectId/$contentId/latihan-soal': typeof AuthenticatedClassesSubjectIdContentIdLatihanSoalRoute
   '/admin/classes/$subjectId': typeof AdminClassesSubjectIdIndexRoute
+  '/classes/$subjectId/$contentId/latihan-soal': typeof AuthenticatedClassesSubjectIdContentIdLatihanSoalRoute
   '/classes/$subjectId/$contentId/notes': typeof AuthenticatedClassesSubjectIdContentIdNotesRoute
   '/classes/$subjectId/$contentId/video': typeof AuthenticatedClassesSubjectIdContentIdVideoRoute
   '/admin/classes/$subjectId/$contentId/notes': typeof AdminClassesSubjectIdContentIdNotesRoute
@@ -314,9 +291,8 @@ export interface FileRoutesById {
   '/_authenticated/premium/payment/unfinish': typeof AuthenticatedPremiumPaymentUnfinishRoute
   '/admin/classes/$subjectId/$contentId': typeof AdminClassesSubjectIdContentIdRouteWithChildren
   '/_authenticated/classes/$subjectId/': typeof AuthenticatedClassesSubjectIdIndexRoute
-  '/_admin/admin/classes/$subjectId/$contentId': typeof AdminAdminClassesSubjectIdContentIdRouteWithChildren
-  '/_authenticated/classes/$subjectId/$contentId/latihan-soal': typeof AuthenticatedClassesSubjectIdContentIdLatihanSoalRoute
   '/admin/classes/$subjectId/': typeof AdminClassesSubjectIdIndexRoute
+  '/_authenticated/classes/$subjectId/$contentId/latihan-soal': typeof AuthenticatedClassesSubjectIdContentIdLatihanSoalRoute
   '/_authenticated/classes/$subjectId/$contentId/notes': typeof AuthenticatedClassesSubjectIdContentIdNotesRoute
   '/_authenticated/classes/$subjectId/$contentId/video': typeof AuthenticatedClassesSubjectIdContentIdVideoRoute
   '/admin/classes/$subjectId/$contentId/notes': typeof AdminClassesSubjectIdContentIdNotesRoute
@@ -346,9 +322,9 @@ export interface FileRouteTypes {
     | '/premium/payment/finish'
     | '/premium/payment/unfinish'
     | '/admin/classes/$subjectId/$contentId'
-    | '/classes/$subjectId/$contentId/latihan-soal'
     | '/classes/$subjectId/'
     | '/admin/classes/$subjectId/'
+    | '/classes/$subjectId/$contentId/latihan-soal'
     | '/classes/$subjectId/$contentId/notes'
     | '/classes/$subjectId/$contentId/video'
     | '/admin/classes/$subjectId/$contentId/notes'
@@ -375,9 +351,9 @@ export interface FileRouteTypes {
     | '/premium/payment/finish'
     | '/premium/payment/unfinish'
     | '/admin/classes/$subjectId/$contentId'
-    | '/classes/$subjectId/$contentId/latihan-soal'
     | '/classes/$subjectId'
     | '/admin/classes/$subjectId'
+    | '/classes/$subjectId/$contentId/latihan-soal'
     | '/classes/$subjectId/$contentId/notes'
     | '/classes/$subjectId/$contentId/video'
     | '/admin/classes/$subjectId/$contentId/notes'
@@ -408,9 +384,8 @@ export interface FileRouteTypes {
     | '/_authenticated/premium/payment/unfinish'
     | '/admin/classes/$subjectId/$contentId'
     | '/_authenticated/classes/$subjectId/'
-    | '/_admin/admin/classes/$subjectId/$contentId'
-    | '/_authenticated/classes/$subjectId/$contentId/latihan-soal'
     | '/admin/classes/$subjectId/'
+    | '/_authenticated/classes/$subjectId/$contentId/latihan-soal'
     | '/_authenticated/classes/$subjectId/$contentId/notes'
     | '/_authenticated/classes/$subjectId/$contentId/video'
     | '/admin/classes/$subjectId/$contentId/notes'
@@ -635,27 +610,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/classes/$subjectId/$contentId/latihan-soal'
       preLoaderRoute: typeof AuthenticatedClassesSubjectIdContentIdLatihanSoalRouteImport
       parentRoute: typeof AuthenticatedClassesSubjectIdContentIdRoute
-    }
-    '/_admin/admin/classes/$subjectId/$contentId': {
-      id: '/_admin/admin/classes/$subjectId/$contentId'
-      path: '/classes/$subjectId/$contentId'
-      fullPath: '/admin/classes/$subjectId/$contentId'
-      preLoaderRoute: typeof AdminAdminClassesSubjectIdContentIdRouteImport
-      parentRoute: typeof AdminAdminRoute
-    }
-    '/_admin/admin/classes/$subjectId/$contentId/video': {
-      id: '/_admin/admin/classes/$subjectId/$contentId/video'
-      path: '/video'
-      fullPath: '/admin/classes/$subjectId/$contentId/video'
-      preLoaderRoute: typeof AdminAdminClassesSubjectIdContentIdVideoRouteImport
-      parentRoute: typeof AdminAdminClassesSubjectIdContentIdRoute
-    }
-    '/_admin/admin/classes/$subjectId/$contentId/notes': {
-      id: '/_admin/admin/classes/$subjectId/$contentId/notes'
-      path: '/notes'
-      fullPath: '/admin/classes/$subjectId/$contentId/notes'
-      preLoaderRoute: typeof AdminAdminClassesSubjectIdContentIdNotesRouteImport
-      parentRoute: typeof AdminAdminClassesSubjectIdContentIdRoute
     }
   }
 }
