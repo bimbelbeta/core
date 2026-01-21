@@ -1,6 +1,7 @@
 import { CaretLeftIcon, CaretRightIcon, EyeIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { type } from "arktype";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,20 +10,19 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { orpc } from "@/utils/orpc";
 import { AddUniversityDialog } from "./-components/add-university-dialog";
 
-export const Route = createFileRoute("/admin/passing-grades/")({
-	component: RouteComponent,
+const searchSchema = type({
+	page: "number = 0",
+	"search?": "string",
 });
 
-type SearchParams = {
-	page?: number;
-	search?: string;
-};
+export const Route = createFileRoute("/admin/passing-grades/")({
+	component: RouteComponent,
+	validateSearch: searchSchema,
+});
 
 function RouteComponent() {
-	const navigate = useNavigate({ from: Route.fullPath });
-	const searchParams = Route.useSearch() as SearchParams;
-	const page = searchParams.page;
-	const search = searchParams.search;
+	const navigate = Route.useNavigate();
+	const { page = 0, search } = Route.useSearch();
 
 	const [searchInput, setSearchInput] = useState(search ?? "");
 
@@ -41,13 +41,13 @@ function RouteComponent() {
 	const handleSearch = (value: string) => {
 		setSearchInput(value);
 		navigate({
-			search: (prev: SearchParams) => ({ ...prev, search: value || undefined, page: 0 }),
+			search: { search: value || undefined, page: 0 },
 		});
 	};
 
 	const handlePageChange = (newPage: number) => {
 		navigate({
-			search: (prev: SearchParams) => ({ ...prev, page: newPage }),
+			search: { page: newPage, search },
 		});
 	};
 

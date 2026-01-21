@@ -13,7 +13,6 @@ const listSubtestQuestions = admin
 		tags: ["Admin - Tryouts"],
 	})
 	.input(type({ subtestId: "number" }))
-	.output(type({ questions: "unknown" }))
 	.handler(async ({ input }) => {
 		const questionsData = await db
 			.select({

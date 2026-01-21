@@ -11,6 +11,7 @@ export const question = pgTable("question", {
 	discussion: text("discussion").notNull(),
 	contentJson: jsonb("content_json"),
 	discussionJson: jsonb("discussion_json"),
+	essayCorrectAnswer: text("essay_correct_answer"),
 	tags: text("tags").array(),
 });
 

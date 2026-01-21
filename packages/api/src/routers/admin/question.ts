@@ -91,14 +91,6 @@ const listQuestions = admin
 			tag: "string?",
 		}),
 	)
-	.output(
-		type({
-			questions: "unknown",
-			total: "number",
-			page: "number",
-			limit: "number",
-		}),
-	)
 	.handler(async ({ input }) => {
 		const offset = (input.page - 1) * input.limit;
 
@@ -144,7 +136,6 @@ const getQuestion = admin
 		tags: ["Admin - Questions"],
 	})
 	.input(type({ id: "number" }))
-	.output(type({ question: "unknown", choices: "unknown" }))
 	.handler(async ({ input }) => {
 		const [questionData] = await db.select().from(question).where(eq(question.id, input.id)).limit(1);
 

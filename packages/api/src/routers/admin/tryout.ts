@@ -69,14 +69,6 @@ const listTryouts = admin
 			status: type("'draft' | 'published' | 'archived'")?.optional(),
 		}),
 	)
-	.output(
-		type({
-			tryouts: "unknown",
-			total: "number",
-			page: "number",
-			limit: "number",
-		}),
-	)
 	.handler(async ({ input }) => {
 		const offset = (input.page - 1) * input.limit;
 
@@ -122,7 +114,6 @@ const getTryout = admin
 		tags: ["Admin - Tryouts"],
 	})
 	.input(type({ id: "number" }))
-	.output(type({ tryout: "unknown", subtests: "unknown" }))
 	.handler(async ({ input }) => {
 		const [tryoutData] = await db.select().from(tryout).where(eq(tryout.id, input.id)).limit(1);
 

@@ -7,7 +7,6 @@
 		"module": "ESNext",
 		"lib": ["ES2022", "DOM", "DOM.Iterable"],
 		"types": ["vite/client"],
-		"incremental": true,
 		"tsBuildInfoFile": "dist/.tsbuildinfo",
 		"moduleResolution": "bundler",
 		"allowImportingTsExtensions": true,

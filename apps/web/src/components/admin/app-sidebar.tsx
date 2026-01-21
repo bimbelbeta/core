@@ -1,6 +1,6 @@
 "use client";
 
-import { BooksIcon, HouseIcon } from "@phosphor-icons/react";
+import { BooksIcon, FileTextIcon, HouseIcon } from "@phosphor-icons/react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { Sidebar, SidebarContent, SidebarHeader, SidebarRail } from "@/components/ui/sidebar";
 import { NavFooter } from "./nav-footer";
@@ -11,6 +11,11 @@ const adminNavLinks = [
 		title: "Dashboard",
 		url: "/admin/dashboard/",
 		icon: HouseIcon,
+	},
+	{
+		title: "Tryouts",
+		url: "/admin/tryouts",
+		icon: FileTextIcon,
 	},
 	{
 		title: "Classes",

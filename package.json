@@ -46,7 +46,8 @@
 		"auth:generate": "turbo -F @bimbelbeta/auth auth:generate"
 	},
 	"dependencies": {
-		"dotenv": "^17.2.2"
+		"dotenv": "^17.2.2",
+		"typescript": "^5"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.3.11",

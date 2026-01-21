@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { type } from "arktype";
 import { useEffect } from "react";
 import { ClassHeader } from "@/components/classes/class-header";
 import { ContentList } from "@/components/classes/content-list";
@@ -15,6 +16,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/utils/orpc";
 
+const searchSchema = type({
+	"q?": "string",
+	page: "number = 0",
+});
+
 export const Route = createFileRoute("/_authenticated/classes/$subjectId/")({
 	params: {
 		parse: (raw) => ({
@@ -22,12 +28,8 @@ export const Route = createFileRoute("/_authenticated/classes/$subjectId/")({
 		}),
 	},
 	component: RouteComponent,
+	validateSearch: searchSchema,
 });
-
-type Search = {
-	q?: string;
-	page?: number;
-};
 
 function RouteComponent() {
 	const { subjectId } = Route.useParams();
@@ -35,29 +37,20 @@ function RouteComponent() {
 	const userIsPremium = session.data?.user?.isPremium ?? false;
 	const userRole = session.data?.user?.role;
 
-	const searchParams = Route.useSearch();
-	const searchQuery = (searchParams as Search).q ?? "";
-	const page = (searchParams as Search).page ?? 0;
+	const { q = "", page = 0 } = Route.useSearch();
+	const searchQuery = q;
 
 	const navigate = Route.useNavigate();
-	const updateSearch = (updates: Partial<Search>) => {
-		const newSearch: Partial<Search> = {};
+	const updateSearch = (updates: { q?: string; page?: number }) => {
+		const newQ = updates.q !== undefined ? updates.q : q;
+		const newPage = updates.q !== undefined && updates.q !== q ? 0 : (updates.page ?? page);
 
-		if (updates.q !== undefined) {
-			newSearch.q = updates.q || undefined;
-		}
-		if (updates.page !== undefined) {
-			newSearch.page = updates.page;
-		}
-
-		if (updates.q !== undefined && updates.q !== (searchParams as Search).q) {
-			newSearch.page = 0;
-		}
-
-		// Remove undefined values to avoid ?q=undefined in URL
-		const cleanSearch = Object.fromEntries(Object.entries(newSearch).filter(([, value]) => value !== undefined));
-
-		navigate({ search: cleanSearch });
+		navigate({
+			search: {
+				q: newQ || undefined,
+				page: newPage,
+			},
+		});
 	};
 
 	const contents = useQuery({
