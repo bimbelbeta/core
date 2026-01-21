@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { orpc } from "@/utils/orpc";
 
-export const Route = createFileRoute("/_admin/admin/classes/$subjectId/$contentId")({
+export const Route = createFileRoute("/admin/classes/$subjectId/$contentId")({
 	component: RouteComponent,
 });
 
@@ -21,7 +21,6 @@ function RouteComponent() {
 		}),
 	);
 
-	// Biar tab sinkron sama URL child-nya
 	const currentPath = location.pathname;
 	const currentTab: "video" | "notes" = currentPath.endsWith("/notes") ? "notes" : "video";
 

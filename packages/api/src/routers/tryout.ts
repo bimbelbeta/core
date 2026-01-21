@@ -9,7 +9,7 @@ import {
 } from "@bimbelbeta/db/schema/tryout";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, gte, lte } from "drizzle-orm";
 import { authed } from "../index";
 import { convertToTiptap } from "../lib/convert-to-tiptap";
 import type { TryoutQuestion } from "../types/tryout";
@@ -93,7 +93,7 @@ const find = authed
 	.input(type({ id: "number" }))
 	.handler(async ({ input, context, errors }) => {
 		const tryoutData = await db.query.tryout.findFirst({
-			where: eq(tryout.id, input.id),
+			where: and(eq(tryout.id, input.id), gte(tryout.startsAt, new Date()), lte(tryout.endsAt, new Date())),
 			with: {
 				subtests: {
 					orderBy: (subtests, { asc }) => [asc(subtests.order)],
@@ -102,8 +102,6 @@ const find = authed
 		});
 
 		if (!tryoutData) throw new ORPCError("NOT_FOUND", { message: "Tryout tidak ditemukan." });
-		if (tryoutData.endsAt && tryoutData.endsAt.getTime() < Date.now()) throw errors.UNPROCESSABLE_CONTENT({ message: "Tryout ini sudah ditutup." });
-		if (tryoutData.startsAt && tryoutData.startsAt.getTime() < Date.now()) throw errors.UNPROCESSABLE_CONTENT({ message: "Tryout ini belum dibuka." });
 
 		const attempt = await db.query.tryoutAttempt.findFirst({
 			where: and(eq(tryoutAttempt.tryoutId, input.id), eq(tryoutAttempt.userId, context.session.user.id)),
@@ -112,11 +110,12 @@ const find = authed
 			},
 		});
 
-    if (!attempt || attempt.isRevoked) throw errors.UNAUTHORIZED({
-      message: "Gagal menemukan pengerjaan tryout."
-		})
+		if (!attempt || attempt.isRevoked)
+			throw errors.UNAUTHORIZED({
+				message: "Gagal menemukan pengerjaan tryout.",
+			});
 
-    if (attempt.status === "finished") {
+		if (attempt.status === "finished") {
 			return {
 				...tryoutData,
 				attempt,

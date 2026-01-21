@@ -1,6 +1,5 @@
-import { ArrowLeft, GoogleLogoIcon } from "@phosphor-icons/react";
+import { ArrowLeftIcon, GoogleLogoIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
-import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { type } from "arktype";
@@ -32,7 +31,7 @@ function RouteComponent() {
 				className="absolute top-4 left-4 border border-primary/50 bg-white text-primary hover:bg-primary/10"
 			>
 				<Link to="/">
-					<ArrowLeft />
+					<ArrowLeftIcon />
 					Kembali
 				</Link>
 			</Button>
@@ -46,7 +45,6 @@ function SignInForm() {
 		from: "/",
 	});
 	const location = useLocation();
-	const queryClient = useQueryClient();
 	const { isPending } = authClient.useSession();
 
 	const form = useForm({
@@ -63,10 +61,8 @@ function SignInForm() {
 				},
 				{
 					onSuccess: async () => {
-						await queryClient.invalidateQueries({ queryKey: ["auth", "getSession"] });
-
 						const session = await authClient.getSession();
-						const user = session.data?.user as { role?: string } | undefined;
+						const user = session.data?.user;
 
 						if (user?.role === "admin") {
 							navigate({ to: "/admin/dashboard" });

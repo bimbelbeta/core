@@ -153,6 +153,7 @@ export const tryoutUserAnswer = pgTable(
 			.references(() => question.id, { onDelete: "cascade" }),
 		selectedChoiceId: integer("selected_choice_id").references(() => questionChoice.id, { onDelete: "set null" }),
 		essayAnswer: text("essay_answer"),
+		isDoubtful: boolean("is_doubtful").notNull().default(false),
 	},
 	(t) => [primaryKey({ columns: [t.attemptId, t.questionId] })],
 );

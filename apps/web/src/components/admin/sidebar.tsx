@@ -27,6 +27,11 @@ const adminNavLinks = [
 		to: "/admin/classes" as const,
 		icon: BooksIcon,
 	},
+	{
+		name: "Passing Grade",
+		to: "/admin/passing-grades" as const,
+		icon: BooksIcon,
+	},
 ];
 
 export function AdminSidebar() {

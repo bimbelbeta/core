@@ -1,8 +1,9 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { AdminSidebar } from "@/components/admin/sidebar";
 import { $getSession } from "@/lib/get-user";
 import { createMeta } from "@/lib/seo-utils";
 
-export const Route = createFileRoute("/_admin")({
+export const Route = createFileRoute("/admin")({
 	head: () => ({
 		meta: createMeta({
 			title: "Admin",
@@ -36,5 +37,12 @@ export const Route = createFileRoute("/_admin")({
 });
 
 function AdminLayout() {
-	return <Outlet />;
+	return (
+		<div className="flex min-h-screen">
+			<AdminSidebar />
+			<main className="flex-1 bg-background p-4 pt-20 lg:p-8 lg:pt-8">
+				<Outlet />
+			</main>
+		</div>
+	);
 }

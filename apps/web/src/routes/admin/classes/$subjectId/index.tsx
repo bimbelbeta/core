@@ -33,7 +33,7 @@ import { SearchInput } from "@/components/ui/search-input";
 import type { BodyOutputs } from "@/utils/orpc";
 import { orpc } from "@/utils/orpc";
 
-export const Route = createFileRoute("/_admin/admin/classes/$subjectId/")({
+export const Route = createFileRoute("/admin/classes/$subjectId/")({
 	params: {
 		parse: (raw) => ({
 			subjectId: Number(raw.subjectId),
@@ -77,7 +77,6 @@ function RouteComponent() {
 			newSearch.page = 0;
 		}
 
-		// Remove undefined values to avoid ?q=undefined in URL
 		const cleanSearch = Object.fromEntries(Object.entries(newSearch).filter(([, value]) => value !== undefined));
 
 		navigate({ search: cleanSearch });
@@ -273,7 +272,6 @@ function RouteComponent() {
 				/>
 			</div>
 
-			{/* Create Dialog */}
 			<Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
 				<DialogContent>
 					<DialogHeader>
@@ -337,7 +335,6 @@ function RouteComponent() {
 				</DialogContent>
 			</Dialog>
 
-			{/* Edit Dialog */}
 			<Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
 				<DialogContent>
 					<DialogHeader>
@@ -394,7 +391,6 @@ function RouteComponent() {
 				</DialogContent>
 			</Dialog>
 
-			{/* Delete Dialog */}
 			<AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
 				<AlertDialogContent>
 					<AlertDialogHeader>
