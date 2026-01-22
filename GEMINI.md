@@ -60,11 +60,11 @@ turbo -F @bimbelbeta/db <command>
 - Patterns: Separate component and container logic when complex
 
 ### Naming Conventions
-- Components: PascalCase (`FlashcardCard`)
+- Components: PascalCase (`UserCard`)
 - Functions/variables: camelCase (`getUserProgress`)
 - Types/interfaces: PascalCase (`UserProgress`)
-- Constants: UPPER_SNAKE_CASE (`FLASHCARD_SESSION_DURATION`)
-- Files: kebab-case for folders (`flashcard-card/`), `index.ts` for exports
+- Constants: UPPER_SNAKE_CASE (`SESSION_DURATION`)
+- Files: kebab-case for folders (`user-card/`), `index.ts` for exports
 
 ### Database (Drizzle ORM)
 - Schema files in `packages/db/src/schema/`

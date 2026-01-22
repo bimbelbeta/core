@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { boolean, index, integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, index, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
 	id: text("id").primaryKey(),
@@ -14,8 +14,6 @@ export const user = pgTable("user", {
 		.notNull(),
 	role: text("role").default("user"),
 	isPremium: boolean("is_premium").default(false),
-	flashcardStreak: integer("flashcard_streak").default(0),
-	lastCompletedFlashcardAt: timestamp("last_completed_flashcard_at"),
 	premiumExpiresAt: timestamp("premium_expires_at"),
 });
 

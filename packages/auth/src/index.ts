@@ -31,22 +31,6 @@ export const auth = betterAuth({
 				defaultValue: false,
 				input: false,
 			},
-			flashcardStreak: {
-				type: "number",
-				validator: {
-					input: type("number"),
-				},
-				defaultValue: 0,
-				input: false,
-			},
-			lastCompletedFlashcardAt: {
-				type: "date",
-				validator: {
-					input: type("Date"),
-				},
-				defaultValue: null,
-				input: false,
-			},
 			premiumExpiresAt: {
 				type: "date",
 				validator: {
