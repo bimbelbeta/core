@@ -27,7 +27,7 @@ export const Route = createFileRoute("/admin")({
 					redirect: location.href,
 				},
 			});
-		if (context.session.user.role !== "admin")
+		if (context.session.user.role !== "admin" && context.session.user.role !== "superadmin")
 			throw redirect({
 				to: "/dashboard",
 				search: {

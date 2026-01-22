@@ -31,7 +31,7 @@ export function ResultsActivity() {
 				</div>
 			) : (
 				attempts.data?.map((result) => (
-					<ResultCard key={result.id} title={result.tryout.title} score={result.score ?? 0} />
+					<ResultCard key={result.id} attemptId={result.id} title={result.tryout.title} score={result.score ?? 0} />
 				))
 			)}
 		</div>
@@ -53,11 +53,12 @@ function ResultsActivitySkeleton() {
 }
 
 type ResultCardProps = {
+	attemptId: number;
 	title: string;
 	score: number;
 };
 
-const ResultCard = memo(function ResultCard({ title, score }: ResultCardProps) {
+const ResultCard = memo(function ResultCard({ attemptId, title, score }: ResultCardProps) {
 	return (
 		<Card className="flex flex-col gap-2 p-4">
 			<h3 className="text-base">{title}</h3>
@@ -67,7 +68,11 @@ const ResultCard = memo(function ResultCard({ title, score }: ResultCardProps) {
 				<span className="text-3xl">
 					{score} <span className="text-base">/ 1000</span>
 				</span>
-				<Button size="sm">Lihat Hasil</Button>
+				<Button size="sm" asChild>
+					<Link to="/tryout/results/$attemptId" params={{ attemptId: attemptId.toString() }}>
+						Lihat Hasil
+					</Link>
+				</Button>
 			</div>
 		</Card>
 	);

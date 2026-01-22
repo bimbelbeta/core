@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
+import { useDebouncedMutation } from "@/hooks/use-debounced-mutation";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 import { useTryoutStore } from "../-hooks/use-tryout-store";
@@ -23,7 +24,21 @@ export function AnswerPanel() {
 			},
 		}),
 	);
-	const selectedAnswerId = questionId ? answers[questionId] : undefined;
+
+	const debouncedSaveAnswerMutation = useDebouncedMutation(
+		orpc.tryout.saveAnswer.mutationOptions({
+			onSuccess: (_data, variables) => {
+				if (variables.essayAnswer !== undefined) {
+					setEssayAnswer(variables.questionId, variables.essayAnswer);
+				}
+				queryClient.invalidateQueries({ queryKey: orpc.tryout.find.key({ input: { id: tryoutId } }) });
+			},
+		}),
+		500,
+	);
+	const selectedAnswerId = questionId
+		? (answers[questionId] ?? currentQuestion?.userAnswer?.selectedChoiceId)
+		: undefined;
 
 	const handleSelectAnswer = (choiceId: number) => {
 		if (!questionId) return;
@@ -36,7 +51,7 @@ export function AnswerPanel() {
 	};
 
 	const handleSaveEssayAnswer = (data: { tryoutId: number; questionId: number; essayAnswer: string }) => {
-		saveAnswerMutation.mutate(data);
+		debouncedSaveAnswerMutation.debouncedMutate(data);
 	};
 
 	if (!currentQuestion) return null;
@@ -60,7 +75,7 @@ export function AnswerPanel() {
 						tryoutId={tryoutId}
 						questionId={questionId}
 						saveAnswer={handleSaveEssayAnswer}
-						isPending={saveAnswerMutation.isPending}
+						isPending={debouncedSaveAnswerMutation.isPending}
 					/>
 				) : null}
 			</div>

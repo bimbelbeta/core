@@ -64,7 +64,7 @@ function SignInForm() {
 						const session = await authClient.getSession();
 						const user = session.data?.user;
 
-						if (user?.role === "admin") {
+						if (user?.role === "admin" || user?.role === "superadmin") {
 							navigate({ to: "/admin/dashboard" });
 						} else {
 							navigate({ to: "/dashboard" });

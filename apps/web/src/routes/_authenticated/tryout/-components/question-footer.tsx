@@ -23,7 +23,8 @@ export function QuestionFooter() {
 
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 	const queryClient = useQueryClient();
-	const { currentQuestionIndex, setView, nextQuestion, prevQuestion, toggleRaguRagu } = useTryoutStore();
+	const { currentQuestionIndex, setView, nextQuestion, prevQuestion, toggleRaguRagu, currentQuestion } =
+		useTryoutStore();
 
 	const { data } = useQuery(
 		orpc.tryout.find.queryOptions({
@@ -72,7 +73,9 @@ export function QuestionFooter() {
 	};
 
 	const handleRaguRagu = () => {
-		toggleRaguRagu(0);
+		if (currentQuestion?.id) {
+			toggleRaguRagu(currentQuestion.id);
+		}
 	};
 
 	return (

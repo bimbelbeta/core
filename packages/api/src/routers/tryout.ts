@@ -572,6 +572,51 @@ const history = authed
 		return attempts;
 	});
 
+const attemptResult = authed
+	.route({
+		path: "/tryouts/attempts/{attemptId}",
+		method: "GET",
+		tags: ["Tryouts"],
+	})
+	.input(type({ attemptId: "number" }))
+	.handler(async ({ input, context, errors }) => {
+		const attempt = await db.query.tryoutAttempt.findFirst({
+			where: and(eq(tryoutAttempt.id, input.attemptId), eq(tryoutAttempt.userId, context.session.user.id)),
+			with: {
+				tryout: {
+					columns: {
+						id: true,
+						title: true,
+					},
+					with: {
+						subtests: {
+							orderBy: (subtests, { asc }) => [asc(subtests.order)],
+							columns: {
+								id: true,
+								name: true,
+								duration: true,
+							},
+						},
+					},
+				},
+				subtestAttempts: {
+					columns: {
+						id: true,
+						subtestId: true,
+						status: true,
+						completedAt: true,
+					},
+				},
+			},
+		});
+
+		if (!attempt) {
+			throw errors.NOT_FOUND({ message: "Attempt not found" });
+		}
+
+		return attempt;
+	});
+
 export const tryoutRouter = {
 	list,
 	find,
@@ -582,4 +627,5 @@ export const tryoutRouter = {
 	submitSubtest,
 	submitTryout,
 	history,
+	attemptResult,
 };

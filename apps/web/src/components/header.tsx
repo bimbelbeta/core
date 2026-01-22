@@ -14,7 +14,7 @@ export default function Header() {
 			<div className="flex items-center gap-2">
 				{session.data?.user ? (
 					<>
-						{session.data?.user.role === "admin" && (
+						{(session.data?.user.role === "admin" || session.data?.user.role === "superadmin") && (
 							<Button variant={"default"} asChild>
 								<Link to="/admin">Sini, min!</Link>
 							</Button>

@@ -1,13 +1,19 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
-import { Activity, useState } from "react";
+import { type } from "arktype";
+import { Activity } from "react";
 import { Button } from "@/components/ui/button";
 import { GuidelineActivity } from "./-components/guideline-activity";
 import { PassingGradeActivity } from "./-components/passing-grade-activity";
 import { ResultsActivity } from "./-components/results-activity";
 
+const tabSchema = type({
+	"tab?": '"guideline" | "passing_grade" | "results"',
+});
+
 export const Route = createFileRoute("/_authenticated/tryout/")({
 	component: RouteComponent,
+	validateSearch: (search) => tabSchema.assert(search),
 });
 
 const TABS = [
@@ -49,19 +55,25 @@ function TryoutHeader() {
 }
 
 function RouteComponent() {
-	const [activeTab, setActiveTab] = useState<"guideline" | "passing_grade" | "results">("guideline");
+	const { tab } = Route.useSearch();
+	const navigate = useNavigate();
+	const activeTab = tab ?? "guideline";
+
+	const setActiveTab = (newTab: "guideline" | "passing_grade" | "results") => {
+		navigate({ to: "/tryout", search: { tab: newTab } });
+	};
 
 	return (
 		<>
 			<TryoutHeader />
 			<section className="mt-4 flex items-center gap-2">
-				{TABS.map((tab) => (
+				{TABS.map((t) => (
 					<Button
-						key={tab.slug}
-						variant={activeTab === tab.slug ? "default" : "outline"}
-						onClick={() => setActiveTab(tab.slug)}
+						key={t.slug}
+						variant={activeTab === t.slug ? "default" : "outline"}
+						onClick={() => setActiveTab(t.slug)}
 					>
-						{tab.name}
+						{t.name}
 					</Button>
 				))}
 			</section>

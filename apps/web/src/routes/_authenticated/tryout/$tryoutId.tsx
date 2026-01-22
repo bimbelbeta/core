@@ -38,13 +38,13 @@ function RouteComponent() {
 		}
 
 		if (data.attempt.status === "finished") {
-			router.navigate({ to: "/tryout" });
+			router.navigate({ to: "/tryout", search: { tab: "results" } });
 			return;
 		}
 
 		if (data.currentSubtest === null) {
 			toast.success("Tryout selesai!");
-			router.navigate({ to: "/tryout" });
+			router.navigate({ to: "/tryout", search: { tab: "results" } });
 			return;
 		}
 

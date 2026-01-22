@@ -18,7 +18,7 @@ export const auth = betterAuth({
 			role: {
 				type: "string",
 				validator: {
-					input: type('"user" | "admin"'),
+					input: type('"user" | "admin" | "superadmin"'),
 				},
 				defaultValue: "user",
 				input: false,

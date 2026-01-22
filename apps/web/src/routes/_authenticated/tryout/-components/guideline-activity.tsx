@@ -22,13 +22,7 @@ export function GuidelineActivity() {
 					</CardTitle>
 					{data?.status === "finished" ? (
 						<Button size={"icon"} asChild>
-							{/* TODO: Change to result page */}
-							<Link
-								to="/tryout/$tryoutId"
-								params={{
-									tryoutId: data.id.toString(),
-								}}
-							>
+							<Link to="/tryout" search={{ tab: "results" }}>
 								<ArrowUpRightIcon weight="bold" />
 							</Link>
 						</Button>
