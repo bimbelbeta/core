@@ -52,11 +52,3 @@ export const $getSession = createIsomorphicFn()
 			session: data,
 		};
 	});
-
-export async function isAuthenticated() {
-	const user = await authClient.getSession();
-
-	if (user) return true;
-
-	return false;
-}
