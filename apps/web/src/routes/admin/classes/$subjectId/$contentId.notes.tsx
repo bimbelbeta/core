@@ -18,7 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { orpc } from "@/utils/orpc";
 
-export const Route = createFileRoute("/_admin/admin/classes/$subjectId/$contentId/notes")({
+export const Route = createFileRoute("/admin/classes/$subjectId/$contentId/notes")({
 	component: RouteComponent,
 });
 
@@ -81,7 +81,6 @@ function RouteComponent() {
 		},
 	});
 
-	// Update form when content loads
 	if (content.data?.note) {
 		if (form.state.values.content !== content.data.note.content) {
 			form.setFieldValue("content", (content.data.note.content as object) || {});

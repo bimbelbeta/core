@@ -48,6 +48,7 @@ function Highlight({
 
 	if (animated && !asChild) {
 		return (
+			// @ts-expect-error - Framer motion type mismatch with React 19
 			<motion.span
 				className={baseClassName}
 				initial={{ opacity: 0 }}

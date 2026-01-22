@@ -9,36 +9,46 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthRouteImport } from './routes/_auth'
-import { Route as AdminRouteImport } from './routes/_admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AuthenticatedPremiumRouteImport } from './routes/_authenticated/premium'
 import { Route as AuthResetPasswordRouteImport } from './routes/_auth/reset-password'
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AuthForgotPasswordRouteImport } from './routes/_auth/forgot-password'
-import { Route as AdminAdminRouteImport } from './routes/_admin/admin'
+import { Route as AdminTryoutsIndexRouteImport } from './routes/admin/tryouts/index'
+import { Route as AdminPassingGradesIndexRouteImport } from './routes/admin/passing-grades/index'
+import { Route as AdminDashboardIndexRouteImport } from './routes/admin/dashboard/index'
+import { Route as AdminClassesIndexRouteImport } from './routes/admin/classes/index'
 import { Route as AuthenticatedTryoutIndexRouteImport } from './routes/_authenticated/tryout/index'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
 import { Route as AuthenticatedClassesIndexRouteImport } from './routes/_authenticated/classes/index'
-import { Route as AdminAdminIndexRouteImport } from './routes/_admin/admin/index'
+import { Route as AdminQuestionsQuestionIdRouteImport } from './routes/admin/questions/$questionId'
+import { Route as AdminPassingGradesUniversityIdRouteImport } from './routes/admin/passing-grades/$universityId'
 import { Route as AuthenticatedTryoutTryoutIdRouteImport } from './routes/_authenticated/tryout/$tryoutId'
-import { Route as AdminAdminDashboardRouteImport } from './routes/_admin/admin/dashboard'
+import { Route as AdminTryoutsTryoutIdIndexRouteImport } from './routes/admin/tryouts/$tryoutId/index'
+import { Route as AdminClassesSubjectIdIndexRouteImport } from './routes/admin/classes/$subjectId/index'
 import { Route as AuthenticatedClassesSubjectIdIndexRouteImport } from './routes/_authenticated/classes/$subjectId/index'
-import { Route as AdminAdminClassesIndexRouteImport } from './routes/_admin/admin/classes/index'
+import { Route as AdminClassesSubjectIdContentIdRouteImport } from './routes/admin/classes/$subjectId/$contentId'
 import { Route as AuthenticatedPremiumPaymentUnfinishRouteImport } from './routes/_authenticated/premium/payment/unfinish'
 import { Route as AuthenticatedPremiumPaymentFinishRouteImport } from './routes/_authenticated/premium/payment/finish'
 import { Route as AuthenticatedPremiumPaymentErrorRouteImport } from './routes/_authenticated/premium/payment/error'
 import { Route as AuthenticatedClassesSubjectIdContentIdRouteImport } from './routes/_authenticated/classes/$subjectId/$contentId'
-import { Route as AdminAdminClassesSubjectIdIndexRouteImport } from './routes/_admin/admin/classes/$subjectId/index'
+import { Route as AdminTryoutsTryoutIdSubtestsSubtestIdRouteImport } from './routes/admin/tryouts/$tryoutId/subtests/$subtestId'
+import { Route as AdminClassesSubjectIdContentIdVideoRouteImport } from './routes/admin/classes/$subjectId/$contentId.video'
+import { Route as AdminClassesSubjectIdContentIdNotesRouteImport } from './routes/admin/classes/$subjectId/$contentId.notes'
 import { Route as AuthenticatedClassesSubjectIdContentIdVideoRouteImport } from './routes/_authenticated/classes/$subjectId/$contentId.video'
 import { Route as AuthenticatedClassesSubjectIdContentIdNotesRouteImport } from './routes/_authenticated/classes/$subjectId/$contentId.notes'
 import { Route as AuthenticatedClassesSubjectIdContentIdLatihanSoalRouteImport } from './routes/_authenticated/classes/$subjectId/$contentId.latihan-soal'
-import { Route as AdminAdminClassesSubjectIdContentIdRouteImport } from './routes/_admin/admin/classes/$subjectId/$contentId'
-import { Route as AdminAdminClassesSubjectIdContentIdVideoRouteImport } from './routes/_admin/admin/classes/$subjectId/$contentId.video'
-import { Route as AdminAdminClassesSubjectIdContentIdNotesRouteImport } from './routes/_admin/admin/classes/$subjectId/$contentId.notes'
 
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
@@ -47,14 +57,15 @@ const AuthRoute = AuthRouteImport.update({
   id: '/_auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminRoute = AdminRouteImport.update({
-  id: '/_admin',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AuthenticatedPremiumRoute = AuthenticatedPremiumRouteImport.update({
   id: '/premium',
@@ -81,9 +92,24 @@ const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
   path: '/forgot-password',
   getParentRoute: () => AuthRoute,
 } as any)
-const AdminAdminRoute = AdminAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
+const AdminTryoutsIndexRoute = AdminTryoutsIndexRouteImport.update({
+  id: '/tryouts/',
+  path: '/tryouts/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPassingGradesIndexRoute = AdminPassingGradesIndexRouteImport.update({
+  id: '/passing-grades/',
+  path: '/passing-grades/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminDashboardIndexRoute = AdminDashboardIndexRouteImport.update({
+  id: '/dashboard/',
+  path: '/dashboard/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminClassesIndexRoute = AdminClassesIndexRouteImport.update({
+  id: '/classes/',
+  path: '/classes/',
   getParentRoute: () => AdminRoute,
 } as any)
 const AuthenticatedTryoutIndexRoute =
@@ -104,33 +130,48 @@ const AuthenticatedClassesIndexRoute =
     path: '/classes/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AdminAdminIndexRoute = AdminAdminIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AdminAdminRoute,
-} as any)
+const AdminQuestionsQuestionIdRoute =
+  AdminQuestionsQuestionIdRouteImport.update({
+    id: '/questions/$questionId',
+    path: '/questions/$questionId',
+    getParentRoute: () => AdminRoute,
+  } as any)
+const AdminPassingGradesUniversityIdRoute =
+  AdminPassingGradesUniversityIdRouteImport.update({
+    id: '/passing-grades/$universityId',
+    path: '/passing-grades/$universityId',
+    getParentRoute: () => AdminRoute,
+  } as any)
 const AuthenticatedTryoutTryoutIdRoute =
   AuthenticatedTryoutTryoutIdRouteImport.update({
     id: '/tryout/$tryoutId',
     path: '/tryout/$tryoutId',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AdminAdminDashboardRoute = AdminAdminDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => AdminAdminRoute,
-} as any)
+const AdminTryoutsTryoutIdIndexRoute =
+  AdminTryoutsTryoutIdIndexRouteImport.update({
+    id: '/tryouts/$tryoutId/',
+    path: '/tryouts/$tryoutId/',
+    getParentRoute: () => AdminRoute,
+  } as any)
+const AdminClassesSubjectIdIndexRoute =
+  AdminClassesSubjectIdIndexRouteImport.update({
+    id: '/classes/$subjectId/',
+    path: '/classes/$subjectId/',
+    getParentRoute: () => AdminRoute,
+  } as any)
 const AuthenticatedClassesSubjectIdIndexRoute =
   AuthenticatedClassesSubjectIdIndexRouteImport.update({
     id: '/classes/$subjectId/',
     path: '/classes/$subjectId/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AdminAdminClassesIndexRoute = AdminAdminClassesIndexRouteImport.update({
-  id: '/classes/',
-  path: '/classes/',
-  getParentRoute: () => AdminAdminRoute,
-} as any)
+const AdminClassesSubjectIdContentIdRoute =
+  AdminClassesSubjectIdContentIdRouteImport.update({
+    id: '/classes/$subjectId/$contentId',
+    path: '/classes/$subjectId/$contentId',
+    getParentRoute: () => AdminRoute,
+  } as any)
 const AuthenticatedPremiumPaymentUnfinishRoute =
   AuthenticatedPremiumPaymentUnfinishRouteImport.update({
     id: '/payment/unfinish',
@@ -155,11 +196,23 @@ const AuthenticatedClassesSubjectIdContentIdRoute =
     path: '/classes/$subjectId/$contentId',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AdminAdminClassesSubjectIdIndexRoute =
-  AdminAdminClassesSubjectIdIndexRouteImport.update({
-    id: '/classes/$subjectId/',
-    path: '/classes/$subjectId/',
-    getParentRoute: () => AdminAdminRoute,
+const AdminTryoutsTryoutIdSubtestsSubtestIdRoute =
+  AdminTryoutsTryoutIdSubtestsSubtestIdRouteImport.update({
+    id: '/tryouts/$tryoutId/subtests/$subtestId',
+    path: '/tryouts/$tryoutId/subtests/$subtestId',
+    getParentRoute: () => AdminRoute,
+  } as any)
+const AdminClassesSubjectIdContentIdVideoRoute =
+  AdminClassesSubjectIdContentIdVideoRouteImport.update({
+    id: '/video',
+    path: '/video',
+    getParentRoute: () => AdminClassesSubjectIdContentIdRoute,
+  } as any)
+const AdminClassesSubjectIdContentIdNotesRoute =
+  AdminClassesSubjectIdContentIdNotesRouteImport.update({
+    id: '/notes',
+    path: '/notes',
+    getParentRoute: () => AdminClassesSubjectIdContentIdRoute,
   } as any)
 const AuthenticatedClassesSubjectIdContentIdVideoRoute =
   AuthenticatedClassesSubjectIdContentIdVideoRouteImport.update({
@@ -179,52 +232,40 @@ const AuthenticatedClassesSubjectIdContentIdLatihanSoalRoute =
     path: '/latihan-soal',
     getParentRoute: () => AuthenticatedClassesSubjectIdContentIdRoute,
   } as any)
-const AdminAdminClassesSubjectIdContentIdRoute =
-  AdminAdminClassesSubjectIdContentIdRouteImport.update({
-    id: '/classes/$subjectId/$contentId',
-    path: '/classes/$subjectId/$contentId',
-    getParentRoute: () => AdminAdminRoute,
-  } as any)
-const AdminAdminClassesSubjectIdContentIdVideoRoute =
-  AdminAdminClassesSubjectIdContentIdVideoRouteImport.update({
-    id: '/video',
-    path: '/video',
-    getParentRoute: () => AdminAdminClassesSubjectIdContentIdRoute,
-  } as any)
-const AdminAdminClassesSubjectIdContentIdNotesRoute =
-  AdminAdminClassesSubjectIdContentIdNotesRouteImport.update({
-    id: '/notes',
-    path: '/notes',
-    getParentRoute: () => AdminAdminClassesSubjectIdContentIdRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin': typeof AdminAdminRouteWithChildren
+  '/admin': typeof AdminRouteWithChildren
   '/forgot-password': typeof AuthForgotPasswordRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/reset-password': typeof AuthResetPasswordRoute
   '/premium': typeof AuthenticatedPremiumRouteWithChildren
-  '/admin/dashboard': typeof AdminAdminDashboardRoute
+  '/admin/': typeof AdminIndexRoute
   '/tryout/$tryoutId': typeof AuthenticatedTryoutTryoutIdRoute
-  '/admin/': typeof AdminAdminIndexRoute
+  '/admin/passing-grades/$universityId': typeof AdminPassingGradesUniversityIdRoute
+  '/admin/questions/$questionId': typeof AdminQuestionsQuestionIdRoute
   '/classes/': typeof AuthenticatedClassesIndexRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/tryout/': typeof AuthenticatedTryoutIndexRoute
+  '/admin/classes/': typeof AdminClassesIndexRoute
+  '/admin/dashboard/': typeof AdminDashboardIndexRoute
+  '/admin/passing-grades/': typeof AdminPassingGradesIndexRoute
+  '/admin/tryouts/': typeof AdminTryoutsIndexRoute
   '/classes/$subjectId/$contentId': typeof AuthenticatedClassesSubjectIdContentIdRouteWithChildren
   '/premium/payment/error': typeof AuthenticatedPremiumPaymentErrorRoute
   '/premium/payment/finish': typeof AuthenticatedPremiumPaymentFinishRoute
   '/premium/payment/unfinish': typeof AuthenticatedPremiumPaymentUnfinishRoute
-  '/admin/classes/': typeof AdminAdminClassesIndexRoute
+  '/admin/classes/$subjectId/$contentId': typeof AdminClassesSubjectIdContentIdRouteWithChildren
   '/classes/$subjectId/': typeof AuthenticatedClassesSubjectIdIndexRoute
-  '/admin/classes/$subjectId/$contentId': typeof AdminAdminClassesSubjectIdContentIdRouteWithChildren
+  '/admin/classes/$subjectId/': typeof AdminClassesSubjectIdIndexRoute
+  '/admin/tryouts/$tryoutId/': typeof AdminTryoutsTryoutIdIndexRoute
   '/classes/$subjectId/$contentId/latihan-soal': typeof AuthenticatedClassesSubjectIdContentIdLatihanSoalRoute
   '/classes/$subjectId/$contentId/notes': typeof AuthenticatedClassesSubjectIdContentIdNotesRoute
   '/classes/$subjectId/$contentId/video': typeof AuthenticatedClassesSubjectIdContentIdVideoRoute
-  '/admin/classes/$subjectId/': typeof AdminAdminClassesSubjectIdIndexRoute
-  '/admin/classes/$subjectId/$contentId/notes': typeof AdminAdminClassesSubjectIdContentIdNotesRoute
-  '/admin/classes/$subjectId/$contentId/video': typeof AdminAdminClassesSubjectIdContentIdVideoRoute
+  '/admin/classes/$subjectId/$contentId/notes': typeof AdminClassesSubjectIdContentIdNotesRoute
+  '/admin/classes/$subjectId/$contentId/video': typeof AdminClassesSubjectIdContentIdVideoRoute
+  '/admin/tryouts/$tryoutId/subtests/$subtestId': typeof AdminTryoutsTryoutIdSubtestsSubtestIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -233,57 +274,68 @@ export interface FileRoutesByTo {
   '/register': typeof AuthRegisterRoute
   '/reset-password': typeof AuthResetPasswordRoute
   '/premium': typeof AuthenticatedPremiumRouteWithChildren
-  '/admin/dashboard': typeof AdminAdminDashboardRoute
+  '/admin': typeof AdminIndexRoute
   '/tryout/$tryoutId': typeof AuthenticatedTryoutTryoutIdRoute
-  '/admin': typeof AdminAdminIndexRoute
+  '/admin/passing-grades/$universityId': typeof AdminPassingGradesUniversityIdRoute
+  '/admin/questions/$questionId': typeof AdminQuestionsQuestionIdRoute
   '/classes': typeof AuthenticatedClassesIndexRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/tryout': typeof AuthenticatedTryoutIndexRoute
+  '/admin/classes': typeof AdminClassesIndexRoute
+  '/admin/dashboard': typeof AdminDashboardIndexRoute
+  '/admin/passing-grades': typeof AdminPassingGradesIndexRoute
+  '/admin/tryouts': typeof AdminTryoutsIndexRoute
   '/classes/$subjectId/$contentId': typeof AuthenticatedClassesSubjectIdContentIdRouteWithChildren
   '/premium/payment/error': typeof AuthenticatedPremiumPaymentErrorRoute
   '/premium/payment/finish': typeof AuthenticatedPremiumPaymentFinishRoute
   '/premium/payment/unfinish': typeof AuthenticatedPremiumPaymentUnfinishRoute
-  '/admin/classes': typeof AdminAdminClassesIndexRoute
+  '/admin/classes/$subjectId/$contentId': typeof AdminClassesSubjectIdContentIdRouteWithChildren
   '/classes/$subjectId': typeof AuthenticatedClassesSubjectIdIndexRoute
-  '/admin/classes/$subjectId/$contentId': typeof AdminAdminClassesSubjectIdContentIdRouteWithChildren
+  '/admin/classes/$subjectId': typeof AdminClassesSubjectIdIndexRoute
+  '/admin/tryouts/$tryoutId': typeof AdminTryoutsTryoutIdIndexRoute
   '/classes/$subjectId/$contentId/latihan-soal': typeof AuthenticatedClassesSubjectIdContentIdLatihanSoalRoute
   '/classes/$subjectId/$contentId/notes': typeof AuthenticatedClassesSubjectIdContentIdNotesRoute
   '/classes/$subjectId/$contentId/video': typeof AuthenticatedClassesSubjectIdContentIdVideoRoute
-  '/admin/classes/$subjectId': typeof AdminAdminClassesSubjectIdIndexRoute
-  '/admin/classes/$subjectId/$contentId/notes': typeof AdminAdminClassesSubjectIdContentIdNotesRoute
-  '/admin/classes/$subjectId/$contentId/video': typeof AdminAdminClassesSubjectIdContentIdVideoRoute
+  '/admin/classes/$subjectId/$contentId/notes': typeof AdminClassesSubjectIdContentIdNotesRoute
+  '/admin/classes/$subjectId/$contentId/video': typeof AdminClassesSubjectIdContentIdVideoRoute
+  '/admin/tryouts/$tryoutId/subtests/$subtestId': typeof AdminTryoutsTryoutIdSubtestsSubtestIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/_admin': typeof AdminRouteWithChildren
   '/_auth': typeof AuthRouteWithChildren
   '/_authenticated': typeof AuthenticatedRouteWithChildren
-  '/_admin/admin': typeof AdminAdminRouteWithChildren
+  '/admin': typeof AdminRouteWithChildren
   '/_auth/forgot-password': typeof AuthForgotPasswordRoute
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/register': typeof AuthRegisterRoute
   '/_auth/reset-password': typeof AuthResetPasswordRoute
   '/_authenticated/premium': typeof AuthenticatedPremiumRouteWithChildren
-  '/_admin/admin/dashboard': typeof AdminAdminDashboardRoute
+  '/admin/': typeof AdminIndexRoute
   '/_authenticated/tryout/$tryoutId': typeof AuthenticatedTryoutTryoutIdRoute
-  '/_admin/admin/': typeof AdminAdminIndexRoute
+  '/admin/passing-grades/$universityId': typeof AdminPassingGradesUniversityIdRoute
+  '/admin/questions/$questionId': typeof AdminQuestionsQuestionIdRoute
   '/_authenticated/classes/': typeof AuthenticatedClassesIndexRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/tryout/': typeof AuthenticatedTryoutIndexRoute
+  '/admin/classes/': typeof AdminClassesIndexRoute
+  '/admin/dashboard/': typeof AdminDashboardIndexRoute
+  '/admin/passing-grades/': typeof AdminPassingGradesIndexRoute
+  '/admin/tryouts/': typeof AdminTryoutsIndexRoute
   '/_authenticated/classes/$subjectId/$contentId': typeof AuthenticatedClassesSubjectIdContentIdRouteWithChildren
   '/_authenticated/premium/payment/error': typeof AuthenticatedPremiumPaymentErrorRoute
   '/_authenticated/premium/payment/finish': typeof AuthenticatedPremiumPaymentFinishRoute
   '/_authenticated/premium/payment/unfinish': typeof AuthenticatedPremiumPaymentUnfinishRoute
-  '/_admin/admin/classes/': typeof AdminAdminClassesIndexRoute
+  '/admin/classes/$subjectId/$contentId': typeof AdminClassesSubjectIdContentIdRouteWithChildren
   '/_authenticated/classes/$subjectId/': typeof AuthenticatedClassesSubjectIdIndexRoute
-  '/_admin/admin/classes/$subjectId/$contentId': typeof AdminAdminClassesSubjectIdContentIdRouteWithChildren
+  '/admin/classes/$subjectId/': typeof AdminClassesSubjectIdIndexRoute
+  '/admin/tryouts/$tryoutId/': typeof AdminTryoutsTryoutIdIndexRoute
   '/_authenticated/classes/$subjectId/$contentId/latihan-soal': typeof AuthenticatedClassesSubjectIdContentIdLatihanSoalRoute
   '/_authenticated/classes/$subjectId/$contentId/notes': typeof AuthenticatedClassesSubjectIdContentIdNotesRoute
   '/_authenticated/classes/$subjectId/$contentId/video': typeof AuthenticatedClassesSubjectIdContentIdVideoRoute
-  '/_admin/admin/classes/$subjectId/': typeof AdminAdminClassesSubjectIdIndexRoute
-  '/_admin/admin/classes/$subjectId/$contentId/notes': typeof AdminAdminClassesSubjectIdContentIdNotesRoute
-  '/_admin/admin/classes/$subjectId/$contentId/video': typeof AdminAdminClassesSubjectIdContentIdVideoRoute
+  '/admin/classes/$subjectId/$contentId/notes': typeof AdminClassesSubjectIdContentIdNotesRoute
+  '/admin/classes/$subjectId/$contentId/video': typeof AdminClassesSubjectIdContentIdVideoRoute
+  '/admin/tryouts/$tryoutId/subtests/$subtestId': typeof AdminTryoutsTryoutIdSubtestsSubtestIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -295,25 +347,31 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/premium'
-    | '/admin/dashboard'
-    | '/tryout/$tryoutId'
     | '/admin/'
+    | '/tryout/$tryoutId'
+    | '/admin/passing-grades/$universityId'
+    | '/admin/questions/$questionId'
     | '/classes/'
     | '/dashboard/'
     | '/tryout/'
+    | '/admin/classes/'
+    | '/admin/dashboard/'
+    | '/admin/passing-grades/'
+    | '/admin/tryouts/'
     | '/classes/$subjectId/$contentId'
     | '/premium/payment/error'
     | '/premium/payment/finish'
     | '/premium/payment/unfinish'
-    | '/admin/classes/'
-    | '/classes/$subjectId/'
     | '/admin/classes/$subjectId/$contentId'
+    | '/classes/$subjectId/'
+    | '/admin/classes/$subjectId/'
+    | '/admin/tryouts/$tryoutId/'
     | '/classes/$subjectId/$contentId/latihan-soal'
     | '/classes/$subjectId/$contentId/notes'
     | '/classes/$subjectId/$contentId/video'
-    | '/admin/classes/$subjectId/'
     | '/admin/classes/$subjectId/$contentId/notes'
     | '/admin/classes/$subjectId/$contentId/video'
+    | '/admin/tryouts/$tryoutId/subtests/$subtestId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -322,67 +380,85 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/premium'
-    | '/admin/dashboard'
-    | '/tryout/$tryoutId'
     | '/admin'
+    | '/tryout/$tryoutId'
+    | '/admin/passing-grades/$universityId'
+    | '/admin/questions/$questionId'
     | '/classes'
     | '/dashboard'
     | '/tryout'
+    | '/admin/classes'
+    | '/admin/dashboard'
+    | '/admin/passing-grades'
+    | '/admin/tryouts'
     | '/classes/$subjectId/$contentId'
     | '/premium/payment/error'
     | '/premium/payment/finish'
     | '/premium/payment/unfinish'
-    | '/admin/classes'
-    | '/classes/$subjectId'
     | '/admin/classes/$subjectId/$contentId'
+    | '/classes/$subjectId'
+    | '/admin/classes/$subjectId'
+    | '/admin/tryouts/$tryoutId'
     | '/classes/$subjectId/$contentId/latihan-soal'
     | '/classes/$subjectId/$contentId/notes'
     | '/classes/$subjectId/$contentId/video'
-    | '/admin/classes/$subjectId'
     | '/admin/classes/$subjectId/$contentId/notes'
     | '/admin/classes/$subjectId/$contentId/video'
+    | '/admin/tryouts/$tryoutId/subtests/$subtestId'
   id:
     | '__root__'
     | '/'
-    | '/_admin'
     | '/_auth'
     | '/_authenticated'
-    | '/_admin/admin'
+    | '/admin'
     | '/_auth/forgot-password'
     | '/_auth/login'
     | '/_auth/register'
     | '/_auth/reset-password'
     | '/_authenticated/premium'
-    | '/_admin/admin/dashboard'
+    | '/admin/'
     | '/_authenticated/tryout/$tryoutId'
-    | '/_admin/admin/'
+    | '/admin/passing-grades/$universityId'
+    | '/admin/questions/$questionId'
     | '/_authenticated/classes/'
     | '/_authenticated/dashboard/'
     | '/_authenticated/tryout/'
+    | '/admin/classes/'
+    | '/admin/dashboard/'
+    | '/admin/passing-grades/'
+    | '/admin/tryouts/'
     | '/_authenticated/classes/$subjectId/$contentId'
     | '/_authenticated/premium/payment/error'
     | '/_authenticated/premium/payment/finish'
     | '/_authenticated/premium/payment/unfinish'
-    | '/_admin/admin/classes/'
+    | '/admin/classes/$subjectId/$contentId'
     | '/_authenticated/classes/$subjectId/'
-    | '/_admin/admin/classes/$subjectId/$contentId'
+    | '/admin/classes/$subjectId/'
+    | '/admin/tryouts/$tryoutId/'
     | '/_authenticated/classes/$subjectId/$contentId/latihan-soal'
     | '/_authenticated/classes/$subjectId/$contentId/notes'
     | '/_authenticated/classes/$subjectId/$contentId/video'
-    | '/_admin/admin/classes/$subjectId/'
-    | '/_admin/admin/classes/$subjectId/$contentId/notes'
-    | '/_admin/admin/classes/$subjectId/$contentId/video'
+    | '/admin/classes/$subjectId/$contentId/notes'
+    | '/admin/classes/$subjectId/$contentId/video'
+    | '/admin/tryouts/$tryoutId/subtests/$subtestId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRouteWithChildren
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  AdminRoute: typeof AdminRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
@@ -397,19 +473,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_admin': {
-      id: '/_admin'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AdminRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/_authenticated/premium': {
       id: '/_authenticated/premium'
@@ -446,11 +522,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthForgotPasswordRouteImport
       parentRoute: typeof AuthRoute
     }
-    '/_admin/admin': {
-      id: '/_admin/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminAdminRouteImport
+    '/admin/tryouts/': {
+      id: '/admin/tryouts/'
+      path: '/tryouts'
+      fullPath: '/admin/tryouts/'
+      preLoaderRoute: typeof AdminTryoutsIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/passing-grades/': {
+      id: '/admin/passing-grades/'
+      path: '/passing-grades'
+      fullPath: '/admin/passing-grades/'
+      preLoaderRoute: typeof AdminPassingGradesIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/dashboard/': {
+      id: '/admin/dashboard/'
+      path: '/dashboard'
+      fullPath: '/admin/dashboard/'
+      preLoaderRoute: typeof AdminDashboardIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/classes/': {
+      id: '/admin/classes/'
+      path: '/classes'
+      fullPath: '/admin/classes/'
+      preLoaderRoute: typeof AdminClassesIndexRouteImport
       parentRoute: typeof AdminRoute
     }
     '/_authenticated/tryout/': {
@@ -474,12 +571,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedClassesIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_admin/admin/': {
-      id: '/_admin/admin/'
-      path: '/'
-      fullPath: '/admin/'
-      preLoaderRoute: typeof AdminAdminIndexRouteImport
-      parentRoute: typeof AdminAdminRoute
+    '/admin/questions/$questionId': {
+      id: '/admin/questions/$questionId'
+      path: '/questions/$questionId'
+      fullPath: '/admin/questions/$questionId'
+      preLoaderRoute: typeof AdminQuestionsQuestionIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/passing-grades/$universityId': {
+      id: '/admin/passing-grades/$universityId'
+      path: '/passing-grades/$universityId'
+      fullPath: '/admin/passing-grades/$universityId'
+      preLoaderRoute: typeof AdminPassingGradesUniversityIdRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/_authenticated/tryout/$tryoutId': {
       id: '/_authenticated/tryout/$tryoutId'
@@ -488,12 +592,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTryoutTryoutIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_admin/admin/dashboard': {
-      id: '/_admin/admin/dashboard'
-      path: '/dashboard'
-      fullPath: '/admin/dashboard'
-      preLoaderRoute: typeof AdminAdminDashboardRouteImport
-      parentRoute: typeof AdminAdminRoute
+    '/admin/tryouts/$tryoutId/': {
+      id: '/admin/tryouts/$tryoutId/'
+      path: '/tryouts/$tryoutId'
+      fullPath: '/admin/tryouts/$tryoutId/'
+      preLoaderRoute: typeof AdminTryoutsTryoutIdIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/classes/$subjectId/': {
+      id: '/admin/classes/$subjectId/'
+      path: '/classes/$subjectId'
+      fullPath: '/admin/classes/$subjectId/'
+      preLoaderRoute: typeof AdminClassesSubjectIdIndexRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/_authenticated/classes/$subjectId/': {
       id: '/_authenticated/classes/$subjectId/'
@@ -502,12 +613,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedClassesSubjectIdIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_admin/admin/classes/': {
-      id: '/_admin/admin/classes/'
-      path: '/classes'
-      fullPath: '/admin/classes/'
-      preLoaderRoute: typeof AdminAdminClassesIndexRouteImport
-      parentRoute: typeof AdminAdminRoute
+    '/admin/classes/$subjectId/$contentId': {
+      id: '/admin/classes/$subjectId/$contentId'
+      path: '/classes/$subjectId/$contentId'
+      fullPath: '/admin/classes/$subjectId/$contentId'
+      preLoaderRoute: typeof AdminClassesSubjectIdContentIdRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/_authenticated/premium/payment/unfinish': {
       id: '/_authenticated/premium/payment/unfinish'
@@ -537,12 +648,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedClassesSubjectIdContentIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_admin/admin/classes/$subjectId/': {
-      id: '/_admin/admin/classes/$subjectId/'
-      path: '/classes/$subjectId'
-      fullPath: '/admin/classes/$subjectId/'
-      preLoaderRoute: typeof AdminAdminClassesSubjectIdIndexRouteImport
-      parentRoute: typeof AdminAdminRoute
+    '/admin/tryouts/$tryoutId/subtests/$subtestId': {
+      id: '/admin/tryouts/$tryoutId/subtests/$subtestId'
+      path: '/tryouts/$tryoutId/subtests/$subtestId'
+      fullPath: '/admin/tryouts/$tryoutId/subtests/$subtestId'
+      preLoaderRoute: typeof AdminTryoutsTryoutIdSubtestsSubtestIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/classes/$subjectId/$contentId/video': {
+      id: '/admin/classes/$subjectId/$contentId/video'
+      path: '/video'
+      fullPath: '/admin/classes/$subjectId/$contentId/video'
+      preLoaderRoute: typeof AdminClassesSubjectIdContentIdVideoRouteImport
+      parentRoute: typeof AdminClassesSubjectIdContentIdRoute
+    }
+    '/admin/classes/$subjectId/$contentId/notes': {
+      id: '/admin/classes/$subjectId/$contentId/notes'
+      path: '/notes'
+      fullPath: '/admin/classes/$subjectId/$contentId/notes'
+      preLoaderRoute: typeof AdminClassesSubjectIdContentIdNotesRouteImport
+      parentRoute: typeof AdminClassesSubjectIdContentIdRoute
     }
     '/_authenticated/classes/$subjectId/$contentId/video': {
       id: '/_authenticated/classes/$subjectId/$contentId/video'
@@ -565,78 +690,8 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedClassesSubjectIdContentIdLatihanSoalRouteImport
       parentRoute: typeof AuthenticatedClassesSubjectIdContentIdRoute
     }
-    '/_admin/admin/classes/$subjectId/$contentId': {
-      id: '/_admin/admin/classes/$subjectId/$contentId'
-      path: '/classes/$subjectId/$contentId'
-      fullPath: '/admin/classes/$subjectId/$contentId'
-      preLoaderRoute: typeof AdminAdminClassesSubjectIdContentIdRouteImport
-      parentRoute: typeof AdminAdminRoute
-    }
-    '/_admin/admin/classes/$subjectId/$contentId/video': {
-      id: '/_admin/admin/classes/$subjectId/$contentId/video'
-      path: '/video'
-      fullPath: '/admin/classes/$subjectId/$contentId/video'
-      preLoaderRoute: typeof AdminAdminClassesSubjectIdContentIdVideoRouteImport
-      parentRoute: typeof AdminAdminClassesSubjectIdContentIdRoute
-    }
-    '/_admin/admin/classes/$subjectId/$contentId/notes': {
-      id: '/_admin/admin/classes/$subjectId/$contentId/notes'
-      path: '/notes'
-      fullPath: '/admin/classes/$subjectId/$contentId/notes'
-      preLoaderRoute: typeof AdminAdminClassesSubjectIdContentIdNotesRouteImport
-      parentRoute: typeof AdminAdminClassesSubjectIdContentIdRoute
-    }
   }
 }
-
-interface AdminAdminClassesSubjectIdContentIdRouteChildren {
-  AdminAdminClassesSubjectIdContentIdNotesRoute: typeof AdminAdminClassesSubjectIdContentIdNotesRoute
-  AdminAdminClassesSubjectIdContentIdVideoRoute: typeof AdminAdminClassesSubjectIdContentIdVideoRoute
-}
-
-const AdminAdminClassesSubjectIdContentIdRouteChildren: AdminAdminClassesSubjectIdContentIdRouteChildren =
-  {
-    AdminAdminClassesSubjectIdContentIdNotesRoute:
-      AdminAdminClassesSubjectIdContentIdNotesRoute,
-    AdminAdminClassesSubjectIdContentIdVideoRoute:
-      AdminAdminClassesSubjectIdContentIdVideoRoute,
-  }
-
-const AdminAdminClassesSubjectIdContentIdRouteWithChildren =
-  AdminAdminClassesSubjectIdContentIdRoute._addFileChildren(
-    AdminAdminClassesSubjectIdContentIdRouteChildren,
-  )
-
-interface AdminAdminRouteChildren {
-  AdminAdminDashboardRoute: typeof AdminAdminDashboardRoute
-  AdminAdminIndexRoute: typeof AdminAdminIndexRoute
-  AdminAdminClassesIndexRoute: typeof AdminAdminClassesIndexRoute
-  AdminAdminClassesSubjectIdContentIdRoute: typeof AdminAdminClassesSubjectIdContentIdRouteWithChildren
-  AdminAdminClassesSubjectIdIndexRoute: typeof AdminAdminClassesSubjectIdIndexRoute
-}
-
-const AdminAdminRouteChildren: AdminAdminRouteChildren = {
-  AdminAdminDashboardRoute: AdminAdminDashboardRoute,
-  AdminAdminIndexRoute: AdminAdminIndexRoute,
-  AdminAdminClassesIndexRoute: AdminAdminClassesIndexRoute,
-  AdminAdminClassesSubjectIdContentIdRoute:
-    AdminAdminClassesSubjectIdContentIdRouteWithChildren,
-  AdminAdminClassesSubjectIdIndexRoute: AdminAdminClassesSubjectIdIndexRoute,
-}
-
-const AdminAdminRouteWithChildren = AdminAdminRoute._addFileChildren(
-  AdminAdminRouteChildren,
-)
-
-interface AdminRouteChildren {
-  AdminAdminRoute: typeof AdminAdminRouteWithChildren
-}
-
-const AdminRouteChildren: AdminRouteChildren = {
-  AdminAdminRoute: AdminAdminRouteWithChildren,
-}
-
-const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface AuthRouteChildren {
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
@@ -718,11 +773,61 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
+interface AdminClassesSubjectIdContentIdRouteChildren {
+  AdminClassesSubjectIdContentIdNotesRoute: typeof AdminClassesSubjectIdContentIdNotesRoute
+  AdminClassesSubjectIdContentIdVideoRoute: typeof AdminClassesSubjectIdContentIdVideoRoute
+}
+
+const AdminClassesSubjectIdContentIdRouteChildren: AdminClassesSubjectIdContentIdRouteChildren =
+  {
+    AdminClassesSubjectIdContentIdNotesRoute:
+      AdminClassesSubjectIdContentIdNotesRoute,
+    AdminClassesSubjectIdContentIdVideoRoute:
+      AdminClassesSubjectIdContentIdVideoRoute,
+  }
+
+const AdminClassesSubjectIdContentIdRouteWithChildren =
+  AdminClassesSubjectIdContentIdRoute._addFileChildren(
+    AdminClassesSubjectIdContentIdRouteChildren,
+  )
+
+interface AdminRouteChildren {
+  AdminIndexRoute: typeof AdminIndexRoute
+  AdminPassingGradesUniversityIdRoute: typeof AdminPassingGradesUniversityIdRoute
+  AdminQuestionsQuestionIdRoute: typeof AdminQuestionsQuestionIdRoute
+  AdminClassesIndexRoute: typeof AdminClassesIndexRoute
+  AdminDashboardIndexRoute: typeof AdminDashboardIndexRoute
+  AdminPassingGradesIndexRoute: typeof AdminPassingGradesIndexRoute
+  AdminTryoutsIndexRoute: typeof AdminTryoutsIndexRoute
+  AdminClassesSubjectIdContentIdRoute: typeof AdminClassesSubjectIdContentIdRouteWithChildren
+  AdminClassesSubjectIdIndexRoute: typeof AdminClassesSubjectIdIndexRoute
+  AdminTryoutsTryoutIdIndexRoute: typeof AdminTryoutsTryoutIdIndexRoute
+  AdminTryoutsTryoutIdSubtestsSubtestIdRoute: typeof AdminTryoutsTryoutIdSubtestsSubtestIdRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminIndexRoute: AdminIndexRoute,
+  AdminPassingGradesUniversityIdRoute: AdminPassingGradesUniversityIdRoute,
+  AdminQuestionsQuestionIdRoute: AdminQuestionsQuestionIdRoute,
+  AdminClassesIndexRoute: AdminClassesIndexRoute,
+  AdminDashboardIndexRoute: AdminDashboardIndexRoute,
+  AdminPassingGradesIndexRoute: AdminPassingGradesIndexRoute,
+  AdminTryoutsIndexRoute: AdminTryoutsIndexRoute,
+  AdminClassesSubjectIdContentIdRoute:
+    AdminClassesSubjectIdContentIdRouteWithChildren,
+  AdminClassesSubjectIdIndexRoute: AdminClassesSubjectIdIndexRoute,
+  AdminTryoutsTryoutIdIndexRoute: AdminTryoutsTryoutIdIndexRoute,
+  AdminTryoutsTryoutIdSubtestsSubtestIdRoute:
+    AdminTryoutsTryoutIdSubtestsSubtestIdRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRouteWithChildren,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  AdminRoute: AdminRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

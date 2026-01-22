@@ -33,21 +33,22 @@ import { SearchInput } from "@/components/ui/search-input";
 import type { BodyOutputs } from "@/utils/orpc";
 import { orpc } from "@/utils/orpc";
 
-export const Route = createFileRoute("/_admin/admin/classes/$subjectId/")({
+const searchSchema = type({
+	"q?": "string",
+	page: "number = 0",
+});
+
+export const Route = createFileRoute("/admin/classes/$subjectId/")({
 	params: {
 		parse: (raw) => ({
 			subjectId: Number(raw.subjectId),
 		}),
 	},
 	component: RouteComponent,
+	validateSearch: searchSchema,
 });
 
 type ContentListItem = NonNullable<BodyOutputs["subject"]["listContentBySubjectCategory"]>["items"][number];
-
-type Search = {
-	q?: string;
-	page?: number;
-};
 
 function RouteComponent() {
 	const { subjectId } = Route.useParams();
@@ -58,29 +59,20 @@ function RouteComponent() {
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const [deletingItem, setDeletingItem] = useState<ContentListItem | null>(null);
 
-	const searchParams = Route.useSearch();
-	const searchQuery = (searchParams as Search).q ?? "";
-	const page = (searchParams as Search).page ?? 0;
+	const { q = "", page = 0 } = Route.useSearch();
+	const searchQuery = q;
 
 	const navigate = Route.useNavigate();
-	const updateSearch = (updates: Partial<Search>) => {
-		const newSearch: Partial<Search> = {};
+	const updateSearch = (updates: { q?: string; page?: number }) => {
+		const newQ = updates.q !== undefined ? updates.q : q;
+		const newPage = updates.q !== undefined && updates.q !== q ? 0 : (updates.page ?? page);
 
-		if (updates.q !== undefined) {
-			newSearch.q = updates.q || undefined;
-		}
-		if (updates.page !== undefined) {
-			newSearch.page = updates.page;
-		}
-
-		if (updates.q !== undefined && updates.q !== (searchParams as Search).q) {
-			newSearch.page = 0;
-		}
-
-		// Remove undefined values to avoid ?q=undefined in URL
-		const cleanSearch = Object.fromEntries(Object.entries(newSearch).filter(([, value]) => value !== undefined));
-
-		navigate({ search: cleanSearch });
+		navigate({
+			search: {
+				q: newQ || undefined,
+				page: newPage,
+			},
+		});
 	};
 
 	const contents = useQuery(
@@ -273,7 +265,6 @@ function RouteComponent() {
 				/>
 			</div>
 
-			{/* Create Dialog */}
 			<Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
 				<DialogContent>
 					<DialogHeader>
@@ -337,7 +328,6 @@ function RouteComponent() {
 				</DialogContent>
 			</Dialog>
 
-			{/* Edit Dialog */}
 			<Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
 				<DialogContent>
 					<DialogHeader>
@@ -394,7 +384,6 @@ function RouteComponent() {
 				</DialogContent>
 			</Dialog>
 
-			{/* Delete Dialog */}
 			<AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
 				<AlertDialogContent>
 					<AlertDialogHeader>

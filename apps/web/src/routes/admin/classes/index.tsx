@@ -6,7 +6,7 @@ import { Container } from "@/components/ui/container";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/utils/orpc";
 
-export const Route = createFileRoute("/_admin/admin/classes/")({
+export const Route = createFileRoute("/admin/classes/")({
 	component: RouteComponent,
 });
 

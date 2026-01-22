@@ -26,7 +26,7 @@ import { useDebounceValue } from "@/hooks/use-debounce-value";
 import { orpc } from "@/utils/orpc";
 import { extractYouTubeId } from "@/utils/youtube";
 
-export const Route = createFileRoute("/_admin/admin/classes/$subjectId/$contentId/video")({
+export const Route = createFileRoute("/admin/classes/$subjectId/$contentId/video")({
 	component: RouteComponent,
 });
 
@@ -97,7 +97,6 @@ function RouteComponent() {
 		},
 	});
 
-	// Update form when content loads
 	if (content.data?.video) {
 		if (form.state.values.videoUrl !== content.data.video.videoUrl) {
 			form.setFieldValue("videoUrl", content.data.video.videoUrl || "");

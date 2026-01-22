@@ -12,6 +12,9 @@ import {
 const TRYOUT_DATA = {
 	title: "Tryout UTBK SNBT 2025",
 	description: "Simulasi ujian tulis berbasis komputer untuk seleksi nasional berbasis tes",
+	category: "utbk" as const,
+	duration: 95,
+	status: "draft" as const,
 };
 
 const SUBTEST_DATA = [
@@ -260,6 +263,7 @@ export async function seedTryout(db: NodePgDatabase) {
 					tryoutId: tryoutRow.id,
 					name: subtestData.name,
 					duration: subtestData.duration,
+					questionOrder: "sequential",
 					order: subtestData.order,
 				})
 				.returning({ id: tryoutSubtest.id, name: tryoutSubtest.name });
@@ -280,6 +284,7 @@ export async function seedTryout(db: NodePgDatabase) {
 						type: questionData.type,
 						discussion: "Dummy Discussion",
 						content: questionData.content,
+						tags: [],
 					})
 					.returning({ id: question.id });
 				const questionRow = questionResult[0];

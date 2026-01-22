@@ -10,6 +10,10 @@ import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { createMeta } from "@/lib/seo-utils";
 
+const searchSchema = type({
+	token: "string",
+});
+
 export const Route = createFileRoute("/_auth/reset-password")({
 	head: () => ({
 		meta: createMeta({
@@ -18,11 +22,7 @@ export const Route = createFileRoute("/_auth/reset-password")({
 		}),
 	}),
 	component: RouteComponent,
-	validateSearch: (search: Record<string, unknown>) => {
-		return {
-			token: search.token as string,
-		};
-	},
+	validateSearch: searchSchema,
 });
 
 function RouteComponent() {

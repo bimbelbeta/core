@@ -1,16 +1,19 @@
 import { CheckCircleIcon } from "@phosphor-icons/react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { type } from "arktype";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { usePaymentStatus } from "./-hooks/use-payment-status";
 
+const searchSchema = type({
+	"order_id?": "string",
+	"status_code?": "number",
+	"transaction_status?": "string",
+});
+
 export const Route = createFileRoute("/_authenticated/premium/payment/finish")({
 	component: RouteComponent,
-	validateSearch: (search: Record<string, unknown>) => ({
-		order_id: search.order_id as string | undefined,
-		status_code: search.status_code as number | undefined,
-		transaction_status: search.transaction_status as string | undefined,
-	}),
+	validateSearch: searchSchema,
 });
 
 function RouteComponent() {
