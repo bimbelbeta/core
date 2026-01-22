@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { type } from "arktype";
 import type { SubjectListItem } from "@/components/classes/classes-types";
 import { NotFoundContentState } from "@/components/classes/not-found-content-state";
 import { SubjectFilters } from "@/components/classes/subject-filters";
@@ -11,11 +10,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { createMeta } from "@/lib/seo-utils";
 import { orpc } from "@/utils/orpc";
 
-const searchSchema = type({
-	"q?": "string",
-	"category?": "'sd' | 'smp' | 'sma' | 'utbk'",
-});
-
 export const Route = createFileRoute("/_authenticated/classes/")({
 	head: () => ({
 		meta: createMeta({
@@ -25,26 +19,36 @@ export const Route = createFileRoute("/_authenticated/classes/")({
 		}),
 	}),
 	component: RouteComponent,
-	validateSearch: searchSchema,
 });
+
+type Search = {
+	q?: string;
+	category?: "sd" | "smp" | "sma" | "utbk" | undefined;
+};
 
 function RouteComponent() {
 	const { session } = Route.useRouteContext();
 	const userRole = session?.user?.role;
 	const isAdmin = userRole === "admin";
 
-	const { q = "", category } = Route.useSearch();
-	const searchQuery = q;
-	const activeFilter: "all" | "sd" | "smp" | "sma" | "utbk" = category ?? "all";
+	const searchParams = Route.useSearch();
+	const searchQuery = (searchParams as Search).q ?? "";
+	const activeFilter: "all" | "sd" | "smp" | "sma" | "utbk" = (searchParams as Search).category ?? "all";
 
 	const navigate = Route.useNavigate();
-	const updateSearch = (updates: { q?: string; category?: "sd" | "smp" | "sma" | "utbk" }) => {
-		navigate({
-			search: {
-				q: updates.q !== undefined ? updates.q || undefined : q || undefined,
-				category: updates.category !== undefined ? updates.category || undefined : category,
-			},
-		});
+	const updateSearch = (updates: Partial<Search>) => {
+		const newSearch: Partial<Search> = {};
+
+		if (updates.q !== undefined) {
+			newSearch.q = updates.q || undefined;
+		}
+		if (updates.category !== undefined) {
+			newSearch.category = updates.category || undefined;
+		}
+
+		const cleanSearch = Object.fromEntries(Object.entries(newSearch).filter(([, value]) => value !== undefined));
+
+		navigate({ search: cleanSearch });
 	};
 
 	const subjectsQuery = useQuery({

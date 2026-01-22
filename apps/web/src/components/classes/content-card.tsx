@@ -36,7 +36,7 @@ const CONTENT_ACTIONS = [
 		width: "w-fit",
 	},
 	{
-		key: "practiceQuestions",
+		key: "latihan-soal",
 		label: "Latihan Soal",
 		icon: NoteIcon,
 		enabled: (i: ContentActionItem) => i.hasPracticeQuestions,
@@ -127,7 +127,12 @@ export function ContentCard({
 							<DotsNineIcon className="size-6" weight="bold" />
 						</div>
 					)}
-					<div className={cn("flex size-8 shrink-0 items-center justify-center rounded-lg  font-bold text-primary text-sm shadow-sm sm:size-9", completed ? "bg-neutral-100 text-neutral-1000" : "bg-primary/10")}>
+					<div
+						className={cn(
+							"flex size-8 shrink-0 items-center justify-center rounded-lg font-bold text-primary text-sm shadow-sm sm:size-9",
+							completed ? "bg-neutral-100 text-neutral-1000" : "bg-primary/10",
+						)}
+					>
 						{index + 1}
 					</div>
 

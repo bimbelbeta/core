@@ -41,6 +41,7 @@ import { Route as AuthenticatedClassesSubjectIdContentIdRouteImport } from './ro
 import { Route as AdminTryoutsTryoutIdSubtestsSubtestIdRouteImport } from './routes/admin/tryouts/$tryoutId/subtests/$subtestId'
 import { Route as AdminClassesSubjectIdContentIdVideoRouteImport } from './routes/admin/classes/$subjectId/$contentId.video'
 import { Route as AdminClassesSubjectIdContentIdNotesRouteImport } from './routes/admin/classes/$subjectId/$contentId.notes'
+import { Route as AdminClassesSubjectIdContentIdLatihanSoalRouteImport } from './routes/admin/classes/$subjectId/$contentId.latihan-soal'
 import { Route as AuthenticatedClassesSubjectIdContentIdVideoRouteImport } from './routes/_authenticated/classes/$subjectId/$contentId.video'
 import { Route as AuthenticatedClassesSubjectIdContentIdNotesRouteImport } from './routes/_authenticated/classes/$subjectId/$contentId.notes'
 import { Route as AuthenticatedClassesSubjectIdContentIdLatihanSoalRouteImport } from './routes/_authenticated/classes/$subjectId/$contentId.latihan-soal'
@@ -221,6 +222,12 @@ const AdminClassesSubjectIdContentIdNotesRoute =
     path: '/notes',
     getParentRoute: () => AdminClassesSubjectIdContentIdRoute,
   } as any)
+const AdminClassesSubjectIdContentIdLatihanSoalRoute =
+  AdminClassesSubjectIdContentIdLatihanSoalRouteImport.update({
+    id: '/latihan-soal',
+    path: '/latihan-soal',
+    getParentRoute: () => AdminClassesSubjectIdContentIdRoute,
+  } as any)
 const AuthenticatedClassesSubjectIdContentIdVideoRoute =
   AuthenticatedClassesSubjectIdContentIdVideoRouteImport.update({
     id: '/video',
@@ -271,6 +278,7 @@ export interface FileRoutesByFullPath {
   '/classes/$subjectId/$contentId/latihan-soal': typeof AuthenticatedClassesSubjectIdContentIdLatihanSoalRoute
   '/classes/$subjectId/$contentId/notes': typeof AuthenticatedClassesSubjectIdContentIdNotesRoute
   '/classes/$subjectId/$contentId/video': typeof AuthenticatedClassesSubjectIdContentIdVideoRoute
+  '/admin/classes/$subjectId/$contentId/latihan-soal': typeof AdminClassesSubjectIdContentIdLatihanSoalRoute
   '/admin/classes/$subjectId/$contentId/notes': typeof AdminClassesSubjectIdContentIdNotesRoute
   '/admin/classes/$subjectId/$contentId/video': typeof AdminClassesSubjectIdContentIdVideoRoute
   '/admin/tryouts/$tryoutId/subtests/$subtestId': typeof AdminTryoutsTryoutIdSubtestsSubtestIdRoute
@@ -305,6 +313,7 @@ export interface FileRoutesByTo {
   '/classes/$subjectId/$contentId/latihan-soal': typeof AuthenticatedClassesSubjectIdContentIdLatihanSoalRoute
   '/classes/$subjectId/$contentId/notes': typeof AuthenticatedClassesSubjectIdContentIdNotesRoute
   '/classes/$subjectId/$contentId/video': typeof AuthenticatedClassesSubjectIdContentIdVideoRoute
+  '/admin/classes/$subjectId/$contentId/latihan-soal': typeof AdminClassesSubjectIdContentIdLatihanSoalRoute
   '/admin/classes/$subjectId/$contentId/notes': typeof AdminClassesSubjectIdContentIdNotesRoute
   '/admin/classes/$subjectId/$contentId/video': typeof AdminClassesSubjectIdContentIdVideoRoute
   '/admin/tryouts/$tryoutId/subtests/$subtestId': typeof AdminTryoutsTryoutIdSubtestsSubtestIdRoute
@@ -343,6 +352,7 @@ export interface FileRoutesById {
   '/_authenticated/classes/$subjectId/$contentId/latihan-soal': typeof AuthenticatedClassesSubjectIdContentIdLatihanSoalRoute
   '/_authenticated/classes/$subjectId/$contentId/notes': typeof AuthenticatedClassesSubjectIdContentIdNotesRoute
   '/_authenticated/classes/$subjectId/$contentId/video': typeof AuthenticatedClassesSubjectIdContentIdVideoRoute
+  '/admin/classes/$subjectId/$contentId/latihan-soal': typeof AdminClassesSubjectIdContentIdLatihanSoalRoute
   '/admin/classes/$subjectId/$contentId/notes': typeof AdminClassesSubjectIdContentIdNotesRoute
   '/admin/classes/$subjectId/$contentId/video': typeof AdminClassesSubjectIdContentIdVideoRoute
   '/admin/tryouts/$tryoutId/subtests/$subtestId': typeof AdminTryoutsTryoutIdSubtestsSubtestIdRoute
@@ -380,6 +390,7 @@ export interface FileRouteTypes {
     | '/classes/$subjectId/$contentId/latihan-soal'
     | '/classes/$subjectId/$contentId/notes'
     | '/classes/$subjectId/$contentId/video'
+    | '/admin/classes/$subjectId/$contentId/latihan-soal'
     | '/admin/classes/$subjectId/$contentId/notes'
     | '/admin/classes/$subjectId/$contentId/video'
     | '/admin/tryouts/$tryoutId/subtests/$subtestId'
@@ -414,6 +425,7 @@ export interface FileRouteTypes {
     | '/classes/$subjectId/$contentId/latihan-soal'
     | '/classes/$subjectId/$contentId/notes'
     | '/classes/$subjectId/$contentId/video'
+    | '/admin/classes/$subjectId/$contentId/latihan-soal'
     | '/admin/classes/$subjectId/$contentId/notes'
     | '/admin/classes/$subjectId/$contentId/video'
     | '/admin/tryouts/$tryoutId/subtests/$subtestId'
@@ -451,6 +463,7 @@ export interface FileRouteTypes {
     | '/_authenticated/classes/$subjectId/$contentId/latihan-soal'
     | '/_authenticated/classes/$subjectId/$contentId/notes'
     | '/_authenticated/classes/$subjectId/$contentId/video'
+    | '/admin/classes/$subjectId/$contentId/latihan-soal'
     | '/admin/classes/$subjectId/$contentId/notes'
     | '/admin/classes/$subjectId/$contentId/video'
     | '/admin/tryouts/$tryoutId/subtests/$subtestId'
@@ -689,6 +702,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminClassesSubjectIdContentIdNotesRouteImport
       parentRoute: typeof AdminClassesSubjectIdContentIdRoute
     }
+    '/admin/classes/$subjectId/$contentId/latihan-soal': {
+      id: '/admin/classes/$subjectId/$contentId/latihan-soal'
+      path: '/latihan-soal'
+      fullPath: '/admin/classes/$subjectId/$contentId/latihan-soal'
+      preLoaderRoute: typeof AdminClassesSubjectIdContentIdLatihanSoalRouteImport
+      parentRoute: typeof AdminClassesSubjectIdContentIdRoute
+    }
     '/_authenticated/classes/$subjectId/$contentId/video': {
       id: '/_authenticated/classes/$subjectId/$contentId/video'
       path: '/video'
@@ -797,12 +817,15 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 )
 
 interface AdminClassesSubjectIdContentIdRouteChildren {
+  AdminClassesSubjectIdContentIdLatihanSoalRoute: typeof AdminClassesSubjectIdContentIdLatihanSoalRoute
   AdminClassesSubjectIdContentIdNotesRoute: typeof AdminClassesSubjectIdContentIdNotesRoute
   AdminClassesSubjectIdContentIdVideoRoute: typeof AdminClassesSubjectIdContentIdVideoRoute
 }
 
 const AdminClassesSubjectIdContentIdRouteChildren: AdminClassesSubjectIdContentIdRouteChildren =
   {
+    AdminClassesSubjectIdContentIdLatihanSoalRoute:
+      AdminClassesSubjectIdContentIdLatihanSoalRoute,
     AdminClassesSubjectIdContentIdNotesRoute:
       AdminClassesSubjectIdContentIdNotesRoute,
     AdminClassesSubjectIdContentIdVideoRoute:
