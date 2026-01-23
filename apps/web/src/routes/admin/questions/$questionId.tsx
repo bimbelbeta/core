@@ -1,11 +1,13 @@
-import { ArrowLeftIcon } from "@phosphor-icons/react";
+import { ArrowLeftIcon, PencilSimpleIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { orpc } from "@/utils/orpc";
+import { EditQuestionForm } from "./-components/edit-question-form";
 
 export const Route = createFileRoute("/admin/questions/$questionId")({
 	component: QuestionDetailPage,
@@ -15,6 +17,7 @@ function QuestionDetailPage() {
 	const { questionId } = Route.useParams();
 	const qId = Number.parseInt(questionId, 10);
 	const isValidId = !Number.isNaN(qId);
+	const [isEditing, setIsEditing] = useState(false);
 
 	const { data, isLoading, error } = useQuery(
 		orpc.admin.tryout.questions.getQuestion.queryOptions({
@@ -36,14 +39,38 @@ function QuestionDetailPage() {
 	}
 
 	const { question, choices } = data;
+	console.log(typeof question.content);
+
+	if (isEditing) {
+		return (
+			<EditQuestionForm
+				question={{
+					id: question.id,
+					type: question.type,
+					content: question.content as object,
+					discussion: question.discussion as object,
+					tags: question.tags ?? undefined,
+				}}
+				choices={choices ?? []}
+				onSuccess={() => setIsEditing(false)}
+				onCancel={() => setIsEditing(false)}
+			/>
+		);
+	}
 
 	return (
 		<div className="flex h-full flex-col gap-6 p-6">
-			<div className="flex items-center gap-4">
-				<Button variant="ghost" size="icon" onClick={() => window.history.back()}>
-					<ArrowLeftIcon className="size-4" />
+			<div className="flex items-center justify-between">
+				<div className="flex items-center gap-4">
+					<Button variant="ghost" size="icon" onClick={() => window.history.back()}>
+						<ArrowLeftIcon className="size-4" />
+					</Button>
+					<h1 className="font-bold text-2xl text-primary-navy-900">Detail Soal</h1>
+				</div>
+				<Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
+					<PencilSimpleIcon className="mr-2 size-4" />
+					Edit
 				</Button>
-				<h1 className="font-bold text-2xl text-primary-navy-900">Detail Soal</h1>
 			</div>
 
 			<div className="grid gap-6">
@@ -59,10 +86,7 @@ function QuestionDetailPage() {
 					<CardContent className="space-y-6">
 						<div>
 							<h3 className="mb-2 font-medium text-muted-foreground text-sm">Konten Soal</h3>
-							<TiptapRenderer
-								content={question.contentJson ?? question.content}
-								className="prose prose-sm max-w-none rounded-md border p-4"
-							/>
+							<TiptapRenderer content={question.content} className="prose prose-sm max-w-none rounded-md border p-4" />
 						</div>
 
 						{question.type === "multiple_choice" && choices && (
@@ -103,7 +127,7 @@ function QuestionDetailPage() {
 							<div>
 								<h3 className="mb-2 font-medium text-muted-foreground text-sm">Pembahasan</h3>
 								<TiptapRenderer
-									content={question.discussionJson ?? question.discussion}
+									content={question.discussion}
 									className="prose prose-sm max-w-none rounded-md border bg-muted/30 p-4"
 								/>
 							</div>

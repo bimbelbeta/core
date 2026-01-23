@@ -1,6 +1,6 @@
 import { ArrowLeftIcon, PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
@@ -23,7 +23,6 @@ export const Route = createFileRoute("/admin/tryouts/$tryoutId/subtests/$subtest
 });
 
 function SubtestDetailPage() {
-	const navigate = useNavigate({ from: Route.fullPath });
 	const { tryoutId, subtestId } = Route.useParams();
 	const sid = Number.parseInt(subtestId, 10);
 	const isValidId = !Number.isNaN(sid);
@@ -43,7 +42,7 @@ function SubtestDetailPage() {
 		(data?.questions as unknown as Array<{
 			id: number;
 			order: number;
-			question: { id: number; type: "multiple_choice" | "essay"; content: string };
+			question: { id: number; type: "multiple_choice" | "essay"; content: object };
 		}>) ?? [];
 
 	const isAllSelected = questions.length > 0 && selectedIds.size === questions.length;
@@ -80,13 +79,6 @@ function SubtestDetailPage() {
 		bulkDeleteMutation.mutate({
 			subtestId: sid,
 			questionIds: Array.from(selectedIds),
-		});
-	};
-
-	const handleQuestionClick = (questionId: number) => {
-		navigate({
-			to: "/admin/questions/$questionId",
-			params: { questionId: questionId.toString() },
 		});
 	};
 
@@ -145,7 +137,6 @@ function SubtestDetailPage() {
 				onSelectionChange={setSelectedIds}
 				onSelectAll={handleSelectAll}
 				isAllSelected={isAllSelected}
-				onQuestionClick={handleQuestionClick}
 			/>
 
 			<BulkAddQuestionsDialog

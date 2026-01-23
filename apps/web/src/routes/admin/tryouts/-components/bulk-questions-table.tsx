@@ -1,4 +1,6 @@
-import { ListMagnifyingGlass } from "@phosphor-icons/react";
+import { ListMagnifyingGlassIcon } from "@phosphor-icons/react";
+import { Link } from "@tanstack/react-router";
+import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -11,25 +13,23 @@ interface BulkQuestionsTableProps {
 		question: {
 			id: number;
 			type: "multiple_choice" | "essay";
-			content: string;
+			content: object;
 		};
 	}>;
-	isLoading?: boolean;
+	isPending?: boolean;
 	selectedIds: Set<number>;
 	onSelectionChange: (ids: Set<number>) => void;
 	onSelectAll: () => void;
 	isAllSelected?: boolean;
-	onQuestionClick?: (id: number) => void;
 }
 
 export function BulkQuestionsTable({
 	questions,
-	isLoading,
+	isPending,
 	selectedIds,
 	onSelectionChange,
 	onSelectAll,
 	isAllSelected,
-	onQuestionClick,
 }: BulkQuestionsTableProps) {
 	const handleCheckboxChange = (id: number, checked: boolean) => {
 		const newSelectedIds = new Set(selectedIds);
@@ -39,10 +39,6 @@ export function BulkQuestionsTable({
 			newSelectedIds.delete(id);
 		}
 		onSelectionChange(newSelectedIds);
-	};
-
-	const stripHtml = (html: string) => {
-		return html.replace(/<[^>]*>?/gm, "");
 	};
 
 	return (
@@ -55,30 +51,27 @@ export function BulkQuestionsTable({
 								checked={isAllSelected}
 								onCheckedChange={() => onSelectAll()}
 								aria-label="Select all"
-								className="translate-y-[2px]"
+								className="translate-y-0.5"
 							/>
 						</TableHead>
 						<TableHead className="w-16 text-center font-semibold text-primary-navy-900">No</TableHead>
-						<TableHead className="font-semibold text-primary-navy-900">Pertanyaan</TableHead>
+						<TableHead className="w-48 text-center font-semibold text-primary-navy-900">Pertanyaan</TableHead>
 						<TableHead className="w-32 text-center font-semibold text-primary-navy-900">Tipe</TableHead>
-						<TableHead className="w-32 text-center font-semibold text-primary-navy-900">ID</TableHead>
+						<TableHead className="w-20 text-center font-semibold text-primary-navy-900">ID</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
-					{isLoading ? (
+					{isPending ? (
 						<TableRow>
-							<TableCell colSpan={5} className="h-48 text-center">
-								<div className="flex animate-pulse flex-col items-center justify-center gap-2 text-muted-foreground">
-									<div className="size-8 rounded-full bg-muted" />
-									<span className="text-sm">Memuat pertanyaan...</span>
-								</div>
+							<TableCell colSpan={4} className="h-48 text-center">
+								Memuat pertanyaan...
 							</TableCell>
 						</TableRow>
 					) : questions.length === 0 ? (
 						<TableRow>
-							<TableCell colSpan={5} className="h-48 text-center text-muted-foreground">
+							<TableCell colSpan={4} className="h-48 text-center text-muted-foreground">
 								<div className="flex flex-col items-center justify-center gap-2">
-									<ListMagnifyingGlass className="size-8 opacity-50" />
+									<ListMagnifyingGlassIcon className="size-8 opacity-50" />
 									<span>Tidak ada pertanyaan ditemukan</span>
 								</div>
 							</TableCell>
@@ -90,40 +83,35 @@ export function BulkQuestionsTable({
 								<TableRow
 									key={item.id}
 									className={cn(
-										"group cursor-pointer transition-colors",
+										"transition-colors",
 										isSelected ? "bg-primary/5 hover:bg-primary/10" : "hover:bg-muted/30",
 									)}
-									onClick={() => onQuestionClick?.(item.question.id)}
 								>
 									<TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
 										<Checkbox
 											checked={isSelected}
 											onCheckedChange={(checked) => handleCheckboxChange(item.id, checked === true)}
 											aria-label={`Select question ${item.order}`}
-											className="translate-y-[2px]"
+											className="translate-y-0.5"
 										/>
 									</TableCell>
 									<TableCell className="text-center font-medium text-muted-foreground">{item.order}</TableCell>
-									<TableCell>
-										<div
-											className="max-w-[500px] truncate font-medium text-primary-navy-900/90"
-											title={stripHtml(item.question.content)}
+									<TableCell className="max-w-125">
+										<Link
+											to="/admin/questions/$questionId"
+											params={{
+												questionId: item.id.toString(),
+											}}
+											className="group hover:cursor-pointer"
 										>
-											{stripHtml(item.question.content) || (
-												<span className="text-muted-foreground italic">Konten kosong</span>
-											)}
-										</div>
+											<TiptapRenderer
+												content={item.question.content}
+												className="prose-sm line-clamp-2 max-w-none group-hover:underline"
+											/>
+										</Link>
 									</TableCell>
 									<TableCell className="text-center">
-										<Badge
-											variant={item.question.type === "multiple_choice" ? "default" : "secondary"}
-											className={cn(
-												"font-medium capitalize tracking-wide",
-												item.question.type === "multiple_choice"
-													? "border-blue-200 bg-blue-100 text-blue-700 hover:bg-blue-200"
-													: "border-purple-200 bg-purple-100 text-purple-700 hover:bg-purple-200",
-											)}
-										>
+										<Badge variant={item.question.type === "multiple_choice" ? "default" : "outline"}>
 											{item.question.type === "multiple_choice" ? "Pilihan Ganda" : "Esai"}
 										</Badge>
 									</TableCell>

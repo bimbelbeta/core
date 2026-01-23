@@ -5,6 +5,7 @@ import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { admin } from "../..";
+import { convertToTiptap } from "../../lib/convert-to-tiptap";
 
 const listSubtestQuestions = admin
 	.route({
@@ -22,6 +23,7 @@ const listSubtestQuestions = admin
 					id: question.id,
 					type: question.type,
 					content: question.content,
+					contentJson: question.contentJson,
 				},
 			})
 			.from(tryoutSubtestQuestion)
@@ -30,7 +32,13 @@ const listSubtestQuestions = admin
 			.orderBy(tryoutSubtestQuestion.order);
 
 		return {
-			questions: questionsData,
+			questions: questionsData.map((q) => ({
+				...q,
+				question: {
+					...q.question,
+					content: q.question.contentJson ?? convertToTiptap(q.question.content),
+				},
+			})),
 		};
 	});
 

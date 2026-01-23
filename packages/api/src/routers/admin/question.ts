@@ -4,6 +4,7 @@ import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { and, count, eq, like, sql } from "drizzle-orm";
 import { admin } from "../..";
+import { convertToTiptap } from "../../lib/convert-to-tiptap";
 
 const createQuestion = admin
 	.route({
@@ -13,16 +14,27 @@ const createQuestion = admin
 	})
 	.input(
 		type({
-			type: type("'multiple_choice' | 'essay'"),
-			content: "string",
-			discussion: "string?",
+			type: "'multiple_choice' | 'essay'",
+			content: "unknown",
+			discussion: "unknown",
 			tags: "string[]?",
-			choices: "unknown?",
+			choices: type(
+				{
+					content: "string",
+					isCorrect: "boolean",
+				},
+				"[]",
+			).optional(),
 		}),
 	)
 	.output(type({ message: "string", id: "number" }))
 	.handler(async ({ input }) => {
-		const choices = input.choices as { content: string; isCorrect: boolean }[] | undefined;
+		const choices = input.choices;
+		const contentJson = typeof input.content === "object" ? input.content : null;
+		const discussionJson = typeof input.discussion === "object" ? input.discussion : null;
+
+		const contentText = typeof input.content === "string" ? input.content : JSON.stringify(input.content);
+		const discussionText = typeof input.discussion === "string" ? input.discussion : JSON.stringify(input.discussion);
 
 		if (input.type === "multiple_choice") {
 			if (!choices || choices.length < 2) {
@@ -44,8 +56,10 @@ const createQuestion = admin
 				.insert(question)
 				.values({
 					type: input.type,
-					content: input.content,
-					discussion: input.discussion ?? "",
+					content: contentText,
+					discussion: discussionText,
+					contentJson,
+					discussionJson,
 					tags: input.tags ?? [],
 				})
 				.returning();
@@ -128,7 +142,11 @@ const listQuestions = admin
 		const total = countResult?.value ?? 0;
 
 		return {
-			questions: questionsList,
+			questions: questionsList.map((q) => ({
+				...q,
+				content: q.contentJson ?? convertToTiptap(q.content),
+				discussion: q.discussionJson ?? convertToTiptap(q.discussion),
+			})),
 			total,
 			page: input.page,
 			limit: input.limit,
@@ -157,7 +175,14 @@ const getQuestion = admin
 			.orderBy(questionChoice.code);
 
 		return {
-			question: questionData,
+			question: {
+				id: questionData.id,
+				type: questionData.type,
+				content: questionData.contentJson ?? convertToTiptap(questionData.content),
+				discussion: questionData.discussionJson ?? convertToTiptap(questionData.discussion),
+				essayCorrectAnswer: questionData.essayCorrectAnswer,
+				tags: questionData.tags,
+			},
 			choices: choicesData,
 		};
 	});
@@ -171,26 +196,31 @@ const updateQuestion = admin
 	.input(
 		type({
 			id: "number",
-			content: "string?",
-			discussion: "string?",
+			content: "unknown",
+			discussion: "unknown",
 			tags: "string[]?",
 		}),
 	)
 	.output(type({ message: "string" }))
 	.handler(async ({ input }) => {
-		const updateData: {
-			content?: string;
-			discussion?: string;
-			tags?: string[];
-		} = {};
+		const contentJson = typeof input.content === "object" ? input.content : null;
+		const discussionJson = typeof input.discussion === "object" ? input.discussion : null;
 
-		if (input.content !== undefined) updateData.content = input.content;
-		if (input.discussion !== undefined) updateData.discussion = input.discussion;
-		if (input.tags !== undefined) updateData.tags = input.tags;
+		const contentText = typeof input.content === "string" ? input.content : JSON.stringify(input.content);
+		const discussionText = typeof input.discussion === "string" ? input.discussion : JSON.stringify(input.discussion);
 
-		const [updated] = await db.update(question).set(updateData).where(eq(question.id, input.id)).returning();
+		const [q] = await db
+			.update(question)
+			.set({
+				content: contentText,
+				discussion: discussionText,
+				contentJson,
+				discussionJson,
+			})
+			.where(eq(question.id, input.id))
+			.returning();
 
-		if (!updated)
+		if (!q)
 			throw new ORPCError("NOT_FOUND", {
 				message: "Question tidak ditemukan",
 			});

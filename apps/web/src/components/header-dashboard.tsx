@@ -164,7 +164,7 @@ export function HeaderDashboard() {
 
 					<div className="mt-auto border-neutral-200 border-t pt-6">
 						<div className="mb-4 flex items-center gap-3">
-							<div className="flex size-10 items-center justify-center rounded-[10px] bg-secondary-600 font-normal text-sm text-white">
+							<div className="flex size-10 items-center justify-center rounded-default bg-secondary-600 font-normal text-sm text-white">
 								{userInitials}
 							</div>
 							<span className="font-medium">{session?.user.name}</span>

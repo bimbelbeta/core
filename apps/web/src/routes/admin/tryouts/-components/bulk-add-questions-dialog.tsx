@@ -1,6 +1,8 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
+import { TiptapRenderer } from "@/components/tiptap-renderer";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -22,7 +24,7 @@ export function BulkAddQuestionsDialog({
 	const [search, setSearch] = useState("");
 	const [selectedQuestionIds, setSelectedQuestionIds] = useState<Set<number>>(new Set());
 
-	const { data: allQuestions, isLoading } = useQuery(
+	const { data: allQuestions, isPending } = useQuery(
 		orpc.admin.tryout.questions.listQuestions.queryOptions({
 			input: {
 				page: 1,
@@ -80,10 +82,6 @@ export function BulkAddQuestionsDialog({
 		}
 	};
 
-	const stripHtml = (html: string) => {
-		return html.replace(/<[^>]*>?/gm, "");
-	};
-
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="flex max-h-[85vh] flex-col sm:max-w-125">
@@ -120,8 +118,10 @@ export function BulkAddQuestionsDialog({
 					</div>
 
 					<div className="max-h-[calc(85vh-14rem)] flex-1 overflow-y-auto">
-						{isLoading ? (
-							<div className="flex items-center justify-center py-8 text-muted-foreground">Memuat soal...</div>
+						{isPending ? (
+							<div className="flex animate-pulse items-center justify-center py-8 text-muted-foreground">
+								Memuat soal...
+							</div>
 						) : !questionsData || questionsData.questions.length === 0 ? (
 							<div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
 								Tidak ada soal ditemukan
@@ -131,7 +131,7 @@ export function BulkAddQuestionsDialog({
 								{questionsData.questions.map((question) => (
 									<div
 										key={question.id}
-										className="flex items-start gap-3 rounded-lg border p-3 transition-colors hover:bg-muted/50"
+										className="group flex items-start gap-3 rounded-lg border p-3 transition-colors hover:bg-muted/50"
 									>
 										<Checkbox
 											checked={selectedQuestionIds.has(question.id)}
@@ -141,17 +141,11 @@ export function BulkAddQuestionsDialog({
 										<div className="flex-1 space-y-1">
 											<div className="flex items-center gap-2">
 												<span className="font-mono text-muted-foreground text-xs">#{question.id}</span>
-												<span
-													className={`rounded px-2 py-0.5 font-medium text-xs ${
-														question.type === "multiple_choice"
-															? "bg-blue-100 text-blue-700"
-															: "bg-purple-100 text-purple-700"
-													}`}
-												>
+												<TiptapRenderer content={question.content} />
+												<Badge variant={question.type === "multiple_choice" ? "default" : "outline"}>
 													{question.type === "multiple_choice" ? "Pilihan Ganda" : "Esai"}
-												</span>
+												</Badge>
 											</div>
-											<p className="text-muted-foreground text-sm">{stripHtml(question.content)}</p>
 										</div>
 									</div>
 								))}

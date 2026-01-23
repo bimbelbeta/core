@@ -1,8 +1,11 @@
 import { ArrowLeftIcon, PencilSimpleIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { SaveIcon } from "lucide-react/dist/lucide-react.suffixed";
 import { useState } from "react";
 import { toast } from "sonner";
+import Loader from "@/components/loader";
+import { Spinner } from "@/components/spinner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -22,7 +25,7 @@ function TryoutDetailPage() {
 	const id = Number.parseInt(tryoutId, 10);
 	const isValidId = !Number.isNaN(id);
 
-	const { data, isLoading, refetch } = useQuery(
+	const { data, isPending, refetch } = useQuery(
 		orpc.admin.tryout.getTryout.queryOptions({
 			input: { id: isValidId ? id : 0 },
 			enabled: isValidId,
@@ -86,8 +89,8 @@ function TryoutDetailPage() {
 		});
 	};
 
-	if (isLoading) {
-		return <div className="p-6">Memuat...</div>;
+	if (isPending) {
+		return <Loader />;
 	}
 
 	if (!data?.tryout) {
@@ -113,9 +116,8 @@ function TryoutDetailPage() {
 					<CardHeader className="flex flex-row items-center justify-between">
 						<CardTitle>Informasi Tryout</CardTitle>
 						{!isEditing ? (
-							<Button size="sm" onClick={handleEdit}>
-								<PencilSimpleIcon className="mr-2 size-4" />
-								Edit
+							<Button size="icon" variant="ghost" onClick={handleEdit}>
+								<PencilSimpleIcon weight="bold" />
 							</Button>
 						) : (
 							<div className="flex gap-2">
@@ -123,14 +125,24 @@ function TryoutDetailPage() {
 									Batal
 								</Button>
 								<Button size="sm" onClick={handleSave} disabled={updateMutation.isPending}>
-									{updateMutation.isPending ? "Menyimpan..." : "Simpan"}
+									{updateMutation.isPending ? (
+										<>
+											<Spinner />
+											Memuat...
+										</>
+									) : (
+										<>
+											<SaveIcon />
+											Simpan
+										</>
+									)}
 								</Button>
 							</div>
 						)}
 					</CardHeader>
 					<CardContent className="space-y-4">
 						{isEditing ? (
-							<div className="space-y-4">
+							<div className="space-y-4 *:space-y-1">
 								<div>
 									<Label>Judul</Label>
 									<Input value={editForm.title} onChange={(e) => setEditForm({ ...editForm, title: e.target.value })} />
@@ -274,12 +286,12 @@ function TryoutDetailPage() {
 											<TableCell>{subtest.duration} menit</TableCell>
 											<TableCell>{subtest.questionOrder === "random" ? "Acak" : "Berurutan"}</TableCell>
 											<TableCell className="text-right">
-												<Button variant="ghost" size="sm" asChild>
+												<Button variant="secondary" size="icon" asChild>
 													<Link
 														to="/admin/tryouts/$tryoutId/subtests/$subtestId"
 														params={{ tryoutId, subtestId: subtest.id.toString() }}
 													>
-														Kelola Soal
+														<PencilSimpleIcon />
 													</Link>
 												</Button>
 											</TableCell>
