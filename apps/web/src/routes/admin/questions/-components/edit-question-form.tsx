@@ -2,7 +2,7 @@ import { ArrowLeftIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type } from "arktype";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import TiptapSimpleEditor from "@/components/tiptap-simple-editor";
 import { Button } from "@/components/ui/button";
@@ -23,27 +23,19 @@ interface EditQuestionFormProps {
 		essayCorrectAnswer?: string;
 		tags?: string[];
 	};
-	choices?: Array<{
-		id: number;
-		code: string;
-		content: string;
-		isCorrect: boolean;
-	}>;
 	onSuccess: () => void;
 	onCancel: () => void;
 }
 
-export function EditQuestionForm({ question, choices = [], onSuccess, onCancel }: EditQuestionFormProps) {
+export function EditQuestionForm({ question, onSuccess, onCancel }: EditQuestionFormProps) {
 	const queryClient = useQueryClient();
-	const [updatingChoiceId, setUpdatingChoiceId] = useState<number | null>(null);
-	const [deletingChoiceId, setDeletingChoiceId] = useState<number | null>(null);
 
 	const form = useForm({
 		defaultValues: {
 			content: question.content,
 			discussion: question.discussion,
 			essayCorrectAnswer: question.essayCorrectAnswer ?? "",
-			tags: question.tags ?? [],
+			tags: question.tags ?? ([] as string[]),
 		},
 		onSubmit: async ({ value }) => {
 			updateMutation.mutate({
@@ -87,84 +79,6 @@ export function EditQuestionForm({ question, choices = [], onSuccess, onCancel }
 			},
 		}),
 	);
-
-	const updateChoiceMutation = useMutation(
-		orpc.admin.tryout.questions.updateChoice.mutationOptions({
-			onSuccess: () => {
-				queryClient.invalidateQueries({
-					queryKey: orpc.admin.tryout.questions.getQuestion.queryKey({ input: { id: question.id } }),
-				});
-				setUpdatingChoiceId(null);
-			},
-			onError: (err) => {
-				toast.error(err.message);
-				setUpdatingChoiceId(null);
-			},
-		}),
-	);
-
-	const createChoiceMutation = useMutation(
-		orpc.admin.tryout.questions.createChoice.mutationOptions({
-			onSuccess: () => {
-				queryClient.invalidateQueries({
-					queryKey: orpc.admin.tryout.questions.getQuestion.queryKey({ input: { id: question.id } }),
-				});
-				toast.success("Pilihan jawaban berhasil ditambahkan");
-			},
-			onError: (err) => {
-				toast.error(err.message);
-			},
-		}),
-	);
-
-	const deleteChoiceMutation = useMutation(
-		orpc.admin.tryout.questions.deleteChoice.mutationOptions({
-			onSuccess: () => {
-				queryClient.invalidateQueries({
-					queryKey: orpc.admin.tryout.questions.getQuestion.queryKey({ input: { id: question.id } }),
-				});
-				setDeletingChoiceId(null);
-			},
-			onError: (err) => {
-				toast.error(err.message);
-				setDeletingChoiceId(null);
-			},
-		}),
-	);
-
-	const handleUpdateChoice = (choiceId: number, content: string, isCorrect: boolean) => {
-		setUpdatingChoiceId(choiceId);
-
-		if (isCorrect) {
-			const currentCorrectChoice = choices.find((c) => c.isCorrect && c.id !== choiceId);
-			if (currentCorrectChoice) {
-				updateChoiceMutation.mutate(
-					{ id: currentCorrectChoice.id, content: currentCorrectChoice.content, isCorrect: false },
-					{
-						onSuccess: () => {
-							updateChoiceMutation.mutate({ id: choiceId, content, isCorrect: true });
-						},
-					},
-				);
-				return;
-			}
-		}
-
-		updateChoiceMutation.mutate({ id: choiceId, content, isCorrect });
-	};
-
-	const handleAddChoice = () => {
-		createChoiceMutation.mutate({
-			questionId: question.id,
-			content: "",
-			isCorrect: false,
-		});
-	};
-
-	const handleDeleteChoice = (choiceId: number) => {
-		setDeletingChoiceId(choiceId);
-		deleteChoiceMutation.mutate({ id: choiceId });
-	};
 
 	return (
 		<div className="flex h-full flex-col gap-6 p-6">
@@ -221,15 +135,7 @@ export function EditQuestionForm({ question, choices = [], onSuccess, onCancel }
 						</form.Field>
 
 						{question.type === "multiple_choice" ? (
-							<MultipleChoiceQuestionForm
-								choices={choices}
-								onUpdateChoice={handleUpdateChoice}
-								onAddChoice={handleAddChoice}
-								onDeleteChoice={handleDeleteChoice}
-								updatingChoiceId={updatingChoiceId}
-								deletingChoiceId={deletingChoiceId}
-								createChoiceIsPending={createChoiceMutation.isPending}
-							/>
+							<MultipleChoiceQuestionForm questionId={question.id} />
 						) : (
 							<form.Field name="essayCorrectAnswer">
 								{(field) => (

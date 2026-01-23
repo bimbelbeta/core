@@ -1,10 +1,9 @@
-import { TrashIcon } from "@phosphor-icons/react";
+import { ClockIcon, TrashIcon } from "@phosphor-icons/react";
 import type { ChangeEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Spinner } from "@/components/ui/spinner";
 
 interface ChoiceEditItemProps {
 	choice: {
@@ -50,25 +49,28 @@ export function ChoiceEditItem({ choice, isUpdating, isDeleting, onUpdate, onDel
 
 	return (
 		<div
-			className={`relative flex items-start gap-3 rounded-lg border p-3 ${
+			className={`flex items-start gap-3 rounded-lg border p-3 ${
 				choice.isCorrect ? "border-green-200 bg-green-50" : ""
-			} ${isUpdating || isDeleting ? "opacity-50" : ""}`}
+			} ${isDeleting ? "opacity-50" : ""}`}
 		>
-			{(isUpdating || isDeleting) && (
-				<div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-background/50">
-					<Spinner />
-				</div>
-			)}
 			<div className="flex size-6 shrink-0 items-center justify-center rounded-full border bg-muted font-bold text-muted-foreground text-xs">
 				{choice.code}
 			</div>
 			<div className="flex flex-1 flex-col gap-2">
-				<Input
-					value={localContent}
-					onChange={handleContentChange}
-					placeholder="Isi pilihan jawaban..."
-					disabled={isUpdating || isDeleting}
-				/>
+				<div className="relative">
+					<Input
+						value={localContent}
+						onChange={handleContentChange}
+						placeholder="Isi pilihan jawaban..."
+						disabled={isUpdating || isDeleting}
+						className={isUpdating ? "pr-8" : ""}
+					/>
+					{isUpdating && (
+						<div className="absolute top-1/2 right-3 -translate-y-1/2">
+							<ClockIcon className="size-4 animate-spin text-muted-foreground" />
+						</div>
+					)}
+				</div>
 				<div className="flex items-center gap-2">
 					<Checkbox
 						id={`correct-${choice.id}`}
@@ -84,10 +86,10 @@ export function ChoiceEditItem({ choice, isUpdating, isDeleting, onUpdate, onDel
 			<button
 				type="button"
 				onClick={onDelete}
-				className="mt-1 rounded p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+				className="mt-1 flex items-center gap-1 rounded p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
 				disabled={isUpdating || isDeleting}
 			>
-				<TrashIcon className="size-4" />
+				{isDeleting ? <ClockIcon className="size-4 animate-spin" /> : <TrashIcon className="size-4" />}
 				<span className="sr-only">Hapus pilihan</span>
 			</button>
 		</div>

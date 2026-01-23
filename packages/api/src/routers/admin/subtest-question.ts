@@ -208,12 +208,17 @@ const removeQuestionFromSubtest = admin
 		method: "DELETE",
 		tags: ["Admin - Tryouts"],
 	})
-	.input(type({ id: "number" }))
+	.input(type({ subtestId: "number", questionId: "number" }))
 	.output(type({ message: "string" }))
 	.handler(async ({ input }) => {
 		const [deleted] = await db
 			.delete(tryoutSubtestQuestion)
-			.where(eq(tryoutSubtestQuestion.questionId, input.id))
+			.where(
+				and(
+					eq(tryoutSubtestQuestion.questionId, input.questionId),
+					eq(tryoutSubtestQuestion.subtestId, input.subtestId),
+				),
+			)
 			.returning();
 
 		if (!deleted) {

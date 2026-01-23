@@ -18,6 +18,7 @@ const createQuestion = admin
 			content: "unknown",
 			discussion: "unknown",
 			tags: "string[]?",
+			essayCorrectAnswer: "string?",
 			choices: type(
 				{
 					content: "string",
@@ -61,6 +62,7 @@ const createQuestion = admin
 					contentJson,
 					discussionJson,
 					tags: input.tags ?? [],
+					essayCorrectAnswer: input.essayCorrectAnswer,
 				})
 				.returning();
 

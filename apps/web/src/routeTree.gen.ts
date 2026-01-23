@@ -26,6 +26,7 @@ import { Route as AdminClassesIndexRouteImport } from './routes/admin/classes/in
 import { Route as AuthenticatedTryoutIndexRouteImport } from './routes/_authenticated/tryout/index'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
 import { Route as AuthenticatedClassesIndexRouteImport } from './routes/_authenticated/classes/index'
+import { Route as AdminQuestionsCreateRouteImport } from './routes/admin/questions/create'
 import { Route as AdminQuestionsQuestionIdRouteImport } from './routes/admin/questions/$questionId'
 import { Route as AdminPassingGradesUniversityIdRouteImport } from './routes/admin/passing-grades/$universityId'
 import { Route as AuthenticatedTryoutTryoutIdRouteImport } from './routes/_authenticated/tryout/$tryoutId'
@@ -132,6 +133,11 @@ const AuthenticatedClassesIndexRoute =
     path: '/classes/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AdminQuestionsCreateRoute = AdminQuestionsCreateRouteImport.update({
+  id: '/questions/create',
+  path: '/questions/create',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminQuestionsQuestionIdRoute =
   AdminQuestionsQuestionIdRouteImport.update({
     id: '/questions/$questionId',
@@ -259,6 +265,7 @@ export interface FileRoutesByFullPath {
   '/tryout/$tryoutId': typeof AuthenticatedTryoutTryoutIdRoute
   '/admin/passing-grades/$universityId': typeof AdminPassingGradesUniversityIdRoute
   '/admin/questions/$questionId': typeof AdminQuestionsQuestionIdRoute
+  '/admin/questions/create': typeof AdminQuestionsCreateRoute
   '/classes/': typeof AuthenticatedClassesIndexRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/tryout/': typeof AuthenticatedTryoutIndexRoute
@@ -294,6 +301,7 @@ export interface FileRoutesByTo {
   '/tryout/$tryoutId': typeof AuthenticatedTryoutTryoutIdRoute
   '/admin/passing-grades/$universityId': typeof AdminPassingGradesUniversityIdRoute
   '/admin/questions/$questionId': typeof AdminQuestionsQuestionIdRoute
+  '/admin/questions/create': typeof AdminQuestionsCreateRoute
   '/classes': typeof AuthenticatedClassesIndexRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/tryout': typeof AuthenticatedTryoutIndexRoute
@@ -333,6 +341,7 @@ export interface FileRoutesById {
   '/_authenticated/tryout/$tryoutId': typeof AuthenticatedTryoutTryoutIdRoute
   '/admin/passing-grades/$universityId': typeof AdminPassingGradesUniversityIdRoute
   '/admin/questions/$questionId': typeof AdminQuestionsQuestionIdRoute
+  '/admin/questions/create': typeof AdminQuestionsCreateRoute
   '/_authenticated/classes/': typeof AuthenticatedClassesIndexRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/tryout/': typeof AuthenticatedTryoutIndexRoute
@@ -371,6 +380,7 @@ export interface FileRouteTypes {
     | '/tryout/$tryoutId'
     | '/admin/passing-grades/$universityId'
     | '/admin/questions/$questionId'
+    | '/admin/questions/create'
     | '/classes/'
     | '/dashboard/'
     | '/tryout/'
@@ -406,6 +416,7 @@ export interface FileRouteTypes {
     | '/tryout/$tryoutId'
     | '/admin/passing-grades/$universityId'
     | '/admin/questions/$questionId'
+    | '/admin/questions/create'
     | '/classes'
     | '/dashboard'
     | '/tryout'
@@ -444,6 +455,7 @@ export interface FileRouteTypes {
     | '/_authenticated/tryout/$tryoutId'
     | '/admin/passing-grades/$universityId'
     | '/admin/questions/$questionId'
+    | '/admin/questions/create'
     | '/_authenticated/classes/'
     | '/_authenticated/dashboard/'
     | '/_authenticated/tryout/'
@@ -596,6 +608,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/classes/'
       preLoaderRoute: typeof AuthenticatedClassesIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/admin/questions/create': {
+      id: '/admin/questions/create'
+      path: '/questions/create'
+      fullPath: '/admin/questions/create'
+      preLoaderRoute: typeof AdminQuestionsCreateRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/questions/$questionId': {
       id: '/admin/questions/$questionId'
@@ -841,6 +860,7 @@ interface AdminRouteChildren {
   AdminIndexRoute: typeof AdminIndexRoute
   AdminPassingGradesUniversityIdRoute: typeof AdminPassingGradesUniversityIdRoute
   AdminQuestionsQuestionIdRoute: typeof AdminQuestionsQuestionIdRoute
+  AdminQuestionsCreateRoute: typeof AdminQuestionsCreateRoute
   AdminClassesIndexRoute: typeof AdminClassesIndexRoute
   AdminDashboardIndexRoute: typeof AdminDashboardIndexRoute
   AdminPassingGradesIndexRoute: typeof AdminPassingGradesIndexRoute
@@ -855,6 +875,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminIndexRoute: AdminIndexRoute,
   AdminPassingGradesUniversityIdRoute: AdminPassingGradesUniversityIdRoute,
   AdminQuestionsQuestionIdRoute: AdminQuestionsQuestionIdRoute,
+  AdminQuestionsCreateRoute: AdminQuestionsCreateRoute,
   AdminClassesIndexRoute: AdminClassesIndexRoute,
   AdminDashboardIndexRoute: AdminDashboardIndexRoute,
   AdminPassingGradesIndexRoute: AdminPassingGradesIndexRoute,
