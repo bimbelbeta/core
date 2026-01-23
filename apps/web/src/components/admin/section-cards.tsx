@@ -1,6 +1,7 @@
 import { ArrowUpIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/utils/orpc";
 
 export function SectionCards() {
@@ -12,10 +13,10 @@ export function SectionCards() {
 				{[1, 2, 3, 4].map((card) => (
 					<Card key={card} className="@container/card">
 						<CardHeader className="flex flex-row items-center justify-between pb-2">
-							<CardTitle className="font-medium text-sm">Loading...</CardTitle>
+							<Skeleton className="h-4 w-24" />
 						</CardHeader>
 						<CardContent>
-							<div className="font-bold text-2xl">...</div>
+							<Skeleton className="h-8 w-32" />
 						</CardContent>
 					</Card>
 				))}

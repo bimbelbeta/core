@@ -37,7 +37,7 @@ const stats = admin
 		const currentSubjects = await db.select({ count: count() }).from(subject);
 
 		const currentRevenue = await db
-			.select({ total: sql<number>`COALESCE(SUM(${transaction.grossAmount}), 0)` })
+			.select({ total: sql<number>`COALESCE(CAST(SUM(${transaction.grossAmount}) AS FLOAT), 0)` })
 			.from(transaction)
 			.where(and(eq(transaction.status, "success"), gte(transaction.paidAt, currentMonthStart)));
 
@@ -54,7 +54,7 @@ const stats = admin
 			.where(gte(subject.createdAt, lastMonthStart));
 
 		const lastMonthRevenue = await db
-			.select({ total: sql<number>`COALESCE(SUM(${transaction.grossAmount}), 0)` })
+			.select({ total: sql<number>`COALESCE(CAST(SUM(${transaction.grossAmount}) AS FLOAT), 0)` })
 			.from(transaction)
 			.where(
 				and(
@@ -119,7 +119,7 @@ const recentActivity = admin
 
 		const userActivities = await db
 			.select({
-				id: sql<number>`(${user.id} * 10000)`.as("id"),
+				id: sql<number>`hashtext(${user.id})`.as("id"),
 				type: sql<string>`'user'`.as("type"),
 				description: sql<string>`CONCAT(${user.name}, ' bergabung')`.as("description"),
 				userName: user.name,
@@ -133,7 +133,7 @@ const recentActivity = admin
 
 		const premiumActivities = await db
 			.select({
-				id: sql<number>`(${transaction.id || 0} * 10000 + 1)`.as("id"),
+				id: sql<number>`hashtext(COALESCE(${transaction.id}, '')) + 1`.as("id"),
 				type: sql<string>`'premium'`.as("type"),
 				description: sql<string>`'Pengguna membeli premium'`.as("description"),
 				userName: user.name,
@@ -229,7 +229,7 @@ const analytics = admin
 		const results = await db
 			.select({
 				date: transaction.paidAt,
-				value: sql<number>`COALESCE(SUM(${transaction.grossAmount}), 0)`.as("value"),
+				value: sql<number>`COALESCE(CAST(SUM(${transaction.grossAmount}) AS FLOAT), 0)`.as("value"),
 			})
 			.from(transaction)
 			.where(and(eq(transaction.status, "success"), gte(transaction.paidAt, startDate)))

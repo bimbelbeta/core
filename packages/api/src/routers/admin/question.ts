@@ -2,7 +2,7 @@ import { db } from "@bimbelbeta/db";
 import { question, questionChoice } from "@bimbelbeta/db/schema/question";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { and, count, eq, like, or } from "drizzle-orm";
+import { and, count, eq, like, sql } from "drizzle-orm";
 import { admin } from "../..";
 
 const createQuestion = admin
@@ -105,7 +105,13 @@ const listQuestions = admin
 		}
 
 		if (input.tag) {
-			conditions.push(or(eq(question.tags, [input.tag]), like(question.tags, `%${input.tag}%`)));
+			conditions.push(
+				sql`EXISTS (
+					SELECT 1
+					FROM unnest(${question.tags}) AS tag
+					WHERE tag ILIKE ${`%${input.tag}%`}
+				)`,
+			);
 		}
 
 		const whereClause = conditions.length > 0 ? and(...conditions) : undefined;

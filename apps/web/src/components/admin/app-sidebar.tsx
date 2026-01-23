@@ -9,7 +9,7 @@ import { NavMain } from "./nav-main";
 const adminNavLinks = [
 	{
 		title: "Dashboard",
-		url: "/admin/dashboard/",
+		url: "/admin/dashboard",
 		icon: HouseIcon,
 	},
 	{
@@ -42,7 +42,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			<SidebarHeader>
 				<Link to="/admin/dashboard" className="flex items-center gap-2 px-2 py-1.5">
 					<div className="grid flex-1 text-left text-sm leading-tight">
-						<span className="truncate font-semibold text-sm">bimbelbeta Admin</span>
+						<span className="truncate font-semibold text-sm">BimbelBeta Admin</span>
 					</div>
 				</Link>
 			</SidebarHeader>

@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/utils/orpc";
 
 export function ChartAreaInteractive() {
@@ -32,13 +33,41 @@ export function ChartAreaInteractive() {
 					</div>
 				</CardHeader>
 				<CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
-					<div className="flex h-[250px] w-full items-center justify-center text-muted-foreground">Memuat data...</div>
+					<Skeleton className="h-[250px] w-full" />
+				</CardContent>
+			</Card>
+		);
+	}
+
+	if (analytics.revenueData.length === 0) {
+		return (
+			<Card className="@container/card">
+				<CardHeader>
+					<div className="flex items-center justify-between">
+						<CardTitle>Pendapatan</CardTitle>
+						<Select value={timeRange} onValueChange={(val) => setTimeRange(val as typeof timeRange)}>
+							<SelectTrigger className="w-40">
+								<SelectValue placeholder="30 hari" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="7d">7 hari</SelectItem>
+								<SelectItem value="30d">30 hari</SelectItem>
+								<SelectItem value="90d">90 hari</SelectItem>
+							</SelectContent>
+						</Select>
+					</div>
+				</CardHeader>
+				<CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+					<div className="flex h-[250px] items-center justify-center text-muted-foreground">
+						Tidak ada data pendapatan
+					</div>
 				</CardContent>
 			</Card>
 		);
 	}
 
 	const maxRevenue = Math.max(...analytics.revenueData.map((d) => d.value), 1);
+	const dataLength = analytics.revenueData.length;
 
 	return (
 		<Card className="@container/card">
@@ -68,8 +97,8 @@ export function ChartAreaInteractive() {
 								key={data.date}
 								className="absolute bottom-0"
 								style={{
-									left: `${(index / (analytics.revenueData.length - 1)) * 100}%`,
-									width: `${100 / analytics.revenueData.length}%`,
+									left: dataLength > 1 ? `${(index / (dataLength - 1)) * 100}%` : "0%",
+									width: `${100 / dataLength}%`,
 								}}
 							>
 								<div
