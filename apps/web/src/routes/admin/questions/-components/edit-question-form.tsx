@@ -1,4 +1,4 @@
-import { ArrowLeftIcon, PlusIcon } from "@phosphor-icons/react";
+import { ArrowLeftIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type } from "arktype";
@@ -7,11 +7,12 @@ import { toast } from "sonner";
 import TiptapSimpleEditor from "@/components/tiptap-simple-editor";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { TagInput } from "@/components/ui/tag-input";
 import { orpc } from "@/utils/orpc";
-import { ChoiceEditItem } from "./choice-edit-item";
+import { MultipleChoiceQuestionForm } from "./MultipleChoiceQuestionForm";
 
 interface EditQuestionFormProps {
 	question: {
@@ -19,6 +20,7 @@ interface EditQuestionFormProps {
 		type: "multiple_choice" | "essay";
 		content: object;
 		discussion: object;
+		essayCorrectAnswer?: string;
 		tags?: string[];
 	};
 	choices?: Array<{
@@ -40,6 +42,7 @@ export function EditQuestionForm({ question, choices = [], onSuccess, onCancel }
 		defaultValues: {
 			content: question.content,
 			discussion: question.discussion,
+			essayCorrectAnswer: question.essayCorrectAnswer ?? "",
 			tags: question.tags ?? [],
 		},
 		onSubmit: async ({ value }) => {
@@ -47,6 +50,7 @@ export function EditQuestionForm({ question, choices = [], onSuccess, onCancel }
 				id: question.id,
 				content: JSON.stringify(value.content),
 				discussion: JSON.stringify(value.discussion),
+				essayCorrectAnswer: question.type === "essay" ? value.essayCorrectAnswer : undefined,
 				tags: value.tags.length > 0 ? value.tags : undefined,
 			});
 		},
@@ -54,6 +58,7 @@ export function EditQuestionForm({ question, choices = [], onSuccess, onCancel }
 			onChange: type({
 				content: "unknown",
 				discussion: "unknown",
+				essayCorrectAnswer: "string",
 				tags: "string[]",
 			}),
 		},
@@ -62,6 +67,7 @@ export function EditQuestionForm({ question, choices = [], onSuccess, onCancel }
 	useEffect(() => {
 		form.setFieldValue("content", question.content);
 		form.setFieldValue("discussion", question.discussion);
+		form.setFieldValue("essayCorrectAnswer", question.essayCorrectAnswer ?? "");
 		if (question.tags) {
 			form.setFieldValue("tags", question.tags);
 		}
@@ -214,33 +220,31 @@ export function EditQuestionForm({ question, choices = [], onSuccess, onCancel }
 							)}
 						</form.Field>
 
-						{question.type === "multiple_choice" && (
-							<div className="space-y-4">
-								<Label>Pilihan Jawaban</Label>
-								<div className="space-y-3">
-									{choices.map((choice) => (
-										<ChoiceEditItem
-											key={choice.id}
-											choice={choice}
-											isUpdating={updatingChoiceId === choice.id}
-											isDeleting={deletingChoiceId === choice.id}
-											onUpdate={(content, isCorrect) => handleUpdateChoice(choice.id, content, isCorrect)}
-											onDelete={() => handleDeleteChoice(choice.id)}
+						{question.type === "multiple_choice" ? (
+							<MultipleChoiceQuestionForm
+								choices={choices}
+								onUpdateChoice={handleUpdateChoice}
+								onAddChoice={handleAddChoice}
+								onDeleteChoice={handleDeleteChoice}
+								updatingChoiceId={updatingChoiceId}
+								deletingChoiceId={deletingChoiceId}
+								createChoiceIsPending={createChoiceMutation.isPending}
+							/>
+						) : (
+							<form.Field name="essayCorrectAnswer">
+								{(field) => (
+									<div className="grid gap-2">
+										<Label htmlFor={field.name}>Kunci Jawaban *</Label>
+										<Input
+											id={field.name}
+											value={field.state.value}
+											onChange={(e) => field.handleChange(e.target.value)}
+											placeholder="Masukkan kunci jawaban..."
+											required
 										/>
-									))}
-								</div>
-								{choices.length < 7 && (
-									<Button
-										type="button"
-										variant="outline"
-										onClick={handleAddChoice}
-										disabled={createChoiceMutation.isPending}
-									>
-										<PlusIcon className="mr-2 size-4" />
-										Tambah Pilihan
-									</Button>
+									</div>
 								)}
-							</div>
+							</form.Field>
 						)}
 
 						<form.Field name="discussion">

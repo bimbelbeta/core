@@ -198,7 +198,7 @@ function TryoutsListPage() {
 									<TableCell className="text-right">
 										<div className="flex items-center justify-end gap-2">
 											<Button variant="ghost" size="icon" asChild>
-												<Link to="/admin/tryouts/$tryoutId" params={{ tryoutId: tryout.id.toString() }}>
+												<Link to="/admin/tryouts/$tryoutId" params={{ tryoutId: tryout.id }}>
 													<PencilSimpleIcon className="size-4" />
 												</Link>
 											</Button>

@@ -199,6 +199,7 @@ const updateQuestion = admin
 			content: "unknown",
 			discussion: "unknown",
 			tags: "string[]?",
+			essayCorrectAnswer: "string?",
 		}),
 	)
 	.output(type({ message: "string" }))
@@ -216,6 +217,7 @@ const updateQuestion = admin
 				discussion: discussionText,
 				contentJson,
 				discussionJson,
+				essayCorrectAnswer: input.essayCorrectAnswer,
 			})
 			.where(eq(question.id, input.id))
 			.returning();
