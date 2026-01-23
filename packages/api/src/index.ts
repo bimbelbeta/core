@@ -1,8 +1,9 @@
 import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
+import { createRatelimitMiddleware } from "@orpc/experimental-ratelimit";
 import { eq } from "drizzle-orm";
 import { o } from "./lib/orpc";
-import { rateLimit } from "./middlewares/rate-limit";
+import { freeRatelimiter, premiumRatelimiter } from "./lib/ratelimit";
 import { requireAdmin, requireSuperAdmin } from "./middlewares/rbac";
 
 export const pub = o;
@@ -48,4 +49,10 @@ export const authed = pub.use(requireAuth);
 export const premium = authed.use(requirePremium);
 export const admin = authed.use(requireAdmin);
 export const superadmin = authed.use(requireSuperAdmin);
+
+const rateLimit = createRatelimitMiddleware({
+	limiter: ({ context }) => (context.session.user.isPremium ? premiumRatelimiter : freeRatelimiter),
+	key: ({ context }) => context.session.user.id,
+});
+
 export const authedRateLimited = authed.use(rateLimit);

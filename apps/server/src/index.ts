@@ -2,6 +2,7 @@ import { createContext } from "@bimbelbeta/api/context";
 import { appRouter } from "@bimbelbeta/api/routers/index";
 import { auth } from "@bimbelbeta/auth";
 import { experimental_ArkTypeToJsonSchemaConverter as ArkTypeToJsonSchemaConverter } from "@orpc/arktype";
+import { RatelimitHandlerPlugin } from "@orpc/experimental-ratelimit";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { OpenAPIReferencePlugin } from "@orpc/openapi/plugins";
 import { onError } from "@orpc/server";
@@ -35,6 +36,7 @@ export const apiHandler = new OpenAPIHandler(appRouter, {
 		new OpenAPIReferencePlugin({
 			schemaConverters: [new ArkTypeToJsonSchemaConverter()],
 		}),
+		new RatelimitHandlerPlugin(),
 	],
 	interceptors: [
 		onError((error) => {
@@ -44,6 +46,7 @@ export const apiHandler = new OpenAPIHandler(appRouter, {
 });
 
 export const rpcHandler = new RPCHandler(appRouter, {
+	plugins: [new RatelimitHandlerPlugin()],
 	interceptors: [
 		onError((error) => {
 			console.error(error);
