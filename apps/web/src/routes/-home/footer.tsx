@@ -6,7 +6,7 @@ import { Container } from "@/components/ui/container";
 import { cn } from "@/lib/utils";
 import { DATA } from "./data";
 
-const BACKGROUND_IMAGE = "https://www.figma.com/api/mcp/asset/b950a8fd-3b00-4c89-80f4-462a8b67eaf0";
+const BACKGROUND_IMAGE = "/footer.";
 
 export default function Footer() {
 	return (
