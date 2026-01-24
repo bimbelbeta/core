@@ -1,4 +1,4 @@
-import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
+import { ArrowLeftIcon, ArrowRightIcon, CheckIcon, CheckSquareIcon, SquareIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { useState } from "react";
@@ -43,7 +43,7 @@ export function QuestionFooter() {
 			onSuccess: (data) => {
 				queryClient.invalidateQueries({ queryKey: orpc.tryout.find.key({ input: { id: tryoutId } }) });
 				if (data.tryoutCompleted) {
-					toast.success("Tryout selesai!");
+					toast.success("Selamat, kamu telah menyelesaikan tryout!");
 				}
 				setIsDialogOpen(false);
 				setView("greeting");
@@ -95,7 +95,6 @@ export function QuestionFooter() {
 	};
 
 	const isDoubtful = currentQuestion?.id && raguRaguIds.has(currentQuestion.id);
-	const raguRaguVariant = isDoubtful ? "warning" : "warning-outline";
 
 	return (
 		<>
@@ -105,13 +104,22 @@ export function QuestionFooter() {
 					<span className="max-sm:hidden">Sebelumnya</span>
 				</Button>
 
-				<Button variant={raguRaguVariant} onClick={handleRaguRagu} disabled={toggleRaguRaguMutation.isPending}>
+				<Button
+					variant={"warning"}
+					onClick={handleRaguRagu}
+					disabled={toggleRaguRaguMutation.isPending}
+					className="text-white"
+				>
+					{isDoubtful ? <CheckSquareIcon /> : <SquareIcon />}
 					Ragu-ragu
 				</Button>
 
 				<Button onClick={handleNext} disabled={submitSubtestMutation.isPending}>
 					{isLastQuestion ? (
-						"Selesai"
+						<>
+							<span className="max-sm:hidden">Selesai</span>
+							<CheckIcon weight="bold" />
+						</>
 					) : (
 						<>
 							<span className="max-sm:hidden">Selanjutnya</span>

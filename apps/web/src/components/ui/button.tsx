@@ -13,7 +13,7 @@ const buttonVariants = cva(
 				secondary:
 					"border border-primary-navy-700 bg-white text-primary-navy-700 shadow-xs hover:border-primary-navy-800 hover:bg-primary-100 hover:text-primary-navy-800",
 				tertiary: "bg-transparent text-primary-navy-700 hover:bg-primary-100 hover:text-primary-navy-800",
-				warning: "bg-yellow-300 hover:bg-yellow-300",
+				warning: "bg-yellow-500 hover:bg-yellow-500/80",
 				"warning-outline": "border-2 border-yellow-300 bg-white text-foreground shadow-xs hover:bg-yellow-300/20",
 				destructive: "bg-destructive text-white shadow-xs hover:bg-destructive/80",
 				outline: "border border-secondary-700 bg-white shadow-xs hover:bg-white/80",
@@ -26,6 +26,7 @@ const buttonVariants = cva(
 			},
 			size: {
 				default: "h-10 px-4 py-2.5",
+				xs: "h-8 px-2 py-1",
 				sm: "h-9 px-3.5 py-2",
 				lg: "h-11 rounded-sm px-4.5 py-2.5",
 				xl: "h-12 rounded-md px-6 py-4",

@@ -9,8 +9,6 @@ import { TryoutStartConfirmation } from "./tryout-start-confirmation";
 
 export function GuidelineActivity() {
 	const { data, isError, isPending } = useQuery(orpc.tryout.featured.queryOptions());
-	console.log("tryout Data: ", data);
-	console.log("isError: ", isError);
 
 	return (
 		<section className="flex flex-col gap-6">
@@ -23,9 +21,15 @@ export function GuidelineActivity() {
 								? "Lanjutkan Pengerjaan Tryout"
 								: "Mulai Tryout Sekarang"}
 					</CardTitle>
-					{data?.status === "finished" ? (
+					{data?.status === "finished" && data.attemptId ? (
 						<Button size={"icon"} asChild>
-							<Link to="/tryout" search={{ tab: "results" }}>
+							<Link
+								to="/tryout/results/$attemptId"
+								params={{
+									attemptId: data.attemptId.toString(),
+								}}
+								search={{ tab: "results" }}
+							>
 								<ArrowUpRightIcon weight="bold" />
 							</Link>
 						</Button>

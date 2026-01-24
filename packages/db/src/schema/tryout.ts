@@ -13,6 +13,7 @@ export const tryout = pgTable("tryout", {
 	id: integer().primaryKey().generatedAlwaysAsIdentity(),
 	title: text().notNull(),
 	description: text(),
+	passingGrade: integer("passing_grade").notNull().default(600),
 	category: tryoutCategory("category").notNull().default("utbk"),
 	duration: integer().notNull(), // total duration in minutes
 	status: tryoutStatus("status").notNull().default("draft"),

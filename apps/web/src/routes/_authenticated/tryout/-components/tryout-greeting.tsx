@@ -1,5 +1,4 @@
 import { ArrowRightIcon, ClockIcon } from "@phosphor-icons/react";
-import { ListNumbersIcon } from "@phosphor-icons/react/dist/icons/ListNumbers";
 import { CircleNotchIcon } from "@phosphor-icons/react/dist/ssr";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
@@ -53,8 +52,8 @@ export function TryoutGreeting() {
 				<p className="font-semibold text-lg text-muted-foreground">Subtest {data.currentSubtest.order}</p>
 				{data.currentSubtest?.deadline && (
 					<div className={buttonVariants({ variant: "outline", size: "sm" })}>
-						<ClockIcon />
-						<span>
+						Sisa Waktu:
+						<span className="text-primary">
 							{hours}:{minutes}:{seconds}
 						</span>
 					</div>
@@ -68,14 +67,9 @@ export function TryoutGreeting() {
 				{data.currentSubtest.description && (
 					<div className="font-bold text-lg text-muted-foreground">{data.currentSubtest.description}</div>
 				)}
-				<div className="mt-2 text-muted-foreground">
-					<p className="flex items-center gap-2">
-						<ListNumbersIcon weight="bold" />
-						{data.currentSubtest.questions.length} pertanyaan
-					</p>
-					<p className="flex items-center gap-2">
-						<ClockIcon weight="bold" />
-						{data.currentSubtest.duration} menit
+				<div className="text-muted-foreground">
+					<p>
+						{data.currentSubtest.questions.length} Soal - {data.currentSubtest.duration} Menit
 					</p>
 				</div>
 			</div>

@@ -61,13 +61,11 @@ function RouteComponent() {
 
 	const subtestScores = new Map(data.subtestAttempts.map((sa) => [sa.subtestId, sa.score]));
 
-	// Hardcoded passing grade for UI purposes as per design,
-	// in a real app this might come from the database
-	const PASSING_GRADE = 600;
-	const isPassed = (data.score ?? 0) >= PASSING_GRADE;
+	const passingGrade = data.tryout.passingGrade;
+	const isPassed = (data.score ?? 0) >= passingGrade;
 
 	return (
-		<div className="flex flex-col gap-8 p-4 md:p-8">
+		<div className="flex flex-col gap-8">
 			{/* Header Section */}
 			<div className="space-y-6">
 				<Button variant="default" className="bg-[#009CA6] hover:bg-[#008a93]" asChild>
@@ -77,7 +75,7 @@ function RouteComponent() {
 					</Link>
 				</Button>
 
-				<h1 className="font-bold text-3xl">Berikut Hasil Tryoutmu!</h1>
+				<h1 className="font-semibold text-3xl">Berikut Hasil Tryoutmu!</h1>
 			</div>
 
 			{/* Score Cards */}
@@ -89,7 +87,7 @@ function RouteComponent() {
 					</CardHeader>
 					<CardContent>
 						<div className="flex items-baseline gap-2">
-							<span className="font-bold text-6xl text-blue-600">{data.score ?? 0}</span>
+							<span className="font-semibold text-5xl text-blue-600">{data.score ?? 0}</span>
 							<span className="font-medium text-muted-foreground text-xl">/ 1000</span>
 						</div>
 					</CardContent>
@@ -97,24 +95,21 @@ function RouteComponent() {
 
 				{/* Passing Grade */}
 				<Card className="relative overflow-hidden border-green-100 bg-green-50/50">
-					<div className="absolute top-6 right-6">
+					<CardHeader className="flex items-center justify-between gap-2 pb-2">
+						<CardTitle className="font-medium text-muted-foreground text-sm">Passing Grade</CardTitle>
 						<Badge
 							variant="secondary"
 							className={cn(
-								"px-4 py-1 font-semibold text-base",
 								isPassed ? "bg-green-500 text-white hover:bg-green-600" : "bg-red-500 text-white hover:bg-red-600",
 							)}
 						>
 							{isPassed ? "Lulus" : "Tidak Lulus"}
 						</Badge>
-					</div>
-					<CardHeader className="pb-2">
-						<CardTitle className="font-medium text-muted-foreground text-sm">Passing Grade</CardTitle>
 					</CardHeader>
-					<CardContent>
+					<CardContent className="mt-auto">
 						<div className="flex items-baseline gap-2">
-							<span className={cn("font-bold text-6xl", isPassed ? "text-green-600" : "text-red-500")}>
-								{PASSING_GRADE}
+							<span className={cn("font-semibold text-5xl", isPassed ? "text-green-600" : "text-red-500")}>
+								{passingGrade}
 							</span>
 							<span className="font-medium text-muted-foreground text-xl">/ 1000</span>
 						</div>
@@ -125,7 +120,7 @@ function RouteComponent() {
 			{/* Details Section */}
 			<div className="space-y-6">
 				<div className="space-y-1">
-					<h2 className="font-bold text-2xl">Lihat Lebih Detail</h2>
+					<h2 className="font-semibold text-2xl">Lihat Lebih Detail</h2>
 					<p className="text-muted-foreground">Buka untuk melihat setiap jawabanmu</p>
 				</div>
 
@@ -133,11 +128,11 @@ function RouteComponent() {
 					<Table>
 						<TableHeader className="bg-blue-50/50">
 							<TableRow className="hover:bg-blue-50/50">
-								<TableHead className="w-[80px] font-bold text-blue-900">No</TableHead>
+								<TableHead className="w-20 font-bold text-blue-900">No</TableHead>
 								<TableHead className="font-bold text-blue-900">Nama Subtes</TableHead>
 								<TableHead className="font-bold text-blue-900">Score</TableHead>
 								<TableHead className="font-bold text-blue-900">Durasi</TableHead>
-								<TableHead className="w-[100px] text-right" />
+								<TableHead className="w-25 text-right" />
 							</TableRow>
 						</TableHeader>
 						<TableBody>
@@ -153,7 +148,7 @@ function RouteComponent() {
 										<TableCell className="text-right">
 											<Button
 												size="icon"
-												className="h-8 w-8 rounded-md bg-[#009CA6] hover:bg-[#008a93]"
+												className="h-8 w-8 rounded-md bg-[#009CA6] hover:cursor-pointer hover:bg-[#008a93]"
 												onClick={() => {
 													if (session.data?.user.isPremium) {
 														navigate({

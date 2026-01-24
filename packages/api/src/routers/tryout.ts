@@ -28,6 +28,7 @@ const list = authed
 			.select({
 				id: tryout.id,
 				title: tryout.title,
+				passingGrade: tryout.passingGrade,
 				startsAt: tryout.startsAt,
 				endsAt: tryout.endsAt,
 				attemptId: tryoutAttempt.id,
@@ -59,6 +60,7 @@ const featured = authed
 			.select({
 				id: tryout.id,
 				title: tryout.title,
+				passingGrade: tryout.passingGrade,
 				startsAt: tryout.startsAt,
 				endsAt: tryout.endsAt,
 				startedAt: tryoutAttempt.startedAt,
@@ -658,11 +660,18 @@ const attemptResult = authed
 	.handler(async ({ input, context, errors }) => {
 		const attempt = await db.query.tryoutAttempt.findFirst({
 			where: and(eq(tryoutAttempt.id, input.attemptId), eq(tryoutAttempt.userId, context.session.user.id)),
+			columns: {
+				startedAt: true,
+				deadline: true,
+				completedAt: true,
+				status: true,
+			},
 			with: {
 				tryout: {
 					columns: {
 						id: true,
 						title: true,
+						passingGrade: true,
 					},
 					with: {
 						subtests: {
@@ -690,7 +699,6 @@ const attemptResult = authed
 		if (!attempt) {
 			throw errors.NOT_FOUND({ message: "Attempt not found" });
 		}
-
 		return attempt;
 	});
 

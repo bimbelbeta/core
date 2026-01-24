@@ -57,7 +57,7 @@ export function AnswerPanel() {
 	if (!currentQuestion) return null;
 
 	return (
-		<div className="flex h-full flex-col overflow-hidden lg:px-4">
+		<div className="flex h-full flex-col">
 			<div className="flex flex-col gap-2">
 				{currentQuestion?.type === "multiple_choice" ? (
 					currentQuestion.choices?.map((choice) => (

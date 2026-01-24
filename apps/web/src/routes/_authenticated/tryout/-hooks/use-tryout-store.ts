@@ -9,6 +9,7 @@ interface TryoutStore {
 	answers: Record<number, number>;
 	essayAnswers: Record<number, string>;
 	raguRaguIds: Set<number>;
+	showQuestionGrid: boolean;
 
 	setView: (view: "greeting" | "questions") => void;
 	setQuestions: (questions: TryoutQuestion[]) => void;
@@ -18,6 +19,8 @@ interface TryoutStore {
 	setEssayAnswer: (questionId: number, answer: string) => void;
 	removeAnswer: (questionId: number) => void;
 	toggleRaguRagu: (questionId: number) => void;
+	setShowQuestionGrid: (show: boolean) => void;
+	toggleQuestionGrid: () => void;
 	nextQuestion: () => void;
 	prevQuestion: () => void;
 	reset: () => void;
@@ -31,6 +34,7 @@ export const useTryoutStore = create<TryoutStore>((set, _get) => ({
 	answers: {},
 	essayAnswers: {},
 	raguRaguIds: new Set(),
+	showQuestionGrid: true,
 
 	setView: (view) => set({ view }),
 
@@ -71,6 +75,10 @@ export const useTryoutStore = create<TryoutStore>((set, _get) => ({
 			return { raguRaguIds: newRaguRaguIds };
 		}),
 
+	setShowQuestionGrid: (show) => set({ showQuestionGrid: show }),
+
+	toggleQuestionGrid: () => set((state) => ({ showQuestionGrid: !state.showQuestionGrid })),
+
 	nextQuestion: () =>
 		set((state) => ({
 			currentQuestionIndex: state.currentQuestionIndex + 1,
@@ -90,5 +98,6 @@ export const useTryoutStore = create<TryoutStore>((set, _get) => ({
 			answers: {},
 			essayAnswers: {},
 			raguRaguIds: new Set(),
+			showQuestionGrid: true,
 		}),
 }));

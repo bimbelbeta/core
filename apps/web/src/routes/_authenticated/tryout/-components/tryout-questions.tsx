@@ -123,18 +123,20 @@ export function TryoutQuestions() {
 		useTryoutStore.setState({ raguRaguIds: newRaguRaguIds });
 	}, [questions, setEssayAnswer, setAnswer, setQuestions]);
 
+	const showQuestionGrid = useTryoutStore((state) => state.showQuestionGrid);
+
 	if (!data?.currentSubtest || !currentQuestion || view === "greeting") {
 		return null;
 	}
 
 	return (
-		<div className="flex gap-2 max-lg:flex-col">
+		<div className="flex gap-2 max-lg:flex-col-reverse">
 			<Card className="flex flex-1 flex-col gap-4 p-4">
 				<QuestionHeader />
 				<QuestionBody />
 				<QuestionFooter />
 			</Card>
-			<QuestionGrid />
+			{showQuestionGrid && <QuestionGrid />}
 		</div>
 	);
 }

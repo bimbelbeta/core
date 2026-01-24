@@ -11,8 +11,9 @@ export default defineConfig({
 	},
 	plugins: [
 		tsconfigPaths(),
-		tailwindcss(),
 		tanstackStart(),
+		viteReact(),
+		tailwindcss(),
 		nitro({
 			vercel: {
 				functions: {
@@ -20,6 +21,5 @@ export default defineConfig({
 				},
 			},
 		}),
-		viteReact(),
 	],
 });
