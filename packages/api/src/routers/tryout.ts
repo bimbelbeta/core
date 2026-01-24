@@ -662,6 +662,7 @@ const attemptResult = authed
 			where: and(eq(tryoutAttempt.id, input.attemptId), eq(tryoutAttempt.userId, context.session.user.id)),
 			columns: {
 				startedAt: true,
+				score: true,
 				deadline: true,
 				completedAt: true,
 				status: true,

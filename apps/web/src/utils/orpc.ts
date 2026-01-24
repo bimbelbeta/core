@@ -7,7 +7,7 @@ import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { QueryCache, QueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-function getApiUrl() {
+export function getApiUrl() {
 	return (
 		process.env.VITE_SERVER_URL ??
 		import.meta.env.VITE_SERVER_URL ??

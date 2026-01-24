@@ -1,3 +1,5 @@
+import { handleRequest, type Router, route } from "@better-upload/server";
+import { custom } from "@better-upload/server/clients";
 import { createContext } from "@bimbelbeta/api/context";
 import { appRouter } from "@bimbelbeta/api/routers/index";
 import { auth } from "@bimbelbeta/auth";
@@ -10,6 +12,24 @@ import { RPCHandler } from "@orpc/server/fetch";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
+
+const router: Router = {
+	client: custom({
+		host: process.env.S3_ENDPOINT || "",
+		region: "us-east-1",
+		accessKeyId: process.env.S3_ACCESS_KEY || "",
+		secretAccessKey: process.env.S3_SECRET_KEY || "",
+		secure: false,
+		forcePathStyle: true,
+	}),
+	bucketName: process.env.S3_BUCKET || "temp",
+	routes: {
+		tryout: route({
+			fileTypes: ["image/*"],
+			maxFileSize: 1024 * 1024 * 2,
+		}),
+	},
+};
 
 const app = new Hono();
 
@@ -54,6 +74,10 @@ export const rpcHandler = new RPCHandler(appRouter, {
 	],
 });
 
+app.post("/upload", (c) => {
+	return handleRequest(c.req.raw, router);
+});
+
 app.use("/*", async (c, next) => {
 	const context = await createContext({ context: c });
 
@@ -76,12 +100,6 @@ app.use("/*", async (c, next) => {
 	}
 
 	await next();
-});
-
-app.post("/transactions/webhook", async (c) => {
-	await c.req.json();
-
-	return c.json({ status: "OK" });
 });
 
 app.get("/", (c) => {
