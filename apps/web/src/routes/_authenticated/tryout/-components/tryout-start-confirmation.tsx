@@ -1,4 +1,5 @@
 import { useUploadFile } from "@better-upload/client";
+import { Coins } from "@phosphor-icons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouteContext, useRouter } from "@tanstack/react-router";
 import { Upload, X } from "lucide-react";
@@ -30,6 +31,11 @@ export function TryoutStartConfirmation({ children, disabled = false }: TryoutSt
 	const isPremium = session?.user.isPremium;
 
 	const { data } = useQuery(orpc.tryout.featured.queryOptions());
+
+	// Fetch credit balance
+	const creditBalanceQuery = useQuery(orpc.credit.balance.queryOptions());
+	const creditBalance = creditBalanceQuery.data?.balance ?? 0;
+	const hasCredits = creditBalance > 0;
 
 	const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
 	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -65,6 +71,8 @@ export function TryoutStartConfirmation({ children, disabled = false }: TryoutSt
 		orpc.tryout.start.mutationOptions({
 			onSuccess: () => {
 				setIsOpen(false);
+				// Invalidate credit balance after using a credit
+				creditBalanceQuery.refetch();
 				if (data) router.navigate({ to: "/tryout/$tryoutId", params: { tryoutId: data?.id.toString() } });
 			},
 		}),
@@ -82,6 +90,11 @@ export function TryoutStartConfirmation({ children, disabled = false }: TryoutSt
 			}
 			startTryoutMutation.mutate({ id: data.id, imageUrl: uploadedUrl });
 		}
+	};
+
+	const handleStartWithCredit = () => {
+		setErrors(null);
+		startTryoutMutation.mutate({ id: data.id, useCredit: true });
 	};
 
 	const handleOpenChange = (open: boolean) => {
@@ -146,15 +159,46 @@ export function TryoutStartConfirmation({ children, disabled = false }: TryoutSt
 						transition={{ duration: 0.3, ease: "easeOut" }}
 					>
 						<DialogHeader>
-							<DialogTitle>Ups, kamu belum premium</DialogTitle>
-							<DialogDescription>
-								Untuk mencoba tryout premium, kamu perlu mengupgrade ke paket premium terlebih dahulu.
-							</DialogDescription>
+							<DialogTitle>Pilih Metode</DialogTitle>
+							<DialogDescription>Pilih cara untuk memulai tryout ini.</DialogDescription>
 						</DialogHeader>
 						<div className="space-y-4 pt-4">
+							{/* Credit option - show prominently if user has credits */}
+							{hasCredits && (
+								<div className="rounded-lg border-2 border-amber-200 bg-amber-50 p-4">
+									<div className="flex items-center gap-3">
+										<div className="rounded-full bg-amber-100 p-2">
+											<Coins size={20} weight="fill" className="text-amber-600" />
+										</div>
+										<div className="flex-1">
+											<p className="font-medium text-amber-900">Gunakan Kredit Tryout</p>
+											<p className="text-amber-700 text-sm">
+												Kamu punya <strong>{creditBalance}</strong> kredit
+											</p>
+										</div>
+									</div>
+									<Button
+										onClick={handleStartWithCredit}
+										disabled={startTryoutMutation.isPending}
+										className="mt-3 w-full bg-amber-600 hover:bg-amber-700"
+									>
+										{startTryoutMutation.isPending ? (
+											<>
+												<Spinner /> Memulai...
+											</>
+										) : (
+											<>
+												<Coins size={18} weight="fill" className="mr-1" />
+												Gunakan 1 Kredit
+											</>
+										)}
+									</Button>
+								</div>
+							)}
+
 							<DialogFooter className="flex flex-col gap-3 sm:flex-col">
-								<Button onClick={handleTryoutGratis} className="w-full">
-									Tryout Gratis
+								<Button onClick={handleTryoutGratis} variant={hasCredits ? "outline" : "default"} className="w-full">
+									{hasCredits ? "Upload Bukti Pembayaran" : "Tryout Gratis"}
 								</Button>
 								<Button variant="outline" onClick={handleBeliPaket} className="w-full">
 									Beli Paket

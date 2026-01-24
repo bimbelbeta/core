@@ -1,6 +1,6 @@
 "use client";
 
-import { BooksIcon, FileTextIcon, HouseIcon } from "@phosphor-icons/react";
+import { BooksIcon, FileTextIcon, HouseIcon, UserIcon } from "@phosphor-icons/react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { Sidebar, SidebarContent, SidebarHeader, SidebarRail } from "@/components/ui/sidebar";
 import { NavFooter } from "./nav-footer";
@@ -26,6 +26,11 @@ const adminNavLinks = [
 		title: "Passing Grade",
 		url: "/admin/passing-grades",
 		icon: BooksIcon,
+	},
+	{
+		title: "Users",
+		url: "/admin/users",
+		icon: UserIcon,
 	},
 ];
 

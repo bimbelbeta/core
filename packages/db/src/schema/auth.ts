@@ -15,7 +15,7 @@ export const user = pgTable("user", {
 	role: text("role").default("user"),
 	isPremium: boolean("is_premium").default(false),
 	premiumExpiresAt: timestamp("premium_expires_at"),
-	tryoutCredits: integer("tryout_credits").notNull().default(0),
+	tryoutCredits: integer("tryout_credits").default(0),
 });
 
 export const session = pgTable(

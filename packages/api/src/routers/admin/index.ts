@@ -6,6 +6,7 @@ import { subtestRouter } from "./subtest";
 import { subtestQuestionRouter } from "./subtest-question";
 import { tryoutRouter } from "./tryout";
 import { adminUniversityRouter } from "./university";
+import { usersRouter } from "./users";
 
 export const adminRouter = {
 	dashboard: adminDashboardRouter,
@@ -18,6 +19,7 @@ export const adminRouter = {
 	},
 	university: adminUniversityRouter,
 	credit: adminCreditRouter,
+	users: usersRouter,
 };
 
 export type { adminDashboardRouter } from "./dashboard";
