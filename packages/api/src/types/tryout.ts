@@ -1,20 +1,14 @@
-export type QuestionChoice = {
-	id: number;
-	content: string;
-	code: string;
-};
-
-export type TryoutQuestion = {
-	id: number;
-	content: unknown;
-	type: "multiple_choice" | "essay";
-	choices: QuestionChoice[];
-	userAnswer: {
-		selectedChoiceId: number | null;
-		essayAnswer: string | null;
-		isDoubtful: boolean;
-	};
-};
+// Re-export question types for backward compatibility
+// Keep the deprecated QuestionChoice alias for backward compatibility
+// TODO: Remove in future version
+export type {
+	Choice,
+	Choice as QuestionChoice,
+	ChoiceWithAnswer,
+	ReviewQuestion,
+	TryoutQuestion,
+	UserAnswer,
+} from "./question";
 
 export type TryoutSubtestWithStatus = {
 	id: number;
@@ -22,7 +16,7 @@ export type TryoutSubtestWithStatus = {
 	description: string | null;
 	duration: number;
 	order: number;
-	questions: TryoutQuestion[];
+	questions: import("./question").TryoutQuestion[];
 	deadline: Date | null;
 	status: "ongoing" | "finished";
 };

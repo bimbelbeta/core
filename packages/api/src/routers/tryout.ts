@@ -3,6 +3,7 @@ import { question, questionChoice } from "@bimbelbeta/db/schema/question";
 import {
 	tryout,
 	tryoutAttempt,
+	tryoutSubtest,
 	tryoutSubtestAttempt,
 	tryoutSubtestQuestion,
 	tryoutUserAnswer,
@@ -13,7 +14,7 @@ import { and, desc, eq } from "drizzle-orm";
 import { authed } from "../index";
 import { calculateTryoutScores, saveScoresToDatabase } from "../lib/calculate-score";
 import { convertToTiptap } from "../lib/convert-to-tiptap";
-import type { TryoutQuestion } from "../types/tryout";
+import type { ReviewQuestion, TryoutQuestion } from "../types/question";
 
 const list = authed
 	.route({
@@ -693,6 +694,133 @@ const attemptResult = authed
 		return attempt;
 	});
 
+const review = authed
+	.route({
+		path: "/tryouts/attempts/{attemptId}/subtests/{subtestId}/review",
+		method: "GET",
+		tags: ["Tryouts"],
+	})
+	.input(type({ attemptId: "number", subtestId: "number" }))
+	.output(
+		type({
+			subtest: {
+				name: "string",
+			},
+			questions: type(
+				{
+					id: "number",
+					content: "unknown",
+					type: "'multiple_choice' | 'essay'",
+					discussion: "unknown",
+					choices: type(
+						{
+							id: "number",
+							content: "string",
+							code: "string",
+							isCorrect: "boolean",
+						},
+						"[]",
+					),
+					userAnswer: {
+						selectedChoiceId: "number | null",
+						essayAnswer: "string | null",
+						isDoubtful: "boolean",
+					},
+				},
+				"[]",
+			),
+		}),
+	)
+	.handler(async ({ input, context, errors }) => {
+		const attempt = await db.query.tryoutAttempt.findFirst({
+			where: and(eq(tryoutAttempt.id, input.attemptId), eq(tryoutAttempt.userId, context.session.user.id)),
+			with: {
+				subtestAttempts: true,
+			},
+		});
+
+		if (!attempt) throw errors.NOT_FOUND({ message: "Attempt not found" });
+
+		const subtestAttempt = attempt.subtestAttempts.find((sa) => sa.subtestId === input.subtestId);
+
+		if (!subtestAttempt || subtestAttempt.status !== "finished") {
+			throw errors.BAD_REQUEST({ message: "Subtest belum selesai atau tidak ditemukan." });
+		}
+
+		// Fetch questions with full details including discussion and correct answer
+		const rows = await db
+			.select({
+				questionId: question.id,
+				questionContent: question.content,
+				questionContentJson: question.contentJson,
+				questionType: question.type,
+				discussion: question.discussion,
+				discussionJson: question.discussionJson,
+				choiceId: questionChoice.id,
+				choiceContent: questionChoice.content,
+				choiceCode: questionChoice.code,
+				isCorrectChoice: questionChoice.isCorrect,
+				userSelectedChoiceId: tryoutUserAnswer.selectedChoiceId,
+				userEssayAnswer: tryoutUserAnswer.essayAnswer,
+				userIsDoubtful: tryoutUserAnswer.isDoubtful,
+			})
+			.from(tryoutSubtestQuestion)
+			.innerJoin(question, eq(question.id, tryoutSubtestQuestion.questionId))
+			.leftJoin(questionChoice, eq(questionChoice.questionId, question.id))
+			.leftJoin(
+				tryoutUserAnswer,
+				and(eq(tryoutUserAnswer.questionId, question.id), eq(tryoutUserAnswer.attemptId, attempt.id)),
+			)
+			.where(eq(tryoutSubtestQuestion.subtestId, input.subtestId))
+			.orderBy(tryoutSubtestQuestion.order);
+
+		const questionsMap = new Map<number, ReviewQuestion>();
+		for (const row of rows) {
+			if (!questionsMap.has(row.questionId)) {
+				questionsMap.set(row.questionId, {
+					id: row.questionId,
+					content: row.questionContentJson || convertToTiptap(row.questionContent),
+					type: row.questionType,
+					discussion: row.discussionJson || convertToTiptap(row.discussion),
+					choices: [],
+					userAnswer: {
+						selectedChoiceId: row.userSelectedChoiceId,
+						essayAnswer: row.userEssayAnswer,
+						isDoubtful: row.userIsDoubtful ?? false,
+					},
+				});
+			}
+			if (row.choiceId) {
+				const q = questionsMap.get(row.questionId);
+				if (q) {
+					q.choices.push({
+						id: row.choiceId,
+						content: row.choiceContent!,
+						code: row.choiceCode!,
+						isCorrect: row.isCorrectChoice || false,
+					});
+				}
+			}
+		}
+
+		// Verify we also need to return the subtest name for the header
+		const subtestData = await db.query.tryoutSubtest.findFirst({
+			where: eq(tryoutSubtest.id, input.subtestId),
+			columns: {
+				name: true,
+			},
+		});
+
+		if (!subtestData) {
+			throw errors.NOT_FOUND({ message: "Subtest not found" });
+		}
+
+		return {
+			subtest: subtestData,
+			questions: Array.from(questionsMap.values()),
+		};
+	});
+
 export const tryoutRouter = {
 	list,
 	find,
@@ -705,4 +833,5 @@ export const tryoutRouter = {
 	submitTryout,
 	history,
 	attemptResult,
+	review,
 };

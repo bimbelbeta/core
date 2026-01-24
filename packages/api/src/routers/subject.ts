@@ -16,6 +16,7 @@ import { and, desc, eq, ilike, inArray, isNotNull, sql } from "drizzle-orm";
 import { authed, authedRateLimited } from "../index";
 import { canAccessContent } from "../lib/content-access";
 import { convertToTiptap } from "../lib/convert-to-tiptap";
+import type { ChoiceWithAnswer } from "../types/question";
 
 function escapeLikePattern(value: string): string {
 	return value.replace(/[%_\\]/g, (char) => `\\${char}`);
@@ -246,12 +247,7 @@ const getContentById = authedRateLimited
 				order: number;
 				question: string;
 				discussion: string;
-				answers: Array<{
-					id: number;
-					content: string;
-					code: string;
-					isCorrect: boolean;
-				}>;
+				answers: ChoiceWithAnswer[];
 			}
 		>();
 

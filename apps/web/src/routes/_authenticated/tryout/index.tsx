@@ -35,7 +35,7 @@ function TryoutHeader() {
 	return (
 		<div className="relative overflow-hidden rounded-default bg-linear-to-r from-primary-500 to-secondary-400">
 			<div className="grid grid-cols-1 gap-6 px-6 pt-8 pb-0 sm:grid-cols-3 sm:items-center sm:px-10 sm:py-10">
-				<div className="relative -mx-6 h-27.5 overflow-hidden sm:mx-0 sm:h-auto sm:overflow-visible">
+				<div className="relative order-last -mx-6 h-27.5 overflow-hidden sm:order-first sm:mx-0 sm:h-auto sm:overflow-visible">
 					<Image
 						src="/avatar/subtest-header-avatar.webp"
 						alt="Tryout Header Avatar"

@@ -43,6 +43,7 @@ import { Route as AdminTryoutsTryoutIdSubtestsSubtestIdRouteImport } from './rou
 import { Route as AdminClassesSubjectIdContentIdVideoRouteImport } from './routes/admin/classes/$subjectId/$contentId.video'
 import { Route as AdminClassesSubjectIdContentIdNotesRouteImport } from './routes/admin/classes/$subjectId/$contentId.notes'
 import { Route as AdminClassesSubjectIdContentIdLatihanSoalRouteImport } from './routes/admin/classes/$subjectId/$contentId.latihan-soal'
+import { Route as AuthenticatedTryoutReviewAttemptIdSubtestIdRouteImport } from './routes/_authenticated/tryout/review.$attemptId.$subtestId'
 import { Route as AuthenticatedClassesSubjectIdContentIdVideoRouteImport } from './routes/_authenticated/classes/$subjectId/$contentId.video'
 import { Route as AuthenticatedClassesSubjectIdContentIdNotesRouteImport } from './routes/_authenticated/classes/$subjectId/$contentId.notes'
 import { Route as AuthenticatedClassesSubjectIdContentIdLatihanSoalRouteImport } from './routes/_authenticated/classes/$subjectId/$contentId.latihan-soal'
@@ -234,6 +235,12 @@ const AdminClassesSubjectIdContentIdLatihanSoalRoute =
     path: '/latihan-soal',
     getParentRoute: () => AdminClassesSubjectIdContentIdRoute,
   } as any)
+const AuthenticatedTryoutReviewAttemptIdSubtestIdRoute =
+  AuthenticatedTryoutReviewAttemptIdSubtestIdRouteImport.update({
+    id: '/tryout/review/$attemptId/$subtestId',
+    path: '/tryout/review/$attemptId/$subtestId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedClassesSubjectIdContentIdVideoRoute =
   AuthenticatedClassesSubjectIdContentIdVideoRouteImport.update({
     id: '/video',
@@ -285,6 +292,7 @@ export interface FileRoutesByFullPath {
   '/classes/$subjectId/$contentId/latihan-soal': typeof AuthenticatedClassesSubjectIdContentIdLatihanSoalRoute
   '/classes/$subjectId/$contentId/notes': typeof AuthenticatedClassesSubjectIdContentIdNotesRoute
   '/classes/$subjectId/$contentId/video': typeof AuthenticatedClassesSubjectIdContentIdVideoRoute
+  '/tryout/review/$attemptId/$subtestId': typeof AuthenticatedTryoutReviewAttemptIdSubtestIdRoute
   '/admin/classes/$subjectId/$contentId/latihan-soal': typeof AdminClassesSubjectIdContentIdLatihanSoalRoute
   '/admin/classes/$subjectId/$contentId/notes': typeof AdminClassesSubjectIdContentIdNotesRoute
   '/admin/classes/$subjectId/$contentId/video': typeof AdminClassesSubjectIdContentIdVideoRoute
@@ -321,6 +329,7 @@ export interface FileRoutesByTo {
   '/classes/$subjectId/$contentId/latihan-soal': typeof AuthenticatedClassesSubjectIdContentIdLatihanSoalRoute
   '/classes/$subjectId/$contentId/notes': typeof AuthenticatedClassesSubjectIdContentIdNotesRoute
   '/classes/$subjectId/$contentId/video': typeof AuthenticatedClassesSubjectIdContentIdVideoRoute
+  '/tryout/review/$attemptId/$subtestId': typeof AuthenticatedTryoutReviewAttemptIdSubtestIdRoute
   '/admin/classes/$subjectId/$contentId/latihan-soal': typeof AdminClassesSubjectIdContentIdLatihanSoalRoute
   '/admin/classes/$subjectId/$contentId/notes': typeof AdminClassesSubjectIdContentIdNotesRoute
   '/admin/classes/$subjectId/$contentId/video': typeof AdminClassesSubjectIdContentIdVideoRoute
@@ -361,6 +370,7 @@ export interface FileRoutesById {
   '/_authenticated/classes/$subjectId/$contentId/latihan-soal': typeof AuthenticatedClassesSubjectIdContentIdLatihanSoalRoute
   '/_authenticated/classes/$subjectId/$contentId/notes': typeof AuthenticatedClassesSubjectIdContentIdNotesRoute
   '/_authenticated/classes/$subjectId/$contentId/video': typeof AuthenticatedClassesSubjectIdContentIdVideoRoute
+  '/_authenticated/tryout/review/$attemptId/$subtestId': typeof AuthenticatedTryoutReviewAttemptIdSubtestIdRoute
   '/admin/classes/$subjectId/$contentId/latihan-soal': typeof AdminClassesSubjectIdContentIdLatihanSoalRoute
   '/admin/classes/$subjectId/$contentId/notes': typeof AdminClassesSubjectIdContentIdNotesRoute
   '/admin/classes/$subjectId/$contentId/video': typeof AdminClassesSubjectIdContentIdVideoRoute
@@ -400,6 +410,7 @@ export interface FileRouteTypes {
     | '/classes/$subjectId/$contentId/latihan-soal'
     | '/classes/$subjectId/$contentId/notes'
     | '/classes/$subjectId/$contentId/video'
+    | '/tryout/review/$attemptId/$subtestId'
     | '/admin/classes/$subjectId/$contentId/latihan-soal'
     | '/admin/classes/$subjectId/$contentId/notes'
     | '/admin/classes/$subjectId/$contentId/video'
@@ -436,6 +447,7 @@ export interface FileRouteTypes {
     | '/classes/$subjectId/$contentId/latihan-soal'
     | '/classes/$subjectId/$contentId/notes'
     | '/classes/$subjectId/$contentId/video'
+    | '/tryout/review/$attemptId/$subtestId'
     | '/admin/classes/$subjectId/$contentId/latihan-soal'
     | '/admin/classes/$subjectId/$contentId/notes'
     | '/admin/classes/$subjectId/$contentId/video'
@@ -475,6 +487,7 @@ export interface FileRouteTypes {
     | '/_authenticated/classes/$subjectId/$contentId/latihan-soal'
     | '/_authenticated/classes/$subjectId/$contentId/notes'
     | '/_authenticated/classes/$subjectId/$contentId/video'
+    | '/_authenticated/tryout/review/$attemptId/$subtestId'
     | '/admin/classes/$subjectId/$contentId/latihan-soal'
     | '/admin/classes/$subjectId/$contentId/notes'
     | '/admin/classes/$subjectId/$contentId/video'
@@ -728,6 +741,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminClassesSubjectIdContentIdLatihanSoalRouteImport
       parentRoute: typeof AdminClassesSubjectIdContentIdRoute
     }
+    '/_authenticated/tryout/review/$attemptId/$subtestId': {
+      id: '/_authenticated/tryout/review/$attemptId/$subtestId'
+      path: '/tryout/review/$attemptId/$subtestId'
+      fullPath: '/tryout/review/$attemptId/$subtestId'
+      preLoaderRoute: typeof AuthenticatedTryoutReviewAttemptIdSubtestIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/classes/$subjectId/$contentId/video': {
       id: '/_authenticated/classes/$subjectId/$contentId/video'
       path: '/video'
@@ -815,6 +835,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedClassesSubjectIdContentIdRoute: typeof AuthenticatedClassesSubjectIdContentIdRouteWithChildren
   AuthenticatedTryoutResultsAttemptIdRoute: typeof AuthenticatedTryoutResultsAttemptIdRoute
   AuthenticatedClassesSubjectIdIndexRoute: typeof AuthenticatedClassesSubjectIdIndexRoute
+  AuthenticatedTryoutReviewAttemptIdSubtestIdRoute: typeof AuthenticatedTryoutReviewAttemptIdSubtestIdRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -829,6 +850,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedTryoutResultsAttemptIdRoute,
   AuthenticatedClassesSubjectIdIndexRoute:
     AuthenticatedClassesSubjectIdIndexRoute,
+  AuthenticatedTryoutReviewAttemptIdSubtestIdRoute:
+    AuthenticatedTryoutReviewAttemptIdSubtestIdRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
