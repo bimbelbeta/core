@@ -140,6 +140,15 @@ const find = authed
 
 		const currentSubtest = tryoutData.subtests.find((s) => !completedSubtestIds.has(s.id));
 
+		if (Date.now() > attempt.deadline.getTime() && !attempt.completedAt && attempt.status === "ongoing")
+			await db
+				.update(tryoutAttempt)
+				.set({
+					completedAt: new Date(),
+					status: "finished",
+				})
+				.where(eq(tryoutAttempt.id, attempt.id));
+
 		if (!currentSubtest) {
 			return {
 				...tryoutData,

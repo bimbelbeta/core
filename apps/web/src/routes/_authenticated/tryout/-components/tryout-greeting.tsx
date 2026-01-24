@@ -5,11 +5,21 @@ import { useParams } from "@tanstack/react-router";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import useCountdown from "@/lib/hooks/use-countdown";
 import { orpc } from "@/utils/orpc";
 import { useTryoutStore } from "../-hooks/use-tryout-store";
 
-export function TryoutGreeting() {
+type CountdownProps = {
+	hours: string;
+	minutes: string;
+	seconds: string;
+	isExpired: boolean;
+};
+
+interface TryoutGreetingProps {
+	countdownProps: CountdownProps;
+}
+
+export function TryoutGreeting({ countdownProps }: TryoutGreetingProps) {
 	const { tryoutId: stringTryoutId } = useParams({ from: "/_authenticated/tryout/$tryoutId" });
 	const tryoutId = Number(stringTryoutId);
 
@@ -21,7 +31,7 @@ export function TryoutGreeting() {
 
 	const queryClient = useQueryClient();
 	const { view, setView } = useTryoutStore();
-	const [, hours, minutes, seconds] = useCountdown(data?.currentSubtest?.deadline || 0);
+	const { hours, minutes, seconds, isExpired } = countdownProps;
 
 	const startSubtestMutation = useMutation(
 		orpc.tryout.startSubtest.mutationOptions({
@@ -41,8 +51,7 @@ export function TryoutGreeting() {
 
 	if (view !== "greeting" || !data || !data.currentSubtest) return null;
 
-	const isCompletedSubtest =
-		hours === "00" && minutes === "00" && seconds === "00" && data.currentSubtest?.deadline !== null;
+	const isCompletedSubtest = isExpired && data.currentSubtest.deadline !== null;
 
 	const isOverallDeadlineExpired = data.overallDeadline && new Date() > new Date(data.overallDeadline);
 

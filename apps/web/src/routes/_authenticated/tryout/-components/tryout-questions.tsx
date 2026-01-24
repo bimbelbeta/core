@@ -1,9 +1,7 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
-import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
-import useCountdown from "@/lib/hooks/use-countdown";
 import { orpc } from "@/utils/orpc";
 import { useTryoutStore } from "../-hooks/use-tryout-store";
 import { QuestionBody } from "./question-body";
@@ -11,10 +9,20 @@ import { QuestionFooter } from "./question-footer";
 import { QuestionGrid } from "./question-grid";
 import { QuestionHeader } from "./question-header";
 
-export function TryoutQuestions() {
+type CountdownProps = {
+	hours: string;
+	minutes: string;
+	seconds: string;
+	isExpired: boolean;
+};
+
+interface TryoutQuestionsProps {
+	countdownProps: CountdownProps;
+}
+
+export function TryoutQuestions({ countdownProps }: TryoutQuestionsProps) {
 	const { tryoutId: stringTryoutId } = useParams({ from: "/_authenticated/tryout/$tryoutId" });
 	const tryoutId = Number(stringTryoutId);
-	const queryClient = useQueryClient();
 
 	const { data } = useQuery(
 		orpc.tryout.find.queryOptions({
@@ -30,27 +38,20 @@ export function TryoutQuestions() {
 		setCurrentQuestion,
 		setEssayAnswer,
 		setAnswer,
-		setView,
 		setQuestions,
 	} = useTryoutStore();
 
 	const questions = data?.currentSubtest?.questions ?? [];
 	const subtestId = data?.currentSubtest?.id;
-	const deadline = data?.currentSubtest?.deadline ?? null;
 	const hasInitialized = useRef(false);
-	const hasAutoSubmitted = useRef(false);
 	const prevTryoutId = useRef<number | null>(null);
 	const prevSubtestId = useRef<number | null>(null);
-
-	const [, hours, minutes, seconds] = useCountdown(deadline || 0);
-	const isExpired = hours === "00" && minutes === "00" && seconds === "00" && deadline !== null;
 
 	// Reset store when tryoutId changes (navigating between different tryouts)
 	useEffect(() => {
 		if (prevTryoutId.current !== null && prevTryoutId.current !== tryoutId) {
 			useTryoutStore.getState().reset();
 			hasInitialized.current = false;
-			hasAutoSubmitted.current = false;
 		}
 		prevTryoutId.current = tryoutId;
 	}, [tryoutId]);
@@ -59,35 +60,9 @@ export function TryoutQuestions() {
 	useEffect(() => {
 		if (prevSubtestId.current !== null && prevSubtestId.current !== subtestId) {
 			hasInitialized.current = false;
-			hasAutoSubmitted.current = false;
 		}
 		prevSubtestId.current = subtestId ?? null;
 	}, [subtestId]);
-
-	const submitSubtestMutation = useMutation(
-		orpc.tryout.submitSubtest.mutationOptions({
-			onSuccess: (data) => {
-				queryClient.invalidateQueries({ queryKey: orpc.tryout.find.key({ input: { id: tryoutId } }) });
-				if (data.tryoutCompleted) {
-					toast.success("Tryout selesai!");
-				} else {
-					toast.info("Waktu habis! Subtest otomatis dikumpulkan.");
-				}
-				setView("greeting");
-			},
-			onError: (error: Error) => {
-				toast.error(error.message);
-			},
-		}),
-	);
-
-	// Auto-submit when timer expires
-	useEffect(() => {
-		if (isExpired && subtestId && !hasAutoSubmitted.current && !submitSubtestMutation.isPending) {
-			hasAutoSubmitted.current = true;
-			submitSubtestMutation.mutate({ tryoutId, subtestId });
-		}
-	}, [isExpired, subtestId, tryoutId, submitSubtestMutation]);
 
 	// Update stores when current index is past max
 	useEffect(() => {
@@ -132,7 +107,7 @@ export function TryoutQuestions() {
 	return (
 		<div className="flex gap-2 max-lg:flex-col-reverse">
 			<Card className="flex flex-1 flex-col gap-4 p-4">
-				<QuestionHeader />
+				<QuestionHeader countdownProps={countdownProps} />
 				<QuestionBody />
 				<QuestionFooter />
 			</Card>

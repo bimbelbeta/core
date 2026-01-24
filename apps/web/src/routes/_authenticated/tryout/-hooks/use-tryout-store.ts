@@ -34,7 +34,7 @@ export const useTryoutStore = create<TryoutStore>((set, _get) => ({
 	answers: {},
 	essayAnswers: {},
 	raguRaguIds: new Set(),
-	showQuestionGrid: true,
+	showQuestionGrid: false,
 
 	setView: (view) => set({ view }),
 

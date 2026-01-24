@@ -1,11 +1,12 @@
 import { ArrowLeftIcon } from "@phosphor-icons/react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import ErrorComponent from "@/components/error";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import useCountdown from "@/lib/hooks/use-countdown";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 import { TryoutGreeting } from "./-components/tryout-greeting";
@@ -19,14 +20,41 @@ export const Route = createFileRoute("/_authenticated/tryout/$tryoutId")({
 function RouteComponent() {
 	const { tryoutId } = Route.useParams();
 	const router = useRouter();
+	const queryClient = useQueryClient();
 	const { data, isPending, error } = useQuery(
 		orpc.tryout.find.queryOptions({
 			input: { id: Number(tryoutId) },
 		}),
 	);
 
-	const { reset, view } = useTryoutStore();
+	const { reset, view, setView } = useTryoutStore();
 	const prevSubtestIdRef = useRef<number | null>(null);
+	const hasAutoSubmitted = useRef(false);
+
+	const deadline = data?.currentSubtest?.deadline ?? null;
+	const [, hours, minutes, seconds] = useCountdown(deadline || 0);
+	const isExpired =
+		typeof hours === "string" && hours === "00" && minutes === "00" && seconds === "00" && deadline !== null;
+
+	const submitSubtestMutation = useMutation(
+		orpc.tryout.submitSubtest.mutationOptions({
+			onSuccess: (responseData) => {
+				queryClient.invalidateQueries({ queryKey: orpc.tryout.find.key({ input: { id: Number(tryoutId) } }) });
+				queryClient.invalidateQueries({
+					queryKey: orpc.tryout.attemptResult.key({ input: { attemptId: data?.attempt.id } }),
+				});
+				if (responseData.tryoutCompleted) {
+					toast.success("Tryout selesai!");
+				} else {
+					toast.info("Waktu habis! Subtest otomatis dikumpulkan.");
+				}
+				setView("greeting");
+			},
+			onError: (error: Error) => {
+				toast.error(error.message);
+			},
+		}),
+	);
 
 	useEffect(() => {
 		if (!data) return;
@@ -50,9 +78,18 @@ function RouteComponent() {
 
 		if (prevSubtestIdRef.current !== data.currentSubtest.id) {
 			reset();
+			hasAutoSubmitted.current = false;
 			prevSubtestIdRef.current = data.currentSubtest.id;
 		}
 	}, [data, router, reset]);
+
+	useEffect(() => {
+		if (isExpired && data?.currentSubtest?.id && !hasAutoSubmitted.current && !submitSubtestMutation.isPending) {
+			hasAutoSubmitted.current = true;
+			submitSubtestMutation.mutate({ tryoutId: Number(tryoutId), subtestId: data.currentSubtest.id });
+			router.navigate({ to: "/tryout", search: { tab: "results" } });
+		}
+	}, [isExpired, data, tryoutId, submitSubtestMutation, router.navigate]);
 
 	if (isPending) {
 		return (
@@ -88,7 +125,15 @@ function RouteComponent() {
 				</div>
 			)}
 
-			{view === "greeting" ? <TryoutGreeting /> : <TryoutQuestions />}
+			{view === "greeting" ? (
+				<TryoutGreeting
+					countdownProps={{ hours: String(hours), minutes: String(minutes), seconds: String(seconds), isExpired }}
+				/>
+			) : (
+				<TryoutQuestions
+					countdownProps={{ hours: String(hours), minutes: String(minutes), seconds: String(seconds), isExpired }}
+				/>
+			)}
 		</div>
 	);
 }
