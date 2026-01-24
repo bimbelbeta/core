@@ -57,7 +57,7 @@ export function AnswerPanel() {
 	if (!currentQuestion) return null;
 
 	return (
-		<div className="flex h-full flex-col overflow-hidden px-4">
+		<div className="flex h-full flex-col overflow-hidden lg:px-4">
 			<div className="flex flex-col gap-2">
 				{currentQuestion?.type === "multiple_choice" ? (
 					currentQuestion.choices?.map((choice) => (
@@ -72,6 +72,7 @@ export function AnswerPanel() {
 					))
 				) : questionId ? (
 					<EssayForm
+						key={questionId}
 						tryoutId={tryoutId}
 						questionId={questionId}
 						saveAnswer={handleSaveEssayAnswer}
@@ -103,8 +104,8 @@ function AnswerOption({
 			onClick={onSelect}
 			className={cn(
 				"flex items-center gap-3 rounded-md border p-4 text-start transition-all",
-				selected ? "border-primary bg-primary/5" : "border-border hover:bg-secondary/50",
-				disabled && "cursor-not-allowed opacity-50",
+				selected ? "border-primary bg-primary/5" : "border-border hover:bg-secondary/5",
+				disabled && "opacity-50",
 			)}
 		>
 			<span

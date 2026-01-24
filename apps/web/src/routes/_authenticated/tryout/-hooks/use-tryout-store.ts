@@ -3,6 +3,7 @@ import { create } from "zustand";
 
 interface TryoutStore {
 	view: "greeting" | "questions";
+	questions: TryoutQuestion[];
 	currentQuestion: TryoutQuestion | null;
 	currentQuestionIndex: number;
 	answers: Record<number, number>;
@@ -10,6 +11,7 @@ interface TryoutStore {
 	raguRaguIds: Set<number>;
 
 	setView: (view: "greeting" | "questions") => void;
+	setQuestions: (questions: TryoutQuestion[]) => void;
 	setCurrentQuestion: (question: TryoutQuestion | null) => void;
 	setCurrentQuestionIndex: (index: number) => void;
 	setAnswer: (questionId: number, choiceId: number) => void;
@@ -23,6 +25,7 @@ interface TryoutStore {
 
 export const useTryoutStore = create<TryoutStore>((set, _get) => ({
 	view: "greeting",
+	questions: [],
 	currentQuestion: null,
 	currentQuestionIndex: 0,
 	answers: {},
@@ -30,6 +33,8 @@ export const useTryoutStore = create<TryoutStore>((set, _get) => ({
 	raguRaguIds: new Set(),
 
 	setView: (view) => set({ view }),
+
+	setQuestions: (questions) => set({ questions }),
 
 	setCurrentQuestion: (question) =>
 		set((state) => {
@@ -79,6 +84,7 @@ export const useTryoutStore = create<TryoutStore>((set, _get) => ({
 	reset: () =>
 		set({
 			view: "greeting",
+			questions: [],
 			currentQuestion: null,
 			currentQuestionIndex: 0,
 			answers: {},

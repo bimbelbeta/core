@@ -9,8 +9,9 @@ import {
 } from "@bimbelbeta/db/schema/tryout";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { and, desc, eq, gte, lte } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { authed } from "../index";
+import { calculateTryoutScores, saveScoresToDatabase } from "../lib/calculate-score";
 import { convertToTiptap } from "../lib/convert-to-tiptap";
 import type { TryoutQuestion } from "../types/tryout";
 
@@ -36,6 +37,7 @@ const list = authed
 				tryoutAttempt,
 				and(eq(tryoutAttempt.tryoutId, tryout.id), eq(tryoutAttempt.userId, context.session.user.id)),
 			)
+			.where(eq(tryout.status, "published"))
 			.orderBy(desc(tryout.startsAt));
 
 		return tryouts.map((t) => ({
@@ -68,6 +70,7 @@ const featured = authed
 				tryoutAttempt,
 				and(eq(tryoutAttempt.tryoutId, tryout.id), eq(tryoutAttempt.userId, context.session.user.id)),
 			)
+			.where(eq(tryout.status, "published"))
 			.orderBy(desc(tryout.startsAt));
 
 		if (!data)
@@ -93,7 +96,7 @@ const find = authed
 	.input(type({ id: "number" }))
 	.handler(async ({ input, context, errors }) => {
 		const tryoutData = await db.query.tryout.findFirst({
-			where: and(eq(tryout.id, input.id), gte(tryout.startsAt, new Date()), lte(tryout.endsAt, new Date())),
+			where: and(eq(tryout.id, input.id), eq(tryout.status, "published")),
 			with: {
 				subtests: {
 					orderBy: (subtests, { asc }) => [asc(subtests.order)],
@@ -172,6 +175,7 @@ const find = authed
 				choiceCode: questionChoice.code,
 				userSelectedChoiceId: tryoutUserAnswer.selectedChoiceId,
 				userEssayAnswer: tryoutUserAnswer.essayAnswer,
+				userIsDoubtful: tryoutUserAnswer.isDoubtful,
 			})
 			.from(tryoutSubtestQuestion)
 			.innerJoin(question, eq(question.id, tryoutSubtestQuestion.questionId))
@@ -194,6 +198,7 @@ const find = authed
 					userAnswer: {
 						selectedChoiceId: row.userSelectedChoiceId,
 						essayAnswer: row.userEssayAnswer,
+						isDoubtful: row.userIsDoubtful ?? false,
 					},
 				});
 			}
@@ -233,7 +238,7 @@ const start = authed
 	.input(type({ id: "number", imageUrl: "string.url?" }))
 	.handler(async ({ input, context }) => {
 		const tryoutData = await db.query.tryout.findFirst({
-			where: eq(tryout.id, input.id),
+			where: and(eq(tryout.id, input.id), eq(tryout.status, "published")),
 			with: {
 				subtests: {
 					orderBy: (subtests, { asc }) => [asc(subtests.order)],
@@ -442,6 +447,62 @@ const saveAnswer = authed
 		return { success: true };
 	});
 
+const toggleRaguRagu = authed
+	.route({
+		path: "/tryouts/{tryoutId}/questions/{questionId}/ragu-ragu",
+		method: "POST",
+		tags: ["Tryouts"],
+	})
+	.input(type({ tryoutId: "number", questionId: "number" }))
+	.handler(async ({ input, context }) => {
+		const attempt = await db.query.tryoutAttempt.findFirst({
+			where: and(
+				eq(tryoutAttempt.tryoutId, input.tryoutId),
+				eq(tryoutAttempt.userId, context.session.user.id),
+				eq(tryoutAttempt.status, "ongoing"),
+			),
+			with: {
+				subtestAttempts: true,
+			},
+		});
+
+		if (!attempt)
+			throw new ORPCError("BAD_REQUEST", {
+				message: "No active attempt found",
+			});
+
+		const currentSubtestAttempt = attempt.subtestAttempts.find((sa) => sa.status === "ongoing");
+		if (!currentSubtestAttempt)
+			throw new ORPCError("BAD_REQUEST", {
+				message: "No active subtest found",
+			});
+
+		if (currentSubtestAttempt.deadline && currentSubtestAttempt.deadline < new Date()) {
+			throw new ORPCError("BAD_REQUEST", {
+				message: "Subtest deadline has passed",
+			});
+		}
+
+		const existingAnswer = await db.query.tryoutUserAnswer.findFirst({
+			where: and(eq(tryoutUserAnswer.attemptId, attempt.id), eq(tryoutUserAnswer.questionId, input.questionId)),
+		});
+
+		if (existingAnswer) {
+			await db
+				.update(tryoutUserAnswer)
+				.set({ isDoubtful: !existingAnswer.isDoubtful })
+				.where(and(eq(tryoutUserAnswer.attemptId, attempt.id), eq(tryoutUserAnswer.questionId, input.questionId)));
+		} else {
+			await db.insert(tryoutUserAnswer).values({
+				attemptId: attempt.id,
+				questionId: input.questionId,
+				isDoubtful: true,
+			});
+		}
+
+		return { success: true };
+	});
+
 const submitSubtest = authed
 	.route({
 		path: "/tryouts/{tryoutId}/subtests/{subtestId}/submit",
@@ -506,11 +567,19 @@ const submitSubtest = authed
 			});
 			return { success: true, nextSubtestId: nextSubtest.id };
 		}
+
+		// This is the last subtest - calculate scores and finish tryout
+		const scores = await calculateTryoutScores(attempt.id);
+
 		await db
 			.update(tryoutAttempt)
 			.set({ status: "finished", completedAt: new Date() })
 			.where(eq(tryoutAttempt.id, attempt.id));
-		return { success: true, tryoutCompleted: true };
+
+		// Save scores to database
+		await saveScoresToDatabase(attempt.id, scores);
+
+		return { success: true, tryoutCompleted: true, score: scores.totalScore };
 	});
 
 const submitTryout = authed
@@ -531,6 +600,9 @@ const submitTryout = authed
 
 		if (!attempt) throw new ORPCError("BAD_REQUEST", { message: "Attempt not found" });
 
+		// Calculate scores before marking as finished
+		const scores = await calculateTryoutScores(attempt.id);
+
 		await db
 			.update(tryoutAttempt)
 			.set({
@@ -539,7 +611,10 @@ const submitTryout = authed
 			})
 			.where(eq(tryoutAttempt.id, attempt.id));
 
-		return { success: true };
+		// Save scores to database
+		await saveScoresToDatabase(attempt.id, scores);
+
+		return { success: true, score: scores.totalScore };
 	});
 
 const history = authed
@@ -605,6 +680,7 @@ const attemptResult = authed
 						subtestId: true,
 						status: true,
 						completedAt: true,
+						score: true,
 					},
 				},
 			},
@@ -624,6 +700,7 @@ export const tryoutRouter = {
 	featured,
 	startSubtest,
 	saveAnswer,
+	toggleRaguRagu,
 	submitSubtest,
 	submitTryout,
 	history,

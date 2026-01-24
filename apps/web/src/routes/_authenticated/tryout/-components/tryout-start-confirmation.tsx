@@ -19,13 +19,14 @@ import { orpc } from "@/utils/orpc";
 
 interface TryoutStartConfirmationProps {
 	children: React.ReactNode;
+	disabled?: boolean;
 }
 
 const urlSchema = type("string.url");
 
 type DialogStep = "notice" | "submit-url" | "premium";
 
-export function TryoutStartConfirmation({ children }: TryoutStartConfirmationProps) {
+export function TryoutStartConfirmation({ children, disabled = false }: TryoutStartConfirmationProps) {
 	const { session } = useRouteContext({ from: "/_authenticated" });
 	const isPremium = session?.user.isPremium;
 
@@ -80,7 +81,9 @@ export function TryoutStartConfirmation({ children }: TryoutStartConfirmationPro
 
 	return (
 		<Dialog open={isOpen} onOpenChange={handleOpenChange}>
-			<DialogTrigger asChild>{children}</DialogTrigger>
+			<DialogTrigger asChild disabled={disabled}>
+				{children}
+			</DialogTrigger>
 			<DialogContent>
 				{step === "premium" ? (
 					<DialogHeader>

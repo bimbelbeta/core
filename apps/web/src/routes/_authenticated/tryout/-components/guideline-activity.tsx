@@ -3,11 +3,14 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Spinner } from "@/components/ui/spinner";
 import { orpc } from "@/utils/orpc";
 import { TryoutStartConfirmation } from "./tryout-start-confirmation";
 
 export function GuidelineActivity() {
-	const { data } = useQuery(orpc.tryout.featured.queryOptions());
+	const { data, isError, isPending } = useQuery(orpc.tryout.featured.queryOptions());
+	console.log("tryout Data: ", data);
+	console.log("isError: ", isError);
 
 	return (
 		<section className="flex flex-col gap-6">
@@ -37,10 +40,14 @@ export function GuidelineActivity() {
 								<ArrowUpRightIcon weight="bold" />
 							</Link>
 						</Button>
+					) : isPending ? (
+						<Button size={"icon"} disabled={isPending}>
+							<Spinner />
+						</Button>
 					) : (
 						<CardAction className="mt-auto">
-							<TryoutStartConfirmation>
-								<Button size={"icon"}>
+							<TryoutStartConfirmation disabled={data === undefined || isError || isPending}>
+								<Button size={"icon"} disabled={data === undefined || isError || isPending}>
 									<ArrowUpRightIcon weight="bold" />
 								</Button>
 							</TryoutStartConfirmation>

@@ -14,7 +14,7 @@ const TRYOUT_DATA = {
 	description: "Simulasi ujian tulis berbasis komputer untuk seleksi nasional berbasis tes",
 	category: "utbk" as const,
 	duration: 95,
-	status: "draft" as const,
+	status: "published" as const,
 };
 
 const SUBTEST_DATA = [
@@ -244,6 +244,18 @@ const QUESTION_DATA = [
 					{ code: "D", content: "6", isCorrect: false },
 				],
 			},
+			{
+				content: "Hitunglah hasil dari 15 + 27. Tuliskan jawabanmu dalam bentuk angka.",
+				type: "essay" as const,
+				essayCorrectAnswer: "42",
+				choices: [],
+			},
+			{
+				content: "Berapakah hasil dari 100 dibagi 4? Tuliskan jawabanmu.",
+				type: "essay" as const,
+				essayCorrectAnswer: "25",
+				choices: [],
+			},
 		],
 	},
 ];
@@ -284,6 +296,7 @@ export async function seedTryout(db: NodePgDatabase) {
 						type: questionData.type,
 						discussion: "Dummy Discussion",
 						content: questionData.content,
+						essayCorrectAnswer: "essayCorrectAnswer" in questionData ? questionData.essayCorrectAnswer : null,
 						tags: [],
 					})
 					.returning({ id: question.id });

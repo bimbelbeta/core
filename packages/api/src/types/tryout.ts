@@ -12,6 +12,7 @@ export type TryoutQuestion = {
 	userAnswer: {
 		selectedChoiceId: number | null;
 		essayAnswer: string | null;
+		isDoubtful: boolean;
 	};
 };
 

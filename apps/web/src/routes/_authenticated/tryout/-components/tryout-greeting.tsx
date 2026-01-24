@@ -1,4 +1,5 @@
 import { ArrowRightIcon, ClockIcon } from "@phosphor-icons/react";
+import { ListNumbersIcon } from "@phosphor-icons/react/dist/icons/ListNumbers";
 import { CircleNotchIcon } from "@phosphor-icons/react/dist/ssr";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
@@ -49,7 +50,7 @@ export function TryoutGreeting() {
 	return (
 		<Card className="flex w-full flex-col gap-6 p-6">
 			<div className="flex items-center justify-between gap-4">
-				<p className="font-semibold text-lg text-muted-foreground">h2</p>
+				<p className="font-semibold text-lg text-muted-foreground">Subtest {data.currentSubtest.order}</p>
 				{data.currentSubtest?.deadline && (
 					<div className={buttonVariants({ variant: "outline", size: "sm" })}>
 						<ClockIcon />
@@ -63,10 +64,20 @@ export function TryoutGreeting() {
 			<Separator />
 
 			<div className="space-y-2">
-				<h1 className="font-bold text-5xl">{data.currentSubtest?.name}</h1>
+				<h1 className="font-bold text-4xl">{data.currentSubtest?.name}</h1>
 				{data.currentSubtest.description && (
 					<div className="font-bold text-lg text-muted-foreground">{data.currentSubtest.description}</div>
 				)}
+				<div className="mt-2 text-muted-foreground">
+					<p className="flex items-center gap-2">
+						<ListNumbersIcon weight="bold" />
+						{data.currentSubtest.questions.length} pertanyaan
+					</p>
+					<p className="flex items-center gap-2">
+						<ClockIcon weight="bold" />
+						{data.currentSubtest.duration} menit
+					</p>
+				</div>
 			</div>
 
 			<Button

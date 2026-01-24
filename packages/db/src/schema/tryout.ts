@@ -134,6 +134,7 @@ export const tryoutSubtestAttempt = pgTable(
 		completedAt: timestamp("completed_at"),
 		deadline: timestamp("deadline").notNull(),
 		status: tryoutAttemptStatus("status").notNull().default("ongoing"),
+		score: integer("score"), // 1-1000 scale, null until graded
 	},
 	(t) => [unique("user_tryout_subtest_attempt").on(t.tryoutAttemptId, t.subtestId)],
 );

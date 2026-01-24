@@ -8,6 +8,7 @@ import { orpc } from "@/utils/orpc";
 import { useTryoutStore } from "../-hooks/use-tryout-store";
 import { QuestionBody } from "./question-body";
 import { QuestionFooter } from "./question-footer";
+import { QuestionGrid } from "./question-grid";
 import { QuestionHeader } from "./question-header";
 
 export function TryoutQuestions() {
@@ -30,6 +31,7 @@ export function TryoutQuestions() {
 		setEssayAnswer,
 		setAnswer,
 		setView,
+		setQuestions,
 	} = useTryoutStore();
 
 	const questions = data?.currentSubtest?.questions ?? [];
@@ -104,6 +106,9 @@ export function TryoutQuestions() {
 		if (hasInitialized.current) return;
 		hasInitialized.current = true;
 
+		setQuestions(questions);
+
+		const newRaguRaguIds = new Set<number>();
 		questions.forEach((question) => {
 			if (question.userAnswer?.essayAnswer) {
 				setEssayAnswer(question.id, question.userAnswer.essayAnswer);
@@ -111,18 +116,25 @@ export function TryoutQuestions() {
 			if (question.userAnswer?.selectedChoiceId) {
 				setAnswer(question.id, question.userAnswer.selectedChoiceId);
 			}
+			if (question.userAnswer?.isDoubtful) {
+				newRaguRaguIds.add(question.id);
+			}
 		});
-	}, [questions, setEssayAnswer, setAnswer]);
+		useTryoutStore.setState({ raguRaguIds: newRaguRaguIds });
+	}, [questions, setEssayAnswer, setAnswer, setQuestions]);
 
 	if (!data?.currentSubtest || !currentQuestion || view === "greeting") {
 		return null;
 	}
 
 	return (
-		<Card className="flex flex-col gap-4 p-4">
-			<QuestionHeader />
-			<QuestionBody />
-			<QuestionFooter />
-		</Card>
+		<div className="flex gap-2 max-lg:flex-col">
+			<Card className="flex flex-1 flex-col gap-4 p-4">
+				<QuestionHeader />
+				<QuestionBody />
+				<QuestionFooter />
+			</Card>
+			<QuestionGrid />
+		</div>
 	);
 }

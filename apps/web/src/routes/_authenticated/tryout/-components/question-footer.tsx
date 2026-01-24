@@ -23,8 +23,7 @@ export function QuestionFooter() {
 
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 	const queryClient = useQueryClient();
-	const { currentQuestionIndex, setView, nextQuestion, prevQuestion, toggleRaguRagu, currentQuestion } =
-		useTryoutStore();
+	const { currentQuestionIndex, setView, nextQuestion, prevQuestion, currentQuestion, raguRaguIds } = useTryoutStore();
 
 	const { data } = useQuery(
 		orpc.tryout.find.queryOptions({
@@ -55,6 +54,23 @@ export function QuestionFooter() {
 		}),
 	);
 
+	const toggleRaguRaguMutation = useMutation(
+		orpc.tryout.toggleRaguRagu.mutationOptions({
+			onSuccess: () => {
+				if (currentQuestion?.id) {
+					const { raguRaguIds } = useTryoutStore.getState();
+					if (raguRaguIds.has(currentQuestion.id)) {
+						raguRaguIds.delete(currentQuestion.id);
+					} else {
+						raguRaguIds.add(currentQuestion.id);
+					}
+					useTryoutStore.setState({ raguRaguIds: new Set(raguRaguIds) });
+				}
+				queryClient.invalidateQueries({ queryKey: orpc.tryout.find.key({ input: { id: tryoutId } }) });
+			},
+		}),
+	);
+
 	const handleNext = () => {
 		if (isLastQuestion) {
 			setIsDialogOpen(true);
@@ -74,23 +90,22 @@ export function QuestionFooter() {
 
 	const handleRaguRagu = () => {
 		if (currentQuestion?.id) {
-			toggleRaguRagu(currentQuestion.id);
+			toggleRaguRaguMutation.mutate({ tryoutId, questionId: currentQuestion.id });
 		}
 	};
 
+	const isDoubtful = currentQuestion?.id && raguRaguIds.has(currentQuestion.id);
+	const raguRaguVariant = isDoubtful ? "warning" : "warning-outline";
+
 	return (
 		<>
-			<div className="flex items-center justify-between">
-				<Button
-					variant="outline"
-					onClick={handlePrev}
-					disabled={currentQuestionIndex === 0 || submitSubtestMutation.isPending}
-				>
-					<ArrowLeftIcon />
-					Sebelumnya
+			<div className="flex items-center justify-between gap-1">
+				<Button onClick={handlePrev} disabled={currentQuestionIndex === 0 || submitSubtestMutation.isPending}>
+					<ArrowLeftIcon weight="bold" />
+					<span className="max-sm:hidden">Sebelumnya</span>
 				</Button>
 
-				<Button variant="outline" onClick={handleRaguRagu}>
+				<Button variant={raguRaguVariant} onClick={handleRaguRagu} disabled={toggleRaguRaguMutation.isPending}>
 					Ragu-ragu
 				</Button>
 
@@ -99,8 +114,8 @@ export function QuestionFooter() {
 						"Selesai"
 					) : (
 						<>
-							Selanjutnya
-							<ArrowRightIcon />
+							<span className="max-sm:hidden">Selanjutnya</span>
+							<ArrowRightIcon weight="bold" />
 						</>
 					)}
 				</Button>

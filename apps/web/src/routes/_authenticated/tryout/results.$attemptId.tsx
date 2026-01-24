@@ -49,6 +49,8 @@ function RouteComponent() {
 		data.subtestAttempts.filter((sa) => sa.status === "finished").map((sa) => sa.subtestId),
 	);
 
+	const subtestScores = new Map(data.subtestAttempts.map((sa) => [sa.subtestId, sa.score]));
+
 	return (
 		<div className="flex flex-col gap-4">
 			<div className="flex items-center gap-2">
@@ -77,20 +79,30 @@ function RouteComponent() {
 
 			<Separator />
 
-			<h2 className="font-semibold text-lg">Status per Subtest</h2>
+			<h2 className="font-semibold text-lg">Skor per Subtest</h2>
 			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-				{data.tryout.subtests.map((subtest) => (
-					<Card key={subtest.id}>
-						<CardHeader className="pb-2">
-							<CardTitle className="text-base">{subtest.name}</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<span className={completedSubtestIds.has(subtest.id) ? "text-green-600" : "text-muted-foreground"}>
-								{completedSubtestIds.has(subtest.id) ? "Selesai" : "Belum dikerjakan"}
-							</span>
-						</CardContent>
-					</Card>
-				))}
+				{data.tryout.subtests.map((subtest) => {
+					const isCompleted = completedSubtestIds.has(subtest.id);
+					const score = subtestScores.get(subtest.id);
+
+					return (
+						<Card key={subtest.id}>
+							<CardHeader className="pb-2">
+								<CardTitle className="text-base">{subtest.name}</CardTitle>
+							</CardHeader>
+							<CardContent>
+								{isCompleted ? (
+									<div className="flex flex-col">
+										<span className="font-bold text-2xl">{score ?? 0}</span>
+										<span className="text-muted-foreground text-sm">poin</span>
+									</div>
+								) : (
+									<span className="text-muted-foreground">Belum dikerjakan</span>
+								)}
+							</CardContent>
+						</Card>
+					);
+				})}
 			</div>
 		</div>
 	);

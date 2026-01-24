@@ -77,7 +77,7 @@ function RouteComponent() {
 					</Button>
 				))}
 			</section>
-			<section>
+			<section className="min-h-[50vh]">
 				<Activity mode={activeTab === "guideline" ? "visible" : "hidden"}>
 					<GuidelineActivity />
 				</Activity>
