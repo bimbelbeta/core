@@ -22,7 +22,7 @@ export const Route = createFileRoute("/")({
 
 function HomeComponent() {
 	return (
-		<>
+		<main className="bg-background">
 			<Header />
 			<Hero />
 			<Statement />
@@ -31,6 +31,6 @@ function HomeComponent() {
 			<Pricing />
 			<FAQ />
 			<Footer />
-		</>
+		</main>
 	);
 }

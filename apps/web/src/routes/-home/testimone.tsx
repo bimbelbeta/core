@@ -12,13 +12,13 @@ export default function Testimone() {
 				</Heading>
 			</div>
 
-			<div className="mx-auto mt-3 mb-10 grid w-fit grid-cols-1 gap-x-12 sm:grid-cols-2 lg:mt-6 lg:mb-17 lg:grid-cols-3">
+			<div className="mx-auto mt-3 mb-5 grid w-fit grid-cols-1 gap-y-4 gap-x-12 sm:grid-cols-2  lg:grid-cols-3 sm:mt-5 sm:mb-8 xl:mt-10 xl:gap-x-30">
 				{DATA.stats.map((stat) => (
 					<div key={stat.id} className="flex flex-col items-center sm:last:col-span-2 lg:last:col-span-1">
-						<p className="text-center font-semibold text-2xl text-secondary-700 leading-9 md:text-4xl md:leading-11.5 2xl:text-4xl">
+						<p className="text-center font-semibold text-2xl text-secondary-700 leading-9 sm:text-4xl md:leading-11.5 2xl:text-5xl">
 							{stat.value}
 						</p>
-						<Body className="max-w-50">{stat.desc}</Body>
+						<p className="mt-3 text-center text-sm leading-5.25 md:text-sm lg:text-base max-w-50">{stat.desc}</p>
 					</div>
 				))}
 			</div>
@@ -28,7 +28,7 @@ export default function Testimone() {
 				showNavigation={true}
 				showDots={true}
 				autoPlay={false}
-				gap={5}
+				gap={35}
 				responsiveGap={true}
 				className=""
 			/>

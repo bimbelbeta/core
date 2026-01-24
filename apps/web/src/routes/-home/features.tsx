@@ -5,10 +5,10 @@ import { Subheading } from "./-componenets/subheading";
 
 export function Features() {
 	return (
-		<section className="overflow-x-hidden bg-background py-16">
-			<Container>
+		<section className="overflow-x-hidden bg-background pb-20 xl:pb-40">
+			<Container className="py-0">
 				<Heading>
-					<span className="font-semibold text-secondary-700">Masalah terbesarmu</span> Punya Solusinya
+					<span className="font-semibold text-secondary-700">Bimbel Beta</span> Punya Solusinya
 				</Heading>
 				<div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6">
 					<FeatureOne />
@@ -22,7 +22,7 @@ export function Features() {
 
 function FeatureOne() {
 	return (
-		<div className="relative h-70 w-full rounded-xl border border-neutral-200 bg-neutral-100 p-5 text-center md:mx-0 md:max-w-none md:p-6 min-[490px]:mx-auto min-[490px]:max-w-[420px]">
+		<div className="relative h-70 w-full rounded-xl border border-neutral-200 bg-linear-to-t from-neutral-100 via-66% via-primary-100 to-primary-300/80 p-5 text-center md:mx-0 md:max-w-none md:p-6 min-[490px]:mx-auto min-[490px]:max-w-[420px]">
 			<Subheading>
 				{" "}
 				<span className="font-semibold text-primary-900">Latihan Soal</span> dengan{" "}
@@ -34,7 +34,7 @@ function FeatureOne() {
 				src="/images/home/img-feature-1.webp"
 				width={150}
 				height={150}
-				className="absolute bottom-0 left-1/2 w-full -translate-x-1/2"
+				className="absolute bottom-0 left-1/2 lg:w-full -translate-x-1/2 w-[80%] 2xl:w-[80%]"
 			/>
 		</div>
 	);
@@ -42,7 +42,7 @@ function FeatureOne() {
 
 function FeatureTwo() {
 	return (
-		<div className="relative h-70 w-full rounded-xl border border-neutral-200 bg-neutral-100 p-5 text-center md:mx-0 md:max-w-none md:p-6 min-[490px]:mx-auto min-[490px]:max-w-[420px]">
+		<div className="relative h-70 w-full rounded-xl border border-neutral-200 bg-linear-to-t from-neutral-100 via-66% via-primary-100 to-primary-300/80 p-5 text-center md:mx-0 md:max-w-none md:p-6 min-[490px]:mx-auto min-[490px]:max-w-[420px]">
 			<Subheading>
 				{" "}
 				<span className="font-semibold text-primary-900">Latihan Soal</span> dengan{" "}
@@ -62,7 +62,7 @@ function FeatureTwo() {
 
 function FeatureThree() {
 	return (
-		<div className="relative h-70 w-full rounded-xl border border-neutral-200 bg-neutral-100 p-5 text-center md:mx-0 md:max-w-none md:p-6 last:md:col-span-2 last:md:text-left min-[490px]:mx-auto min-[490px]:max-w-[420px]">
+		<div className="relative h-70 w-full rounded-xl border border-neutral-200 bg-linear-to-r from-neutral-100 via-66% via-primary-100 to-primary-300/80 p-5 text-center md:mx-0 md:max-w-none md:p-6 last:md:col-span-2 last:md:text-left min-[490px]:mx-auto min-[490px]:max-w-[420px]">
 			<Subheading>
 				{" "}
 				<span className="font-semibold text-primary-900">Latihan Soal</span> dengan{" "}

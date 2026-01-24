@@ -16,21 +16,22 @@ import { bounce } from "@/lib/animation-variants";
 
 export function Hero() {
 	return (
-		<section className="relative mx-auto flex w-full flex-col items-center justify-start overflow-hidden bg-background pt-20 [clip-path:polygon(0_0,100%_0,100%_85%,50%_100%,0%_85%)] *:max-w-5xl">
+		<section className="relative mx-auto flex w-full flex-col items-center justify-start overflow-hidden bg-radial from-neutral-100 via-66% via-primary-100 to-primary-300/80 pt-20 [clip-path:polygon(0_0,100%_0,100%_85%,50%_100%,0%_85%)] *:max-w-5xl">
 			<div className="container mx-auto flex max-w-5xl shrink-0 flex-col items-center px-4 pt-8 md:pt-20">
 				<div className="flex flex-col items-center gap-3 text-center md:gap-4">
 					<motion.h2
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ duration: 0.3, delay: 0 }}
-						className="text-3xl sm:text-4xl md:text-5xl"
+						className="text-2xl min-[400px]:text-3xl sm:text-4xl xl:text-5xl"
 					>
 						Rumah Baru untuk{" "}
 						<Highlight variant="darkBlue" weight={"bold"}>
-							Persiapan UTBK-mu,
-						</Highlight>
-						<Highlight variant="darkBlue" weight={"bold"}>
-							Satu Tempat
+              Persiapan UTBK-mu,
+            </Highlight>
+						{' '}<br className="hidden lg:block" />
+            <Highlight variant="darkBlue" weight={"bold"}>
+            Satu Tempat
 						</Highlight>{" "}
 						untuk{" "}
 						<Highlight variant="darkBlue" weight={"bold"}>
@@ -43,10 +44,9 @@ export function Hero() {
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ duration: 0.3, delay: 0.1 }}
-						className="text-sm sm:text-base"
+						className="text-sm sm:text-base max-w-sm md:max-w-lg"
 					>
-						Nikmati ekosistem lengkap dari materi hingga simulasi ujian di satu tempat. <br />
-						Kamu fokus belajar biar kami yang atur sistemnya.
+						Nikmati ekosistem lengkap dari materi hingga simulasi ujian di satu tempat. Kamu fokus belajar biar kami yang atur sistemnya.
 					</motion.p>
 
 					<motion.div

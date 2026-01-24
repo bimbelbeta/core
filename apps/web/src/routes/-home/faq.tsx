@@ -7,7 +7,7 @@ export function FAQ() {
 	const midPoint = Math.ceil(DATA.faq.length / 2);
 
 	return (
-		<Container>
+		<Container className="max-w-6xl">
 			<Heading className="mb-2">
 				Paling <span className="font-semibold text-secondary-700">Sering</span> Ditanyakan
 			</Heading>
@@ -17,7 +17,7 @@ export function FAQ() {
 						{DATA.faq.slice(0, midPoint).map((item) => (
 							<AccordionItem key={item.id} value={item.id.toString()} className="border-border border-b">
 								<AccordionTrigger className="group">
-									<span className="text-base">{item.question}</span>
+									<span className="lg:text-base">{item.question}</span>
 								</AccordionTrigger>
 								<AccordionContent className="text-muted-foreground">{item.answer}</AccordionContent>
 							</AccordionItem>
@@ -27,7 +27,7 @@ export function FAQ() {
 						{DATA.faq.slice(midPoint).map((item) => (
 							<AccordionItem key={item.id} value={item.id.toString()} className="border-border border-b">
 								<AccordionTrigger className="group">
-									<span className="text-base">{item.question}</span>
+									<span className="lg:text-base">{item.question}</span>
 								</AccordionTrigger>
 								<AccordionContent className="text-muted-foreground">{item.answer}</AccordionContent>
 							</AccordionItem>

@@ -13,24 +13,24 @@ export default function Footer() {
 		<footer className="relative overflow-hidden">
 			{/* Background Image */}
 			<div className="pointer-events-none absolute inset-0 opacity-20">
-				<img src={BACKGROUND_IMAGE} alt="" className="absolute inset-0 size-full object-cover" />
+				<Image src={BACKGROUND_IMAGE} alt="background" width={500} height={500} className="absolute inset-0 size-full object-cover object-top xl:-translate-y-[10%]" />
 			</div>
 
 			{/* CTA Section */}
-			<div className="relative z-10 flex flex-col items-center gap-7 px-4 py-16 pb-20">
-				<div className="flex flex-col items-center gap-7 text-center">
+			<div className="relative z-10 flex flex-col items-center gap-7 px-4 py-20">
+				<div className="flex flex-col items-center text-center">
 					{/* Heading */}
-					<h2 className="font-bold text-[34px] text-neutral-1000 leading-[51px]">
-						Satu <span className="text-secondary-700">Langkah Kecil</span> Menuju
-						<br />
-						Kampus <span className="text-secondary-700">Impianmu!</span>
+					<h2 className="text-3xl md:text-4xl text-neutral-1000 leading-tight">
+						Satu <span className="font-bold text-secondary-700">Langkah Kecil</span> Menuju
+						<br className="hidden sm:block" />
+            {' '}Kampus <span className="font-bold text-secondary-700">Impianmu!</span>
 					</h2>
 
 					{/* Subheading */}
-					<p className="text-base text-neutral-1000 leading-6">
+					<p className="text-sm md:text-base text-neutral-1000 text-pretty mt-2 max-w-xs md:max-w-md">
 						Ribuan pesaingmu sudah mulai belajar hari ini.
-						<br />
-						Jangan sampai kamu tertinggal.
+						<br className="hidden sm:block" />
+            {' '}Jangan sampai kamu tertinggal.
 					</p>
 				</div>
 
@@ -48,14 +48,15 @@ export default function Footer() {
 			<div className="pointer-events-none absolute inset-x-0 bottom-0 h-72 bg-linear-to-t from-primary-400 via-primary-200 to-transparent" />
 
 			{/* Footer Content */}
-			<div className="relative z-10 px-10 py-10">
+			<div className="relative z-10 px-10 pb-10 pt-30">
 				<Container className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
 					<div className="flex flex-col gap-3">
 						<div className="flex items-center gap-2.5">
-							<div className="size-[62px] rounded-xl bg-neutral-200" />
-							<h3 className="font-medium text-neutral-1000 text-xl">Bimbel Beta</h3>
+							<h3 className="text-neutral-1000 text-2xl text-center sm:text-left w-full font-semibold">
+							<span className="text-secondary-900">Bimbel</span>{' '}
+							<span className="text-tertiary-1000">Beta</span></h3>
 						</div>
-						<p className="text-base text-neutral-1000 leading-6">Lorem ipsum dolor sit amet,</p>
+						<p className="text-base text-center sm:text-left text-neutral-1000 leading-6">Solusi Edukasi</p>
 					</div>
 					<div className="mt-6 flex flex-col items-center justify-end gap-5 sm:mt-0 sm:items-end">
 						<div className="flex items-center gap-4">

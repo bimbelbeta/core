@@ -21,53 +21,62 @@ export const DATA = {
 	testimone: [
 		{
 			id: 1,
-			name: "Alumni Batch 2025",
-			title: "STEI-R ITB",
+			name: "Rizky Aditya Pratama",
+			title: "Hukum - UI",
 			desc: "“bimbelbeta ga cuman bantu aku lolos PTN, tapi juga bantu ngebentuk habit yang bagus”",
+			avatar: "https://api.dicebear.com/9.x/adventurer/svg?seed=Rizky",
 		},
 		{
 			id: 2,
-			name: "Alumni Batch 2025",
-			title: "Manajemen UI",
+			name: "Nabila Azzahra Putri",
+			title: "Manajemen - UI",
 			desc: "“Selama aku di bimbelbeta itu beda banget feelnya sama bimbel lain, karena di sini kita ga cuman ngejar PTN aja tapi juga jadi punya mindset jangka panjang!”",
+			avatar: "https://api.dicebear.com/9.x/adventurer/svg?seed=Nabila",
 		},
 		{
 			id: 3,
-			name: "Alumni Batch 2025",
-			title: "Ilmu Komunikasi UI",
+			name: "Muhammad Farhan Alamsyah",
+			title: "Ilmu Komunikasi - UI",
 			desc: "“Keren si bimbelbeta baru 2 tahun berdiri tapi udah bisa bantu ribuan orang lolos PTN, thanks bimbelbeta <3”",
+			avatar: "https://api.dicebear.com/9.x/adventurer/svg?seed=Farhan",
 		},
 		{
 			id: 4,
-			name: "Alumni Batch 2025",
-			title: "Kedokteran UGM",
+			name: "Aulia Rahmawati",
+			title: "Kedokteran - UGM",
 			desc: "“Berkat bimbelbeta aku bisa tembus skor LBE 800+! makasih bangetttt kak firah dan bimbelbeta!! WORTH IT PARAH”",
+			avatar: "https://api.dicebear.com/9.x/adventurer/svg?seed=Aulia",
 		},
 		{
 			id: 5,
-			name: "Alumni Batch 2025",
-			title: "Hukum UI",
+			name: "Dimas Arya Nugroho",
+			title: "Hukum - UI",
 			desc: "“Masuk bimbelbeta adalah keputusan terbaik selama persiapan PTN. Sistemnya benar-benar melatih disiplin dan konsistensi belajar!”",
+			avatar: "https://api.dicebear.com/9.x/adventurer/svg?seed=Dimas",
 		},
 		{
 			id: 6,
-			name: "Alumni Batch 2025",
-			title: "Hukum UGM",
+			name: "Ahmad Zaky Ramadhan",
+			title: "Hukum - UGM",
 			desc: "“Ga nyangka bisa lolos PTN dengan skor di atas 700. Thanks bimbelbeta yang udah bantu aku membentuk mindset belajar!”",
+			avatar: "https://api.dicebear.com/9.x/adventurer/svg?seed=Zaky",
 		},
 		{
 			id: 7,
-			name: "Alumni Batch 2025",
-			title: "Sastra UNSOED",
-			desc: "“Yang bikin beda dari bimbelbeta adalah pendekatan holistiknya. Bukan cuman soal, tapi juga habit dan mental yang dibina.”",
+			name: "Intan Maharani Lestari",
+			title: "Sastra - UNSOED",
+			desc: "“Yang bikin beda dari bimbelbeta adalah pendekatan holistiknya. Bukan cuman soal, tapi juga mental yang dibina.”",
+			avatar: "https://api.dicebear.com/9.x/adventurer/svg?seed=Intan",
 		},
 		{
 			id: 8,
-			name: "Alumni Batch 2025",
-			title: "Teknik UPNVY",
+			name: "Fajar Prakoso",
+			title: "Teknik - UPNVY",
 			desc: "“Dari yang awalnya males belajar, akhirnya jadi punya rutinitas yang konsisten. Hasilnya? Aku lolos PTN incaran!”",
+			avatar: "https://api.dicebear.com/9.x/adventurer/svg?seed=Fajar",
 		},
 	],
+
 	pricing: {
 		plans: {
 			mentoring_perintis: {
@@ -183,21 +192,6 @@ export const DATA = {
 				icon: WhatsappLogoIcon,
 				url: "https://wa.me/6283854264330",
 			},
-			// {
-			// 	label: "Discord",
-			// 	icon: DiscordLogoIcon,
-			// 	url: "https://discord.gg/bimbelbeta",
-			// },
-			// {
-			// 	label: "TikTok",
-			// 	icon: TiktokLogoIcon,
-			// 	url: "https://www.tiktok.com/@bimbelbeta",
-			// },
-			// {
-			// 	label: "YouTube",
-			// 	icon: YoutubeLogoIcon,
-			// 	url: "https://www.youtube.com/@bimbelbeta",
-			// },
 		],
 	},
 	faq: [
@@ -235,7 +229,7 @@ export const DATA = {
 			id: 6,
 			question: "Bagaimana sistem mentoring di bimbelbeta?",
 			answer:
-				"Sistem mentoring kami dibimbing langsung oleh mentor dari UI, ITB, dan UGM. Anda akan mendapatkan bimbingan intensif, pemantauan progress belajar, dan habit tracker untuk memastikan konsistensi belajar.",
+				"Sistem mentoring kami dibimbing langsung oleh mentor dari UI, ITB, UGM. Anda akan mendapatkan bimbingan intensif, pemantauan progress belajar, dan habit tracker untuk memastikan konsistensi belajar.",
 		},
 	],
 } as const;
