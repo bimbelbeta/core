@@ -5,11 +5,11 @@ import { NotFoundContentState } from "@/components/classes/not-found-content-sta
 import { SubjectFilters } from "@/components/classes/subject-filters";
 import { SubjectHeader } from "@/components/classes/subject-header";
 import { SubjectList } from "@/components/classes/subject-list";
+import { Container } from "@/components/ui/container";
 import { SearchInput } from "@/components/ui/search-input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createMeta } from "@/lib/seo-utils";
 import { orpc } from "@/utils/orpc";
-import { Container } from "@/components/ui/container"
 
 export const Route = createFileRoute("/admin/classes/")({
 	head: () => ({
@@ -50,7 +50,7 @@ function RouteComponent() {
 		const cleanSearch = Object.fromEntries(Object.entries(newSearch).filter(([, value]) => value !== undefined));
 
 		navigate({ search: cleanSearch });
-	}
+	};
 
 	const subjectsQuery = useQuery({
 		...orpc.subject.listSubjects.queryOptions({
@@ -110,5 +110,5 @@ function RouteComponent() {
 				)}
 			</div>
 		</Container>
-	)
+	);
 }

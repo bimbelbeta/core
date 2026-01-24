@@ -105,6 +105,8 @@ const listQuestions = admin
 			search: "string?",
 			type: type("'multiple_choice' | 'essay'")?.optional(),
 			tag: "string?",
+			category: type("'sd' | 'smp' | 'sma' | 'utbk'")?.optional(),
+			excludeIds: "number[]?",
 		}),
 	)
 	.handler(async ({ input }) => {
@@ -127,6 +129,21 @@ const listQuestions = admin
 					FROM unnest(${question.tags}) AS tag
 					WHERE tag ILIKE ${`%${input.tag}%`}
 				)`,
+			);
+		}
+
+		// Category filter - looks for exact category tag (sd, smp, sma, utbk)
+		if (input.category) {
+			conditions.push(sql`${input.category} = ANY(${question.tags})`);
+		}
+
+		// Exclude specific question IDs (useful for filtering out already linked questions)
+		if (input.excludeIds && input.excludeIds.length > 0) {
+			conditions.push(
+				sql`${question.id} NOT IN (${sql.join(
+					input.excludeIds.map((id) => sql`${id}`),
+					sql`, `,
+				)})`,
 			);
 		}
 

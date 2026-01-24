@@ -1,13 +1,13 @@
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { useIsAdmin } from "@/utils/is-admin";
 import { BackButton } from "../back-button";
 import { Badge } from "../ui/badge";
 import type { SubjectListItem } from "./classes-types";
-import { useIsAdmin } from "@/utils/is-admin";
 
 export function ClassHeader({ subject }: { subject: SubjectListItem }) {
-  const isAdmin = useIsAdmin();
-  const backPath = isAdmin ? `/admin/classes/` : `/classes/${subject.category}/`;
+	const isAdmin = useIsAdmin();
+	const backPath = isAdmin ? "/admin/classes/" : `/classes/${subject.category}/`;
 
 	return (
 		<Card className={cn("relative h-auto overflow-hidden border border-neutral-200 bg-white p-4 shadow-md")}>

@@ -1,11 +1,9 @@
+import { Plus } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { useState } from "react";
 import { toast } from "sonner";
-import { BackButton } from "@/components/back-button";
 import { EmptyContentState } from "@/components/classes/empty-content-state";
-import { PracticeQuestion } from "@/components/classes/practice-question";
-import { PracticeQuestionHeader } from "@/components/classes/practice-question-header";
-import { TiptapRenderer } from "@/components/tiptap-renderer";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -19,25 +17,41 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { orpc } from "@/utils/orpc";
+import { LinkedQuestionsList } from "../-components/linked-questions-list";
+import { QuestionPickerDialog } from "../-components/question-picker-dialog";
 
 export const Route = createFileRoute("/admin/classes/$subjectId/$contentId/latihan-soal")({
 	component: RouteComponent,
 });
 
 function RouteComponent() {
-	const { subjectId, contentId } = Route.useParams();
+	const { contentId } = Route.useParams();
 	const queryClient = useQueryClient();
+	const [pickerOpen, setPickerOpen] = useState(false);
 
+	// Fetch content for title
 	const content = useQuery(
 		orpc.subject.getContentById.queryOptions({
 			input: { contentId: Number(contentId) },
 		}),
 	);
 
-	const unlinkMutation = useMutation(
+	// Fetch linked practice questions
+	const practiceQuestions = useQuery(
+		orpc.admin.subject.getContentPracticeQuestions.queryOptions({
+			input: { id: Number(contentId) },
+		}),
+	);
+
+	const unlinkAllMutation = useMutation(
 		orpc.admin.subject.unlinkPracticeQuestions.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
+				queryClient.invalidateQueries({
+					queryKey: orpc.admin.subject.getContentPracticeQuestions.queryKey({
+						input: { id: Number(contentId) },
+					}),
+				});
 				queryClient.invalidateQueries({
 					queryKey: orpc.subject.getContentById.queryKey({
 						input: { contentId: Number(contentId) },
@@ -50,7 +64,11 @@ function RouteComponent() {
 		}),
 	);
 
-	if (content.isPending) {
+	const handlePickerSuccess = () => {
+		// Picker will invalidate queries on success
+	};
+
+	if (content.isPending || practiceQuestions.isPending) {
 		return <p className="animate-pulse text-sm">Memuat latihan soal...</p>;
 	}
 
@@ -60,91 +78,71 @@ function RouteComponent() {
 
 	if (!content.data) return notFound();
 
-	const practiceQuestions = content.data.practiceQuestions;
-	const hasPracticeQuestions = practiceQuestions && practiceQuestions.questions.length > 0;
+	const questions = practiceQuestions.data?.questions ?? [];
+	const hasQuestions = questions.length > 0;
+	const excludeIds = questions.map((q) => q.questionId);
 
 	return (
 		<div className="space-y-4">
-			<div className="flex items-center justify-between">
-				<BackButton to={`/admin/classes/${subjectId}/${contentId}`} />
-				{hasPracticeQuestions && (
-					<AlertDialog>
-						<AlertDialogTrigger asChild>
-							<Button type="button" variant="destructive" disabled={unlinkMutation.isPending} size="sm">
-								Hapus Semua
-							</Button>
-						</AlertDialogTrigger>
-						<AlertDialogContent>
-							<AlertDialogHeader>
-								<AlertDialogTitle>Hapus Latihan Soal?</AlertDialogTitle>
-								<AlertDialogDescription>
-									Apakah Anda yakin ingin menghapus semua latihan soal dari konten ini? Tindakan ini tidak dapat
-									dibatalkan.
-								</AlertDialogDescription>
-							</AlertDialogHeader>
-							<AlertDialogFooter>
-								<AlertDialogCancel>Batal</AlertDialogCancel>
-								<AlertDialogAction
-									onClick={() => {
-										unlinkMutation.mutate({ id: Number(contentId) });
-									}}
-								>
-									Hapus
-								</AlertDialogAction>
-							</AlertDialogFooter>
-						</AlertDialogContent>
-					</AlertDialog>
-				)}
+			<div className="flex flex-col items-start justify-between space-y-1 sm:flex-row sm:items-center">
+				<h2 className="font-semibold text-lg">Edit Catatan Materi</h2>
+				<div className="flex items-center gap-2">
+					<Button type="button" variant="outline" size="sm" onClick={() => setPickerOpen(true)}>
+						<Plus className="mr-1 size-4" />
+						Tambah Soal
+					</Button>
+					{hasQuestions && (
+						<AlertDialog>
+							<AlertDialogTrigger asChild>
+								<Button type="button" variant="destructive" disabled={unlinkAllMutation.isPending} size="sm">
+									Hapus Semua
+								</Button>
+							</AlertDialogTrigger>
+							<AlertDialogContent>
+								<AlertDialogHeader>
+									<AlertDialogTitle>Hapus Semua Latihan Soal?</AlertDialogTitle>
+									<AlertDialogDescription>
+										Apakah Anda yakin ingin menghapus semua latihan soal dari konten ini? Soal tidak akan dihapus dari
+										bank soal.
+									</AlertDialogDescription>
+								</AlertDialogHeader>
+								<AlertDialogFooter>
+									<AlertDialogCancel>Batal</AlertDialogCancel>
+									<AlertDialogAction
+										onClick={() => {
+											unlinkAllMutation.mutate({ id: Number(contentId) });
+										}}
+									>
+										Hapus Semua
+									</AlertDialogAction>
+								</AlertDialogFooter>
+							</AlertDialogContent>
+						</AlertDialog>
+					)}
+				</div>
 			</div>
-
-			<p className="font-semibold text-base text-primary-300">Latihan Soal</p>
-
-			<PracticeQuestionHeader content={content.data.title} />
 
 			<hr />
 
-			{hasPracticeQuestions ? (
-				<div className="space-y-4">
-					{practiceQuestions.questions.map((q, idx) => (
-						<PracticeQuestion
-							key={q.questionId}
-							questionNumber={idx + 1}
-							totalQuestions={practiceQuestions.questions.length}
-							question={<TiptapRenderer className="mt-4" content={q.question} />}
-							answer={
-								<div className="space-y-3">
-									{q.answers && q.answers.length > 0 && (
-										<div className="space-y-2">
-											{q.answers.map((answer) => (
-												<p
-													key={answer.id}
-													className={
-														answer.isCorrect ? "font-semibold text-green-600 text-sm" : "text-muted-foreground text-sm"
-													}
-												>
-													{answer.code}. {answer.content}
-													{answer.isCorrect && " ✓"}
-												</p>
-											))}
-										</div>
-									)}
-									{q.discussion && (
-										<div className="mt-3 border-neutral-200 border-t pt-3">
-											<p className="mb-1 font-medium text-sm">Pembahasan:</p>
-											<TiptapRenderer content={q.discussion} />
-										</div>
-									)}
-								</div>
-							}
-						/>
-					))}
-					<p className="text-muted-foreground text-sm">
-						Untuk mengedit atau menambah latihan soal, gunakan fitur manajemen soal di halaman konten.
-					</p>
-				</div>
+			{hasQuestions ? (
+				<LinkedQuestionsList contentId={Number(contentId)} questions={questions} />
 			) : (
-				<EmptyContentState />
+				<div className="flex flex-col items-center justify-center gap-4 py-12">
+					<EmptyContentState title="Belum ada latihan soal" desc="Tambahkan soal dari bank soal untuk konten ini" />
+					<Button type="button" onClick={() => setPickerOpen(true)}>
+						<Plus className="mr-1 size-4" />
+						Tambah Soal
+					</Button>
+				</div>
 			)}
+
+			<QuestionPickerDialog
+				open={pickerOpen}
+				onOpenChange={setPickerOpen}
+				onSuccess={handlePickerSuccess}
+				contentId={Number(contentId)}
+				excludeIds={excludeIds}
+			/>
 		</div>
 	);
 }

@@ -89,9 +89,9 @@ export const DATA = {
 				features: [
 					"Live Teaching 7 Sub Tes UTBK setiap pekannya",
 					"Akses Penuh fasilitas Ruang Belajar",
-					
+
 					"Try Out UTBK 10x",
-          "Rasionalisasi SNBP & SNBT",
+					"Rasionalisasi SNBP & SNBT",
 					"Modul Digital dan Latihan Soal Tambahan",
 					"Rekaman Live Teaching",
 				],
@@ -106,9 +106,9 @@ export const DATA = {
 				features: [
 					"Live Teaching 7 Sub Tes UTBK setiap pekannya",
 					"Akses Penuh fasilitas Ruang Belajar",
-					
+
 					"Try Out UTBK 10x",
-          "Rasionalisasi SNBP & SNBT",
+					"Rasionalisasi SNBP & SNBT",
 					"Modul Digital dan Latihan Soal Tambahan",
 					"Rekaman Live Teaching",
 				],

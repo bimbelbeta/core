@@ -22,12 +22,20 @@ function RouteComponent() {
 	);
 
 	const currentPath = location.pathname;
-	const currentTab: "video" | "notes" = currentPath.endsWith("/notes") ? "notes" : "video";
+	const currentTab: "video" | "notes" | "latihan-soal" = currentPath.endsWith("/notes")
+		? "notes"
+		: currentPath.endsWith("/latihan-soal")
+			? "latihan-soal"
+			: "video";
 
 	const handleTabChange = (value: string) => {
 		navigate({
 			to:
-				value === "video" ? "/admin/classes/$subjectId/$contentId/video" : "/admin/classes/$subjectId/$contentId/notes",
+				value === "video"
+					? "/admin/classes/$subjectId/$contentId/video"
+					: value === "notes"
+						? "/admin/classes/$subjectId/$contentId/notes"
+						: "/admin/classes/$subjectId/$contentId/latihan-soal",
 			params: { subjectId, contentId },
 		});
 	};
@@ -50,7 +58,7 @@ function RouteComponent() {
 			<Tabs value={currentTab} onValueChange={handleTabChange}>
 				<TabsList>
 					<TabsTrigger value="video">Video</TabsTrigger>
-          <TabsTrigger value="notes">Catatan</TabsTrigger>
+					<TabsTrigger value="notes">Catatan</TabsTrigger>
 					<TabsTrigger value="latihan-soal">Latihan Soal</TabsTrigger>
 				</TabsList>
 

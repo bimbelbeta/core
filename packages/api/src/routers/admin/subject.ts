@@ -1,4 +1,5 @@
 import { db } from "@bimbelbeta/db";
+import { question, questionChoice } from "@bimbelbeta/db/schema/question";
 import {
 	contentItem,
 	contentPracticeQuestions,
@@ -8,8 +9,9 @@ import {
 } from "@bimbelbeta/db/schema/subject";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { and, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { admin } from "../..";
+import { convertToTiptap } from "../../lib/convert-to-tiptap";
 
 /**
  * Create new subject (class)
@@ -697,7 +699,7 @@ const linkPracticeQuestions = admin
 	});
 
 /**
- * Remove practice questions from content
+ * Remove all practice questions from content
  * DELETE /api/admin/content/{id}/practice-questions
  */
 const unlinkPracticeQuestions = admin
@@ -712,6 +714,274 @@ const unlinkPracticeQuestions = admin
 		await db.delete(contentPracticeQuestions).where(eq(contentPracticeQuestions.contentItemId, input.id));
 
 		return { message: "Latihan soal berhasil dihapus dari konten" };
+	});
+
+/**
+ * Get practice questions linked to a content item
+ * GET /api/admin/content/{id}/practice-questions
+ */
+const getContentPracticeQuestions = admin
+	.route({
+		path: "/admin/content/{id}/practice-questions",
+		method: "GET",
+		tags: ["Admin - Content"],
+	})
+	.input(type({ id: "number" }))
+	.handler(async ({ input }) => {
+		// Check if content exists
+		const [content] = await db
+			.select({ id: contentItem.id })
+			.from(contentItem)
+			.where(eq(contentItem.id, input.id))
+			.limit(1);
+
+		if (!content)
+			throw new ORPCError("NOT_FOUND", {
+				message: "Konten tidak ditemukan",
+			});
+
+		// Get linked questions with their details
+		const linkedQuestions = await db
+			.select({
+				questionId: contentPracticeQuestions.questionId,
+				order: contentPracticeQuestions.order,
+				type: question.type,
+				content: question.content,
+				contentJson: question.contentJson,
+				discussion: question.discussion,
+				discussionJson: question.discussionJson,
+				tags: question.tags,
+			})
+			.from(contentPracticeQuestions)
+			.innerJoin(question, eq(contentPracticeQuestions.questionId, question.id))
+			.where(eq(contentPracticeQuestions.contentItemId, input.id))
+			.orderBy(asc(contentPracticeQuestions.order));
+
+		// Get choices for each question
+		const questionIds = linkedQuestions.map((q) => q.questionId);
+		const choices =
+			questionIds.length > 0
+				? await db
+						.select()
+						.from(questionChoice)
+						.where(questionIds.length === 1 ? eq(questionChoice.questionId, questionIds[0]!) : undefined)
+				: [];
+
+		// If we have multiple questions, we need to fetch all choices
+		let allChoices = choices;
+		if (questionIds.length > 1) {
+			allChoices = await db.select().from(questionChoice).orderBy(questionChoice.code);
+		}
+
+		// Group choices by question id
+		const choicesByQuestionId = allChoices.reduce(
+			(acc, choice) => {
+				const qId = choice.questionId;
+				if (!acc[qId]) {
+					acc[qId] = [];
+				}
+				acc[qId].push(choice);
+				return acc;
+			},
+			{} as Record<number, typeof allChoices>,
+		);
+
+		return {
+			questions: linkedQuestions.map((q) => ({
+				questionId: q.questionId,
+				order: q.order,
+				type: q.type,
+				content: q.contentJson ?? convertToTiptap(q.content),
+				discussion: q.discussionJson ?? convertToTiptap(q.discussion),
+				tags: q.tags ?? [],
+				choices: choicesByQuestionId[q.questionId] ?? [],
+			})),
+		};
+	});
+
+/**
+ * Remove a single practice question from content
+ * DELETE /api/admin/content/{id}/practice-questions/{questionId}
+ */
+const unlinkSinglePracticeQuestion = admin
+	.route({
+		path: "/admin/content/{id}/practice-questions/{questionId}",
+		method: "DELETE",
+		tags: ["Admin - Content"],
+	})
+	.input(
+		type({
+			id: "number",
+			questionId: "number",
+		}),
+	)
+	.output(type({ message: "string" }))
+	.handler(async ({ input }) => {
+		const [deleted] = await db
+			.delete(contentPracticeQuestions)
+			.where(
+				and(
+					eq(contentPracticeQuestions.contentItemId, input.id),
+					eq(contentPracticeQuestions.questionId, input.questionId),
+				),
+			)
+			.returning();
+
+		if (!deleted) {
+			throw new ORPCError("NOT_FOUND", {
+				message: "Soal tidak ditemukan di konten ini",
+			});
+		}
+
+		// Re-order remaining questions
+		const remaining = await db
+			.select({ questionId: contentPracticeQuestions.questionId })
+			.from(contentPracticeQuestions)
+			.where(eq(contentPracticeQuestions.contentItemId, input.id))
+			.orderBy(asc(contentPracticeQuestions.order));
+
+		// Update order for each remaining question
+		for (let i = 0; i < remaining.length; i++) {
+			await db
+				.update(contentPracticeQuestions)
+				.set({ order: i + 1 })
+				.where(
+					and(
+						eq(contentPracticeQuestions.contentItemId, input.id),
+						eq(contentPracticeQuestions.questionId, remaining[i]!.questionId),
+					),
+				);
+		}
+
+		return { message: "Soal berhasil dihapus dari konten" };
+	});
+
+/**
+ * Reorder practice questions in a content item
+ * PATCH /api/admin/content/{id}/practice-questions/reorder
+ */
+const reorderPracticeQuestions = admin
+	.route({
+		path: "/admin/content/{id}/practice-questions/reorder",
+		method: "PATCH",
+		tags: ["Admin - Content"],
+	})
+	.input(
+		type({
+			id: "number",
+			questionIds: "number[]", // New order by position in array
+		}),
+	)
+	.output(type({ message: "string" }))
+	.handler(async ({ input }) => {
+		// Check if content exists
+		const [content] = await db
+			.select({ id: contentItem.id })
+			.from(contentItem)
+			.where(eq(contentItem.id, input.id))
+			.limit(1);
+
+		if (!content)
+			throw new ORPCError("NOT_FOUND", {
+				message: "Konten tidak ditemukan",
+			});
+
+		// Update order for each question in a transaction
+		await db.transaction(async (tx) => {
+			// First, set all orders to negative (temporary) values to avoid unique constraint issues
+			for (let i = 0; i < input.questionIds.length; i++) {
+				const questionId = input.questionIds[i]!;
+				await tx
+					.update(contentPracticeQuestions)
+					.set({ order: -(i + 1000) })
+					.where(
+						and(
+							eq(contentPracticeQuestions.contentItemId, input.id),
+							eq(contentPracticeQuestions.questionId, questionId),
+						),
+					);
+			}
+
+			// Then set final order values
+			for (let i = 0; i < input.questionIds.length; i++) {
+				const questionId = input.questionIds[i]!;
+				await tx
+					.update(contentPracticeQuestions)
+					.set({ order: i + 1 })
+					.where(
+						and(
+							eq(contentPracticeQuestions.contentItemId, input.id),
+							eq(contentPracticeQuestions.questionId, questionId),
+						),
+					);
+			}
+		});
+
+		return { message: "Urutan latihan soal berhasil diperbarui" };
+	});
+
+/**
+ * Add practice questions to content (append to existing)
+ * POST /api/admin/content/{id}/practice-questions/add
+ */
+const addPracticeQuestions = admin
+	.route({
+		path: "/admin/content/{id}/practice-questions/add",
+		method: "POST",
+		tags: ["Admin - Content"],
+	})
+	.input(
+		type({
+			id: "number",
+			questionIds: "number[]",
+		}),
+	)
+	.output(type({ message: "string", addedCount: "number" }))
+	.handler(async ({ input }) => {
+		// Check if content exists
+		const [content] = await db
+			.select({ id: contentItem.id })
+			.from(contentItem)
+			.where(eq(contentItem.id, input.id))
+			.limit(1);
+
+		if (!content)
+			throw new ORPCError("NOT_FOUND", {
+				message: "Konten tidak ditemukan",
+			});
+
+		// Get existing questions to find max order and avoid duplicates
+		const existing = await db
+			.select({
+				questionId: contentPracticeQuestions.questionId,
+				order: contentPracticeQuestions.order,
+			})
+			.from(contentPracticeQuestions)
+			.where(eq(contentPracticeQuestions.contentItemId, input.id));
+
+		const existingIds = new Set(existing.map((e) => e.questionId));
+		const maxOrder = existing.length > 0 ? Math.max(...existing.map((e) => e.order)) : 0;
+
+		// Filter out duplicates
+		const newQuestionIds = input.questionIds.filter((id) => !existingIds.has(id));
+
+		if (newQuestionIds.length === 0) {
+			return { message: "Semua soal sudah ada di konten ini", addedCount: 0 };
+		}
+
+		// Insert new questions with proper order
+		await db.insert(contentPracticeQuestions).values(
+			newQuestionIds.map((questionId, index) => ({
+				contentItemId: input.id,
+				questionId,
+				order: maxOrder + index + 1,
+			})),
+		);
+
+		return {
+			message: `${newQuestionIds.length} soal berhasil ditambahkan`,
+			addedCount: newQuestionIds.length,
+		};
 	});
 
 export const adminSubjectRouter = {
@@ -729,4 +999,8 @@ export const adminSubjectRouter = {
 	deleteNote,
 	linkPracticeQuestions,
 	unlinkPracticeQuestions,
+	getContentPracticeQuestions,
+	unlinkSinglePracticeQuestion,
+	reorderPracticeQuestions,
+	addPracticeQuestions,
 };
