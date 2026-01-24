@@ -78,103 +78,75 @@ export const DATA = {
 	],
 
 	pricing: {
-		plans: {
-			mentoring_perintis: {
-				label: "Mentoring Perintis",
-				price_monthly: "Rp99.000",
-				price_full: "Rp179.000",
-				suffix: "s.d UTBK",
+		programs: [
+			{
+				id: "pemula",
+				type: "program",
+				variant: "highlight",
+				title: "Paket Pemula",
+				price: 1800000,
+				originalPrice: 2000000,
 				features: [
-					{ label: "Akses Full Website", status: "excluded" },
-					{ label: "Google Classroom", status: "excluded" },
-					{ label: "Tugas Harian & Kuis", status: "excluded" },
-					{ label: "1000+ Latihan Soal", status: "excluded" },
-					{ label: "Habit Tracker & Grup", status: "excluded" },
-					{ label: "Matrikulasi Subtest", status: "excluded" },
-					{ label: "Live Class (3x/Minggu)", status: "included" },
-					{ label: "Mentor UI, ITB, UGM", status: "included" },
-					{ label: "Try Out & Pembahasan", status: "excluded" },
+					"Live Teaching 7 Sub Tes UTBK setiap pekannya",
+					"Akses Penuh fasilitas Ruang Belajar",
+					
+					"Try Out UTBK 10x",
+          "Rasionalisasi SNBP & SNBT",
+					"Modul Digital dan Latihan Soal Tambahan",
+					"Rekaman Live Teaching",
 				],
-				cta: {
-					label: "Mulai Sekarang",
-					url: "http://lynk.id/bimbelbeta/z19qjzqr0ln9",
-				},
 			},
+			{
+				id: "perbulan",
+				type: "program",
+				variant: "default",
+				title: "Paket Perbulan",
+				price: 170000,
+				period: "/bulan",
+				features: [
+					"Live Teaching 7 Sub Tes UTBK setiap pekannya",
+					"Akses Penuh fasilitas Ruang Belajar",
+					
+					"Try Out UTBK 10x",
+          "Rasionalisasi SNBP & SNBT",
+					"Modul Digital dan Latihan Soal Tambahan",
+					"Rekaman Live Teaching",
+				],
+			},
+		],
 
-			mentoring_privilege: {
-				label: "Mentoring Privilege",
-				price_full: "Rp225.000",
-				suffix: "s.d UTBK",
-				features: [
-					{ label: "Akses Full Website", status: "excluded" },
-					{ label: "Google Classroom", status: "included" },
-					{ label: "Tugas Harian & Kuis", status: "included" },
-					{ label: "1000+ Latihan Soal", status: "included" },
-					{ label: "Habit Tracker & Grup", status: "included" },
-					{ label: "Matrikulasi Subtest", status: "included" },
-					{ label: "Live Class (3x/Minggu)", status: "included" },
-					{ label: "Mentor UI, ITB, UGM", status: "included" },
-					{ label: "Try Out & Pembahasan", status: "limited", value: "3x" },
-				],
-				cta: {
-					label: "Mulai Sekarang",
-					url: "http://lynk.id/bimbelbeta/y2rjxkq02d13",
-				},
+		tryouts: [
+			{
+				id: "to-1",
+				type: "tryout",
+				title: "Paket Try Out SNBT 1x",
+				price: 10000,
+				features: ["Try Out UTBK 1x", "Rasionalisasi SNBT", "Pembahasan & Analisis"],
 			},
+			{
+				id: "to-3",
+				type: "tryout",
+				title: "Paket Try Out SNBT 3x",
+				price: 25000,
+				features: ["Try Out UTBK 3x", "Rasionalisasi SNBT", "Pembahasan & Analisis"],
+			},
+			{
+				id: "to-5",
+				type: "tryout",
+				title: "Paket Try Out SNBT 5x",
+				price: 40000,
+				features: ["Try Out UTBK 5x", "Rasionalisasi SNBT", "Pembahasan & Analisis"],
+			},
+			{
+				id: "to-10",
+				type: "tryout",
+				title: "Paket Try Out SNBT 10x",
+				price: 80000,
+				features: ["Try Out UTBK 10x", "Rasionalisasi SNBT", "Pembahasan & Analisis"],
+			},
+		],
+	},
 
-			ultimate_bundling: {
-				label: "Ultimate Bundling",
-				badge: "Paling Lengkap",
-				price_now: "Rp199.000",
-				original_price: "Rp1.000.000",
-				suffix: "s.d UTBK",
-				features: [
-					{ label: "Akses Full Website", status: "included" },
-					{ label: "1000+ Soal Dasar SNBT", status: "included" },
-					{ label: "250+ Video Materi", status: "included" },
-					{ label: "1000+ Latihan Soal", status: "included" },
-					{ label: "Habit Tracker & Grup", status: "included" },
-					{ label: "Matrikulasi Subtest", status: "included" },
-					{ label: "Live Class (3x/Minggu)", status: "included" },
-					{ label: "Mentor UI, ITB, UGM", status: "included" },
-					{ label: "Try Out & Pembahasan", status: "limited", value: "15x" },
-				],
-				cta: {
-					label: "Langganan Sekarang",
-					url: "/premium",
-				},
-			},
-		},
-	},
-	pricing_tryout: {
-		one: {
-			label: "1x Try Out UTBK bimbelbeta",
-			price: "Rp15.000",
-			features: ["Try Out SNBT-UTBK 1 Kali", "Pembahasan & Analisis", "Penilaian IRT", "Dapat dilakukan kapan saja"],
-			cta: {
-				label: "Mulai Sekarang",
-				url: "http://lynk.id/bimbelbeta/y2rjxkq02d13",
-			},
-		},
-		two: {
-			label: "10x Try Out UTBK bimbelbeta",
-			price: "Rp99.000",
-			features: ["Try Out SNBT-UTBK 10 Kali", "Pembahasan & Analisis", "Penilaian IRT", "Dapat dilakukan kapan saja"],
-			cta: {
-				label: "Mulai Sekarang",
-				url: "http://lynk.id/bimbelbeta/dzon2p8qgx9n",
-			},
-		},
-		three: {
-			label: "15x Try Out UTBK bimbelbeta",
-			price: "Rp120.000",
-			features: ["Try Out SNBT-UTBK 15 Kali", "Pembahasan & Analisis", "Penilaian IRT", "Dapat dilakukan kapan saja"],
-			cta: {
-				label: "Mulai Sekarang",
-				url: "http://lynk.id/bimbelbeta/xw1ov34dg98g",
-			},
-		},
-	},
 	footer: {
 		socials: [
 			{

@@ -34,7 +34,7 @@ function FeatureOne() {
 				src="/images/home/img-feature-1.webp"
 				width={150}
 				height={150}
-				className="absolute bottom-0 left-1/2 lg:w-full -translate-x-1/2 w-[80%] 2xl:w-[80%]"
+				className="absolute bottom-0 left-1/2 w-[80%] -translate-x-1/2 lg:w-full 2xl:w-[80%]"
 			/>
 		</div>
 	);

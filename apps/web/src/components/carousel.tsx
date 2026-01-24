@@ -201,7 +201,7 @@ const Carousel: React.FC<CarouselProps> = ({
 			>
 				<div className="flex flex-1 flex-col justify-between text-pretty p-4 text-left">
 					<div className="flex items-center space-x-2">
-						<div className="flex size-10 items-center justify-center rounded-full bg-primary-100 lg:size-13 overflow-hidden">
+						<div className="flex size-10 items-center justify-center overflow-hidden rounded-full bg-primary-100 lg:size-13">
 							<Image src={item.avatar} alt="Avatar" width={100} height={100} className="h-full w-full" />
 						</div>
 						<div>

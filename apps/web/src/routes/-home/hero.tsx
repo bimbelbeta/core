@@ -23,15 +23,15 @@ export function Hero() {
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ duration: 0.3, delay: 0 }}
-						className="text-2xl min-[400px]:text-3xl sm:text-4xl xl:text-5xl"
+						className="text-2xl sm:text-4xl xl:text-5xl min-[400px]:text-3xl"
 					>
 						Rumah Baru untuk{" "}
 						<Highlight variant="darkBlue" weight={"bold"}>
-              Persiapan UTBK-mu,
-            </Highlight>
-						{' '}<br className="hidden lg:block" />
-            <Highlight variant="darkBlue" weight={"bold"}>
-            Satu Tempat
+							Persiapan UTBK-mu,
+						</Highlight>{" "}
+						<br className="hidden lg:block" />
+						<Highlight variant="darkBlue" weight={"bold"}>
+							Satu Tempat
 						</Highlight>{" "}
 						untuk{" "}
 						<Highlight variant="darkBlue" weight={"bold"}>
@@ -44,9 +44,10 @@ export function Hero() {
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ duration: 0.3, delay: 0.1 }}
-						className="text-sm sm:text-base max-w-sm md:max-w-lg"
+						className="max-w-sm text-sm sm:text-base md:max-w-lg"
 					>
-						Nikmati ekosistem lengkap dari materi hingga simulasi ujian di satu tempat. Kamu fokus belajar biar kami yang atur sistemnya.
+						Nikmati ekosistem lengkap dari materi hingga simulasi ujian di satu tempat. Kamu fokus belajar biar kami
+						yang atur sistemnya.
 					</motion.p>
 
 					<motion.div
