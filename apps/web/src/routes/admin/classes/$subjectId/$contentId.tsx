@@ -35,7 +35,7 @@ function RouteComponent() {
 	const displayTitle = content.data?.title || contentId;
 
 	return (
-		<Container className="gap-3 p-0">
+		<Container className="gap-3 px-0 py-4">
 			<div className="w-fit">
 				<BackButton to={`/admin/classes/${subjectId}`} />
 				{content.isPending ? (
@@ -50,7 +50,8 @@ function RouteComponent() {
 			<Tabs value={currentTab} onValueChange={handleTabChange}>
 				<TabsList>
 					<TabsTrigger value="video">Video</TabsTrigger>
-					<TabsTrigger value="notes">Catatan</TabsTrigger>
+          <TabsTrigger value="notes">Catatan</TabsTrigger>
+					<TabsTrigger value="latihan-soal">Latihan Soal</TabsTrigger>
 				</TabsList>
 
 				<TabsContent value={currentTab} className="pt-4">

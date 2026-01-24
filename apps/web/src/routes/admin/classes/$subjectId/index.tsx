@@ -238,7 +238,7 @@ function RouteComponent() {
 	if (!contents.data) return notFound();
 
 	return (
-		<Container className="px-0 pt-0">
+		<Container className="px-0 py-4">
 			<ClassHeader subject={contents.data.subject} />
 			<div className="sticky top-0 z-10 space-y-4 border-b bg-background/95 pb-4 backdrop-blur">
 				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
