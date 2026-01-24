@@ -1,3 +1,4 @@
+import { adminCreditRouter } from "./credit";
 import { adminDashboardRouter } from "./dashboard";
 import { questionRouter } from "./question";
 import { adminSubjectRouter } from "./subject";
@@ -16,6 +17,7 @@ export const adminRouter = {
 		questionsBulk: subtestQuestionRouter,
 	},
 	university: adminUniversityRouter,
+	credit: adminCreditRouter,
 };
 
 export type { adminDashboardRouter } from "./dashboard";

@@ -2,6 +2,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { config } from "dotenv";
 import { drizzle } from "drizzle-orm/node-postgres";
+import { clearProducts, seedProducts } from "./product.seed";
 import { clearContent, clearSubtest, seedContent, seedSubtest } from "./subject.seed";
 import { clearTryout, seedTryout } from "./tryout.seed";
 
@@ -25,6 +26,8 @@ async function main() {
 	const db = drizzle(process.env.DATABASE_URL);
 
 	// await clearPractice(db);
+	await clearProducts(db);
+	await seedProducts(db);
 	await clearSubtest(db);
 	await seedSubtest(db);
 	await clearTryout(db);

@@ -2,6 +2,7 @@ import type { RouterClient } from "@orpc/server";
 import { type } from "arktype";
 import { pub } from "../index";
 import { adminRouter } from "./admin";
+import { creditRouter } from "./credit";
 import { subjectRouter } from "./subject";
 import { transactionRouter } from "./transaction";
 import { tryoutRouter } from "./tryout";
@@ -23,6 +24,7 @@ export const appRouter = {
 	university: universityRouter,
 	admin: adminRouter,
 	transaction: transactionRouter,
+	credit: creditRouter,
 };
 
 export type AppRouter = typeof appRouter;

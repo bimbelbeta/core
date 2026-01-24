@@ -1,9 +1,10 @@
 import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
+import { creditTransaction } from "@bimbelbeta/db/schema/credit";
 import { product, transaction } from "@bimbelbeta/db/schema/transaction";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { authed, pub } from "..";
 import { PREMIUM_DEADLINE } from "../lib/constants";
 import { createSubscriptionTransaction } from "../lib/midtrans";
@@ -16,7 +17,7 @@ const subscribe = authed
 	})
 	.input(
 		type({
-			name: "'premium' | 'basic'",
+			slug: "string",
 		}),
 	)
 	.output(
@@ -26,16 +27,18 @@ const subscribe = authed
 		}),
 	)
 	.handler(async ({ input, context, errors }) => {
-		if (input.name === "premium" && context.session.user.isPremium)
-			throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah menjadi member premium." });
-		if (input.name === "premium" && Date.now() > PREMIUM_DEADLINE.getTime())
-			throw errors.UNPROCESSABLE_CONTENT({ message: "Produk premium tidak tersedia lagi." });
-
-		const [plan] = await db.select().from(product).where(eq(product.slug, input.name)).limit(1);
+		const [plan] = await db.select().from(product).where(eq(product.slug, input.slug)).limit(1);
 		if (!plan) throw errors.NOT_FOUND({ message: "Produk tidak ditemukan." });
 
-		const grossAmount = plan.price;
+		// Validate subscription-specific rules
+		if (plan.type === "subscription" && plan.slug === "premium") {
+			if (context.session.user.isPremium)
+				throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah menjadi member premium." });
+			if (Date.now() > PREMIUM_DEADLINE.getTime())
+				throw errors.UNPROCESSABLE_CONTENT({ message: "Produk premium tidak tersedia lagi." });
+		}
 
+		const grossAmount = plan.price;
 		const orderId = `tx_${crypto.randomUUID()}`;
 
 		const [createdTransaction] = await db
@@ -102,6 +105,7 @@ const notification = pub
 				tx: transaction,
 				prodType: product.type,
 				prodSlug: product.slug,
+				prodCredits: product.credits,
 			})
 			.from(transaction)
 			.innerJoin(product, eq(transaction.productId, product.id))
@@ -116,6 +120,7 @@ const notification = pub
 		const tx = existingTransaction.tx;
 		const isPremiumSubscription =
 			existingTransaction.prodType === "subscription" && existingTransaction.prodSlug === "premium";
+		const isCreditProduct = existingTransaction.prodType === "product" && existingTransaction.prodCredits;
 
 		if (tx.paidAt) {
 			console.log(`Transaction ${order_id} already processed`);
@@ -140,6 +145,29 @@ const notification = pub
 							.update(user)
 							.set({ isPremium: true, premiumExpiresAt: PREMIUM_DEADLINE })
 							.where(eq(user.id, tx.userId!));
+					}
+
+					// Grant tryout credits for credit product purchases
+					if (isCreditProduct) {
+						const creditsToAdd = existingTransaction.prodCredits!;
+
+						// Add credits to user balance
+						const [updatedUser] = await trx
+							.update(user)
+							.set({
+								tryoutCredits: sql`${user.tryoutCredits} + ${creditsToAdd}`,
+							})
+							.where(eq(user.id, tx.userId!))
+							.returning({ tryoutCredits: user.tryoutCredits });
+
+						// Record credit transaction for audit trail
+						await trx.insert(creditTransaction).values({
+							userId: tx.userId!,
+							transactionId: tx.id,
+							amount: creditsToAdd,
+							balanceAfter: updatedUser?.tryoutCredits ?? creditsToAdd,
+							note: `Purchased ${existingTransaction.prodSlug}`,
+						});
 					}
 				});
 			}

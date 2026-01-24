@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { boolean, index, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, index, integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
 	id: text("id").primaryKey(),
@@ -15,6 +15,7 @@ export const user = pgTable("user", {
 	role: text("role").default("user"),
 	isPremium: boolean("is_premium").default(false),
 	premiumExpiresAt: timestamp("premium_expires_at"),
+	tryoutCredits: integer("tryout_credits").notNull().default(0),
 });
 
 export const session = pgTable(

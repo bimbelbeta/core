@@ -1,4 +1,6 @@
 import { db } from "@bimbelbeta/db";
+import { user } from "@bimbelbeta/db/schema/auth";
+import { creditTransaction } from "@bimbelbeta/db/schema/credit";
 import { question, questionChoice } from "@bimbelbeta/db/schema/question";
 import {
 	tryout,
@@ -10,7 +12,7 @@ import {
 } from "@bimbelbeta/db/schema/tryout";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { authed } from "../index";
 import { calculateTryoutScores, saveScoresToDatabase } from "../lib/calculate-score";
 import { convertToTiptap } from "../lib/convert-to-tiptap";
@@ -238,7 +240,7 @@ const start = authed
 		method: "POST",
 		tags: ["Tryouts"],
 	})
-	.input(type({ id: "number", imageUrl: "string.url?" }))
+	.input(type({ id: "number", imageUrl: "string.url?", useCredit: "boolean?" }))
 	.handler(async ({ input, context }) => {
 		const tryoutData = await db.query.tryout.findFirst({
 			where: and(eq(tryout.id, input.id), eq(tryout.status, "published")),
@@ -251,9 +253,21 @@ const start = authed
 
 		if (!tryoutData) throw new ORPCError("NOT_FOUND", { message: "Tryout not found" });
 
-		if (!context.session.user.isPremium && !input.imageUrl) {
+		// Access control: Premium users OR users with image OR users with credits
+		const isPremiumUser = context.session.user.isPremium;
+		const hasImageProof = !!input.imageUrl;
+		const wantsToUseCredit = !!input.useCredit;
+		const userCredits = context.session.user.tryoutCredits ?? 0;
+
+		if (!isPremiumUser && !hasImageProof && !wantsToUseCredit) {
 			throw new ORPCError("FORBIDDEN", {
-				message: "Upload bukti pembayaran untuk memulai tryout",
+				message: "Upload bukti pembayaran atau gunakan kredit tryout",
+			});
+		}
+
+		if (wantsToUseCredit && userCredits <= 0) {
+			throw new ORPCError("FORBIDDEN", {
+				message: "Kredit tryout tidak cukup",
 			});
 		}
 
@@ -295,17 +309,58 @@ const start = authed
 
 		const overallDeadline = deadlineMap.get(tryoutData.subtests[tryoutData.subtests.length - 1]!.id)!;
 
-		const [attempt] = await db
-			.insert(tryoutAttempt)
-			.values({
-				tryoutId: input.id,
-				userId: context.session.user.id,
-				submittedImageUrl: input.imageUrl,
-				deadline: overallDeadline,
-			})
-			.returning();
+		// Use a transaction to atomically create attempt and deduct credits if needed
+		const attempt = await db.transaction(async (trx) => {
+			// Deduct credit if using credit
+			if (wantsToUseCredit && !isPremiumUser) {
+				const [updatedUser] = await trx
+					.update(user)
+					.set({
+						tryoutCredits: sql`${user.tryoutCredits} - 1`,
+					})
+					.where(eq(user.id, context.session.user.id))
+					.returning({ tryoutCredits: user.tryoutCredits });
 
-		if (!attempt) throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Failed to create attempt" });
+				// Create attempt first to get the ID
+				const [newAttempt] = await trx
+					.insert(tryoutAttempt)
+					.values({
+						tryoutId: input.id,
+						userId: context.session.user.id,
+						submittedImageUrl: null,
+						deadline: overallDeadline,
+					})
+					.returning();
+
+				if (!newAttempt) throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Failed to create attempt" });
+
+				// Record credit consumption
+				await trx.insert(creditTransaction).values({
+					userId: context.session.user.id,
+					tryoutAttemptId: newAttempt.id,
+					amount: -1,
+					balanceAfter: updatedUser?.tryoutCredits ?? 0,
+					note: `Used for tryout: ${tryoutData.title}`,
+				});
+
+				return newAttempt;
+			}
+
+			// Regular flow (premium user or image proof)
+			const [newAttempt] = await trx
+				.insert(tryoutAttempt)
+				.values({
+					tryoutId: input.id,
+					userId: context.session.user.id,
+					submittedImageUrl: input.imageUrl,
+					deadline: overallDeadline,
+				})
+				.returning();
+
+			if (!newAttempt) throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Failed to create attempt" });
+
+			return newAttempt;
+		});
 
 		const firstSubtest = tryoutData.subtests[0]!;
 		await db.insert(tryoutSubtestAttempt).values({

@@ -6,7 +6,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { Resend } from "resend";
 import { generateResetPasswordEmail } from "./lib/templates/reset-password";
 
-export const resend = new Resend(process.env.RESEND_API_KEY || "");
+export const resend = new Resend(process.env.RESEND_API_KEY || "re_your_resend_api_key");
 
 export const auth = betterAuth({
 	database: drizzleAdapter(db, {
@@ -38,6 +38,14 @@ export const auth = betterAuth({
 				},
 				required: false,
 				defaultValue: null,
+				input: false,
+			},
+			tryoutCredits: {
+				type: "number",
+				validator: {
+					input: type("number"),
+				},
+				defaultValue: 0,
 				input: false,
 			},
 		},

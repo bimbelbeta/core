@@ -1,4 +1,4 @@
-import { decimal, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { decimal, integer, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { user } from "./auth";
 
 export const typeEnum = pgEnum("product_type_enum", ["subscription", "product"]);
@@ -20,4 +20,5 @@ export const product = pgTable("product", {
 	slug: text().notNull().unique(),
 	price: decimal().notNull(),
 	type: typeEnum("type").notNull(),
+	credits: integer(), // Number of tryout credits granted (for "product" type packages)
 });

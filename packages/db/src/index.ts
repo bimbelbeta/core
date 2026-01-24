@@ -1,4 +1,5 @@
 import { drizzle } from "drizzle-orm/node-postgres";
+import * as credit from "./schema/credit";
 import * as question from "./schema/question";
 import * as subject from "./schema/subject";
 import * as transaction from "./schema/transaction";
@@ -16,6 +17,7 @@ export const db = drizzle({
 	},
 	casing: "snake_case",
 	schema: {
+		...credit,
 		...question,
 		...transaction,
 		...tryout,

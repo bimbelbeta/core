@@ -149,7 +149,7 @@ function RouteComponent() {
 								if (isPremium) return;
 								transactionMutation
 									.mutateAsync({
-										name: "premium",
+										slug: "premium",
 									})
 									.then((data) => {
 										setToken(data.token);
