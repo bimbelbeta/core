@@ -34,8 +34,8 @@ function UsersListPage() {
 
 	const handleViewUser = (userId: string) => {
 		navigate({
-			to: "/admin/_superadmin/users/$userId",
-			params: { userId } as any,
+			to: "/admin/users/$userId",
+			params: { userId },
 		});
 	};
 

@@ -4,7 +4,7 @@ import { subject } from "@bimbelbeta/db/schema/subject";
 import { transaction } from "@bimbelbeta/db/schema/transaction";
 import { tryout, tryoutAttempt } from "@bimbelbeta/db/schema/tryout";
 import { type } from "arktype";
-import { and, count, desc, eq, gte, ilike, or, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, gt, gte, ilike, lt, or, sql } from "drizzle-orm";
 import { admin } from "../../index";
 
 const stats = admin
@@ -98,7 +98,8 @@ const recentActivity = admin
 			search: "string?",
 			type: '"user" | "premium" | "subject" | "tryout"?',
 			limit: "number = 10",
-			cursor: "number = 0",
+			cursor: "string?",
+			direction: '"next" | "previous" = "next"',
 		}),
 	)
 	.output(
@@ -110,12 +111,14 @@ const recentActivity = admin
 				userName: "string",
 				date: "string",
 			}).array(),
-			nextCursor: "number?",
+			nextCursor: "string?",
 		}),
 	)
 	.handler(async ({ input }) => {
 		const limit = Math.min(input.limit, 100);
-		const cursor = input.cursor;
+		const isNext = input.direction === "next";
+		const orderFn = isNext ? desc : asc;
+		const cursorDate = input.cursor ? new Date(input.cursor) : undefined;
 
 		const userActivities = await db
 			.select({
@@ -126,10 +129,14 @@ const recentActivity = admin
 				date: user.createdAt,
 			})
 			.from(user)
-			.where(input.search ? ilike(user.name, `%${input.search}%`) : undefined)
-			.orderBy(desc(user.createdAt))
-			.limit(limit + 1)
-			.offset(cursor);
+			.where(
+				and(
+					cursorDate ? (isNext ? lt(user.createdAt, cursorDate) : gt(user.createdAt, cursorDate)) : undefined,
+					input.search ? ilike(user.name, `%${input.search}%`) : undefined,
+				),
+			)
+			.orderBy(orderFn(user.createdAt))
+			.limit(limit * 4 + 10);
 
 		const premiumActivities = await db
 			.select({
@@ -141,10 +148,15 @@ const recentActivity = admin
 			})
 			.from(transaction)
 			.innerJoin(user, eq(transaction.userId, user.id))
-			.where(and(eq(transaction.status, "success"), input.search ? ilike(user.name, `%${input.search}%`) : undefined))
-			.orderBy(desc(transaction.paidAt))
-			.limit(limit + 1)
-			.offset(cursor);
+			.where(
+				and(
+					eq(transaction.status, "success"),
+					cursorDate ? (isNext ? lt(transaction.paidAt, cursorDate) : gt(transaction.paidAt, cursorDate)) : undefined,
+					input.search ? ilike(user.name, `%${input.search}%`) : undefined,
+				),
+			)
+			.orderBy(orderFn(transaction.paidAt))
+			.limit(limit * 4 + 10);
 
 		const subjectActivities = await db
 			.select({
@@ -155,10 +167,14 @@ const recentActivity = admin
 				date: subject.createdAt,
 			})
 			.from(subject)
-			.where(input.search ? ilike(subject.name, `%${input.search}%`) : undefined)
-			.orderBy(desc(subject.createdAt))
-			.limit(limit + 1)
-			.offset(cursor);
+			.where(
+				and(
+					cursorDate ? (isNext ? lt(subject.createdAt, cursorDate) : gt(subject.createdAt, cursorDate)) : undefined,
+					input.search ? ilike(subject.name, `%${input.search}%`) : undefined,
+				),
+			)
+			.orderBy(orderFn(subject.createdAt))
+			.limit(limit * 4 + 10);
 
 		const tryoutActivities = await db
 			.select({
@@ -172,13 +188,19 @@ const recentActivity = admin
 			.innerJoin(user, eq(tryoutAttempt.userId, user.id))
 			.innerJoin(tryout, eq(tryoutAttempt.tryoutId, tryout.id))
 			.where(
-				input.search
-					? sql`${or(ilike(user.name, `%${input.search}%`), ilike(tryout.title, `%${input.search}%`))}`
-					: undefined,
+				and(
+					cursorDate
+						? isNext
+							? lt(tryoutAttempt.startedAt, cursorDate)
+							: gt(tryoutAttempt.startedAt, cursorDate)
+						: undefined,
+					input.search
+						? sql`${or(ilike(user.name, `%${input.search}%`), ilike(tryout.title, `%${input.search}%`))}`
+						: undefined,
+				),
 			)
-			.orderBy(desc(tryoutAttempt.startedAt))
-			.limit(limit + 1)
-			.offset(cursor);
+			.orderBy(orderFn(tryoutAttempt.startedAt))
+			.limit(limit * 4 + 10);
 
 		const allActivities = [...userActivities, ...premiumActivities, ...subjectActivities, ...tryoutActivities]
 			.filter((a) => a.date !== null)
@@ -186,14 +208,14 @@ const recentActivity = admin
 			.sort((a, b) => {
 				const aTime = new Date(a.date!).getTime();
 				const bTime = new Date(b.date!).getTime();
-				return bTime - aTime;
+				return isNext ? bTime - aTime : aTime - bTime;
 			});
 
 		const filteredActivities = input.type ? allActivities.filter((a) => a.type === input.type) : allActivities;
 
 		const hasMore = filteredActivities.length > limit;
 		const data = hasMore ? filteredActivities.slice(0, limit) : filteredActivities;
-		const nextCursor = hasMore ? (data[data.length - 1]!.id as number) : null;
+		const nextCursor = hasMore ? data[data.length - 1]!.date : null;
 
 		return {
 			data: data as Array<{
@@ -203,7 +225,7 @@ const recentActivity = admin
 				userName: string;
 				date: string;
 			}>,
-			nextCursor: nextCursor ?? undefined,
+			nextCursor: (nextCursor as string | null) ?? undefined,
 		};
 	});
 

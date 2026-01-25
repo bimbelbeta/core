@@ -1,5 +1,13 @@
 # Agent Guidelines for bimbelbeta
 
+## Architecture Overview
+
+- **Monorepo**: Turbo workspace with packages (`@bimbelbeta/*`) and apps (`web`, `server`)
+- **Backend**: Drizzle ORM, Arktype validation, ORPC for type-safe API routing
+- **Frontend**: TanStack ecosystem (Router, Query, Form), Radix UI primitives, Tailwind CSS
+- **Styling**: `cn()` utility (clsx + tailwind-merge) for className composition
+- **Build System**: Turbo with remote caching (TURBO_TOKEN, TURBO_TEAM)
+
 ## Build Commands
 
 ```bash
@@ -81,6 +89,14 @@ turbo -F @bimbelbeta/db <command>
 - Error handling: Use `errors.NOT_FOUND()`, `errors.UNAUTHORIZED()`, or `ORPCError`
 - Transactions: Use `db.transaction(async (tx) => {...})` for multi-step ops
 
+#### Pagination
+- **Use cursor-based pagination** (not offset) for better performance
+- Cursor uses indexed columns with `gt()`/`lt()` operators: `WHERE id > cursor ORDER BY id LIMIT N`
+- Cursor type: nullable number for ID-based, nullable string (ISO date) for date-based
+- Pattern: Fetch `limit + 1` items, check if has more, return `limit` items with `nextCursor`
+- Bidirectional: Use `direction: "next" | "previous"` for date-based cursors
+- **IMPORTANT**: Change `cursor` input from `"number = 0"` to `"number?"` when implementing cursor pagination
+
 ### Error Handling
 - Client errors: Use toast from sonner (`toast.error("message")`)
 - Server errors: Use ORPCError helpers in routes
@@ -110,7 +126,7 @@ apps/web/src/routes/
 - Server state: TanStack Query, client state: zustand
 - Forms: TanStack Form with Arktype validators
 - Minimize comments - code should be self-documenting
-- Run `bun build:packages` after any changes to files under `packages/` since they are referenced from their build outputs
+- **CRITICAL**: Run `bun build:packages` after any changes to API routes (packages/api/src/routers/*) - this regenerates type definitions used by web/server apps
 - Run `bun lint:fix` and `bun check-types` before pushing
 
 ### Testing

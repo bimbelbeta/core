@@ -28,7 +28,7 @@ export default function Loader() {
 	}, []);
 
 	return (
-		<div className="flex h-screen w-full flex-col items-center justify-center gap-8 p-8">
+		<div className="flex min-h-[80vh] w-full flex-col items-center justify-center gap-8 p-8">
 			<div className="relative flex items-center justify-center">
 				{/* Book Icon */}
 				<motion.div

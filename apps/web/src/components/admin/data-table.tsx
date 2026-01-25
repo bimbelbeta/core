@@ -18,7 +18,8 @@ export function DataTable() {
 				search: search || undefined,
 				type: filter === "all" ? undefined : filter,
 				limit: pagination.pageSize,
-				cursor: pagination.pageIndex * pagination.pageSize,
+				cursor: undefined,
+				direction: "next",
 			},
 		}),
 	);

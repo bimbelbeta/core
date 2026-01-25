@@ -24,7 +24,7 @@ function UserDetailPage() {
 
 	const handleBack = () => {
 		navigate({
-			to: "/admin/_superadmin/users",
+			to: "/admin/users",
 		});
 	};
 

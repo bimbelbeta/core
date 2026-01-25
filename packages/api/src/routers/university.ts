@@ -2,25 +2,24 @@ import { db } from "@bimbelbeta/db";
 import { programYearlyData, studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { and, desc, eq, ilike } from "drizzle-orm";
+import { and, desc, eq, gt, ilike, or } from "drizzle-orm";
 import { authed } from "../index";
 
-const list = authed
+const listStudyPrograms = authed
 	.route({
-		path: "/universities",
+		path: "/universities/study-programs",
 		method: "GET",
-		tags: ["Universities"],
+		tags: ["Universities", "Study Programs"],
 	})
 	.input(
 		type({
-			cursor: "number = 0",
+			cursor: "number?",
 			limit: "number = 15",
 			search: "string?",
 		}),
 	)
-	.handler(async ({ input, errors }) => {
+	.handler(async ({ input }) => {
 		const limit = Math.min(input.limit, 100);
-		const cursor = input.cursor;
 
 		const data = await db
 			.select({
@@ -37,21 +36,108 @@ const list = authed
 			.innerJoin(universityStudyProgram, eq(university.id, universityStudyProgram.universityId))
 			.innerJoin(studyProgram, eq(universityStudyProgram.studyProgramId, studyProgram.id))
 			.innerJoin(programYearlyData, eq(universityStudyProgram.id, programYearlyData.universityStudyProgramId))
-			.where(and(input.search && input.search.length > 0 ? ilike(university.name, input.search) : undefined))
+			.where(
+				and(
+					input.cursor ? gt(university.id, input.cursor) : undefined,
+					input.search && input.search.length > 0
+						? or(ilike(university.name, `%${input.search}%`), ilike(studyProgram.name, `%${input.search}%`))
+						: undefined,
+				),
+			)
 			.orderBy(university.id)
-			.limit(limit + 1)
-			.offset(cursor);
+			.limit(limit + 1);
 
-		if (!data)
-			throw errors.NOT_FOUND({
-				message: "Gagal menemukan data Universitas. Silahkan coba lagi nanti.",
-			});
+		if (!data || data.length === 0)
+			return {
+				data: [],
+				nextCursor: undefined,
+			};
 
 		const hasMore = data.length > limit;
 		const results = hasMore ? data.slice(0, limit) : data;
 		const nextCursor = hasMore ? results[results.length - 1]!.id : undefined;
 
 		return { data: results, nextCursor };
+	});
+
+const list = authed
+	.route({
+		path: "/universities",
+		method: "GET",
+		tags: ["Universities"],
+	})
+	.input(
+		type({
+			cursor: "number?",
+			limit: "number = 15",
+			search: "string?",
+		}),
+	)
+	.handler(async ({ input, errors }) => {
+		const universities = await db
+			.select({
+				id: university.id,
+				name: university.name,
+				slug: university.slug,
+				logo: university.logo,
+				location: university.location,
+				rank: university.rank,
+			})
+			.from(university)
+			.where(
+				and(
+					input.cursor ? gt(university.id, input.cursor) : undefined,
+					input.search && input.search.length > 0 ? ilike(university.name, `%${input.search}%`) : undefined,
+				),
+			)
+			.orderBy(university.id)
+			.limit(input.limit + 1);
+
+		if (universities.length === 0)
+			throw errors.NOT_FOUND({
+				message: "Gagal menemukan data Universitas. Silahkan coba lagi nanti.",
+			});
+
+		const hasMore = universities.length > input.limit;
+		const results = hasMore ? universities.slice(0, input.limit) : universities;
+		const nextCursor = hasMore ? results[results.length - 1]!.id : undefined;
+
+		return { data: results, nextCursor };
+	});
+
+const listStudyProgramsByUniversity = authed
+	.route({
+		path: "/universities/{universityId}/study-programs",
+		method: "GET",
+		tags: ["Universities", "Study Programs"],
+	})
+	.input(type({ universityId: "number" }))
+	.output(
+		type({
+			data: type({
+				id: "number",
+				name: "string",
+			}).array(),
+		}),
+	)
+	.handler(async ({ input, errors }) => {
+		const studyPrograms = await db
+			.select({
+				id: studyProgram.id,
+				name: studyProgram.name,
+			})
+			.from(universityStudyProgram)
+			.innerJoin(studyProgram, eq(universityStudyProgram.studyProgramId, studyProgram.id))
+			.where(eq(universityStudyProgram.universityId, input.universityId))
+			.orderBy(studyProgram.name);
+
+		if (studyPrograms.length === 0) {
+			throw errors.NOT_FOUND({
+				message: "Belum ada data Program Studi untuk Universitas ini",
+			});
+		}
+
+		return { data: studyPrograms };
 	});
 
 const find = authed
@@ -177,6 +263,8 @@ const find = authed
 	});
 
 export const universityRouter = {
+	listStudyPrograms,
 	list,
+	listStudyProgramsByUniversity,
 	find,
 };

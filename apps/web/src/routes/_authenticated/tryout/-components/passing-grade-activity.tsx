@@ -9,9 +9,9 @@ import { orpc } from "@/utils/orpc";
 
 export function PassingGradeActivity() {
 	const [searchQuery, setSearchQuery] = useState("");
-	const debouncedSearchQuery = useDebounceValue(searchQuery, 300);
+	const debouncedSearchQuery = useDebounceValue(searchQuery, 1500);
 	const { data: universities, isPending } = useQuery(
-		orpc.university.list.queryOptions({
+		orpc.university.listStudyPrograms.queryOptions({
 			input: {
 				search: debouncedSearchQuery,
 			},
@@ -25,7 +25,7 @@ export function PassingGradeActivity() {
 				placeholder="Filter"
 				value={searchQuery}
 				onChange={(e) => setSearchQuery(e.target.value)}
-				className="mb-4 max-w-md selection:bg-background"
+				className="mb-4 max-w-md bg-white"
 			/>
 
 			<div className="overflow-clip rounded-sm border border-input">
@@ -48,7 +48,7 @@ export function PassingGradeActivity() {
 						) : universities?.data.length === 0 ? (
 							<TableRow>
 								<TableCell colSpan={4} className="h-20 text-center text-muted-foreground">
-									Belum terdapat data Passing Grade. <SmileySadIcon className="inline" />
+									Gagal menemukan Prodi/Universitas. Silahkan coba kata kunci lain. <SmileySadIcon className="inline" />
 								</TableCell>
 							</TableRow>
 						) : (
