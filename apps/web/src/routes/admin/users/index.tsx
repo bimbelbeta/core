@@ -57,7 +57,7 @@ function UsersListPage() {
 	const [grantCreditsUser, setGrantCreditsUser] = useState<{
 		userId: string;
 		userName: string;
-		currentCredits: number;
+		currentCredits: number | null;
 	} | null>(null);
 	const [grantPremiumUser, setGrantPremiumUser] = useState<{
 		userId: string;

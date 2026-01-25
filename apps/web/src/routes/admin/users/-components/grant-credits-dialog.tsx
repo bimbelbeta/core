@@ -20,7 +20,7 @@ import { orpc } from "@/utils/orpc";
 interface GrantCreditsDialogProps {
 	userId: string;
 	userName: string;
-	currentCredits: number;
+	currentCredits: number | null;
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	onSuccess: () => void;

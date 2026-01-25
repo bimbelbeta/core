@@ -7,6 +7,7 @@ import { subjectRouter } from "./subject";
 import { transactionRouter } from "./transaction";
 import { tryoutRouter } from "./tryout";
 import { universityRouter } from "./university";
+import { userSettingsRouter } from "./user-settings";
 
 export const appRouter = {
 	healthCheck: pub
@@ -25,6 +26,7 @@ export const appRouter = {
 	admin: adminRouter,
 	transaction: transactionRouter,
 	credit: creditRouter,
+	userSettings: userSettingsRouter,
 };
 
 export type AppRouter = typeof appRouter;

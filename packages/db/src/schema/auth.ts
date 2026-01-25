@@ -16,6 +16,8 @@ export const user = pgTable("user", {
 	isPremium: boolean("is_premium").default(false),
 	premiumExpiresAt: timestamp("premium_expires_at"),
 	tryoutCredits: integer("tryout_credits").default(0),
+	targetUniversityId: integer("target_university_id"),
+	targetStudyProgramId: integer("target_study_program_id"),
 });
 
 export const session = pgTable(

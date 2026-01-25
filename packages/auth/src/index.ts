@@ -48,6 +48,18 @@ export const auth = betterAuth({
 				defaultValue: 0,
 				input: false,
 			},
+			targetUniversityId: {
+				type: "number",
+				required: false,
+				defaultValue: null,
+				input: false,
+			},
+			targetStudyProgramId: {
+				type: "number",
+				required: false,
+				defaultValue: null,
+				input: false,
+			},
 		},
 	},
 	trustedOrigins: [

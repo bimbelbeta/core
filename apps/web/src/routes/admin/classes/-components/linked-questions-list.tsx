@@ -1,5 +1,5 @@
 import { DotsSixVertical, Trash } from "@phosphor-icons/react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { Reorder, useDragControls } from "motion/react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -52,22 +52,11 @@ function LinkedQuestionItem({
 	onRemoveSuccess: () => void;
 }) {
 	const dragControls = useDragControls();
-	const queryClient = useQueryClient();
 
 	const removeMutation = useMutation(
-		orpc.admin.subject.unlinkSinglePracticeQuestion.mutationOptions({
+		orpc.admin.subject.unlinkPracticeQuestions.mutationOptions({
 			onSuccess: (result) => {
 				toast.success(result.message);
-				queryClient.invalidateQueries({
-					queryKey: orpc.admin.subject.getContentPracticeQuestions.queryKey({
-						input: { id: contentId },
-					}),
-				});
-				queryClient.invalidateQueries({
-					queryKey: orpc.subject.getContentById.queryKey({
-						input: { contentId },
-					}),
-				});
 				onRemoveSuccess();
 			},
 			onError: (err) => {
@@ -136,7 +125,6 @@ function LinkedQuestionItem({
 							onClick={() => {
 								removeMutation.mutate({
 									id: contentId,
-									questionId: question.questionId,
 								});
 							}}
 						>
@@ -151,7 +139,6 @@ function LinkedQuestionItem({
 
 export function LinkedQuestionsList({ contentId, questions }: LinkedQuestionsListProps) {
 	const [items, setItems] = useState(questions);
-	const queryClient = useQueryClient();
 
 	// Keep items in sync with questions prop
 	if (JSON.stringify(items.map((i) => i.questionId)) !== JSON.stringify(questions.map((q) => q.questionId))) {
@@ -159,14 +146,9 @@ export function LinkedQuestionsList({ contentId, questions }: LinkedQuestionsLis
 	}
 
 	const reorderMutation = useMutation(
-		orpc.admin.subject.reorderPracticeQuestions.mutationOptions({
+		orpc.admin.subject.linkPracticeQuestions.mutationOptions({
 			onSuccess: () => {
 				// Silent success - no toast needed for reorder
-				queryClient.invalidateQueries({
-					queryKey: orpc.admin.subject.getContentPracticeQuestions.queryKey({
-						input: { id: contentId },
-					}),
-				});
 			},
 			onError: (err) => {
 				toast.error(`Gagal menyimpan urutan: ${err.message}`);

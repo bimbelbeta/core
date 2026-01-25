@@ -71,7 +71,7 @@ function UserDetailPage() {
 					<GrantCreditsDialog
 						userId={user.id}
 						userName={user.name}
-						currentCredits={user.tryoutCredits}
+						currentCredits={user.tryoutCredits ?? 0}
 						open={isGrantCreditsDialogOpen}
 						onOpenChange={setIsGrantCreditsDialogOpen}
 						onSuccess={() => refetch()}
