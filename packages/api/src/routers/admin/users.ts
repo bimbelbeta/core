@@ -4,9 +4,9 @@ import { creditTransaction } from "@bimbelbeta/db/schema/credit";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { and, count, desc, eq, like, or } from "drizzle-orm";
-import { admin } from "../..";
+import { superadmin } from "../..";
 
-const listUsers = admin
+const listUsers = superadmin
 	.route({
 		path: "/admin/users",
 		method: "GET",
@@ -59,7 +59,7 @@ const listUsers = admin
 		};
 	});
 
-const getUser = admin
+const getUser = superadmin
 	.route({
 		path: "/admin/users/{userId}",
 		method: "GET",
@@ -88,7 +88,7 @@ const getUser = admin
 		};
 	});
 
-const updateUser = admin
+const updateUser = superadmin
 	.route({
 		path: "/admin/users/{userId}",
 		method: "PATCH",
@@ -138,7 +138,7 @@ const updateUser = admin
 		return { message: "User berhasil diperbarui" };
 	});
 
-const grantPremium = admin
+const grantPremium = superadmin
 	.route({
 		path: "/admin/users/{userId}/premium",
 		method: "POST",

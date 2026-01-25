@@ -85,7 +85,7 @@ export const DATA = {
 				variant: "highlight",
 				title: "Paket Pemula",
 				price: 1800000,
-        originalPrice: 2000000,
+				originalPrice: 2000000,
 				period: "s.d 31 Mei",
 				features: [
 					"Live Teaching 7 Sub Tes UTBK setiap pekannya",

@@ -3,9 +3,9 @@ import { user } from "@bimbelbeta/db/schema/auth";
 import { creditTransaction } from "@bimbelbeta/db/schema/credit";
 import { type } from "arktype";
 import { desc, eq, sql } from "drizzle-orm";
-import { admin } from "../../index";
+import { superadmin } from "../../index";
 
-const adjustCredits = admin
+const adjustCredits = superadmin
 	.route({
 		path: "/admin/users/{userId}/credits",
 		method: "POST",
@@ -58,7 +58,7 @@ const adjustCredits = admin
 		};
 	});
 
-const getUserCredits = admin
+const getUserCredits = superadmin
 	.route({
 		path: "/admin/users/{userId}/credits",
 		method: "GET",

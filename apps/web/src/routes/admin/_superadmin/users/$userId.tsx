@@ -1,6 +1,6 @@
 import { ArrowLeftIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,12 +14,19 @@ import { GrantPremiumDialog } from "./-components/grant-premium-dialog";
 
 type UserDetail = NonNullable<BodyOutputs["admin"]["users"]["getUser"]["user"]>;
 
-export const Route = createFileRoute("/admin/users/$userId")({
+export const Route = createFileRoute("/admin/_superadmin/users/$userId")({
 	component: UserDetailPage,
-});
+}) as any;
 
 function UserDetailPage() {
 	const { userId } = Route.useParams();
+	const navigate = Route.useNavigate();
+
+	const handleBack = () => {
+		navigate({
+			to: "/admin/_superadmin/users",
+		});
+	};
 
 	const { data, isLoading, refetch } = useQuery(
 		orpc.admin.users.getUser.queryOptions({
@@ -52,10 +59,8 @@ function UserDetailPage() {
 	return (
 		<div className="flex h-full flex-col gap-6 p-6">
 			<div className="flex items-center gap-4">
-				<Button variant="ghost" size="icon" asChild>
-					<Link to="/admin/users">
-						<ArrowLeftIcon className="size-5" />
-					</Link>
+				<Button variant="ghost" size="icon" onClick={handleBack}>
+					<ArrowLeftIcon className="size-5" />
 				</Button>
 				<div>
 					<h1 className="font-bold text-2xl text-primary-navy-900">{user.name}</h1>

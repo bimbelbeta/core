@@ -14,12 +14,12 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as AdminSuperadminRouteImport } from './routes/admin/_superadmin'
 import { Route as AuthenticatedPremiumRouteImport } from './routes/_authenticated/premium'
 import { Route as AuthResetPasswordRouteImport } from './routes/_auth/reset-password'
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AuthForgotPasswordRouteImport } from './routes/_auth/forgot-password'
-import { Route as AdminUsersIndexRouteImport } from './routes/admin/users/index'
 import { Route as AdminTryoutsIndexRouteImport } from './routes/admin/tryouts/index'
 import { Route as AdminPassingGradesIndexRouteImport } from './routes/admin/passing-grades/index'
 import { Route as AdminDashboardIndexRouteImport } from './routes/admin/dashboard/index'
@@ -27,15 +27,16 @@ import { Route as AdminClassesIndexRouteImport } from './routes/admin/classes/in
 import { Route as AuthenticatedTryoutIndexRouteImport } from './routes/_authenticated/tryout/index'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
 import { Route as AuthenticatedClassesIndexRouteImport } from './routes/_authenticated/classes/index'
-import { Route as AdminUsersUserIdRouteImport } from './routes/admin/users/$userId'
 import { Route as AdminQuestionsCreateRouteImport } from './routes/admin/questions/create'
 import { Route as AdminQuestionsQuestionIdRouteImport } from './routes/admin/questions/$questionId'
 import { Route as AdminPassingGradesUniversityIdRouteImport } from './routes/admin/passing-grades/$universityId'
 import { Route as AuthenticatedTryoutTryoutIdRouteImport } from './routes/_authenticated/tryout/$tryoutId'
 import { Route as AdminTryoutsTryoutIdIndexRouteImport } from './routes/admin/tryouts/$tryoutId/index'
 import { Route as AdminClassesSubjectIdIndexRouteImport } from './routes/admin/classes/$subjectId/index'
+import { Route as AdminSuperadminUsersIndexRouteImport } from './routes/admin/_superadmin/users/index'
 import { Route as AuthenticatedClassesSubjectIdIndexRouteImport } from './routes/_authenticated/classes/$subjectId/index'
 import { Route as AdminClassesSubjectIdContentIdRouteImport } from './routes/admin/classes/$subjectId/$contentId'
+import { Route as AdminSuperadminUsersUserIdRouteImport } from './routes/admin/_superadmin/users/$userId'
 import { Route as AuthenticatedTryoutResultsAttemptIdRouteImport } from './routes/_authenticated/tryout/results.$attemptId'
 import { Route as AuthenticatedPremiumPaymentUnfinishRouteImport } from './routes/_authenticated/premium/payment/unfinish'
 import { Route as AuthenticatedPremiumPaymentFinishRouteImport } from './routes/_authenticated/premium/payment/finish'
@@ -73,6 +74,10 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminSuperadminRoute = AdminSuperadminRouteImport.update({
+  id: '/_superadmin',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AuthenticatedPremiumRoute = AuthenticatedPremiumRouteImport.update({
   id: '/premium',
   path: '/premium',
@@ -97,11 +102,6 @@ const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
   getParentRoute: () => AuthRoute,
-} as any)
-const AdminUsersIndexRoute = AdminUsersIndexRouteImport.update({
-  id: '/users/',
-  path: '/users/',
-  getParentRoute: () => AdminRoute,
 } as any)
 const AdminTryoutsIndexRoute = AdminTryoutsIndexRouteImport.update({
   id: '/tryouts/',
@@ -141,11 +141,6 @@ const AuthenticatedClassesIndexRoute =
     path: '/classes/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AdminUsersUserIdRoute = AdminUsersUserIdRouteImport.update({
-  id: '/users/$userId',
-  path: '/users/$userId',
-  getParentRoute: () => AdminRoute,
-} as any)
 const AdminQuestionsCreateRoute = AdminQuestionsCreateRouteImport.update({
   id: '/questions/create',
   path: '/questions/create',
@@ -181,6 +176,12 @@ const AdminClassesSubjectIdIndexRoute =
     path: '/classes/$subjectId/',
     getParentRoute: () => AdminRoute,
   } as any)
+const AdminSuperadminUsersIndexRoute =
+  AdminSuperadminUsersIndexRouteImport.update({
+    id: '/users/',
+    path: '/users/',
+    getParentRoute: () => AdminSuperadminRoute,
+  } as any)
 const AuthenticatedClassesSubjectIdIndexRoute =
   AuthenticatedClassesSubjectIdIndexRouteImport.update({
     id: '/classes/$subjectId/',
@@ -192,6 +193,12 @@ const AdminClassesSubjectIdContentIdRoute =
     id: '/classes/$subjectId/$contentId',
     path: '/classes/$subjectId/$contentId',
     getParentRoute: () => AdminRoute,
+  } as any)
+const AdminSuperadminUsersUserIdRoute =
+  AdminSuperadminUsersUserIdRouteImport.update({
+    id: '/users/$userId',
+    path: '/users/$userId',
+    getParentRoute: () => AdminSuperadminRoute,
   } as any)
 const AuthenticatedTryoutResultsAttemptIdRoute =
   AuthenticatedTryoutResultsAttemptIdRouteImport.update({
@@ -274,7 +281,7 @@ const AuthenticatedClassesSubjectIdContentIdLatihanSoalRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRouteWithChildren
+  '/admin': typeof AdminSuperadminRouteWithChildren
   '/forgot-password': typeof AuthForgotPasswordRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
@@ -285,7 +292,6 @@ export interface FileRoutesByFullPath {
   '/admin/passing-grades/$universityId': typeof AdminPassingGradesUniversityIdRoute
   '/admin/questions/$questionId': typeof AdminQuestionsQuestionIdRoute
   '/admin/questions/create': typeof AdminQuestionsCreateRoute
-  '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/classes/': typeof AuthenticatedClassesIndexRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/tryout/': typeof AuthenticatedTryoutIndexRoute
@@ -293,14 +299,15 @@ export interface FileRoutesByFullPath {
   '/admin/dashboard/': typeof AdminDashboardIndexRoute
   '/admin/passing-grades/': typeof AdminPassingGradesIndexRoute
   '/admin/tryouts/': typeof AdminTryoutsIndexRoute
-  '/admin/users/': typeof AdminUsersIndexRoute
   '/classes/$subjectId/$contentId': typeof AuthenticatedClassesSubjectIdContentIdRouteWithChildren
   '/premium/payment/error': typeof AuthenticatedPremiumPaymentErrorRoute
   '/premium/payment/finish': typeof AuthenticatedPremiumPaymentFinishRoute
   '/premium/payment/unfinish': typeof AuthenticatedPremiumPaymentUnfinishRoute
   '/tryout/results/$attemptId': typeof AuthenticatedTryoutResultsAttemptIdRoute
+  '/admin/users/$userId': typeof AdminSuperadminUsersUserIdRoute
   '/admin/classes/$subjectId/$contentId': typeof AdminClassesSubjectIdContentIdRouteWithChildren
   '/classes/$subjectId/': typeof AuthenticatedClassesSubjectIdIndexRoute
+  '/admin/users/': typeof AdminSuperadminUsersIndexRoute
   '/admin/classes/$subjectId/': typeof AdminClassesSubjectIdIndexRoute
   '/admin/tryouts/$tryoutId/': typeof AdminTryoutsTryoutIdIndexRoute
   '/classes/$subjectId/$contentId/latihan-soal': typeof AuthenticatedClassesSubjectIdContentIdLatihanSoalRoute
@@ -324,7 +331,6 @@ export interface FileRoutesByTo {
   '/admin/passing-grades/$universityId': typeof AdminPassingGradesUniversityIdRoute
   '/admin/questions/$questionId': typeof AdminQuestionsQuestionIdRoute
   '/admin/questions/create': typeof AdminQuestionsCreateRoute
-  '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/classes': typeof AuthenticatedClassesIndexRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/tryout': typeof AuthenticatedTryoutIndexRoute
@@ -332,14 +338,15 @@ export interface FileRoutesByTo {
   '/admin/dashboard': typeof AdminDashboardIndexRoute
   '/admin/passing-grades': typeof AdminPassingGradesIndexRoute
   '/admin/tryouts': typeof AdminTryoutsIndexRoute
-  '/admin/users': typeof AdminUsersIndexRoute
   '/classes/$subjectId/$contentId': typeof AuthenticatedClassesSubjectIdContentIdRouteWithChildren
   '/premium/payment/error': typeof AuthenticatedPremiumPaymentErrorRoute
   '/premium/payment/finish': typeof AuthenticatedPremiumPaymentFinishRoute
   '/premium/payment/unfinish': typeof AuthenticatedPremiumPaymentUnfinishRoute
   '/tryout/results/$attemptId': typeof AuthenticatedTryoutResultsAttemptIdRoute
+  '/admin/users/$userId': typeof AdminSuperadminUsersUserIdRoute
   '/admin/classes/$subjectId/$contentId': typeof AdminClassesSubjectIdContentIdRouteWithChildren
   '/classes/$subjectId': typeof AuthenticatedClassesSubjectIdIndexRoute
+  '/admin/users': typeof AdminSuperadminUsersIndexRoute
   '/admin/classes/$subjectId': typeof AdminClassesSubjectIdIndexRoute
   '/admin/tryouts/$tryoutId': typeof AdminTryoutsTryoutIdIndexRoute
   '/classes/$subjectId/$contentId/latihan-soal': typeof AuthenticatedClassesSubjectIdContentIdLatihanSoalRoute
@@ -362,12 +369,12 @@ export interface FileRoutesById {
   '/_auth/register': typeof AuthRegisterRoute
   '/_auth/reset-password': typeof AuthResetPasswordRoute
   '/_authenticated/premium': typeof AuthenticatedPremiumRouteWithChildren
+  '/admin/_superadmin': typeof AdminSuperadminRouteWithChildren
   '/admin/': typeof AdminIndexRoute
   '/_authenticated/tryout/$tryoutId': typeof AuthenticatedTryoutTryoutIdRoute
   '/admin/passing-grades/$universityId': typeof AdminPassingGradesUniversityIdRoute
   '/admin/questions/$questionId': typeof AdminQuestionsQuestionIdRoute
   '/admin/questions/create': typeof AdminQuestionsCreateRoute
-  '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/_authenticated/classes/': typeof AuthenticatedClassesIndexRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/tryout/': typeof AuthenticatedTryoutIndexRoute
@@ -375,14 +382,15 @@ export interface FileRoutesById {
   '/admin/dashboard/': typeof AdminDashboardIndexRoute
   '/admin/passing-grades/': typeof AdminPassingGradesIndexRoute
   '/admin/tryouts/': typeof AdminTryoutsIndexRoute
-  '/admin/users/': typeof AdminUsersIndexRoute
   '/_authenticated/classes/$subjectId/$contentId': typeof AuthenticatedClassesSubjectIdContentIdRouteWithChildren
   '/_authenticated/premium/payment/error': typeof AuthenticatedPremiumPaymentErrorRoute
   '/_authenticated/premium/payment/finish': typeof AuthenticatedPremiumPaymentFinishRoute
   '/_authenticated/premium/payment/unfinish': typeof AuthenticatedPremiumPaymentUnfinishRoute
   '/_authenticated/tryout/results/$attemptId': typeof AuthenticatedTryoutResultsAttemptIdRoute
+  '/admin/_superadmin/users/$userId': typeof AdminSuperadminUsersUserIdRoute
   '/admin/classes/$subjectId/$contentId': typeof AdminClassesSubjectIdContentIdRouteWithChildren
   '/_authenticated/classes/$subjectId/': typeof AuthenticatedClassesSubjectIdIndexRoute
+  '/admin/_superadmin/users/': typeof AdminSuperadminUsersIndexRoute
   '/admin/classes/$subjectId/': typeof AdminClassesSubjectIdIndexRoute
   '/admin/tryouts/$tryoutId/': typeof AdminTryoutsTryoutIdIndexRoute
   '/_authenticated/classes/$subjectId/$contentId/latihan-soal': typeof AuthenticatedClassesSubjectIdContentIdLatihanSoalRoute
@@ -409,7 +417,6 @@ export interface FileRouteTypes {
     | '/admin/passing-grades/$universityId'
     | '/admin/questions/$questionId'
     | '/admin/questions/create'
-    | '/admin/users/$userId'
     | '/classes/'
     | '/dashboard/'
     | '/tryout/'
@@ -417,14 +424,15 @@ export interface FileRouteTypes {
     | '/admin/dashboard/'
     | '/admin/passing-grades/'
     | '/admin/tryouts/'
-    | '/admin/users/'
     | '/classes/$subjectId/$contentId'
     | '/premium/payment/error'
     | '/premium/payment/finish'
     | '/premium/payment/unfinish'
     | '/tryout/results/$attemptId'
+    | '/admin/users/$userId'
     | '/admin/classes/$subjectId/$contentId'
     | '/classes/$subjectId/'
+    | '/admin/users/'
     | '/admin/classes/$subjectId/'
     | '/admin/tryouts/$tryoutId/'
     | '/classes/$subjectId/$contentId/latihan-soal'
@@ -448,7 +456,6 @@ export interface FileRouteTypes {
     | '/admin/passing-grades/$universityId'
     | '/admin/questions/$questionId'
     | '/admin/questions/create'
-    | '/admin/users/$userId'
     | '/classes'
     | '/dashboard'
     | '/tryout'
@@ -456,14 +463,15 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/passing-grades'
     | '/admin/tryouts'
-    | '/admin/users'
     | '/classes/$subjectId/$contentId'
     | '/premium/payment/error'
     | '/premium/payment/finish'
     | '/premium/payment/unfinish'
     | '/tryout/results/$attemptId'
+    | '/admin/users/$userId'
     | '/admin/classes/$subjectId/$contentId'
     | '/classes/$subjectId'
+    | '/admin/users'
     | '/admin/classes/$subjectId'
     | '/admin/tryouts/$tryoutId'
     | '/classes/$subjectId/$contentId/latihan-soal'
@@ -485,12 +493,12 @@ export interface FileRouteTypes {
     | '/_auth/register'
     | '/_auth/reset-password'
     | '/_authenticated/premium'
+    | '/admin/_superadmin'
     | '/admin/'
     | '/_authenticated/tryout/$tryoutId'
     | '/admin/passing-grades/$universityId'
     | '/admin/questions/$questionId'
     | '/admin/questions/create'
-    | '/admin/users/$userId'
     | '/_authenticated/classes/'
     | '/_authenticated/dashboard/'
     | '/_authenticated/tryout/'
@@ -498,14 +506,15 @@ export interface FileRouteTypes {
     | '/admin/dashboard/'
     | '/admin/passing-grades/'
     | '/admin/tryouts/'
-    | '/admin/users/'
     | '/_authenticated/classes/$subjectId/$contentId'
     | '/_authenticated/premium/payment/error'
     | '/_authenticated/premium/payment/finish'
     | '/_authenticated/premium/payment/unfinish'
     | '/_authenticated/tryout/results/$attemptId'
+    | '/admin/_superadmin/users/$userId'
     | '/admin/classes/$subjectId/$contentId'
     | '/_authenticated/classes/$subjectId/'
+    | '/admin/_superadmin/users/'
     | '/admin/classes/$subjectId/'
     | '/admin/tryouts/$tryoutId/'
     | '/_authenticated/classes/$subjectId/$contentId/latihan-soal'
@@ -562,6 +571,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/_superadmin': {
+      id: '/admin/_superadmin'
+      path: ''
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminSuperadminRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_authenticated/premium': {
       id: '/_authenticated/premium'
       path: '/premium'
@@ -596,13 +612,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/forgot-password'
       preLoaderRoute: typeof AuthForgotPasswordRouteImport
       parentRoute: typeof AuthRoute
-    }
-    '/admin/users/': {
-      id: '/admin/users/'
-      path: '/users'
-      fullPath: '/admin/users/'
-      preLoaderRoute: typeof AdminUsersIndexRouteImport
-      parentRoute: typeof AdminRoute
     }
     '/admin/tryouts/': {
       id: '/admin/tryouts/'
@@ -653,13 +662,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedClassesIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/admin/users/$userId': {
-      id: '/admin/users/$userId'
-      path: '/users/$userId'
-      fullPath: '/admin/users/$userId'
-      preLoaderRoute: typeof AdminUsersUserIdRouteImport
-      parentRoute: typeof AdminRoute
-    }
     '/admin/questions/create': {
       id: '/admin/questions/create'
       path: '/questions/create'
@@ -702,6 +704,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminClassesSubjectIdIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/_superadmin/users/': {
+      id: '/admin/_superadmin/users/'
+      path: '/users'
+      fullPath: '/admin/users/'
+      preLoaderRoute: typeof AdminSuperadminUsersIndexRouteImport
+      parentRoute: typeof AdminSuperadminRoute
+    }
     '/_authenticated/classes/$subjectId/': {
       id: '/_authenticated/classes/$subjectId/'
       path: '/classes/$subjectId'
@@ -715,6 +724,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/classes/$subjectId/$contentId'
       preLoaderRoute: typeof AdminClassesSubjectIdContentIdRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/admin/_superadmin/users/$userId': {
+      id: '/admin/_superadmin/users/$userId'
+      path: '/users/$userId'
+      fullPath: '/admin/users/$userId'
+      preLoaderRoute: typeof AdminSuperadminUsersUserIdRouteImport
+      parentRoute: typeof AdminSuperadminRoute
     }
     '/_authenticated/tryout/results/$attemptId': {
       id: '/_authenticated/tryout/results/$attemptId'
@@ -896,6 +912,20 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
+interface AdminSuperadminRouteChildren {
+  AdminSuperadminUsersUserIdRoute: typeof AdminSuperadminUsersUserIdRoute
+  AdminSuperadminUsersIndexRoute: typeof AdminSuperadminUsersIndexRoute
+}
+
+const AdminSuperadminRouteChildren: AdminSuperadminRouteChildren = {
+  AdminSuperadminUsersUserIdRoute: AdminSuperadminUsersUserIdRoute,
+  AdminSuperadminUsersIndexRoute: AdminSuperadminUsersIndexRoute,
+}
+
+const AdminSuperadminRouteWithChildren = AdminSuperadminRoute._addFileChildren(
+  AdminSuperadminRouteChildren,
+)
+
 interface AdminClassesSubjectIdContentIdRouteChildren {
   AdminClassesSubjectIdContentIdLatihanSoalRoute: typeof AdminClassesSubjectIdContentIdLatihanSoalRoute
   AdminClassesSubjectIdContentIdNotesRoute: typeof AdminClassesSubjectIdContentIdNotesRoute
@@ -918,16 +948,15 @@ const AdminClassesSubjectIdContentIdRouteWithChildren =
   )
 
 interface AdminRouteChildren {
+  AdminSuperadminRoute: typeof AdminSuperadminRouteWithChildren
   AdminIndexRoute: typeof AdminIndexRoute
   AdminPassingGradesUniversityIdRoute: typeof AdminPassingGradesUniversityIdRoute
   AdminQuestionsQuestionIdRoute: typeof AdminQuestionsQuestionIdRoute
   AdminQuestionsCreateRoute: typeof AdminQuestionsCreateRoute
-  AdminUsersUserIdRoute: typeof AdminUsersUserIdRoute
   AdminClassesIndexRoute: typeof AdminClassesIndexRoute
   AdminDashboardIndexRoute: typeof AdminDashboardIndexRoute
   AdminPassingGradesIndexRoute: typeof AdminPassingGradesIndexRoute
   AdminTryoutsIndexRoute: typeof AdminTryoutsIndexRoute
-  AdminUsersIndexRoute: typeof AdminUsersIndexRoute
   AdminClassesSubjectIdContentIdRoute: typeof AdminClassesSubjectIdContentIdRouteWithChildren
   AdminClassesSubjectIdIndexRoute: typeof AdminClassesSubjectIdIndexRoute
   AdminTryoutsTryoutIdIndexRoute: typeof AdminTryoutsTryoutIdIndexRoute
@@ -935,16 +964,15 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminSuperadminRoute: AdminSuperadminRouteWithChildren,
   AdminIndexRoute: AdminIndexRoute,
   AdminPassingGradesUniversityIdRoute: AdminPassingGradesUniversityIdRoute,
   AdminQuestionsQuestionIdRoute: AdminQuestionsQuestionIdRoute,
   AdminQuestionsCreateRoute: AdminQuestionsCreateRoute,
-  AdminUsersUserIdRoute: AdminUsersUserIdRoute,
   AdminClassesIndexRoute: AdminClassesIndexRoute,
   AdminDashboardIndexRoute: AdminDashboardIndexRoute,
   AdminPassingGradesIndexRoute: AdminPassingGradesIndexRoute,
   AdminTryoutsIndexRoute: AdminTryoutsIndexRoute,
-  AdminUsersIndexRoute: AdminUsersIndexRoute,
   AdminClassesSubjectIdContentIdRoute:
     AdminClassesSubjectIdContentIdRouteWithChildren,
   AdminClassesSubjectIdIndexRoute: AdminClassesSubjectIdIndexRoute,

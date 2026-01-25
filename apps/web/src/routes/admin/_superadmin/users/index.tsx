@@ -1,6 +1,6 @@
 import { CaretLeftIcon, CaretRightIcon, UserIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { type } from "arktype";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -23,14 +23,21 @@ const searchSchema = type({
 	"isPremium?": "boolean",
 });
 
-export const Route = createFileRoute("/admin/users/")({
+export const Route = createFileRoute("/admin/_superadmin/users/")({
 	component: UsersListPage,
 	validateSearch: searchSchema,
-});
+}) as any;
 
 function UsersListPage() {
 	const navigate = Route.useNavigate();
 	const { page = 1, search, role, isPremium } = Route.useSearch();
+
+	const handleViewUser = (userId: string) => {
+		navigate({
+			to: "/admin/_superadmin/users/$userId",
+			params: { userId } as any,
+		});
+	};
 
 	const [searchInput, setSearchInput] = useState(search ?? "");
 
@@ -195,10 +202,8 @@ function UsersListPage() {
 									<TableCell>{user.createdAt ? new Date(user.createdAt).toLocaleDateString("id-ID") : "-"}</TableCell>
 									<TableCell className="text-right">
 										<div className="flex items-center justify-end gap-2">
-											<Button variant="ghost" size="icon" asChild>
-												<Link to="/admin/users/$userId" params={{ userId: user.id }}>
-													<UserIcon className="size-4" />
-												</Link>
+											<Button variant="ghost" size="icon" onClick={() => handleViewUser(user.id)}>
+												<UserIcon className="size-4" />
 											</Button>
 											<EditUserDialog
 												user={user as UserListItem}
