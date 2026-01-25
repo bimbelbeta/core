@@ -60,7 +60,7 @@ export default function Footer() {
 								<span className="text-secondary-900">Bimbel</span> <span className="text-tertiary-1000">Beta</span>
 							</h3>
 						</div>
-						<p className="text-center text-base text-neutral-1000 leading-6 sm:text-left">Solusi Edukasi</p>
+						<p className="text-center text-base text-neutral-1000 leading-6 sm:text-left">PT Beta Solusi Edukasi</p>
 					</div>
 					<div className="mt-6 flex flex-col items-center justify-end gap-5 sm:mt-0 sm:items-end">
 						<div className="flex items-center gap-4">
