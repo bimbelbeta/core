@@ -1,4 +1,4 @@
-import { Coins } from "@phosphor-icons/react";
+import { CoinsIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
@@ -40,7 +40,7 @@ function TryoutHeader({ creditBalance }: { creditBalance: number }) {
 			<div className="grid grid-cols-1 gap-6 px-6 pt-8 pb-0 sm:grid-cols-3 sm:items-center sm:px-10 sm:py-10">
 				<div className="relative order-last -mx-6 h-27.5 overflow-hidden sm:order-first sm:mx-0 sm:h-auto sm:overflow-visible">
 					<Image
-						src="/avatar/subtest-header-avatar.webp"
+						src="/stock/tryout.webp"
 						alt="Tryout Header Avatar"
 						width={260}
 						height={260}
@@ -55,7 +55,7 @@ function TryoutHeader({ creditBalance }: { creditBalance: number }) {
 					{/* Credit balance display */}
 					{creditBalance > 0 ? (
 						<div className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-2">
-							<Coins size={20} weight="fill" className="text-yellow-300" />
+							<CoinsIcon size={20} weight="fill" className="text-yellow-300" />
 							<span className="font-medium text-sm text-white">
 								Kredit Tryout: <strong>{creditBalance}</strong>
 							</span>
