@@ -6,7 +6,7 @@ import { Container } from "@/components/ui/container";
 import { cn } from "@/lib/utils";
 import { DATA } from "./data";
 
-const BACKGROUND_IMAGE = "/footer.";
+const BACKGROUND_IMAGE = "/footer.png";
 
 export default function Footer() {
 	return (
@@ -85,7 +85,8 @@ export default function Footer() {
 								rel="noopener noreferrer"
 							>
 								<Image
-									src="/icons/OmahTI.webp"
+									// src="/icons/OmahTI.webp"
+									src="/omahti.svg"
 									alt="OmahTI"
 									width={111}
 									height={15}
