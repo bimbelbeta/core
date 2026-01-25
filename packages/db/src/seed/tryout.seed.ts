@@ -78,6 +78,16 @@ const QUESTION_DATA = [
 					{ code: "D", content: "x = y", isCorrect: false },
 				],
 			},
+			{
+				content: "Manakah pernyataan berikut yang bernilai benar?",
+				type: "multiple_choice_complex" as const,
+				choices: [
+					{ code: "A", content: "2 + 2 = 4", isCorrect: true },
+					{ code: "B", content: "3 + 3 = 7", isCorrect: false },
+					{ code: "C", content: "5 × 2 = 10", isCorrect: true },
+					{ code: "D", content: "10 ÷ 2 = 3", isCorrect: false },
+				],
+			},
 		],
 	},
 	{

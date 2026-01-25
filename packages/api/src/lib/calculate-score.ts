@@ -1,5 +1,5 @@
 import { db } from "@bimbelbeta/db";
-import { question } from "@bimbelbeta/db/schema/question";
+import { question, questionChoice } from "@bimbelbeta/db/schema/question";
 import {
 	tryoutAttempt,
 	tryoutSubtestAttempt,
@@ -80,6 +80,30 @@ export async function calculateTryoutScores(attemptId: number): Promise<TryoutSc
 
 		const questionMap = new Map(questions.map((q) => [q.id, q]));
 
+		// Batch fetch all choices for complex multiple choice questions (N+1 fix)
+		const complexQuestionIds = questions.filter((q) => q.type === "multiple_choice_complex").map((q) => q.id);
+
+		const allComplexChoices =
+			complexQuestionIds.length > 0
+				? await db.query.questionChoice.findMany({
+						where: inArray(questionChoice.questionId, complexQuestionIds),
+						columns: {
+							questionId: true,
+							id: true,
+							isCorrect: true,
+						},
+					})
+				: [];
+
+		// Group choices by questionId for efficient lookup
+		const choicesByQuestion = new Map<number, Array<{ id: number; isCorrect: boolean }>>();
+		for (const choice of allComplexChoices) {
+			if (!choicesByQuestion.has(choice.questionId)) {
+				choicesByQuestion.set(choice.questionId, []);
+			}
+			choicesByQuestion.get(choice.questionId)!.push({ id: choice.id, isCorrect: choice.isCorrect });
+		}
+
 		let correctCount = 0;
 		const totalCount = subtestQuestions.length;
 
@@ -95,6 +119,21 @@ export async function calculateTryoutScores(attemptId: number): Promise<TryoutSc
 			if (questionData.type === "multiple_choice") {
 				// Check if selected choice is correct
 				if (userAnswer.selectedChoice?.isCorrect) {
+					correctCount++;
+				}
+			} else if (questionData.type === "multiple_choice_complex") {
+				// Correct if: ALL correct choices are selected AND NO incorrect choices are selected
+				const selectedIds = userAnswer.selectedChoiceIds ?? [];
+				const choices = choicesByQuestion.get(sq.questionId) ?? [];
+
+				const correctChoiceIds = choices.filter((c) => c.isCorrect).map((c) => c.id);
+				const selectedIncorrectChoices = selectedIds.filter((id) => !correctChoiceIds.includes(id));
+
+				// Correct only if all correct are selected and no incorrect are selected
+				const allCorrectSelected = correctChoiceIds.every((id) => selectedIds.includes(id));
+				const noIncorrectSelected = selectedIncorrectChoices.length === 0;
+
+				if (allCorrectSelected && noIncorrectSelected) {
 					correctCount++;
 				}
 			} else if (questionData.type === "essay") {

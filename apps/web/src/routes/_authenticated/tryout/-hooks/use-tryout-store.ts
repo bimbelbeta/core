@@ -7,6 +7,7 @@ interface TryoutStore {
 	currentQuestion: TryoutQuestion | null;
 	currentQuestionIndex: number;
 	answers: Record<number, number>;
+	complexAnswers: Record<number, number[]>;
 	essayAnswers: Record<number, string>;
 	raguRaguIds: Set<number>;
 	showQuestionGrid: boolean;
@@ -16,8 +17,10 @@ interface TryoutStore {
 	setCurrentQuestion: (question: TryoutQuestion | null) => void;
 	setCurrentQuestionIndex: (index: number) => void;
 	setAnswer: (questionId: number, choiceId: number) => void;
+	setComplexAnswer: (questionId: number, choiceIds: number[]) => void;
 	setEssayAnswer: (questionId: number, answer: string) => void;
 	removeAnswer: (questionId: number) => void;
+	removeComplexAnswer: (questionId: number) => void;
 	toggleRaguRagu: (questionId: number) => void;
 	setShowQuestionGrid: (show: boolean) => void;
 	toggleQuestionGrid: () => void;
@@ -32,6 +35,7 @@ export const useTryoutStore = create<TryoutStore>((set, _get) => ({
 	currentQuestion: null,
 	currentQuestionIndex: 0,
 	answers: {},
+	complexAnswers: {},
 	essayAnswers: {},
 	raguRaguIds: new Set(),
 	showQuestionGrid: false,
@@ -53,6 +57,11 @@ export const useTryoutStore = create<TryoutStore>((set, _get) => ({
 			answers: { ...state.answers, [questionId]: choiceId },
 		})),
 
+	setComplexAnswer: (questionId, choiceIds) =>
+		set((state) => ({
+			complexAnswers: { ...state.complexAnswers, [questionId]: choiceIds },
+		})),
+
 	setEssayAnswer: (questionId, answer) =>
 		set((state) => ({
 			essayAnswers: { ...state.essayAnswers, [questionId]: answer },
@@ -62,6 +71,12 @@ export const useTryoutStore = create<TryoutStore>((set, _get) => ({
 		set((state) => {
 			const { [questionId]: _, ...rest } = state.answers;
 			return { answers: rest };
+		}),
+
+	removeComplexAnswer: (questionId) =>
+		set((state) => {
+			const { [questionId]: _, ...rest } = state.complexAnswers;
+			return { complexAnswers: rest };
 		}),
 
 	toggleRaguRagu: (questionId) =>
@@ -96,6 +111,7 @@ export const useTryoutStore = create<TryoutStore>((set, _get) => ({
 			currentQuestion: null,
 			currentQuestionIndex: 0,
 			answers: {},
+			complexAnswers: {},
 			essayAnswers: {},
 			raguRaguIds: new Set(),
 			showQuestionGrid: true,

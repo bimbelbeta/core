@@ -2,7 +2,7 @@ import { relations } from "drizzle-orm";
 import { boolean, char, integer, jsonb, pgEnum, pgTable, text, unique } from "drizzle-orm/pg-core";
 import { tryoutSubtestQuestion } from "./tryout";
 
-export const questionType = pgEnum("question_type", ["multiple_choice", "essay"]);
+export const questionType = pgEnum("question_type", ["multiple_choice", "multiple_choice_complex", "essay"]);
 
 export const question = pgTable("question", {
 	id: integer().primaryKey().generatedAlwaysAsIdentity(),

@@ -22,7 +22,7 @@ import { orpc } from "@/utils/orpc";
 interface LinkedQuestion {
 	questionId: number;
 	order: number;
-	type: "multiple_choice" | "essay";
+	type: "multiple_choice" | "multiple_choice_complex" | "essay";
 	content: unknown;
 	discussion: unknown;
 	tags: string[];
@@ -87,8 +87,21 @@ function LinkedQuestionItem({
 					</div>
 				</div>
 				<div className="flex flex-wrap items-center gap-1.5">
-					<Badge variant={question.type === "multiple_choice" ? "default" : "outline"} className="text-xs">
-						{question.type === "multiple_choice" ? "Pilihan Ganda" : "Esai"}
+					<Badge
+						variant={
+							question.type === "multiple_choice"
+								? "default"
+								: question.type === "multiple_choice_complex"
+									? "secondary"
+									: "outline"
+						}
+						className="text-xs"
+					>
+						{question.type === "multiple_choice"
+							? "Pilihan Ganda"
+							: question.type === "multiple_choice_complex"
+								? "Pilihan Ganda Kompleks"
+								: "Esai"}
 					</Badge>
 					{question.tags?.slice(0, 3).map((tag) => (
 						<Badge key={tag} variant="secondary" className="text-xs">

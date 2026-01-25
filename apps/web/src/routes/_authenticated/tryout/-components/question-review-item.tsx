@@ -1,4 +1,4 @@
-import { CaretUpIcon, CheckCircleIcon, XCircleIcon } from "@phosphor-icons/react";
+import { CaretUpIcon, CheckCircleIcon, CheckSquare, Square, XCircleIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -9,7 +9,7 @@ type QuestionReviewItemProps = {
 	question: {
 		id: number;
 		content: unknown;
-		type: "multiple_choice" | "essay";
+		type: "multiple_choice" | "multiple_choice_complex" | "essay";
 		choices: Array<{
 			id: number;
 			content: string;
@@ -18,6 +18,7 @@ type QuestionReviewItemProps = {
 		}>;
 		userAnswer: {
 			selectedChoiceId: number | null;
+			selectedChoiceIds: number[] | null;
 			essayAnswer: string | null;
 			isDoubtful: boolean;
 		};
@@ -72,31 +73,43 @@ export function QuestionReviewItem({ index, question, isCorrect }: QuestionRevie
 						<div className="space-y-4">
 							<p className="font-medium text-muted-foreground text-sm">Jawaban Kamu</p>
 							{question.choices.map((choice) => {
-								const isSelected = question.userAnswer.selectedChoiceId === choice.id;
+								const isSelected =
+									question.userAnswer.selectedChoiceId === choice.id ||
+									(question.userAnswer.selectedChoiceIds ?? []).includes(choice.id);
+
+								const isChoiceCorrect = choice.isCorrect;
+								const selectionColor = isSelected
+									? isChoiceCorrect
+										? "border-green-500 bg-green-50"
+										: "border-red-500 bg-red-50"
+									: "border-gray-200";
+
+								const iconColor = isSelected
+									? isChoiceCorrect
+										? "border-green-500 bg-green-500 text-white"
+										: "border-red-500 bg-red-500 text-white"
+									: "border-gray-300 bg-gray-100";
+
 								return (
-									<div
-										key={choice.id}
-										className={cn(
-											"flex items-center gap-3 rounded-lg border p-3",
-											isSelected
-												? isCorrect
-													? "border-green-500 bg-green-50"
-													: "border-red-500 bg-red-50"
-												: "border-gray-200",
+									<div key={choice.id} className={cn("flex items-center gap-3 rounded-lg border p-3", selectionColor)}>
+										{question.type === "multiple_choice_complex" ? (
+											<div className={cn("flex size-6 shrink-0 items-center justify-center text-xs", iconColor)}>
+												{isSelected ? (
+													<CheckSquare weight="fill" className="size-4" />
+												) : (
+													<Square weight="bold" className="size-4" />
+												)}
+											</div>
+										) : (
+											<div
+												className={cn(
+													"flex size-6 shrink-0 items-center justify-center rounded-full border text-xs",
+													iconColor,
+												)}
+											>
+												{choice.code}
+											</div>
 										)}
-									>
-										<div
-											className={cn(
-												"flex size-6 shrink-0 items-center justify-center rounded-full border text-xs",
-												isSelected
-													? isCorrect
-														? "border-green-500 bg-green-500 text-white"
-														: "border-red-500 bg-red-500 text-white"
-													: "border-gray-300 bg-gray-100",
-											)}
-										>
-											{choice.code}
-										</div>
 										<TiptapRenderer content={choice.content} className="text-sm" />
 									</div>
 								);

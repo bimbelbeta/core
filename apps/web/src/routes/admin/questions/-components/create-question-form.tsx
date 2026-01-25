@@ -13,10 +13,11 @@ import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TagInput } from "@/components/ui/tag-input";
 import { orpc } from "@/utils/orpc";
+import { MultipleChoiceComplexQuestionForm } from "./MultipleChoiceComplexQuestionForm";
 import { MultipleChoiceQuestionForm } from "./MultipleChoiceQuestionForm";
 
 interface CreateQuestionFormProps {
-	questionType: "multiple_choice" | "essay";
+	questionType: "multiple_choice" | "multiple_choice_complex" | "essay";
 	subtestId?: number;
 	onSuccess: () => void;
 	onCancel: () => void;
@@ -28,7 +29,9 @@ export function CreateQuestionForm({
 	onSuccess,
 	onCancel,
 }: CreateQuestionFormProps) {
-	const [questionType, setQuestionType] = useState<"multiple_choice" | "essay">(initialType);
+	const [questionType, setQuestionType] = useState<"multiple_choice" | "multiple_choice_complex" | "essay">(
+		initialType,
+	);
 
 	const addQuestionToSubtestMutation = useMutation(
 		orpc.admin.tryout.questionsBulk.addQuestionToSubtest.mutationOptions({
@@ -55,7 +58,7 @@ export function CreateQuestionForm({
 				discussion: value.discussion ?? "",
 				essayCorrectAnswer: questionType === "essay" ? value.essayCorrectAnswer : undefined,
 				tags: value.tags.length > 0 ? value.tags : undefined,
-				choices: questionType === "multiple_choice" ? [] : undefined,
+				choices: questionType === "multiple_choice" || questionType === "multiple_choice_complex" ? [] : undefined,
 			});
 		},
 		validators: {
@@ -123,10 +126,11 @@ export function CreateQuestionForm({
 					<Tabs
 						defaultValue={questionType}
 						value={questionType}
-						onValueChange={(val) => setQuestionType(val as "multiple_choice" | "essay")}
+						onValueChange={(val) => setQuestionType(val as "multiple_choice" | "multiple_choice_complex" | "essay")}
 					>
 						<TabsList>
 							<TabsTrigger value="multiple_choice">Pilihan Ganda</TabsTrigger>
+							<TabsTrigger value="multiple_choice_complex">Pilihan Ganda Kompleks</TabsTrigger>
 							<TabsTrigger value="essay">Esai</TabsTrigger>
 						</TabsList>
 
@@ -151,6 +155,56 @@ export function CreateQuestionForm({
 								</form.Field>
 
 								<MultipleChoiceQuestionForm />
+
+								<form.Field name="discussion">
+									{(field) => (
+										<div className="grid gap-2">
+											<Label htmlFor={field.name}>Pembahasan</Label>
+											<TiptapSimpleEditor
+												content={field.state.value ?? undefined}
+												onChange={(content) => field.handleChange(content as object)}
+											/>
+										</div>
+									)}
+								</form.Field>
+
+								<form.Field name="tags">
+									{(field) => (
+										<div className="grid gap-2">
+											<Label htmlFor={field.name}>Tags</Label>
+											<TagInput
+												value={field.state.value}
+												onChange={(tags) => field.handleChange(tags)}
+												placeholder="Tambah tag..."
+												maxLength={10}
+											/>
+										</div>
+									)}
+								</form.Field>
+							</form>
+						</TabsContent>
+
+						<TabsContent value="multiple_choice_complex" className="mt-6">
+							<form
+								onSubmit={(e) => {
+									e.preventDefault();
+									form.handleSubmit();
+								}}
+								className="grid gap-6"
+							>
+								<form.Field name="content">
+									{(field) => (
+										<div className="grid gap-2">
+											<Label htmlFor={field.name}>Konten Soal *</Label>
+											<TiptapSimpleEditor
+												content={field.state.value ?? undefined}
+												onChange={(content) => field.handleChange(content as object)}
+											/>
+										</div>
+									)}
+								</form.Field>
+
+								<MultipleChoiceComplexQuestionForm />
 
 								<form.Field name="discussion">
 									{(field) => (

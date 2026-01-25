@@ -12,12 +12,13 @@ import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { TagInput } from "@/components/ui/tag-input";
 import { orpc } from "@/utils/orpc";
+import { MultipleChoiceComplexQuestionForm } from "./MultipleChoiceComplexQuestionForm";
 import { MultipleChoiceQuestionForm } from "./MultipleChoiceQuestionForm";
 
 interface EditQuestionFormProps {
 	question: {
 		id: number;
-		type: "multiple_choice" | "essay";
+		type: "multiple_choice" | "multiple_choice_complex" | "essay";
 		content: object;
 		discussion: object;
 		essayCorrectAnswer?: string;
@@ -136,6 +137,8 @@ export function EditQuestionForm({ question, onSuccess, onCancel }: EditQuestion
 
 						{question.type === "multiple_choice" ? (
 							<MultipleChoiceQuestionForm questionId={question.id} />
+						) : question.type === "multiple_choice_complex" ? (
+							<MultipleChoiceComplexQuestionForm questionId={question.id} />
 						) : (
 							<form.Field name="essayCorrectAnswer">
 								{(field) => (

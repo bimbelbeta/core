@@ -1,123 +1,161 @@
-# CLAUDE.md
+# Agent Guidelines for bimbelbeta
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Architecture Overview
 
-## Project Overview
+- **Monorepo**: Turbo workspace with packages (`@bimbelbeta/*`) and apps (`web`, `server`)
+- **Backend**: Drizzle ORM, Arktype validation, ORPC for type-safe API routing
+- **Frontend**: TanStack ecosystem (Router, Query, Form), Radix UI primitives, Tailwind CSS
+- **Styling**: `cn()` utility (clsx + tailwind-merge) for className composition
+- **Build System**: Turbo with remote caching (TURBO_TOKEN, TURBO_TEAM)
 
-This is a monorepo for bimbelbeta.id - an Indonesian SNBT/UTBK exam preparation platform. The architecture follows a Turborepo monorepo pattern with a TanStack Start frontend, Hono backend, and shared packages.
+## Build Commands
 
-## Development Commands
+```bash
+# Linting and formatting
+bun lint           # Check code with Biome
+bun lint:fix --unsafe       # Auto-fix issues
 
-### Core Development
-- `bun run dev` - Start all applications (web on :3000, server on :3001)
-- `bun run dev:web` - Start only web app
-- `bun run dev:server` - Start only server
-- `bun run build:packages` - IMPORTANT! Must build all packages after changing because workspaces depend on built files
-- `bun run build` - Build all applications
-- `bun run check-types` - TypeScript type checking
-- `bun run lint:fix --unsafe` - Biome linting
+# Type checking
+bun lint:fix --unsafe && bun check-types    # Always run Biome fix before type checking all packages
 
-### Database
-- `bun run db:push` - Push schema changes to database (development)
-- `bun run db:studio` - Open Drizzle Studio
-- `bun run db:generate` - Generate migrations
-- `bun run db:migrate` - Run migrations
-- `bun run db:seed` - Seed database
-- `bun run db:reset` - Reset database (down, up, push, seed)
+# Building
+bun build          # Build all packages
+bun build:packages # Build only packages (not apps)
 
-### Infrastructure
-- `bun run db:start` / `bun run db:stop` - Start/stop local PostgreSQL via Docker
-- `bun run db:watch` - Run Docker in foreground
-- `bun run db:down` - Stop and remove containers
+# Development
+bun dev            # Start all packages in dev mode
+bun dev:web        # Start web app on port 3000
+bun dev:server     # Start server on port 3001
 
-## Architecture
+# Database operations
+bun db:push        # Push schema changes to DB
+bun db:migrate     # Apply migrations
+bun db:generate    # Generate migration files
+bun db:studio      # Open Drizzle Studio
+bun db:reset       # Reset database and seed
+bun db:seed        # Seed database
 
-### Monorepo Structure
-```
-apps/
-  web/          # TanStack Start frontend (React SSR)
-  server/       # Hono backend API (Bun runtime)
-packages/
-  api/          # API routers, middleware, business logic
-  auth/         # Better-Auth configuration
-  db/           # Drizzle ORM schema and queries
-  config/       # Shared TypeScript config
+# Run specific package command
+turbo -F @bimbelbeta/db <command>
 ```
 
-### API Layer (oRPC)
+## Code Style Guidelines
 
-The project uses **oRPC** for end-to-end type-safe APIs. Key patterns:
+### Formatting
+- **Indentation**: Tabs (configured in biome.json)
+- **Line width**: 120 characters
+- **Quotes**: Double quotes for JavaScript/TypeScript
+- **Formatting tool**: Biome (run `bun lint:fix` before committing)
 
-- **Router composition** (`packages/api/src/index.ts`): Exports `pub` (public), `authed`, `premium`, `admin`, `superadmin` router builders with middleware applied
-- **Context** (`packages/api/src/context.ts`): Created from Hono context, includes session from Better-Auth
-- **Middlewares**: RBAC (`packages/api/src/middlewares/rbac.ts`), rate limiting
-- **Base ORPC instance** (`packages/api/src/lib/orpc.ts`): Indonesian error messages defined here
+### TypeScript
+- **Strict mode**: Always enabled, use `@typescript/native-preview` for type checking
+- **Type inference**: No explicit types when inferrable (enforced by biome)
+- **As const**: Use `as const` assertions for literal types where needed
+- **Imports**: Use `type` keyword for type-only imports when beneficial
 
-To add a new router:
-1. Create in `packages/api/src/routers/`
-2. Export from `packages/api/src/routers/index.ts` (appRouter)
-3. Use appropriate router builder (`pub`, `authed`, `admin`, etc.)
+### Import Organization
+- Workspace packages: `@bimbelbeta/package-name`
+- Catalog dependencies: Use `"catalog:"` in package.json
+- Relative imports: Use `@/` alias for app internal paths
+- Organize: External → Workspace → Relative
 
-### Authentication (Better-Auth)
+### React Components
+- Functional components only, no class components
+- TypeScript props interfaces, destructure props
+- Use Radix UI primitives as base for UI components
+- Styling: Tailwind CSS with `cn()` utility (clsx + tailwind-merge)
+- Variants: Use class-variance-authority (cva) for component variants
+- Patterns: Separate component and container logic when complex
 
-- Configuration in `packages/auth/src/index.ts`
-- Additional user fields: `role`, `isPremium`, `premiumExpiresAt`
-- Email/password + Google OAuth
-- Resend for password reset emails
-- Session middleware auto-expires premium status
-
-**Frontend**: Use `authClient` from `apps/web/src/lib/auth-client.ts`
-**Backend**: Session from `createContext()` via `auth.api.getSession()`
+### Naming Conventions
+- Components: PascalCase (`UserCard`)
+- Functions/variables: camelCase (`getUserProgress`)
+- Types/interfaces: PascalCase (`UserProgress`)
+- Constants: UPPER_SNAKE_CASE (`SESSION_DURATION`)
+- Files: kebab-case for folders (`user-card/`), `index.ts` for exports
 
 ### Database (Drizzle ORM)
+- Schema files in `packages/db/src/schema/`
+- Tables: camelCase with underscored columns (`user`, `email_verified`)
+- Relations: Define with explicit types
+- Migrations: Generate with `bun db:generate`, apply with `bun db:migrate`
+- Queries: Use Drizzle query builder, prefer type-safe operations
 
-- Schema in `packages/db/src/schema/` - organized by domain (question, subject, tryout, transaction, university)
-- Uses `snake_case` casing for database columns
-- Seeding scripts in `packages/db/src/seed/`
+### API Routes (ORPC)
+- Router files in `packages/api/src/routers/`
+- Define routes with explicit path, method, tags
+- Use Arktype for input/output validation (`type({...})`)
+- Auth middleware: `pub`, `authed`, `admin` from `packages/api/src/index.ts`
+- Error handling: Use `errors.NOT_FOUND()`, `errors.UNAUTHORIZED()`, or `ORPCError`
+- Transactions: Use `db.transaction(async (tx) => {...})` for multi-step ops
 
-### Frontend (TanStack Start)
+#### Pagination
+- **Use cursor-based pagination** (not offset) for better performance
+- Cursor uses indexed columns with `gt()`/`lt()` operators: `WHERE id > cursor ORDER BY id LIMIT N`
+- Cursor type: nullable number for ID-based, nullable string (ISO date) for date-based
+- Pattern: Fetch `limit + 1` items, check if has more, return `limit` items with `nextCursor`
+- Bidirectional: Use `direction: "next" | "previous"` for date-based cursors
+- **IMPORTANT**: Change `cursor` input from `"number = 0"` to `"number?"` when implementing cursor pagination
 
-- File-based routing in `apps/web/src/routes/`
-- Route groups: `_authenticated.tsx` (protected routes), admin routes
-- ORPC client in `apps/web/src/utils/orpc.ts` - includes queryClient with toast error handling
-- Use `orpc` for API calls with TanStack Query integration
+### Error Handling
+- Client errors: Use toast from sonner (`toast.error("message")`)
+- Server errors: Use ORPCError helpers in routes
+- Validation: Arktype types in route definitions catch schema errors early
+- Never log secrets or sensitive data
 
-### Payment Integration
-
-- Midtrans for payment processing
-- Webhook endpoint at `/transactions/webhook` (currently stub)
-- Payment flow handled in `packages/api/src/routers/transaction.ts`
-
-## Key Patterns
-
-### Adding a New API Endpoint
-```typescript
-// packages/api/src/routers/yourRouter.ts
-const newRoute = authed
-  .route({
-    path: "/your-path",
-    method: "GET",
-    tags: ["YourTag"],
-  })
-  .handler(async ({ context }) => {
-    // context.session.user available
-    // use db from @bimbelbeta/db
-  });
+### File Structure
+```
+packages/api/src/routers/
+  feature-name.ts    # Individual router
+  index.ts           # Exports appRouter with all routes
+packages/db/src/schema/
+  feature-name.ts    # Schema definitions
+apps/web/src/components/ui/
+  component-name.tsx # Base UI component
+apps/web/src/routes/
+  _auth/             # Auth layout routes
+  _authenticated/    # Protected routes
+  -components/       # Shared route components
 ```
 
-### Protected Route in Frontend
-Use `_authenticated.tsx` layout - redirects to `/login` if no session.
+### Best Practices
+- Keep functions focused and under 50 lines when possible
+- Use custom hooks for reusable logic in `hooks/` directories
+- Do not clear `.turbo` or other cache directories
+- IMPORTANT: Avoid prop drilling - use context (leverage Tanstack Query and Router for path and data context) or state management (zustand)
+- Server state: TanStack Query, client state: zustand
+- Forms: TanStack Form with Arktype validators
+- Minimize comments - code should be self-documenting
+- **CRITICAL**: Run `bun build:packages` after any changes to API routes (packages/api/src/routers/*) - this regenerates type definitions used by web/server apps
+- Run `bun lint:fix` and `bun check-types` before pushing
 
-### Rate Limiting
-- Applied via `authedRateLimited` in API
-- Two tiers: `freeRatelimiter` vs `premiumRatelimiter` (from `packages/api/src/lib/ratelimit.ts`)
+### Testing
+- Use Vitest/Jest for unit and integration tests
+- Test files should be co-located with source files: `Component.test.tsx`
+- Mock external dependencies in `__mocks__` folders
+- Test user behavior, not implementation details
+- Keep tests fast and isolated
 
-## Environment Variables
+### Environment Variables
+- Local dev: Use `.env` files in `apps/server/`
+- CI/CD: Set secrets in GitHub Actions or Coolify
+- Never commit `.env` files or secrets
+- Use environment-specific configs for staging/production
 
-Required for development (see `apps/server/.env`):
-- `DATABASE_URL` - PostgreSQL connection
-- `BETTER_AUTH_SECRET` / `BETTER_AUTH_URL` - Auth configuration
-- `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` - OAuth
-- `RESEND_API_KEY` - Emails
-- `CORS_ORIGIN` - Frontend URL
-- `VITE_SERVER_URL` / `VITE_API_URL` - API URLs for frontend
+### Deployment
+- Apps containerized with Docker (see Dockerfiles in each app)
+- Built images pushed to GitHub Container Registry (ghcr.io)
+- Deployed via Coolify webhooks on push to main
+- Turbo remote caching enabled via TURBO_TOKEN and TURBO_TEAM
+
+### CI/CD Workflows
+- `.github/workflows/migrate.yml` - Database migrations on main push
+- `.github/workflows/build-server.yml` - Build and deploy server image
+- `.github/workflows/build-web.yml` - Build and deploy web image (if exists)
+- Secrets managed in GitHub repository settings
+
+### Git Workflow
+- Feature branches: `feature/description` or `fix/description`
+- Commit messages: Conventional Commits (feat, fix, refactor, etc.)
+- Pull requests required before merging to main
+- All CI checks must pass before merge approval

@@ -188,6 +188,7 @@ const find = authed
 				choiceContent: questionChoice.content,
 				choiceCode: questionChoice.code,
 				userSelectedChoiceId: tryoutUserAnswer.selectedChoiceId,
+				userSelectedChoiceIds: tryoutUserAnswer.selectedChoiceIds,
 				userEssayAnswer: tryoutUserAnswer.essayAnswer,
 				userIsDoubtful: tryoutUserAnswer.isDoubtful,
 			})
@@ -211,6 +212,7 @@ const find = authed
 					choices: [],
 					userAnswer: {
 						selectedChoiceId: row.userSelectedChoiceId,
+						selectedChoiceIds: row.userSelectedChoiceIds,
 						essayAnswer: row.userEssayAnswer,
 						isDoubtful: row.userIsDoubtful ?? false,
 					},
@@ -463,6 +465,7 @@ const saveAnswer = authed
 			tryoutId: "number",
 			questionId: "number",
 			selectedChoiceId: "number?",
+			selectedChoiceIds: "number[]?",
 			essayAnswer: "string?",
 		}),
 	)
@@ -501,12 +504,14 @@ const saveAnswer = authed
 				attemptId: attempt.id,
 				questionId: input.questionId,
 				selectedChoiceId: input.selectedChoiceId,
+				selectedChoiceIds: input.selectedChoiceIds,
 				essayAnswer: input.essayAnswer,
 			})
 			.onConflictDoUpdate({
 				target: [tryoutUserAnswer.attemptId, tryoutUserAnswer.questionId],
 				set: {
 					selectedChoiceId: input.selectedChoiceId,
+					selectedChoiceIds: input.selectedChoiceIds,
 					essayAnswer: input.essayAnswer,
 				},
 			});
@@ -787,7 +792,7 @@ const review = authed
 				{
 					id: "number",
 					content: "unknown",
-					type: "'multiple_choice' | 'essay'",
+					type: "'multiple_choice' | 'multiple_choice_complex' | 'essay'",
 					discussion: "unknown",
 					choices: type(
 						{
@@ -800,6 +805,7 @@ const review = authed
 					),
 					userAnswer: {
 						selectedChoiceId: "number | null",
+						selectedChoiceIds: "number[] | null",
 						essayAnswer: "string | null",
 						isDoubtful: "boolean",
 					},
@@ -838,6 +844,7 @@ const review = authed
 				choiceCode: questionChoice.code,
 				isCorrectChoice: questionChoice.isCorrect,
 				userSelectedChoiceId: tryoutUserAnswer.selectedChoiceId,
+				userSelectedChoiceIds: tryoutUserAnswer.selectedChoiceIds,
 				userEssayAnswer: tryoutUserAnswer.essayAnswer,
 				userIsDoubtful: tryoutUserAnswer.isDoubtful,
 			})
@@ -862,6 +869,7 @@ const review = authed
 					choices: [],
 					userAnswer: {
 						selectedChoiceId: row.userSelectedChoiceId,
+						selectedChoiceIds: row.userSelectedChoiceIds,
 						essayAnswer: row.userEssayAnswer,
 						isDoubtful: row.userIsDoubtful ?? false,
 					},

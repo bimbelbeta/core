@@ -14,7 +14,7 @@ const createQuestion = admin
 	})
 	.input(
 		type({
-			type: "'multiple_choice' | 'essay'",
+			type: "'multiple_choice' | 'multiple_choice_complex' | 'essay'",
 			content: "unknown",
 			discussion: "unknown",
 			tags: "string[]?",
@@ -52,6 +52,15 @@ const createQuestion = admin
 			}
 		}
 
+		if (input.type === "multiple_choice_complex") {
+			if (!choices || choices.length < 2) {
+				throw new ORPCError("BAD_REQUEST", {
+					message: "Pilihan majemuk kompleks harus memiliki minimal 2 pilihan",
+				});
+			}
+			// Flexible: allows 0, 1, or multiple correct answers
+		}
+
 		const result = await db.transaction(async (tx) => {
 			const [newQuestion] = await tx
 				.insert(question)
@@ -71,7 +80,7 @@ const createQuestion = admin
 					message: "Gagal membuat question",
 				});
 
-			if (input.type === "multiple_choice" && choices) {
+			if ((input.type === "multiple_choice" || input.type === "multiple_choice_complex") && choices) {
 				const choiceCodes = ["A", "B", "C", "D", "E", "F", "G"] as const;
 				const choicesToInsert = choices.map((choice, index) => ({
 					questionId: newQuestion.id,
@@ -103,7 +112,7 @@ const listQuestions = admin
 			page: "number = 1",
 			limit: "number = 10",
 			search: "string?",
-			type: type("'multiple_choice' | 'essay'")?.optional(),
+			type: type("'multiple_choice' | 'multiple_choice_complex' | 'essay'")?.optional(),
 			tag: "string?",
 			category: type("'sd' | 'smp' | 'sma' | 'utbk'")?.optional(),
 			excludeIds: "number[]?",

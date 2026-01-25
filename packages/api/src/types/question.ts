@@ -26,6 +26,7 @@ export type ChoiceWithAnswer = Choice & {
  */
 export type UserAnswer = {
 	selectedChoiceId: number | null;
+	selectedChoiceIds: number[] | null;
 	essayAnswer: string | null;
 	isDoubtful: boolean;
 };
@@ -36,7 +37,7 @@ export type UserAnswer = {
 export type BaseQuestion = {
 	id: number;
 	content: unknown;
-	type: "multiple_choice" | "essay";
+	type: "multiple_choice" | "multiple_choice_complex" | "essay";
 };
 
 /**

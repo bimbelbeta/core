@@ -13,6 +13,7 @@ interface Choice {
 interface UseQuestionMutationsProps {
 	questionId?: number;
 	initialChoices?: Choice[];
+	allowMultipleCorrect?: boolean;
 }
 
 interface UseQuestionMutationsReturn {
@@ -30,6 +31,7 @@ const CHOICE_CODES = ["A", "B", "C", "D", "E", "F", "G"] as const;
 export function useQuestionMutations({
 	questionId,
 	initialChoices = [],
+	allowMultipleCorrect = false,
 }: UseQuestionMutationsProps): UseQuestionMutationsReturn {
 	const queryClient = useQueryClient();
 	const [choices, setChoices] = useState<Choice[]>(initialChoices);
@@ -110,7 +112,7 @@ export function useQuestionMutations({
 					clearTimeout(timeoutRef.current);
 				}
 
-				if (isCorrect) {
+				if (isCorrect && !allowMultipleCorrect) {
 					const currentCorrectChoice = choices.find((c) => c.isCorrect && c.id !== id);
 					if (currentCorrectChoice) {
 						updateChoiceMutation.mutate(
@@ -145,7 +147,7 @@ export function useQuestionMutations({
 				);
 			}
 		},
-		[questionId, choices, updateChoiceMutation],
+		[questionId, choices, updateChoiceMutation, allowMultipleCorrect],
 	);
 
 	const deleteChoice = useCallback(
