@@ -9,9 +9,9 @@ import { toast } from "sonner";
 
 export function getApiUrl() {
 	return (
-		process.env.VITE_SERVER_URL ??
+		process.env.SERVER_URL ??
 		import.meta.env.VITE_SERVER_URL ??
-		(process.env.NODE_ENV === "production" ? "https://api.bimbelbeta.id" : "http://localhost:3001")
+		(process.env.NODE_ENV === "production" ? "https://api.bimbelbeta.com" : "http://localhost:3001")
 	);
 }
 

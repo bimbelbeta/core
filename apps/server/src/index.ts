@@ -40,8 +40,8 @@ app.use(
 		origin: [
 			process.env.CORS_ORIGIN || "http://localhost:3000",
 			"http://localhost:3000",
-			"https://bimbelbeta.id",
-			"https://api.bimbelbeta.id",
+			"https://bimbelbeta.com",
+			"https://api.bimbelbeta.com",
 		],
 		allowMethods: ["GET", "POST", "PATCH", "OPTIONS"],
 		allowHeaders: ["Content-Type", "Authorization"],

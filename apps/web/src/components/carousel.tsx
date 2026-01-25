@@ -201,12 +201,12 @@ const Carousel: React.FC<CarouselProps> = ({
 			>
 				<div className="flex flex-1 flex-col justify-between text-pretty p-4 text-left">
 					<div className="flex items-center space-x-2">
-						<div className="flex size-10 items-center justify-center overflow-hidden rounded-full bg-primary-100 lg:size-13 shrink-0">
+						<div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-100 lg:size-13">
 							<Image src={item.avatar} alt="Avatar" width={100} height={100} className="h-full w-full" />
 						</div>
 						<div>
 							<h3 className={cn("font-medium text-sm lg:text-base")}>{item.name}</h3>
-							<h4 className="text-xs lg:text-sm line-clamp-2">{item.title}</h4>
+							<h4 className="line-clamp-2 text-xs lg:text-sm">{item.title}</h4>
 						</div>
 					</div>
 					<p className="max-h-full overflow-y-auto font-light text-xs lg:text-base">{item.desc}</p>

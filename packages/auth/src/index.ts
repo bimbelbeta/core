@@ -64,16 +64,16 @@ export const auth = betterAuth({
 	},
 	trustedOrigins: [
 		process.env.CORS_ORIGIN || "http://localhost:3000",
-		"https://bimbelbeta.id",
-		"https://www.bimbelbeta.id",
-		"https://api.bimbelbeta.id",
+		"https://bimbelbeta.com",
+		"https://www.bimbelbeta.com",
+		"https://api.bimbelbeta.com",
 	],
 	emailAndPassword: {
 		enabled: true,
 		sendResetPassword: async ({ user, url, token }) => {
 			resend.emails
 				.send({
-					from: "bimbelbeta <noreply@bimbelbeta.id>",
+					from: "bimbelbeta <noreply@bimbelbeta.com>",
 					to: user.email,
 					subject: "Pesan Otomatis: Permintaan Pengaturan Ulang Kata Sandi",
 					html: generateResetPasswordEmail(user.name, url, token),
@@ -108,7 +108,7 @@ export const auth = betterAuth({
 		...(process.env.NODE_ENV === "production" && {
 			crossSubDomainCookies: {
 				enabled: true,
-				domain: ".bimbelbeta.id",
+				domain: ".bimbelbeta.com",
 			},
 		}),
 	},

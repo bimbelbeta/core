@@ -1,4 +1,4 @@
-import { InstagramLogoIcon, WhatsappLogoIcon, XLogoIcon } from "@phosphor-icons/react";
+import { InstagramLogoIcon, WhatsappLogoIcon } from "@phosphor-icons/react";
 
 export const DATA = {
 	stats: [
@@ -91,7 +91,7 @@ export const DATA = {
 					"Akses Penuh fasilitas Ruang Belajar",
 					"Try Out UTBK 10x",
 					// "Rasionalisasi SNBP & SNBT",
-          "Rekaman Live Teaching",
+					"Rekaman Live Teaching",
 					"Modul Digital dan Latihan Soal Tambahan",
 				],
 			},
@@ -120,10 +120,10 @@ export const DATA = {
 				title: "Paket Try Out 1x",
 				price: 10000,
 				features: [
-          "Try Out UTBK 1x",
-          // "Rasionalisasi SNBT",
-          "Pembahasan & Analisis"
-        ],
+					"Try Out UTBK 1x",
+					// "Rasionalisasi SNBT",
+					"Pembahasan & Analisis",
+				],
 			},
 			{
 				id: "to-3",
@@ -131,10 +131,10 @@ export const DATA = {
 				title: "Paket Try Out 3x",
 				price: 25000,
 				features: [
-          "Try Out UTBK 3x",
-          // "Rasionalisasi SNBT",
-          "Pembahasan & Analisis"
-        ],
+					"Try Out UTBK 3x",
+					// "Rasionalisasi SNBT",
+					"Pembahasan & Analisis",
+				],
 			},
 			{
 				id: "to-5",
@@ -142,21 +142,21 @@ export const DATA = {
 				title: "Paket Try Out 5x",
 				price: 40000,
 				features: [
-          "Try Out UTBK 5x",
-          // "Rasionalisasi SNBT",
-          "Pembahasan & Analisis"
-        ],
+					"Try Out UTBK 5x",
+					// "Rasionalisasi SNBT",
+					"Pembahasan & Analisis",
+				],
 			},
 			{
 				id: "to-10",
 				type: "tryout",
 				title: "Paket Try Out 10x",
 				price: 80000,
-        features: [
-          "Try Out UTBK 10x",
-          // "Rasionalisasi SNBT",
-          "Pembahasan & Analisis"
-        ],
+				features: [
+					"Try Out UTBK 10x",
+					// "Rasionalisasi SNBT",
+					"Pembahasan & Analisis",
+				],
 			},
 		],
 	},

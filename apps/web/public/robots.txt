@@ -10,4 +10,4 @@ Disallow: /forgot-password
 Disallow: /reset-password
 Disallow: /classes
 Disallow: /latihan-soal
-Sitemap: https://bimbelbeta.id/sitemap.xml
+Sitemap: https://bimbelbeta.com/sitemap.xml

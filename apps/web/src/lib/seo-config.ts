@@ -2,7 +2,7 @@ export const siteConfig = {
 	name: "BimbelBeta",
 	description:
 		"Platform persiapan SNBT/UTBK terbaik dengan materi lengkap, latihan soal interaktif, dan analisis progres belajar.",
-	url: "https://bimbelbeta.id",
+	url: "https://bimbelbeta.com",
 	ogImage: "/og-image.png",
 	keywords: [
 		"SNBT",

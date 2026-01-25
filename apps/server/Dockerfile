@@ -5,7 +5,7 @@ FROM base AS configs
 ENV NODE_ENV=production \
     PORT=3001 \
     HOSTNAME="0.0.0.0" \
-    BETTER_AUTH_URL=https://api.bimbelbeta.id
+    BETTER_AUTH_URL=https://api.bimbelbeta.com
 
 FROM base AS installer
 WORKDIR /usr/src/app

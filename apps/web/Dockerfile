@@ -6,6 +6,10 @@ ENV NODE_ENV=production \
     PORT=3000 \
     HOSTNAME="0.0.0.0"
 
+# Accept build-time env vars for Vite
+ARG VITE_SERVER_URL
+ENV VITE_SERVER_URL=${VITE_SERVER_URL}
+
 FROM base AS installer
 WORKDIR /usr/src/app
 
@@ -21,8 +25,10 @@ RUN bun install
 FROM configs AS builder
 ARG TURBO_TEAM
 ARG TURBO_TOKEN
+ARG VITE_SERVER_URL
 ENV TURBO_TEAM=${TURBO_TEAM}
 ENV TURBO_TOKEN=${TURBO_TOKEN}
+ENV VITE_SERVER_URL=${VITE_SERVER_URL}
 WORKDIR /usr/src/app
 
 COPY --from=installer /usr/src/app ./
