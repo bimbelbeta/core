@@ -26,7 +26,7 @@ const searchSchema = type({
 export const Route = createFileRoute("/admin/_superadmin/users/")({
 	component: UsersListPage,
 	validateSearch: searchSchema,
-}) as any;
+});
 
 function UsersListPage() {
 	const navigate = Route.useNavigate();

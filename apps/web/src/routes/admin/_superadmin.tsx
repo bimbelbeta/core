@@ -24,7 +24,7 @@ export const Route = createFileRoute("/admin/_superadmin")({
 			});
 	},
 	component: SuperadminLayout,
-}) as any;
+});
 
 function SuperadminLayout() {
 	return (

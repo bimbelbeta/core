@@ -16,7 +16,7 @@ type UserDetail = NonNullable<BodyOutputs["admin"]["users"]["getUser"]["user"]>;
 
 export const Route = createFileRoute("/admin/_superadmin/users/$userId")({
 	component: UserDetailPage,
-}) as any;
+});
 
 function UserDetailPage() {
 	const { userId } = Route.useParams();
