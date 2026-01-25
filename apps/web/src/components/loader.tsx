@@ -47,7 +47,7 @@ export default function Loader() {
 				</motion.div>
 
 				{/* Floating Particles */}
-				{[...Array(5)].map((i) => (
+				{[0, 1, 2, 3, 4, 5].map((i) => (
 					<motion.div
 						key={i}
 						className="absolute text-yellow-500/80 dark:text-yellow-400/80"

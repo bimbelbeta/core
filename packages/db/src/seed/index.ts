@@ -5,6 +5,7 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { clearProducts, seedProducts } from "./product.seed";
 import { clearContent, clearSubtest, seedContent, seedSubtest } from "./subject.seed";
 import { clearTryout, seedTryout } from "./tryout.seed";
+import { clearUniversities, seedUniversities } from "./university.seed";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 config({
@@ -32,6 +33,8 @@ async function main() {
 	await seedSubtest(db);
 	await clearTryout(db);
 	await seedTryout(db);
+	await clearUniversities(db);
+	await seedUniversities(db);
 	await clearContent(db);
 	await seedContent(db);
 	// await seedPractice(db);
