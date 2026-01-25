@@ -13,7 +13,11 @@ export function formatRupiah(value: number) {
 		style: "currency",
 		currency: "IDR",
 		maximumFractionDigits: 0,
-	}).format(value);
+		currencyDisplay: "code",
+	})
+		.format(value)
+		.replace("IDR", "Rp")
+		.replace(/\s/g, "");
 }
 
 export function Pricing() {
@@ -27,13 +31,13 @@ export function Pricing() {
 			</div>
 
 			<div className="space-y-6">
-				<div className="grid gap-6 md:grid-cols-2">
+				<div className="grid grid-cols-1 gap-6 md:grid-cols-2">
 					{DATA.pricing.programs.map((item) => (
 						<ProgramPricingCard key={item.id} {...item} />
 					))}
 				</div>
 
-				<div className="grid gap-6 sm:grid-cols-2 md:grid-cols-4">
+				<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-4">
 					{DATA.pricing.tryouts.map((item) => (
 						<TryoutPricingCard key={item.id} {...item} />
 					))}
@@ -61,24 +65,27 @@ function ProgramPricingCard({
 	variant = "default",
 }: ProgramPricingProps) {
 	return (
-		<div
-			className={cn(
-				"space-y-6 rounded-default border p-6",
-				variant === "highlight" ? "border-primary bg-primary/5" : "border-neutral-200 bg-neutral-100",
-			)}
-		>
-			<div>
+		<div className={cn("flex h-full flex-col rounded-default border border-neutral-200 bg-neutral-100 p-6")}>
+			<div className="mb-6">
 				<h3 className="font-medium text-base">{title}</h3>
 
-				{originalPrice && <p className="text-neutral-500 text-sm line-through">{formatRupiah(originalPrice)}</p>}
+				<div className="flex flex-wrap items-center gap-x-3">
+					{originalPrice && (
+						<div className="relative inline-block font-bold text-3xl text-neutral-400">
+							{formatRupiah(originalPrice)}
 
-				<p className="font-bold text-3xl">
-					{formatRupiah(price)}
-					{period && <span className="font-normal text-base">{period}</span>}
-				</p>
+							<span className="pointer-events-none absolute top-1/2 left-0 h-1 w-full -origin-center rotate-6 bg-red-400" />
+						</div>
+					)}
+
+					<p className={cn("font-bold text-3xl", variant === "highlight" ? "text-secondary-700" : "text-neutral-900")}>
+						{formatRupiah(price)}
+						{period && <span className="font-normal text-base">{period}</span>}
+					</p>
+				</div>
 			</div>
 
-			<ul className="grid flex-1 grid-cols-1 xl:grid-cols-2">
+			<ul className="mb-6 grid flex-1 grid-cols-1 xl:grid-cols-2">
 				{features.map((f) => (
 					<li key={f} className="items-items-start flex gap-2">
 						<CheckIcon size={16} weight="bold" className="mt-1 shrink-0" />
@@ -87,7 +94,7 @@ function ProgramPricingCard({
 				))}
 			</ul>
 
-			<div className="mt-auto mb-0 w-full">
+			<div className="mt-auto">
 				<Link to="/register" className={cn(buttonVariants(), "w-full")}>
 					Daftar Akun
 				</Link>
