@@ -67,6 +67,8 @@ export const tryoutSubtestQuestion = pgTable(
 			.notNull()
 			.references(() => question.id, { onDelete: "cascade" }),
 		order: integer().default(1),
+		createdAt: timestamp("created_at").defaultNow(),
+		updatedAt: timestamp("updated_at").defaultNow(),
 	},
 	(t) => [primaryKey({ columns: [t.subtestId, t.questionId] })],
 );
@@ -166,6 +168,8 @@ export const tryoutUserAnswer = pgTable(
 			.references(() => questionChoice.id, { onDelete: "set null" }),
 		essayAnswer: text("essay_answer"),
 		isDoubtful: boolean("is_doubtful").notNull().default(false),
+		createdAt: timestamp("created_at").defaultNow(),
+		updatedAt: timestamp("updated_at").defaultNow(),
 	},
 	(t) => [primaryKey({ columns: [t.attemptId, t.questionId] })],
 );

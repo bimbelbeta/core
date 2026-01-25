@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { boolean, char, integer, jsonb, pgEnum, pgTable, text, unique } from "drizzle-orm/pg-core";
+import { boolean, char, integer, jsonb, pgEnum, pgTable, text, timestamp, unique } from "drizzle-orm/pg-core";
 import { tryoutSubtestQuestion } from "./tryout";
 
 export const questionType = pgEnum("question_type", ["multiple_choice", "multiple_choice_complex", "essay"]);
@@ -13,6 +13,8 @@ export const question = pgTable("question", {
 	discussionJson: jsonb("discussion_json"),
 	essayCorrectAnswer: text("essay_correct_answer"),
 	tags: text("tags").array(),
+	createdAt: timestamp("created_at").defaultNow(),
+	updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const questionRelations = relations(question, ({ many }) => ({
@@ -30,6 +32,8 @@ export const questionChoice = pgTable(
 		code: char({ length: 1 }).notNull(), // A, B, C...
 		content: text().notNull(),
 		isCorrect: boolean("is_correct").notNull().default(false),
+		createdAt: timestamp("created_at").defaultNow(),
+		updatedAt: timestamp("updated_at").defaultNow(),
 	},
 	(t) => [unique("question_choice_unique").on(t.questionId, t.code)],
 );

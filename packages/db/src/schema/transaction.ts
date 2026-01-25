@@ -12,6 +12,8 @@ export const transaction = pgTable("transaction", {
 	status: statusEnum("status").notNull().default("pending"),
 	paidAt: timestamp("paid_at"),
 	orderedAt: timestamp("ordered_at").defaultNow(),
+	createdAt: timestamp("created_at").defaultNow(),
+	updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const product = pgTable("product", {
@@ -21,4 +23,6 @@ export const product = pgTable("product", {
 	price: decimal().notNull(),
 	type: typeEnum("type").notNull(),
 	credits: integer(), // Number of tryout credits granted (for "product" type packages)
+	createdAt: timestamp("created_at").defaultNow(),
+	updatedAt: timestamp("updated_at").defaultNow(),
 });
