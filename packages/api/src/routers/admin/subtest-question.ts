@@ -204,7 +204,7 @@ const updateSubtestQuestionOrder = admin
 
 const removeQuestionFromSubtest = admin
 	.route({
-		path: "/admin/tryouts/subtests/questions/{id}",
+		path: "/admin/tryouts/subtests/questions/{questionId}",
 		method: "DELETE",
 		tags: ["Admin - Tryouts"],
 	})

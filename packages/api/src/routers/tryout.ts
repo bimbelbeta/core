@@ -251,7 +251,7 @@ const start = authed
 		method: "POST",
 		tags: ["Tryouts"],
 	})
-	.input(type({ id: "number", imageUrl: "string.url?", useCredit: "boolean?" }))
+	.input(type({ id: "number", imageUrl: "string?", useCredit: "boolean?" }))
 	.handler(async ({ input, context }) => {
 		const tryoutData = await db.query.tryout.findFirst({
 			where: and(eq(tryout.id, input.id), eq(tryout.status, "published")),
