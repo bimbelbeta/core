@@ -1,9 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { orpc } from "@/utils/orpc";
 
-interface Choice {
+export interface Choice {
 	id: number;
 	code: string;
 	content: string;
@@ -14,6 +14,7 @@ interface UseQuestionMutationsProps {
 	questionId?: number;
 	initialChoices?: Choice[];
 	allowMultipleCorrect?: boolean;
+	onChoicesChange?: (choices: Choice[]) => void;
 }
 
 interface UseQuestionMutationsReturn {
@@ -32,12 +33,19 @@ export function useQuestionMutations({
 	questionId,
 	initialChoices = [],
 	allowMultipleCorrect = false,
+	onChoicesChange,
 }: UseQuestionMutationsProps): UseQuestionMutationsReturn {
 	const queryClient = useQueryClient();
 	const [choices, setChoices] = useState<Choice[]>(initialChoices);
 	const [isUpdating, setIsUpdating] = useState<number | null>(null);
 	const [isDeleting, setIsDeleting] = useState<number | null>(null);
 	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+	// Notify parent when choices change
+	// biome-ignore lint/correctness/useExhaustiveDependencies: onChoicesChange is intentionally excluded to prevent infinite loops - parent component manages the callback and calling it on every re-render would cause unnecessary updates
+	useEffect(() => {
+		onChoicesChange?.(choices);
+	}, [choices]);
 
 	const updateChoiceMutation = useMutation(
 		orpc.admin.tryout.questions.updateChoice.mutationOptions({
@@ -134,13 +142,12 @@ export function useQuestionMutations({
 				setChoices((prev) =>
 					prev.map((c) => {
 						if (c.id === id) {
-							let newChoices = prev;
-							if (isCorrect) {
-								newChoices = prev.map((choice) =>
-									choice.id === id ? { ...choice, isCorrect: true } : { ...choice, isCorrect: false },
-								);
-							}
-							return newChoices.find((ch) => ch.id === id) ?? c;
+							return { ...c, content, isCorrect };
+						}
+						// If the updated choice is marked as correct and we don't allow multiple correct answers,
+						// we need to uncheck any other correct choices.
+						if (isCorrect && !allowMultipleCorrect && c.isCorrect) {
+							return { ...c, isCorrect: false };
 						}
 						return c;
 					}),

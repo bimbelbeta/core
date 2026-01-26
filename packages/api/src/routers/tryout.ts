@@ -340,6 +340,7 @@ const start = authed
 						userId: context.session.user.id,
 						submittedImageUrl: null,
 						deadline: overallDeadline,
+						usedCredit: true,
 					})
 					.returning();
 
@@ -734,11 +735,13 @@ const attemptResult = authed
 				eq(tryoutAttempt.status, "finished"),
 			),
 			columns: {
+				id: true,
 				startedAt: true,
 				score: true,
 				deadline: true,
 				completedAt: true,
 				status: true,
+				usedCredit: true,
 			},
 			with: {
 				tryout: {
@@ -773,6 +776,7 @@ const attemptResult = authed
 		if (!attempt) {
 			throw errors.NOT_FOUND({ message: "Attempt not found" });
 		}
+
 		return attempt;
 	});
 
@@ -817,12 +821,19 @@ const review = authed
 	.handler(async ({ input, context, errors }) => {
 		const attempt = await db.query.tryoutAttempt.findFirst({
 			where: and(eq(tryoutAttempt.id, input.attemptId), eq(tryoutAttempt.userId, context.session.user.id)),
+			columns: {
+				id: true,
+				usedCredit: true,
+			},
 			with: {
 				subtestAttempts: true,
 			},
 		});
 
 		if (!attempt) throw errors.NOT_FOUND({ message: "Attempt not found" });
+
+		// Check if user can see discussion (premium or used credit)
+		const canSeeDiscussion = context.session.user.isPremium || attempt.usedCredit;
 
 		const subtestAttempt = attempt.subtestAttempts.find((sa) => sa.subtestId === input.subtestId);
 
@@ -865,7 +876,7 @@ const review = authed
 					id: row.questionId,
 					content: row.questionContentJson || convertToTiptap(row.questionContent),
 					type: row.questionType,
-					discussion: row.discussionJson || convertToTiptap(row.discussion),
+					discussion: canSeeDiscussion ? row.discussionJson || convertToTiptap(row.discussion) : null,
 					choices: [],
 					userAnswer: {
 						selectedChoiceId: row.userSelectedChoiceId,

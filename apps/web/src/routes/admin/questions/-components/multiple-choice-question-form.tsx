@@ -2,15 +2,17 @@ import { PlusIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ChoiceEditItem } from "./choice-edit-item";
-import { useQuestionMutations } from "./use-question-mutations";
+import { type Choice, useQuestionMutations } from "./use-question-mutations";
 
 interface MultipleChoiceQuestionFormProps {
 	questionId?: number;
+	onChoicesChange?: (choices: Choice[]) => void;
 }
 
-export function MultipleChoiceQuestionForm({ questionId }: MultipleChoiceQuestionFormProps) {
+export function MultipleChoiceQuestionForm({ questionId, onChoicesChange }: MultipleChoiceQuestionFormProps) {
 	const { choices, addChoice, updateChoice, deleteChoice, isAdding, isUpdating, isDeleting } = useQuestionMutations({
 		questionId,
+		onChoicesChange,
 	});
 
 	return (

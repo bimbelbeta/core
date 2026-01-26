@@ -34,7 +34,7 @@ export function useThrottledCallback<T extends (...args: any[]) => any>(
 } {
 	const handler = useMemo(
 		() => throttle<T>(fn, wait, options),
-		// biome-ignore lint/correctness/useExhaustiveDependencies: gatau anjir
+		// biome-ignore lint/correctness/useExhaustiveDependencies: dependencies array intentionally managed by caller for custom control
 		dependencies,
 	);
 

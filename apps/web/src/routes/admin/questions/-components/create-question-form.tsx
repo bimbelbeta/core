@@ -13,8 +13,9 @@ import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TagInput } from "@/components/ui/tag-input";
 import { orpc } from "@/utils/orpc";
-import { MultipleChoiceComplexQuestionForm } from "./MultipleChoiceComplexQuestionForm";
-import { MultipleChoiceQuestionForm } from "./MultipleChoiceQuestionForm";
+import { MultipleChoiceComplexQuestionForm } from "./multiple-choice-complex-question-form";
+import { MultipleChoiceQuestionForm } from "./multiple-choice-question-form";
+import type { Choice } from "./use-question-mutations";
 
 interface CreateQuestionFormProps {
 	questionType: "multiple_choice" | "multiple_choice_complex" | "essay";
@@ -50,6 +51,7 @@ export function CreateQuestionForm({
 			discussion: null as object | null,
 			essayCorrectAnswer: "",
 			tags: [] as string[],
+			choices: [] as Choice[],
 		},
 		onSubmit: async ({ value }) => {
 			createMutation.mutate({
@@ -58,7 +60,8 @@ export function CreateQuestionForm({
 				discussion: value.discussion ?? "",
 				essayCorrectAnswer: questionType === "essay" ? value.essayCorrectAnswer : undefined,
 				tags: value.tags.length > 0 ? value.tags : undefined,
-				choices: questionType === "multiple_choice" || questionType === "multiple_choice_complex" ? [] : undefined,
+				choices:
+					questionType === "multiple_choice" || questionType === "multiple_choice_complex" ? value.choices : undefined,
 			});
 		},
 		validators: {
@@ -67,6 +70,7 @@ export function CreateQuestionForm({
 				discussion: "unknown",
 				essayCorrectAnswer: "string",
 				tags: "string[]",
+				choices: "unknown",
 			}),
 		},
 	});
@@ -154,7 +158,9 @@ export function CreateQuestionForm({
 									)}
 								</form.Field>
 
-								<MultipleChoiceQuestionForm />
+								<MultipleChoiceQuestionForm
+									onChoicesChange={(newChoices) => form.setFieldValue("choices", newChoices)}
+								/>
 
 								<form.Field name="discussion">
 									{(field) => (
@@ -204,7 +210,9 @@ export function CreateQuestionForm({
 									)}
 								</form.Field>
 
-								<MultipleChoiceComplexQuestionForm />
+								<MultipleChoiceComplexQuestionForm
+									onChoicesChange={(newChoices) => form.setFieldValue("choices", newChoices)}
+								/>
 
 								<form.Field name="discussion">
 									{(field) => (
@@ -257,7 +265,7 @@ export function CreateQuestionForm({
 								<form.Field
 									name="essayCorrectAnswer"
 									validators={{
-										onChange: ({ value }) => {
+										onChange: ({ value }: { value: string }) => {
 											if (value.length > 15) {
 												return "Kunci jawaban maksimal 15 karakter";
 											}
@@ -277,7 +285,7 @@ export function CreateQuestionForm({
 											/>
 											{field.state.meta.errors.map((error, idx) => (
 												<p key={typeof error === "string" ? error : `error-${idx}`} className="text-red-500 text-xs">
-													{typeof error === "string" ? error : error?.message}
+													{typeof error === "string" ? error : (error as { message: string })?.message}
 												</p>
 											))}
 										</div>

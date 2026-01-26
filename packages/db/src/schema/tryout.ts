@@ -106,6 +106,7 @@ export const tryoutAttempt = pgTable(
 		score: integer("score"), // Can be calculated later
 		submittedImageUrl: text("submitted_image_url"),
 		isRevoked: boolean("is_revoked").notNull().default(false),
+		usedCredit: boolean("used_credit").notNull().default(false),
 	},
 	(t) => [unique("user_tryout_attempt").on(t.userId, t.tryoutId)],
 );

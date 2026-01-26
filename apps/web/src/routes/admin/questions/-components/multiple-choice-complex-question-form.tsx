@@ -3,16 +3,21 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ComplexChoiceEditRow } from "./complex-choice-edit-row";
-import { useQuestionMutations } from "./use-question-mutations";
+import { type Choice, useQuestionMutations } from "./use-question-mutations";
 
 interface MultipleChoiceComplexQuestionFormProps {
 	questionId?: number;
+	onChoicesChange?: (choices: Choice[]) => void;
 }
 
-export function MultipleChoiceComplexQuestionForm({ questionId }: MultipleChoiceComplexQuestionFormProps) {
+export function MultipleChoiceComplexQuestionForm({
+	questionId,
+	onChoicesChange,
+}: MultipleChoiceComplexQuestionFormProps) {
 	const { choices, addChoice, updateChoice, deleteChoice, isAdding, isUpdating, isDeleting } = useQuestionMutations({
 		questionId,
 		allowMultipleCorrect: true,
+		onChoicesChange,
 	});
 
 	return (

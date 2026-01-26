@@ -116,27 +116,29 @@ export function QuestionReviewItem({ index, question, isCorrect }: QuestionRevie
 							})}
 						</div>
 
-						<div className="space-y-4">
-							<p className="font-medium text-muted-foreground text-sm">Kunci Jawaban & Pembahasan</p>
-							<div className="rounded-lg border bg-blue-50/30 p-4">
-								<div className="mb-4">
-									{question.choices
-										.filter((c) => c.isCorrect)
-										.map((c) => (
-											<div key={c.id} className="flex items-center gap-2 text-green-700">
-												<span className="flex size-6 items-center justify-center rounded-full bg-green-100 text-xs">
-													{c.code}
-												</span>
-												<TiptapRenderer content={c.content} />
-											</div>
-										))}
-								</div>
-								<div className="prose-sm">
-									<p className="mb-2 font-medium text-muted-foregroun text-sm">Pembahasan:</p>
-									<TiptapRenderer content={question.discussion} />
+						{question.discussion != null && (
+							<div className="space-y-4">
+								<p className="font-medium text-muted-foreground text-sm">Kunci Jawaban & Pembahasan</p>
+								<div className="rounded-lg border bg-blue-50/30 p-4">
+									<div className="mb-4">
+										{question.choices
+											.filter((c) => c.isCorrect)
+											.map((c) => (
+												<div key={c.id} className="flex items-center gap-2 text-green-700">
+													<span className="flex size-6 items-center justify-center rounded-full bg-green-100 text-xs">
+														{c.code}
+													</span>
+													<TiptapRenderer content={c.content} />
+												</div>
+											))}
+									</div>
+									<div className="prose-sm">
+										<p className="mb-2 font-medium text-muted-foregroun text-sm">Pembahasan:</p>
+										<TiptapRenderer content={question.discussion} />
+									</div>
 								</div>
 							</div>
-						</div>
+						)}
 					</div>
 				</div>
 			</CollapsibleContent>
