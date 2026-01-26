@@ -3,6 +3,9 @@ name: Build Server Image
 on:
     push:
         branches: ["main"]
+    paths:
+      - 'apps/server/**'
+      - 'packages/**'
 env:
     REGISTRY: ghcr.io
     IMAGE_NAME: "bimbelbeta/server"
