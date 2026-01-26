@@ -3,9 +3,9 @@ name: Build Web Image
 on:
     push:
         branches: ["main"]
-    paths:
-      - 'apps/web/**'
-      - 'packages/**'
+        paths:
+          - 'apps/web/**'
+          - 'packages/**'
 env:
     REGISTRY: ghcr.io
     IMAGE_NAME: "bimbelbeta/web"
