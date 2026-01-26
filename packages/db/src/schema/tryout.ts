@@ -164,9 +164,7 @@ export const tryoutUserAnswer = pgTable(
 			.notNull()
 			.references(() => question.id, { onDelete: "cascade" }),
 		selectedChoiceId: integer("selected_choice_id").references(() => questionChoice.id, { onDelete: "set null" }),
-		selectedChoiceIds: integer("selected_choice_ids")
-			.array()
-			.references(() => questionChoice.id, { onDelete: "set null" }),
+		selectedChoiceIds: integer("selected_choice_ids").array(),
 		essayAnswer: text("essay_answer"),
 		isDoubtful: boolean("is_doubtful").notNull().default(false),
 		createdAt: timestamp("created_at").defaultNow(),

@@ -1,5 +1,5 @@
 {
-  "id": "a1b545c8-771d-4eb6-a1e2-fda49a0819b4",
+  "id": "d3c93a42-1b08-487b-8ae3-f4beffa35b83",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -2224,19 +2224,6 @@
           "tableTo": "question_choice",
           "columnsFrom": [
             "selected_choice_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "tryout_user_answer_selected_choice_ids_question_choice_id_fk": {
-          "name": "tryout_user_answer_selected_choice_ids_question_choice_id_fk",
-          "tableFrom": "tryout_user_answer",
-          "tableTo": "question_choice",
-          "columnsFrom": [
-            "selected_choice_ids"
           ],
           "columnsTo": [
             "id"
