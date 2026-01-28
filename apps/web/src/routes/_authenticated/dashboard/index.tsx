@@ -33,11 +33,13 @@ function RouteComponent() {
 					title="Lihat semua kelas!"
 					description="Gabung kelas untuk dapat mengikuti pelajaran"
 					to="/classes"
+					src="/images/main-card-kelas.webp"
 				/>
 				<DashboardMainCard
 					title="Tryout UTBK"
 					description="Yuk belajar bersama untuk sukses dalam UTBK!"
 					to="/tryout"
+					src="/images/main-card-tryout.webp"
 				/>
 			</section>
 

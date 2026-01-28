@@ -7,13 +7,13 @@ import type { SubjectListItem } from "./classes-types";
 
 export function ClassHeader({ subject }: { subject: SubjectListItem }) {
 	const isAdmin = useIsAdmin();
-	const backPath = isAdmin ? "/admin/classes/" : `/classes/${subject.category}/`;
+	const backPath = isAdmin ? "/admin/classes/" : "/classes/";
 
 	return (
 		<Card className={cn("relative h-auto overflow-hidden border border-neutral-200 bg-white p-4 shadow-md")}>
 			<div className="flex h-full justify-between pb-5">
 				<div className="my-auto space-y-4">
-					<BackButton to={backPath} search={{ category: subject.category }} />
+					<BackButton to={backPath} />
 					<div>
 						<h3 className="text-pretty font-semibold text-2xl leading-tight xl:text-2xl">{subject?.name}</h3>
 						{/*<p className="font-light text-sm"> {subject?.totalContent} Konten</p>*/}

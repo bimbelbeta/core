@@ -45,6 +45,7 @@ export const LastClasses = () => {
 				{data.map((view, idx) => (
 					<LastContentViewedCard
 						key={view.contentId}
+						subjectId={view.subjectId}
 						item={{
 							id: view.contentId,
 							title: view.contentTitle,

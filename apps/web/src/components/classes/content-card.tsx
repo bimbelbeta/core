@@ -23,7 +23,8 @@ const CONTENT_ACTIONS = [
 		label: "Video Materi",
 		icon: PlayCircleIcon,
 		enabled: (i: ContentActionItem) => i.hasVideo,
-		className: (completed?: boolean | null) => (completed ? "bg-neutral-100 text-neutral-1000 border-[0.5px] border-black" : "bg-secondary-100"),
+		className: (completed?: boolean | null) =>
+			completed ? "bg-neutral-100 text-neutral-1000 border-[0.5px] border-black" : "bg-secondary-100",
 		width: "w-fit",
 	},
 	{
@@ -178,7 +179,7 @@ export function ContentCard({
 							params={params}
 							className={cn(
 								"flex items-center gap-1.5 rounded-lg px-3 py-2 sm:gap-2 sm:px-4 sm:py-2.5",
-                "w-full sm:w-auto",
+								"w-full sm:w-auto",
 								className(completed),
 								width,
 								isPremiumContent && "pointer-events-none opacity-60",

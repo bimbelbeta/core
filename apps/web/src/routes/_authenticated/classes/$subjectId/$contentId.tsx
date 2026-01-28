@@ -120,10 +120,10 @@ function RouteComponent() {
 						className={!location.pathname.includes("/video") ? "hidden" : ""}
 					/>
 				)}
-				{currentTab === "latihan-soal" && (
+				{currentTab === "notes" && (
 					<NextButton
-						to={`/classes/${subjectId}/${contentId}/notes`}
-						className={!location.pathname.includes("/latihan-soal") ? "hidden" : ""}
+						to={`/classes/${subjectId}/${contentId}/latihan-soal`}
+						className={!location.pathname.includes("/notes") ? "hidden" : ""}
 					/>
 				)}
 			</div>

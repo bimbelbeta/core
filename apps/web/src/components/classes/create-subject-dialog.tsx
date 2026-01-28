@@ -155,7 +155,7 @@ export function CreateSubjectDialog({ open, onOpenChange, defaultCategory }: Cre
 									onChange={(e) => field.handleChange(e.target.value)}
 									placeholder="Contoh: Matematika Wajib"
 								/>
-								{field.state.meta.errors.map((error: any) => (
+								{field.state.meta.errors.map((error) => (
 									<p key={error?.message ?? String(error)} className="text-destructive text-xs">
 										{error?.message ?? String(error)}
 									</p>
@@ -175,7 +175,7 @@ export function CreateSubjectDialog({ open, onOpenChange, defaultCategory }: Cre
 									onChange={(e) => field.handleChange(e.target.value)}
 									placeholder="Contoh: MAT W"
 								/>
-								{field.state.meta.errors.map((error: any) => (
+								{field.state.meta.errors.map((error) => (
 									<p key={error?.message ?? String(error)} className="text-destructive text-xs">
 										{error?.message ?? String(error)}
 									</p>

@@ -5,7 +5,6 @@ import { BackButton } from "@/components/back-button";
 import { EmptyContentState } from "@/components/classes/empty-content-state";
 import { PracticeQuestion } from "@/components/classes/practice-question";
 import { PracticeQuestionHeader } from "@/components/classes/practice-question-header";
-import { NextButton } from "@/components/next-button";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { orpc } from "@/utils/orpc";
 
@@ -74,13 +73,9 @@ function RouteComponent() {
 
 	return (
 		<div className="space-y-4">
-			<div className="flex justify-between">
-				<BackButton to={`/classes/${subjectId}/${contentId}/video`} />
-				<NextButton to={`/classes/${subjectId}/${contentId}/notes`} />
-			</div>
 			<p className="font-semibold text-base text-primary-300">Latihan Soal</p>
 
-			<PracticeQuestionHeader content={content.data.title} />
+			<h2 className="font-bold text-2xl">{content.data.title}</h2>
 
 			<hr />
 
