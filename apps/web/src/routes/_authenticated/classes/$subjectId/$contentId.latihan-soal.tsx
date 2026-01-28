@@ -90,6 +90,7 @@ function RouteComponent() {
 						key={q.questionId}
 						questionNumber={idx + 1}
 						totalQuestions={practiceQuestions.questions.length}
+						answerTitle={q.type === "essay" ? "Kunci Jawaban" : "Jawaban"}
 						question={<TiptapRenderer className="mt-4" content={q.question} />}
 						answer={
 							<div className="space-y-3">
@@ -107,6 +108,11 @@ function RouteComponent() {
 											</p>
 										))}
 									</div>
+								)}
+								{(!q.answers || q.answers.length === 0) && q.type === "essay" && q.essayCorrectAnswer && (
+									<p className="text-sm">
+										Kunci jawaban: <span className="font-semibold">{q.essayCorrectAnswer}</span>
+									</p>
 								)}
 								{q.discussion && (
 									<div className="mt-3 border-neutral-200 border-t pt-3">

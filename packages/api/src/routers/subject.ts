@@ -228,6 +228,8 @@ const getContentById = authedRateLimited
 				questionContentJson: question.contentJson,
 				questionDiscussion: question.discussion,
 				questionDiscussionJson: question.discussionJson,
+				questionType: question.type,
+				essayCorrectAnswer: question.essayCorrectAnswer,
 				answerId: questionChoice.id,
 				answerContent: questionChoice.content,
 				answerCode: questionChoice.code,
@@ -235,7 +237,7 @@ const getContentById = authedRateLimited
 			})
 			.from(contentPracticeQuestions)
 			.innerJoin(question, eq(question.id, contentPracticeQuestions.questionId))
-			.innerJoin(questionChoice, eq(questionChoice.questionId, question.id))
+			.leftJoin(questionChoice, eq(questionChoice.questionId, question.id))
 			.where(eq(contentPracticeQuestions.contentItemId, input.contentId))
 			.orderBy(contentPracticeQuestions.order, questionChoice.code);
 
@@ -247,6 +249,8 @@ const getContentById = authedRateLimited
 				order: number;
 				question: string;
 				discussion: string;
+				type: "multiple_choice" | "multiple_choice_complex" | "essay";
+				essayCorrectAnswer: string | null;
 				answers: ChoiceWithAnswer[];
 			}
 		>();
@@ -258,15 +262,19 @@ const getContentById = authedRateLimited
 					order: row.order,
 					question: row.questionContentJson || convertToTiptap(row.questionContent),
 					discussion: row.questionDiscussionJson || convertToTiptap(row.questionDiscussion),
+					type: row.questionType,
+					essayCorrectAnswer: row.essayCorrectAnswer ?? null,
 					answers: [],
 				});
 			}
-			questionMap.get(row.questionId)?.answers.push({
-				id: row.answerId,
-				content: row.answerContent,
-				code: row.answerCode,
-				isCorrect: row.answerIsCorrect,
-			});
+			if (row.answerId !== null) {
+				questionMap.get(row.questionId)?.answers.push({
+					id: row.answerId,
+					content: row.answerContent!,
+					code: row.answerCode!,
+					isCorrect: row.answerIsCorrect!,
+				});
+			}
 		}
 
 		// Sort questions by order and answers by code

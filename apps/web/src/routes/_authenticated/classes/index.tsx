@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import type { SubjectListItem } from "@/components/classes/classes-types";
+import { CreateSubjectDialog } from "@/components/classes/create-subject-dialog";
 import { NotFoundContentState } from "@/components/classes/not-found-content-state";
 import { SubjectFilters } from "@/components/classes/subject-filters";
 import { SubjectHeader } from "@/components/classes/subject-header";
@@ -27,6 +29,7 @@ type Search = {
 };
 
 function RouteComponent() {
+	const [createOpen, setCreateOpen] = useState(false);
 	const { session } = Route.useRouteContext();
 	const userRole = session?.user?.role;
 	const isAdmin = userRole === "admin";
@@ -104,10 +107,17 @@ function RouteComponent() {
 						isLoading={subjectsQuery.isPending}
 						error={subjectsQuery.isError ? subjectsQuery.error.message : undefined}
 						searchQuery={searchQuery}
-						onCreate={isAdmin ? () => {} : undefined}
+						onCreate={isAdmin ? () => setCreateOpen(true) : undefined}
 					/>
 				)}
 			</div>
+			{isAdmin && (
+				<CreateSubjectDialog
+					open={createOpen}
+					onOpenChange={setCreateOpen}
+					defaultCategory={activeFilter === "all" ? undefined : activeFilter}
+				/>
+			)}
 		</div>
 	);
 }
