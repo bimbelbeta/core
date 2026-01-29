@@ -41,6 +41,9 @@ export function TryoutGreeting({ countdownProps }: TryoutGreetingProps) {
 		}),
 	);
 
+	// Check if the current subtest has been started (has a deadline)
+	const hasSubtestStarted = data?.currentSubtest?.deadline !== null;
+
 	const submitSubtestMutation = useMutation(
 		orpc.tryout.submitSubtest.mutationOptions({
 			onSuccess: () => {
@@ -88,6 +91,16 @@ export function TryoutGreeting({ countdownProps }: TryoutGreetingProps) {
 				onClick={() => {
 					if (isCompletedSubtest) {
 						submitSubtestMutation.mutate({ tryoutId, subtestId: data.currentSubtest!.id });
+					} else if (!hasSubtestStarted) {
+						// Start the subtest first to set the deadline, then show questions
+						startSubtestMutation.mutate(
+							{ tryoutId, subtestId: data.currentSubtest!.id },
+							{
+								onSuccess: () => {
+									setView("questions");
+								},
+							},
+						);
 					} else {
 						setView("questions");
 					}

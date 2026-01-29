@@ -6,7 +6,7 @@ export function QuestionPanel() {
 	const { currentQuestion } = useTryoutStore();
 
 	return (
-		<div className="flex h-full flex-col overflow-hidden border-dashed lg:border-r-2">
+		<div className="flex h-full flex-col overflow-hidden border-dashed lg:border-r-2 lg:pr-4">
 			<div className="flex-1 overflow-y-auto">
 				{currentQuestion ? <TiptapRenderer content={currentQuestion.content} /> : <Skeleton className="h-8 w-full" />}
 			</div>

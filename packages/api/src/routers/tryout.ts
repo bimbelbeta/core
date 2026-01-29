@@ -381,6 +381,8 @@ const start = authed
 			deadline: deadlineMap.get(firstSubtest.id)!,
 		});
 
+		console.log({ ...attempt, overallDeadline });
+
 		return { ...attempt, overallDeadline };
 	});
 
@@ -595,7 +597,7 @@ const submitSubtest = authed
 			},
 		});
 
-		if (!attempt) throw new ORPCError("BAD_REQUEST", { message: "Attempt not found" });
+		if (!attempt) throw new ORPCError("BAD_REQUEST", { message: "Gagal menemukan pengerjaan tryout." });
 
 		const currentSubtestAttempt = attempt.subtestAttempts.find(
 			(sa) => sa.subtestId === input.subtestId && sa.status === "ongoing",
@@ -671,7 +673,7 @@ const submitTryout = authed
 			),
 		});
 
-		if (!attempt) throw new ORPCError("BAD_REQUEST", { message: "Attempt not found" });
+		if (!attempt) throw new ORPCError("BAD_REQUEST", { message: "Gagal menemukan pengerjaan tryout." });
 
 		// Calculate scores before marking as finished
 		const scores = await calculateTryoutScores(attempt.id);
@@ -774,7 +776,7 @@ const attemptResult = authed
 		});
 
 		if (!attempt) {
-			throw errors.NOT_FOUND({ message: "Attempt not found" });
+			throw errors.NOT_FOUND({ message: "Gagal menemukan pengerjaan tryout." });
 		}
 
 		return attempt;
@@ -830,7 +832,7 @@ const review = authed
 			},
 		});
 
-		if (!attempt) throw errors.NOT_FOUND({ message: "Attempt not found" });
+		if (!attempt) throw errors.NOT_FOUND({ message: "Gagal menemukan pengerjaan tryout." });
 
 		// Check if user can see discussion (premium or used credit)
 		const canSeeDiscussion = context.session.user.isPremium || attempt.usedCredit;

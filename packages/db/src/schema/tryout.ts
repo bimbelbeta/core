@@ -15,7 +15,6 @@ export const tryout = pgTable("tryout", {
 	description: text(),
 	passingGrade: integer("passing_grade").notNull().default(600),
 	category: tryoutCategory("category").notNull().default("utbk"),
-	duration: integer().notNull(), // total duration in minutes
 	status: tryoutStatus("status").notNull().default("draft"),
 	startsAt: timestamp("starts_at"),
 	endsAt: timestamp("ends_at"),

@@ -151,7 +151,6 @@ function TryoutsListPage() {
 							<TableHead className="w-12.5">No</TableHead>
 							<TableHead>Judul</TableHead>
 							<TableHead>Kategori</TableHead>
-							<TableHead>Durasi</TableHead>
 							<TableHead>Status</TableHead>
 							<TableHead>Dibuat</TableHead>
 							<TableHead className="text-right">Aksi</TableHead>
@@ -178,7 +177,6 @@ function TryoutsListPage() {
 									<TableCell>
 										<Badge variant="outline">{tryout.category.toUpperCase()}</Badge>
 									</TableCell>
-									<TableCell>{tryout.duration} menit</TableCell>
 									<TableCell>
 										<Badge
 											variant={
@@ -198,7 +196,7 @@ function TryoutsListPage() {
 									<TableCell className="text-right">
 										<div className="flex items-center justify-end gap-2">
 											<Button variant="ghost" size="icon" asChild>
-												<Link to="/admin/tryouts/$tryoutId" params={{ tryoutId: tryout.id }}>
+												<Link to="/admin/tryouts/$tryoutId" params={{ tryoutId: tryout.id.toString() }}>
 													<PencilSimpleIcon className="size-4" />
 												</Link>
 											</Button>

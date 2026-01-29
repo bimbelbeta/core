@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouteContext } from "@tanstack/react-router";
 import { createClientOnlyFn } from "@tanstack/react-start";
 import { type } from "arktype";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -14,39 +14,32 @@ import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 
-const TIME_ELAPSED_BEFORE_SHOWING_AGAIN = 1000 * 60 * 60 * 24 * 1; // 1 days
+// const TIME_ELAPSED_BEFORE_SHOWING_AGAIN = 1000 * 60 * 60 * 24 * 1; // 1 days
 
 const saveToStorage = createClientOnlyFn((key: string, data: string) => {
 	localStorage.setItem(key, data);
 });
 
-const getFromStorage = createClientOnlyFn((key: string) => {
-	return localStorage.getItem(key);
-});
+// const getFromStorage = createClientOnlyFn((key: string) => {
+//   return localStorage.getItem(key);
+// });
 
 export function TargetSelectionDialog() {
+	const queryClient = useQueryClient();
 	const { session } = useRouteContext({ from: "/_authenticated" });
 	const userKey = session?.user?.email || session?.user?.id || "guest";
+	const { data } = useQuery(orpc.userSettings.get.queryOptions());
 
-	const [open, setOpen] = useState<boolean>(() => {
-		try {
-			const dismissedAt = getFromStorage(`target-dialog-dismissed-${userKey}`);
-			if (!dismissedAt) return true;
-			if (session?.user.targetUniversityId && session?.user.targetStudyProgramId) return false;
-
-			const lastDismissed = new Date(dismissedAt);
-			const now = new Date();
-
-			return now.getTime() - lastDismissed.getTime() > TIME_ELAPSED_BEFORE_SHOWING_AGAIN;
-		} catch {
-			return true;
-		}
-	});
+	const [open, setOpen] = useState<boolean>(false);
+	useEffect(() => {
+		if (data && !data?.university && !data.studyProgram) setOpen(true);
+	}, [data]);
 
 	const setMutation = useMutation(
 		orpc.userSettings.set.mutationOptions({
 			onSuccess: () => {
 				setOpen(false);
+				queryClient.invalidateQueries({ queryKey: orpc.userSettings.get.queryKey() });
 			},
 			onError: (error: Error) => {
 				toast.error(error.message || "Gagal menyimpan target");
@@ -70,8 +63,6 @@ export function TargetSelectionDialog() {
 			});
 		},
 	});
-
-	const queryClient = useQueryClient();
 	const { data: universities, isPending } = useQuery(orpc.university.list.queryOptions({ input: {} }));
 
 	const handleClose = () => {

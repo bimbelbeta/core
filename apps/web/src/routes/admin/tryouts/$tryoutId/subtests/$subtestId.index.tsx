@@ -1,7 +1,7 @@
 import { ArrowLeftIcon, PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { type } from "arktype";
+
 import { useState } from "react";
 import { toast } from "sonner";
 import {
@@ -19,20 +19,13 @@ import { orpc } from "@/utils/orpc";
 import { BulkAddQuestionsDialog } from "../../-components/bulk-add-questions-dialog";
 import { BulkQuestionsTable } from "../../-components/bulk-questions-table";
 
-const routeSchema = type({
-	tryoutId: "number",
-	subtestId: "number",
-});
-
-export const Route = createFileRoute("/admin/tryouts/$tryoutId/subtests/$subtestId")({
+export const Route = createFileRoute("/admin/tryouts/$tryoutId/subtests/$subtestId/")({
 	component: SubtestDetailPage,
-	params: {
-		parse: routeSchema.assert,
-	},
 });
 
 function SubtestDetailPage() {
-	const { tryoutId, subtestId } = Route.useParams();
+	const { tryoutId: tId, subtestId: sId } = Route.useParams();
+	const subtestId = Number(sId);
 
 	const { data, isPending, refetch } = useQuery(
 		orpc.admin.tryout.questionsBulk.listSubtestQuestions.queryOptions({
@@ -84,7 +77,7 @@ function SubtestDetailPage() {
 			<div className="flex items-center justify-between">
 				<div className="flex items-center gap-4">
 					<Button variant="ghost" size="icon" asChild>
-						<Link to="/admin/tryouts/$tryoutId" params={{ tryoutId }}>
+						<Link to="/admin/tryouts/$tryoutId" params={{ tryoutId: tId }}>
 							<ArrowLeftIcon className="size-4" />
 						</Link>
 					</Button>
@@ -94,9 +87,14 @@ function SubtestDetailPage() {
 					</div>
 				</div>
 				<div className="flex items-center gap-2">
-					<Button className="gap-2">
-						<PlusIcon className="size-4" />
-						Buat Soal
+					<Button className="gap-2" asChild>
+						<Link
+							to="/admin/tryouts/$tryoutId/subtests/$subtestId/questions/new"
+							params={{ tryoutId: tId, subtestId: subtestId.toString() }}
+						>
+							<PlusIcon className="size-4" />
+							Buat Soal
+						</Link>
 					</Button>
 					<Button variant="outline" onClick={() => setIsBulkAddOpen(true)} className="gap-2">
 						<PlusIcon className="size-4" />

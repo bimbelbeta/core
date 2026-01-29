@@ -1,7 +1,6 @@
-import { ArrowLeftIcon, FloppyDiskIcon, PencilSimpleIcon } from "@phosphor-icons/react";
+import { ArrowLeftIcon, FloppyDiskIcon, PencilSimpleIcon, PlusIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { type } from "arktype";
 import { useState } from "react";
 import { toast } from "sonner";
 import Loader from "@/components/loader";
@@ -14,19 +13,15 @@ import { Spinner } from "@/components/ui/spinner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { orpc } from "@/utils/orpc";
-import { AddSubtestDialog } from "../-components/add-subtest-dialog";
+import { AddSubtestDialog } from "./-components/add-subtest-dialog";
 
 export const Route = createFileRoute("/admin/tryouts/$tryoutId/")({
 	component: TryoutDetailPage,
-	params: {
-		parse: type({
-			tryoutId: "number",
-		}).assert,
-	},
 });
 
 function TryoutDetailPage() {
-	const { tryoutId: id } = Route.useParams();
+	const { tryoutId } = Route.useParams();
+	const id = Number(tryoutId);
 
 	const { data, isPending, refetch } = useQuery(
 		orpc.admin.tryout.getTryout.queryOptions({
@@ -40,7 +35,6 @@ function TryoutDetailPage() {
 		title: "",
 		description: "",
 		category: "utbk" as "sd" | "smp" | "sma" | "utbk",
-		duration: 60,
 		status: "draft" as "draft" | "published" | "archived",
 		startsAt: "",
 		endsAt: "",
@@ -65,7 +59,6 @@ function TryoutDetailPage() {
 				title: data.tryout.title,
 				description: data.tryout.description ?? "",
 				category: data.tryout.category,
-				duration: data.tryout.duration,
 				status: data.tryout.status,
 				startsAt: data.tryout.startsAt ? new Date(data.tryout.startsAt).toISOString().slice(0, 16) : "",
 				endsAt: data.tryout.endsAt ? new Date(data.tryout.endsAt).toISOString().slice(0, 16) : "",
@@ -80,7 +73,6 @@ function TryoutDetailPage() {
 			title: editForm.title,
 			description: editForm.description || undefined,
 			category: editForm.category,
-			duration: editForm.duration,
 			status: editForm.status,
 			startsAt: editForm.startsAt || undefined,
 			endsAt: editForm.endsAt || undefined,
@@ -171,14 +163,6 @@ function TryoutDetailPage() {
 									</Select>
 								</div>
 								<div>
-									<Label>Durasi (menit)</Label>
-									<Input
-										type="number"
-										value={editForm.duration}
-										onChange={(e) => setEditForm({ ...editForm, duration: e.target.valueAsNumber })}
-									/>
-								</div>
-								<div>
 									<Label>Status</Label>
 									<Select
 										value={editForm.status}
@@ -228,10 +212,6 @@ function TryoutDetailPage() {
 									<p className="font-medium">{tryout.category.toUpperCase()}</p>
 								</div>
 								<div>
-									<Label className="text-muted-foreground">Durasi</Label>
-									<p className="font-medium">{tryout.duration} menit</p>
-								</div>
-								<div>
 									<Label className="text-muted-foreground">Status</Label>
 									<p className="font-medium">{tryout.status}</p>
 								</div>
@@ -255,6 +235,10 @@ function TryoutDetailPage() {
 				<Card>
 					<CardHeader className="flex flex-row items-center justify-between">
 						<CardTitle>Subtests</CardTitle>
+						<Button size="sm" onClick={() => setIsAddSubtestOpen(true)}>
+							<PlusIcon className="mr-2 size-4" />
+							Tambah Subtest
+						</Button>
 						<AddSubtestDialog
 							open={isAddSubtestOpen}
 							onOpenChange={setIsAddSubtestOpen}
@@ -271,7 +255,6 @@ function TryoutDetailPage() {
 									<TableRow>
 										<TableHead className="w-12.5">No</TableHead>
 										<TableHead>Nama</TableHead>
-										<TableHead>Durasi</TableHead>
 										<TableHead>Urutan Soal</TableHead>
 										<TableHead className="text-right">Aksi</TableHead>
 									</TableRow>
@@ -281,13 +264,12 @@ function TryoutDetailPage() {
 										<TableRow key={subtest.id}>
 											<TableCell>{index + 1}</TableCell>
 											<TableCell className="font-medium">{subtest.name}</TableCell>
-											<TableCell>{subtest.duration} menit</TableCell>
 											<TableCell>{subtest.questionOrder === "random" ? "Acak" : "Berurutan"}</TableCell>
 											<TableCell className="text-right">
 												<Button variant="secondary" size="icon" asChild>
 													<Link
 														to="/admin/tryouts/$tryoutId/subtests/$subtestId"
-														params={{ tryoutId: id, subtestId: subtest.id }}
+														params={{ tryoutId: id.toString(), subtestId: subtest.id.toString() }}
 													>
 														<PencilSimpleIcon />
 													</Link>

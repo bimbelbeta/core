@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Outlet, redirect, useLocation, useRouterState } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { HeaderDashboard } from "@/components/header-dashboard";
@@ -6,7 +5,6 @@ import { Container } from "@/components/ui/container";
 import { $getSession } from "@/lib/get-user";
 import { createMeta } from "@/lib/seo-utils";
 import { TargetSelectionDialog } from "@/routes/_authenticated/-components/target-selection-dialog";
-import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_authenticated")({
 	head: () => ({
@@ -49,9 +47,6 @@ function AuthedLayout() {
 	}, [location.pathname, isPending]);
 
 	const pathname = isPending ? stablePathnameRef.current : location.pathname;
-
-	// Check if user has target university and study program
-	useQuery(orpc.userSettings.get.queryOptions());
 
 	return (
 		<>

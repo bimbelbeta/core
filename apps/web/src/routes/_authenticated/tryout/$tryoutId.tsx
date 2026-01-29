@@ -1,7 +1,7 @@
 import { ArrowLeftIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import ErrorComponent from "@/components/error";
 import { Button } from "@/components/ui/button";
@@ -30,9 +30,21 @@ function RouteComponent() {
 	const { reset, view, setView } = useTryoutStore();
 	const prevSubtestIdRef = useRef<number | null>(null);
 	const hasAutoSubmitted = useRef(false);
+	// Track when component mounted to prevent immediate auto-submit due to clock skew
+	const [canAutoSubmit, setCanAutoSubmit] = useState(false);
+
+	useEffect(() => {
+		// Add a 3-second grace period after mount before allowing auto-submit
+		// This prevents auto-submit due to server-client clock skew
+		const timer = setTimeout(() => {
+			setCanAutoSubmit(true);
+		}, 3000);
+		return () => clearTimeout(timer);
+	}, []);
 
 	const deadline = data?.currentSubtest?.deadline ?? null;
-	const [, hours, minutes, seconds] = useCountdown(deadline || 0);
+	// Only run countdown when there's an actual deadline; use a future date as placeholder to avoid immediate expiration
+	const [, hours, minutes, seconds] = useCountdown(deadline ?? new Date(Date.now() + 24 * 60 * 60 * 1000));
 	const isExpired =
 		typeof hours === "string" && hours === "00" && minutes === "00" && seconds === "00" && deadline !== null;
 
@@ -84,12 +96,19 @@ function RouteComponent() {
 	}, [data, router, reset]);
 
 	useEffect(() => {
-		if (isExpired && data?.currentSubtest?.id && !hasAutoSubmitted.current && !submitSubtestMutation.isPending) {
+		if (
+			isExpired &&
+			data?.currentSubtest &&
+			data?.currentSubtest.deadline &&
+			!hasAutoSubmitted.current &&
+			!submitSubtestMutation.isPending &&
+			canAutoSubmit
+		) {
 			hasAutoSubmitted.current = true;
 			submitSubtestMutation.mutate({ tryoutId: Number(tryoutId), subtestId: data.currentSubtest.id });
 			router.navigate({ to: "/tryout", search: { tab: "results" } });
 		}
-	}, [isExpired, data, tryoutId, submitSubtestMutation, router.navigate]);
+	}, [isExpired, data, tryoutId, submitSubtestMutation, router.navigate, canAutoSubmit]);
 
 	if (isPending) {
 		return (

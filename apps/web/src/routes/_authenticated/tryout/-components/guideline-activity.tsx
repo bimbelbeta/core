@@ -1,5 +1,5 @@
 import { ArrowUpRightIcon } from "@phosphor-icons/react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +9,7 @@ import { TryoutStartConfirmation } from "./tryout-start-confirmation";
 
 export function GuidelineActivity() {
 	const { data, isError, isPending } = useQuery(orpc.tryout.featured.queryOptions());
+	const queryClient = useQueryClient();
 
 	return (
 		<section className="flex flex-col gap-6">
@@ -34,7 +35,13 @@ export function GuidelineActivity() {
 							</Link>
 						</Button>
 					) : data?.status === "ongoing" ? (
-						<Button size={"icon"} asChild>
+						<Button
+							size={"icon"}
+							onClick={() => {
+								queryClient.invalidateQueries({ queryKey: orpc.tryout.featured.queryKey() });
+							}}
+							asChild
+						>
 							<Link
 								to="/tryout/$tryoutId"
 								params={{

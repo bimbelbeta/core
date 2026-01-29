@@ -16,7 +16,6 @@ const createTryout = admin
 			title: "string",
 			description: "string?",
 			category: type("'sd' | 'smp' | 'sma' | 'utbk'"),
-			duration: "number",
 			status: type("'draft' | 'published' | 'archived'")?.optional(),
 			startsAt: "string?",
 			endsAt: "string?",
@@ -24,19 +23,12 @@ const createTryout = admin
 	)
 	.output(type({ message: "string", id: "number" }))
 	.handler(async ({ input }) => {
-		if (input.duration < 0 || input.duration > 500) {
-			throw new ORPCError("BAD_REQUEST", {
-				message: "Durasi harus antara 0 dan 500 menit",
-			});
-		}
-
 		const [created] = await db
 			.insert(tryout)
 			.values({
 				title: input.title,
 				description: input.description ?? null,
 				category: input.category,
-				duration: input.duration,
 				status: input.status ?? "draft",
 				startsAt: input.startsAt ? new Date(input.startsAt) : null,
 				endsAt: input.endsAt ? new Date(input.endsAt) : null,
@@ -148,7 +140,6 @@ const updateTryout = admin
 			title: "string?",
 			description: "string?",
 			category: type("'sd' | 'smp' | 'sma' | 'utbk'")?.optional(),
-			duration: "number?",
 			status: type("'draft' | 'published' | 'archived'")?.optional(),
 			startsAt: "string?",
 			endsAt: "string?",
@@ -156,12 +147,6 @@ const updateTryout = admin
 	)
 	.output(type({ message: "string" }))
 	.handler(async ({ input }) => {
-		if (input.duration !== undefined && (input.duration < 0 || input.duration > 500)) {
-			throw new ORPCError("BAD_REQUEST", {
-				message: "Durasi harus antara 0 dan 500 menit",
-			});
-		}
-
 		const updateData: {
 			title?: string;
 			description?: string | null;
@@ -178,7 +163,6 @@ const updateTryout = admin
 		if (input.title !== undefined) updateData.title = input.title;
 		if (input.description !== undefined) updateData.description = input.description ?? null;
 		if (input.category !== undefined) updateData.category = input.category;
-		if (input.duration !== undefined) updateData.duration = input.duration;
 		if (input.status !== undefined) updateData.status = input.status;
 		if (input.startsAt !== undefined) updateData.startsAt = input.startsAt ? new Date(input.startsAt) : null;
 		if (input.endsAt !== undefined) updateData.endsAt = input.endsAt ? new Date(input.endsAt) : null;
