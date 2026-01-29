@@ -39,7 +39,6 @@ import {
 } from "@/components/tiptap-ui/color-highlight-popover";
 // --- Tiptap UI ---
 import { HeadingDropdownMenu } from "@/components/tiptap-ui/heading-dropdown-menu";
-import { ImageUploadButton } from "@/components/tiptap-ui/image-upload-button";
 import { LinkButton, LinkContent, LinkPopover } from "@/components/tiptap-ui/link-popover";
 import { ListDropdownMenu } from "@/components/tiptap-ui/list-dropdown-menu";
 import { MarkButton } from "@/components/tiptap-ui/mark-button";
@@ -52,6 +51,7 @@ import { useWindowSize } from "@/hooks/use-window-size";
 
 // --- Styles ---
 import "@/components/tiptap-templates/simple/simple-editor.scss";
+import { ImageLinkPopover } from "@/components/tiptap-ui/image-link-popover";
 
 interface SimpleEditorProps {
 	content?: object;
@@ -116,7 +116,8 @@ const MainToolbarContent = ({
 			<ToolbarSeparator />
 
 			<ToolbarGroup>
-				<ImageUploadButton text="Add" />
+        {/*<ImageUploadButton text="Add" />*/}
+				<ImageLinkPopover />
 			</ToolbarGroup>
 
 			<Spacer />
