@@ -32,7 +32,7 @@ function RouteComponent() {
 	const [createOpen, setCreateOpen] = useState(false);
 	const { session } = Route.useRouteContext();
 	const userRole = session?.user?.role;
-	const isAdmin = userRole === "admin";
+	const isAdmin = userRole === "admin" || userRole === "superadmin";
 
 	const searchParams = Route.useSearch();
 	const searchQuery = (searchParams as Search).q ?? "";
