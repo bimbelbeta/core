@@ -22,6 +22,7 @@ interface EditProgramDialogProps {
 		tuition: number | null;
 		capacity: number | null;
 		accreditation: string | null;
+		averageScore: number | null;
 		isActive: boolean;
 	};
 	onSuccess: () => void;
@@ -34,6 +35,7 @@ export function EditProgramDialog({ universityProgram, onSuccess, onOpenChange }
 			tuition: universityProgram.tuition ?? "",
 			capacity: universityProgram.capacity ?? "",
 			accreditation: universityProgram.accreditation ?? "",
+			averageScore: universityProgram.averageScore ?? "",
 			isActive: universityProgram.isActive,
 		},
 		onSubmit: async ({ value }) => {
@@ -42,6 +44,7 @@ export function EditProgramDialog({ universityProgram, onSuccess, onOpenChange }
 				tuition: value.tuition ? Number(value.tuition) : undefined,
 				capacity: value.capacity ? Number(value.capacity) : undefined,
 				accreditation: value.accreditation || undefined,
+				averageScore: value.averageScore ? Number(value.averageScore) : undefined,
 				isActive: value.isActive,
 			});
 		},
@@ -50,6 +53,7 @@ export function EditProgramDialog({ universityProgram, onSuccess, onOpenChange }
 				tuition: "string?",
 				capacity: "string?",
 				accreditation: "string?",
+				averageScore: "string?",
 				isActive: "boolean",
 			}),
 		},
@@ -151,6 +155,31 @@ export function EditProgramDialog({ universityProgram, onSuccess, onOpenChange }
 										<SelectItem value="Baik">Baik</SelectItem>
 									</SelectContent>
 								</Select>
+								{field.state.meta.errors.map((error) => (
+									<p key={error?.message} className="text-red-500 text-xs">
+										{error?.message}
+									</p>
+								))}
+							</div>
+						</div>
+					)}
+				</form.Field>
+
+				<form.Field name="averageScore">
+					{(field) => (
+						<div className="grid grid-cols-4 items-start gap-4">
+							<Label htmlFor={field.name} className="mt-2 text-right">
+								Skor Rata-rata
+							</Label>
+							<div className="col-span-3 space-y-1">
+								<Input
+									id={field.name}
+									type="number"
+									placeholder="Contoh: 500"
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(e) => field.handleChange(e.target.value)}
+								/>
 								{field.state.meta.errors.map((error) => (
 									<p key={error?.message} className="text-red-500 text-xs">
 										{error?.message}

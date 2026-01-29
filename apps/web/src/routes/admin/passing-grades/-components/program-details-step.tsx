@@ -26,6 +26,7 @@ export function ProgramDetailsStep({
 	const [tuition, setTuition] = useState("");
 	const [capacity, setCapacity] = useState("");
 	const [accreditation, setAccreditation] = useState("");
+	const [averageScore, setAverageScore] = useState("");
 
 	const { mutate: linkProgram, isPending: isLinking } = useMutation(
 		orpc.admin.university.universityPrograms.create.mutationOptions({
@@ -46,6 +47,7 @@ export function ProgramDetailsStep({
 			tuition: tuition ? Number(tuition) : undefined,
 			capacity: capacity ? Number(capacity) : undefined,
 			accreditation: accreditation || undefined,
+			averageScore: averageScore ? Number(averageScore) : undefined,
 		});
 	};
 
@@ -98,6 +100,19 @@ export function ProgramDetailsStep({
 							<SelectItem value="Baik">Baik</SelectItem>
 						</SelectContent>
 					</Select>
+				</div>
+				<div className="grid grid-cols-4 items-center gap-4">
+					<Label htmlFor="averageScore" className="text-right font-medium text-sm">
+						Skor Rata-rata
+					</Label>
+					<Input
+						id="averageScore"
+						type="number"
+						placeholder="Contoh: 500"
+						value={averageScore}
+						onChange={(e) => setAverageScore(e.target.value)}
+						className="col-span-3"
+					/>
 				</div>
 			</div>
 			<DialogFooter className="justify-between">

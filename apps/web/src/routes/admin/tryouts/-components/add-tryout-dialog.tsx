@@ -43,7 +43,6 @@ export function AddTryoutDialog({
 				title: value.title,
 				description: value.description || undefined,
 				category: value.category,
-				duration: value.duration,
 				status: value.status,
 				startsAt: value.startsAt || undefined,
 				endsAt: value.endsAt || undefined,
@@ -158,30 +157,6 @@ export function AddTryoutDialog({
 													<SelectItem value="utbk">UTBK</SelectItem>
 												</SelectContent>
 											</Select>
-										</div>
-									</div>
-								)}
-							</form.Field>
-
-							<form.Field name="duration">
-								{(field) => (
-									<div className="grid grid-cols-4 items-start gap-4">
-										<Label htmlFor={field.name} className="mt-2 text-right">
-											Durasi (menit)
-										</Label>
-										<div className="col-span-3 space-y-1">
-											<Input
-												id={field.name}
-												type="number"
-												value={field.state.value}
-												onBlur={field.handleBlur}
-												onChange={(e) => field.handleChange(e.target.valueAsNumber)}
-											/>
-											{field.state.meta.errors.map((error) => (
-												<p key={error?.message} className="text-red-500 text-xs">
-													{error?.message}
-												</p>
-											))}
 										</div>
 									</div>
 								)}

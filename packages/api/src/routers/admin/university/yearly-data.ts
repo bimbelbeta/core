@@ -43,6 +43,7 @@ const list = admin
 				tuition: universityStudyProgram.tuition,
 				capacity: universityStudyProgram.capacity,
 				accreditation: universityStudyProgram.accreditation,
+				averageScore: universityStudyProgram.averageScore,
 				isActive: universityStudyProgram.isActive,
 			})
 			.from(universityStudyProgram)
@@ -65,6 +66,7 @@ const list = admin
 				tuition: r.tuition,
 				capacity: r.capacity,
 				accreditation: r.accreditation,
+				averageScore: r.averageScore,
 				isActive: r.isActive,
 			})),
 			nextCursor,
@@ -91,6 +93,7 @@ const find = admin
 				tuition: universityStudyProgram.tuition,
 				capacity: universityStudyProgram.capacity,
 				accreditation: universityStudyProgram.accreditation,
+				averageScore: universityStudyProgram.averageScore,
 				isActive: universityStudyProgram.isActive,
 			})
 			.from(universityStudyProgram)
@@ -125,6 +128,7 @@ const find = admin
 			tuition: link.tuition,
 			capacity: link.capacity,
 			accreditation: link.accreditation,
+			averageScore: link.averageScore,
 			isActive: link.isActive,
 			yearlyData,
 		};
@@ -143,6 +147,7 @@ const create = admin
 			tuition: "number?",
 			capacity: "number?",
 			accreditation: "string?",
+			averageScore: "number?",
 		}),
 	)
 	.output(type({ message: "string", id: "number" }))
@@ -172,6 +177,7 @@ const create = admin
 				tuition: input.tuition ?? null,
 				capacity: input.capacity ?? null,
 				accreditation: input.accreditation ?? null,
+				averageScore: input.averageScore ?? 500,
 			})
 			.returning();
 
@@ -199,6 +205,7 @@ const update = admin
 			tuition: "number?",
 			capacity: "number?",
 			accreditation: "string?",
+			averageScore: "number?",
 			isActive: "boolean?",
 		}),
 	)
@@ -208,6 +215,7 @@ const update = admin
 			tuition?: number | null;
 			capacity?: number | null;
 			accreditation?: string | null;
+			averageScore?: number;
 			isActive?: boolean;
 			updatedAt: Date;
 		} = {
@@ -217,6 +225,7 @@ const update = admin
 		if (input.tuition !== undefined) updateData.tuition = input.tuition;
 		if (input.capacity !== undefined) updateData.capacity = input.capacity;
 		if (input.accreditation !== undefined) updateData.accreditation = input.accreditation;
+		if (input.averageScore !== undefined) updateData.averageScore = input.averageScore;
 		if (input.isActive !== undefined) updateData.isActive = input.isActive;
 
 		const [updated] = await db

@@ -35,6 +35,7 @@ function RouteComponent() {
 		tuition: number | null;
 		capacity: number | null;
 		accreditation: string | null;
+		averageScore: number | null;
 		isActive: boolean;
 	};
 	const [editProgram, setEditProgram] = useState<ProgramData | null>(null);
@@ -108,6 +109,7 @@ function RouteComponent() {
 							<TableHead>Biaya</TableHead>
 							<TableHead>Kapasitas</TableHead>
 							<TableHead>Akreditasi</TableHead>
+							<TableHead>Skor Rata-rata</TableHead>
 							<TableHead>Status</TableHead>
 							<TableHead>Aksi</TableHead>
 						</TableRow>
@@ -115,13 +117,13 @@ function RouteComponent() {
 					<TableBody>
 						{isProgramsLoading ? (
 							<TableRow>
-								<TableCell colSpan={8} className="h-24 text-center">
+								<TableCell colSpan={9} className="h-24 text-center">
 									Memuat program...
 								</TableCell>
 							</TableRow>
 						) : !programs?.data || programs.data.length === 0 ? (
 							<TableRow>
-								<TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
+								<TableCell colSpan={9} className="h-24 text-center text-muted-foreground">
 									Belum ada program studi yang ditautkan.
 								</TableCell>
 							</TableRow>
