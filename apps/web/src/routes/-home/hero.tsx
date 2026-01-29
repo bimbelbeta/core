@@ -73,7 +73,7 @@ export function Hero() {
 			</div>
 
 			<MotionFloat delay={0.3}>
-				<Image src="/images/home/Hero Image.png" alt="Hero Illustration" layout="fullWidth" className="" />
+				<Image src="/images/home/Hero Image.png" alt="Hero Illustration" layout="fullWidth" className="" priority />
 			</MotionFloat>
 		</section>
 	);
