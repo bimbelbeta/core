@@ -68,10 +68,7 @@ function RouteComponent() {
 		const newPage = updates.q !== undefined && updates.q !== q ? 0 : (updates.page ?? page);
 
 		navigate({
-			search: {
-				q: newQ || undefined,
-				page: newPage,
-			},
+			search: newQ ? { q: newQ, page: newPage } : { page: newPage },
 		});
 	};
 
