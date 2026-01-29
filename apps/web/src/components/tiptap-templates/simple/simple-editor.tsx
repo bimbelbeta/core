@@ -116,7 +116,7 @@ const MainToolbarContent = ({
 			<ToolbarSeparator />
 
 			<ToolbarGroup>
-        {/*<ImageUploadButton text="Add" />*/}
+				{/*<ImageUploadButton text="Add" />*/}
 				<ImageLinkPopover />
 			</ToolbarGroup>
 
