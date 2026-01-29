@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useIsAdmin } from "@/utils/is-admin";
 import type { SubjectListItem } from "./classes-types";
+import { NotFoundContentState } from "./not-found-content-state";
 import { SubjectCard } from "./subject-card";
 
 export function SubjectList({
@@ -54,7 +55,7 @@ export function SubjectList({
 	};
 
 	return (
-		<div className="">
+		<div>
 			<div className="flex items-center justify-between">
 				{isLoading && !error && <p className="text-muted-foreground text-xs">Memuat...</p>}
 				{isAdmin && onCreate && (
@@ -67,6 +68,13 @@ export function SubjectList({
 
 			{error && <p className="text-red-500 text-sm">{error}</p>}
 
+			{/*{items && items.length === 0 && (
+        <NotFoundContentState
+          title="Tidak ada subject yang ditemukan"
+          desc="Coba cari dengan kata kunci lain atau hubungi admin."
+        />
+      )}*/}
+
 			{searchQuery && items && items.length > 0 && (
 				<p className="mb-4 text-muted-foreground text-sm">
 					{items.length} hasil untuk "{searchQuery}"
@@ -74,7 +82,10 @@ export function SubjectList({
 			)}
 
 			{!isLoading && !error && (!localItems || localItems.length === 0) && (
-				<p className="text-muted-foreground text-sm">Tidak ada subject yang ditemukan</p>
+				<NotFoundContentState
+					title="Tidak ada subject yang ditemukan"
+					desc="Coba cari dengan kata kunci lain atau hubungi admin."
+				/>
 			)}
 
 			{localItems &&

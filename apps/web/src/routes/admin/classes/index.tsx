@@ -3,7 +3,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import type { SubjectListItem } from "@/components/classes/classes-types";
 import { CreateSubjectDialog } from "@/components/classes/create-subject-dialog";
-import { NotFoundContentState } from "@/components/classes/not-found-content-state";
 import { SubjectFilters } from "@/components/classes/subject-filters";
 import { SubjectHeader } from "@/components/classes/subject-header";
 import { SubjectList } from "@/components/classes/subject-list";
@@ -95,14 +94,7 @@ function RouteComponent() {
 
 				{subjectsQuery.isError && <p className="text-red-500">Error: {subjectsQuery.error.message}</p>}
 
-				{subjectsQuery.data && subjectsQuery.data.length === 0 && (
-					<NotFoundContentState
-						title="Tidak ada kelas yang ditemukan"
-						desc="Coba cari dengan kata kunci lain atau hubungi admin."
-					/>
-				)}
-
-				{subjectsQuery.data && subjectsQuery.data.length > 0 && (
+				{subjectsQuery.data && (
 					<SubjectList
 						items={subjectsQuery.data as SubjectListItem[]}
 						isLoading={subjectsQuery.isPending}

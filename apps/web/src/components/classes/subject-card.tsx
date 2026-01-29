@@ -1,14 +1,19 @@
-import { ArrowRightIcon, LockIcon, LockKeyIcon, PencilSimpleIcon } from "@phosphor-icons/react";
+import { ArrowRightIcon, LockIcon, LockKeyIcon, PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { isSubjectPremium } from "@/lib/premium-config";
 import { cn } from "@/lib/utils";
 import { useIsAdmin } from "@/utils/is-admin";
 import { Badge } from "../ui/badge";
-import { buttonVariants } from "../ui/button";
+import { Button, buttonVariants } from "../ui/button";
 import type { SubjectListItem } from "./classes-types";
+import { DeleteSubjectDialog } from "./delete-subject-dialog";
+import { EditSubjectDialog } from "./edit-subject-dialog";
 
 export function SubjectCard({ subject }: { subject: SubjectListItem }) {
+	const [editOpen, setEditOpen] = useState(false);
+	const [deleteOpen, setDeleteOpen] = useState(false);
 	const isAdmin = useIsAdmin();
 	const role = isAdmin ? "admin" : "user";
 	const isPremiumSubject = isSubjectPremium(subject?.order ?? 1, role, false);
@@ -60,16 +65,46 @@ export function SubjectCard({ subject }: { subject: SubjectListItem }) {
 							{subject.hasViewed && <Badge className="font-normal">Sudah Pernah Dibuka</Badge>}
 						</div>
 
-						<Link
-							to={isAdmin ? "/admin/classes/$subjectId" : "/classes/$subjectId"}
-							params={{ subjectId: Number(subject.id) }}
-							className={cn(buttonVariants({ size: "icon" }), "z-10 mt-auto mb-0")}
-						>
-							{isAdmin ? <PencilSimpleIcon size={18} weight="bold" /> : <ArrowRightIcon size={18} weight="bold" />}
-						</Link>
+						<div className="flex items-center gap-2">
+							{isAdmin && (
+								<>
+									<Button
+										type="button"
+										size="icon"
+										variant="outline"
+										onClick={() => setEditOpen(true)}
+										className="z-10"
+									>
+										<PencilSimpleIcon size={18} weight="bold" />
+									</Button>
+									<Button
+										type="button"
+										size="icon"
+										variant="destructive"
+										onClick={() => setDeleteOpen(true)}
+										className="z-10"
+									>
+										<TrashIcon size={18} weight="bold" />
+									</Button>
+								</>
+							)}
+							<Link
+								to={isAdmin ? "/admin/classes/$subjectId" : "/classes/$subjectId"}
+								params={{ subjectId: Number(subject.id) }}
+								className={cn(buttonVariants({ size: "icon" }), "z-10")}
+							>
+								<ArrowRightIcon size={18} weight="bold" />
+							</Link>
+						</div>
 					</div>
 				)}
 			</div>
+
+			{/* Edit Subject Dialog */}
+			<EditSubjectDialog open={editOpen} onOpenChange={setEditOpen} subject={subject} />
+
+			{/* Delete Subject Dialog */}
+			<DeleteSubjectDialog open={deleteOpen} onOpenChange={setDeleteOpen} subject={subject} />
 		</Card>
 	);
 }

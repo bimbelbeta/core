@@ -1,5 +1,5 @@
+import { UserFocusIcon } from "@phosphor-icons/react/dist/ssr";
 import { Link } from "@tanstack/react-router";
-
 import {
 	SidebarGroup,
 	SidebarGroupLabel,
@@ -32,6 +32,17 @@ export function NavMain({
 						</SidebarMenuButton>
 					</SidebarMenuItem>
 				))}
+			</SidebarMenu>
+			<SidebarGroupLabel>Other</SidebarGroupLabel>
+			<SidebarMenu>
+				<SidebarMenuItem>
+					<SidebarMenuButton asChild tooltip="Dashboard User">
+						<Link to="/dashboard">
+							<UserFocusIcon weight="regular" />
+							<span>User Dashboard</span>
+						</Link>
+					</SidebarMenuButton>
+				</SidebarMenuItem>
 			</SidebarMenu>
 		</SidebarGroup>
 	);

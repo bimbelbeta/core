@@ -26,11 +26,7 @@ export const Route = createFileRoute("/_auth/login")({
 function RouteComponent() {
 	return (
 		<main className="relative flex min-h-screen w-full flex-col items-center px-4 pt-40 pb-12">
-			<Button
-				asChild
-				variant="outline"
-				className="absolute top-4 left-4 border border-primary/50 bg-white text-primary hover:bg-primary/10"
-			>
+			<Button asChild variant="outline" className="absolute top-4 left-4">
 				<Link to="/">
 					<ArrowLeftIcon />
 					Kembali
@@ -93,10 +89,10 @@ function SignInForm() {
 
 	return (
 		<div className="relative w-full max-w-md">
-			<div className="absolute -top-8 left-1/2 z-0 -translate-x-1/2 -translate-y-1/2">
-				<Image src="/avatar/login-avatar.webp" alt="Study Avatar" width={200} height={200} />
+			<div className="absolute left-1/2 z-50 -translate-x-1/2 -translate-y-full">
+				<Image src="/images/main-card-kelas.webp" alt="Study Avatar" width={200} height={200} />
 			</div>
-			<div className="relative z-10 w-full rounded-sm border border-primary/50 bg-white p-8 pt-20 shadow-lg">
+			<div className="relative z-10 w-full rounded-sm border border-primary/50 bg-white p-8 shadow-lg">
 				<div className="flex flex-col items-center gap-2 text-center">
 					<h1 className="text-3xl text-primary">
 						<span className="font-bold">Selamat Datang </span>

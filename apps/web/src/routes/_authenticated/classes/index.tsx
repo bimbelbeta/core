@@ -107,7 +107,6 @@ function RouteComponent() {
 						isLoading={subjectsQuery.isPending}
 						error={subjectsQuery.isError ? subjectsQuery.error.message : undefined}
 						searchQuery={searchQuery}
-						onCreate={isAdmin ? () => setCreateOpen(true) : undefined}
 					/>
 				)}
 			</div>

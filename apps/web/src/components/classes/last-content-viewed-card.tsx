@@ -23,8 +23,8 @@ const DASHBOARD_CONTENT_ACTIONS = [
 		className: (completed?: boolean | null) =>
 			completed ? "bg-green-100 text-green-700" : "bg-tertiary-500 text-neutral-100",
 		width: "w-fit",
-  },
-  {
+	},
+	{
 		key: "latihan-soal",
 		label: "Latihan Soal",
 		icon: NoteIcon,
