@@ -7,7 +7,7 @@ interface TiptapSimpleEditorProps {
 
 export default function TiptapSimpleEditor({ content, onChange }: TiptapSimpleEditorProps) {
 	return (
-		<div className="min-h-[400px]">
+		<div className="flex max-h-[400px] min-h-[120px] flex-col">
 			<SimpleEditor content={content as object} onChange={onChange} />
 		</div>
 	);

@@ -41,8 +41,8 @@ export function EditQuestionForm({ question, onSuccess, onCancel }: EditQuestion
 		onSubmit: async ({ value }) => {
 			updateMutation.mutate({
 				id: question.id,
-				content: JSON.stringify(value.content),
-				discussion: JSON.stringify(value.discussion),
+				content: value.content,
+				discussion: value.discussion,
 				essayCorrectAnswer: question.type === "essay" ? value.essayCorrectAnswer : undefined,
 				tags: value.tags.length > 0 ? value.tags : undefined,
 			});
