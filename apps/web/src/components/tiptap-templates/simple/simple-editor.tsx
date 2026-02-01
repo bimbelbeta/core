@@ -13,6 +13,7 @@ import { EditorContent, EditorContext, useEditor } from "@tiptap/react";
 import { StarterKit } from "@tiptap/starter-kit";
 import { useEffect, useRef, useState } from "react";
 import { HorizontalRule } from "@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node-extension";
+import { ImageUploadNode } from "@/components/tiptap-node/image-upload-node/image-upload-node-extension";
 // --- UI Primitives ---
 import { Button } from "@/components/tiptap-ui-primitive/button";
 import { Spacer } from "@/components/tiptap-ui-primitive/spacer";
@@ -48,10 +49,12 @@ import { useCursorVisibility } from "@/hooks/use-cursor-visibility";
 // --- Hooks ---
 import { useIsBreakpoint } from "@/hooks/use-is-breakpoint";
 import { useWindowSize } from "@/hooks/use-window-size";
+import { handleImageUpload, MAX_FILE_SIZE } from "@/lib/tiptap-utils";
 
 // --- Styles ---
 import "@/components/tiptap-templates/simple/simple-editor.scss";
 import { ImageLinkPopover } from "@/components/tiptap-ui/image-link-popover";
+import { ImageUploadButton } from "@/components/tiptap-ui/image-upload-button";
 
 interface SimpleEditorProps {
 	content?: object;
@@ -116,7 +119,7 @@ const MainToolbarContent = ({
 			<ToolbarSeparator />
 
 			<ToolbarGroup>
-				{/*<ImageUploadButton text="Add" />*/}
+				<ImageUploadButton text="Add" />
 				<ImageLinkPopover />
 			</ToolbarGroup>
 
@@ -179,18 +182,24 @@ export function SimpleEditor({ content, onChange }: SimpleEditorProps) {
 			Superscript,
 			Subscript,
 			Selection,
-			// ImageUploadNode.configure({
-			// 	accept: "image/*",
-			// 	maxSize: MAX_FILE_SIZE,
-			// 	limit: 3,
-			// 	upload: handleImageUpload,
-			// 	onError: (error) => console.error("Upload failed:", error),
-			// }),
+			ImageUploadNode.configure({
+				accept: "image/*",
+				maxSize: MAX_FILE_SIZE,
+				limit: 3,
+				upload: handleImageUpload,
+				onError: (error: Error & { type?: string }) => {
+					console.error("[SimpleEditor] Upload failed:", error);
+					console.error("[SimpleEditor] Error type:", error?.type);
+					console.error("[SimpleEditor] Error message:", error?.message);
+				},
+			}),
 		],
 		content,
 		onUpdate: ({ editor }) => {
 			if (onChange) {
-				onChange(editor.getJSON());
+				const json = editor.getJSON();
+				console.log("[SimpleEditor] onUpdate - content:", JSON.stringify(json).slice(0, 200));
+				onChange(json);
 			}
 		},
 	});

@@ -73,3 +73,6 @@ const client: RouterClient<typeof appRouter> = createORPCClient(
 export type BodyOutputs = InferClientBodyOutputs<typeof client>;
 
 export const orpc = createTanstackQueryUtils(client);
+
+// Export raw client for direct API calls outside of React components
+export { client };

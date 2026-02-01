@@ -414,6 +414,7 @@ export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
 
 	const handleUpload = async (files: File[]) => {
 		const urls = await uploadFiles(files);
+		console.log("[ImageUpload] Upload complete, URLs:", urls);
 
 		if (urls.length > 0) {
 			const pos = props.getPos();
@@ -422,15 +423,17 @@ export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
 				const imageNodes = urls.map((url, index) => {
 					const filename = files[index]?.name.replace(/\.[^/.]+$/, "") || "unknown";
 					return {
-						type: extension.options.type,
+						type: "image",
 						attrs: {
-							...extension.options,
 							src: url,
 							alt: filename,
 							title: filename,
 						},
 					};
 				});
+
+				console.log("[ImageUpload] Inserting image nodes:", imageNodes);
+				console.log("[ImageUpload] Replacing placeholder at pos:", pos);
 
 				props.editor
 					.chain()

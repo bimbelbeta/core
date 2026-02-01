@@ -4,7 +4,7 @@ import { AllSelection, NodeSelection, Selection, TextSelection } from "@tiptap/p
 import { CellSelection, cellAround } from "@tiptap/pm/tables";
 import { type Editor, findParentNodeClosestToPos, type NodeWithPos } from "@tiptap/react";
 
-export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+export const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1MB
 
 export const MAC_SYMBOLS: Record<string, string> = {
 	mod: "⌘",
@@ -319,6 +319,7 @@ export function selectionWithinConvertibleTypes(editor: Editor, types: string[] 
 
 /**
  * Handles image upload with progress tracking and abort capability
+ * Uses better-upload client for proper request formatting
  * @param file The file to upload
  * @param onProgress Optional callback for tracking upload progress
  * @param abortSignal Optional AbortSignal for cancelling the upload
@@ -338,17 +339,48 @@ export const handleImageUpload = async (
 		throw new Error(`File size exceeds maximum allowed (${MAX_FILE_SIZE / (1024 * 1024)}MB)`);
 	}
 
-	// For demo/testing: Simulate upload progress. In production, replace the following code
-	// with your own upload implementation.
-	for (let progress = 0; progress <= 100; progress += 10) {
-		if (abortSignal?.aborted) {
-			throw new Error("Upload cancelled");
-		}
-		await new Promise((resolve) => setTimeout(resolve, 500));
-		onProgress?.({ progress });
+	const { uploadFile } = await import("@better-upload/client");
+	const { getApiUrl } = await import("@/utils/orpc");
+	const apiUrl = getApiUrl();
+
+	// Upload the file
+	const result = await uploadFile({
+		file,
+		route: "tiptap",
+		api: `${apiUrl}/upload`,
+		credentials: "include",
+		onFileStateChange: (data) => {
+			// Progress is 0-1, convert to 0-100
+			onProgress?.({ progress: Math.round(data.file.progress * 100) });
+		},
+		signal: abortSignal,
+	});
+
+	const uploadedFile = result.file;
+
+	// Construct URL from the S3 object key (SeaweedFS path: /buckets/{bucket}/{key})
+	const s3Host = "http://s3-gw848o8k8o40wog4o0sgcs0w.15.235.206.134.sslip.io";
+	const bucket = "temp";
+	const url = `${s3Host}/buckets/${bucket}/${uploadedFile.objectInfo.key}`;
+
+	// Register the upload in the database
+	try {
+		const { client } = await import("@/utils/orpc");
+		await client.upload.register({
+			originalName: file.name,
+			filename: uploadedFile.objectInfo.key,
+			fileSize: file.size,
+			mimeType: file.type,
+			s3Key: uploadedFile.objectInfo.key,
+			s3Url: url,
+			bucket: bucket,
+		});
+	} catch (error) {
+		console.error("Failed to register upload in database:", error);
+		// Still return the URL even if DB registration fails
 	}
 
-	return "/images/tiptap-ui-placeholder-image.jpg";
+	return url;
 };
 
 type ProtocolOptions = {

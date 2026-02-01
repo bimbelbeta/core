@@ -54,10 +54,10 @@ export function TryoutStartConfirmation({ children, disabled = false }: TryoutSt
 		api: `${getApiUrl()}/upload`,
 		credentials: "include",
 		onUploadComplete: ({ file }) => {
-			// Construct URL from the S3 object key
+			// Construct URL from the S3 object key (SeaweedFS path: /buckets/{bucket}/{key})
 			const s3Host = "http://s3-gw848o8k8o40wog4o0sgcs0w.15.235.206.134.sslip.io";
 			const bucket = "temp";
-			const url = `${s3Host}/${bucket}/${file.objectInfo.key}`;
+			const url = `${s3Host}/buckets/${bucket}/${file.objectInfo.key}`;
 			setUploadedUrl(url);
 			setErrors(null);
 		},

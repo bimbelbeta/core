@@ -13,6 +13,11 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 
+// Debug: Log S3 configuration on startup
+console.log("[S3 Config] Endpoint:", process.env.S3_ENDPOINT || "(empty)");
+console.log("[S3 Config] Access Key:", process.env.S3_ACCESS_KEY ? `${process.env.S3_ACCESS_KEY.slice(0, 4)}...` : "(empty)");
+console.log("[S3 Config] Bucket:", process.env.S3_BUCKET || "(empty)");
+
 const router: Router = {
 	client: custom({
 		host: process.env.S3_ENDPOINT || "",
@@ -27,6 +32,10 @@ const router: Router = {
 		tryout: route({
 			fileTypes: ["image/*"],
 			maxFileSize: 1024 * 1024 * 2,
+		}),
+		tiptap: route({
+			fileTypes: ["image/*"],
+			maxFileSize: 1024 * 1024 * 1, // 1MB limit
 		}),
 	},
 };

@@ -4,6 +4,7 @@ import { pub } from "../index";
 import { adminRouter } from "./admin";
 import { creditRouter } from "./credit";
 import { productRouter } from "./product";
+import { fileUploadRouter } from "./file-upload";
 import { subjectRouter } from "./subject";
 import { transactionRouter } from "./transaction";
 import { tryoutRouter } from "./tryout";
@@ -29,6 +30,7 @@ export const appRouter = {
 	credit: creditRouter,
 	product: productRouter,
 	userSettings: userSettingsRouter,
+	upload: fileUploadRouter,
 };
 
 export type AppRouter = typeof appRouter;
