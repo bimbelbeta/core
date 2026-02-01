@@ -3,6 +3,7 @@ import { type } from "arktype";
 import { pub } from "../index";
 import { adminRouter } from "./admin";
 import { creditRouter } from "./credit";
+import { productRouter } from "./product";
 import { subjectRouter } from "./subject";
 import { transactionRouter } from "./transaction";
 import { tryoutRouter } from "./tryout";
@@ -26,6 +27,7 @@ export const appRouter = {
 	admin: adminRouter,
 	transaction: transactionRouter,
 	credit: creditRouter,
+	product: productRouter,
 	userSettings: userSettingsRouter,
 };
 

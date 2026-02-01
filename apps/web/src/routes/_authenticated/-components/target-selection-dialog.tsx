@@ -32,7 +32,7 @@ export function TargetSelectionDialog() {
 
 	const [open, setOpen] = useState<boolean>(false);
 	useEffect(() => {
-		if (data && !data.studyProgram) setOpen(true);
+		if (data && !data.studyProgramData) setOpen(true);
 	}, [data]);
 
 	const setMutation = useMutation(

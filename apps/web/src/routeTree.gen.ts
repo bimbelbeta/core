@@ -39,9 +39,6 @@ import { Route as AuthenticatedClassesSubjectIdIndexRouteImport } from './routes
 import { Route as AdminClassesSubjectIdContentIdRouteImport } from './routes/admin/classes/$subjectId/$contentId'
 import { Route as AdminSuperadminUsersUserIdRouteImport } from './routes/admin/_superadmin/users/$userId'
 import { Route as AuthenticatedTryoutResultsAttemptIdRouteImport } from './routes/_authenticated/tryout/results.$attemptId'
-import { Route as AuthenticatedPremiumPaymentUnfinishRouteImport } from './routes/_authenticated/premium/payment/unfinish'
-import { Route as AuthenticatedPremiumPaymentFinishRouteImport } from './routes/_authenticated/premium/payment/finish'
-import { Route as AuthenticatedPremiumPaymentErrorRouteImport } from './routes/_authenticated/premium/payment/error'
 import { Route as AuthenticatedClassesSubjectIdContentIdRouteImport } from './routes/_authenticated/classes/$subjectId/$contentId'
 import { Route as AdminClassesSubjectIdContentIdVideoRouteImport } from './routes/admin/classes/$subjectId/$contentId.video'
 import { Route as AdminClassesSubjectIdContentIdNotesRouteImport } from './routes/admin/classes/$subjectId/$contentId.notes'
@@ -213,24 +210,6 @@ const AuthenticatedTryoutResultsAttemptIdRoute =
     path: '/tryout/results/$attemptId',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedPremiumPaymentUnfinishRoute =
-  AuthenticatedPremiumPaymentUnfinishRouteImport.update({
-    id: '/payment/unfinish',
-    path: '/payment/unfinish',
-    getParentRoute: () => AuthenticatedPremiumRoute,
-  } as any)
-const AuthenticatedPremiumPaymentFinishRoute =
-  AuthenticatedPremiumPaymentFinishRouteImport.update({
-    id: '/payment/finish',
-    path: '/payment/finish',
-    getParentRoute: () => AuthenticatedPremiumRoute,
-  } as any)
-const AuthenticatedPremiumPaymentErrorRoute =
-  AuthenticatedPremiumPaymentErrorRouteImport.update({
-    id: '/payment/error',
-    path: '/payment/error',
-    getParentRoute: () => AuthenticatedPremiumRoute,
-  } as any)
 const AuthenticatedClassesSubjectIdContentIdRoute =
   AuthenticatedClassesSubjectIdContentIdRouteImport.update({
     id: '/classes/$subjectId/$contentId',
@@ -299,7 +278,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/reset-password': typeof AuthResetPasswordRoute
-  '/premium': typeof AuthenticatedPremiumRouteWithChildren
+  '/premium': typeof AuthenticatedPremiumRoute
   '/admin/': typeof AdminIndexRoute
   '/tryout/$tryoutId': typeof AuthenticatedTryoutTryoutIdRoute
   '/admin/passing-grades/$universityId': typeof AdminPassingGradesUniversityIdRoute
@@ -314,9 +293,6 @@ export interface FileRoutesByFullPath {
   '/admin/questions/': typeof AdminQuestionsIndexRoute
   '/admin/tryouts/': typeof AdminTryoutsIndexRoute
   '/classes/$subjectId/$contentId': typeof AuthenticatedClassesSubjectIdContentIdRouteWithChildren
-  '/premium/payment/error': typeof AuthenticatedPremiumPaymentErrorRoute
-  '/premium/payment/finish': typeof AuthenticatedPremiumPaymentFinishRoute
-  '/premium/payment/unfinish': typeof AuthenticatedPremiumPaymentUnfinishRoute
   '/tryout/results/$attemptId': typeof AuthenticatedTryoutResultsAttemptIdRoute
   '/admin/users/$userId': typeof AdminSuperadminUsersUserIdRoute
   '/admin/classes/$subjectId/$contentId': typeof AdminClassesSubjectIdContentIdRouteWithChildren
@@ -340,7 +316,7 @@ export interface FileRoutesByTo {
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/reset-password': typeof AuthResetPasswordRoute
-  '/premium': typeof AuthenticatedPremiumRouteWithChildren
+  '/premium': typeof AuthenticatedPremiumRoute
   '/admin': typeof AdminIndexRoute
   '/tryout/$tryoutId': typeof AuthenticatedTryoutTryoutIdRoute
   '/admin/passing-grades/$universityId': typeof AdminPassingGradesUniversityIdRoute
@@ -355,9 +331,6 @@ export interface FileRoutesByTo {
   '/admin/questions': typeof AdminQuestionsIndexRoute
   '/admin/tryouts': typeof AdminTryoutsIndexRoute
   '/classes/$subjectId/$contentId': typeof AuthenticatedClassesSubjectIdContentIdRouteWithChildren
-  '/premium/payment/error': typeof AuthenticatedPremiumPaymentErrorRoute
-  '/premium/payment/finish': typeof AuthenticatedPremiumPaymentFinishRoute
-  '/premium/payment/unfinish': typeof AuthenticatedPremiumPaymentUnfinishRoute
   '/tryout/results/$attemptId': typeof AuthenticatedTryoutResultsAttemptIdRoute
   '/admin/users/$userId': typeof AdminSuperadminUsersUserIdRoute
   '/admin/classes/$subjectId/$contentId': typeof AdminClassesSubjectIdContentIdRouteWithChildren
@@ -385,7 +358,7 @@ export interface FileRoutesById {
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/register': typeof AuthRegisterRoute
   '/_auth/reset-password': typeof AuthResetPasswordRoute
-  '/_authenticated/premium': typeof AuthenticatedPremiumRouteWithChildren
+  '/_authenticated/premium': typeof AuthenticatedPremiumRoute
   '/admin/_superadmin': typeof AdminSuperadminRouteWithChildren
   '/admin/': typeof AdminIndexRoute
   '/_authenticated/tryout/$tryoutId': typeof AuthenticatedTryoutTryoutIdRoute
@@ -401,9 +374,6 @@ export interface FileRoutesById {
   '/admin/questions/': typeof AdminQuestionsIndexRoute
   '/admin/tryouts/': typeof AdminTryoutsIndexRoute
   '/_authenticated/classes/$subjectId/$contentId': typeof AuthenticatedClassesSubjectIdContentIdRouteWithChildren
-  '/_authenticated/premium/payment/error': typeof AuthenticatedPremiumPaymentErrorRoute
-  '/_authenticated/premium/payment/finish': typeof AuthenticatedPremiumPaymentFinishRoute
-  '/_authenticated/premium/payment/unfinish': typeof AuthenticatedPremiumPaymentUnfinishRoute
   '/_authenticated/tryout/results/$attemptId': typeof AuthenticatedTryoutResultsAttemptIdRoute
   '/admin/_superadmin/users/$userId': typeof AdminSuperadminUsersUserIdRoute
   '/admin/classes/$subjectId/$contentId': typeof AdminClassesSubjectIdContentIdRouteWithChildren
@@ -445,9 +415,6 @@ export interface FileRouteTypes {
     | '/admin/questions/'
     | '/admin/tryouts/'
     | '/classes/$subjectId/$contentId'
-    | '/premium/payment/error'
-    | '/premium/payment/finish'
-    | '/premium/payment/unfinish'
     | '/tryout/results/$attemptId'
     | '/admin/users/$userId'
     | '/admin/classes/$subjectId/$contentId'
@@ -486,9 +453,6 @@ export interface FileRouteTypes {
     | '/admin/questions'
     | '/admin/tryouts'
     | '/classes/$subjectId/$contentId'
-    | '/premium/payment/error'
-    | '/premium/payment/finish'
-    | '/premium/payment/unfinish'
     | '/tryout/results/$attemptId'
     | '/admin/users/$userId'
     | '/admin/classes/$subjectId/$contentId'
@@ -531,9 +495,6 @@ export interface FileRouteTypes {
     | '/admin/questions/'
     | '/admin/tryouts/'
     | '/_authenticated/classes/$subjectId/$contentId'
-    | '/_authenticated/premium/payment/error'
-    | '/_authenticated/premium/payment/finish'
-    | '/_authenticated/premium/payment/unfinish'
     | '/_authenticated/tryout/results/$attemptId'
     | '/admin/_superadmin/users/$userId'
     | '/admin/classes/$subjectId/$contentId'
@@ -771,27 +732,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTryoutResultsAttemptIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/premium/payment/unfinish': {
-      id: '/_authenticated/premium/payment/unfinish'
-      path: '/payment/unfinish'
-      fullPath: '/premium/payment/unfinish'
-      preLoaderRoute: typeof AuthenticatedPremiumPaymentUnfinishRouteImport
-      parentRoute: typeof AuthenticatedPremiumRoute
-    }
-    '/_authenticated/premium/payment/finish': {
-      id: '/_authenticated/premium/payment/finish'
-      path: '/payment/finish'
-      fullPath: '/premium/payment/finish'
-      preLoaderRoute: typeof AuthenticatedPremiumPaymentFinishRouteImport
-      parentRoute: typeof AuthenticatedPremiumRoute
-    }
-    '/_authenticated/premium/payment/error': {
-      id: '/_authenticated/premium/payment/error'
-      path: '/payment/error'
-      fullPath: '/premium/payment/error'
-      preLoaderRoute: typeof AuthenticatedPremiumPaymentErrorRouteImport
-      parentRoute: typeof AuthenticatedPremiumRoute
-    }
     '/_authenticated/classes/$subjectId/$contentId': {
       id: '/_authenticated/classes/$subjectId/$contentId'
       path: '/classes/$subjectId/$contentId'
@@ -881,23 +821,6 @@ const AuthRouteChildren: AuthRouteChildren = {
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
-interface AuthenticatedPremiumRouteChildren {
-  AuthenticatedPremiumPaymentErrorRoute: typeof AuthenticatedPremiumPaymentErrorRoute
-  AuthenticatedPremiumPaymentFinishRoute: typeof AuthenticatedPremiumPaymentFinishRoute
-  AuthenticatedPremiumPaymentUnfinishRoute: typeof AuthenticatedPremiumPaymentUnfinishRoute
-}
-
-const AuthenticatedPremiumRouteChildren: AuthenticatedPremiumRouteChildren = {
-  AuthenticatedPremiumPaymentErrorRoute: AuthenticatedPremiumPaymentErrorRoute,
-  AuthenticatedPremiumPaymentFinishRoute:
-    AuthenticatedPremiumPaymentFinishRoute,
-  AuthenticatedPremiumPaymentUnfinishRoute:
-    AuthenticatedPremiumPaymentUnfinishRoute,
-}
-
-const AuthenticatedPremiumRouteWithChildren =
-  AuthenticatedPremiumRoute._addFileChildren(AuthenticatedPremiumRouteChildren)
-
 interface AuthenticatedClassesSubjectIdContentIdRouteChildren {
   AuthenticatedClassesSubjectIdContentIdLatihanSoalRoute: typeof AuthenticatedClassesSubjectIdContentIdLatihanSoalRoute
   AuthenticatedClassesSubjectIdContentIdNotesRoute: typeof AuthenticatedClassesSubjectIdContentIdNotesRoute
@@ -920,7 +843,7 @@ const AuthenticatedClassesSubjectIdContentIdRouteWithChildren =
   )
 
 interface AuthenticatedRouteChildren {
-  AuthenticatedPremiumRoute: typeof AuthenticatedPremiumRouteWithChildren
+  AuthenticatedPremiumRoute: typeof AuthenticatedPremiumRoute
   AuthenticatedTryoutTryoutIdRoute: typeof AuthenticatedTryoutTryoutIdRoute
   AuthenticatedClassesIndexRoute: typeof AuthenticatedClassesIndexRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
@@ -932,7 +855,7 @@ interface AuthenticatedRouteChildren {
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
-  AuthenticatedPremiumRoute: AuthenticatedPremiumRouteWithChildren,
+  AuthenticatedPremiumRoute: AuthenticatedPremiumRoute,
   AuthenticatedTryoutTryoutIdRoute: AuthenticatedTryoutTryoutIdRoute,
   AuthenticatedClassesIndexRoute: AuthenticatedClassesIndexRoute,
   AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,

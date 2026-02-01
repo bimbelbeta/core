@@ -6,8 +6,34 @@ import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { eq, sql } from "drizzle-orm";
 import { authed, pub } from "..";
-import { PREMIUM_DEADLINE } from "../lib/constants";
 import { createSubscriptionTransaction } from "../lib/midtrans";
+
+/**
+ * Calculate expiry date for fixed-date variant.
+ * If purchased before the fixed date this year → expires this year
+ * If purchased after the fixed date this year → expires next year
+ */
+function calculateFixedDateExpiry(purchaseDate: Date, month: number, day: number): Date {
+	const currentYear = purchaseDate.getFullYear();
+	const thisYearExpiry = new Date(currentYear, month - 1, day);
+
+	// If purchase date is past this year's expiry, move to next year
+	if (purchaseDate > thisYearExpiry) {
+		return new Date(currentYear + 1, month - 1, day);
+	}
+
+	return thisYearExpiry;
+}
+
+/**
+ * Calculate expiry date for monthly variant.
+ * Adds duration days to the purchase date.
+ */
+function calculateMonthlyExpiry(purchaseDate: Date, durationDays: number): Date {
+	const expiry = new Date(purchaseDate);
+	expiry.setDate(expiry.getDate() + durationDays);
+	return expiry;
+}
 
 const subscribe = authed
 	.route({
@@ -30,12 +56,11 @@ const subscribe = authed
 		const [plan] = await db.select().from(product).where(eq(product.slug, input.slug)).limit(1);
 		if (!plan) throw errors.NOT_FOUND({ message: "Produk tidak ditemukan." });
 
-		// Validate subscription-specific rules
-		if (plan.type === "subscription" && plan.slug === "premium") {
+		// Check if user already has an active premium subscription
+		// This applies to both fixed_date and monthly variants
+		if (plan.variant === "fixed_date" || plan.variant === "monthly") {
 			if (context.session.user.isPremium)
 				throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah menjadi member premium." });
-			if (Date.now() > PREMIUM_DEADLINE.getTime())
-				throw errors.UNPROCESSABLE_CONTENT({ message: "Produk premium tidak tersedia lagi." });
 		}
 
 		const grossAmount = plan.price;
@@ -103,8 +128,11 @@ const notification = pub
 		const [existingTransaction] = await db
 			.select({
 				tx: transaction,
-				prodType: product.type,
 				prodSlug: product.slug,
+				prodVariant: product.variant,
+				prodFixedExpiryMonth: product.fixedExpiryMonth,
+				prodFixedExpiryDay: product.fixedExpiryDay,
+				prodDurationDays: product.durationDays,
 				prodCredits: product.credits,
 			})
 			.from(transaction)
@@ -118,9 +146,24 @@ const notification = pub
 		}
 
 		const tx = existingTransaction.tx;
-		const isPremiumSubscription =
-			existingTransaction.prodType === "subscription" && existingTransaction.prodSlug === "premium";
-		const isCreditProduct = existingTransaction.prodType === "product" && existingTransaction.prodCredits;
+
+		// Calculate benefits based on product variant
+		const variant = existingTransaction.prodVariant;
+		const purchaseDate = new Date();
+		let premiumExpiry: Date | null = null;
+
+		if (variant === "fixed_date") {
+			const month = existingTransaction.prodFixedExpiryMonth!;
+			const day = existingTransaction.prodFixedExpiryDay!;
+			premiumExpiry = calculateFixedDateExpiry(purchaseDate, month, day);
+		} else if (variant === "monthly") {
+			const days = existingTransaction.prodDurationDays!;
+			premiumExpiry = calculateMonthlyExpiry(purchaseDate, days);
+		}
+		// variant === "credits" → premiumExpiry stays null
+
+		const grantsPremium = variant === "fixed_date" || variant === "monthly";
+		const grantsCredits = existingTransaction.prodCredits && existingTransaction.prodCredits > 0;
 
 		if (tx.paidAt) {
 			console.log(`Transaction ${order_id} already processed`);
@@ -136,19 +179,20 @@ const notification = pub
 						.update(transaction)
 						.set({
 							status: "success",
-							paidAt: new Date(),
+							paidAt: purchaseDate,
 						})
 						.where(eq(transaction.id, order_id));
 
-					if (isPremiumSubscription) {
+					// Grant premium access for fixed_date and monthly variants
+					if (grantsPremium && premiumExpiry) {
 						await trx
 							.update(user)
-							.set({ isPremium: true, premiumExpiresAt: PREMIUM_DEADLINE })
+							.set({ isPremium: true, premiumExpiresAt: premiumExpiry })
 							.where(eq(user.id, tx.userId!));
 					}
 
-					// Grant tryout credits for credit product purchases
-					if (isCreditProduct) {
+					// Grant tryout credits (can be combined with premium)
+					if (grantsCredits) {
 						const creditsToAdd = existingTransaction.prodCredits!;
 
 						// Add credits to user balance

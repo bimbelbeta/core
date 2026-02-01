@@ -11,7 +11,7 @@ const get = authed
 		method: "GET",
 		tags: ["User"],
 	})
-	.handler(async ({ context, errors }) => {
+	.handler(async ({ context }) => {
 		const userId = context.session.user.id;
 
 		const [userData] = await db
@@ -40,7 +40,10 @@ const get = authed
 			},
 		});
 
-		if (!studyProgramData) throw errors.NOT_FOUND({ message: "Gagal menemukan Universitas dan Prodi." });
+		if (!studyProgramData)
+			return {
+				studyProgramData: null,
+			};
 
 		return { studyProgramData };
 	});

@@ -73,7 +73,7 @@ const list = authed
 			search: "string?",
 		}),
 	)
-	.handler(async ({ input, errors }) => {
+	.handler(async ({ input }) => {
 		const universities = await db
 			.select({
 				id: university.id,
@@ -94,9 +94,10 @@ const list = authed
 			.limit(input.limit + 1);
 
 		if (universities.length === 0)
-			throw errors.NOT_FOUND({
-				message: "Gagal menemukan data Universitas. Silahkan coba lagi nanti.",
-			});
+			return {
+				data: [],
+				nextCursor: undefined,
+			};
 
 		const hasMore = universities.length > input.limit;
 		const results = hasMore ? universities.slice(0, input.limit) : universities;
