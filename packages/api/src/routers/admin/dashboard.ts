@@ -218,13 +218,10 @@ const recentActivity = admin
 		const nextCursor = hasMore ? data[data.length - 1]!.date : null;
 
 		return {
-			data: data as Array<{
-				id: number;
-				type: "user" | "premium" | "subject" | "tryout";
-				description: string;
-				userName: string;
-				date: string;
-			}>,
+			data: data.map((item) => ({
+				...item,
+				type: item.type as "user" | "premium" | "subject" | "tryout",
+			})),
 			nextCursor: (nextCursor as string | null) ?? undefined,
 		};
 	});
