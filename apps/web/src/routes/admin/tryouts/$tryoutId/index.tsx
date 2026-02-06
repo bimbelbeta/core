@@ -3,12 +3,12 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import Loader from "@/components/loader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
@@ -80,7 +80,62 @@ function TryoutDetailPage() {
 	};
 
 	if (isPending) {
-		return <Loader />;
+		return (
+			<div className="flex h-full flex-col gap-6 p-6">
+				<div className="flex items-center gap-4">
+					<Skeleton className="size-10" />
+					<Skeleton className="h-8 w-48" />
+				</div>
+
+				<div className="grid gap-6 lg:grid-cols-2">
+					<Card>
+						<CardHeader>
+							<Skeleton className="h-6 w-40" />
+						</CardHeader>
+						<CardContent className="space-y-4">
+							<div className="space-y-2">
+								<Skeleton className="h-4 w-20" />
+								<Skeleton className="h-6 w-full" />
+							</div>
+							<div className="space-y-2">
+								<Skeleton className="h-4 w-20" />
+								<Skeleton className="h-6 w-full" />
+							</div>
+							<div className="space-y-2">
+								<Skeleton className="h-4 w-20" />
+								<Skeleton className="h-6 w-32" />
+							</div>
+							<div className="space-y-2">
+								<Skeleton className="h-4 w-20" />
+								<Skeleton className="h-6 w-32" />
+							</div>
+							<div className="space-y-2">
+								<Skeleton className="h-4 w-28" />
+								<Skeleton className="h-6 w-48" />
+							</div>
+							<div className="space-y-2">
+								<Skeleton className="h-4 w-28" />
+								<Skeleton className="h-6 w-48" />
+							</div>
+						</CardContent>
+					</Card>
+
+					<Card>
+						<CardHeader className="flex flex-row items-center justify-between">
+							<Skeleton className="h-6 w-24" />
+							<Skeleton className="h-9 w-32" />
+						</CardHeader>
+						<CardContent>
+							<div className="space-y-3">
+								<Skeleton className="h-12 w-full" />
+								<Skeleton className="h-12 w-full" />
+								<Skeleton className="h-12 w-full" />
+							</div>
+						</CardContent>
+					</Card>
+				</div>
+			</div>
+		);
 	}
 
 	if (!data?.tryout) {

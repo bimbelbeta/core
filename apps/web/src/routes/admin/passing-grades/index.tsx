@@ -76,56 +76,56 @@ function RouteComponent() {
 			<div className="rounded-lg border bg-white shadow-sm">
 				<div className="overflow-x-auto">
 					<Table>
-					<TableHeader>
-						<TableRow>
-							<TableHead className="w-12.5">No</TableHead>
-							<TableHead>Nama Universitas</TableHead>
-							<TableHead>Lokasi</TableHead>
-							<TableHead>Status</TableHead>
-							<TableHead className="text-right">Aksi</TableHead>
-						</TableRow>
-					</TableHeader>
-					<TableBody>
-						{isLoading ? (
+						<TableHeader>
 							<TableRow>
-								<TableCell colSpan={5} className="h-24 text-center">
-									Memuat data...
-								</TableCell>
+								<TableHead className="w-12.5">No</TableHead>
+								<TableHead>Nama Universitas</TableHead>
+								<TableHead>Lokasi</TableHead>
+								<TableHead>Status</TableHead>
+								<TableHead className="text-right">Aksi</TableHead>
 							</TableRow>
-						) : data?.data?.length === 0 ? (
-							<TableRow>
-								<TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
-									Tidak ada universitas ditemukan.
-								</TableCell>
-							</TableRow>
-						) : (
-							data?.data?.map((uni, index) => (
-								<TableRow key={uni.id}>
-									<TableCell>{(page ?? 0) * 10 + index + 1}</TableCell>
-									<TableCell className="font-medium">{uni.name}</TableCell>
-									<TableCell>{uni.location ?? "-"}</TableCell>
-									<TableCell>
-										<Badge variant={uni.isActive ? "default" : "secondary"}>
-											{uni.isActive ? "Aktif" : "Tidak Aktif"}
-										</Badge>
-									</TableCell>
-									<TableCell className="text-right">
-										<Button variant="ghost" size="icon" asChild>
-											<Link
-												to="/admin/passing-grades/$universityId"
-												params={{
-													universityId: uni.id.toString(),
-												}}
-											>
-												<EyeIcon className="size-4" />
-											</Link>
-										</Button>
+						</TableHeader>
+						<TableBody>
+							{isLoading ? (
+								<TableRow>
+									<TableCell colSpan={5} className="h-24 text-center">
+										Memuat data...
 									</TableCell>
 								</TableRow>
-							))
-						)}
-					</TableBody>
-				</Table>
+							) : data?.data?.length === 0 ? (
+								<TableRow>
+									<TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+										Tidak ada universitas ditemukan.
+									</TableCell>
+								</TableRow>
+							) : (
+								data?.data?.map((uni, index) => (
+									<TableRow key={uni.id}>
+										<TableCell>{(page ?? 0) * 10 + index + 1}</TableCell>
+										<TableCell className="font-medium">{uni.name}</TableCell>
+										<TableCell>{uni.location ?? "-"}</TableCell>
+										<TableCell>
+											<Badge variant={uni.isActive ? "default" : "secondary"}>
+												{uni.isActive ? "Aktif" : "Tidak Aktif"}
+											</Badge>
+										</TableCell>
+										<TableCell className="text-right">
+											<Button variant="ghost" size="icon" asChild>
+												<Link
+													to="/admin/passing-grades/$universityId"
+													params={{
+														universityId: uni.id.toString(),
+													}}
+												>
+													<EyeIcon className="size-4" />
+												</Link>
+											</Button>
+										</TableCell>
+									</TableRow>
+								))
+							)}
+						</TableBody>
+					</Table>
 				</div>
 
 				{data && (
