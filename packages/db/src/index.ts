@@ -24,4 +24,4 @@ export const db = drizzle({
 		...subject,
 		...university,
 	},
-});
+})
