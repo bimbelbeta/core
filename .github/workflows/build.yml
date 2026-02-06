@@ -3,10 +3,10 @@ name: Build
 on:
   push:
     branches: ["main"]
-    # paths:
-    #   - 'apps/web/**'
-    #   - 'apps/server/**'
-    #   - 'packages/**'
+    paths:
+      - 'apps/web/**'
+      - 'apps/server/**'
+      - 'packages/**'
 
 jobs:
   type-check:
@@ -40,9 +40,14 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: ghcr.io/bimbelbeta/web:latest
-          build-args: "TURBO_TEAM=${{ secrets.TURBO_TEAM }} TURBO_TOKEN=${{ secrets.TURBO_TOKEN }} VITE_SERVER_URL=https://api.bimbelbeta.com"
+          build-args: |
+            TURBO_TEAM=${{ secrets.TURBO_TEAM }}
+            TURBO_TOKEN=${{ secrets.TURBO_TOKEN }}
+            VITE_SERVER_URL=https://api.bimbelbeta.com
       - name: Deploy to Coolify
-        run: curl --request GET '${{ secrets.COOLIFY_WEB_WEBHOOK }}' --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
+        run: |
+          curl --request GET '${{ secrets.COOLIFY_WEB_WEBHOOK }}' \
+            --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
 
   build-server:
     needs: [type-check]
@@ -66,6 +71,10 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: ghcr.io/bimbelbeta/server:latest
-          build-args: "TURBO_TEAM=${{ secrets.TURBO_TEAM }} TURBO_TOKEN=${{ secrets.TURBO_TOKEN }}"
+          build-args: |
+            TURBO_TEAM=${{ secrets.TURBO_TEAM }}
+            TURBO_TOKEN=${{ secrets.TURBO_TOKEN }}
       - name: Deploy to Coolify
-        run: curl --request GET '${{ secrets.COOLIFY_SERVER_WEBHOOK }}' --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
+        run: |
+          curl --request GET '${{ secrets.COOLIFY_SERVER_WEBHOOK }}' \
+            --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'

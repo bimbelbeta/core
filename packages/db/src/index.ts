@@ -24,5 +24,5 @@ export const db = drizzle({
 		...subject,
 		...university,
 	},
-})
-//chore
+});
+//chore: trigger ci
