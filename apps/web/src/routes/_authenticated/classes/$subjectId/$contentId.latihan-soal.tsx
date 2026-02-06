@@ -6,7 +6,7 @@ import { EmptyContentState } from "@/components/classes/empty-content-state";
 import { PracticeQuestion } from "@/components/classes/practice-question";
 import { PracticeQuestionHeader } from "@/components/classes/practice-question-header";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
-import { parseIdParam } from "@/lib/tanstack-router-utils";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_authenticated/classes/$subjectId/$contentId/latihan-soal")({
@@ -15,8 +15,8 @@ export const Route = createFileRoute("/_authenticated/classes/$subjectId/$conten
 
 function RouteComponent() {
 	const { subjectId: rawSubjectId, contentId: rawContentId } = Route.useParams();
-	const subjectId = parseIdParam(rawSubjectId);
-	const contentId = parseIdParam(rawContentId);
+	const subjectId = parseRouteParamToNumber(rawSubjectId);
+	const contentId = parseRouteParamToNumber(rawContentId);
 	const queryClient = useQueryClient();
 
 	const content = useQuery(

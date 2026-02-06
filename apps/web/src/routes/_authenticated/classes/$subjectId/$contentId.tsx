@@ -6,7 +6,7 @@ import { NextButton } from "@/components/next-button";
 import { PremiumGateModal } from "@/components/premium/premium-gate-modal";
 import { Container } from "@/components/ui/container";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { parseIdParam } from "@/lib/tanstack-router-utils";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_authenticated/classes/$subjectId/$contentId")({
@@ -15,8 +15,8 @@ export const Route = createFileRoute("/_authenticated/classes/$subjectId/$conten
 
 function RouteComponent() {
 	const { subjectId: rawSubjectId, contentId: rawContentId } = Route.useParams();
-	const subjectId = parseIdParam(rawSubjectId);
-	const contentId = parseIdParam(rawContentId);
+	const subjectId = parseRouteParamToNumber(rawSubjectId);
+	const contentId = parseRouteParamToNumber(rawContentId);
 	const navigate = useNavigate();
 	const location = useLocation();
 	const queryClient = useQueryClient();

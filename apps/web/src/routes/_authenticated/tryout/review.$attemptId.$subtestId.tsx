@@ -5,7 +5,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import ErrorComponent from "@/components/error";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { parseIdParam } from "@/lib/tanstack-router-utils";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 
 import { QuestionReviewItem } from "./-components/question-review-item";
@@ -16,8 +16,8 @@ export const Route = createFileRoute("/_authenticated/tryout/review/$attemptId/$
 
 function RouteComponent() {
 	const { attemptId: rawAttemptId, subtestId: rawSubtestId } = Route.useParams();
-	const attemptId = parseIdParam(rawAttemptId);
-	const subtestId = parseIdParam(rawSubtestId);
+	const attemptId = parseRouteParamToNumber(rawAttemptId);
+	const subtestId = parseRouteParamToNumber(rawSubtestId);
 	const { data, isPending, error } = useQuery(
 		orpc.tryout.review.queryOptions({
 			input: {

@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { EmptyContentState } from "@/components/classes/empty-content-state";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import YouTubePlayer from "@/components/youtube-player";
-import { parseIdParam } from "@/lib/tanstack-router-utils";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 import { extractYouTubeId } from "@/utils/youtube";
 
@@ -14,7 +14,7 @@ export const Route = createFileRoute("/_authenticated/classes/$subjectId/$conten
 
 function RouteComponent() {
 	const { contentId: rawContentId } = Route.useParams();
-	const contentId = parseIdParam(rawContentId);
+	const contentId = parseRouteParamToNumber(rawContentId);
 	const queryClient = useQueryClient();
 	const hasUpdatedProgress = useRef(false);
 

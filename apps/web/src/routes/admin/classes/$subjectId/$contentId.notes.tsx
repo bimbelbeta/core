@@ -16,7 +16,7 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { parseIdParam } from "@/lib/tanstack-router-utils";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/admin/classes/$subjectId/$contentId/notes")({
@@ -25,7 +25,7 @@ export const Route = createFileRoute("/admin/classes/$subjectId/$contentId/notes
 
 function RouteComponent() {
 	const { contentId: rawContentId } = Route.useParams();
-	const contentId = parseIdParam(rawContentId);
+	const contentId = parseRouteParamToNumber(rawContentId);
 	const queryClient = useQueryClient();
 
 	const content = useQuery(

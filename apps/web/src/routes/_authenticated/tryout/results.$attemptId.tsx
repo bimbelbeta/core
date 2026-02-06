@@ -17,7 +17,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { authClient } from "@/lib/auth-client";
-import { parseIdParam } from "@/lib/tanstack-router-utils";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 
@@ -27,7 +27,7 @@ export const Route = createFileRoute("/_authenticated/tryout/results/$attemptId"
 
 function RouteComponent() {
 	const { attemptId: rawAttemptId } = Route.useParams();
-	const attemptId = parseIdParam(rawAttemptId);
+	const attemptId = parseRouteParamToNumber(rawAttemptId);
 	const navigate = useNavigate();
 	const session = authClient.useSession();
 	const [showPremiumDialog, setShowPremiumDialog] = useState(false);

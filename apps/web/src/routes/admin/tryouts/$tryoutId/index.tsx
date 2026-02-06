@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Spinner } from "@/components/ui/spinner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
-import { parseIdParam } from "@/lib/tanstack-router-utils";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 import { AddSubtestDialog } from "./-components/add-subtest-dialog";
 
@@ -22,7 +22,7 @@ export const Route = createFileRoute("/admin/tryouts/$tryoutId/")({
 
 function TryoutDetailPage() {
 	const { tryoutId: rawTryoutId } = Route.useParams();
-	const tryoutId = parseIdParam(rawTryoutId);
+	const tryoutId = parseRouteParamToNumber(rawTryoutId);
 
 	const { data, isPending, refetch } = useQuery(
 		orpc.admin.tryout.getTryout.queryOptions({

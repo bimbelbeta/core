@@ -23,7 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import YouTubePlayer from "@/components/youtube-player";
 import { useDebounceValue } from "@/hooks/use-debounce-value";
-import { parseIdParam } from "@/lib/tanstack-router-utils";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 import { extractYouTubeId } from "@/utils/youtube";
 
@@ -33,7 +33,7 @@ export const Route = createFileRoute("/admin/classes/$subjectId/$contentId/video
 
 function RouteComponent() {
 	const { contentId: rawContentId } = Route.useParams();
-	const contentId = parseIdParam(rawContentId);
+	const contentId = parseRouteParamToNumber(rawContentId);
 	const queryClient = useQueryClient();
 	const [showPreview, setShowPreview] = useState(true);
 

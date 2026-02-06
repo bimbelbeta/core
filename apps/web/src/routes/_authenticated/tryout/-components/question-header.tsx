@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { parseIdParam } from "@/lib/tanstack-router-utils";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 import { useTryoutStore } from "../-hooks/use-tryout-store";
@@ -21,7 +21,7 @@ interface QuestionHeaderProps {
 
 export function QuestionHeader({ countdownProps }: QuestionHeaderProps) {
 	const { tryoutId: rawTryoutId } = useParams({ from: "/_authenticated/tryout/$tryoutId" });
-	const tryoutId = parseIdParam(rawTryoutId);
+	const tryoutId = parseRouteParamToNumber(rawTryoutId);
 
 	const { currentQuestionIndex, currentQuestion, raguRaguIds, toggleQuestionGrid } = useTryoutStore();
 

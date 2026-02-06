@@ -14,7 +14,7 @@ import {
 import { Container } from "@/components/ui/container";
 import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth-client";
-import { parseIdParam } from "@/lib/tanstack-router-utils";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 
 const searchSchema = type({
@@ -29,7 +29,7 @@ export const Route = createFileRoute("/_authenticated/classes/$subjectId/")({
 
 function RouteComponent() {
 	const { subjectId: rawSubjectId } = Route.useParams();
-	const subjectId = parseIdParam(rawSubjectId);
+	const subjectId = parseRouteParamToNumber(rawSubjectId);
 	const session = authClient.useSession();
 	const userIsPremium = session.data?.user?.isPremium ?? false;
 	const userRole = session.data?.user?.role;

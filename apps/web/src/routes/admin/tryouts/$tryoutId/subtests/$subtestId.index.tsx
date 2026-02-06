@@ -15,7 +15,7 @@ import {
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { parseIdParam } from "@/lib/tanstack-router-utils";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 import { BulkAddQuestionsDialog } from "../../-components/bulk-add-questions-dialog";
 import { BulkQuestionsTable } from "../../-components/bulk-questions-table";
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/admin/tryouts/$tryoutId/subtests/$subtest
 
 function SubtestDetailPage() {
 	const { tryoutId: tId, subtestId: rawSubtestId } = Route.useParams();
-	const subtestId = parseIdParam(rawSubtestId);
+	const subtestId = parseRouteParamToNumber(rawSubtestId);
 
 	const { data, isPending, refetch } = useQuery(
 		orpc.admin.tryout.questionsBulk.listSubtestQuestions.queryOptions({

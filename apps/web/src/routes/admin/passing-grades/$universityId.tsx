@@ -12,7 +12,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { parseIdParam } from "@/lib/tanstack-router-utils";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 import { AddProgramDialog } from "./-components/add-program-dialog";
 import { DeleteProgramAlert } from "./-components/delete-program-alert";
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/admin/passing-grades/$universityId")({
 
 function RouteComponent() {
 	const { universityId: rawUniversityId } = Route.useParams();
-	const universityId = parseIdParam(rawUniversityId);
+	const universityId = parseRouteParamToNumber(rawUniversityId);
 	const queryClient = useQueryClient();
 	const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 	type ProgramData = {

@@ -30,7 +30,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SearchInput } from "@/components/ui/search-input";
-import { parseIdParam } from "@/lib/tanstack-router-utils";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import type { BodyOutputs } from "@/utils/orpc";
 import { orpc } from "@/utils/orpc";
 
@@ -48,7 +48,7 @@ type ContentListItem = NonNullable<BodyOutputs["subject"]["listContentBySubjectC
 
 function RouteComponent() {
 	const { subjectId: rawSubjectId } = Route.useParams();
-	const subjectId = parseIdParam(rawSubjectId);
+	const subjectId = parseRouteParamToNumber(rawSubjectId);
 	const queryClient = useQueryClient();
 	const [createDialogOpen, setCreateDialogOpen] = useState(false);
 	const [editDialogOpen, setEditDialogOpen] = useState(false);

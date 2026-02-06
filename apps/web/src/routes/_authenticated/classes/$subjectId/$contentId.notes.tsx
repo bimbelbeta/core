@@ -3,7 +3,7 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { EmptyContentState } from "@/components/classes/empty-content-state";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
-import { parseIdParam } from "@/lib/tanstack-router-utils";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_authenticated/classes/$subjectId/$contentId/notes")({
@@ -12,7 +12,7 @@ export const Route = createFileRoute("/_authenticated/classes/$subjectId/$conten
 
 function RouteComponent() {
 	const { contentId: rawContentId } = Route.useParams();
-	const contentId = parseIdParam(rawContentId);
+	const contentId = parseRouteParamToNumber(rawContentId);
 	const queryClient = useQueryClient();
 
 	const content = useQuery(

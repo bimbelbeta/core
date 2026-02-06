@@ -4,7 +4,7 @@ import { BackButton } from "@/components/back-button";
 import { Container } from "@/components/ui/container";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { parseIdParam } from "@/lib/tanstack-router-utils";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/admin/classes/$subjectId/$contentId")({
@@ -13,8 +13,8 @@ export const Route = createFileRoute("/admin/classes/$subjectId/$contentId")({
 
 function RouteComponent() {
 	const { subjectId: rawSubjectId, contentId: rawContentId } = Route.useParams();
-	const subjectId = parseIdParam(rawSubjectId);
-	const contentId = parseIdParam(rawContentId);
+	const subjectId = parseRouteParamToNumber(rawSubjectId);
+	const contentId = parseRouteParamToNumber(rawContentId);
 	const navigate = useNavigate();
 	const location = useLocation();
 

@@ -16,7 +16,7 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { parseIdParam } from "@/lib/tanstack-router-utils";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 import { LinkedQuestionsList } from "../-components/linked-questions-list";
 import { QuestionPickerDialog } from "../-components/question-picker-dialog";
@@ -27,7 +27,7 @@ export const Route = createFileRoute("/admin/classes/$subjectId/$contentId/latih
 
 function RouteComponent() {
 	const { contentId: rawContentId } = Route.useParams();
-	const contentId = parseIdParam(rawContentId);
+	const contentId = parseRouteParamToNumber(rawContentId);
 	const queryClient = useQueryClient();
 	const [pickerOpen, setPickerOpen] = useState(false);
 

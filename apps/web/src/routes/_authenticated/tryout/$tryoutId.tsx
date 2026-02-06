@@ -7,7 +7,7 @@ import ErrorComponent from "@/components/error";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import useCountdown from "@/lib/hooks/use-countdown";
-import { parseIdParam } from "@/lib/tanstack-router-utils";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 import { TryoutGreeting } from "./-components/tryout-greeting";
@@ -20,7 +20,7 @@ export const Route = createFileRoute("/_authenticated/tryout/$tryoutId")({
 
 function RouteComponent() {
 	const { tryoutId: rawTryoutId } = Route.useParams();
-	const tryoutId = parseIdParam(rawTryoutId);
+	const tryoutId = parseRouteParamToNumber(rawTryoutId);
 	const router = useRouter();
 	const queryClient = useQueryClient();
 	const { data, isPending, error } = useQuery(

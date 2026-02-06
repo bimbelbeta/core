@@ -7,7 +7,7 @@ import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { parseIdParam } from "@/lib/tanstack-router-utils";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 import { EditQuestionForm } from "./-components/edit-question-form";
 
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/admin/questions/$questionId")({
 
 function QuestionDetailPage() {
 	const { questionId: rawQuestionId } = Route.useParams();
-	const questionId = parseIdParam(rawQuestionId);
+	const questionId = parseRouteParamToNumber(rawQuestionId);
 	const router = useRouter();
 	const [isEditing, setIsEditing] = useState(false);
 
