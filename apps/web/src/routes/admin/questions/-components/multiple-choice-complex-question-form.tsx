@@ -1,7 +1,9 @@
 import { PlusIcon } from "@phosphor-icons/react";
+import { skipToken, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { orpc } from "@/utils/orpc";
 import { ComplexChoiceEditRow } from "./complex-choice-edit-row";
 import { type Choice, useQuestionMutations } from "./use-question-mutations";
 
@@ -14,8 +16,15 @@ export function MultipleChoiceComplexQuestionForm({
 	questionId,
 	onChoicesChange,
 }: MultipleChoiceComplexQuestionFormProps) {
+	const { data: questionData } = useQuery(
+		orpc.admin.tryout.questions.getQuestion.queryOptions({
+			input: questionId ? { id: questionId } : skipToken,
+		}),
+	);
+
 	const { choices, addChoice, updateChoice, deleteChoice, isAdding, isUpdating, isDeleting } = useQuestionMutations({
 		questionId,
+		initialChoices: questionData?.choices ?? [],
 		allowMultipleCorrect: true,
 		onChoicesChange,
 	});
