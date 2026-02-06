@@ -25,3 +25,4 @@ export const db = drizzle({
 		...university,
 	},
 })
+//chore
