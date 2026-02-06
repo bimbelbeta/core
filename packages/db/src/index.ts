@@ -25,5 +25,3 @@ export const db = drizzle({
 		...university,
 	},
 });
-
-// CI/CD trigger
