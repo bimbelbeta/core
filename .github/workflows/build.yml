@@ -1,0 +1,68 @@
+# For more details, read this: https://coolify.io/docs/github-actions
+name: Build
+on:
+  push:
+    branches: ["main"]
+    paths: ['apps/web/**', 'apps/server/**', 'packages/**']
+
+jobs:
+  type-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: oven-sh/setup-bun@v1
+      - run: bun install
+      - run: bun install -g @typescript/native-preview
+      - run: bun check-types
+
+  build-web:
+    needs: [type-check]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to ghcr.io
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.TOKEN }}
+      - name: Build image and push to registry
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./apps/web/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: ghcr.io/bimbelbeta/web:latest
+          build-args: "TURBO_TEAM=${{ secrets.TURBO_TEAM }} TURBO_TOKEN=${{ secrets.TURBO_TOKEN }} VITE_SERVER_URL=https://api.bimbelbeta.com"
+      - name: Deploy to Coolify
+        run: curl --request GET '${{ secrets.COOLIFY_WEB_WEBHOOK }}' --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
+
+  build-server:
+    needs: [type-check]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to ghcr.io
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.TOKEN }}
+      - name: Build image and push to registry
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./apps/server/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: ghcr.io/bimbelbeta/server:latest
+          build-args: "TURBO_TEAM=${{ secrets.TURBO_TEAM }} TURBO_TOKEN=${{ secrets.TURBO_TOKEN }}"
+      - name: Deploy to Coolify
+        run: curl --request GET '${{ secrets.COOLIFY_SERVER_WEBHOOK }}' --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
