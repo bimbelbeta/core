@@ -8,7 +8,11 @@ import { orpc } from "@/utils/orpc";
 import { TryoutStartConfirmation } from "./tryout-start-confirmation";
 
 export function GuidelineActivity() {
-	const { data, isError, isPending } = useQuery(orpc.tryout.featured.queryOptions());
+	const { data, isError, isPending } = useQuery({
+		...orpc.tryout.featured.queryOptions(),
+		retry: false,
+		meta: { skipErrorToast: true },
+	});
 	const queryClient = useQueryClient();
 
 	return (
