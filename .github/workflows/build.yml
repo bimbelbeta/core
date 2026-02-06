@@ -3,7 +3,10 @@ name: Build
 on:
   push:
     branches: ["main"]
-    paths: ['apps/web/**', 'apps/server/**', 'packages/**']
+    paths:
+      - 'apps/web/**'
+      - 'apps/server/**'
+      - 'packages/**'
 
 jobs:
   type-check:
