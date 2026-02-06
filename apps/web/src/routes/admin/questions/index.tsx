@@ -363,7 +363,7 @@ function QuestionsListPage() {
 													</DropdownMenuTrigger>
 													<DropdownMenuContent align="end">
 														<DropdownMenuItem asChild>
-															<Link to="/admin/questions/$questionId" params={{ questionId: q.id }}>
+															<Link to="/admin/questions/$questionId" params={{ questionId: q.id.toString() }}>
 																<EyeIcon className="mr-2 size-4" />
 																Lihat Detail
 															</Link>

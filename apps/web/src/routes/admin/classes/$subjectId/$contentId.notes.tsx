@@ -16,6 +16,7 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { parseIdParam } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/admin/classes/$subjectId/$contentId/notes")({
@@ -23,12 +24,13 @@ export const Route = createFileRoute("/admin/classes/$subjectId/$contentId/notes
 });
 
 function RouteComponent() {
-	const { contentId } = Route.useParams();
+	const { contentId: rawContentId } = Route.useParams();
+	const contentId = parseIdParam(rawContentId);
 	const queryClient = useQueryClient();
 
 	const content = useQuery(
 		orpc.subject.getContentById.queryOptions({
-			input: { contentId: Number(contentId) },
+			input: { contentId },
 		}),
 	);
 
@@ -38,7 +40,7 @@ function RouteComponent() {
 				toast.success(data.message);
 				queryClient.invalidateQueries({
 					queryKey: orpc.subject.getContentById.queryKey({
-						input: { contentId: Number(contentId) },
+						input: { contentId },
 					}),
 				});
 			},
@@ -54,7 +56,7 @@ function RouteComponent() {
 				toast.success(data.message);
 				queryClient.invalidateQueries({
 					queryKey: orpc.subject.getContentById.queryKey({
-						input: { contentId: Number(contentId) },
+						input: { contentId },
 					}),
 				});
 			},
@@ -70,7 +72,7 @@ function RouteComponent() {
 		},
 		onSubmit: async ({ value }) => {
 			saveMutation.mutate({
-				id: Number(contentId),
+				id: contentId,
 				content: value.content,
 			});
 		},
@@ -135,7 +137,7 @@ function RouteComponent() {
 									<AlertDialogCancel>Batal</AlertDialogCancel>
 									<AlertDialogAction
 										onClick={() => {
-											deleteMutation.mutate({ id: Number(contentId) });
+											deleteMutation.mutate({ id: contentId });
 										}}
 									>
 										Hapus

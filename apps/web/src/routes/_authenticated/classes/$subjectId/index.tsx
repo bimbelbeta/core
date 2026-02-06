@@ -14,6 +14,7 @@ import {
 import { Container } from "@/components/ui/container";
 import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth-client";
+import { parseIdParam } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 
 const searchSchema = type({
@@ -22,17 +23,13 @@ const searchSchema = type({
 });
 
 export const Route = createFileRoute("/_authenticated/classes/$subjectId/")({
-	params: {
-		parse: (raw) => ({
-			subjectId: Number(raw.subjectId),
-		}),
-	},
 	component: RouteComponent,
 	validateSearch: searchSchema,
 });
 
 function RouteComponent() {
-	const { subjectId } = Route.useParams();
+	const { subjectId: rawSubjectId } = Route.useParams();
+	const subjectId = parseIdParam(rawSubjectId);
 	const session = authClient.useSession();
 	const userIsPremium = session.data?.user?.isPremium ?? false;
 	const userRole = session.data?.user?.role;
@@ -56,7 +53,7 @@ function RouteComponent() {
 	const contents = useQuery({
 		...orpc.subject.listContentBySubjectCategory.queryOptions({
 			input: {
-				subjectId: Number(subjectId),
+				subjectId,
 				search: searchQuery || undefined,
 				limit: 20,
 				offset: page * 20,
@@ -136,7 +133,7 @@ function RouteComponent() {
 					onLoadMore={() => updateSearch({ page: page + 1 })}
 					userIsPremium={userIsPremium}
 					userRole={userRole}
-					subjectId={Number(subjectId)}
+					subjectId={subjectId}
 				/>
 			</div>
 		</div>

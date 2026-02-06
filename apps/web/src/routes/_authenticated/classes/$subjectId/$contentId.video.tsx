@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { EmptyContentState } from "@/components/classes/empty-content-state";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import YouTubePlayer from "@/components/youtube-player";
+import { parseIdParam } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 import { extractYouTubeId } from "@/utils/youtube";
 
@@ -12,13 +13,14 @@ export const Route = createFileRoute("/_authenticated/classes/$subjectId/$conten
 });
 
 function RouteComponent() {
-	const { contentId } = Route.useParams();
+	const { contentId: rawContentId } = Route.useParams();
+	const contentId = parseIdParam(rawContentId);
 	const queryClient = useQueryClient();
 	const hasUpdatedProgress = useRef(false);
 
 	const content = useQuery(
 		orpc.subject.getContentById.queryOptions({
-			input: { contentId: Number(contentId) },
+			input: { contentId },
 		}),
 	);
 
@@ -47,7 +49,7 @@ function RouteComponent() {
 		if (content.data?.video && !hasUpdatedProgress.current) {
 			hasUpdatedProgress.current = true;
 			updateProgressMutation.mutate({
-				id: Number(contentId),
+				id: contentId,
 				videoCompleted: true,
 			});
 		}

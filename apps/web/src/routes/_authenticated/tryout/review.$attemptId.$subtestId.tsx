@@ -5,6 +5,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import ErrorComponent from "@/components/error";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { parseIdParam } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 
 import { QuestionReviewItem } from "./-components/question-review-item";
@@ -14,12 +15,14 @@ export const Route = createFileRoute("/_authenticated/tryout/review/$attemptId/$
 });
 
 function RouteComponent() {
-	const { attemptId, subtestId } = Route.useParams();
+	const { attemptId: rawAttemptId, subtestId: rawSubtestId } = Route.useParams();
+	const attemptId = parseIdParam(rawAttemptId);
+	const subtestId = parseIdParam(rawSubtestId);
 	const { data, isPending, error } = useQuery(
 		orpc.tryout.review.queryOptions({
 			input: {
-				attemptId: Number(attemptId),
-				subtestId: Number(subtestId),
+				attemptId: attemptId,
+				subtestId: subtestId,
 			},
 		}),
 	);
@@ -49,7 +52,11 @@ function RouteComponent() {
 			{/* Header */}
 			<div className="space-y-6 rounded-xl border bg-white p-6 shadow-sm">
 				<Button variant="default" size="sm" className="bg-[#009CA6] hover:bg-[#008a93]" asChild>
-					<Link to="/tryout/results/$attemptId" params={{ attemptId }} search={{ tab: "results" }}>
+					<Link
+						to="/tryout/results/$attemptId"
+						params={{ attemptId: attemptId.toString() }}
+						search={{ tab: "results" }}
+					>
 						<div className="flex items-center">
 							<ArrowLeftIcon className="mr-2 size-4" />
 							Kembali

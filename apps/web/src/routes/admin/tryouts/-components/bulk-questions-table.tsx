@@ -93,7 +93,7 @@ export function BulkQuestionsTable({
 										<Link
 											to="/admin/questions/$questionId"
 											params={{
-												questionId: item.id,
+												questionId: item.id.toString(),
 											}}
 											className="group hover:cursor-pointer"
 										>

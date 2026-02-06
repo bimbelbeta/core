@@ -1,12 +1,13 @@
-import { ArrowLeftIcon, PencilSimpleIcon, WarningCircleIcon } from "@phosphor-icons/react";
+import { ArrowLeftIcon, PencilSimpleIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
+import { DetailPageSkeleton } from "@/components/admin/detail-page-skeleton";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { parseIdParam } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 import { EditQuestionForm } from "./-components/edit-question-form";
 
@@ -15,98 +16,19 @@ export const Route = createFileRoute("/admin/questions/$questionId")({
 });
 
 function QuestionDetailPage() {
-	const { questionId } = Route.useParams();
-	const id = Number(questionId);
+	const { questionId: rawQuestionId } = Route.useParams();
+	const questionId = parseIdParam(rawQuestionId);
 	const router = useRouter();
 	const [isEditing, setIsEditing] = useState(false);
 
-	const { data, isPending, error, refetch } = useQuery(
+	const { data, isPending } = useQuery(
 		orpc.admin.tryout.questions.getQuestion.queryOptions({
-			input: { id },
+			input: { id: questionId },
 		}),
 	);
 
 	if (isPending) {
-		return (
-			<div className="flex h-full flex-col gap-6 p-6">
-				<div className="flex items-center justify-between">
-					<div className="flex items-center gap-4">
-						<Skeleton className="size-10" />
-						<Skeleton className="h-8 w-48" />
-					</div>
-					<Skeleton className="h-9 w-20" />
-				</div>
-
-				<Card>
-					<CardHeader>
-						<div className="flex items-center justify-between">
-							<Skeleton className="h-6 w-40" />
-							<Skeleton className="h-6 w-24" />
-						</div>
-					</CardHeader>
-					<CardContent className="space-y-6">
-						<div className="space-y-2">
-							<Skeleton className="h-4 w-28" />
-							<Skeleton className="h-32 w-full" />
-						</div>
-						<div className="space-y-2">
-							<Skeleton className="h-4 w-32" />
-							<div className="space-y-3">
-								<Skeleton className="h-16 w-full" />
-								<Skeleton className="h-16 w-full" />
-								<Skeleton className="h-16 w-full" />
-								<Skeleton className="h-16 w-full" />
-							</div>
-						</div>
-						<div className="space-y-2">
-							<Skeleton className="h-4 w-24" />
-							<Skeleton className="h-24 w-full" />
-						</div>
-						<div className="space-y-2">
-							<Skeleton className="h-4 w-16" />
-							<div className="flex gap-2">
-								<Skeleton className="h-6 w-20" />
-								<Skeleton className="h-6 w-24" />
-								<Skeleton className="h-6 w-16" />
-							</div>
-						</div>
-					</CardContent>
-				</Card>
-			</div>
-		);
-	}
-
-	if (error) {
-		return (
-			<div className="flex h-full flex-col gap-6 p-6">
-				<div className="flex items-center gap-4">
-					<Button variant="ghost" size="icon" onClick={() => router.history.back()}>
-						<ArrowLeftIcon className="size-4" />
-					</Button>
-					<h1 className="font-bold text-2xl text-primary-navy-900">Detail Soal</h1>
-				</div>
-
-				<Card className="flex flex-1 items-center justify-center">
-					<CardContent className="flex flex-col items-center gap-4 py-12 text-center">
-						<div className="flex size-16 items-center justify-center rounded-full bg-red-50">
-							<WarningCircleIcon className="size-8 text-red-500" />
-						</div>
-						<div className="space-y-2">
-							<h3 className="font-semibold text-lg">Gagal Memuat Soal</h3>
-							<p className="max-w-md text-muted-foreground text-sm">
-								{error.message ?? "Terjadi kesalahan saat memuat data soal. Silakan coba lagi."}
-							</p>
-						</div>
-						<div className="flex gap-2">
-							<Button variant="outline" onClick={() => router.history.back()}>
-								Kembali
-							</Button>
-							<Button onClick={() => refetch()}>Coba Lagi</Button>
-						</div>
-					</CardContent>
-				</Card>
-			</div>
-		);
+		return <DetailPageSkeleton variant="question" />;
 	}
 
 	if (!data) {

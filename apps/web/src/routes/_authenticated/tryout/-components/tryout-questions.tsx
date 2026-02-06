@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
+import { parseIdParam } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 import { useTryoutStore } from "../-hooks/use-tryout-store";
 import { QuestionBody } from "./question-body";
@@ -21,8 +22,8 @@ interface TryoutQuestionsProps {
 }
 
 export function TryoutQuestions({ countdownProps }: TryoutQuestionsProps) {
-	const { tryoutId: stringTryoutId } = useParams({ from: "/_authenticated/tryout/$tryoutId" });
-	const tryoutId = Number(stringTryoutId);
+	const { tryoutId: rawTryoutId } = useParams({ from: "/_authenticated/tryout/$tryoutId" });
+	const tryoutId = parseIdParam(rawTryoutId);
 
 	const { data } = useQuery(
 		orpc.tryout.find.queryOptions({

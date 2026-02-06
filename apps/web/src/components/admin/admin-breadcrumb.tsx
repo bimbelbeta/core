@@ -10,18 +10,6 @@ import {
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
-const routeTitleMap: Record<string, string> = {
-	dashboard: "Dashboard",
-	tryouts: "Tryouts",
-	questions: "Questions",
-	classes: "Classes",
-	"passing-grades": "Passing Grade",
-	users: "Users",
-	subtests: "Subtests",
-	create: "Create",
-	edit: "Edit",
-};
-
 function formatSegment(segment: string): string {
 	// Check if it's a dynamic param (numeric)
 	if (/^\d+$/.test(segment)) {
@@ -33,8 +21,8 @@ function formatSegment(segment: string): string {
 		return "Detail";
 	}
 
-	// Map known routes or capitalize
-	return routeTitleMap[segment] || segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, " ");
+	// Capitalize and replace dashes with spaces
+	return segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, " ");
 }
 
 export function AdminBreadcrumb() {
