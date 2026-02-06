@@ -283,7 +283,8 @@ function QuestionsListPage() {
 			)}
 
 			<div className="rounded-lg border bg-white shadow-sm">
-				<Table>
+				<div className="overflow-x-auto">
+					<Table>
 					<TableHeader>
 						<TableRow>
 							<TableHead className="w-12">
@@ -407,6 +408,7 @@ function QuestionsListPage() {
 						)}
 					</TableBody>
 				</Table>
+				</div>
 
 				{data && data.questions.length > 0 && (
 					<div className="flex items-center justify-between border-t p-4">

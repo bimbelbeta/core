@@ -145,7 +145,8 @@ function TryoutsListPage() {
 			</div>
 
 			<div className="rounded-lg border bg-white shadow-sm">
-				<Table>
+				<div className="overflow-x-auto">
+					<Table>
 					<TableHeader>
 						<TableRow>
 							<TableHead className="w-12.5">No</TableHead>
@@ -235,6 +236,7 @@ function TryoutsListPage() {
 						)}
 					</TableBody>
 				</Table>
+				</div>
 
 				{data && (
 					<div className="flex items-center justify-end gap-2 border-t p-4">
