@@ -6,6 +6,7 @@ import { EmptyContentState } from "@/components/classes/empty-content-state";
 import { PracticeQuestion } from "@/components/classes/practice-question";
 import { PracticeQuestionHeader } from "@/components/classes/practice-question-header";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_authenticated/classes/$subjectId/$contentId/latihan-soal")({
@@ -13,12 +14,14 @@ export const Route = createFileRoute("/_authenticated/classes/$subjectId/$conten
 });
 
 function RouteComponent() {
-	const { subjectId, contentId } = Route.useParams();
+	const { subjectId: rawSubjectId, contentId: rawContentId } = Route.useParams();
+	const subjectId = parseRouteParamToNumber(rawSubjectId);
+	const contentId = parseRouteParamToNumber(rawContentId);
 	const queryClient = useQueryClient();
 
 	const content = useQuery(
 		orpc.subject.getContentById.queryOptions({
-			input: { contentId: Number(contentId) },
+			input: { contentId },
 		}),
 	);
 
@@ -36,7 +39,7 @@ function RouteComponent() {
 	useEffect(() => {
 		if (content.data?.practiceQuestions) {
 			updateProgressMutation.mutate({
-				id: Number(contentId),
+				id: contentId,
 				practiceQuestionsCompleted: true,
 			});
 		}

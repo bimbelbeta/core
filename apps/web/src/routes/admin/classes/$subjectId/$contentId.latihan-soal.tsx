@@ -16,6 +16,7 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 import { LinkedQuestionsList } from "../-components/linked-questions-list";
 import { QuestionPickerDialog } from "../-components/question-picker-dialog";
@@ -25,21 +26,22 @@ export const Route = createFileRoute("/admin/classes/$subjectId/$contentId/latih
 });
 
 function RouteComponent() {
-	const { contentId } = Route.useParams();
+	const { contentId: rawContentId } = Route.useParams();
+	const contentId = parseRouteParamToNumber(rawContentId);
 	const queryClient = useQueryClient();
 	const [pickerOpen, setPickerOpen] = useState(false);
 
 	// Fetch content for title
 	const content = useQuery(
 		orpc.subject.getContentById.queryOptions({
-			input: { contentId: Number(contentId) },
+			input: { contentId },
 		}),
 	);
 
 	// Fetch linked practice questions
 	const practiceQuestions = useQuery(
 		orpc.admin.subject.getContentPracticeQuestions.queryOptions({
-			input: { id: Number(contentId) },
+			input: { id: contentId },
 		}),
 	);
 
@@ -49,12 +51,12 @@ function RouteComponent() {
 				toast.success(data.message);
 				queryClient.invalidateQueries({
 					queryKey: orpc.admin.subject.getContentPracticeQuestions.queryKey({
-						input: { id: Number(contentId) },
+						input: { id: contentId },
 					}),
 				});
 				queryClient.invalidateQueries({
 					queryKey: orpc.subject.getContentById.queryKey({
-						input: { contentId: Number(contentId) },
+						input: { contentId },
 					}),
 				});
 			},
@@ -110,7 +112,7 @@ function RouteComponent() {
 									<AlertDialogCancel>Batal</AlertDialogCancel>
 									<AlertDialogAction
 										onClick={() => {
-											unlinkAllMutation.mutate({ id: Number(contentId) });
+											unlinkAllMutation.mutate({ id: contentId });
 										}}
 									>
 										Hapus Semua
@@ -125,7 +127,7 @@ function RouteComponent() {
 			<hr />
 
 			{hasQuestions ? (
-				<LinkedQuestionsList contentId={Number(contentId)} questions={questions} />
+				<LinkedQuestionsList contentId={contentId} questions={questions} />
 			) : (
 				<div className="flex flex-col items-center justify-center gap-4 py-12">
 					<EmptyContentState title="Belum ada latihan soal" desc="Tambahkan soal dari bank soal untuk konten ini" />
@@ -140,7 +142,7 @@ function RouteComponent() {
 				open={pickerOpen}
 				onOpenChange={setPickerOpen}
 				onSuccess={handlePickerSuccess}
-				contentId={Number(contentId)}
+				contentId={contentId}
 				excludeIds={excludeIds}
 			/>
 		</div>

@@ -1,42 +1,38 @@
 import { ArrowLeftIcon, PencilSimpleIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, useRouter } from "@tanstack/react-router";
-import { type } from "arktype";
+import { createFileRoute, notFound, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
-import Loader from "@/components/loader";
+import { DetailPageSkeleton } from "@/components/admin/detail-page-skeleton";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 import { EditQuestionForm } from "./-components/edit-question-form";
 
 export const Route = createFileRoute("/admin/questions/$questionId")({
 	component: QuestionDetailPage,
-	params: {
-		parse: type({
-			questionId: "number",
-		}).assert,
-	},
 });
 
 function QuestionDetailPage() {
-	const { questionId: id } = Route.useParams();
+	const { questionId: rawQuestionId } = Route.useParams();
+	const questionId = parseRouteParamToNumber(rawQuestionId);
 	const router = useRouter();
 	const [isEditing, setIsEditing] = useState(false);
 
-	const { data, isPending, error } = useQuery(
+	const { data, isPending } = useQuery(
 		orpc.admin.tryout.questions.getQuestion.queryOptions({
-			input: { id },
+			input: { id: questionId },
 		}),
 	);
 
 	if (isPending) {
-		return <Loader />;
+		return <DetailPageSkeleton variant="question" />;
 	}
 
-	if (error || !data) {
-		return <div className="p-6 text-red-500">Gagal memuat soal: {error?.message ?? "Data tidak ditemukan"}</div>;
+	if (!data) {
+		throw notFound();
 	}
 
 	const { question, choices } = data;

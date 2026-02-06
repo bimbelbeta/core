@@ -3,7 +3,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import Loader from "@/components/loader";
+import { DetailPageSkeleton } from "@/components/admin/detail-page-skeleton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Spinner } from "@/components/ui/spinner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 import { AddSubtestDialog } from "./-components/add-subtest-dialog";
 
@@ -20,12 +21,12 @@ export const Route = createFileRoute("/admin/tryouts/$tryoutId/")({
 });
 
 function TryoutDetailPage() {
-	const { tryoutId } = Route.useParams();
-	const id = Number(tryoutId);
+	const { tryoutId: rawTryoutId } = Route.useParams();
+	const tryoutId = parseRouteParamToNumber(rawTryoutId);
 
 	const { data, isPending, refetch } = useQuery(
 		orpc.admin.tryout.getTryout.queryOptions({
-			input: { id },
+			input: { id: tryoutId },
 		}),
 	);
 
@@ -69,7 +70,7 @@ function TryoutDetailPage() {
 
 	const handleSave = () => {
 		updateMutation.mutate({
-			id,
+			id: tryoutId,
 			title: editForm.title,
 			description: editForm.description || undefined,
 			category: editForm.category,
@@ -80,7 +81,7 @@ function TryoutDetailPage() {
 	};
 
 	if (isPending) {
-		return <Loader />;
+		return <DetailPageSkeleton variant="tryout" />;
 	}
 
 	if (!data?.tryout) {
@@ -243,7 +244,7 @@ function TryoutDetailPage() {
 							open={isAddSubtestOpen}
 							onOpenChange={setIsAddSubtestOpen}
 							onSuccess={() => refetch()}
-							tryoutId={id}
+							tryoutId={tryoutId}
 						/>
 					</CardHeader>
 					<CardContent>
@@ -269,7 +270,7 @@ function TryoutDetailPage() {
 												<Button variant="secondary" size="icon" asChild>
 													<Link
 														to="/admin/tryouts/$tryoutId/subtests/$subtestId"
-														params={{ tryoutId: id.toString(), subtestId: subtest.id.toString() }}
+														params={{ tryoutId: tryoutId.toString(), subtestId: subtest.id.toString() }}
 													>
 														<PencilSimpleIcon />
 													</Link>

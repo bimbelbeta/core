@@ -3,6 +3,7 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { EmptyContentState } from "@/components/classes/empty-content-state";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_authenticated/classes/$subjectId/$contentId/notes")({
@@ -10,12 +11,13 @@ export const Route = createFileRoute("/_authenticated/classes/$subjectId/$conten
 });
 
 function RouteComponent() {
-	const { contentId } = Route.useParams();
+	const { contentId: rawContentId } = Route.useParams();
+	const contentId = parseRouteParamToNumber(rawContentId);
 	const queryClient = useQueryClient();
 
 	const content = useQuery(
 		orpc.subject.getContentById.queryOptions({
-			input: { contentId: Number(contentId) },
+			input: { contentId },
 		}),
 	);
 
@@ -33,7 +35,7 @@ function RouteComponent() {
 	useEffect(() => {
 		if (content.data?.note) {
 			updateProgressMutation.mutate({
-				id: Number(contentId),
+				id: contentId,
 				noteCompleted: true,
 			});
 		}

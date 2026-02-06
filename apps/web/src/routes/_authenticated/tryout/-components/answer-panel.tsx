@@ -3,14 +3,15 @@ import { useParams } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useDebouncedMutation } from "@/hooks/use-debounced-mutation";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 import { useTryoutStore } from "../-hooks/use-tryout-store";
 import { EssayForm } from "./essay-form";
 
 export function AnswerPanel() {
-	const { tryoutId: stringTryoutId } = useParams({ from: "/_authenticated/tryout/$tryoutId" });
-	const tryoutId = Number(stringTryoutId);
+	const { tryoutId: rawTryoutId } = useParams({ from: "/_authenticated/tryout/$tryoutId" });
+	const tryoutId = parseRouteParamToNumber(rawTryoutId);
 
 	const queryClient = useQueryClient();
 	const { answers, setAnswer, complexAnswers, setComplexAnswer, currentQuestion, setEssayAnswer } = useTryoutStore();

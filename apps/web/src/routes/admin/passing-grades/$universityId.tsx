@@ -12,6 +12,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 import { AddProgramDialog } from "./-components/add-program-dialog";
 import { DeleteProgramAlert } from "./-components/delete-program-alert";
@@ -22,7 +23,8 @@ export const Route = createFileRoute("/admin/passing-grades/$universityId")({
 });
 
 function RouteComponent() {
-	const { universityId } = Route.useParams();
+	const { universityId: rawUniversityId } = Route.useParams();
+	const universityId = parseRouteParamToNumber(rawUniversityId);
 	const queryClient = useQueryClient();
 	const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 	type ProgramData = {
@@ -44,7 +46,7 @@ function RouteComponent() {
 	const { data: university, isLoading: isUniversityLoading } = useQuery(
 		orpc.admin.university.universities.find.queryOptions({
 			input: {
-				id: Number(universityId),
+				id: universityId,
 			},
 		}),
 	);
@@ -52,7 +54,7 @@ function RouteComponent() {
 	const { data: programs, isPending: isProgramsLoading } = useQuery(
 		orpc.admin.university.universityPrograms.list.queryOptions({
 			input: {
-				universityId: Number(universityId),
+				universityId: universityId,
 				limit: 100,
 			},
 		}),
@@ -83,13 +85,13 @@ function RouteComponent() {
 			<div className="flex items-center justify-between">
 				<h2 className="font-semibold text-lg">Program Studi</h2>
 				<AddProgramDialog
-					universityId={Number(universityId)}
+					universityId={universityId}
 					onSuccess={() => {
 						setIsAddDialogOpen(false);
 						queryClient.invalidateQueries({
 							queryKey: orpc.admin.university.universityPrograms.list.queryKey({
 								input: {
-									universityId: Number(universityId),
+									universityId: universityId,
 								},
 							}),
 						});
@@ -184,7 +186,7 @@ function RouteComponent() {
 								queryClient.invalidateQueries({
 									queryKey: orpc.admin.university.universityPrograms.list.queryKey({
 										input: {
-											universityId: Number(universityId),
+											universityId: universityId,
 										},
 									}),
 								});
@@ -204,7 +206,7 @@ function RouteComponent() {
 					queryClient.invalidateQueries({
 						queryKey: orpc.admin.university.universityPrograms.list.queryKey({
 							input: {
-								universityId: Number(universityId),
+								universityId: universityId,
 							},
 						}),
 					});

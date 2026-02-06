@@ -2,12 +2,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ChartAreaInteractive } from "@/components/admin/chart-area-interactive";
 import { DataTable } from "@/components/admin/data-table";
 import { SectionCards } from "@/components/admin/section-cards";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarInset } from "@/components/ui/sidebar";
 
 export const Route = createFileRoute("/admin/dashboard/")({
 	component: function AdminDashboard() {
 		return (
-			<SidebarProvider
+			<div
+				className="flex flex-1 flex-col"
 				style={
 					{
 						"--sidebar-width": "calc(var(--spacing) * 72)",
@@ -26,7 +27,7 @@ export const Route = createFileRoute("/admin/dashboard/")({
 						</div>
 					</div>
 				</SidebarInset>
-			</SidebarProvider>
+			</div>
 		);
 	},
 });

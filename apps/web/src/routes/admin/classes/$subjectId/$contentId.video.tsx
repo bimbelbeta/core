@@ -23,6 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import YouTubePlayer from "@/components/youtube-player";
 import { useDebounceValue } from "@/hooks/use-debounce-value";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 import { extractYouTubeId } from "@/utils/youtube";
 
@@ -31,13 +32,14 @@ export const Route = createFileRoute("/admin/classes/$subjectId/$contentId/video
 });
 
 function RouteComponent() {
-	const { contentId } = Route.useParams();
+	const { contentId: rawContentId } = Route.useParams();
+	const contentId = parseRouteParamToNumber(rawContentId);
 	const queryClient = useQueryClient();
 	const [showPreview, setShowPreview] = useState(true);
 
 	const content = useQuery(
 		orpc.subject.getContentById.queryOptions({
-			input: { contentId: Number(contentId) },
+			input: { contentId },
 		}),
 	);
 
@@ -48,7 +50,7 @@ function RouteComponent() {
 				queryClient.invalidateQueries({
 					queryKey: orpc.subject.getContentById.queryKey({
 						input: {
-							contentId: Number(contentId),
+							contentId,
 						},
 					}),
 				});
@@ -66,7 +68,7 @@ function RouteComponent() {
 				queryClient.invalidateQueries({
 					queryKey: orpc.subject.getContentById.queryKey({
 						input: {
-							contentId: Number(contentId),
+							contentId,
 						},
 					}),
 				});
@@ -84,7 +86,7 @@ function RouteComponent() {
 		},
 		onSubmit: async ({ value }) => {
 			saveMutation.mutate({
-				id: Number(contentId),
+				id: contentId,
 				videoUrl: value.videoUrl,
 				content: value.content,
 			});
@@ -158,7 +160,7 @@ function RouteComponent() {
 									<AlertDialogCancel>Batal</AlertDialogCancel>
 									<AlertDialogAction
 										onClick={() => {
-											deleteMutation.mutate({ id: Number(contentId) });
+											deleteMutation.mutate({ id: contentId });
 										}}
 									>
 										Hapus

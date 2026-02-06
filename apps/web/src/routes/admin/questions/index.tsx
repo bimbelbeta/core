@@ -283,130 +283,132 @@ function QuestionsListPage() {
 			)}
 
 			<div className="rounded-lg border bg-white shadow-sm">
-				<Table>
-					<TableHeader>
-						<TableRow>
-							<TableHead className="w-12">
-								<Checkbox
-									checked={someSelected ? "indeterminate" : allSelected}
-									onCheckedChange={toggleSelectAll}
-									aria-label="Select all"
-								/>
-							</TableHead>
-							<TableHead className="w-16">ID</TableHead>
-							<TableHead>Konten Soal</TableHead>
-							<TableHead className="w-32">Tipe</TableHead>
-							<TableHead>Tags</TableHead>
-							<TableHead className="w-24 text-right">Aksi</TableHead>
-						</TableRow>
-					</TableHeader>
-					<TableBody>
-						{isLoading ? (
+				<div className="overflow-x-auto">
+					<Table>
+						<TableHeader>
 							<TableRow>
-								<TableCell colSpan={6} className="h-24 text-center">
-									Memuat data...
-								</TableCell>
+								<TableHead className="w-12">
+									<Checkbox
+										checked={someSelected ? "indeterminate" : allSelected}
+										onCheckedChange={toggleSelectAll}
+										aria-label="Select all"
+									/>
+								</TableHead>
+								<TableHead className="w-16">ID</TableHead>
+								<TableHead>Konten Soal</TableHead>
+								<TableHead className="w-32">Tipe</TableHead>
+								<TableHead>Tags</TableHead>
+								<TableHead className="w-24 text-right">Aksi</TableHead>
 							</TableRow>
-						) : data?.questions.length === 0 ? (
-							<TableRow>
-								<TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
-									Tidak ada soal ditemukan.
-									<br />
-									<span className="text-sm">Coba ubah filter atau buat soal baru.</span>
-								</TableCell>
-							</TableRow>
-						) : (
-							data?.questions.map((q) => {
-								const contentPreview = truncateText(extractTextFromTiptap(q.content));
-								return (
-									<TableRow key={q.id}>
-										<TableCell>
-											<Checkbox
-												checked={selectedIds.includes(q.id)}
-												onCheckedChange={() => toggleSelectOne(q.id)}
-												aria-label={`Select question ${q.id}`}
-											/>
-										</TableCell>
-										<TableCell className="font-mono text-muted-foreground text-sm">#{q.id}</TableCell>
-										<TableCell>
-											<div className="max-w-md">
-												<p className="text-sm leading-relaxed">{contentPreview || "(Konten kosong)"}</p>
-											</div>
-										</TableCell>
-										<TableCell>
-											<Badge variant={QUESTION_TYPE_BADGE_VARIANTS[q.type] ?? "outline"}>
-												{QUESTION_TYPE_LABELS[q.type] ?? q.type}
-											</Badge>
-										</TableCell>
-										<TableCell>
-											<div className="flex max-w-32 flex-wrap gap-1">
-												{q.tags?.slice(0, 3).map((t) => (
-													<Badge key={t} variant="outline" className="text-xs">
-														{t}
-													</Badge>
-												))}
-												{q.tags && q.tags.length > 3 && (
-													<Badge variant="outline" className="text-xs">
-														+{q.tags.length - 3}
-													</Badge>
-												)}
-												{!q.tags?.length && <span className="text-muted-foreground text-xs">-</span>}
-											</div>
-										</TableCell>
-										<TableCell className="text-right">
-											<DropdownMenu>
-												<DropdownMenuTrigger asChild>
-													<Button variant="ghost" size="icon">
-														<PencilSimpleIcon className="size-4" />
-													</Button>
-												</DropdownMenuTrigger>
-												<DropdownMenuContent align="end">
-													<DropdownMenuItem asChild>
-														<Link to="/admin/questions/$questionId" params={{ questionId: q.id }}>
-															<EyeIcon className="mr-2 size-4" />
-															Lihat Detail
-														</Link>
-													</DropdownMenuItem>
-													<AlertDialog
-														open={deleteDialogOpen === q.id}
-														onOpenChange={(open) => setDeleteDialogOpen(open ? q.id : null)}
-													>
-														<AlertDialogTrigger asChild>
-															<DropdownMenuItem
-																onSelect={(e) => e.preventDefault()}
-																className="text-red-600 focus:text-red-600"
-															>
-																<TrashIcon className="mr-2 size-4" />
-																Hapus
-															</DropdownMenuItem>
-														</AlertDialogTrigger>
-														<AlertDialogContent>
-															<AlertDialogHeader>
-																<AlertDialogTitle>Hapus Soal</AlertDialogTitle>
-																<AlertDialogDescription>
-																	Apakah Anda yakin ingin menghapus soal #{q.id}? Tindakan ini tidak dapat dibatalkan.
-																</AlertDialogDescription>
-															</AlertDialogHeader>
-															<AlertDialogFooter>
-																<AlertDialogCancel>Batal</AlertDialogCancel>
-																<AlertDialogAction
-																	onClick={() => handleDelete(q.id)}
-																	className="bg-red-600 hover:bg-red-700"
+						</TableHeader>
+						<TableBody>
+							{isLoading ? (
+								<TableRow>
+									<TableCell colSpan={6} className="h-24 text-center">
+										Memuat data...
+									</TableCell>
+								</TableRow>
+							) : data?.questions.length === 0 ? (
+								<TableRow>
+									<TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+										Tidak ada soal ditemukan.
+										<br />
+										<span className="text-sm">Coba ubah filter atau buat soal baru.</span>
+									</TableCell>
+								</TableRow>
+							) : (
+								data?.questions.map((q) => {
+									const contentPreview = truncateText(extractTextFromTiptap(q.content));
+									return (
+										<TableRow key={q.id}>
+											<TableCell>
+												<Checkbox
+													checked={selectedIds.includes(q.id)}
+													onCheckedChange={() => toggleSelectOne(q.id)}
+													aria-label={`Select question ${q.id}`}
+												/>
+											</TableCell>
+											<TableCell className="font-mono text-muted-foreground text-sm">#{q.id}</TableCell>
+											<TableCell>
+												<div className="max-w-md">
+													<p className="text-sm leading-relaxed">{contentPreview || "(Konten kosong)"}</p>
+												</div>
+											</TableCell>
+											<TableCell>
+												<Badge variant={QUESTION_TYPE_BADGE_VARIANTS[q.type] ?? "outline"}>
+													{QUESTION_TYPE_LABELS[q.type] ?? q.type}
+												</Badge>
+											</TableCell>
+											<TableCell>
+												<div className="flex max-w-32 flex-wrap gap-1">
+													{q.tags?.slice(0, 3).map((t) => (
+														<Badge key={t} variant="outline" className="text-xs">
+															{t}
+														</Badge>
+													))}
+													{q.tags && q.tags.length > 3 && (
+														<Badge variant="outline" className="text-xs">
+															+{q.tags.length - 3}
+														</Badge>
+													)}
+													{!q.tags?.length && <span className="text-muted-foreground text-xs">-</span>}
+												</div>
+											</TableCell>
+											<TableCell className="text-right">
+												<DropdownMenu>
+													<DropdownMenuTrigger asChild>
+														<Button variant="ghost" size="icon">
+															<PencilSimpleIcon className="size-4" />
+														</Button>
+													</DropdownMenuTrigger>
+													<DropdownMenuContent align="end">
+														<DropdownMenuItem asChild>
+															<Link to="/admin/questions/$questionId" params={{ questionId: q.id.toString() }}>
+																<EyeIcon className="mr-2 size-4" />
+																Lihat Detail
+															</Link>
+														</DropdownMenuItem>
+														<AlertDialog
+															open={deleteDialogOpen === q.id}
+															onOpenChange={(open) => setDeleteDialogOpen(open ? q.id : null)}
+														>
+															<AlertDialogTrigger asChild>
+																<DropdownMenuItem
+																	onSelect={(e) => e.preventDefault()}
+																	className="text-red-600 focus:text-red-600"
 																>
+																	<TrashIcon className="mr-2 size-4" />
 																	Hapus
-																</AlertDialogAction>
-															</AlertDialogFooter>
-														</AlertDialogContent>
-													</AlertDialog>
-												</DropdownMenuContent>
-											</DropdownMenu>
-										</TableCell>
-									</TableRow>
-								);
-							})
-						)}
-					</TableBody>
-				</Table>
+																</DropdownMenuItem>
+															</AlertDialogTrigger>
+															<AlertDialogContent>
+																<AlertDialogHeader>
+																	<AlertDialogTitle>Hapus Soal</AlertDialogTitle>
+																	<AlertDialogDescription>
+																		Apakah Anda yakin ingin menghapus soal #{q.id}? Tindakan ini tidak dapat dibatalkan.
+																	</AlertDialogDescription>
+																</AlertDialogHeader>
+																<AlertDialogFooter>
+																	<AlertDialogCancel>Batal</AlertDialogCancel>
+																	<AlertDialogAction
+																		onClick={() => handleDelete(q.id)}
+																		className="bg-red-600 hover:bg-red-700"
+																	>
+																		Hapus
+																	</AlertDialogAction>
+																</AlertDialogFooter>
+															</AlertDialogContent>
+														</AlertDialog>
+													</DropdownMenuContent>
+												</DropdownMenu>
+											</TableCell>
+										</TableRow>
+									);
+								})
+							)}
+						</TableBody>
+					</Table>
+				</div>
 
 				{data && data.questions.length > 0 && (
 					<div className="flex items-center justify-between border-t p-4">

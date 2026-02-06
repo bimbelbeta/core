@@ -4,6 +4,7 @@ import { BackButton } from "@/components/back-button";
 import { Container } from "@/components/ui/container";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/admin/classes/$subjectId/$contentId")({
@@ -11,13 +12,15 @@ export const Route = createFileRoute("/admin/classes/$subjectId/$contentId")({
 });
 
 function RouteComponent() {
-	const { subjectId, contentId } = Route.useParams();
+	const { subjectId: rawSubjectId, contentId: rawContentId } = Route.useParams();
+	const subjectId = parseRouteParamToNumber(rawSubjectId);
+	const contentId = parseRouteParamToNumber(rawContentId);
 	const navigate = useNavigate();
 	const location = useLocation();
 
 	const content = useQuery(
 		orpc.subject.getContentById.queryOptions({
-			input: { contentId: Number(contentId) },
+			input: { contentId },
 		}),
 	);
 
@@ -36,7 +39,7 @@ function RouteComponent() {
 					: value === "notes"
 						? "/admin/classes/$subjectId/$contentId/notes"
 						: "/admin/classes/$subjectId/$contentId/latihan-soal",
-			params: { subjectId, contentId },
+			params: { subjectId: subjectId.toString(), contentId: contentId.toString() },
 		});
 	};
 

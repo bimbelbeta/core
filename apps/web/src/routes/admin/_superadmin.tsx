@@ -1,4 +1,5 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { AppSidebar } from "@/components/admin/app-sidebar";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { $getSession } from "@/lib/get-user";
@@ -29,6 +30,7 @@ export const Route = createFileRoute("/admin/_superadmin")({
 function SuperadminLayout() {
 	return (
 		<SidebarProvider>
+			<AppSidebar />
 			<SidebarInset>
 				<header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
 					<SidebarTrigger className="-ml-1" />

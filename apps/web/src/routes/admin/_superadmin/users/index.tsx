@@ -149,101 +149,105 @@ function UsersListPage() {
 			</div>
 
 			<div className="rounded-lg border bg-white shadow-sm">
-				<Table>
-					<TableHeader>
-						<TableRow>
-							<TableHead className="w-12.5">No</TableHead>
-							<TableHead>Nama</TableHead>
-							<TableHead>Email</TableHead>
-							<TableHead>Role</TableHead>
-							<TableHead>Credits</TableHead>
-							<TableHead>Premium</TableHead>
-							<TableHead>Dibuat</TableHead>
-							<TableHead className="text-right">Aksi</TableHead>
-						</TableRow>
-					</TableHeader>
-					<TableBody>
-						{isLoading ? (
+				<div className="overflow-x-auto">
+					<Table>
+						<TableHeader>
 							<TableRow>
-								<TableCell colSpan={8} className="h-24 text-center">
-									Memuat data...
-								</TableCell>
+								<TableHead className="w-12.5">No</TableHead>
+								<TableHead>Nama</TableHead>
+								<TableHead>Email</TableHead>
+								<TableHead>Role</TableHead>
+								<TableHead>Credits</TableHead>
+								<TableHead>Premium</TableHead>
+								<TableHead>Dibuat</TableHead>
+								<TableHead className="text-right">Aksi</TableHead>
 							</TableRow>
-						) : data?.users.length === 0 ? (
-							<TableRow>
-								<TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
-									Tidak ada user ditemukan.
-								</TableCell>
-							</TableRow>
-						) : (
-							data?.users.map((user, index) => (
-								<TableRow key={user.id}>
-									<TableCell>{(page - 1) * 10 + index + 1}</TableCell>
-									<TableCell className="font-medium">{user.name}</TableCell>
-									<TableCell>{user.email}</TableCell>
-									<TableCell>
-										<Badge variant="outline">{user.role}</Badge>
-									</TableCell>
-									<TableCell>{user.tryoutCredits} credits</TableCell>
-									<TableCell>
-										{user.isPremium ? (
-											<div className="flex flex-col gap-0.5">
-												<Badge variant="default">Premium</Badge>
-												{user.premiumExpiresAt && (
-													<span className="text-muted-foreground text-xs">
-														{new Date(user.premiumExpiresAt).toLocaleDateString("id-ID")}
-													</span>
-												)}
-											</div>
-										) : (
-											<Badge variant="secondary">Non-Premium</Badge>
-										)}
-									</TableCell>
-									<TableCell>{user.createdAt ? new Date(user.createdAt).toLocaleDateString("id-ID") : "-"}</TableCell>
-									<TableCell className="text-right">
-										<div className="flex items-center justify-end gap-2">
-											<Button variant="ghost" size="icon" onClick={() => handleViewUser(user.id)}>
-												<UserIcon className="size-4" />
-											</Button>
-											<EditUserDialog
-												user={user as UserListItem}
-												open={editDialogUser?.id === user.id}
-												onOpenChange={(open) => setEditDialogUser(open ? (user as UserListItem) : null)}
-												onSuccess={() => refetch()}
-											/>
-											<GrantCreditsDialog
-												userId={user.id}
-												userName={user.name}
-												currentCredits={user.tryoutCredits}
-												open={grantCreditsUser?.userId === user.id}
-												onOpenChange={(open) =>
-													setGrantCreditsUser(
-														open ? { userId: user.id, userName: user.name, currentCredits: user.tryoutCredits } : null,
-													)
-												}
-												onSuccess={() => refetch()}
-											/>
-											<GrantPremiumDialog
-												userId={user.id}
-												userName={user.name}
-												currentPremiumExpiry={user.premiumExpiresAt}
-												open={grantPremiumUser?.userId === user.id}
-												onOpenChange={(open) =>
-													setGrantPremiumUser(
-														open
-															? { userId: user.id, userName: user.name, currentPremiumExpiry: user.premiumExpiresAt }
-															: null,
-													)
-												}
-												onSuccess={() => refetch()}
-											/>
-										</div>
+						</TableHeader>
+						<TableBody>
+							{isLoading ? (
+								<TableRow>
+									<TableCell colSpan={8} className="h-24 text-center">
+										Memuat data...
 									</TableCell>
 								</TableRow>
-							))
-						)}
-					</TableBody>
-				</Table>
+							) : data?.users.length === 0 ? (
+								<TableRow>
+									<TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
+										Tidak ada user ditemukan.
+									</TableCell>
+								</TableRow>
+							) : (
+								data?.users.map((user, index) => (
+									<TableRow key={user.id}>
+										<TableCell>{(page - 1) * 10 + index + 1}</TableCell>
+										<TableCell className="font-medium">{user.name}</TableCell>
+										<TableCell>{user.email}</TableCell>
+										<TableCell>
+											<Badge variant="outline">{user.role}</Badge>
+										</TableCell>
+										<TableCell>{user.tryoutCredits} credits</TableCell>
+										<TableCell>
+											{user.isPremium ? (
+												<div className="flex flex-col gap-0.5">
+													<Badge variant="default">Premium</Badge>
+													{user.premiumExpiresAt && (
+														<span className="text-muted-foreground text-xs">
+															{new Date(user.premiumExpiresAt).toLocaleDateString("id-ID")}
+														</span>
+													)}
+												</div>
+											) : (
+												<Badge variant="secondary">Non-Premium</Badge>
+											)}
+										</TableCell>
+										<TableCell>{user.createdAt ? new Date(user.createdAt).toLocaleDateString("id-ID") : "-"}</TableCell>
+										<TableCell className="text-right">
+											<div className="flex items-center justify-end gap-2">
+												<Button variant="ghost" size="icon" onClick={() => handleViewUser(user.id)}>
+													<UserIcon className="size-4" />
+												</Button>
+												<EditUserDialog
+													user={user as UserListItem}
+													open={editDialogUser?.id === user.id}
+													onOpenChange={(open) => setEditDialogUser(open ? (user as UserListItem) : null)}
+													onSuccess={() => refetch()}
+												/>
+												<GrantCreditsDialog
+													userId={user.id}
+													userName={user.name}
+													currentCredits={user.tryoutCredits}
+													open={grantCreditsUser?.userId === user.id}
+													onOpenChange={(open) =>
+														setGrantCreditsUser(
+															open
+																? { userId: user.id, userName: user.name, currentCredits: user.tryoutCredits }
+																: null,
+														)
+													}
+													onSuccess={() => refetch()}
+												/>
+												<GrantPremiumDialog
+													userId={user.id}
+													userName={user.name}
+													currentPremiumExpiry={user.premiumExpiresAt}
+													open={grantPremiumUser?.userId === user.id}
+													onOpenChange={(open) =>
+														setGrantPremiumUser(
+															open
+																? { userId: user.id, userName: user.name, currentPremiumExpiry: user.premiumExpiresAt }
+																: null,
+														)
+													}
+													onSuccess={() => refetch()}
+												/>
+											</div>
+										</TableCell>
+									</TableRow>
+								))
+							)}
+						</TableBody>
+					</Table>
+				</div>
 
 				{data && (
 					<div className="flex items-center justify-end gap-2 border-t p-4">

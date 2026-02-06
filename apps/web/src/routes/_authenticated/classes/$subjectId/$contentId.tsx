@@ -6,6 +6,7 @@ import { NextButton } from "@/components/next-button";
 import { PremiumGateModal } from "@/components/premium/premium-gate-modal";
 import { Container } from "@/components/ui/container";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_authenticated/classes/$subjectId/$contentId")({
@@ -13,7 +14,9 @@ export const Route = createFileRoute("/_authenticated/classes/$subjectId/$conten
 });
 
 function RouteComponent() {
-	const { subjectId, contentId } = Route.useParams();
+	const { subjectId: rawSubjectId, contentId: rawContentId } = Route.useParams();
+	const subjectId = parseRouteParamToNumber(rawSubjectId);
+	const contentId = parseRouteParamToNumber(rawContentId);
 	const navigate = useNavigate();
 	const location = useLocation();
 	const queryClient = useQueryClient();
@@ -21,7 +24,7 @@ function RouteComponent() {
 
 	const content = useQuery({
 		...orpc.subject.getContentById.queryOptions({
-			input: { contentId: Number(contentId) },
+			input: { contentId },
 		}),
 		// Don't retry on 403 FORBIDDEN - user doesn't have access
 		retry: (failureCount, error) => {
@@ -59,7 +62,7 @@ function RouteComponent() {
 
 		if (!lastTracked || now - Number(lastTracked) > DEBOUNCE_MS) {
 			trackViewMutation.mutate(
-				{ id: Number(contentId) },
+				{ id: contentId },
 				{
 					onSuccess: () => {
 						// Update last tracked timestamp
@@ -104,7 +107,7 @@ function RouteComponent() {
 					: value === "notes"
 						? `/classes/${subjectId}/${contentId}/notes`
 						: `/classes/${subjectId}/${contentId}/latihan-soal`,
-			params: { subjectId, contentId },
+			params: { subjectId: subjectId.toString(), contentId: contentId.toString() },
 		});
 	};
 

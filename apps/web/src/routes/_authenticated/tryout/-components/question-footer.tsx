@@ -14,12 +14,13 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 import { useTryoutStore } from "../-hooks/use-tryout-store";
 
 export function QuestionFooter() {
-	const { tryoutId: stringTryoutId } = useParams({ from: "/_authenticated/tryout/$tryoutId" });
-	const tryoutId = Number(stringTryoutId);
+	const { tryoutId: rawTryoutId } = useParams({ from: "/_authenticated/tryout/$tryoutId" });
+	const tryoutId = parseRouteParamToNumber(rawTryoutId);
 
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 	const queryClient = useQueryClient();

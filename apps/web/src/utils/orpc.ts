@@ -18,7 +18,8 @@ export function getApiUrl() {
 const serializer = new StandardRPCJsonSerializer();
 export const queryClient = new QueryClient({
 	queryCache: new QueryCache({
-		onError: (error) => {
+		onError: (error, query) => {
+			if (query.meta?.skipErrorToast) return;
 			if (isDefinedError(error))
 				toast.error(`${error}`, {
 					action: {

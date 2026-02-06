@@ -17,6 +17,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { authClient } from "@/lib/auth-client";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 
@@ -25,14 +26,15 @@ export const Route = createFileRoute("/_authenticated/tryout/results/$attemptId"
 });
 
 function RouteComponent() {
-	const { attemptId } = Route.useParams();
+	const { attemptId: rawAttemptId } = Route.useParams();
+	const attemptId = parseRouteParamToNumber(rawAttemptId);
 	const navigate = useNavigate();
 	const session = authClient.useSession();
 	const [showPremiumDialog, setShowPremiumDialog] = useState(false);
 
 	const { data, isPending, error } = useQuery(
 		orpc.tryout.attemptResult.queryOptions({
-			input: { attemptId: Number(attemptId) },
+			input: { attemptId: attemptId },
 		}),
 	);
 
@@ -164,7 +166,7 @@ function RouteComponent() {
 														navigate({
 															to: "/tryout/review/$attemptId/$subtestId",
 															params: {
-																attemptId,
+																attemptId: attemptId.toString(),
 																subtestId: subtest.id.toString(),
 															},
 														});

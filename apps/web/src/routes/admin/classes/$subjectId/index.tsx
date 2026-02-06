@@ -30,6 +30,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SearchInput } from "@/components/ui/search-input";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import type { BodyOutputs } from "@/utils/orpc";
 import { orpc } from "@/utils/orpc";
 
@@ -39,11 +40,6 @@ const searchSchema = type({
 });
 
 export const Route = createFileRoute("/admin/classes/$subjectId/")({
-	params: {
-		parse: (raw) => ({
-			subjectId: Number(raw.subjectId),
-		}),
-	},
 	component: RouteComponent,
 	validateSearch: searchSchema,
 });
@@ -51,7 +47,8 @@ export const Route = createFileRoute("/admin/classes/$subjectId/")({
 type ContentListItem = NonNullable<BodyOutputs["subject"]["listContentBySubjectCategory"]>["items"][number];
 
 function RouteComponent() {
-	const { subjectId } = Route.useParams();
+	const { subjectId: rawSubjectId } = Route.useParams();
+	const subjectId = parseRouteParamToNumber(rawSubjectId);
 	const queryClient = useQueryClient();
 	const [createDialogOpen, setCreateDialogOpen] = useState(false);
 	const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -75,7 +72,7 @@ function RouteComponent() {
 	const contents = useQuery(
 		orpc.subject.listContentBySubjectCategory.queryOptions({
 			input: {
-				subjectId: Number(subjectId),
+				subjectId,
 				search: searchQuery || undefined,
 				limit: 20,
 				offset: page * 20,
@@ -258,7 +255,7 @@ function RouteComponent() {
 					onEdit={handleEdit}
 					onDelete={handleDelete}
 					onReorder={handleReorder}
-					subjectId={Number(subjectId)}
+					subjectId={subjectId}
 				/>
 			</div>
 

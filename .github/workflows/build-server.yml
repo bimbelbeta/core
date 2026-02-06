@@ -11,8 +11,17 @@ env:
     IMAGE_NAME: "bimbelbeta/server"
 
 jobs:
+    type-check:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: oven-sh/setup-bun@v1
+            - run: bun install
+            - run: bun check-types
+    
     amd64:
         runs-on: ubuntu-latest
+        needs: [type-check]
         permissions:
             contents: read
             packages: write

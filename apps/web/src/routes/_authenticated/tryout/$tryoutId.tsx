@@ -7,6 +7,7 @@ import ErrorComponent from "@/components/error";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import useCountdown from "@/lib/hooks/use-countdown";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 import { TryoutGreeting } from "./-components/tryout-greeting";
@@ -18,12 +19,13 @@ export const Route = createFileRoute("/_authenticated/tryout/$tryoutId")({
 });
 
 function RouteComponent() {
-	const { tryoutId } = Route.useParams();
+	const { tryoutId: rawTryoutId } = Route.useParams();
+	const tryoutId = parseRouteParamToNumber(rawTryoutId);
 	const router = useRouter();
 	const queryClient = useQueryClient();
 	const { data, isPending, error } = useQuery(
 		orpc.tryout.find.queryOptions({
-			input: { id: Number(tryoutId) },
+			input: { id: tryoutId },
 		}),
 	);
 
@@ -51,7 +53,7 @@ function RouteComponent() {
 	const submitSubtestMutation = useMutation(
 		orpc.tryout.submitSubtest.mutationOptions({
 			onSuccess: (responseData) => {
-				queryClient.invalidateQueries({ queryKey: orpc.tryout.find.key({ input: { id: Number(tryoutId) } }) });
+				queryClient.invalidateQueries({ queryKey: orpc.tryout.find.key({ input: { id: tryoutId } }) });
 				queryClient.invalidateQueries({
 					queryKey: orpc.tryout.attemptResult.key({ input: { attemptId: data?.attempt.id } }),
 				});
@@ -105,7 +107,7 @@ function RouteComponent() {
 			canAutoSubmit
 		) {
 			hasAutoSubmitted.current = true;
-			submitSubtestMutation.mutate({ tryoutId: Number(tryoutId), subtestId: data.currentSubtest.id });
+			submitSubtestMutation.mutate({ tryoutId: tryoutId, subtestId: data.currentSubtest.id });
 			router.navigate({ to: "/tryout", search: { tab: "results" } });
 		}
 	}, [isExpired, data, tryoutId, submitSubtestMutation, router.navigate, canAutoSubmit]);
