@@ -4,6 +4,7 @@ import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { cn } from "@/lib/utils";
 import type { BodyOutputs } from "@/utils/orpc";
 
@@ -54,11 +55,7 @@ export function BulkQuestionsTable({
 				</TableHeader>
 				<TableBody>
 					{isPending ? (
-						<TableRow>
-							<TableCell colSpan={4} className="h-48 text-center">
-								Memuat pertanyaan...
-							</TableCell>
-						</TableRow>
+						<TableSkeleton columns={5} />
 					) : questions.length === 0 ? (
 						<TableRow>
 							<TableCell colSpan={4} className="h-48 text-center text-muted-foreground">
@@ -87,7 +84,7 @@ export function BulkQuestionsTable({
 											className="translate-y-0.5"
 										/>
 									</TableCell>
-									<TableCell className="text-center font-medium text-muted-foreground">{item.order}</TableCell>
+									<TableCell className="text-center font-mono text-muted-foreground text-sm">{item.order}</TableCell>
 									<TableCell className="max-w-125">
 										<Link
 											to="/admin/questions/$questionId"

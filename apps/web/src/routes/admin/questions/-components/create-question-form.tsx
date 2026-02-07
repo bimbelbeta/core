@@ -4,6 +4,14 @@ import { useMutation } from "@tanstack/react-query";
 import { type } from "arktype";
 import { useState } from "react";
 import { toast } from "sonner";
+import {
+	AdminPageContent,
+	AdminPageHeader,
+	AdminPageHeaderActions,
+	AdminPageHeaderContent,
+	AdminPageRoot,
+	AdminPageTitle,
+} from "@/components/admin/admin-page";
 import TiptapSimpleEditor from "@/components/tiptap-simple-editor";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -93,15 +101,17 @@ export function CreateQuestionForm({
 	);
 
 	return (
-		<div className="flex h-full flex-col gap-6 p-6">
-			<div className="flex items-center justify-between">
-				<div className="flex items-center gap-4">
-					<Button variant="ghost" size="icon" onClick={onCancel}>
-						<ArrowLeftIcon className="size-4" />
-					</Button>
-					<h1 className="font-bold text-2xl text-primary-navy-900">Buat Soal</h1>
-				</div>
-				<div className="flex items-center gap-3">
+		<AdminPageRoot>
+			<AdminPageHeader>
+				<AdminPageHeaderContent>
+					<div className="flex items-center gap-3">
+						<Button variant="ghost" size="icon" onClick={onCancel}>
+							<ArrowLeftIcon className="size-4" />
+						</Button>
+						<AdminPageTitle>Buat Soal</AdminPageTitle>
+					</div>
+				</AdminPageHeaderContent>
+				<AdminPageHeaderActions>
 					<Button type="button" variant="outline" onClick={onCancel}>
 						Batal
 					</Button>
@@ -119,219 +129,221 @@ export function CreateQuestionForm({
 							</Button>
 						)}
 					</form.Subscribe>
-				</div>
-			</div>
+				</AdminPageHeaderActions>
+			</AdminPageHeader>
 
-			<Card>
-				<CardHeader>
-					<CardTitle>Konten Soal</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<Tabs
-						defaultValue={questionType}
-						value={questionType}
-						onValueChange={(val) => setQuestionType(val as "multiple_choice" | "multiple_choice_complex" | "essay")}
-					>
-						<TabsList>
-							<TabsTrigger value="multiple_choice">Pilihan Ganda</TabsTrigger>
-							<TabsTrigger value="multiple_choice_complex">Pilihan Ganda Kompleks</TabsTrigger>
-							<TabsTrigger value="essay">Esai</TabsTrigger>
-						</TabsList>
+			<AdminPageContent>
+				<Card>
+					<CardHeader>
+						<CardTitle>Konten Soal</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<Tabs
+							defaultValue={questionType}
+							value={questionType}
+							onValueChange={(val) => setQuestionType(val as "multiple_choice" | "multiple_choice_complex" | "essay")}
+						>
+							<TabsList>
+								<TabsTrigger value="multiple_choice">Pilihan Ganda</TabsTrigger>
+								<TabsTrigger value="multiple_choice_complex">Pilihan Ganda Kompleks</TabsTrigger>
+								<TabsTrigger value="essay">Esai</TabsTrigger>
+							</TabsList>
 
-						<TabsContent value="multiple_choice" className="mt-6">
-							<form
-								onSubmit={(e) => {
-									e.preventDefault();
-									form.handleSubmit();
-								}}
-								className="grid gap-6"
-							>
-								<form.Field name="content">
-									{(field) => (
-										<div className="grid gap-2">
-											<Label htmlFor={field.name}>Konten Soal *</Label>
-											<TiptapSimpleEditor
-												content={field.state.value ?? undefined}
-												onChange={(content) => field.handleChange(content as object)}
-											/>
-										</div>
-									)}
-								</form.Field>
-
-								<form.Field name="choices">
-									{(field) => (
-										<MultipleChoiceQuestionForm
-											choices={field.state.value}
-											onChoicesChange={(newChoices) => field.handleChange(newChoices)}
-										/>
-									)}
-								</form.Field>
-
-								<form.Field name="discussion">
-									{(field) => (
-										<div className="grid gap-2">
-											<Label htmlFor={field.name}>Pembahasan</Label>
-											<TiptapSimpleEditor
-												content={field.state.value ?? undefined}
-												onChange={(content) => field.handleChange(content as object)}
-											/>
-										</div>
-									)}
-								</form.Field>
-
-								<form.Field name="tags">
-									{(field) => (
-										<div className="grid gap-2">
-											<Label htmlFor={field.name}>Tags</Label>
-											<TagInput
-												value={field.state.value}
-												onChange={(tags) => field.handleChange(tags)}
-												placeholder="Tambah tag..."
-												maxLength={10}
-											/>
-										</div>
-									)}
-								</form.Field>
-							</form>
-						</TabsContent>
-
-						<TabsContent value="multiple_choice_complex" className="mt-6">
-							<form
-								onSubmit={(e) => {
-									e.preventDefault();
-									form.handleSubmit();
-								}}
-								className="grid gap-6"
-							>
-								<form.Field name="content">
-									{(field) => (
-										<div className="grid gap-2">
-											<Label htmlFor={field.name}>Konten Soal *</Label>
-											<TiptapSimpleEditor
-												content={field.state.value ?? undefined}
-												onChange={(content) => field.handleChange(content as object)}
-											/>
-										</div>
-									)}
-								</form.Field>
-
-								<form.Field name="choices">
-									{(field) => (
-										<MultipleChoiceComplexQuestionForm
-											choices={field.state.value}
-											onChoicesChange={(newChoices) => field.handleChange(newChoices)}
-										/>
-									)}
-								</form.Field>
-
-								<form.Field name="discussion">
-									{(field) => (
-										<div className="grid gap-2">
-											<Label htmlFor={field.name}>Pembahasan</Label>
-											<TiptapSimpleEditor
-												content={field.state.value ?? undefined}
-												onChange={(content) => field.handleChange(content as object)}
-											/>
-										</div>
-									)}
-								</form.Field>
-
-								<form.Field name="tags">
-									{(field) => (
-										<div className="grid gap-2">
-											<Label htmlFor={field.name}>Tags</Label>
-											<TagInput
-												value={field.state.value}
-												onChange={(tags) => field.handleChange(tags)}
-												placeholder="Tambah tag..."
-												maxLength={10}
-											/>
-										</div>
-									)}
-								</form.Field>
-							</form>
-						</TabsContent>
-
-						<TabsContent value="essay" className="mt-6">
-							<form
-								onSubmit={(e) => {
-									e.preventDefault();
-									form.handleSubmit();
-								}}
-								className="grid gap-6"
-							>
-								<form.Field name="content">
-									{(field) => (
-										<div className="grid gap-2">
-											<Label htmlFor={field.name}>Konten Soal *</Label>
-											<TiptapSimpleEditor
-												content={field.state.value ?? undefined}
-												onChange={(content) => field.handleChange(content as object)}
-											/>
-										</div>
-									)}
-								</form.Field>
-
-								<form.Field
-									name="essayCorrectAnswer"
-									validators={{
-										onChange: ({ value }: { value: string }) => {
-											if (value.length > 15) {
-												return "Kunci jawaban maksimal 15 karakter";
-											}
-											return undefined;
-										},
+							<TabsContent value="multiple_choice" className="mt-6">
+								<form
+									onSubmit={(e) => {
+										e.preventDefault();
+										form.handleSubmit();
 									}}
+									className="grid gap-6"
 								>
-									{(field) => (
-										<div className="grid gap-2">
-											<Label htmlFor={field.name}>Kunci Jawaban *</Label>
-											<Input
-												id={field.name}
-												value={field.state.value}
-												onChange={(e) => field.handleChange(e.target.value)}
-												placeholder="Masukkan kunci jawaban..."
-												maxLength={15}
-											/>
-											{field.state.meta.errors.map((error, idx) => (
-												<p key={typeof error === "string" ? error : `error-${idx}`} className="text-red-500 text-xs">
-													{typeof error === "string" ? error : (error as { message: string })?.message}
-												</p>
-											))}
-										</div>
-									)}
-								</form.Field>
+									<form.Field name="content">
+										{(field) => (
+											<div className="grid gap-2">
+												<Label htmlFor={field.name}>Konten Soal *</Label>
+												<TiptapSimpleEditor
+													content={field.state.value ?? undefined}
+													onChange={(content) => field.handleChange(content as object)}
+												/>
+											</div>
+										)}
+									</form.Field>
 
-								<form.Field name="discussion">
-									{(field) => (
-										<div className="grid gap-2">
-											<Label htmlFor={field.name}>Pembahasan</Label>
-											<TiptapSimpleEditor
-												content={field.state.value ?? undefined}
-												onChange={(content) => field.handleChange(content as object)}
+									<form.Field name="choices">
+										{(field) => (
+											<MultipleChoiceQuestionForm
+												choices={field.state.value}
+												onChoicesChange={(newChoices) => field.handleChange(newChoices)}
 											/>
-										</div>
-									)}
-								</form.Field>
+										)}
+									</form.Field>
 
-								<form.Field name="tags">
-									{(field) => (
-										<div className="grid gap-2">
-											<Label htmlFor={field.name}>Tags</Label>
-											<TagInput
-												value={field.state.value}
-												onChange={(tags) => field.handleChange(tags)}
-												placeholder="Tambah tag..."
-												maxLength={10}
+									<form.Field name="discussion">
+										{(field) => (
+											<div className="grid gap-2">
+												<Label htmlFor={field.name}>Pembahasan</Label>
+												<TiptapSimpleEditor
+													content={field.state.value ?? undefined}
+													onChange={(content) => field.handleChange(content as object)}
+												/>
+											</div>
+										)}
+									</form.Field>
+
+									<form.Field name="tags">
+										{(field) => (
+											<div className="grid gap-2">
+												<Label htmlFor={field.name}>Tags</Label>
+												<TagInput
+													value={field.state.value}
+													onChange={(tags) => field.handleChange(tags)}
+													placeholder="Tambah tag..."
+													maxLength={10}
+												/>
+											</div>
+										)}
+									</form.Field>
+								</form>
+							</TabsContent>
+
+							<TabsContent value="multiple_choice_complex" className="mt-6">
+								<form
+									onSubmit={(e) => {
+										e.preventDefault();
+										form.handleSubmit();
+									}}
+									className="grid gap-6"
+								>
+									<form.Field name="content">
+										{(field) => (
+											<div className="grid gap-2">
+												<Label htmlFor={field.name}>Konten Soal *</Label>
+												<TiptapSimpleEditor
+													content={field.state.value ?? undefined}
+													onChange={(content) => field.handleChange(content as object)}
+												/>
+											</div>
+										)}
+									</form.Field>
+
+									<form.Field name="choices">
+										{(field) => (
+											<MultipleChoiceComplexQuestionForm
+												choices={field.state.value}
+												onChoicesChange={(newChoices) => field.handleChange(newChoices)}
 											/>
-										</div>
-									)}
-								</form.Field>
-							</form>
-						</TabsContent>
-					</Tabs>
-				</CardContent>
-			</Card>
-		</div>
+										)}
+									</form.Field>
+
+									<form.Field name="discussion">
+										{(field) => (
+											<div className="grid gap-2">
+												<Label htmlFor={field.name}>Pembahasan</Label>
+												<TiptapSimpleEditor
+													content={field.state.value ?? undefined}
+													onChange={(content) => field.handleChange(content as object)}
+												/>
+											</div>
+										)}
+									</form.Field>
+
+									<form.Field name="tags">
+										{(field) => (
+											<div className="grid gap-2">
+												<Label htmlFor={field.name}>Tags</Label>
+												<TagInput
+													value={field.state.value}
+													onChange={(tags) => field.handleChange(tags)}
+													placeholder="Tambah tag..."
+													maxLength={10}
+												/>
+											</div>
+										)}
+									</form.Field>
+								</form>
+							</TabsContent>
+
+							<TabsContent value="essay" className="mt-6">
+								<form
+									onSubmit={(e) => {
+										e.preventDefault();
+										form.handleSubmit();
+									}}
+									className="grid gap-6"
+								>
+									<form.Field name="content">
+										{(field) => (
+											<div className="grid gap-2">
+												<Label htmlFor={field.name}>Konten Soal *</Label>
+												<TiptapSimpleEditor
+													content={field.state.value ?? undefined}
+													onChange={(content) => field.handleChange(content as object)}
+												/>
+											</div>
+										)}
+									</form.Field>
+
+									<form.Field
+										name="essayCorrectAnswer"
+										validators={{
+											onChange: ({ value }: { value: string }) => {
+												if (value.length > 15) {
+													return "Kunci jawaban maksimal 15 karakter";
+												}
+												return undefined;
+											},
+										}}
+									>
+										{(field) => (
+											<div className="grid gap-2">
+												<Label htmlFor={field.name}>Kunci Jawaban *</Label>
+												<Input
+													id={field.name}
+													value={field.state.value}
+													onChange={(e) => field.handleChange(e.target.value)}
+													placeholder="Masukkan kunci jawaban..."
+													maxLength={15}
+												/>
+												{field.state.meta.errors.map((error, idx) => (
+													<p key={typeof error === "string" ? error : `error-${idx}`} className="text-red-500 text-xs">
+														{typeof error === "string" ? error : (error as { message: string })?.message}
+													</p>
+												))}
+											</div>
+										)}
+									</form.Field>
+
+									<form.Field name="discussion">
+										{(field) => (
+											<div className="grid gap-2">
+												<Label htmlFor={field.name}>Pembahasan</Label>
+												<TiptapSimpleEditor
+													content={field.state.value ?? undefined}
+													onChange={(content) => field.handleChange(content as object)}
+												/>
+											</div>
+										)}
+									</form.Field>
+
+									<form.Field name="tags">
+										{(field) => (
+											<div className="grid gap-2">
+												<Label htmlFor={field.name}>Tags</Label>
+												<TagInput
+													value={field.state.value}
+													onChange={(tags) => field.handleChange(tags)}
+													placeholder="Tambah tag..."
+													maxLength={10}
+												/>
+											</div>
+										)}
+									</form.Field>
+								</form>
+							</TabsContent>
+						</Tabs>
+					</CardContent>
+				</Card>
+			</AdminPageContent>
+		</AdminPageRoot>
 	);
 }

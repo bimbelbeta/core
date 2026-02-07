@@ -3,10 +3,10 @@ import { user } from "@bimbelbeta/db/schema/auth";
 import { creditTransaction } from "@bimbelbeta/db/schema/credit";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { and, count, desc, eq, like, or } from "drizzle-orm";
+import { and, desc, eq, gt, like, or } from "drizzle-orm";
 import { superadmin } from "../..";
 
-const listUsers = superadmin
+const list = superadmin
 	.route({
 		path: "/admin/users",
 		method: "GET",
@@ -14,7 +14,7 @@ const listUsers = superadmin
 	})
 	.input(
 		type({
-			page: "number = 1",
+			cursor: "string?",
 			limit: "number = 10",
 			search: "string?",
 			role: type("'user' | 'admin' | 'superadmin'")?.optional(),
@@ -22,44 +22,31 @@ const listUsers = superadmin
 		}),
 	)
 	.handler(async ({ input }) => {
-		const offset = (input.page - 1) * input.limit;
-
-		const conditions = [];
-
-		if (input.search) {
-			conditions.push(or(like(user.name, `%${input.search}%`), like(user.email, `%${input.search}%`)));
-		}
-
-		if (input.role) {
-			conditions.push(eq(user.role, input.role));
-		}
-
-		if (input.isPremium !== undefined) {
-			conditions.push(eq(user.isPremium, input.isPremium));
-		}
-
-		const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
-
-		const usersList = await db
+		const rows = await db
 			.select()
 			.from(user)
-			.where(whereClause)
-			.limit(input.limit)
-			.offset(offset)
-			.orderBy(user.createdAt);
+			.where(
+				and(
+					input.cursor ? gt(user.createdAt, new Date(input.cursor)) : undefined,
+					input.search ? or(like(user.name, `%${input.search}%`), like(user.email, `%${input.search}%`)) : undefined,
+					input.role ? eq(user.role, input.role) : undefined,
+					input.isPremium !== undefined ? eq(user.isPremium, input.isPremium) : undefined,
+				),
+			)
+			.orderBy(user.createdAt)
+			.limit(input.limit + 1);
 
-		const [countResult] = await db.select({ value: count() }).from(user).where(whereClause);
-		const total = countResult?.value ?? 0;
+		const hasMore = rows.length > input.limit;
+		const users = hasMore ? rows.slice(0, input.limit) : rows;
+		const lastUser = users.at(-1);
 
 		return {
-			users: usersList,
-			total,
-			page: input.page,
-			limit: input.limit,
+			users,
+			nextCursor: hasMore && lastUser?.createdAt ? lastUser.createdAt.toISOString() : undefined,
 		};
 	});
 
-const getUser = superadmin
+const get = superadmin
 	.route({
 		path: "/admin/users/{userId}",
 		method: "GET",
@@ -88,7 +75,7 @@ const getUser = superadmin
 		};
 	});
 
-const updateUser = superadmin
+const update = superadmin
 	.route({
 		path: "/admin/users/{userId}",
 		method: "PATCH",
@@ -138,52 +125,8 @@ const updateUser = superadmin
 		return { message: "User berhasil diperbarui" };
 	});
 
-const grantPremium = superadmin
-	.route({
-		path: "/admin/users/{userId}/premium",
-		method: "POST",
-		tags: ["Admin - Users"],
-	})
-	.input(
-		type({
-			userId: "string",
-			expiresAt: "string?",
-		}),
-	)
-	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
-		const [existingUser] = await db.select().from(user).where(eq(user.id, input.userId)).limit(1);
-
-		if (!existingUser) {
-			throw new ORPCError("NOT_FOUND", {
-				message: "User tidak ditemukan",
-			});
-		}
-
-		const expiresAt = input.expiresAt ? new Date(input.expiresAt) : null;
-
-		const [updated] = await db
-			.update(user)
-			.set({
-				isPremium: true,
-				premiumExpiresAt: expiresAt,
-				updatedAt: new Date(),
-			})
-			.where(eq(user.id, input.userId))
-			.returning();
-
-		if (!updated) {
-			throw new ORPCError("INTERNAL_SERVER_ERROR", {
-				message: "Gagal memberikan premium",
-			});
-		}
-
-		return { message: "Premium berhasil diberikan" };
-	});
-
 export const usersRouter = {
-	listUsers,
-	getUser,
-	updateUser,
-	grantPremium,
+	list,
+	get,
+	update,
 };

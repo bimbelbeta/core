@@ -1,9 +1,11 @@
-import { StarIcon } from "@phosphor-icons/react";
-import { useForm } from "@tanstack/react-form";
+import { CalendarDotsIcon, StarIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
-import { type } from "arktype";
+import { format } from "date-fns";
+import { useState } from "react";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
 	Dialog,
 	DialogContent,
@@ -14,6 +16,8 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 
 interface GrantPremiumDialogProps {
@@ -33,28 +37,13 @@ export function GrantPremiumDialog({
 	onOpenChange,
 	onSuccess,
 }: GrantPremiumDialogProps) {
-	const form = useForm({
-		defaultValues: {
-			expiresAt: currentPremiumExpiry ? new Date(currentPremiumExpiry).toISOString().slice(0, 16) : "",
-		},
-		onSubmit: async ({ value }) => {
-			grantPremiumMutation.mutate({
-				userId,
-				expiresAt: value.expiresAt || undefined,
-			});
-		},
-		validators: {
-			onChange: type({
-				expiresAt: "string?",
-			}),
-		},
-	});
+	const [date, setDate] = useState<Date | undefined>(undefined);
 
-	const grantPremiumMutation = useMutation(
-		orpc.admin.users.grantPremium.mutationOptions({
+	const updateMutation = useMutation(
+		orpc.admin.users.update.mutationOptions({
 			onSuccess: () => {
 				toast.success("Premium berhasil diberikan");
-				form.reset();
+				setDate(undefined);
 				onSuccess();
 				onOpenChange(false);
 			},
@@ -65,64 +54,68 @@ export function GrantPremiumDialog({
 	);
 
 	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
+		<Dialog
+			open={open}
+			onOpenChange={(value) => {
+				if (!value) setDate(undefined);
+				onOpenChange(value);
+			}}
+		>
 			<DialogTrigger asChild>
 				<Button variant="ghost" size="icon">
 					<StarIcon className="size-4" />
 				</Button>
 			</DialogTrigger>
-			<DialogContent className="sm:max-w-125">
+			<DialogContent className="sm:max-w-sm">
 				<DialogHeader>
 					<DialogTitle>Grant Premium</DialogTitle>
 					<DialogDescription>Berikan status premium untuk user "{userName}"</DialogDescription>
 				</DialogHeader>
-				<div className="flex flex-col gap-2 py-4">
+				<div className="flex flex-col gap-4 py-2">
 					{currentPremiumExpiry && (
-						<div className="flex items-center justify-between rounded-md border bg-muted px-4 py-2">
-							<span className="text-muted-foreground text-sm">Premium expired:</span>
-							<span className="font-semibold">{new Date(currentPremiumExpiry).toLocaleString("id-ID")}</span>
+						<div className="flex items-center justify-between rounded-md border bg-muted/50 px-4 py-2.5">
+							<span className="text-muted-foreground text-sm">Premium expires</span>
+							<Badge variant="outline">{new Date(currentPremiumExpiry).toLocaleDateString("id-ID")}</Badge>
 						</div>
 					)}
-				</div>
-				<form
-					onSubmit={(e) => {
-						e.preventDefault();
-						form.handleSubmit();
-					}}
-					className="flex flex-col gap-4"
-				>
-					<div className="grid gap-4">
-						<form.Field name="expiresAt">
-							{(field) => (
-								<div className="grid grid-cols-4 items-center gap-4">
-									<Label htmlFor={field.name} className="text-right">
-										Tanggal Expired
-									</Label>
-									<div className="col-span-3 space-y-1">
-										<input
-											id={field.name}
-											type="datetime-local"
-											value={field.state.value}
-											onChange={(e) => field.handleChange(e.target.value)}
-											className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:font-medium file:text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-										/>
-										<p className="text-muted-foreground text-xs">Kosongkan untuk premium lifetime</p>
-									</div>
-								</div>
-							)}
-						</form.Field>
-					</div>
-
-					<DialogFooter>
-						<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
-							{([canSubmit, isSubmitting]) => (
-								<Button type="submit" disabled={!canSubmit || isSubmitting}>
-									{isSubmitting ? "Memproses..." : "Berikan Premium"}
+					<div className="flex flex-col gap-2">
+						<Label>Tanggal expired</Label>
+						<Popover>
+							<PopoverTrigger asChild>
+								<Button
+									variant="secondary"
+									className={cn("w-full justify-start text-left font-normal", !date && "text-muted-foreground")}
+								>
+									<CalendarDotsIcon className="size-4" />
+									{date ? format(date, "dd MMMM yyyy") : "Pilih tanggal"}
 								</Button>
-							)}
-						</form.Subscribe>
-					</DialogFooter>
-				</form>
+							</PopoverTrigger>
+							<PopoverContent className="w-auto p-0" align="start">
+								<Calendar
+									mode="single"
+									selected={date}
+									onSelect={setDate}
+									disabled={(d) => d < new Date()}
+									initialFocus
+								/>
+							</PopoverContent>
+						</Popover>
+					</div>
+				</div>
+				<DialogFooter>
+					<Button
+						onClick={() =>
+							updateMutation.mutate({
+								userId,
+								isPremium: true,
+								premiumExpiresAt: date?.toISOString(),
+							})
+						}
+						disabled={updateMutation.isPending || !date}
+					>
+						{updateMutation.isPending ? "Memproses..." : "Grant Premium"}
+					</Button>
+				</DialogFooter>
 			</DialogContent>
 		</Dialog>
 	);

@@ -1,33 +1,32 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ChartAreaInteractive } from "@/components/admin/chart-area-interactive";
-import { DataTable } from "@/components/admin/data-table";
+import {
+	AdminPageContent,
+	AdminPageHeader,
+	AdminPageHeaderContent,
+	AdminPageRoot,
+	AdminPageTitle,
+} from "@/components/admin/admin-page";
+import { QuickLinks } from "@/components/admin/quick-links";
 import { SectionCards } from "@/components/admin/section-cards";
-import { SidebarInset } from "@/components/ui/sidebar";
 
 export const Route = createFileRoute("/admin/dashboard/")({
 	component: function AdminDashboard() {
 		return (
-			<div
-				className="flex flex-1 flex-col"
-				style={
-					{
-						"--sidebar-width": "calc(var(--spacing) * 72)",
-						"--header-height": "calc(var(--spacing) * 12)",
-					} as React.CSSProperties
-				}
-			>
-				<SidebarInset>
-					<div className="flex flex-1 flex-col">
-						<div className="@container/main flex flex-1 flex-col gap-2">
-							<div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-								<SectionCards />
-								<ChartAreaInteractive />
-								<DataTable />
-							</div>
-						</div>
+			<AdminPageRoot>
+				<AdminPageHeader>
+					<AdminPageHeaderContent>
+						<AdminPageTitle>Dashboard</AdminPageTitle>
+						<p className="text-muted-foreground text-sm">Ikhtisar performa dan aktivitas sistem</p>
+					</AdminPageHeaderContent>
+				</AdminPageHeader>
+
+				<AdminPageContent>
+					<div className="flex flex-col gap-4">
+						<SectionCards />
+						<QuickLinks />
 					</div>
-				</SidebarInset>
-			</div>
+				</AdminPageContent>
+			</AdminPageRoot>
 		);
 	},
 });

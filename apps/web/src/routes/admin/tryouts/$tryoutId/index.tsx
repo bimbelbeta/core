@@ -3,6 +3,14 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
+import {
+	AdminPageContent,
+	AdminPageHeader,
+	AdminPageHeaderActions,
+	AdminPageHeaderContent,
+	AdminPageRoot,
+	AdminPageTitle,
+} from "@/components/admin/admin-page";
 import { DetailPageSkeleton } from "@/components/admin/detail-page-skeleton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -92,198 +100,207 @@ function TryoutDetailPage() {
 	const subtests = data.subtests ?? [];
 
 	return (
-		<div className="flex h-full flex-col gap-6 p-6">
-			<div className="flex items-center gap-4">
-				<Button variant="ghost" size="icon" asChild>
-					<Link to="/admin/tryouts">
-						<ArrowLeftIcon className="size-4" />
-					</Link>
-				</Button>
-				<h1 className="font-bold text-2xl text-primary-navy-900">Detail Tryout</h1>
-			</div>
-
-			<div className="grid gap-6 lg:grid-cols-2">
-				<Card>
-					<CardHeader className="flex flex-row items-center justify-between">
-						<CardTitle>Informasi Tryout</CardTitle>
-						{!isEditing ? (
-							<Button size="icon" variant="ghost" onClick={handleEdit}>
-								<PencilSimpleIcon weight="bold" />
-							</Button>
-						) : (
-							<div className="flex gap-2">
-								<Button size="sm" variant="outline" onClick={() => setIsEditing(false)}>
-									Batal
-								</Button>
-								<Button size="sm" onClick={handleSave} disabled={updateMutation.isPending}>
-									{updateMutation.isPending ? (
-										<>
-											<Spinner />
-											Memuat...
-										</>
-									) : (
-										<>
-											<FloppyDiskIcon />
-											Simpan
-										</>
-									)}
-								</Button>
-							</div>
-						)}
-					</CardHeader>
-					<CardContent className="space-y-4">
-						{isEditing ? (
-							<div className="space-y-4 *:space-y-1">
-								<div>
-									<Label>Judul</Label>
-									<Input value={editForm.title} onChange={(e) => setEditForm({ ...editForm, title: e.target.value })} />
-								</div>
-								<div>
-									<Label>Deskripsi</Label>
-									<Textarea
-										value={editForm.description}
-										onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-										rows={3}
-									/>
-								</div>
-								<div>
-									<Label>Kategori</Label>
-									<Select
-										value={editForm.category}
-										onValueChange={(val) => setEditForm({ ...editForm, category: val as typeof editForm.category })}
-									>
-										<SelectTrigger>
-											<SelectValue />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="sd">SD</SelectItem>
-											<SelectItem value="smp">SMP</SelectItem>
-											<SelectItem value="sma">SMA</SelectItem>
-											<SelectItem value="utbk">UTBK</SelectItem>
-										</SelectContent>
-									</Select>
-								</div>
-								<div>
-									<Label>Status</Label>
-									<Select
-										value={editForm.status}
-										onValueChange={(val) => setEditForm({ ...editForm, status: val as typeof editForm.status })}
-									>
-										<SelectTrigger>
-											<SelectValue />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="draft">Draft</SelectItem>
-											<SelectItem value="published">Published</SelectItem>
-											<SelectItem value="archived">Archived</SelectItem>
-										</SelectContent>
-									</Select>
-								</div>
-								<div>
-									<Label>Tanggal Mulai</Label>
-									<Input
-										type="datetime-local"
-										value={editForm.startsAt}
-										onChange={(e) => setEditForm({ ...editForm, startsAt: e.target.value })}
-									/>
-								</div>
-								<div>
-									<Label>Tanggal Selesai</Label>
-									<Input
-										type="datetime-local"
-										value={editForm.endsAt}
-										onChange={(e) => setEditForm({ ...editForm, endsAt: e.target.value })}
-									/>
-								</div>
-							</div>
-						) : (
-							<div className="space-y-4">
-								<div>
-									<Label className="text-muted-foreground">Judul</Label>
-									<p className="font-medium">{tryout.title}</p>
-								</div>
-								{tryout.description && (
-									<div>
-										<Label className="text-muted-foreground">Deskripsi</Label>
-										<p className="text-sm">{tryout.description}</p>
-									</div>
-								)}
-								<div>
-									<Label className="text-muted-foreground">Kategori</Label>
-									<p className="font-medium">{tryout.category.toUpperCase()}</p>
-								</div>
-								<div>
-									<Label className="text-muted-foreground">Status</Label>
-									<p className="font-medium">{tryout.status}</p>
-								</div>
-								{tryout.startsAt && (
-									<div>
-										<Label className="text-muted-foreground">Tanggal Mulai</Label>
-										<p className="font-medium">{new Date(tryout.startsAt).toLocaleString("id-ID")}</p>
-									</div>
-								)}
-								{tryout.endsAt && (
-									<div>
-										<Label className="text-muted-foreground">Tanggal Selesai</Label>
-										<p className="font-medium">{new Date(tryout.endsAt).toLocaleString("id-ID")}</p>
-									</div>
-								)}
-							</div>
-						)}
-					</CardContent>
-				</Card>
-
-				<Card>
-					<CardHeader className="flex flex-row items-center justify-between">
-						<CardTitle>Subtests</CardTitle>
-						<Button size="sm" onClick={() => setIsAddSubtestOpen(true)}>
-							<PlusIcon className="mr-2 size-4" />
-							Tambah Subtest
+		<AdminPageRoot>
+			<AdminPageHeader>
+				<AdminPageHeaderContent>
+					<div className="flex items-center gap-3">
+						<Button variant="ghost" size="icon" asChild>
+							<Link to="/admin/tryouts">
+								<ArrowLeftIcon className="size-4" />
+							</Link>
 						</Button>
-						<AddSubtestDialog
-							open={isAddSubtestOpen}
-							onOpenChange={setIsAddSubtestOpen}
-							onSuccess={() => refetch()}
-							tryoutId={tryoutId}
-						/>
-					</CardHeader>
-					<CardContent>
-						{subtests.length === 0 ? (
-							<p className="py-8 text-center text-muted-foreground">Belum ada subtest</p>
-						) : (
-							<Table>
-								<TableHeader>
-									<TableRow>
-										<TableHead className="w-12.5">No</TableHead>
-										<TableHead>Nama</TableHead>
-										<TableHead>Urutan Soal</TableHead>
-										<TableHead className="text-right">Aksi</TableHead>
-									</TableRow>
-								</TableHeader>
-								<TableBody>
-									{subtests.map((subtest, index) => (
-										<TableRow key={subtest.id}>
-											<TableCell>{index + 1}</TableCell>
-											<TableCell className="font-medium">{subtest.name}</TableCell>
-											<TableCell>{subtest.questionOrder === "random" ? "Acak" : "Berurutan"}</TableCell>
-											<TableCell className="text-right">
-												<Button variant="secondary" size="icon" asChild>
+						<AdminPageTitle>Detail Tryout</AdminPageTitle>
+					</div>
+				</AdminPageHeaderContent>
+				<AdminPageHeaderActions />
+			</AdminPageHeader>
+
+			<AdminPageContent>
+				<div className="grid gap-6 lg:grid-cols-2">
+					<Card>
+						<CardHeader className="flex flex-row items-center justify-between">
+							<CardTitle>Informasi Tryout</CardTitle>
+							{!isEditing ? (
+								<Button size="icon" variant="ghost" onClick={handleEdit}>
+									<PencilSimpleIcon weight="bold" />
+								</Button>
+							) : (
+								<div className="flex gap-2">
+									<Button size="sm" variant="outline" onClick={() => setIsEditing(false)}>
+										Batal
+									</Button>
+									<Button size="sm" onClick={handleSave} disabled={updateMutation.isPending}>
+										{updateMutation.isPending ? (
+											<>
+												<Spinner />
+												Memuat...
+											</>
+										) : (
+											<>
+												<FloppyDiskIcon />
+												Simpan
+											</>
+										)}
+									</Button>
+								</div>
+							)}
+						</CardHeader>
+						<CardContent className="space-y-4">
+							{isEditing ? (
+								<div className="space-y-4 *:space-y-1">
+									<div>
+										<Label>Judul</Label>
+										<Input
+											value={editForm.title}
+											onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+										/>
+									</div>
+									<div>
+										<Label>Deskripsi</Label>
+										<Textarea
+											value={editForm.description}
+											onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+											rows={3}
+										/>
+									</div>
+									<div>
+										<Label>Kategori</Label>
+										<Select
+											value={editForm.category}
+											onValueChange={(val) => setEditForm({ ...editForm, category: val as typeof editForm.category })}
+										>
+											<SelectTrigger>
+												<SelectValue />
+											</SelectTrigger>
+											<SelectContent>
+												<SelectItem value="sd">SD</SelectItem>
+												<SelectItem value="smp">SMP</SelectItem>
+												<SelectItem value="sma">SMA</SelectItem>
+												<SelectItem value="utbk">UTBK</SelectItem>
+											</SelectContent>
+										</Select>
+									</div>
+									<div>
+										<Label>Status</Label>
+										<Select
+											value={editForm.status}
+											onValueChange={(val) => setEditForm({ ...editForm, status: val as typeof editForm.status })}
+										>
+											<SelectTrigger>
+												<SelectValue />
+											</SelectTrigger>
+											<SelectContent>
+												<SelectItem value="draft">Draft</SelectItem>
+												<SelectItem value="published">Published</SelectItem>
+												<SelectItem value="archived">Archived</SelectItem>
+											</SelectContent>
+										</Select>
+									</div>
+									<div>
+										<Label>Tanggal Mulai</Label>
+										<Input
+											type="datetime-local"
+											value={editForm.startsAt}
+											onChange={(e) => setEditForm({ ...editForm, startsAt: e.target.value })}
+										/>
+									</div>
+									<div>
+										<Label>Tanggal Selesai</Label>
+										<Input
+											type="datetime-local"
+											value={editForm.endsAt}
+											onChange={(e) => setEditForm({ ...editForm, endsAt: e.target.value })}
+										/>
+									</div>
+								</div>
+							) : (
+								<div className="space-y-4">
+									<div>
+										<Label className="text-muted-foreground">Judul</Label>
+										<p className="font-medium">{tryout.title}</p>
+									</div>
+									{tryout.description && (
+										<div>
+											<Label className="text-muted-foreground">Deskripsi</Label>
+											<p className="text-sm">{tryout.description}</p>
+										</div>
+									)}
+									<div>
+										<Label className="text-muted-foreground">Kategori</Label>
+										<p className="font-medium">{tryout.category.toUpperCase()}</p>
+									</div>
+									<div>
+										<Label className="text-muted-foreground">Status</Label>
+										<p className="font-medium">{tryout.status}</p>
+									</div>
+									{tryout.startsAt && (
+										<div>
+											<Label className="text-muted-foreground">Tanggal Mulai</Label>
+											<p className="font-medium">{new Date(tryout.startsAt).toLocaleString("id-ID")}</p>
+										</div>
+									)}
+									{tryout.endsAt && (
+										<div>
+											<Label className="text-muted-foreground">Tanggal Selesai</Label>
+											<p className="font-medium">{new Date(tryout.endsAt).toLocaleString("id-ID")}</p>
+										</div>
+									)}
+								</div>
+							)}
+						</CardContent>
+					</Card>
+
+					<Card>
+						<CardHeader className="flex flex-row items-center justify-between">
+							<CardTitle>Subtests</CardTitle>
+							<Button size="sm" onClick={() => setIsAddSubtestOpen(true)}>
+								<PlusIcon className="mr-2 size-4" />
+								Tambah Subtest
+							</Button>
+							<AddSubtestDialog
+								open={isAddSubtestOpen}
+								onOpenChange={setIsAddSubtestOpen}
+								onSuccess={() => refetch()}
+								tryoutId={tryoutId}
+							/>
+						</CardHeader>
+						<CardContent>
+							{subtests.length === 0 ? (
+								<p className="py-8 text-center text-muted-foreground">Belum ada subtest</p>
+							) : (
+								<Table>
+									<TableHeader>
+										<TableRow>
+											<TableHead className="w-12.5 text-center">No</TableHead>
+											<TableHead>Nama</TableHead>
+											<TableHead>Urutan Soal</TableHead>
+										</TableRow>
+									</TableHeader>
+									<TableBody>
+										{subtests.map((subtest, index) => (
+											<TableRow key={subtest.id} className="group hover:bg-muted/30">
+												<TableCell className="text-center font-mono text-muted-foreground text-sm">
+													{index + 1}
+												</TableCell>
+												<TableCell className="font-medium">
 													<Link
 														to="/admin/tryouts/$tryoutId/subtests/$subtestId"
 														params={{ tryoutId: tryoutId.toString(), subtestId: subtest.id.toString() }}
+														className="hover:underline"
 													>
-														<PencilSimpleIcon />
+														{subtest.name}
 													</Link>
-												</Button>
-											</TableCell>
-										</TableRow>
-									))}
-								</TableBody>
-							</Table>
-						)}
-					</CardContent>
-				</Card>
-			</div>
-		</div>
+												</TableCell>
+												<TableCell>{subtest.questionOrder === "random" ? "Acak" : "Berurutan"}</TableCell>
+											</TableRow>
+										))}
+									</TableBody>
+								</Table>
+							)}
+						</CardContent>
+					</Card>
+				</div>
+			</AdminPageContent>
+		</AdminPageRoot>
 	);
 }

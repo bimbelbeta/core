@@ -12,6 +12,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 import { AddProgramDialog } from "./-components/add-program-dialog";
@@ -118,11 +119,7 @@ function RouteComponent() {
 					</TableHeader>
 					<TableBody>
 						{isProgramsLoading ? (
-							<TableRow>
-								<TableCell colSpan={9} className="h-24 text-center">
-									Memuat program...
-								</TableCell>
-							</TableRow>
+							<TableSkeleton columns={9} />
 						) : !programs?.data || programs.data.length === 0 ? (
 							<TableRow>
 								<TableCell colSpan={9} className="h-24 text-center text-muted-foreground">

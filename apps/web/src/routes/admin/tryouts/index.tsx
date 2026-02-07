@@ -1,4 +1,4 @@
-import { PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
+import { TrashIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { type } from "arktype";
@@ -29,6 +29,7 @@ import { Button } from "@/components/ui/button";
 import { SearchInput } from "@/components/ui/search-input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { orpc } from "@/utils/orpc";
 import { AddTryoutDialog } from "./-components/add-tryout-dialog";
 
@@ -139,14 +140,14 @@ function TryoutsListPage() {
 			</AdminPageHeader>
 
 			<AdminPageContent>
-				<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 					<SearchInput
 						value={searchInput}
 						onChange={handleSearch}
 						placeholder="Cari tryout..."
-						className="w-full sm:max-w-md"
+						className="w-full sm:max-w-sm md:max-w-md"
 					/>
-					<div className="flex flex-wrap items-center gap-2">
+					<div className="flex flex-col gap-2 sm:flex-row sm:items-center">
 						<Select value={category ?? "all"} onValueChange={handleCategoryChange}>
 							<SelectTrigger className="w-full sm:w-40">
 								<SelectValue placeholder="Semua Kategori" />
@@ -178,7 +179,7 @@ function TryoutsListPage() {
 						<Table>
 							<TableHeader>
 								<TableRow>
-									<TableHead className="w-12.5">No</TableHead>
+									<TableHead className="w-12.5 text-center">No</TableHead>
 									<TableHead>Judul</TableHead>
 									<TableHead>Kategori</TableHead>
 									<TableHead>Status</TableHead>
@@ -188,22 +189,28 @@ function TryoutsListPage() {
 							</TableHeader>
 							<TableBody>
 								{isLoading ? (
-									<TableRow>
-										<TableCell colSpan={7} className="h-24 text-center">
-											Memuat data...
-										</TableCell>
-									</TableRow>
+									<TableSkeleton columns={6} />
 								) : data?.tryouts.length === 0 ? (
 									<TableRow>
-										<TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
+										<TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
 											Tidak ada tryout ditemukan.
 										</TableCell>
 									</TableRow>
 								) : (
 									data?.tryouts.map((tryout, index) => (
-										<TableRow key={tryout.id}>
-											<TableCell>{(page - 1) * 10 + index + 1}</TableCell>
-											<TableCell className="font-medium">{tryout.title}</TableCell>
+										<TableRow key={tryout.id} className="group hover:bg-muted/30">
+											<TableCell className="text-center font-mono text-muted-foreground text-sm">
+												{(page - 1) * 10 + index + 1}
+											</TableCell>
+											<TableCell className="font-medium">
+												<Link
+													to="/admin/tryouts/$tryoutId"
+													params={{ tryoutId: tryout.id.toString() }}
+													className="hover:underline"
+												>
+													{tryout.title}
+												</Link>
+											</TableCell>
 											<TableCell>
 												<Badge variant="outline">{tryout.category.toUpperCase()}</Badge>
 											</TableCell>
@@ -225,21 +232,16 @@ function TryoutsListPage() {
 											</TableCell>
 											<TableCell className="text-right">
 												<div className="flex items-center justify-end gap-2">
-													<Button variant="ghost" size="icon" asChild>
-														<Link to="/admin/tryouts/$tryoutId" params={{ tryoutId: tryout.id.toString() }}>
-															<PencilSimpleIcon className="size-4" />
-														</Link>
-													</Button>
 													<AlertDialog
 														open={deleteDialogOpen === tryout.id}
 														onOpenChange={(open) => setDeleteDialogOpen(open ? tryout.id : null)}
 													>
 														<AlertDialogTrigger asChild>
-															<Button variant="ghost" size="icon">
+															<Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}>
 																<TrashIcon className="size-4 text-red-600" />
 															</Button>
 														</AlertDialogTrigger>
-														<AlertDialogContent>
+														<AlertDialogContent onClick={(e) => e.stopPropagation()}>
 															<AlertDialogHeader>
 																<AlertDialogTitle>Hapus Tryout</AlertDialogTitle>
 																<AlertDialogDescription>

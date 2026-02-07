@@ -2,7 +2,7 @@ import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 
 interface PaginationButtonsProps {
-	page: number;
+	page?: number;
 	onPrevious: () => void;
 	onNext: () => void;
 	hasPrevious: boolean;
@@ -26,7 +26,7 @@ export function PaginationButtons({
 				<CaretLeftIcon className="mr-2 size-4" />
 				Previous
 			</Button>
-			{showPageInfo && (
+			{showPageInfo && page !== undefined && (
 				<span className="mx-2 text-muted-foreground text-sm">
 					Page {page}
 					{totalPages !== undefined && ` of ${totalPages}`}

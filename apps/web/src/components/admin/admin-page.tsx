@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 
 const AdminPageRoot = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
 	({ className, ...props }, ref) => (
-		<div ref={ref} className={cn("flex h-full flex-col gap-6 p-6", className)} {...props} />
+		<div ref={ref} className={cn("flex h-full flex-col gap-4 p-3 sm:gap-6 sm:p-4 lg:p-6", className)} {...props} />
 	),
 );
 AdminPageRoot.displayName = "AdminPageRoot";

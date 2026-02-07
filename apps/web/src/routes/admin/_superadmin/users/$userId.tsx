@@ -6,13 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import type { BodyOutputs } from "@/utils/orpc";
 import { orpc } from "@/utils/orpc";
-import { EditUserDialog } from "./-components/edit-user-dialog";
+import { EditRoleDialog } from "./-components/edit-role-dialog";
 import { GrantCreditsDialog } from "./-components/grant-credits-dialog";
 import { GrantPremiumDialog } from "./-components/grant-premium-dialog";
-
-type UserDetail = NonNullable<BodyOutputs["admin"]["users"]["getUser"]["user"]>;
 
 export const Route = createFileRoute("/admin/_superadmin/users/$userId")({
 	component: UserDetailPage,
@@ -29,12 +26,12 @@ function UserDetailPage() {
 	};
 
 	const { data, isLoading, refetch } = useQuery(
-		orpc.admin.users.getUser.queryOptions({
+		orpc.admin.users.get.queryOptions({
 			input: { userId },
 		}),
 	);
 
-	const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+	const [isEditRoleDialogOpen, setIsEditRoleDialogOpen] = useState(false);
 	const [isGrantCreditsDialogOpen, setIsGrantCreditsDialogOpen] = useState(false);
 	const [isGrantPremiumDialogOpen, setIsGrantPremiumDialogOpen] = useState(false);
 
@@ -67,10 +64,12 @@ function UserDetailPage() {
 					<p className="text-muted-foreground">{user.email}</p>
 				</div>
 				<div className="ml-auto flex gap-2">
-					<EditUserDialog
-						user={user as UserDetail}
-						open={isEditDialogOpen}
-						onOpenChange={setIsEditDialogOpen}
+					<EditRoleDialog
+						userId={user.id}
+						userName={user.name}
+						currentRole={user.role}
+						open={isEditRoleDialogOpen}
+						onOpenChange={setIsEditRoleDialogOpen}
 						onSuccess={() => refetch()}
 					/>
 					<GrantCreditsDialog
