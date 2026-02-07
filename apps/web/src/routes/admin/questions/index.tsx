@@ -228,7 +228,7 @@ function QuestionsListPage() {
 				<SearchInput value={searchInput} onChange={handleSearch} placeholder="Cari soal..." className="max-w-md" />
 				<div className="flex items-center gap-2">
 					<Select value={questionType ?? "all"} onValueChange={handleTypeChange}>
-						<SelectTrigger className="w-44">
+						<SelectTrigger className="min-w-44">
 							<SelectValue placeholder="Semua Tipe" />
 						</SelectTrigger>
 						<SelectContent>
@@ -239,7 +239,7 @@ function QuestionsListPage() {
 						</SelectContent>
 					</Select>
 					<Select value={category ?? "all"} onValueChange={handleCategoryChange}>
-						<SelectTrigger className="w-36">
+						<SelectTrigger className="min-w-36">
 							<SelectValue placeholder="Semua Kategori" />
 						</SelectTrigger>
 						<SelectContent>

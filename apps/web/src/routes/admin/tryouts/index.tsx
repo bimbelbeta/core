@@ -162,7 +162,7 @@ function TryoutsListPage() {
 					</div>
 				</div>
 
-				<div className="rounded-lg border bg-white shadow-sm">
+				<div className="overflow-clip rounded-lg border bg-white shadow-sm">
 					<div className="overflow-x-auto">
 						<Table>
 							<TableHeader>
