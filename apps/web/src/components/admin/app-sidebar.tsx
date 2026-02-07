@@ -34,7 +34,7 @@ const allAdminNavLinks = [
 	},
 	{
 		title: "Users",
-		url: "/admin/_superadmin/users",
+		url: "/admin/users",
 		icon: UserIcon,
 	},
 ];
