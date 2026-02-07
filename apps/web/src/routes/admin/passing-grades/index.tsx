@@ -42,13 +42,19 @@ function RouteComponent() {
 	const handleSearch = (value: string) => {
 		setSearchInput(value);
 		navigate({
-			search: { search: value || undefined, page: 0 },
+			search: {
+				page: 0,
+				...(value && { search: value }),
+			},
 		});
 	};
 
 	const handlePageChange = (newPage: number) => {
 		navigate({
-			search: { page: newPage, search },
+			search: {
+				page: newPage,
+				...(search && { search }),
+			},
 		});
 	};
 

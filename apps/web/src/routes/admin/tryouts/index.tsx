@@ -81,17 +81,22 @@ function TryoutsListPage() {
 	const handleSearch = (value: string) => {
 		setSearchInput(value);
 		navigate({
-			search: { search: value || undefined, page: 1, category, status },
+			search: {
+				page: 1,
+				...(value && { search: value }),
+				...(category && { category }),
+				...(status && { status }),
+			},
 		});
 	};
 
 	const handleCategoryChange = (value: string) => {
 		navigate({
 			search: {
-				category: value === "all" ? undefined : (value as "sd" | "smp" | "sma" | "utbk"),
 				page: 1,
-				search,
-				status,
+				...(search && { search }),
+				...(value !== "all" && { category: value as "sd" | "smp" | "sma" | "utbk" }),
+				...(status && { status }),
 			},
 		});
 	};
@@ -99,17 +104,22 @@ function TryoutsListPage() {
 	const handleStatusChange = (value: string) => {
 		navigate({
 			search: {
-				status: value === "all" ? undefined : (value as "draft" | "published" | "archived"),
 				page: 1,
-				search,
-				category,
+				...(search && { search }),
+				...(category && { category }),
+				...(value !== "all" && { status: value as "draft" | "published" | "archived" }),
 			},
 		});
 	};
 
 	const handlePageChange = (newPage: number) => {
 		navigate({
-			search: { page: newPage, search, category, status },
+			search: {
+				page: newPage,
+				...(search && { search }),
+				...(category && { category }),
+				...(status && { status }),
+			},
 		});
 	};
 

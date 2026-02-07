@@ -132,18 +132,24 @@ function QuestionsListPage() {
 	const handleSearch = (value: string) => {
 		setSearchInput(value);
 		navigate({
-			search: { search: value || undefined, page: 1, type: questionType, category, tag },
+			search: {
+				page: 1,
+				...(value && { search: value }),
+				...(questionType && { type: questionType }),
+				...(category && { category }),
+				...(tag && { tag }),
+			},
 		});
 	};
 
 	const handleTypeChange = (value: string) => {
 		navigate({
 			search: {
-				type: value === "all" ? undefined : (value as "multiple_choice" | "multiple_choice_complex" | "essay"),
 				page: 1,
-				search: searchQuery,
-				category,
-				tag,
+				...(searchQuery && { search: searchQuery }),
+				...(value !== "all" && { type: value as "multiple_choice" | "multiple_choice_complex" | "essay" }),
+				...(category && { category }),
+				...(tag && { tag }),
 			},
 		});
 	};
@@ -151,18 +157,24 @@ function QuestionsListPage() {
 	const handleCategoryChange = (value: string) => {
 		navigate({
 			search: {
-				category: value === "all" ? undefined : (value as "sd" | "smp" | "sma" | "utbk"),
 				page: 1,
-				search: searchQuery,
-				type: questionType,
-				tag,
+				...(searchQuery && { search: searchQuery }),
+				...(questionType && { type: questionType }),
+				...(value !== "all" && { category: value as "sd" | "smp" | "sma" | "utbk" }),
+				...(tag && { tag }),
 			},
 		});
 	};
 
 	const handlePageChange = (newPage: number) => {
 		navigate({
-			search: { page: newPage, search: searchQuery, type: questionType, category, tag },
+			search: {
+				page: newPage,
+				...(searchQuery && { search: searchQuery }),
+				...(questionType && { type: questionType }),
+				...(category && { category }),
+				...(tag && { tag }),
+			},
 		});
 	};
 

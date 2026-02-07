@@ -76,17 +76,22 @@ function UsersListPage() {
 	const handleSearch = (value: string) => {
 		setSearchInput(value);
 		navigate({
-			search: { search: value || undefined, page: 1, role, isPremium },
+			search: {
+				page: 1,
+				...(value && { search: value }),
+				...(role && { role }),
+				...(isPremium !== undefined && { isPremium }),
+			},
 		});
 	};
 
 	const handleRoleChange = (value: string) => {
 		navigate({
 			search: {
-				role: value === "all" ? undefined : (value as "user" | "admin" | "superadmin"),
 				page: 1,
-				search,
-				isPremium,
+				...(search && { search }),
+				...(value !== "all" && { role: value as "user" | "admin" | "superadmin" }),
+				...(isPremium !== undefined && { isPremium }),
 			},
 		});
 	};
@@ -94,17 +99,22 @@ function UsersListPage() {
 	const handlePremiumChange = (value: string) => {
 		navigate({
 			search: {
-				isPremium: value === "all" ? undefined : value === "true",
 				page: 1,
-				search,
-				role,
+				...(search && { search }),
+				...(role && { role }),
+				...(value !== "all" && { isPremium: value === "true" }),
 			},
 		});
 	};
 
 	const handlePageChange = (newPage: number) => {
 		navigate({
-			search: { page: newPage, search, role, isPremium },
+			search: {
+				page: newPage,
+				...(search && { search }),
+				...(role && { role }),
+				...(isPremium !== undefined && { isPremium }),
+			},
 		});
 	};
 
