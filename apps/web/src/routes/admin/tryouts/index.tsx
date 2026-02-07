@@ -1,4 +1,4 @@
-import { CaretLeftIcon, CaretRightIcon, PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
+import { PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { type } from "arktype";
@@ -12,6 +12,7 @@ import {
 	AdminPageRoot,
 	AdminPageTitle,
 } from "@/components/admin/admin-page";
+import { PaginationButtons } from "@/components/admin/pagination-buttons";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -257,23 +258,16 @@ function TryoutsListPage() {
 					</div>
 
 					{data && (
-						<div className="flex flex-wrap items-center justify-center gap-2 border-t p-4 sm:justify-end">
-							<Button variant="outline" size="sm" disabled={page <= 1} onClick={() => handlePageChange(page - 1)}>
-								<CaretLeftIcon className="mr-2 size-4" />
-								Previous
-							</Button>
-							<span className="mx-2 text-muted-foreground text-sm">
-								Page {page} of {Math.ceil(data.total / data.limit)}
-							</span>
-							<Button
-								variant="outline"
-								size="sm"
-								disabled={page >= Math.ceil(data.total / data.limit)}
-								onClick={() => handlePageChange(page + 1)}
-							>
-								Next
-								<CaretRightIcon className="ml-2 size-4" />
-							</Button>
+						<div className="border-t p-4">
+							<PaginationButtons
+								page={page}
+								onPrevious={() => handlePageChange(page - 1)}
+								onNext={() => handlePageChange(page + 1)}
+								hasPrevious={page > 1}
+								hasNext={page < Math.ceil(data.total / data.limit)}
+								showPageInfo={true}
+								totalPages={Math.ceil(data.total / data.limit)}
+							/>
 						</div>
 					)}
 				</div>

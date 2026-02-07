@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { orpc } from "@/utils/orpc";
+import { PaginationButtons } from "./pagination-buttons";
 
 export function DataTable() {
 	const [search, setSearch] = useState("");
@@ -48,25 +48,14 @@ export function DataTable() {
 						</SelectContent>
 					</Select>
 				</div>
-				<div className="flex items-center gap-2">
-					<Button
-						variant="outline"
-						size="sm"
-						disabled={pagination.pageIndex === 0}
-						onClick={() => setPagination((prev) => ({ ...prev, pageIndex: prev.pageIndex - 1 }))}
-					>
-						Prev
-					</Button>
-					<span className="text-muted-foreground text-sm">Halaman {pagination.pageIndex + 1}</span>
-					<Button
-						variant="outline"
-						size="sm"
-						disabled={!activities || filteredActivities.length < pagination.pageSize}
-						onClick={() => setPagination((prev) => ({ ...prev, pageIndex: prev.pageIndex + 1 }))}
-					>
-						Next
-					</Button>
-				</div>
+				<PaginationButtons
+					page={pagination.pageIndex + 1}
+					onPrevious={() => setPagination((prev) => ({ ...prev, pageIndex: prev.pageIndex - 1 }))}
+					onNext={() => setPagination((prev) => ({ ...prev, pageIndex: prev.pageIndex + 1 }))}
+					hasPrevious={pagination.pageIndex > 0}
+					hasNext={!!activities && filteredActivities.length === pagination.pageSize}
+					showPageInfo={false}
+				/>
 			</div>
 			<Table>
 				<TableHeader>

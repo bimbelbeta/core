@@ -1,9 +1,10 @@
-import { CaretLeftIcon, CaretRightIcon, EyeIcon, PencilSimpleIcon, PlusIcon, TrashIcon } from "@phosphor-icons/react";
+import { EyeIcon, PencilSimpleIcon, PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { type } from "arktype";
 import { useState } from "react";
 import { toast } from "sonner";
+import { PaginationButtons } from "@/components/admin/pagination-buttons";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -416,24 +417,15 @@ function QuestionsListPage() {
 							Menampilkan {(page - 1) * data.limit + 1} - {Math.min(page * data.limit, data.total)} dari {data.total}{" "}
 							soal
 						</div>
-						<div className="flex items-center gap-2">
-							<Button variant="outline" size="sm" disabled={page <= 1} onClick={() => handlePageChange(page - 1)}>
-								<CaretLeftIcon className="mr-2 size-4" />
-								Previous
-							</Button>
-							<span className="mx-2 text-muted-foreground text-sm">
-								Page {page} of {Math.ceil(data.total / data.limit)}
-							</span>
-							<Button
-								variant="outline"
-								size="sm"
-								disabled={page >= Math.ceil(data.total / data.limit)}
-								onClick={() => handlePageChange(page + 1)}
-							>
-								Next
-								<CaretRightIcon className="ml-2 size-4" />
-							</Button>
-						</div>
+						<PaginationButtons
+							page={page}
+							onPrevious={() => handlePageChange(page - 1)}
+							onNext={() => handlePageChange(page + 1)}
+							hasPrevious={page > 1}
+							hasNext={page < Math.ceil(data.total / data.limit)}
+							showPageInfo={true}
+							totalPages={Math.ceil(data.total / data.limit)}
+						/>
 					</div>
 				)}
 			</div>

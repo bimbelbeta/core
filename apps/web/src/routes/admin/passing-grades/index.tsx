@@ -1,8 +1,9 @@
-import { CaretLeftIcon, CaretRightIcon, EyeIcon } from "@phosphor-icons/react";
+import { EyeIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { type } from "arktype";
 import { useState } from "react";
+import { PaginationButtons } from "@/components/admin/pagination-buttons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SearchInput } from "@/components/ui/search-input";
@@ -129,26 +130,15 @@ function RouteComponent() {
 				</div>
 
 				{data && (
-					<div className="flex items-center justify-end gap-2 border-t p-4">
-						<Button
-							variant="outline"
-							size="sm"
-							disabled={!page || page <= 0}
-							onClick={() => handlePageChange((page ?? 0) - 1)}
-						>
-							<CaretLeftIcon className="mr-2 size-4" />
-							Previous
-						</Button>
-						<span className="mx-2 text-muted-foreground text-sm">Page {(page ?? 0) + 1}</span>
-						<Button
-							variant="outline"
-							size="sm"
-							disabled={!data.nextCursor}
-							onClick={() => handlePageChange((page ?? 0) + 1)}
-						>
-							Next
-							<CaretRightIcon className="ml-2 size-4" />
-						</Button>
+					<div className="border-t p-4">
+						<PaginationButtons
+							page={(page ?? 0) + 1}
+							onPrevious={() => handlePageChange((page ?? 0) - 1)}
+							onNext={() => handlePageChange((page ?? 0) + 1)}
+							hasPrevious={!!page && page > 0}
+							hasNext={!!data.nextCursor}
+							showPageInfo={false}
+						/>
 					</div>
 				)}
 			</div>
