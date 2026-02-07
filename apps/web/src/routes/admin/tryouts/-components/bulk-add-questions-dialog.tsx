@@ -1,13 +1,13 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { CheckCircleIcon, MagnifyingGlassIcon, PlusCircleIcon } from "@phosphor-icons/react";
+import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
+import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
+import { Spinner } from "@/components/ui/spinner";
 import { orpc } from "@/utils/orpc";
 
 export function BulkAddQuestionsDialog({
@@ -23,23 +23,29 @@ export function BulkAddQuestionsDialog({
 }) {
 	const [search, setSearch] = useState("");
 	const [selectedQuestionIds, setSelectedQuestionIds] = useState<Set<number>>(new Set());
+	const scrollRef = useRef<HTMLDivElement>(null);
 
-	const { data: allQuestions, isPending } = useQuery(
-		orpc.admin.tryout.questions.listQuestions.queryOptions({
-			input: {
-				page: 1,
-				limit: 100,
+	const { data, isPending, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery(
+		orpc.admin.tryout.questions.listQuestions.infiniteOptions({
+			input: (pageParam) => ({
+				cursor: pageParam,
+				limit: 20,
 				search: search || undefined,
-			},
+			}),
+			getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+			initialPageParam: undefined as number | undefined,
 		}),
 	);
 
-	const questionsData = allQuestions as unknown as {
-		questions: Array<{ id: number; type: string; content: string }>;
-		total: number;
-		page: number;
-		limit: number;
-	};
+	const questions = data?.pages.flatMap((page) => page.questions) ?? [];
+
+	const handleScroll = useCallback(() => {
+		const el = scrollRef.current;
+		if (!el || isFetchingNextPage || !hasNextPage) return;
+		if (el.scrollHeight - el.scrollTop - el.clientHeight < 200) {
+			fetchNextPage();
+		}
+	}, [isFetchingNextPage, hasNextPage, fetchNextPage]);
 
 	const bulkAddMutation = useMutation(
 		orpc.admin.tryout.questionsBulk.bulkAddQuestionsToSubtest.mutationOptions({
@@ -56,10 +62,10 @@ export function BulkAddQuestionsDialog({
 	);
 
 	const handleSelectAll = () => {
-		if (questionsData?.questions && selectedQuestionIds.size === questionsData.questions.length) {
+		if (questions.length > 0 && selectedQuestionIds.size === questions.length) {
 			setSelectedQuestionIds(new Set());
-		} else if (questionsData?.questions) {
-			setSelectedQuestionIds(new Set(questionsData.questions.map((q) => q.id)));
+		} else {
+			setSelectedQuestionIds(new Set(questions.map((q) => q.id)));
 		}
 	};
 
@@ -84,73 +90,95 @@ export function BulkAddQuestionsDialog({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="flex max-h-[85vh] flex-col sm:max-w-125">
+			<DialogContent className="flex max-h-[85vh] flex-col sm:max-w-2xl">
 				<DialogHeader className="shrink-0">
 					<DialogTitle>Tambah Soal Massal</DialogTitle>
 					<DialogDescription>Pilih soal dari bank soal untuk ditambahkan ke subtest.</DialogDescription>
 				</DialogHeader>
-				<div className="flex flex-1 flex-col gap-4 overflow-hidden">
-					<div className="flex items-center gap-4">
-						<Label className="shrink-0">Cari Soal:</Label>
-						<Input
+				<div className="flex flex-1 flex-col gap-4">
+					<InputGroup className="min-h-10 flex-1 bg-white">
+						<InputGroupAddon>
+							<MagnifyingGlassIcon />
+						</InputGroupAddon>
+						<InputGroupInput
 							value={search}
 							onChange={(e) => setSearch(e.target.value)}
 							placeholder="Ketik untuk mencari soal..."
-							className="flex-1"
 						/>
+					</InputGroup>
+
+					<div ref={scrollRef} onScroll={handleScroll} className="max-h-[calc(85vh-14rem)] flex-1 overflow-y-auto">
+						{isPending ? (
+							<div className="flex items-center justify-center py-8 text-muted-foreground">
+								<Spinner />
+							</div>
+						) : questions.length === 0 ? (
+							<div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+								Tidak ada soal ditemukan
+							</div>
+						) : (
+							<div className="space-y-2 overflow-visible">
+								{questions.map((question) => {
+									const isSelected = selectedQuestionIds.has(question.id);
+									return (
+										<label
+											key={question.id}
+											className={`group relative flex cursor-pointer flex-col gap-3 rounded-lg border p-3 outline-none transition-all focus-within:ring-2 focus-within:ring-primary ${
+												isSelected ? "border-primary bg-primary/5" : "border-border hover:bg-muted/50"
+											}`}
+										>
+											<input
+												type="checkbox"
+												className="sr-only"
+												checked={isSelected}
+												onChange={() => handleQuestionToggle(question.id)}
+											/>
+											{isSelected && (
+												<div className="absolute top-3 right-3 text-primary">
+													<CheckCircleIcon size={20} weight="fill" />
+												</div>
+											)}
+											<Badge variant={question.type === "multiple_choice" ? "default" : "outline"} className="w-fit">
+												{question.type === "multiple_choice" ? "Pilihan Ganda" : "Esai"}
+											</Badge>
+											<div className="pr-8">
+												<TiptapRenderer content={question.content} />
+											</div>
+										</label>
+									);
+								})}
+								{isFetchingNextPage && (
+									<div className="flex animate-pulse items-center justify-center py-4 text-muted-foreground text-sm">
+										Memuat lebih banyak soal...
+									</div>
+								)}
+							</div>
+						)}
 					</div>
 
 					<div className="flex items-center justify-between border-b pb-2">
 						<div className="flex items-center gap-2">
-							<Checkbox
-								checked={questionsData ? selectedQuestionIds.size === questionsData.questions.length : false}
-								onCheckedChange={handleSelectAll}
-							/>
-							<Label className="cursor-pointer">Pilih Semua ({selectedQuestionIds.size} dipilih)</Label>
+							<Button variant="tertiary" size="sm" onClick={handleSelectAll}>
+								{questions.length > 0 && selectedQuestionIds.size === questions.length
+									? "Batal Pilih Semua"
+									: "Pilih Semua"}
+							</Button>
+							<span className="text-muted-foreground text-sm">({selectedQuestionIds.size} dipilih)</span>
 						</div>
 						<Button
 							variant="default"
 							onClick={handleAdd}
 							disabled={selectedQuestionIds.size === 0 || bulkAddMutation.isPending}
 						>
-							{bulkAddMutation.isPending ? "Menambahkan..." : `Tambah ${selectedQuestionIds.size} Soal`}
+							{bulkAddMutation.isPending ? (
+								"Menambahkan..."
+							) : (
+								<>
+									<PlusCircleIcon weight="fill" />
+									Tambah {selectedQuestionIds.size} Soal
+								</>
+							)}
 						</Button>
-					</div>
-
-					<div className="max-h-[calc(85vh-14rem)] flex-1 overflow-y-auto">
-						{isPending ? (
-							<div className="flex animate-pulse items-center justify-center py-8 text-muted-foreground">
-								Memuat soal...
-							</div>
-						) : !questionsData || questionsData.questions.length === 0 ? (
-							<div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
-								Tidak ada soal ditemukan
-							</div>
-						) : (
-							<div className="space-y-2">
-								{questionsData.questions.map((question) => (
-									<div
-										key={question.id}
-										className="group flex items-start gap-3 rounded-lg border p-3 transition-colors hover:bg-muted/50"
-									>
-										<Checkbox
-											checked={selectedQuestionIds.has(question.id)}
-											onCheckedChange={(_checked) => handleQuestionToggle(question.id)}
-											className="mt-0.5"
-										/>
-										<div className="flex-1 space-y-1">
-											<div className="flex items-center gap-2">
-												<span className="font-mono text-muted-foreground text-xs">#{question.id}</span>
-												<TiptapRenderer content={question.content} />
-												<Badge variant={question.type === "multiple_choice" ? "default" : "outline"}>
-													{question.type === "multiple_choice" ? "Pilihan Ganda" : "Esai"}
-												</Badge>
-											</div>
-										</div>
-									</div>
-								))}
-							</div>
-						)}
 					</div>
 				</div>
 			</DialogContent>

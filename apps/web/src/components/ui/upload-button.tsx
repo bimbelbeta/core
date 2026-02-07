@@ -1,5 +1,5 @@
 import type { UploadHookControl } from "@better-upload/client";
-import { Loader2, Upload } from "lucide-react";
+import { CircleNotchIcon, UploadSimpleIcon } from "@phosphor-icons/react";
 import { useId } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -44,12 +44,12 @@ export function UploadButton({
 			</label>
 			{isPending ? (
 				<>
-					<Loader2 className="size-4 animate-spin" />
+					<CircleNotchIcon className="size-4 animate-spin" />
 					Upload file
 				</>
 			) : (
 				<>
-					<Upload className="size-4" />
+					<UploadSimpleIcon className="size-4" />
 					Upload file
 				</>
 			)}

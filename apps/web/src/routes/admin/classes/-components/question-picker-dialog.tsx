@@ -1,12 +1,13 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { MagnifyingGlassIcon } from "@phosphor-icons/react";
+import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { orpc } from "@/utils/orpc";
@@ -35,20 +36,32 @@ export function QuestionPickerDialog({
 	const [selectedQuestionIds, setSelectedQuestionIds] = useState<Set<number>>(new Set());
 
 	const queryClient = useQueryClient();
+	const scrollRef = useRef<HTMLDivElement>(null);
 
-	const { data: questionsData, isPending } = useQuery(
-		orpc.admin.tryout.questions.listQuestions.queryOptions({
-			input: {
-				page: 1,
-				limit: 100,
+	const { data, isPending, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery(
+		orpc.admin.tryout.questions.listQuestions.infiniteOptions({
+			input: (pageParam) => ({
+				cursor: pageParam,
+				limit: 20,
 				search: search || undefined,
 				category: categoryFilter !== "all" ? categoryFilter : undefined,
 				type: typeFilter !== "all" ? typeFilter : undefined,
 				excludeIds: excludeIds.length > 0 ? excludeIds : undefined,
-			},
+			}),
+			getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+			initialPageParam: undefined as number | undefined,
 		}),
 	);
 
+	const questions = data?.pages.flatMap((page) => page.questions) ?? [];
+
+	const handleScroll = useCallback(() => {
+		const el = scrollRef.current;
+		if (!el || isFetchingNextPage || !hasNextPage) return;
+		if (el.scrollHeight - el.scrollTop - el.clientHeight < 200) {
+			fetchNextPage();
+		}
+	}, [isFetchingNextPage, hasNextPage, fetchNextPage]);
 	const addMutation = useMutation(
 		orpc.admin.subject.addPracticeQuestions.mutationOptions({
 			onSuccess: (result) => {
@@ -72,8 +85,6 @@ export function QuestionPickerDialog({
 			},
 		}),
 	);
-
-	const questions = questionsData?.questions ?? [];
 
 	const handleSelectAll = () => {
 		if (selectedQuestionIds.size === questions.length) {
@@ -125,12 +136,16 @@ export function QuestionPickerDialog({
 					{/* Search and Filters */}
 					<div className="flex flex-wrap items-center gap-3">
 						<div className="flex-1">
-							<Input
-								value={search}
-								onChange={(e) => setSearch(e.target.value)}
-								placeholder="Cari soal..."
-								className="w-full"
-							/>
+							<InputGroup className="w-full bg-white">
+								<InputGroupAddon>
+									<MagnifyingGlassIcon />
+								</InputGroupAddon>
+								<InputGroupInput
+									value={search}
+									onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
+									placeholder="Cari soal..."
+								/>
+							</InputGroup>
 						</div>
 						<Select value={categoryFilter} onValueChange={(v) => setCategoryFilter(v as CategoryFilter)}>
 							<SelectTrigger className="w-28">
@@ -176,7 +191,7 @@ export function QuestionPickerDialog({
 					</div>
 
 					{/* Question List */}
-					<div className="flex-1 overflow-y-auto">
+					<div ref={scrollRef} onScroll={handleScroll} className="flex-1 overflow-y-auto">
 						{isPending ? (
 							<div className="flex animate-pulse items-center justify-center py-8 text-muted-foreground">
 								Memuat soal...
@@ -232,6 +247,11 @@ export function QuestionPickerDialog({
 										</div>
 									</button>
 								))}
+								{isFetchingNextPage && (
+									<div className="flex animate-pulse items-center justify-center py-4 text-muted-foreground text-sm">
+										Memuat lebih banyak soal...
+									</div>
+								)}
 							</div>
 						)}
 					</div>

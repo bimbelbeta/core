@@ -2,7 +2,7 @@ import { TrashIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { type } from "arktype";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import {
 	AdminPageContent,
@@ -34,7 +34,7 @@ import { orpc } from "@/utils/orpc";
 import { AddTryoutDialog } from "./-components/add-tryout-dialog";
 
 const searchSchema = type({
-	page: "number = 1",
+	"cursor?": "number",
 	"search?": "string",
 	"category?": "'sd' | 'smp' | 'sma' | 'utbk'",
 	"status?": "'draft' | 'published' | 'archived'",
@@ -47,14 +47,15 @@ export const Route = createFileRoute("/admin/tryouts/")({
 
 function TryoutsListPage() {
 	const navigate = Route.useNavigate();
-	const { page = 1, search, category, status } = Route.useSearch();
+	const { cursor, search, category, status } = Route.useSearch();
 
 	const [searchInput, setSearchInput] = useState(search ?? "");
+	const [cursorStack, setCursorStack] = useState<number[]>([]);
 
 	const { data, isLoading, refetch } = useQuery(
 		orpc.admin.tryout.listTryouts.queryOptions({
 			input: {
-				page,
+				cursor,
 				limit: 10,
 				search: search ?? undefined,
 				category,
@@ -79,11 +80,21 @@ function TryoutsListPage() {
 		}),
 	);
 
+	const buildSearch = useCallback(
+		(newCursor?: number) => ({
+			...(newCursor && { cursor: newCursor }),
+			...(search && { search }),
+			...(category && { category }),
+			...(status && { status }),
+		}),
+		[search, category, status],
+	);
+
 	const handleSearch = (value: string) => {
 		setSearchInput(value);
+		setCursorStack([]);
 		navigate({
 			search: {
-				page: 1,
 				...(value && { search: value }),
 				...(category && { category }),
 				...(status && { status }),
@@ -92,9 +103,9 @@ function TryoutsListPage() {
 	};
 
 	const handleCategoryChange = (value: string) => {
+		setCursorStack([]);
 		navigate({
 			search: {
-				page: 1,
 				...(search && { search }),
 				...(value !== "all" && { category: value as "sd" | "smp" | "sma" | "utbk" }),
 				...(status && { status }),
@@ -103,9 +114,9 @@ function TryoutsListPage() {
 	};
 
 	const handleStatusChange = (value: string) => {
+		setCursorStack([]);
 		navigate({
 			search: {
-				page: 1,
 				...(search && { search }),
 				...(category && { category }),
 				...(value !== "all" && { status: value as "draft" | "published" | "archived" }),
@@ -113,15 +124,18 @@ function TryoutsListPage() {
 		});
 	};
 
-	const handlePageChange = (newPage: number) => {
-		navigate({
-			search: {
-				page: newPage,
-				...(search && { search }),
-				...(category && { category }),
-				...(status && { status }),
-			},
-		});
+	const handleNext = () => {
+		if (!data?.nextCursor) return;
+		setCursorStack((prev) => [...prev, cursor ?? 0]);
+		navigate({ search: buildSearch(data.nextCursor) });
+	};
+
+	const handlePrevious = () => {
+		if (cursorStack.length === 0) return;
+		const prev = [...cursorStack];
+		const previousCursor = prev.pop()!;
+		setCursorStack(prev);
+		navigate({ search: buildSearch(previousCursor || undefined) });
 	};
 
 	const handleDelete = (id: number) => {
@@ -199,9 +213,7 @@ function TryoutsListPage() {
 								) : (
 									data?.tryouts.map((tryout, index) => (
 										<TableRow key={tryout.id} className="group hover:bg-muted/30">
-											<TableCell className="text-center font-mono text-muted-foreground text-sm">
-												{(page - 1) * 10 + index + 1}
-											</TableCell>
+											<TableCell className="text-center font-mono text-muted-foreground text-sm">{index + 1}</TableCell>
 											<TableCell className="font-medium">
 												<Link
 													to="/admin/tryouts/$tryoutId"
@@ -272,13 +284,10 @@ function TryoutsListPage() {
 					{data && (
 						<div className="border-t p-4">
 							<PaginationButtons
-								page={page}
-								onPrevious={() => handlePageChange(page - 1)}
-								onNext={() => handlePageChange(page + 1)}
-								hasPrevious={page > 1}
-								hasNext={page < Math.ceil(data.total / data.limit)}
-								showPageInfo={true}
-								totalPages={Math.ceil(data.total / data.limit)}
+								onPrevious={handlePrevious}
+								onNext={handleNext}
+								hasPrevious={cursorStack.length > 0}
+								hasNext={!!data.nextCursor}
 							/>
 						</div>
 					)}

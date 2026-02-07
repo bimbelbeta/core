@@ -2,7 +2,7 @@ import { db } from "@bimbelbeta/db";
 import { programYearlyData, studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, gt } from "drizzle-orm";
 import { admin } from "../../../index";
 
 const list = admin
@@ -21,9 +21,11 @@ const list = admin
 	)
 	.handler(async ({ input }) => {
 		const limit = Math.min(input.limit ?? 20, 100);
-		const cursor = input.cursor ?? 0;
 
 		const conditions = [];
+		if (input.cursor) {
+			conditions.push(gt(universityStudyProgram.id, input.cursor));
+		}
 		if (input.universityId) {
 			conditions.push(eq(universityStudyProgram.universityId, input.universityId));
 		}
@@ -51,8 +53,7 @@ const list = admin
 			.innerJoin(studyProgram, eq(studyProgram.id, universityStudyProgram.studyProgramId))
 			.where(conditions.length > 0 ? and(...conditions) : undefined)
 			.orderBy(universityStudyProgram.id)
-			.limit(limit + 1)
-			.offset(cursor);
+			.limit(limit + 1);
 
 		const hasMore = results.length > limit;
 		const data = hasMore ? results.slice(0, limit) : results;

@@ -2,7 +2,7 @@ import { db } from "@bimbelbeta/db";
 import { tryout } from "@bimbelbeta/db/schema/tryout";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { and, count, eq, like } from "drizzle-orm";
+import { and, eq, gt, like } from "drizzle-orm";
 import { admin } from "../..";
 
 const createTryout = admin
@@ -54,7 +54,7 @@ const listTryouts = admin
 	})
 	.input(
 		type({
-			page: "number = 1",
+			cursor: "number?",
 			limit: "number = 10",
 			search: "string?",
 			category: type("'sd' | 'smp' | 'sma' | 'utbk'")?.optional(),
@@ -62,9 +62,11 @@ const listTryouts = admin
 		}),
 	)
 	.handler(async ({ input }) => {
-		const offset = (input.page - 1) * input.limit;
-
 		const conditions = [];
+
+		if (input.cursor) {
+			conditions.push(gt(tryout.id, input.cursor));
+		}
 
 		if (input.search) {
 			conditions.push(like(tryout.title, `%${input.search}%`));
@@ -80,22 +82,20 @@ const listTryouts = admin
 
 		const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-		const tryoutsList = await db
+		const rows = await db
 			.select()
 			.from(tryout)
 			.where(whereClause)
-			.limit(input.limit)
-			.offset(offset)
-			.orderBy(tryout.createdAt);
+			.limit(input.limit + 1)
+			.orderBy(tryout.id);
 
-		const [countResult] = await db.select({ value: count() }).from(tryout).where(whereClause);
-		const total = countResult?.value ?? 0;
+		const hasMore = rows.length > input.limit;
+		const tryoutsList = hasMore ? rows.slice(0, input.limit) : rows;
+		const lastTryout = tryoutsList.at(-1);
 
 		return {
 			tryouts: tryoutsList,
-			total,
-			page: input.page,
-			limit: input.limit,
+			nextCursor: hasMore && lastTryout ? lastTryout.id : undefined,
 		};
 	});
 

@@ -2,7 +2,7 @@ import { db } from "@bimbelbeta/db";
 import { question, questionChoice } from "@bimbelbeta/db/schema/question";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { and, count, eq, like, sql } from "drizzle-orm";
+import { and, eq, gt, like, sql } from "drizzle-orm";
 import { admin } from "../..";
 import { convertToTiptap } from "../../lib/convert-to-tiptap";
 
@@ -109,7 +109,7 @@ const listQuestions = admin
 	})
 	.input(
 		type({
-			page: "number = 1",
+			cursor: "number?",
 			limit: "number = 10",
 			search: "string?",
 			type: type("'multiple_choice' | 'multiple_choice_complex' | 'essay'")?.optional(),
@@ -119,9 +119,11 @@ const listQuestions = admin
 		}),
 	)
 	.handler(async ({ input }) => {
-		const offset = (input.page - 1) * input.limit;
-
 		const conditions = [];
+
+		if (input.cursor) {
+			conditions.push(gt(question.id, input.cursor));
+		}
 
 		if (input.search) {
 			conditions.push(like(question.content, `%${input.search}%`));
@@ -158,16 +160,16 @@ const listQuestions = admin
 
 		const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-		const questionsList = await db
+		const rows = await db
 			.select()
 			.from(question)
 			.where(whereClause)
-			.limit(input.limit)
-			.offset(offset)
+			.limit(input.limit + 1)
 			.orderBy(question.id);
 
-		const [countResult] = await db.select({ value: count() }).from(question).where(whereClause);
-		const total = countResult?.value ?? 0;
+		const hasMore = rows.length > input.limit;
+		const questionsList = hasMore ? rows.slice(0, input.limit) : rows;
+		const lastQuestion = questionsList.at(-1);
 
 		return {
 			questions: questionsList.map((q) => ({
@@ -175,9 +177,7 @@ const listQuestions = admin
 				content: q.contentJson ?? convertToTiptap(q.content),
 				discussion: q.discussionJson ?? convertToTiptap(q.discussion),
 			})),
-			total,
-			page: input.page,
-			limit: input.limit,
+			nextCursor: hasMore && lastQuestion ? lastQuestion.id : undefined,
 		};
 	});
 

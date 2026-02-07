@@ -1,8 +1,7 @@
 import { useUploadFile } from "@better-upload/client";
-import { Coins } from "@phosphor-icons/react";
+import { Coins, UploadSimpleIcon, XIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouteContext, useRouter } from "@tanstack/react-router";
-import { Upload, X } from "lucide-react";
 import * as m from "motion/react-m";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -230,7 +229,7 @@ export function TryoutStartConfirmation({ children, disabled = false }: TryoutSt
 										isUploading && "pointer-events-none opacity-50",
 									)}
 								>
-									<Upload className="size-8 text-muted-foreground" />
+									<UploadSimpleIcon className="size-8 text-muted-foreground" />
 									<span className="text-muted-foreground text-sm">Klik untuk memilih gambar atau drag & drop</span>
 									<span className="text-muted-foreground text-xs">PNG, JPG, GIF (maks 2MB)</span>
 									<input
@@ -253,7 +252,7 @@ export function TryoutStartConfirmation({ children, disabled = false }: TryoutSt
 												onClick={handleRemoveFile}
 												className="absolute top-2 right-2 rounded-full bg-background/80 p-1 hover:bg-background"
 											>
-												<X className="size-4" />
+												<XIcon className="size-4" />
 											</button>
 										)}
 										{/* Progress overlay */}

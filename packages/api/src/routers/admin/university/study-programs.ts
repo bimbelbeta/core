@@ -2,7 +2,7 @@ import { db } from "@bimbelbeta/db";
 import { studyProgram } from "@bimbelbeta/db/schema/university";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, gt, sql } from "drizzle-orm";
 import { admin } from "../../../index";
 
 const list = admin
@@ -21,9 +21,11 @@ const list = admin
 	)
 	.handler(async ({ input }) => {
 		const limit = Math.min(input.limit ?? 20, 100);
-		const cursor = input.cursor ?? 0;
 
 		const conditions = [];
+		if (input.cursor) {
+			conditions.push(gt(studyProgram.id, input.cursor));
+		}
 		if (input.search) {
 			conditions.push(sql`${studyProgram.name} ILIKE ${`%${input.search}%`}`);
 		}
@@ -42,8 +44,7 @@ const list = admin
 			.from(studyProgram)
 			.where(conditions.length > 0 ? and(...conditions) : undefined)
 			.orderBy(studyProgram.id)
-			.limit(limit + 1)
-			.offset(cursor);
+			.limit(limit + 1);
 
 		const hasMore = results.length > limit;
 		const data = hasMore ? results.slice(0, limit) : results;

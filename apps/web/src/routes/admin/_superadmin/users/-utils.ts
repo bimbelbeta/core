@@ -1,4 +1,4 @@
-import { ShieldCheck, ShieldPlus, User as UserIcon } from "lucide-react";
+import { ShieldCheckIcon, ShieldPlusIcon, UserIcon } from "@phosphor-icons/react";
 
 export function getInitials(name: string) {
 	return name
@@ -38,12 +38,12 @@ export function formatPremiumExpiry(date: Date) {
 export const roleConfig = {
 	superadmin: {
 		label: "Superadmin",
-		icon: ShieldPlus,
+		icon: ShieldPlusIcon,
 		className: "border-tertiary-300 bg-tertiary-100 text-tertiary-800",
 	},
 	admin: {
 		label: "Admin",
-		icon: ShieldCheck,
+		icon: ShieldCheckIcon,
 		className: "border-primary-300 bg-primary-100 text-primary-800",
 	},
 	user: {

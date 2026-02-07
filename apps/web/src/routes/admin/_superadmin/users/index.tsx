@@ -1,7 +1,7 @@
+import { CalendarDotsIcon, ClockIcon, CreditCardIcon, CrownIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { type } from "arktype";
-import { CalendarDays, Clock, CreditCard, Crown } from "lucide-react";
 import { useCallback, useState } from "react";
 import {
 	AdminPageContent,
@@ -253,7 +253,7 @@ function UsersListPage() {
 																		: "bg-neutral-200 text-neutral-500",
 																)}
 															>
-																<CreditCard className="size-3.5" />
+																<CreditCardIcon className="size-3.5" />
 															</div>
 															<span
 																className={cn(
@@ -271,7 +271,7 @@ function UsersListPage() {
 														{user.isPremium ? (
 															<div className="flex flex-col justify-center gap-2">
 																<div className="flex w-fit items-center gap-1.5 rounded-full border border-amber-200 bg-gradient-to-r from-amber-50 to-yellow-50 px-2.5 py-1 shadow-xs">
-																	<Crown className="size-3.5 text-amber-500" />
+																	<CrownIcon className="size-3.5 text-amber-500" weight="fill" />
 																	<span className="font-bold text-amber-700 text-xs tracking-wide">PREMIUM</span>
 																</div>
 																{premiumDate && (
@@ -283,7 +283,7 @@ function UsersListPage() {
 																					isPremiumExpired ? "text-red-100" : "text-amber-600",
 																				)}
 																			>
-																				<Clock className="size-3" />
+																				<ClockIcon className="size-3" />
 																				{formatPremiumExpiry(premiumDate)}
 																			</span>
 																		</TooltipTrigger>
@@ -313,7 +313,7 @@ function UsersListPage() {
 															<Tooltip>
 																<TooltipTrigger asChild>
 																	<span className="flex items-center gap-1.5 text-muted-foreground text-xs">
-																		<CalendarDays className="size-3.5" />
+																		<CalendarDotsIcon className="size-3.5" />
 																		{formatRelativeDate(createdDate)}
 																	</span>
 																</TooltipTrigger>
@@ -399,7 +399,6 @@ function UsersListPage() {
 								onNext={handleNext}
 								hasPrevious={cursorStack.length > 0}
 								hasNext={!!data.nextCursor}
-								showPageInfo={false}
 							/>
 						</div>
 					)}

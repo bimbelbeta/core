@@ -1,4 +1,4 @@
-import { BookOpen, Sparkles } from "lucide-react";
+import { BookOpenIcon, SparkleIcon } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 
@@ -43,7 +43,7 @@ export default function Loader() {
 					}}
 					className="relative z-10 text-primary"
 				>
-					<BookOpen size={64} strokeWidth={1.5} />
+					<BookOpenIcon size={64} weight="regular" />
 				</motion.div>
 
 				{/* Floating Particles */}
@@ -66,7 +66,7 @@ export default function Loader() {
 							ease: "easeOut",
 						}}
 					>
-						<Sparkles size={16} />
+						<SparkleIcon size={16} />
 					</motion.div>
 				))}
 

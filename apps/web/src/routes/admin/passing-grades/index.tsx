@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { type } from "arktype";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import {
 	AdminPageContent,
 	AdminPageHeader,
@@ -19,7 +19,7 @@ import { orpc } from "@/utils/orpc";
 import { AddUniversityDialog } from "./-components/add-university-dialog";
 
 const searchSchema = type({
-	page: "number = 0",
+	"cursor?": "number",
 	"search?": "string",
 });
 
@@ -30,14 +30,15 @@ export const Route = createFileRoute("/admin/passing-grades/")({
 
 function RouteComponent() {
 	const navigate = Route.useNavigate();
-	const { page = 0, search } = Route.useSearch();
+	const { cursor, search } = Route.useSearch();
 
 	const [searchInput, setSearchInput] = useState(search ?? "");
+	const [cursorStack, setCursorStack] = useState<number[]>([]);
 
 	const { data, isLoading, refetch } = useQuery(
 		orpc.admin.university.universities.list.queryOptions({
 			input: {
-				cursor: (page ?? 0) * 10,
+				cursor,
 				limit: 10,
 				search: search ?? undefined,
 			},
@@ -46,23 +47,36 @@ function RouteComponent() {
 
 	const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
+	const buildSearch = useCallback(
+		(newCursor?: number) => ({
+			...(newCursor && { cursor: newCursor }),
+			...(search && { search }),
+		}),
+		[search],
+	);
+
 	const handleSearch = (value: string) => {
 		setSearchInput(value);
+		setCursorStack([]);
 		navigate({
 			search: {
-				page: 0,
 				...(value && { search: value }),
 			},
 		});
 	};
 
-	const handlePageChange = (newPage: number) => {
-		navigate({
-			search: {
-				page: newPage,
-				...(search && { search }),
-			},
-		});
+	const handleNext = () => {
+		if (!data?.nextCursor) return;
+		setCursorStack((prev) => [...prev, cursor ?? 0]);
+		navigate({ search: buildSearch(data.nextCursor) });
+	};
+
+	const handlePrevious = () => {
+		if (cursorStack.length === 0) return;
+		const prev = [...cursorStack];
+		const previousCursor = prev.pop()!;
+		setCursorStack(prev);
+		navigate({ search: buildSearch(previousCursor || undefined) });
 	};
 
 	return (
@@ -115,9 +129,7 @@ function RouteComponent() {
 								) : (
 									data?.data?.map((uni, index) => (
 										<TableRow key={uni.id} className="group hover:bg-muted/30">
-											<TableCell className="text-center font-mono text-muted-foreground text-sm">
-												{(page ?? 0) * 10 + index + 1}
-											</TableCell>
+											<TableCell className="text-center font-mono text-muted-foreground text-sm">{index + 1}</TableCell>
 											<TableCell className="font-medium">
 												<Link
 													to="/admin/passing-grades/$universityId"
@@ -143,12 +155,10 @@ function RouteComponent() {
 					{data && (
 						<div className="border-t p-4">
 							<PaginationButtons
-								page={(page ?? 0) + 1}
-								onPrevious={() => handlePageChange((page ?? 0) - 1)}
-								onNext={() => handlePageChange((page ?? 0) + 1)}
-								hasPrevious={!!page && page > 0}
+								onPrevious={handlePrevious}
+								onNext={handleNext}
+								hasPrevious={cursorStack.length > 0}
 								hasNext={!!data.nextCursor}
-								showPageInfo={false}
 							/>
 						</div>
 					)}

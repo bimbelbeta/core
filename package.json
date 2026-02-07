@@ -33,6 +33,7 @@
 		"dev:native": "turbo -F native dev",
 		"dev:web": "turbo -F web dev",
 		"dev:server": "turbo -F server dev",
+		"prepare": "bun lint:fix --unsafe && bun check-types",
 		"db:push": "turbo -F @bimbelbeta/db db:push",
 		"db:studio": "turbo -F @bimbelbeta/db db:studio",
 		"db:generate": "turbo -F @bimbelbeta/db db:generate",

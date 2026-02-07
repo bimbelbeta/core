@@ -2,7 +2,7 @@ import { PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { type } from "arktype";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import {
 	AdminPageContent,
@@ -34,7 +34,7 @@ import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { orpc } from "@/utils/orpc";
 
 const searchSchema = type({
-	page: "number = 1",
+	"cursor?": "number",
 	"search?": "string",
 	"type?": "'multiple_choice' | 'multiple_choice_complex' | 'essay'",
 	"category?": "'sd' | 'smp' | 'sma' | 'utbk'",
@@ -94,7 +94,7 @@ function QuestionsListPage() {
 	const navigate = useNavigate({ from: "/admin/questions/" });
 
 	const search = Route.useSearch();
-	const page = search.page ?? 1;
+	const cursor = search.cursor;
 	const searchQuery = search.search;
 	const questionType = search.type;
 	const category = search.category;
@@ -104,11 +104,12 @@ function QuestionsListPage() {
 	const [selectedIds, setSelectedIds] = useState<number[]>([]);
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState<number | null>(null);
 	const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
+	const [cursorStack, setCursorStack] = useState<number[]>([]);
 
 	const { data, isLoading, refetch } = useQuery(
 		orpc.admin.tryout.questions.listQuestions.queryOptions({
 			input: {
-				page,
+				cursor,
 				limit: 10,
 				search: searchQuery,
 				type: questionType,
@@ -132,11 +133,22 @@ function QuestionsListPage() {
 		}),
 	);
 
+	const buildSearch = useCallback(
+		(newCursor?: number) => ({
+			...(newCursor && { cursor: newCursor }),
+			...(searchQuery && { search: searchQuery }),
+			...(questionType && { type: questionType }),
+			...(category && { category }),
+			...(tag && { tag }),
+		}),
+		[searchQuery, questionType, category, tag],
+	);
+
 	const handleSearch = (value: string) => {
 		setSearchInput(value);
+		setCursorStack([]);
 		navigate({
 			search: {
-				page: 1,
 				...(value && { search: value }),
 				...(questionType && { type: questionType }),
 				...(category && { category }),
@@ -146,9 +158,9 @@ function QuestionsListPage() {
 	};
 
 	const handleTypeChange = (value: string) => {
+		setCursorStack([]);
 		navigate({
 			search: {
-				page: 1,
 				...(searchQuery && { search: searchQuery }),
 				...(value !== "all" && { type: value as "multiple_choice" | "multiple_choice_complex" | "essay" }),
 				...(category && { category }),
@@ -158,9 +170,9 @@ function QuestionsListPage() {
 	};
 
 	const handleCategoryChange = (value: string) => {
+		setCursorStack([]);
 		navigate({
 			search: {
-				page: 1,
 				...(searchQuery && { search: searchQuery }),
 				...(questionType && { type: questionType }),
 				...(value !== "all" && { category: value as "sd" | "smp" | "sma" | "utbk" }),
@@ -169,16 +181,18 @@ function QuestionsListPage() {
 		});
 	};
 
-	const handlePageChange = (newPage: number) => {
-		navigate({
-			search: {
-				page: newPage,
-				...(searchQuery && { search: searchQuery }),
-				...(questionType && { type: questionType }),
-				...(category && { category }),
-				...(tag && { tag }),
-			},
-		});
+	const handleNext = () => {
+		if (!data?.nextCursor) return;
+		setCursorStack((prev) => [...prev, cursor ?? 0]);
+		navigate({ search: buildSearch(data.nextCursor) });
+	};
+
+	const handlePrevious = () => {
+		if (cursorStack.length === 0) return;
+		const prev = [...cursorStack];
+		const previousCursor = prev.pop()!;
+		setCursorStack(prev);
+		navigate({ search: buildSearch(previousCursor || undefined) });
 	};
 
 	const handleDelete = (id: number) => {
@@ -420,19 +434,12 @@ function QuestionsListPage() {
 					</div>
 
 					{data && data.questions.length > 0 && (
-						<div className="flex items-center justify-between border-t p-4">
-							<div className="text-muted-foreground text-sm">
-								Menampilkan {(page - 1) * data.limit + 1} - {Math.min(page * data.limit, data.total)} dari {data.total}{" "}
-								soal
-							</div>
+						<div className="border-t p-4">
 							<PaginationButtons
-								page={page}
-								onPrevious={() => handlePageChange(page - 1)}
-								onNext={() => handlePageChange(page + 1)}
-								hasPrevious={page > 1}
-								hasNext={page < Math.ceil(data.total / data.limit)}
-								showPageInfo={true}
-								totalPages={Math.ceil(data.total / data.limit)}
+								onPrevious={handlePrevious}
+								onNext={handleNext}
+								hasPrevious={cursorStack.length > 0}
+								hasNext={!!data.nextCursor}
 							/>
 						</div>
 					)}
