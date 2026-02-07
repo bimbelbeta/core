@@ -13,9 +13,9 @@ import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TagInput } from "@/components/ui/tag-input";
 import { orpc } from "@/utils/orpc";
+import type { Choice } from "./edit-question-form";
 import { MultipleChoiceComplexQuestionForm } from "./multiple-choice-complex-question-form";
 import { MultipleChoiceQuestionForm } from "./multiple-choice-question-form";
-import type { Choice } from "./use-question-mutations";
 
 interface CreateQuestionFormProps {
 	questionType: "multiple_choice" | "multiple_choice_complex" | "essay";
@@ -158,9 +158,14 @@ export function CreateQuestionForm({
 									)}
 								</form.Field>
 
-								<MultipleChoiceQuestionForm
-									onChoicesChange={(newChoices) => form.setFieldValue("choices", newChoices)}
-								/>
+								<form.Field name="choices">
+									{(field) => (
+										<MultipleChoiceQuestionForm
+											choices={field.state.value}
+											onChoicesChange={(newChoices) => field.handleChange(newChoices)}
+										/>
+									)}
+								</form.Field>
 
 								<form.Field name="discussion">
 									{(field) => (
@@ -210,9 +215,14 @@ export function CreateQuestionForm({
 									)}
 								</form.Field>
 
-								<MultipleChoiceComplexQuestionForm
-									onChoicesChange={(newChoices) => form.setFieldValue("choices", newChoices)}
-								/>
+								<form.Field name="choices">
+									{(field) => (
+										<MultipleChoiceComplexQuestionForm
+											choices={field.state.value}
+											onChoicesChange={(newChoices) => field.handleChange(newChoices)}
+										/>
+									)}
+								</form.Field>
 
 								<form.Field name="discussion">
 									{(field) => (

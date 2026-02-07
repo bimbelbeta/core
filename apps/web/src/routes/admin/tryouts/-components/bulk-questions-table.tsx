@@ -35,11 +35,11 @@ export function BulkQuestionsTable({
 	};
 
 	return (
-		<div className="overflow-hidden overflow-x-auto rounded-lg border bg-white shadow-sm transition-all hover:shadow-md">
+		<div className="overflow-clip rounded-lg border bg-white shadow-sm transition-all hover:shadow-md">
 			<Table>
 				<TableHeader>
 					<TableRow className="bg-muted/30 hover:bg-muted/30">
-						<TableHead className="w-12 text-center">
+						<TableHead className="text-center">
 							<Checkbox
 								checked={isAllSelected}
 								onCheckedChange={() => onSelectAll()}
@@ -47,10 +47,9 @@ export function BulkQuestionsTable({
 								className="translate-y-0.5"
 							/>
 						</TableHead>
-						<TableHead className="w-16 text-center font-semibold text-primary-navy-900">No</TableHead>
-						<TableHead className="w-48 text-center font-semibold text-primary-navy-900">Pertanyaan</TableHead>
-						<TableHead className="w-32 text-center font-semibold text-primary-navy-900">Tipe</TableHead>
-						<TableHead className="w-20 text-center font-semibold text-primary-navy-900">ID</TableHead>
+						<TableHead className="text-center font-semibold text-primary-navy-900">ID</TableHead>
+						<TableHead className="text-center font-semibold text-primary-navy-900">Pertanyaan</TableHead>
+						<TableHead className="text-center font-semibold text-primary-navy-900">Tipe</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>

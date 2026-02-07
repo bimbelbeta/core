@@ -228,6 +228,14 @@ const updateQuestion = admin
 			discussion: "unknown",
 			tags: "string[]?",
 			essayCorrectAnswer: "string?",
+			choices: type(
+				{
+					"id?": "number",
+					content: "string",
+					isCorrect: "boolean",
+				},
+				"[]",
+			).optional(),
 		}),
 	)
 	.output(type({ message: "string" }))
@@ -238,22 +246,62 @@ const updateQuestion = admin
 		const contentText = typeof input.content === "string" ? input.content : JSON.stringify(input.content);
 		const discussionText = typeof input.discussion === "string" ? input.discussion : JSON.stringify(input.discussion);
 
-		const [q] = await db
-			.update(question)
-			.set({
-				content: contentText,
-				discussion: discussionText,
-				contentJson,
-				discussionJson,
-				essayCorrectAnswer: input.essayCorrectAnswer,
-			})
-			.where(eq(question.id, input.id))
-			.returning();
+		await db.transaction(async (tx) => {
+			const [q] = await tx
+				.update(question)
+				.set({
+					content: contentText,
+					discussion: discussionText,
+					contentJson,
+					discussionJson,
+					essayCorrectAnswer: input.essayCorrectAnswer,
+					tags: input.tags ?? [],
+				})
+				.where(eq(question.id, input.id))
+				.returning();
 
-		if (!q)
-			throw new ORPCError("NOT_FOUND", {
-				message: "Question tidak ditemukan",
-			});
+			if (!q)
+				throw new ORPCError("NOT_FOUND", {
+					message: "Question tidak ditemukan",
+				});
+
+			if (input.choices) {
+				const existingChoices = await tx.select().from(questionChoice).where(eq(questionChoice.questionId, input.id));
+
+				const incomingIds = new Set(input.choices.filter((c) => c.id && c.id > 0).map((c) => c.id as number));
+
+				const toDelete = existingChoices.filter((c) => !incomingIds.has(c.id));
+				for (const choice of toDelete) {
+					await tx.delete(questionChoice).where(eq(questionChoice.id, choice.id));
+				}
+
+				const choiceCodes = ["A", "B", "C", "D", "E", "F", "G"] as const;
+				const usedCodes = new Set(existingChoices.filter((c) => incomingIds.has(c.id)).map((c) => c.code));
+
+				for (const choice of input.choices) {
+					if (choice.id && choice.id > 0) {
+						const existing = existingChoices.find((c) => c.id === choice.id);
+						if (existing && (existing.content !== choice.content || existing.isCorrect !== choice.isCorrect)) {
+							await tx
+								.update(questionChoice)
+								.set({ content: choice.content, isCorrect: choice.isCorrect })
+								.where(eq(questionChoice.id, choice.id));
+						}
+					} else {
+						const nextCode = choiceCodes.find((code) => !usedCodes.has(code));
+						if (nextCode) {
+							usedCodes.add(nextCode);
+							await tx.insert(questionChoice).values({
+								questionId: input.id,
+								code: nextCode,
+								content: choice.content,
+								isCorrect: choice.isCorrect,
+							});
+						}
+					}
+				}
+			}
+		});
 
 		return { message: "Question berhasil diperbarui" };
 	});

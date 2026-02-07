@@ -7,7 +7,9 @@ import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
+import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 import { EditQuestionForm } from "./-components/edit-question-form";
 
@@ -45,8 +47,10 @@ function QuestionDetailPage() {
 					type: question.type,
 					content: question.content as object,
 					discussion: question.discussion as object,
+					essayCorrectAnswer: question.essayCorrectAnswer ?? undefined,
 					tags: question.tags ?? undefined,
 				}}
+				initialChoices={choices ?? []}
 				onSuccess={() => setIsEditing(false)}
 				onCancel={() => setIsEditing(false)}
 			/>
@@ -73,8 +77,18 @@ function QuestionDetailPage() {
 					<CardHeader>
 						<div className="flex items-center justify-between">
 							<CardTitle>Informasi Soal #{question.id}</CardTitle>
-							<Badge variant={question.type === "multiple_choice" ? "default" : "secondary"}>
-								{question.type === "multiple_choice" ? "Pilihan Ganda" : "Esai"}
+							<Badge
+								variant={
+									question.type === "multiple_choice" || question.type === "multiple_choice_complex"
+										? "default"
+										: "secondary"
+								}
+							>
+								{question.type === "multiple_choice"
+									? "Pilihan Ganda"
+									: question.type === "multiple_choice_complex"
+										? "Pilihan Ganda Kompleks"
+										: "Esai"}
 							</Badge>
 						</div>
 					</CardHeader>
@@ -87,26 +101,24 @@ function QuestionDetailPage() {
 						{question.type === "multiple_choice" && choices && (
 							<div>
 								<h3 className="mb-2 font-medium text-muted-foreground text-sm">Pilihan Jawaban</h3>
-								<div className="space-y-3">
+								<div className="flex flex-col gap-2">
 									{choices.map((choice) => (
 										<div
 											key={choice.id}
-											className={`flex items-start gap-3 rounded-lg border p-3 ${
-												choice.isCorrect ? "border-green-200 bg-green-50" : ""
-											}`}
+											className={cn(
+												"flex items-center gap-3 rounded-md border p-4 text-start",
+												choice.isCorrect ? "border-green-500 bg-green-50" : "border-border",
+											)}
 										>
-											<div
-												className={`flex size-6 shrink-0 items-center justify-center rounded-full border font-bold text-xs ${
-													choice.isCorrect
-														? "border-green-600 bg-green-500 text-white"
-														: "bg-muted text-muted-foreground"
-												}`}
+											<span
+												className={cn(
+													"rounded-xs border border-foreground/20 px-2.5 py-0.5 font-medium text-sm",
+													choice.isCorrect && "border-green-500 bg-green-500 text-white",
+												)}
 											>
 												{choice.code}
-											</div>
-											<div className="flex-1">
-												<p className="text-sm">{choice.content}</p>
-											</div>
+											</span>
+											<span className="flex-1 text-sm">{choice.content}</span>
 											{choice.isCorrect && (
 												<Badge variant="outline" className="ml-auto border-green-200 bg-green-100 text-green-700">
 													Benar
@@ -114,6 +126,48 @@ function QuestionDetailPage() {
 											)}
 										</div>
 									))}
+								</div>
+							</div>
+						)}
+
+						{question.type === "multiple_choice_complex" && choices && (
+							<div>
+								<h3 className="mb-2 font-medium text-muted-foreground text-sm">Pilihan Jawaban</h3>
+								<div className="rounded-lg border">
+									<Table>
+										<TableHeader>
+											<TableRow>
+												<TableHead>Pernyataan</TableHead>
+												<TableHead className="w-32 text-center">Benar</TableHead>
+											</TableRow>
+										</TableHeader>
+										<TableBody>
+											{choices.map((choice) => (
+												<TableRow key={choice.id}>
+													<TableCell>{choice.content}</TableCell>
+													<TableCell className="text-center">
+														<div
+															className={cn(
+																"mx-auto flex size-8 items-center justify-center rounded-full border-2",
+																choice.isCorrect ? "border-green-500 bg-green-500 text-white" : "border-border",
+															)}
+														>
+															{choice.isCorrect && (
+																<svg className="size-4" fill="currentColor" viewBox="0 0 20 20">
+																	<title>Benar</title>
+																	<path
+																		fillRule="evenodd"
+																		d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+																		clipRule="evenodd"
+																	/>
+																</svg>
+															)}
+														</div>
+													</TableCell>
+												</TableRow>
+											))}
+										</TableBody>
+									</Table>
 								</div>
 							</div>
 						)}

@@ -4,21 +4,10 @@ import { buttonVariants } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { Highlight } from "@/components/ui/highlight";
 import { cn } from "@/lib/utils";
+import { formatRupiah } from "@/utils/formatter";
 import { Heading } from "./-componenets/heading";
 import { Subheading } from "./-componenets/subheading";
 import { DATA } from "./data";
-
-export function formatRupiah(value: number) {
-	return new Intl.NumberFormat("id-ID", {
-		style: "currency",
-		currency: "IDR",
-		maximumFractionDigits: 0,
-		currencyDisplay: "code",
-	})
-		.format(value)
-		.replace("IDR", "Rp")
-		.replace(/\s/g, "");
-}
 
 export function Pricing() {
 	return (

@@ -41,7 +41,7 @@ function RouteComponent() {
 		isActive: boolean;
 	};
 	const [editProgram, setEditProgram] = useState<ProgramData | null>(null);
-	const [deleteProgram, setDeleteProgram] = useState<ProgramData | null>(null);
+	const [deleteProgramId, setDeleteProgramId] = useState<number | null>(null);
 
 	const { data: university, isLoading: isUniversityLoading } = useQuery(
 		orpc.admin.university.universities.find.queryOptions({
@@ -155,7 +155,7 @@ function RouteComponent() {
 													<PencilIcon className="mr-2 size-4" />
 													Edit
 												</DropdownMenuItem>
-												<DropdownMenuItem variant="destructive" onClick={() => setDeleteProgram(prog)}>
+												<DropdownMenuItem variant="destructive" onClick={() => setDeleteProgramId(prog.id)}>
 													<TrashIcon className="mr-2 size-4" />
 													Hapus
 												</DropdownMenuItem>
@@ -201,7 +201,7 @@ function RouteComponent() {
 			)}
 
 			<DeleteProgramAlert
-				universityProgram={deleteProgram!}
+				id={deleteProgramId!}
 				onSuccess={() => {
 					queryClient.invalidateQueries({
 						queryKey: orpc.admin.university.universityPrograms.list.queryKey({
@@ -211,9 +211,9 @@ function RouteComponent() {
 						}),
 					});
 				}}
-				open={!!deleteProgram}
+				open={!!deleteProgramId}
 				onOpenChange={(open) => {
-					if (!open) setDeleteProgram(null);
+					if (!open) setDeleteProgramId(null);
 				}}
 			/>
 		</div>

@@ -2,7 +2,7 @@ import { ArrowLeftIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type } from "arktype";
-import { useEffect } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import TiptapSimpleEditor from "@/components/tiptap-simple-editor";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,13 @@ import { orpc } from "@/utils/orpc";
 import { MultipleChoiceComplexQuestionForm } from "./multiple-choice-complex-question-form";
 import { MultipleChoiceQuestionForm } from "./multiple-choice-question-form";
 
+export interface Choice {
+	id: number;
+	code: string;
+	content: string;
+	isCorrect: boolean;
+}
+
 interface EditQuestionFormProps {
 	question: {
 		id: number;
@@ -24,12 +31,14 @@ interface EditQuestionFormProps {
 		essayCorrectAnswer?: string;
 		tags?: string[];
 	};
+	initialChoices: Choice[];
 	onSuccess: () => void;
 	onCancel: () => void;
 }
 
-export function EditQuestionForm({ question, onSuccess, onCancel }: EditQuestionFormProps) {
+export function EditQuestionForm({ question, initialChoices, onSuccess, onCancel }: EditQuestionFormProps) {
 	const queryClient = useQueryClient();
+	const [choices, setChoices] = useState<Choice[]>(initialChoices);
 
 	const form = useForm({
 		defaultValues: {
@@ -39,12 +48,20 @@ export function EditQuestionForm({ question, onSuccess, onCancel }: EditQuestion
 			tags: question.tags ?? ([] as string[]),
 		},
 		onSubmit: async ({ value }) => {
+			const choicesPayload =
+				question.type === "multiple_choice" || question.type === "multiple_choice_complex" ? choices : undefined;
+
 			updateMutation.mutate({
 				id: question.id,
 				content: value.content,
 				discussion: value.discussion,
 				essayCorrectAnswer: question.type === "essay" ? value.essayCorrectAnswer : undefined,
 				tags: value.tags.length > 0 ? value.tags : undefined,
+				choices: choicesPayload?.map((c) => ({
+					id: c.id > 0 ? c.id : undefined,
+					content: c.content,
+					isCorrect: c.isCorrect,
+				})),
 			});
 		},
 		validators: {
@@ -56,15 +73,6 @@ export function EditQuestionForm({ question, onSuccess, onCancel }: EditQuestion
 			}),
 		},
 	});
-
-	useEffect(() => {
-		form.setFieldValue("content", question.content);
-		form.setFieldValue("discussion", question.discussion);
-		form.setFieldValue("essayCorrectAnswer", question.essayCorrectAnswer ?? "");
-		if (question.tags) {
-			form.setFieldValue("tags", question.tags);
-		}
-	}, [question, form]);
 
 	const updateMutation = useMutation(
 		orpc.admin.tryout.questions.updateQuestion.mutationOptions({
@@ -136,9 +144,9 @@ export function EditQuestionForm({ question, onSuccess, onCancel }: EditQuestion
 						</form.Field>
 
 						{question.type === "multiple_choice" ? (
-							<MultipleChoiceQuestionForm questionId={question.id} />
+							<MultipleChoiceQuestionForm choices={choices} onChoicesChange={setChoices} />
 						) : question.type === "multiple_choice_complex" ? (
-							<MultipleChoiceComplexQuestionForm questionId={question.id} />
+							<MultipleChoiceComplexQuestionForm choices={choices} onChoicesChange={setChoices} />
 						) : (
 							<form.Field name="essayCorrectAnswer">
 								{(field) => (

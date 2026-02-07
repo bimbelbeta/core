@@ -1,28 +1,38 @@
 import { PlusIcon } from "@phosphor-icons/react";
-import { skipToken, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { orpc } from "@/utils/orpc";
 import { ChoiceEditItem } from "./choice-edit-item";
-import { type Choice, useQuestionMutations } from "./use-question-mutations";
+import type { Choice } from "./edit-question-form";
 
 interface MultipleChoiceQuestionFormProps {
-	questionId?: number;
-	onChoicesChange?: (choices: Choice[]) => void;
+	choices: Choice[];
+	onChoicesChange: (choices: Choice[]) => void;
 }
 
-export function MultipleChoiceQuestionForm({ questionId, onChoicesChange }: MultipleChoiceQuestionFormProps) {
-	const { data: questionData } = useQuery(
-		orpc.admin.tryout.questions.getQuestion.queryOptions({
-			input: questionId ? { id: questionId } : skipToken,
-		}),
-	);
+const CHOICE_CODES = ["A", "B", "C", "D", "E", "F", "G"] as const;
 
-	const { choices, addChoice, updateChoice, deleteChoice, isAdding, isUpdating, isDeleting } = useQuestionMutations({
-		questionId,
-		initialChoices: questionData?.choices ?? [],
-		onChoicesChange,
-	});
+export function MultipleChoiceQuestionForm({ choices, onChoicesChange }: MultipleChoiceQuestionFormProps) {
+	const addChoice = () => {
+		const nextCode = CHOICE_CODES[choices.length];
+		if (nextCode) {
+			onChoicesChange([...choices, { id: -Date.now(), code: nextCode, content: "", isCorrect: false }]);
+		}
+	};
+
+	const updateChoice = (id: number, content: string, isCorrect: boolean) => {
+		onChoicesChange(
+			choices.map((c) => {
+				if (c.id === id) return { ...c, content, isCorrect };
+				if (isCorrect && c.isCorrect) return { ...c, isCorrect: false };
+				return c;
+			}),
+		);
+	};
+
+	const deleteChoice = (id: number) => {
+		const filtered = choices.filter((c) => c.id !== id);
+		onChoicesChange(filtered.map((c, i) => ({ ...c, code: CHOICE_CODES[i] || c.code })));
+	};
 
 	return (
 		<div className="space-y-4">
@@ -32,15 +42,13 @@ export function MultipleChoiceQuestionForm({ questionId, onChoicesChange }: Mult
 					<ChoiceEditItem
 						key={choice.id}
 						choice={choice}
-						isUpdating={isUpdating === choice.id}
-						isDeleting={isDeleting === choice.id}
 						onUpdate={(content, isCorrect) => updateChoice(choice.id, content, isCorrect)}
 						onDelete={() => deleteChoice(choice.id)}
 					/>
 				))}
 			</div>
 			{choices.length < 7 && (
-				<Button type="button" variant="outline" onClick={addChoice} disabled={isAdding}>
+				<Button type="button" variant="outline" onClick={addChoice}>
 					<PlusIcon className="mr-2 size-4" />
 					Tambah Pilihan
 				</Button>

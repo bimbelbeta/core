@@ -13,18 +13,13 @@ import { Button } from "@/components/ui/button";
 import { orpc } from "@/utils/orpc";
 
 interface DeleteProgramAlertProps {
-	universityProgram: {
-		id: number;
-		studyProgram: {
-			name: string;
-		};
-	};
+	id: number;
 	onSuccess: () => void;
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 }
 
-export function DeleteProgramAlert({ universityProgram, onSuccess, open, onOpenChange }: DeleteProgramAlertProps) {
+export function DeleteProgramAlert({ id, onSuccess, open, onOpenChange }: DeleteProgramAlertProps) {
 	const { mutate: deleteProgram, isPending: isDeleting } = useMutation(
 		orpc.admin.university.universityPrograms.remove.mutationOptions({
 			onSuccess: () => {
@@ -44,17 +39,12 @@ export function DeleteProgramAlert({ universityProgram, onSuccess, open, onOpenC
 				<AlertDialogHeader>
 					<AlertDialogTitle>Hapus Program Studi?</AlertDialogTitle>
 					<AlertDialogDescription>
-						Anda yakin ingin menghapus <strong>{universityProgram.studyProgram.name}</strong> dari universitas ini?
-						Tindakan ini tidak dapat dibatalkan.
+						Anda yakin ingin menghapus program studi dari universitas ini? Tindakan ini tidak dapat dibatalkan.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
 					<AlertDialogCancel disabled={isDeleting}>Batal</AlertDialogCancel>
-					<Button
-						variant="destructive"
-						onClick={() => deleteProgram({ id: universityProgram.id })}
-						disabled={isDeleting}
-					>
+					<Button variant="destructive" onClick={() => deleteProgram({ id: id })} disabled={isDeleting}>
 						{isDeleting ? "Menghapus..." : "Hapus"}
 					</Button>
 				</AlertDialogFooter>

@@ -1,33 +1,36 @@
 import { PlusIcon } from "@phosphor-icons/react";
-import { skipToken, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { orpc } from "@/utils/orpc";
 import { ComplexChoiceEditRow } from "./complex-choice-edit-row";
-import { type Choice, useQuestionMutations } from "./use-question-mutations";
+import type { Choice } from "./edit-question-form";
 
 interface MultipleChoiceComplexQuestionFormProps {
-	questionId?: number;
-	onChoicesChange?: (choices: Choice[]) => void;
+	choices: Choice[];
+	onChoicesChange: (choices: Choice[]) => void;
 }
 
+const CHOICE_CODES = ["A", "B", "C", "D", "E", "F", "G"] as const;
+
 export function MultipleChoiceComplexQuestionForm({
-	questionId,
+	choices,
 	onChoicesChange,
 }: MultipleChoiceComplexQuestionFormProps) {
-	const { data: questionData } = useQuery(
-		orpc.admin.tryout.questions.getQuestion.queryOptions({
-			input: questionId ? { id: questionId } : skipToken,
-		}),
-	);
+	const addChoice = () => {
+		const nextCode = CHOICE_CODES[choices.length];
+		if (nextCode) {
+			onChoicesChange([...choices, { id: -Date.now(), code: nextCode, content: "", isCorrect: false }]);
+		}
+	};
 
-	const { choices, addChoice, updateChoice, deleteChoice, isAdding, isUpdating, isDeleting } = useQuestionMutations({
-		questionId,
-		initialChoices: questionData?.choices ?? [],
-		allowMultipleCorrect: true,
-		onChoicesChange,
-	});
+	const updateChoice = (id: number, content: string, isCorrect: boolean) => {
+		onChoicesChange(choices.map((c) => (c.id === id ? { ...c, content, isCorrect } : c)));
+	};
+
+	const deleteChoice = (id: number) => {
+		const filtered = choices.filter((c) => c.id !== id);
+		onChoicesChange(filtered.map((c, i) => ({ ...c, code: CHOICE_CODES[i] || c.code })));
+	};
 
 	return (
 		<div className="space-y-4">
@@ -46,8 +49,6 @@ export function MultipleChoiceComplexQuestionForm({
 							<ComplexChoiceEditRow
 								key={choice.id}
 								choice={choice}
-								isUpdating={isUpdating === choice.id}
-								isDeleting={isDeleting === choice.id}
 								onUpdate={(content, isCorrect) => updateChoice(choice.id, content, isCorrect)}
 								onDelete={() => deleteChoice(choice.id)}
 							/>
@@ -56,7 +57,7 @@ export function MultipleChoiceComplexQuestionForm({
 				</Table>
 			</div>
 			{choices.length < 7 && (
-				<Button type="button" variant="outline" onClick={addChoice} disabled={isAdding}>
+				<Button type="button" variant="outline" onClick={addChoice}>
 					<PlusIcon className="mr-2 size-4" />
 					Tambah Pilihan
 				</Button>

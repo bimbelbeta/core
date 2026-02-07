@@ -21,7 +21,9 @@ const AdminPageDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAt
 AdminPageDescription.displayName = "AdminPageDescription";
 
 const AdminPageContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-	({ className, ...props }, ref) => <div ref={ref} className={cn("flex flex-1 flex-col gap-4", className)} {...props} />,
+	({ className, ...props }, ref) => (
+		<div ref={ref} className={cn("flex flex-1 flex-col gap-4", className)} {...props} />
+	),
 );
 AdminPageContent.displayName = "AdminPageContent";
 
