@@ -8,3 +8,4 @@ ALTER TABLE "product" ADD COLUMN "fixed_expiry_month" integer;--> statement-brea
 ALTER TABLE "product" ADD COLUMN "fixed_expiry_day" integer;--> statement-breakpoint
 ALTER TABLE "product" ADD COLUMN "duration_days" integer;--> statement-breakpoint
 ALTER TABLE "tryout_subtest" ADD COLUMN "scoring_map" jsonb;
+
