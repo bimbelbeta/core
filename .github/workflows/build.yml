@@ -9,7 +9,19 @@ on:
       - 'packages/**'
 
 jobs:
+  type-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: oven-sh/setup-bun@v1
+      - name: Add Bun global bin to PATH
+        run: echo "$(bun pm bin -g)" >> "$GITHUB_PATH"
+      - run: bun install
+      - run: bun install -g @typescript/native-preview
+      - run: bun check-types
+
   build-web:
+    needs: [type-check]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -40,6 +52,7 @@ jobs:
             --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
 
   build-server:
+    needs: [type-check]
     runs-on: ubuntu-latest
     permissions:
       contents: read
