@@ -6,7 +6,7 @@
 		"dev": "bun vite dev --port=3000",
 		"build": "bun --bun vite build",
 		"start": "bun --bun .output/server/index.mjs --port=3000",
-		"check-types": "bunx tsgo --noEmit"
+		"check-types": "tsgo --noEmit"
 	},
 	"dependencies": {
 		"@better-upload/client": "^3.0.12",
