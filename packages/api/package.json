@@ -13,7 +13,7 @@
 	"type": "module",
 	"scripts": {
 		"build": "tsdown",
-		"check-types": "tsgo --noEmit"
+		"check-types": "bunx tsgo --noEmit"
 	},
 	"devDependencies": {
 		"@bimbelbeta/config": "workspace:*",

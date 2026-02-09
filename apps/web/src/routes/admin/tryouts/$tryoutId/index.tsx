@@ -1,6 +1,7 @@
-import { ArrowLeftIcon } from "@phosphor-icons/react";
-import { useQuery } from "@tanstack/react-query";
+import { ArrowLeftIcon, GearIcon, ListIcon, RocketIcon } from "@phosphor-icons/react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { toast } from "sonner";
 import {
 	AdminPageContent,
 	AdminPageHeader,
@@ -10,12 +11,17 @@ import {
 	AdminPageTitle,
 } from "@/components/admin/admin-page";
 import { DetailPageSkeleton } from "@/components/admin/detail-page-skeleton";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
+import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 import { TryoutSettingsTab } from "./-components/tryout-settings-tab";
 import { TryoutSubtestsTab } from "./-components/tryout-subtests-tab";
+import { CATEGORY_LABELS, STATUS_CONFIG } from "./-constants";
 
 export const Route = createFileRoute("/admin/tryouts/$tryoutId/")({
 	component: TryoutDetailPage,
@@ -31,6 +37,18 @@ function TryoutDetailPage() {
 		}),
 	);
 
+	const publishMutation = useMutation(
+		orpc.admin.tryout.updateTryout.mutationOptions({
+			onSuccess: () => {
+				toast.success("Status tryout berhasil diperbarui");
+				refetch();
+			},
+			onError: (err) => {
+				toast.error(err.message);
+			},
+		}),
+	);
+
 	if (isPending) {
 		return <DetailPageSkeleton variant="tryout" />;
 	}
@@ -41,6 +59,28 @@ function TryoutDetailPage() {
 
 	const tryout = data.tryout;
 	const subtests = data.subtests ?? [];
+	const statusConfig = STATUS_CONFIG[tryout.status];
+
+	const handlePublishToggle = () => {
+		const newStatus = tryout.status === "published" ? "draft" : "published";
+		publishMutation.mutate({
+			id: tryoutId,
+			status: newStatus,
+		});
+	};
+
+	const formatDateRange = () => {
+		if (!tryout.startsAt && !tryout.endsAt) return "Tidak dijadwalkan";
+		if (tryout.startsAt && !tryout.endsAt) {
+			return `Mulai ${new Date(tryout.startsAt).toLocaleDateString("id-ID")}`;
+		}
+		if (!tryout.startsAt && tryout.endsAt) {
+			return `Sampai ${new Date(tryout.endsAt).toLocaleDateString("id-ID")}`;
+		}
+		const start = new Date(tryout.startsAt!).toLocaleDateString("id-ID");
+		const end = new Date(tryout.endsAt!).toLocaleDateString("id-ID");
+		return `${start} - ${end}`;
+	};
 
 	return (
 		<AdminPageRoot>
@@ -52,29 +92,100 @@ function TryoutDetailPage() {
 								<ArrowLeftIcon className="size-4" />
 							</Link>
 						</Button>
-						<AdminPageTitle>Detail Tryout</AdminPageTitle>
+						<div className="flex flex-col gap-1">
+							<div className="flex items-center gap-2">
+								<AdminPageTitle className="text-xl">{tryout.title}</AdminPageTitle>
+								<Badge variant={statusConfig.variant} className="gap-1 capitalize">
+									{statusConfig.showRocketIcon && <RocketIcon className="size-3" />}
+									{statusConfig.label}
+								</Badge>
+								<Badge variant="outline">{CATEGORY_LABELS[tryout.category]}</Badge>
+							</div>
+							<p className="text-muted-foreground text-sm">{formatDateRange()}</p>
+						</div>
 					</div>
 				</AdminPageHeaderContent>
-				<AdminPageHeaderActions />
+				<AdminPageHeaderActions>
+					<Button
+						onClick={handlePublishToggle}
+						disabled={publishMutation.isPending}
+						variant={tryout.status === "published" ? "outline" : "default"}
+					>
+						{publishMutation.isPending ? "Memproses..." : tryout.status === "published" ? "Unpublish" : "Publish"}
+					</Button>
+				</AdminPageHeaderActions>
 			</AdminPageHeader>
 
-			<AdminPageContent>
-				<div className="space-y-6">
-					<Tabs defaultValue="settings" className="w-full">
-						<TabsList>
-							<TabsTrigger value="settings">Pengaturan</TabsTrigger>
-							<TabsTrigger value="subtests">Subtest</TabsTrigger>
-						</TabsList>
-						<div className="mt-6">
-							<TabsContent value="settings" className="mt-0">
-								<TryoutSettingsTab tryout={tryout} onUpdate={() => refetch()} />
-							</TabsContent>
-							<TabsContent value="subtests" className="mt-0">
-								<TryoutSubtestsTab tryoutId={tryoutId} subtests={subtests} onUpdate={() => refetch()} />
-							</TabsContent>
+			<AdminPageContent className="gap-6">
+				{/* Overview Card */}
+				<Card>
+					<CardHeader className="pb-3">
+						<CardTitle className="text-base">Ringkasan</CardTitle>
+						<CardDescription>Informasi singkat mengenai tryout ini</CardDescription>
+					</CardHeader>
+					<CardContent>
+						<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+							<div className="space-y-1">
+								<p className="text-muted-foreground text-xs uppercase tracking-wide">Status</p>
+								<div className="flex items-center gap-2">
+									<div
+										className={cn("size-2 rounded-full", {
+											"bg-green-500": tryout.status === "published",
+											"bg-gray-400": tryout.status === "draft",
+											"bg-red-500": tryout.status === "archived",
+										})}
+									/>
+									<span className="font-medium capitalize">{tryout.status}</span>
+								</div>
+							</div>
+							<div className="space-y-1">
+								<p className="text-muted-foreground text-xs uppercase tracking-wide">Kategori</p>
+								<p className="font-medium">{CATEGORY_LABELS[tryout.category]}</p>
+							</div>
+							<div className="space-y-1">
+								<p className="text-muted-foreground text-xs uppercase tracking-wide">Jumlah Subtest</p>
+								<p className="font-medium">{subtests.length}</p>
+							</div>
+							<div className="space-y-1">
+								<p className="text-muted-foreground text-xs uppercase tracking-wide">Jadwal</p>
+								<p className="font-medium text-sm">{formatDateRange()}</p>
+							</div>
 						</div>
-					</Tabs>
-				</div>
+						{tryout.description && (
+							<>
+								<Separator className="my-4" />
+								<p className="text-muted-foreground text-sm">{tryout.description}</p>
+							</>
+						)}
+					</CardContent>
+				</Card>
+
+				{/* Tabs */}
+				<Tabs defaultValue="settings" className="w-full">
+					<TabsList>
+						<TabsTrigger value="settings" className="inline-flex gap-2">
+							<GearIcon className="size-4" />
+							Pengaturan
+						</TabsTrigger>
+						<TabsTrigger value="subtests" className="inline-flex gap-2">
+							<ListIcon className="size-4" />
+							Subtest
+							{subtests.length > 0 && (
+								<span className="ml-1 rounded-full bg-primary/10 px-1.5 py-0.5 font-medium text-primary text-xs">
+									{subtests.length}
+								</span>
+							)}
+						</TabsTrigger>
+					</TabsList>
+					<div className="mt-2">
+						<TabsContent value="settings" className="mt-0">
+							<TryoutSettingsTab tryout={tryout} onUpdate={() => refetch()} />
+						</TabsContent>
+						<TabsContent value="subtests" className="mt-0">
+							<TryoutSubtestsTab tryoutId={tryoutId} subtests={subtests} onUpdate={() => refetch()} />
+						</TabsContent>
+					</div>
+				</Tabs>
 			</AdminPageContent>
 		</AdminPageRoot>
 	);

@@ -7,7 +7,7 @@
 		"compile": "bun build --production --compile --minify --sourcemap --bytecode ./src/index.ts --outfile ./bin/server",
 		"dev": "bun run --hot --port=3001 ./src/index.ts ",
 		"start": "bun ./dist/index.js",
-		"check-types": "tsgo --noEmit"
+		"check-types": "bunx tsgo --noEmit"
 	},
 	"dependencies": {
 		"@better-upload/server": "^3.0.12",
