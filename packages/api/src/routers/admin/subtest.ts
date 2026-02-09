@@ -5,6 +5,37 @@ import { type } from "arktype";
 import { eq, sql } from "drizzle-orm";
 import { admin } from "../..";
 
+const getSubtest = admin
+	.route({
+		path: "/admin/tryouts/subtests/{id}",
+		method: "GET",
+		tags: ["Admin - Tryouts"],
+	})
+	.input(type({ id: "number" }))
+	.output(
+		type({
+			id: "number",
+			tryoutId: "number",
+			name: "string",
+			"description?": "string | null",
+			duration: "number",
+			questionOrder: "string",
+			order: "number",
+			"scoringMap?": "Record<string, number> | null",
+		}),
+	)
+	.handler(async ({ input }) => {
+		const [subtest] = await db.select().from(tryoutSubtest).where(eq(tryoutSubtest.id, input.id)).limit(1);
+
+		if (!subtest) {
+			throw new ORPCError("NOT_FOUND", {
+				message: "Subtest tidak ditemukan",
+			});
+		}
+
+		return subtest;
+	});
+
 const createSubtest = admin
 	.route({
 		path: "/admin/tryouts/{tryoutId}/subtests",
@@ -76,6 +107,7 @@ const updateSubtest = admin
 			description: "string?",
 			duration: "number?",
 			questionOrder: type("'random' | 'sequential'")?.optional(),
+			"scoringMap?": type("Record<string, number>").or("null"),
 		}),
 	)
 	.output(type({ message: "string" }))
@@ -85,12 +117,14 @@ const updateSubtest = admin
 			description?: string | null;
 			duration?: number;
 			questionOrder?: "random" | "sequential";
+			scoringMap?: Record<string, number> | null;
 		} = {};
 
 		if (input.name !== undefined) updateData.name = input.name;
 		if (input.description !== undefined) updateData.description = input.description ?? null;
 		if (input.duration !== undefined) updateData.duration = input.duration;
 		if (input.questionOrder !== undefined) updateData.questionOrder = input.questionOrder;
+		if (input.scoringMap !== undefined) updateData.scoringMap = input.scoringMap;
 
 		const [updated] = await db.update(tryoutSubtest).set(updateData).where(eq(tryoutSubtest.id, input.id)).returning();
 
@@ -123,6 +157,7 @@ const deleteSubtest = admin
 	});
 
 export const subtestRouter = {
+	getSubtest,
 	createSubtest,
 	updateSubtest,
 	deleteSubtest,

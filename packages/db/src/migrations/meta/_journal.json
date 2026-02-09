@@ -15,6 +15,13 @@
       "when": 1769695288191,
       "tag": "0001_unique_lily_hollister",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1770646582023,
+      "tag": "0002_elite_norman_osborn",
+      "breakpoints": true
     }
   ]
 }

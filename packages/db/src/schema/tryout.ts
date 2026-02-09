@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { boolean, integer, pgEnum, pgTable, primaryKey, text, timestamp, unique } from "drizzle-orm/pg-core";
+import { boolean, integer, jsonb, pgEnum, pgTable, primaryKey, text, timestamp, unique } from "drizzle-orm/pg-core";
 import { user } from "./auth";
 import { question, questionChoice } from "./question";
 
@@ -39,8 +39,9 @@ export const tryoutSubtest = pgTable(
 		name: text().notNull(),
 		description: text(),
 		duration: integer().notNull(),
-		questionOrder: text("question_order").notNull().default("sequential"), // "random" | "sequential"
+		questionOrder: text("question_order").notNull().default("sequential"),
 		order: integer().notNull().default(1),
+		scoringMap: jsonb("scoring_map").$type<Record<string, number>>(),
 	},
 	(t) => [unique("tryout_subtest_order").on(t.tryoutId, t.order)],
 );

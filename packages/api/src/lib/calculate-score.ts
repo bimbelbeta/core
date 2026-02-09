@@ -2,6 +2,7 @@ import { db } from "@bimbelbeta/db";
 import { question, questionChoice } from "@bimbelbeta/db/schema/question";
 import {
 	tryoutAttempt,
+	tryoutSubtest,
 	tryoutSubtestAttempt,
 	tryoutSubtestQuestion,
 	tryoutUserAnswer,
@@ -22,21 +23,46 @@ export interface TryoutScoreResult {
 }
 
 /**
+ * Calculates score from a scoring map or falls back to linear percentage.
+ * @param scoringMap - Map of correctCount -> score (e.g., {"1": 120, "2": 200, ...})
+ * @param correctCount - Number of correct answers
+ * @param totalCount - Total number of questions
+ * @returns The calculated score
+ */
+function getScoreFromMap(
+	scoringMap: Record<string, number> | null | undefined,
+	correctCount: number,
+	totalCount: number,
+): number {
+	// If scoring map exists and has the correct count, use it
+	const mappedScore = scoringMap?.[correctCount.toString()];
+	if (mappedScore !== undefined) {
+		return mappedScore;
+	}
+	// Fallback: linear scale (0-1000)
+	return Math.round((correctCount / totalCount) * 1000);
+}
+
+/**
  * Calculates scores for all subtests in a tryout attempt.
  * Score is on a 1-1000 scale per subtest.
  * Total score is the average of all subtest scores.
  */
 export async function calculateTryoutScores(attemptId: number): Promise<TryoutScoreResult> {
-	// Get all subtest attempts for this tryout attempt
-	const subtestAttempts = await db.query.tryoutSubtestAttempt.findMany({
-		where: eq(tryoutSubtestAttempt.tryoutAttemptId, attemptId),
-	});
+	const subtestAttempts = await db
+		.select({
+			id: tryoutSubtestAttempt.id,
+			subtestId: tryoutSubtestAttempt.subtestId,
+			scoringMap: tryoutSubtest.scoringMap,
+		})
+		.from(tryoutSubtestAttempt)
+		.innerJoin(tryoutSubtest, eq(tryoutSubtest.id, tryoutSubtestAttempt.subtestId))
+		.where(eq(tryoutSubtestAttempt.tryoutAttemptId, attemptId));
 
 	if (subtestAttempts.length === 0) {
 		return { subtests: [], totalScore: 0 };
 	}
 
-	// Get all user answers for this attempt
 	const userAnswers = await db.query.tryoutUserAnswer.findMany({
 		where: eq(tryoutUserAnswer.attemptId, attemptId),
 		with: {
@@ -48,13 +74,11 @@ export async function calculateTryoutScores(attemptId: number): Promise<TryoutSc
 		},
 	});
 
-	// Create a map of questionId -> user answer
 	const answerMap = new Map(userAnswers.map((a) => [a.questionId, a]));
 
 	const subtestScores: SubtestScoreResult[] = [];
 
 	for (const subtestAttempt of subtestAttempts) {
-		// Get all questions for this subtest
 		const subtestQuestions = await db
 			.select({
 				questionId: tryoutSubtestQuestion.questionId,
@@ -63,11 +87,9 @@ export async function calculateTryoutScores(attemptId: number): Promise<TryoutSc
 			.where(eq(tryoutSubtestQuestion.subtestId, subtestAttempt.subtestId));
 
 		if (subtestQuestions.length === 0) {
-			// Skip subtests with no questions
 			continue;
 		}
 
-		// Get question details for essay checking
 		const questionIds = subtestQuestions.map((q) => q.questionId);
 		const questions = await db.query.question.findMany({
 			where: inArray(question.id, questionIds),
@@ -80,7 +102,6 @@ export async function calculateTryoutScores(attemptId: number): Promise<TryoutSc
 
 		const questionMap = new Map(questions.map((q) => [q.id, q]));
 
-		// Batch fetch all choices for complex multiple choice questions (N+1 fix)
 		const complexQuestionIds = questions.filter((q) => q.type === "multiple_choice_complex").map((q) => q.id);
 
 		const allComplexChoices =
@@ -147,8 +168,8 @@ export async function calculateTryoutScores(attemptId: number): Promise<TryoutSc
 			}
 		}
 
-		// Calculate score on 1-1000 scale
-		const score = Math.round((correctCount / totalCount) * 1000);
+		// Calculate score using scoring map or linear fallback
+		const score = getScoreFromMap(subtestAttempt.scoringMap, correctCount, totalCount);
 
 		subtestScores.push({
 			subtestAttemptId: subtestAttempt.id,

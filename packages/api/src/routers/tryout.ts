@@ -675,7 +675,6 @@ const submitTryout = authed
 
 		if (!attempt) throw new ORPCError("BAD_REQUEST", { message: "Gagal menemukan pengerjaan tryout." });
 
-		// Calculate scores before marking as finished
 		const scores = await calculateTryoutScores(attempt.id);
 
 		await db
@@ -686,7 +685,6 @@ const submitTryout = authed
 			})
 			.where(eq(tryoutAttempt.id, attempt.id));
 
-		// Save scores to database
 		await saveScoresToDatabase(attempt.id, scores);
 
 		return { success: true, score: scores.totalScore };
@@ -834,7 +832,6 @@ const review = authed
 
 		if (!attempt) throw errors.NOT_FOUND({ message: "Gagal menemukan pengerjaan tryout." });
 
-		// Check if user can see discussion (premium or used credit)
 		const canSeeDiscussion = context.session.user.isPremium || attempt.usedCredit;
 
 		const subtestAttempt = attempt.subtestAttempts.find((sa) => sa.subtestId === input.subtestId);
@@ -843,7 +840,6 @@ const review = authed
 			throw errors.BAD_REQUEST({ message: "Subtest belum selesai atau tidak ditemukan." });
 		}
 
-		// Fetch questions with full details including discussion and correct answer
 		const rows = await db
 			.select({
 				questionId: question.id,
@@ -901,7 +897,6 @@ const review = authed
 			}
 		}
 
-		// Verify we also need to return the subtest name for the header
 		const subtestData = await db.query.tryoutSubtest.findFirst({
 			where: eq(tryoutSubtest.id, input.subtestId),
 			columns: {

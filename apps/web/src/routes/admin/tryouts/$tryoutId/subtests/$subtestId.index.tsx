@@ -19,6 +19,7 @@ import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 import { BulkAddQuestionsDialog } from "../../-components/bulk-add-questions-dialog";
 import { BulkQuestionsTable } from "../../-components/bulk-questions-table";
+import { ScoringMapEditor } from "../../-components/scoring-map-editor";
 
 export const Route = createFileRoute("/admin/tryouts/$tryoutId/subtests/$subtestId/")({
 	component: SubtestDetailPage,
@@ -31,6 +32,12 @@ function SubtestDetailPage() {
 	const { data, isPending, refetch } = useQuery(
 		orpc.admin.tryout.questionsBulk.listSubtestQuestions.queryOptions({
 			input: { subtestId },
+		}),
+	);
+
+	const { data: subtestData, refetch: refetchSubtest } = useQuery(
+		orpc.admin.tryout.subtest.getSubtest.queryOptions({
+			input: { id: subtestId },
 		}),
 	);
 
@@ -138,6 +145,13 @@ function SubtestDetailPage() {
 				onSelectionChange={setSelectedIds}
 				onSelectAll={handleSelectAll}
 				isAllSelected={isAllSelected}
+			/>
+
+			<ScoringMapEditor
+				subtestId={subtestId}
+				questionCount={questions.length}
+				initialScoringMap={subtestData?.scoringMap}
+				onSaveSuccess={() => refetchSubtest()}
 			/>
 
 			<BulkAddQuestionsDialog
