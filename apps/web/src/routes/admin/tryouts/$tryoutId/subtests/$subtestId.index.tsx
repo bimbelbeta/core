@@ -61,7 +61,7 @@ function SubtestDetailPage() {
 
 	const questions = data?.questions;
 	// ToDO: better to show skeleton here
-	if (!questions && questions.isPending) return null;
+	if (isPending || !questions) return null;
 	const isAllSelected = questions.length > 0 && selectedIds.size === questions.length;
 
 	const handleSelectAll = () => {
