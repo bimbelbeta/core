@@ -13,7 +13,7 @@ export const Route = createFileRoute("/")({
 	head: () => ({
 		meta: createMeta({
 			description:
-				"Ubah persiapan ujian SNBT/UTBK menjadi lebih mudah dan terstruktur dengan bimbelbeta. Materi lengkap, latihan soal interaktif, dan analisis progres belajar.",
+				"Ubah persiapan ujian SNBT/UTBK menjadi lebih mudah dan terstruktur dengan BimbelBeta. Materi lengkap, latihan soal interaktif, dan analisis progres belajar.",
 			image: "/og-image.png",
 		}),
 	}),
