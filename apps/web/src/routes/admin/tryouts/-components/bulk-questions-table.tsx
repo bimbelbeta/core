@@ -36,83 +36,85 @@ export function BulkQuestionsTable({
 	};
 
 	return (
-		<div className="overflow-clip rounded-lg border bg-white shadow-sm transition-all hover:shadow-md">
-			<Table>
-				<TableHeader>
-					<TableRow className="bg-muted/30 hover:bg-muted/30">
-						<TableHead className="text-center">
-							<Checkbox
-								checked={isAllSelected}
-								onCheckedChange={() => onSelectAll()}
-								aria-label="Select all"
-								className="translate-y-0.5"
-							/>
-						</TableHead>
-						<TableHead className="text-center font-semibold text-primary-navy-900">ID</TableHead>
-						<TableHead className="text-center font-semibold text-primary-navy-900">Pertanyaan</TableHead>
-						<TableHead className="text-center font-semibold text-primary-navy-900">Tipe</TableHead>
-					</TableRow>
-				</TableHeader>
-				<TableBody>
-					{isPending ? (
-						<TableSkeleton columns={5} />
-					) : questions.length === 0 ? (
-						<TableRow>
-							<TableCell colSpan={4} className="h-48 text-center text-muted-foreground">
-								<div className="flex flex-col items-center justify-center gap-2">
-									<ListMagnifyingGlassIcon className="size-8 opacity-50" />
-									<span>Tidak ada pertanyaan ditemukan</span>
-								</div>
-							</TableCell>
+		<div className="overflow-hidden rounded-lg border bg-white shadow-sm transition-all hover:shadow-md">
+			<div className="overflow-x-auto">
+				<Table>
+					<TableHeader>
+						<TableRow className="bg-muted/30 hover:bg-muted/30">
+							<TableHead className="text-center">
+								<Checkbox
+									checked={isAllSelected}
+									onCheckedChange={() => onSelectAll()}
+									aria-label="Select all"
+									className="translate-y-0.5"
+								/>
+							</TableHead>
+							<TableHead className="text-center font-semibold text-primary-navy-900">ID</TableHead>
+							<TableHead className="text-center font-semibold text-primary-navy-900">Pertanyaan</TableHead>
+							<TableHead className="text-center font-semibold text-primary-navy-900">Tipe</TableHead>
 						</TableRow>
-					) : (
-						questions.map((item) => {
-							const isSelected = selectedIds.has(item.id);
-							return (
-								<TableRow
-									key={item.id}
-									className={cn(
-										"transition-colors",
-										isSelected ? "bg-primary/5 hover:bg-primary/10" : "hover:bg-muted/30",
-									)}
-								>
-									<TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
-										<Checkbox
-											checked={isSelected}
-											onCheckedChange={(checked) => handleCheckboxChange(item.id, checked === true)}
-											aria-label={`Select question ${item.order}`}
-											className="translate-y-0.5"
-										/>
-									</TableCell>
-									<TableCell className="text-center font-mono text-muted-foreground text-sm">{item.order}</TableCell>
-									<TableCell className="max-w-125">
-										<Link
-											to="/admin/questions/$questionId"
-											params={{
-												questionId: item.id.toString(),
-											}}
-											className="group hover:cursor-pointer"
-										>
-											<TiptapRenderer
-												content={item.question.content}
-												className="prose-sm line-clamp-2 max-w-none group-hover:underline"
+					</TableHeader>
+					<TableBody>
+						{isPending ? (
+							<TableSkeleton columns={5} />
+						) : questions.length === 0 ? (
+							<TableRow>
+								<TableCell colSpan={4} className="h-48 text-center text-muted-foreground">
+									<div className="flex flex-col items-center justify-center gap-2">
+										<ListMagnifyingGlassIcon className="size-8 opacity-50" />
+										<span>Tidak ada pertanyaan ditemukan</span>
+									</div>
+								</TableCell>
+							</TableRow>
+						) : (
+							questions.map((item) => {
+								const isSelected = selectedIds.has(item.id);
+								return (
+									<TableRow
+										key={item.id}
+										className={cn(
+											"transition-colors",
+											isSelected ? "bg-primary/5 hover:bg-primary/10" : "hover:bg-muted/30",
+										)}
+									>
+										<TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
+											<Checkbox
+												checked={isSelected}
+												onCheckedChange={(checked) => handleCheckboxChange(item.id, checked === true)}
+												aria-label={`Select question ${item.order}`}
+												className="translate-y-0.5"
 											/>
-										</Link>
-									</TableCell>
-									<TableCell className="text-center">
-										<Badge variant={item.question.type === "multiple_choice" ? "default" : "outline"}>
-											{item.question.type === "multiple_choice" ? "Pilihan Ganda" : "Esai"}
-										</Badge>
-									</TableCell>
-									<TableCell className="text-center font-mono text-muted-foreground text-xs">
-										#{item.question.id}
-									</TableCell>
-								</TableRow>
-							);
-						})
-					)}
-				</TableBody>
-			</Table>
+										</TableCell>
+										<TableCell className="text-center font-mono text-muted-foreground text-sm">{item.order}</TableCell>
+										<TableCell className="max-w-125">
+											<Link
+												to="/admin/questions/$questionId"
+												params={{
+													questionId: item.id.toString(),
+												}}
+												className="group hover:cursor-pointer"
+											>
+												<TiptapRenderer
+													content={item.question.content}
+													className="prose-sm line-clamp-2 max-w-none group-hover:underline"
+												/>
+											</Link>
+										</TableCell>
+										<TableCell className="text-center">
+											<Badge variant={item.question.type === "multiple_choice" ? "default" : "outline"}>
+												{item.question.type === "multiple_choice" ? "Pilihan Ganda" : "Esai"}
+											</Badge>
+										</TableCell>
+										<TableCell className="text-center font-mono text-muted-foreground text-xs">
+											#{item.question.id}
+										</TableCell>
+									</TableRow>
+								);
+							})
+						)}
+					</TableBody>
+				</Table>
+			</div>
 		</div>
 	);
 }

@@ -82,9 +82,9 @@ function SubtestDetailPage() {
 	};
 
 	return (
-		<div className="flex h-full flex-col gap-6 p-6">
-			<div className="flex items-center justify-between">
-				<div className="flex items-center gap-4">
+		<div className="flex h-full flex-col gap-6 p-3 sm:p-6">
+			<div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+				<div className="flex items-start gap-4 sm:items-center">
 					<Button variant="ghost" size="icon" asChild>
 						<Link to="/admin/tryouts/$tryoutId" params={{ tryoutId: tId }}>
 							<ArrowLeftIcon className="size-4" />
@@ -95,8 +95,8 @@ function SubtestDetailPage() {
 						<p className="text-muted-foreground text-sm">{questions.length} soal di subtest ini</p>
 					</div>
 				</div>
-				<div className="flex items-center gap-2">
-					<Button className="gap-2" asChild>
+				<div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:flex lg:flex-wrap lg:justify-end">
+					<Button className="w-full gap-2 sm:w-auto" asChild>
 						<Link
 							to="/admin/tryouts/$tryoutId/subtests/$subtestId/questions/new"
 							params={{ tryoutId: tId, subtestId: subtestId.toString() }}
@@ -105,7 +105,7 @@ function SubtestDetailPage() {
 							Buat Soal
 						</Link>
 					</Button>
-					<Button variant="outline" onClick={() => setIsBulkAddOpen(true)} className="gap-2">
+					<Button variant="outline" onClick={() => setIsBulkAddOpen(true)} className="w-full gap-2 sm:w-auto">
 						<PlusIcon className="size-4" />
 						Tambah Soal Massal
 					</Button>
@@ -114,7 +114,7 @@ function SubtestDetailPage() {
 							variant="destructive"
 							onClick={() => setIsBulkDeleteOpen(true)}
 							disabled={selectedIds.size === 0}
-							className="gap-2"
+							className="w-full gap-2 sm:w-auto"
 						>
 							<TrashIcon className="size-4" />
 							Hapus {selectedIds.size > 0 && `(${selectedIds.size})`}

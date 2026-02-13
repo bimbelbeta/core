@@ -96,7 +96,7 @@ export function BulkAddQuestionsDialog({
 					<DialogDescription>Pilih soal dari bank soal untuk ditambahkan ke subtest.</DialogDescription>
 				</DialogHeader>
 				<div className="flex flex-1 flex-col gap-4">
-					<InputGroup className="min-h-10 flex-1 bg-white">
+					<InputGroup className="min-h-10 bg-white">
 						<InputGroupAddon>
 							<MagnifyingGlassIcon />
 						</InputGroupAddon>
@@ -156,8 +156,8 @@ export function BulkAddQuestionsDialog({
 						)}
 					</div>
 
-					<div className="flex items-center justify-between border-b pb-2">
-						<div className="flex items-center gap-2">
+					<div className="flex flex-col gap-2 border-b pb-2 sm:flex-row sm:items-center sm:justify-between">
+						<div className="flex flex-wrap items-center gap-2">
 							<Button variant="tertiary" size="sm" onClick={handleSelectAll}>
 								{questions.length > 0 && selectedQuestionIds.size === questions.length
 									? "Batal Pilih Semua"
@@ -169,6 +169,7 @@ export function BulkAddQuestionsDialog({
 							variant="default"
 							onClick={handleAdd}
 							disabled={selectedQuestionIds.size === 0 || bulkAddMutation.isPending}
+							className="w-full sm:w-auto"
 						>
 							{bulkAddMutation.isPending ? (
 								"Menambahkan..."
