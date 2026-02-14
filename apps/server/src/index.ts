@@ -19,7 +19,7 @@ const router: Router = {
     region: "us-east-1",
     accessKeyId: process.env.S3_ACCESS_KEY || "",
     secretAccessKey: process.env.S3_SECRET_KEY || "",
-    secure: false,
+    secure: process.env.S3_SECURE === "true",
     forcePathStyle: true,
   }),
   bucketName: process.env.S3_BUCKET || "temp",
