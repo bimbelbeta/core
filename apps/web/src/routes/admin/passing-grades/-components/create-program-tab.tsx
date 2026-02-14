@@ -56,156 +56,149 @@ export function CreateProgramTab({ onProgramCreate }: CreateProgramTabProps) {
 	);
 
 	return (
-		<div className="grid gap-4 py-4">
-			<form
-				onSubmit={(e) => {
-					e.preventDefault();
-					form.handleSubmit();
+		<form
+			onSubmit={(e) => {
+				e.preventDefault();
+				form.handleSubmit();
+			}}
+			className="space-y-4"
+		>
+			<form.Field
+				name="name"
+				validators={{
+					onChangeListenTo: ["autoGenerateSlug"],
+					onChange: ({ value, fieldApi }) => {
+						const autoGenerate = fieldApi.form.getFieldValue("autoGenerateSlug");
+						if (autoGenerate && value) {
+							const generatedSlug = generateSlug(value);
+							fieldApi.form.setFieldValue("slug", generatedSlug);
+						}
+						return undefined;
+					},
 				}}
-				className="grid gap-4"
 			>
-				<form.Field
-					name="name"
-					validators={{
-						onChangeListenTo: ["autoGenerateSlug"],
-						onChange: ({ value, fieldApi }) => {
-							const autoGenerate = fieldApi.form.getFieldValue("autoGenerateSlug");
-							if (autoGenerate && value) {
-								const generatedSlug = generateSlug(value);
-								fieldApi.form.setFieldValue("slug", generatedSlug);
-							}
-							return undefined;
-						},
-					}}
-				>
-					{(field) => (
-						<div className="grid grid-cols-4 items-start gap-4">
-							<Label htmlFor={field.name} className="mt-2 text-right">
-								Nama
-							</Label>
-							<div className="col-span-3 space-y-1">
-								<Input
-									id={field.name}
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
+				{(field) => (
+					<div className="space-y-1.5">
+						<Label htmlFor={field.name} className="font-medium text-sm">
+							Nama Program Studi <span className="text-destructive">*</span>
+						</Label>
+						<Input
+							id={field.name}
+							value={field.state.value}
+							onBlur={field.handleBlur}
+							onChange={(e) => field.handleChange(e.target.value)}
+							placeholder="Contoh: Teknik Informatika"
+						/>
+						{field.state.meta.errors.map((error) => (
+							<p key={error?.message} className="text-destructive text-xs">
+								{error?.message}
+							</p>
+						))}
+					</div>
+				)}
+			</form.Field>
+
+			<div className="space-y-1.5">
+				<div className="flex items-center justify-between">
+					<Label className="font-medium text-sm">Slug</Label>
+					<form.Field name="autoGenerateSlug">
+						{(field) => (
+							<label className="flex cursor-pointer items-center gap-1.5" htmlFor="autoSlug">
+								<Checkbox
+									id="autoSlug"
+									checked={field.state.value}
+									onCheckedChange={(checked: boolean) => {
+										field.handleChange(checked === true);
+									}}
 								/>
-								{field.state.meta.errors.map((error) => (
-									<p key={error?.message} className="text-red-500 text-xs">
-										{error?.message}
-									</p>
-								))}
-							</div>
-						</div>
-					)}
-				</form.Field>
-
-				<form.Field name="autoGenerateSlug">
-					{(field) => (
-						<div className="flex items-center justify-end gap-2">
-							<Label htmlFor={field.name} className="cursor-pointer text-muted-foreground text-xs">
-								Autogenerate Slug
-							</Label>
-							<Checkbox
-								id={field.name}
-								checked={field.state.value}
-								onCheckedChange={(checked: boolean) => {
-									field.handleChange(checked === true);
-								}}
-							/>
-						</div>
-					)}
-				</form.Field>
-
+								<span className="text-muted-foreground text-xs">Auto</span>
+							</label>
+						)}
+					</form.Field>
+				</div>
 				<form.Field name="slug">
 					{(field) => (
-						<div className="grid grid-cols-4 items-start gap-4">
-							<Label htmlFor={field.name} className="mt-2 text-right">
-								Slug
-							</Label>
-							<div className="col-span-3 space-y-1">
-								<Input
-									id={field.name}
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-									disabled={form.getFieldValue("autoGenerateSlug")}
-								/>
-								{field.state.meta.errors.map((error) => (
-									<p key={error?.message} className="text-red-500 text-xs">
-										{error?.message}
-									</p>
-								))}
-							</div>
-						</div>
-					)}
-				</form.Field>
-
-				<form.Field name="description">
-					{(field) => (
-						<div className="grid grid-cols-4 items-start gap-4">
-							<Label htmlFor={field.name} className="mt-2 text-right">
-								Deskripsi
-							</Label>
-							<Textarea
+						<>
+							<Input
 								id={field.name}
 								value={field.state.value}
 								onBlur={field.handleBlur}
 								onChange={(e) => field.handleChange(e.target.value)}
-								placeholder="Deskripsi program studi..."
-								className="col-span-3"
-								rows={3}
+								disabled={form.getFieldValue("autoGenerateSlug")}
+								placeholder="teknik-informatika"
+								className="font-mono text-sm"
 							/>
-						</div>
+							{field.state.meta.errors.map((error) => (
+								<p key={error?.message} className="text-destructive text-xs">
+									{error?.message}
+								</p>
+							))}
+						</>
 					)}
 				</form.Field>
+			</div>
 
-				<form.Field name="category">
-					{(field) => (
-						<div className="grid grid-cols-4 items-start gap-4">
-							<Label htmlFor={field.name} className="mt-2 text-right">
-								Kategori
-							</Label>
-							<div className="col-span-3 space-y-1">
-								<Select
-									value={field.state.value}
-									onValueChange={(val) => field.handleChange(val as "SAINTEK" | "SOSHUM")}
-								>
-									<SelectTrigger>
-										<SelectValue placeholder="Pilih kategori" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="SAINTEK">SAINTEK</SelectItem>
-										<SelectItem value="SOSHUM">SOSHUM</SelectItem>
-									</SelectContent>
-								</Select>
-								{field.state.meta.errors.map((error) => (
-									<p key={error?.message} className="text-red-500 text-xs">
-										{error?.message}
-									</p>
-								))}
-							</div>
-						</div>
+			<form.Field name="category">
+				{(field) => (
+					<div className="space-y-1.5">
+						<Label htmlFor={field.name} className="font-medium text-sm">
+							Kategori <span className="text-destructive">*</span>
+						</Label>
+						<Select
+							value={field.state.value}
+							onValueChange={(val) => field.handleChange(val as "SAINTEK" | "SOSHUM")}
+						>
+							<SelectTrigger>
+								<SelectValue placeholder="Pilih kategori" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="SAINTEK">SAINTEK</SelectItem>
+								<SelectItem value="SOSHUM">SOSHUM</SelectItem>
+							</SelectContent>
+						</Select>
+						{field.state.meta.errors.map((error) => (
+							<p key={error?.message} className="text-destructive text-xs">
+								{error?.message}
+							</p>
+						))}
+					</div>
+				)}
+			</form.Field>
+
+			<form.Field name="description">
+				{(field) => (
+					<div className="space-y-1.5">
+						<Label htmlFor={field.name} className="font-medium text-sm">
+							Deskripsi
+						</Label>
+						<Textarea
+							id={field.name}
+							value={field.state.value}
+							onBlur={field.handleBlur}
+							onChange={(e) => field.handleChange(e.target.value)}
+							placeholder="Deskripsi singkat program studi... (opsional)"
+							rows={2}
+						/>
+					</div>
+				)}
+			</form.Field>
+
+			<DialogFooter className="pt-2">
+				<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+					{([canSubmit, isSubmitting]) => (
+						<Button type="submit" disabled={!canSubmit || isSubmitting} className="w-full">
+							{isSubmitting ? (
+								<>
+									<Spinner />
+									Membuat...
+								</>
+							) : (
+								"Buat Program Studi"
+							)}
+						</Button>
 					)}
-				</form.Field>
-
-				<DialogFooter>
-					<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
-						{([canSubmit, isSubmitting]) => (
-							<Button type="submit" disabled={!canSubmit || isSubmitting}>
-								{isSubmitting ? (
-									<>
-										<Spinner />
-										Membuat...
-									</>
-								) : (
-									"Buat Program Studi"
-								)}
-							</Button>
-						)}
-					</form.Subscribe>
-				</DialogFooter>
-			</form>
-		</div>
+				</form.Subscribe>
+			</DialogFooter>
+		</form>
 	);
 }

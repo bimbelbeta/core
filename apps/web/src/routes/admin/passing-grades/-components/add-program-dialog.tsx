@@ -1,5 +1,6 @@
-import { PlusIcon } from "@phosphor-icons/react";
+import { ArrowLeftIcon, MagnifyingGlassIcon, PlusIcon } from "@phosphor-icons/react";
 import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -9,7 +10,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 import { CreateProgramTab } from "./create-program-tab";
 import { ProgramDetailsStep } from "./program-details-step";
 import { SearchProgramTab } from "./search-program-tab";
@@ -20,6 +21,11 @@ interface AddProgramDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 }
+
+const STEPS = [
+	{ label: "Pilih Program", description: "Cari atau buat program studi baru" },
+	{ label: "Detail", description: "Lengkapi data universitas untuk program ini" },
+] as const;
 
 export function AddProgramDialog({ universityId, onSuccess, open, onOpenChange }: AddProgramDialogProps) {
 	const [step, setStep] = useState<1 | 2>(1);
@@ -65,48 +71,114 @@ export function AddProgramDialog({ universityId, onSuccess, open, onOpenChange }
 					Tambah Prodi
 				</Button>
 			</DialogTrigger>
-			<DialogContent className="sm:max-w-150">
-				<DialogHeader>
+			<DialogContent className="gap-0 p-0 sm:max-w-[540px]">
+				<DialogHeader className="px-6 pt-6 pb-4">
 					<DialogTitle>Tambah Program Studi</DialogTitle>
-					<DialogDescription className="flex items-center gap-2">
-						{step === 1 ? (
-							<>
-								<span className="text-muted-foreground">Langkah 1 dari 2</span>
-								<span>• Cari program studi yang ada atau buat baru untuk universitas ini.</span>
-							</>
-						) : (
-							<>
-								<span className="text-muted-foreground">Langkah 2 dari 2</span>
-								<span>• Tambah detail untuk program studi ini.</span>
-							</>
-						)}
+					<DialogDescription className="sr-only">
+						Tambah program studi ke universitas ini.
 					</DialogDescription>
+
+					{/* Step indicator */}
+					<div className="flex items-center gap-3 pt-2">
+						{STEPS.map((s, i) => {
+							const stepNum = i + 1;
+							const isActive = step === stepNum;
+							const isComplete = step > stepNum;
+							return (
+								<div key={s.label} className="flex items-center gap-2">
+									{i > 0 && (
+										<div
+											className={cn(
+												"h-px w-6 transition-colors",
+												isComplete ? "bg-primary" : "bg-border",
+											)}
+										/>
+									)}
+									<div className="flex items-center gap-2">
+										<div
+											className={cn(
+												"flex size-6 shrink-0 items-center justify-center rounded-full font-medium text-xs transition-all",
+												isActive && "bg-primary text-primary-foreground ring-2 ring-primary/20",
+												isComplete && "bg-primary text-primary-foreground",
+												!isActive && !isComplete && "bg-muted text-muted-foreground",
+											)}
+										>
+											{isComplete ? "✓" : stepNum}
+										</div>
+										<div className="flex flex-col">
+											<span
+												className={cn(
+													"text-sm leading-tight",
+													isActive ? "font-medium text-foreground" : "text-muted-foreground",
+												)}
+											>
+												{s.label}
+											</span>
+										</div>
+									</div>
+								</div>
+							);
+						})}
+					</div>
 				</DialogHeader>
 
+				<div className="border-t" />
+
 				{step === 1 ? (
-					<Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as "search" | "create")} className="w-full">
-						<TabsList>
-							<TabsTrigger value="search">Cari Program</TabsTrigger>
-							<TabsTrigger value="create">Buat Baru</TabsTrigger>
-						</TabsList>
+					<div className="px-6 py-5">
+						{/* Tab switcher */}
+						<div className="mb-4 flex gap-2">
+							<Button
+								variant={activeTab === "search" ? "default" : "outline"}
+								size="sm"
+								onClick={() => setActiveTab("search")}
+								className="gap-1.5"
+							>
+								<MagnifyingGlassIcon className="size-3.5" />
+								Cari Program
+							</Button>
+							<Button
+								variant={activeTab === "create" ? "default" : "outline"}
+								size="sm"
+								onClick={() => setActiveTab("create")}
+								className="gap-1.5"
+							>
+								<PlusIcon className="size-3.5" />
+								Buat Baru
+							</Button>
+						</div>
 
-						<TabsContent value="search">
+						{activeTab === "search" ? (
 							<SearchProgramTab onProgramSelect={handleProgramSelect} />
-						</TabsContent>
-
-						<TabsContent value="create">
+						) : (
 							<CreateProgramTab onProgramCreate={handleProgramCreate} />
-						</TabsContent>
-					</Tabs>
+						)}
+					</div>
 				) : (
 					selectedProgram && (
-						<ProgramDetailsStep
-							universityId={universityId}
-							programId={selectedProgram.id}
-							programName={selectedProgram.name}
-							onSuccess={handleSuccess}
-							onBack={handleBack}
-						/>
+						<div className="px-6 py-5">
+							{/* Selected program indicator */}
+							<div className="mb-4 flex items-center gap-3 rounded-lg border bg-muted/50 px-4 py-3">
+								<div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+									<MagnifyingGlassIcon className="size-4" />
+								</div>
+								<div className="min-w-0 flex-1">
+									<p className="truncate font-medium text-sm">{selectedProgram.name}</p>
+									<p className="text-muted-foreground text-xs">Program studi terpilih</p>
+								</div>
+								<Badge variant="outline" className="shrink-0">
+									Langkah 2
+								</Badge>
+							</div>
+
+							<ProgramDetailsStep
+								universityId={universityId}
+								programId={selectedProgram.id}
+								programName={selectedProgram.name}
+								onSuccess={handleSuccess}
+								onBack={handleBack}
+							/>
+						</div>
 					)
 				)}
 			</DialogContent>

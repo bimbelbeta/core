@@ -34,7 +34,7 @@ export function EditProgramDialog({ universityProgram, onSuccess, onOpenChange }
 		defaultValues: {
 			tuition: universityProgram.tuition ?? "",
 			capacity: universityProgram.capacity ?? "",
-			accreditation: universityProgram.accreditation ?? "",
+			accreditation: universityProgram.accreditation ?? "none",
 			averageScore: universityProgram.averageScore ?? "",
 			isActive: universityProgram.isActive,
 		},
@@ -43,7 +43,7 @@ export function EditProgramDialog({ universityProgram, onSuccess, onOpenChange }
 				id: universityProgram.id,
 				tuition: value.tuition ? Number(value.tuition) : undefined,
 				capacity: value.capacity ? Number(value.capacity) : undefined,
-				accreditation: value.accreditation || undefined,
+				accreditation: value.accreditation === "none" ? undefined : value.accreditation || undefined,
 				averageScore: value.averageScore ? Number(value.averageScore) : undefined,
 				isActive: value.isActive,
 			});
@@ -73,80 +73,83 @@ export function EditProgramDialog({ universityProgram, onSuccess, onOpenChange }
 	);
 
 	return (
-		<div className="grid gap-4 py-4">
-			<div className="rounded-lg bg-muted p-3">
+		<div className="space-y-4">
+			{/* Program info header */}
+			<div className="rounded-lg border bg-muted/50 px-4 py-3">
 				<p className="font-medium text-sm">{universityProgram.studyProgram.name}</p>
+				{universityProgram.studyProgram.category && (
+					<p className="text-muted-foreground text-xs">{universityProgram.studyProgram.category}</p>
+				)}
 			</div>
+
 			<form
 				onSubmit={(e) => {
 					e.preventDefault();
 					form.handleSubmit();
 				}}
-				className="grid gap-4"
+				className="space-y-4"
 			>
-				<form.Field name="tuition">
-					{(field) => (
-						<div className="grid grid-cols-4 items-start gap-4">
-							<Label htmlFor={field.name} className="mt-2 text-right">
-								Biaya
-							</Label>
-							<div className="col-span-3 space-y-1">
+				<div className="grid grid-cols-2 gap-3">
+					<form.Field name="tuition">
+						{(field) => (
+							<div className="space-y-1.5">
+								<Label htmlFor={field.name} className="font-medium text-sm">
+									Biaya (Rp)
+								</Label>
 								<Input
 									id={field.name}
 									type="number"
-									placeholder="Contoh: 5000000"
+									placeholder="5.000.000"
 									value={field.state.value}
 									onBlur={field.handleBlur}
 									onChange={(e) => field.handleChange(e.target.value)}
 								/>
 								{field.state.meta.errors.map((error) => (
-									<p key={error?.message} className="text-red-500 text-xs">
+									<p key={error?.message} className="text-destructive text-xs">
 										{error?.message}
 									</p>
 								))}
 							</div>
-						</div>
-					)}
-				</form.Field>
+						)}
+					</form.Field>
 
-				<form.Field name="capacity">
-					{(field) => (
-						<div className="grid grid-cols-4 items-start gap-4">
-							<Label htmlFor={field.name} className="mt-2 text-right">
-								Kapasitas
-							</Label>
-							<div className="col-span-3 space-y-1">
+					<form.Field name="capacity">
+						{(field) => (
+							<div className="space-y-1.5">
+								<Label htmlFor={field.name} className="font-medium text-sm">
+									Kapasitas
+								</Label>
 								<Input
 									id={field.name}
 									type="number"
-									placeholder="Contoh: 100"
+									placeholder="100"
 									value={field.state.value}
 									onBlur={field.handleBlur}
 									onChange={(e) => field.handleChange(e.target.value)}
 								/>
 								{field.state.meta.errors.map((error) => (
-									<p key={error?.message} className="text-red-500 text-xs">
+									<p key={error?.message} className="text-destructive text-xs">
 										{error?.message}
 									</p>
 								))}
 							</div>
-						</div>
-					)}
-				</form.Field>
+						)}
+					</form.Field>
+				</div>
 
-				<form.Field name="accreditation">
-					{(field) => (
-						<div className="grid grid-cols-4 items-start gap-4">
-							<Label htmlFor={field.name} className="mt-2 text-right">
-								Akreditasi
-							</Label>
-							<div className="col-span-3 space-y-1">
+				<div className="grid grid-cols-2 gap-3">
+					<form.Field name="accreditation">
+						{(field) => (
+							<div className="space-y-1.5">
+								<Label htmlFor={field.name} className="font-medium text-sm">
+									Akreditasi
+								</Label>
 								<Select value={field.state.value} onValueChange={(val) => field.handleChange(val)}>
 									<SelectTrigger>
 										<SelectValue placeholder="Pilih..." />
 									</SelectTrigger>
 									<SelectContent>
-										<SelectItem value="">-</SelectItem>
+										<SelectItem value="none">-</SelectItem>
 										<SelectItem value="Unggul">Unggul</SelectItem>
 										<SelectItem value="A">A</SelectItem>
 										<SelectItem value="B">B</SelectItem>
@@ -156,58 +159,58 @@ export function EditProgramDialog({ universityProgram, onSuccess, onOpenChange }
 									</SelectContent>
 								</Select>
 								{field.state.meta.errors.map((error) => (
-									<p key={error?.message} className="text-red-500 text-xs">
+									<p key={error?.message} className="text-destructive text-xs">
 										{error?.message}
 									</p>
 								))}
 							</div>
-						</div>
-					)}
-				</form.Field>
+						)}
+					</form.Field>
 
-				<form.Field name="averageScore">
-					{(field) => (
-						<div className="grid grid-cols-4 items-start gap-4">
-							<Label htmlFor={field.name} className="mt-2 text-right">
-								Skor Rata-rata
-							</Label>
-							<div className="col-span-3 space-y-1">
+					<form.Field name="averageScore">
+						{(field) => (
+							<div className="space-y-1.5">
+								<Label htmlFor={field.name} className="font-medium text-sm">
+									Skor Rata-rata
+								</Label>
 								<Input
 									id={field.name}
 									type="number"
-									placeholder="Contoh: 500"
+									placeholder="500"
 									value={field.state.value}
 									onBlur={field.handleBlur}
 									onChange={(e) => field.handleChange(e.target.value)}
 								/>
 								{field.state.meta.errors.map((error) => (
-									<p key={error?.message} className="text-red-500 text-xs">
+									<p key={error?.message} className="text-destructive text-xs">
 										{error?.message}
 									</p>
 								))}
 							</div>
-						</div>
-					)}
-				</form.Field>
+						)}
+					</form.Field>
+				</div>
 
 				<form.Field name="isActive">
 					{(field) => (
-						<div className="grid grid-cols-4 items-center gap-4">
-							<Label htmlFor={field.name} className="text-right font-medium text-sm">
-								Status
-							</Label>
-							<div className="col-span-3 flex items-center gap-2">
-								<Switch id={field.name} checked={field.state.value} onCheckedChange={field.handleChange} />
-								<span className="text-muted-foreground text-sm">{field.state.value ? "Aktif" : "Tidak Aktif"}</span>
+						<div className="flex items-center justify-between rounded-lg border px-4 py-3">
+							<div>
+								<Label htmlFor={field.name} className="cursor-pointer font-medium text-sm">
+									Status Aktif
+								</Label>
+								<p className="text-muted-foreground text-xs">
+									{field.state.value ? "Program studi ini aktif" : "Program studi ini tidak aktif"}
+								</p>
 							</div>
+							<Switch id={field.name} checked={field.state.value} onCheckedChange={field.handleChange} />
 						</div>
 					)}
 				</form.Field>
 
-				<DialogFooter>
+				<DialogFooter className="pt-2">
 					<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
 						{([canSubmit, isSubmitting]) => (
-							<Button type="submit" disabled={!canSubmit || isSubmitting}>
+							<Button type="submit" disabled={!canSubmit || isSubmitting} className="w-full">
 								{isSubmitting ? (
 									<>
 										<Spinner />

@@ -1,4 +1,4 @@
-import { ArrowLeftIcon, DotsThreeIcon, PencilIcon, TrashIcon } from "@phosphor-icons/react";
+import { ArrowLeftIcon, DotsThreeIcon, TrashIcon } from "@phosphor-icons/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
@@ -102,8 +102,9 @@ function RouteComponent() {
 				/>
 			</div>
 
-			<div className="overflow-clip rounded-lg border bg-white shadow-sm">
-				<Table>
+			<div className="overflow-hidden rounded-lg border bg-white shadow-sm">
+				<div className="overflow-x-auto">
+					<Table className="min-w-[800px]">
 					<TableHeader>
 						<TableRow>
 							<TableHead>No</TableHead>
@@ -112,10 +113,10 @@ function RouteComponent() {
 							<TableHead>Biaya</TableHead>
 							<TableHead>Kapasitas</TableHead>
 							<TableHead>Akreditasi</TableHead>
-							<TableHead>Skor Rata-rata</TableHead>
-							<TableHead>Status</TableHead>
-							<TableHead>Aksi</TableHead>
-						</TableRow>
+								<TableHead>Skor Rata-rata</TableHead>
+								<TableHead>Status</TableHead>
+								<TableHead className="w-12" />
+							</TableRow>
 					</TableHeader>
 					<TableBody>
 						{isProgramsLoading ? (
@@ -130,7 +131,15 @@ function RouteComponent() {
 							programs.data.map((prog, index) => (
 								<TableRow key={prog.id}>
 									<TableCell>{index + 1}</TableCell>
-									<TableCell className="font-medium">{prog.studyProgram.name}</TableCell>
+											<TableCell className="font-medium">
+												<button
+													type="button"
+													className="hover:underline"
+													onClick={() => setEditProgram(prog)}
+												>
+													{prog.studyProgram.name}
+												</button>
+											</TableCell>
 									<TableCell>{prog.studyProgram.category}</TableCell>
 									<TableCell>{prog.tuition ? `Rp ${prog.tuition.toLocaleString("id-ID")}` : "-"}</TableCell>
 									<TableCell>{prog.capacity ?? "-"}</TableCell>
@@ -140,30 +149,27 @@ function RouteComponent() {
 											{prog.isActive ? "Aktif" : "Tidak Aktif"}
 										</Badge>
 									</TableCell>
-									<TableCell>
-										<DropdownMenu>
-											<DropdownMenuTrigger asChild>
-												<Button variant="ghost" size="icon">
-													<DotsThreeIcon className="size-4" />
-												</Button>
-											</DropdownMenuTrigger>
-											<DropdownMenuContent align="end">
-												<DropdownMenuItem onClick={() => setEditProgram(prog)}>
-													<PencilIcon className="mr-2 size-4" />
-													Edit
-												</DropdownMenuItem>
-												<DropdownMenuItem variant="destructive" onClick={() => setDeleteProgramId(prog.id)}>
-													<TrashIcon className="mr-2 size-4" />
-													Hapus
-												</DropdownMenuItem>
-											</DropdownMenuContent>
-										</DropdownMenu>
-									</TableCell>
+											<TableCell>
+												<DropdownMenu>
+													<DropdownMenuTrigger asChild>
+														<Button variant="ghost" size="icon">
+															<DotsThreeIcon className="size-4" />
+														</Button>
+													</DropdownMenuTrigger>
+													<DropdownMenuContent align="end">
+														<DropdownMenuItem variant="destructive" onClick={() => setDeleteProgramId(prog.id)}>
+															<TrashIcon className="mr-2 size-4" />
+															Hapus
+														</DropdownMenuItem>
+													</DropdownMenuContent>
+												</DropdownMenu>
+											</TableCell>
 								</TableRow>
 							))
 						)}
 					</TableBody>
-				</Table>
+					</Table>
+				</div>
 			</div>
 
 			{editProgram && (

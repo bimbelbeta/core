@@ -1,3 +1,4 @@
+import { ArrowLeftIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -6,6 +7,7 @@ import { DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
 import { orpc } from "@/utils/orpc";
 
 interface ProgramDetailsStepProps {
@@ -52,43 +54,41 @@ export function ProgramDetailsStep({
 	};
 
 	return (
-		<div className="grid gap-4 py-4">
-			<div className="rounded-lg bg-muted p-3">
-				<p className="font-medium text-sm">{programName}</p>
-			</div>
-			<div className="grid gap-4">
-				<div className="grid grid-cols-4 items-center gap-4">
-					<Label htmlFor="tuition" className="text-right font-medium text-sm">
-						Biaya
+		<div className="space-y-4">
+			<div className="grid grid-cols-2 gap-3">
+				<div className="space-y-1.5">
+					<Label htmlFor="tuition" className="font-medium text-sm">
+						Biaya (Rp)
 					</Label>
 					<Input
 						id="tuition"
 						type="number"
-						placeholder="Contoh: 5000000"
+						placeholder="5.000.000"
 						value={tuition}
 						onChange={(e) => setTuition(e.target.value)}
-						className="col-span-3"
 					/>
 				</div>
-				<div className="grid grid-cols-4 items-center gap-4">
-					<Label htmlFor="capacity" className="text-right font-medium text-sm">
+				<div className="space-y-1.5">
+					<Label htmlFor="capacity" className="font-medium text-sm">
 						Kapasitas
 					</Label>
 					<Input
 						id="capacity"
 						type="number"
-						placeholder="Contoh: 100"
+						placeholder="100"
 						value={capacity}
 						onChange={(e) => setCapacity(e.target.value)}
-						className="col-span-3"
 					/>
 				</div>
-				<div className="grid grid-cols-4 items-center gap-4">
-					<Label htmlFor="accreditation" className="text-right font-medium text-sm">
+			</div>
+
+			<div className="grid grid-cols-2 gap-3">
+				<div className="space-y-1.5">
+					<Label htmlFor="accreditation" className="font-medium text-sm">
 						Akreditasi
 					</Label>
 					<Select value={accreditation} onValueChange={setAccreditation}>
-						<SelectTrigger className="col-span-3">
+						<SelectTrigger>
 							<SelectValue placeholder="Pilih..." />
 						</SelectTrigger>
 						<SelectContent>
@@ -101,26 +101,34 @@ export function ProgramDetailsStep({
 						</SelectContent>
 					</Select>
 				</div>
-				<div className="grid grid-cols-4 items-center gap-4">
-					<Label htmlFor="averageScore" className="text-right font-medium text-sm">
+				<div className="space-y-1.5">
+					<Label htmlFor="averageScore" className="font-medium text-sm">
 						Skor Rata-rata
 					</Label>
 					<Input
 						id="averageScore"
 						type="number"
-						placeholder="Contoh: 500"
+						placeholder="500"
 						value={averageScore}
 						onChange={(e) => setAverageScore(e.target.value)}
-						className="col-span-3"
 					/>
 				</div>
 			</div>
-			<DialogFooter className="justify-between">
-				<Button variant="ghost" onClick={onBack}>
+
+			<DialogFooter className="flex-row justify-between gap-2 pt-2">
+				<Button variant="outline" onClick={onBack} className="gap-1.5 mr-auto">
+					<ArrowLeftIcon className="size-3.5" />
 					Kembali
 				</Button>
 				<Button onClick={handleSubmit} disabled={isLinking}>
-					{isLinking ? "Menambahkan..." : "Tambah Prodi"}
+					{isLinking ? (
+						<>
+							<Spinner />
+							Menambahkan...
+						</>
+					) : (
+						"Tambah Prodi"
+					)}
 				</Button>
 			</DialogFooter>
 		</div>
