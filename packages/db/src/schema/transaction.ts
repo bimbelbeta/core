@@ -46,4 +46,5 @@ export const product = pgTable("product", {
 		.defaultNow()
 		.$onUpdate(() => /* @__PURE__ */ new Date())
 		.notNull(),
+	deletedAt: timestamp("deleted_at"),
 });

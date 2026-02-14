@@ -17,12 +17,7 @@ interface ProgramDetailsStepProps {
 	onBack: () => void;
 }
 
-export function ProgramDetailsStep({
-	universityId,
-	programId,
-	onSuccess,
-	onBack,
-}: ProgramDetailsStepProps) {
+export function ProgramDetailsStep({ universityId, programId, onSuccess, onBack }: ProgramDetailsStepProps) {
 	const [tuition, setTuition] = useState("");
 	const [capacity, setCapacity] = useState("");
 	const [accreditation, setAccreditation] = useState("");

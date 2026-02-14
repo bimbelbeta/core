@@ -17,6 +17,7 @@ const list = pub
 				slug: product.slug,
 				description: product.description,
 				price: product.price,
+				type: product.type,
 				variant: product.variant,
 				fixedExpiryMonth: product.fixedExpiryMonth,
 				fixedExpiryDay: product.fixedExpiryDay,

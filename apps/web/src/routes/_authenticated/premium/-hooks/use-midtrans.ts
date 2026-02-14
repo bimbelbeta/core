@@ -7,8 +7,11 @@ export function useMidtrans() {
 	const queryClient = useQueryClient();
 	const transactionMutation = useMutation(orpc.transaction.subscribe.mutationOptions());
 	const [token, setToken] = useState<string | undefined>();
+	const enabled = import.meta.env.VITE_PAYMENTS_ENABLED === "true";
 
 	useEffect(() => {
+		if (!enabled) return;
+
 		const midtransScriptUrl = import.meta.env.PROD
 			? "https://app.midtrans.com/snap/snap.js"
 			: "https://app.sandbox.midtrans.com/snap/snap.js";
@@ -23,6 +26,8 @@ export function useMidtrans() {
 	}, []);
 
 	useEffect(() => {
+		if (!enabled) return;
+
 		if (token) {
 			// @ts-expect-error - Midtrans Snap is loaded globally
 			window.snap.pay(token, {
@@ -44,6 +49,11 @@ export function useMidtrans() {
 	}, [token, queryClient]);
 
 	const handlePurchase = async (slug: string) => {
+		if (!enabled) {
+			toast.info("Pembayaran belum tersedia. Segera hadir.");
+			return;
+		}
+
 		try {
 			const data = await transactionMutation.mutateAsync({ slug });
 			setToken(data.token);
@@ -58,6 +68,6 @@ export function useMidtrans() {
 
 	return {
 		handlePurchase,
-		isPending: transactionMutation.isPending,
+		isPending: enabled ? transactionMutation.isPending : false,
 	};
 }

@@ -35,9 +35,12 @@ import { Route as AuthenticatedTryoutTryoutIdRouteImport } from './routes/_authe
 import { Route as AdminTryoutsTryoutIdIndexRouteImport } from './routes/admin/tryouts/$tryoutId/index'
 import { Route as AdminClassesSubjectIdIndexRouteImport } from './routes/admin/classes/$subjectId/index'
 import { Route as AdminSuperadminUsersIndexRouteImport } from './routes/admin/_superadmin/users/index'
+import { Route as AdminSuperadminProductsIndexRouteImport } from './routes/admin/_superadmin/products/index'
 import { Route as AuthenticatedClassesSubjectIdIndexRouteImport } from './routes/_authenticated/classes/$subjectId/index'
 import { Route as AdminClassesSubjectIdContentIdRouteImport } from './routes/admin/classes/$subjectId/$contentId'
 import { Route as AdminSuperadminUsersUserIdRouteImport } from './routes/admin/_superadmin/users/$userId'
+import { Route as AdminSuperadminProductsCreateRouteImport } from './routes/admin/_superadmin/products/create'
+import { Route as AdminSuperadminProductsProductIdRouteImport } from './routes/admin/_superadmin/products/$productId'
 import { Route as AuthenticatedTryoutResultsAttemptIdRouteImport } from './routes/_authenticated/tryout/results.$attemptId'
 import { Route as AuthenticatedClassesSubjectIdContentIdRouteImport } from './routes/_authenticated/classes/$subjectId/$contentId'
 import { Route as AdminClassesSubjectIdContentIdVideoRouteImport } from './routes/admin/classes/$subjectId/$contentId.video'
@@ -186,6 +189,12 @@ const AdminSuperadminUsersIndexRoute =
     path: '/users/',
     getParentRoute: () => AdminSuperadminRoute,
   } as any)
+const AdminSuperadminProductsIndexRoute =
+  AdminSuperadminProductsIndexRouteImport.update({
+    id: '/products/',
+    path: '/products/',
+    getParentRoute: () => AdminSuperadminRoute,
+  } as any)
 const AuthenticatedClassesSubjectIdIndexRoute =
   AuthenticatedClassesSubjectIdIndexRouteImport.update({
     id: '/classes/$subjectId/',
@@ -202,6 +211,18 @@ const AdminSuperadminUsersUserIdRoute =
   AdminSuperadminUsersUserIdRouteImport.update({
     id: '/users/$userId',
     path: '/users/$userId',
+    getParentRoute: () => AdminSuperadminRoute,
+  } as any)
+const AdminSuperadminProductsCreateRoute =
+  AdminSuperadminProductsCreateRouteImport.update({
+    id: '/products/create',
+    path: '/products/create',
+    getParentRoute: () => AdminSuperadminRoute,
+  } as any)
+const AdminSuperadminProductsProductIdRoute =
+  AdminSuperadminProductsProductIdRouteImport.update({
+    id: '/products/$productId',
+    path: '/products/$productId',
     getParentRoute: () => AdminSuperadminRoute,
   } as any)
 const AuthenticatedTryoutResultsAttemptIdRoute =
@@ -294,9 +315,12 @@ export interface FileRoutesByFullPath {
   '/admin/tryouts/': typeof AdminTryoutsIndexRoute
   '/classes/$subjectId/$contentId': typeof AuthenticatedClassesSubjectIdContentIdRouteWithChildren
   '/tryout/results/$attemptId': typeof AuthenticatedTryoutResultsAttemptIdRoute
+  '/admin/products/$productId': typeof AdminSuperadminProductsProductIdRoute
+  '/admin/products/create': typeof AdminSuperadminProductsCreateRoute
   '/admin/users/$userId': typeof AdminSuperadminUsersUserIdRoute
   '/admin/classes/$subjectId/$contentId': typeof AdminClassesSubjectIdContentIdRouteWithChildren
   '/classes/$subjectId/': typeof AuthenticatedClassesSubjectIdIndexRoute
+  '/admin/products/': typeof AdminSuperadminProductsIndexRoute
   '/admin/users/': typeof AdminSuperadminUsersIndexRoute
   '/admin/classes/$subjectId/': typeof AdminClassesSubjectIdIndexRoute
   '/admin/tryouts/$tryoutId/': typeof AdminTryoutsTryoutIdIndexRoute
@@ -332,9 +356,12 @@ export interface FileRoutesByTo {
   '/admin/tryouts': typeof AdminTryoutsIndexRoute
   '/classes/$subjectId/$contentId': typeof AuthenticatedClassesSubjectIdContentIdRouteWithChildren
   '/tryout/results/$attemptId': typeof AuthenticatedTryoutResultsAttemptIdRoute
+  '/admin/products/$productId': typeof AdminSuperadminProductsProductIdRoute
+  '/admin/products/create': typeof AdminSuperadminProductsCreateRoute
   '/admin/users/$userId': typeof AdminSuperadminUsersUserIdRoute
   '/admin/classes/$subjectId/$contentId': typeof AdminClassesSubjectIdContentIdRouteWithChildren
   '/classes/$subjectId': typeof AuthenticatedClassesSubjectIdIndexRoute
+  '/admin/products': typeof AdminSuperadminProductsIndexRoute
   '/admin/users': typeof AdminSuperadminUsersIndexRoute
   '/admin/classes/$subjectId': typeof AdminClassesSubjectIdIndexRoute
   '/admin/tryouts/$tryoutId': typeof AdminTryoutsTryoutIdIndexRoute
@@ -375,9 +402,12 @@ export interface FileRoutesById {
   '/admin/tryouts/': typeof AdminTryoutsIndexRoute
   '/_authenticated/classes/$subjectId/$contentId': typeof AuthenticatedClassesSubjectIdContentIdRouteWithChildren
   '/_authenticated/tryout/results/$attemptId': typeof AuthenticatedTryoutResultsAttemptIdRoute
+  '/admin/_superadmin/products/$productId': typeof AdminSuperadminProductsProductIdRoute
+  '/admin/_superadmin/products/create': typeof AdminSuperadminProductsCreateRoute
   '/admin/_superadmin/users/$userId': typeof AdminSuperadminUsersUserIdRoute
   '/admin/classes/$subjectId/$contentId': typeof AdminClassesSubjectIdContentIdRouteWithChildren
   '/_authenticated/classes/$subjectId/': typeof AuthenticatedClassesSubjectIdIndexRoute
+  '/admin/_superadmin/products/': typeof AdminSuperadminProductsIndexRoute
   '/admin/_superadmin/users/': typeof AdminSuperadminUsersIndexRoute
   '/admin/classes/$subjectId/': typeof AdminClassesSubjectIdIndexRoute
   '/admin/tryouts/$tryoutId/': typeof AdminTryoutsTryoutIdIndexRoute
@@ -416,9 +446,12 @@ export interface FileRouteTypes {
     | '/admin/tryouts/'
     | '/classes/$subjectId/$contentId'
     | '/tryout/results/$attemptId'
+    | '/admin/products/$productId'
+    | '/admin/products/create'
     | '/admin/users/$userId'
     | '/admin/classes/$subjectId/$contentId'
     | '/classes/$subjectId/'
+    | '/admin/products/'
     | '/admin/users/'
     | '/admin/classes/$subjectId/'
     | '/admin/tryouts/$tryoutId/'
@@ -454,9 +487,12 @@ export interface FileRouteTypes {
     | '/admin/tryouts'
     | '/classes/$subjectId/$contentId'
     | '/tryout/results/$attemptId'
+    | '/admin/products/$productId'
+    | '/admin/products/create'
     | '/admin/users/$userId'
     | '/admin/classes/$subjectId/$contentId'
     | '/classes/$subjectId'
+    | '/admin/products'
     | '/admin/users'
     | '/admin/classes/$subjectId'
     | '/admin/tryouts/$tryoutId'
@@ -496,9 +532,12 @@ export interface FileRouteTypes {
     | '/admin/tryouts/'
     | '/_authenticated/classes/$subjectId/$contentId'
     | '/_authenticated/tryout/results/$attemptId'
+    | '/admin/_superadmin/products/$productId'
+    | '/admin/_superadmin/products/create'
     | '/admin/_superadmin/users/$userId'
     | '/admin/classes/$subjectId/$contentId'
     | '/_authenticated/classes/$subjectId/'
+    | '/admin/_superadmin/products/'
     | '/admin/_superadmin/users/'
     | '/admin/classes/$subjectId/'
     | '/admin/tryouts/$tryoutId/'
@@ -704,6 +743,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSuperadminUsersIndexRouteImport
       parentRoute: typeof AdminSuperadminRoute
     }
+    '/admin/_superadmin/products/': {
+      id: '/admin/_superadmin/products/'
+      path: '/products'
+      fullPath: '/admin/products/'
+      preLoaderRoute: typeof AdminSuperadminProductsIndexRouteImport
+      parentRoute: typeof AdminSuperadminRoute
+    }
     '/_authenticated/classes/$subjectId/': {
       id: '/_authenticated/classes/$subjectId/'
       path: '/classes/$subjectId'
@@ -723,6 +769,20 @@ declare module '@tanstack/react-router' {
       path: '/users/$userId'
       fullPath: '/admin/users/$userId'
       preLoaderRoute: typeof AdminSuperadminUsersUserIdRouteImport
+      parentRoute: typeof AdminSuperadminRoute
+    }
+    '/admin/_superadmin/products/create': {
+      id: '/admin/_superadmin/products/create'
+      path: '/products/create'
+      fullPath: '/admin/products/create'
+      preLoaderRoute: typeof AdminSuperadminProductsCreateRouteImport
+      parentRoute: typeof AdminSuperadminRoute
+    }
+    '/admin/_superadmin/products/$productId': {
+      id: '/admin/_superadmin/products/$productId'
+      path: '/products/$productId'
+      fullPath: '/admin/products/$productId'
+      preLoaderRoute: typeof AdminSuperadminProductsProductIdRouteImport
       parentRoute: typeof AdminSuperadminRoute
     }
     '/_authenticated/tryout/results/$attemptId': {
@@ -875,12 +935,18 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 )
 
 interface AdminSuperadminRouteChildren {
+  AdminSuperadminProductsProductIdRoute: typeof AdminSuperadminProductsProductIdRoute
+  AdminSuperadminProductsCreateRoute: typeof AdminSuperadminProductsCreateRoute
   AdminSuperadminUsersUserIdRoute: typeof AdminSuperadminUsersUserIdRoute
+  AdminSuperadminProductsIndexRoute: typeof AdminSuperadminProductsIndexRoute
   AdminSuperadminUsersIndexRoute: typeof AdminSuperadminUsersIndexRoute
 }
 
 const AdminSuperadminRouteChildren: AdminSuperadminRouteChildren = {
+  AdminSuperadminProductsProductIdRoute: AdminSuperadminProductsProductIdRoute,
+  AdminSuperadminProductsCreateRoute: AdminSuperadminProductsCreateRoute,
   AdminSuperadminUsersUserIdRoute: AdminSuperadminUsersUserIdRoute,
+  AdminSuperadminProductsIndexRoute: AdminSuperadminProductsIndexRoute,
   AdminSuperadminUsersIndexRoute: AdminSuperadminUsersIndexRoute,
 }
 

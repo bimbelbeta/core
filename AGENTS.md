@@ -12,31 +12,40 @@
 
 ```bash
 # Linting and formatting
-bun lint           # Check code with Biome
-bun lint:fix --unsafe       # Auto-fix issues
+bun lint              # Check code with Biome
+bun lint:fix          # Auto-fix issues
+bun lint:fix --unsafe # Auto-fix with unsafe fixes
 
 # Type checking
-bun prepare    # Always run Biome fix before type checking all packages
+bun check-types       # Type check all packages
+bun prepare           # Run Biome fix before type checking
 
 # Building
-bun build          # Build all packages
-bun build:packages # Build only packages (not apps)
+bun build             # Build all packages and apps
+bun build:packages    # Build only packages (not apps)
 
 # Development
-bun dev            # Start all packages in dev mode
-bun dev:web        # Start web app on port 3000
-bun dev:server     # Start server on port 3001
+bun dev               # Start all packages in dev mode
+bun dev:web           # Start web app on port 3000
+bun dev:server        # Start server on port 3001
 
 # Database operations
-bun db:push        # Push schema changes to DB
-bun db:migrate     # Apply migrations
-bun db:generate    # Generate migration files
-bun db:studio      # Open Drizzle Studio
-bun db:reset       # Reset database and seed
-bun db:seed        # Seed database
+bun db:push           # Push schema changes to DB
+bun db:migrate        # Apply migrations
+bun db:generate       # Generate migration files
+bun db:studio         # Open Drizzle Studio
+bun db:reset          # Reset database and seed
+bun db:seed           # Seed database
+
+# Testing (Vitest)
+bun test              # Run all tests
+bun test path/to/file.test.ts  # Run single test file
+bun test --watch      # Run tests in watch mode
 
 # Run specific package command
 turbo -F @bimbelbeta/db <command>
+turbo -F @bimbelbeta/api <command>
+turbo -F web <command>
 ```
 
 ## Code Style Guidelines
@@ -122,19 +131,10 @@ apps/web/src/routes/
 - Keep functions focused and under 50 lines when possible
 - Use custom hooks for reusable logic in `hooks/` directories
 - Do not clear `.turbo` or other cache directories
-- IMPORTANT: Avoid prop drilling - use context (leverage Tanstack Query and Router for path and data context) or state management (zustand)
-- Server state: TanStack Query, client state: zustand
-- Forms: TanStack Form with Arktype validators
+- Avoid prop drilling - use context (Tanstack Query/Router) or state management (zustand)
 - Minimize comments - code should be self-documenting
 - **CRITICAL**: Run `bun build:packages` after any changes to API routes (packages/api/src/routers/*) - this regenerates type definitions used by web/server apps
 - Run `bun lint:fix` and `bun check-types` before pushing
-
-### Testing
-- Use Vitest/Jest for unit and integration tests
-- Test files should be co-located with source files: `Component.test.tsx`
-- Mock external dependencies in `__mocks__` folders
-- Test user behavior, not implementation details
-- Keep tests fast and isolated
 
 ### Environment Variables
 - Local dev: Use `.env` files in `apps/server/`

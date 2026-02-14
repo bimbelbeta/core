@@ -1,5 +1,6 @@
 import { adminCreditRouter } from "./credit";
 import { adminDashboardRouter } from "./dashboard";
+import { adminProductRouter } from "./product";
 import { questionRouter } from "./question";
 import { adminSubjectRouter } from "./subject";
 import { subtestRouter } from "./subtest";
@@ -20,6 +21,7 @@ export const adminRouter = {
 	university: adminUniversityRouter,
 	credit: adminCreditRouter,
 	users: usersRouter,
+	products: adminProductRouter,
 };
 
 export type { adminDashboardRouter } from "./dashboard";

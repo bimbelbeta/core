@@ -1,5 +1,6 @@
 import { CheckIcon, SpinnerIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
+import { PAYMENTS_COMING_SOON_LABEL, PAYMENTS_ENABLED } from "@/lib/billing-config";
 import { cn } from "@/lib/utils";
 import { formatRupiah } from "@/utils/formatter";
 
@@ -9,6 +10,9 @@ interface PackageCardProps {
 	price: string;
 	credits: number | null;
 	variant: "fixed_date" | "monthly" | "credits";
+	fixedExpiryMonth?: number | null;
+	fixedExpiryDay?: number | null;
+	durationDays?: number | null;
 	isPurchased?: boolean;
 	isPending: boolean;
 	onPurchase: (slug: string) => void;
@@ -21,6 +25,9 @@ export function PackageCard({
 	price,
 	credits,
 	variant,
+	fixedExpiryMonth,
+	fixedExpiryDay,
+	durationDays,
 	isPurchased,
 	isPending,
 	onPurchase,
@@ -28,6 +35,20 @@ export function PackageCard({
 }: PackageCardProps) {
 	const isPremiumPackage = variant === "fixed_date" || variant === "monthly";
 	const isCreditsPackage = variant === "credits";
+
+	const premiumSubtitle = (() => {
+		if (variant === "fixed_date" && fixedExpiryMonth && fixedExpiryDay) {
+			const displayYear = new Date().getFullYear();
+			const date = new Date(displayYear, fixedExpiryMonth - 1, fixedExpiryDay);
+			return `s.d. ${date.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })}`;
+		}
+
+		if (variant === "monthly" && durationDays) {
+			return `${durationDays} hari`;
+		}
+
+		return null;
+	})();
 
 	return (
 		<div
@@ -49,7 +70,7 @@ export function PackageCard({
 					<p className={cn("font-bold", isPremiumPackage ? "text-2xl text-primary-600" : "text-neutral-900 text-xl")}>
 						{formatRupiah(price)}
 					</p>
-					{isPremiumPackage && <span className="text-neutral-500 text-sm">s.d. UTBK</span>}
+					{isPremiumPackage && premiumSubtitle && <span className="text-neutral-500 text-sm">{premiumSubtitle}</span>}
 				</div>
 			</div>
 
@@ -86,10 +107,12 @@ export function PackageCard({
 				size={isPremiumPackage ? "lg" : "default"}
 				variant={isPremiumPackage ? "default" : "outline"}
 				className="mt-auto w-full hover:cursor-pointer"
-				disabled={isPurchased || isPending || disabled}
+				disabled={!PAYMENTS_ENABLED || isPurchased || isPending || disabled}
 				onClick={() => onPurchase(slug)}
 			>
-				{isPurchased ? (
+				{!PAYMENTS_ENABLED ? (
+					PAYMENTS_COMING_SOON_LABEL
+				) : isPurchased ? (
 					"Sudah Dimiliki"
 				) : isPending ? (
 					<>

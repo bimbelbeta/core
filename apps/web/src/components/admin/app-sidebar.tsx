@@ -1,6 +1,14 @@
 "use client";
 
-import { ArchiveIcon, BooksIcon, FileTextIcon, HouseIcon, RankingIcon, UserIcon } from "@phosphor-icons/react";
+import {
+	ArchiveIcon,
+	BooksIcon,
+	FileTextIcon,
+	HouseIcon,
+	PackageIcon,
+	RankingIcon,
+	UserIcon,
+} from "@phosphor-icons/react";
 import { Link, useLocation, useRouteContext } from "@tanstack/react-router";
 import { Sidebar, SidebarContent, SidebarHeader, SidebarRail } from "@/components/ui/sidebar";
 import { NavFooter } from "./nav-footer";
@@ -36,6 +44,13 @@ const allAdminNavLinks = [
 		title: "Users",
 		url: "/admin/users",
 		icon: UserIcon,
+		superadminOnly: true,
+	},
+	{
+		title: "Products",
+		url: "/admin/products",
+		icon: PackageIcon,
+		superadminOnly: true,
 	},
 ];
 
@@ -43,9 +58,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const location = useLocation();
 	const { session } = useRouteContext({ from: "/admin" });
 
-	const adminNavLinks = allAdminNavLinks.filter(
-		(link) => link.url !== "/admin/_superadmin/users" || session?.user?.role === "superadmin",
-	);
+	const adminNavLinks = allAdminNavLinks.filter((link) => !link.superadminOnly || session?.user?.role === "superadmin");
 
 	const navLinksWithActive = adminNavLinks.map((link) => ({
 		...link,
