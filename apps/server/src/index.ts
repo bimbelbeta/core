@@ -14,128 +14,105 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 
 const router: Router = {
-	client: custom({
-		host: process.env.S3_ENDPOINT || "",
-		region: "us-east-1",
-		accessKeyId: process.env.S3_ACCESS_KEY || "",
-		secretAccessKey: process.env.S3_SECRET_KEY || "",
-		secure: false,
-		forcePathStyle: true,
-	}),
-	bucketName: process.env.S3_BUCKET || "temp",
-	routes: {
-		tryout: route({
-			fileTypes: ["image/*"],
-			maxFileSize: 1024 * 1024 * 2,
-		}),
-	},
+  client: custom({
+    host: process.env.S3_ENDPOINT || "",
+    region: "us-east-1",
+    accessKeyId: process.env.S3_ACCESS_KEY || "",
+    secretAccessKey: process.env.S3_SECRET_KEY || "",
+    secure: false,
+    forcePathStyle: true,
+  }),
+  bucketName: process.env.S3_BUCKET || "temp",
+  routes: {
+    tryout: route({
+      fileTypes: ["image/*"],
+      maxFileSize: 1024 * 1024 * 2,
+    }),
+  },
 };
 
 const app = new Hono();
-// const isUploadDebugEnabled = process.env.UPLOAD_DEBUG === "true";
-const isUploadDebugEnabled = true;
 
 app.use(logger());
 app.use(
-	"/*",
-	cors({
-		origin: [
-			process.env.CORS_ORIGIN || "http://localhost:3000",
-			"http://localhost:3000",
-			"https://bimbelbeta.com",
-			"https://api.bimbelbeta.com",
-		],
-		allowMethods: ["GET", "POST", "PATCH", "OPTIONS"],
-		allowHeaders: ["Content-Type", "Authorization"],
-		credentials: true,
-	}),
+  "/*",
+  cors({
+    origin: [
+      process.env.CORS_ORIGIN || "http://localhost:3000",
+      "http://localhost:3000",
+      "https://bimbelbeta.com",
+      "https://api.bimbelbeta.com",
+    ],
+    allowMethods: ["GET", "POST", "PUT", "PATCH", "OPTIONS"],
+    allowHeaders: ["Content-Type", "Authorization", "Content-Length"],
+    credentials: true,
+  }),
 );
 
 app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
 export const apiHandler = new OpenAPIHandler(appRouter, {
-	plugins: [
-		new OpenAPIReferencePlugin({
-			schemaConverters: [new ArkTypeToJsonSchemaConverter()],
-		}),
-		new RatelimitHandlerPlugin(),
-	],
-	interceptors: [
-		onError((error) => {
-			console.error(error);
-		}),
-	],
+  plugins: [
+    new OpenAPIReferencePlugin({
+      schemaConverters: [new ArkTypeToJsonSchemaConverter()],
+    }),
+    new RatelimitHandlerPlugin(),
+  ],
+  interceptors: [
+    onError((error) => {
+      console.error(error);
+    }),
+  ],
 });
 
 export const rpcHandler = new RPCHandler(appRouter, {
-	plugins: [new RatelimitHandlerPlugin()],
-	interceptors: [
-		onError((error) => {
-			console.error(error);
-		}),
-	],
+  plugins: [new RatelimitHandlerPlugin()],
+  interceptors: [
+    onError((error) => {
+      console.error(error);
+    }),
+  ],
 });
 
 app.post("/upload", async (c) => {
-	const response = await handleRequest(c.req.raw, router);
-
-	if (isUploadDebugEnabled) {
-		const body = await response.clone().text();
-		const sanitizedBody = body.length > 4000 ? `${body.slice(0, 4000)}...` : body;
-
-		if (!response.ok) {
-			console.error("[upload] request failed", {
-				status: response.status,
-				statusText: response.statusText,
-				body: sanitizedBody,
-			});
-		} else {
-			console.log("[upload] request completed", {
-				status: response.status,
-				statusText: response.statusText,
-				body: sanitizedBody,
-			});
-		}
-	}
-
-	return response;
+  return handleRequest(c.req.raw, router);
 });
 
 app.use("/*", async (c, next) => {
-	const context = await createContext({ context: c });
+  const context = await createContext({ context: c });
 
-	const rpcResult = await rpcHandler.handle(c.req.raw, {
-		prefix: "/rpc",
-		context: context,
-	});
+  const rpcResult = await rpcHandler.handle(c.req.raw, {
+    prefix: "/rpc",
+    context: context,
+  });
 
-	if (rpcResult.matched) {
-		return c.newResponse(rpcResult.response.body, rpcResult.response);
-	}
+  if (rpcResult.matched) {
+    return c.newResponse(rpcResult.response.body, rpcResult.response);
+  }
 
-	const apiResult = await apiHandler.handle(c.req.raw, {
-		prefix: "/api-reference",
-		context: context,
-	});
+  const apiResult = await apiHandler.handle(c.req.raw, {
+    prefix: "/api-reference",
+    context: context,
+  });
 
-	if (apiResult.matched) {
-		return c.newResponse(apiResult.response.body, apiResult.response);
-	}
+  if (apiResult.matched) {
+    return c.newResponse(apiResult.response.body, apiResult.response);
+  }
 
-	await next();
+  await next();
 });
 
 app.get("/", (c) => {
-	return c.text("OK");
+  return c.text("OK");
 });
 
 export default {
-	port: process.env.PORT || 3001,
-	fetch: (req: Request) => {
-		const url = new URL(req.url);
-		if (req.headers.get("x-forwarded-proto") === "https") {
-			url.protocol = "https:";
-		}
-		return app.fetch(new Request(url, req));
-	},
+  port: process.env.PORT || 3001,
+  fetch: (req: Request) => {
+    const url = new URL(req.url);
+    if (req.headers.get("x-forwarded-proto") === "https") {
+      url.protocol = "https:";
+    }
+    return app.fetch(new Request(url, req));
+  },
 };
