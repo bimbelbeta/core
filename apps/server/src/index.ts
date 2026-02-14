@@ -32,6 +32,8 @@ const router: Router = {
 };
 
 const app = new Hono();
+// const isUploadDebugEnabled = process.env.UPLOAD_DEBUG === "true";
+const isUploadDebugEnabled = true;
 
 app.use(logger());
 app.use(
@@ -74,8 +76,29 @@ export const rpcHandler = new RPCHandler(appRouter, {
 	],
 });
 
-app.post("/upload", (c) => {
-	return handleRequest(c.req.raw, router);
+app.post("/upload", async (c) => {
+	const response = await handleRequest(c.req.raw, router);
+
+	if (isUploadDebugEnabled) {
+		const body = await response.clone().text();
+		const sanitizedBody = body.length > 4000 ? `${body.slice(0, 4000)}...` : body;
+
+		if (!response.ok) {
+			console.error("[upload] request failed", {
+				status: response.status,
+				statusText: response.statusText,
+				body: sanitizedBody,
+			});
+		} else {
+			console.log("[upload] request completed", {
+				status: response.status,
+				statusText: response.statusText,
+				body: sanitizedBody,
+			});
+		}
+	}
+
+	return response;
 });
 
 app.use("/*", async (c, next) => {

@@ -1,4 +1,4 @@
-import { ArrowLeftIcon, MagnifyingGlassIcon, PlusIcon } from "@phosphor-icons/react";
+import { MagnifyingGlassIcon, PlusIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -74,9 +74,7 @@ export function AddProgramDialog({ universityId, onSuccess, open, onOpenChange }
 			<DialogContent className="gap-0 p-0 sm:max-w-[540px]">
 				<DialogHeader className="px-6 pt-6 pb-4">
 					<DialogTitle>Tambah Program Studi</DialogTitle>
-					<DialogDescription className="sr-only">
-						Tambah program studi ke universitas ini.
-					</DialogDescription>
+					<DialogDescription className="sr-only">Tambah program studi ke universitas ini.</DialogDescription>
 
 					{/* Step indicator */}
 					<div className="flex items-center gap-3 pt-2">
@@ -87,12 +85,7 @@ export function AddProgramDialog({ universityId, onSuccess, open, onOpenChange }
 							return (
 								<div key={s.label} className="flex items-center gap-2">
 									{i > 0 && (
-										<div
-											className={cn(
-												"h-px w-6 transition-colors",
-												isComplete ? "bg-primary" : "bg-border",
-											)}
-										/>
+										<div className={cn("h-px w-6 transition-colors", isComplete ? "bg-primary" : "bg-border")} />
 									)}
 									<div className="flex items-center gap-2">
 										<div
@@ -174,7 +167,6 @@ export function AddProgramDialog({ universityId, onSuccess, open, onOpenChange }
 							<ProgramDetailsStep
 								universityId={universityId}
 								programId={selectedProgram.id}
-								programName={selectedProgram.name}
 								onSuccess={handleSuccess}
 								onBack={handleBack}
 							/>

@@ -44,9 +44,7 @@ export function SearchProgramTab({ onProgramSelect }: SearchProgramTabProps) {
 						</div>
 						<div>
 							<p className="font-medium text-sm">Tidak ditemukan</p>
-							<p className="text-muted-foreground text-xs">
-								Coba kata kunci lain atau buat program studi baru.
-							</p>
+							<p className="text-muted-foreground text-xs">Coba kata kunci lain atau buat program studi baru.</p>
 						</div>
 					</div>
 				) : searchResults?.data ? (
@@ -62,9 +60,7 @@ export function SearchProgramTab({ onProgramSelect }: SearchProgramTabProps) {
 							</div>
 							<div className="min-w-0 flex-1">
 								<p className="truncate font-medium text-sm">{prog.name}</p>
-								{prog.description && (
-									<p className="truncate text-muted-foreground text-xs">{prog.description}</p>
-								)}
+								{prog.description && <p className="truncate text-muted-foreground text-xs">{prog.description}</p>}
 							</div>
 							<Badge variant="outline" className="shrink-0 text-[10px]">
 								{prog.category}

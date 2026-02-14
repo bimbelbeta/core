@@ -144,10 +144,7 @@ export function CreateProgramTab({ onProgramCreate }: CreateProgramTabProps) {
 						<Label htmlFor={field.name} className="font-medium text-sm">
 							Kategori <span className="text-destructive">*</span>
 						</Label>
-						<Select
-							value={field.state.value}
-							onValueChange={(val) => field.handleChange(val as "SAINTEK" | "SOSHUM")}
-						>
+						<Select value={field.state.value} onValueChange={(val) => field.handleChange(val as "SAINTEK" | "SOSHUM")}>
 							<SelectTrigger>
 								<SelectValue placeholder="Pilih kategori" />
 							</SelectTrigger>

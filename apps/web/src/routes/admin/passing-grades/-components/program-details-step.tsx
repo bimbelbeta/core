@@ -13,7 +13,6 @@ import { orpc } from "@/utils/orpc";
 interface ProgramDetailsStepProps {
 	universityId: number;
 	programId: number;
-	programName: string;
 	onSuccess: () => void;
 	onBack: () => void;
 }
@@ -21,7 +20,6 @@ interface ProgramDetailsStepProps {
 export function ProgramDetailsStep({
 	universityId,
 	programId,
-	programName,
 	onSuccess,
 	onBack,
 }: ProgramDetailsStepProps) {
@@ -116,7 +114,7 @@ export function ProgramDetailsStep({
 			</div>
 
 			<DialogFooter className="flex-row justify-between gap-2 pt-2">
-				<Button variant="outline" onClick={onBack} className="gap-1.5 mr-auto">
+				<Button variant="outline" onClick={onBack} className="mr-auto gap-1.5">
 					<ArrowLeftIcon className="size-3.5" />
 					Kembali
 				</Button>

@@ -105,69 +105,65 @@ function RouteComponent() {
 			<div className="overflow-hidden rounded-lg border bg-white shadow-sm">
 				<div className="overflow-x-auto">
 					<Table className="min-w-[800px]">
-					<TableHeader>
-						<TableRow>
-							<TableHead>No</TableHead>
-							<TableHead>Nama Program</TableHead>
-							<TableHead>Kategori</TableHead>
-							<TableHead>Biaya</TableHead>
-							<TableHead>Kapasitas</TableHead>
-							<TableHead>Akreditasi</TableHead>
+						<TableHeader>
+							<TableRow>
+								<TableHead>No</TableHead>
+								<TableHead>Nama Program</TableHead>
+								<TableHead>Kategori</TableHead>
+								<TableHead>Biaya</TableHead>
+								<TableHead>Kapasitas</TableHead>
+								<TableHead>Akreditasi</TableHead>
 								<TableHead>Skor Rata-rata</TableHead>
 								<TableHead>Status</TableHead>
 								<TableHead className="w-12" />
 							</TableRow>
-					</TableHeader>
-					<TableBody>
-						{isProgramsLoading ? (
-							<TableSkeleton columns={9} />
-						) : !programs?.data || programs.data.length === 0 ? (
-							<TableRow>
-								<TableCell colSpan={9} className="h-24 text-center text-muted-foreground">
-									Belum ada program studi yang ditautkan.
-								</TableCell>
-							</TableRow>
-						) : (
-							programs.data.map((prog, index) => (
-								<TableRow key={prog.id}>
-									<TableCell>{index + 1}</TableCell>
-											<TableCell className="font-medium">
-												<button
-													type="button"
-													className="hover:underline"
-													onClick={() => setEditProgram(prog)}
-												>
-													{prog.studyProgram.name}
-												</button>
-											</TableCell>
-									<TableCell>{prog.studyProgram.category}</TableCell>
-									<TableCell>{prog.tuition ? `Rp ${prog.tuition.toLocaleString("id-ID")}` : "-"}</TableCell>
-									<TableCell>{prog.capacity ?? "-"}</TableCell>
-									<TableCell>{prog.accreditation ?? "-"}</TableCell>
-									<TableCell>
-										<Badge variant={prog.isActive ? "default" : "secondary"}>
-											{prog.isActive ? "Aktif" : "Tidak Aktif"}
-										</Badge>
+						</TableHeader>
+						<TableBody>
+							{isProgramsLoading ? (
+								<TableSkeleton columns={9} />
+							) : !programs?.data || programs.data.length === 0 ? (
+								<TableRow>
+									<TableCell colSpan={9} className="h-24 text-center text-muted-foreground">
+										Belum ada program studi yang ditautkan.
 									</TableCell>
-											<TableCell>
-												<DropdownMenu>
-													<DropdownMenuTrigger asChild>
-														<Button variant="ghost" size="icon">
-															<DotsThreeIcon className="size-4" />
-														</Button>
-													</DropdownMenuTrigger>
-													<DropdownMenuContent align="end">
-														<DropdownMenuItem variant="destructive" onClick={() => setDeleteProgramId(prog.id)}>
-															<TrashIcon className="mr-2 size-4" />
-															Hapus
-														</DropdownMenuItem>
-													</DropdownMenuContent>
-												</DropdownMenu>
-											</TableCell>
 								</TableRow>
-							))
-						)}
-					</TableBody>
+							) : (
+								programs.data.map((prog, index) => (
+									<TableRow key={prog.id}>
+										<TableCell>{index + 1}</TableCell>
+										<TableCell className="font-medium">
+											<button type="button" className="hover:underline" onClick={() => setEditProgram(prog)}>
+												{prog.studyProgram.name}
+											</button>
+										</TableCell>
+										<TableCell>{prog.studyProgram.category}</TableCell>
+										<TableCell>{prog.tuition ? `Rp ${prog.tuition.toLocaleString("id-ID")}` : "-"}</TableCell>
+										<TableCell>{prog.capacity ?? "-"}</TableCell>
+										<TableCell>{prog.accreditation ?? "-"}</TableCell>
+										<TableCell>
+											<Badge variant={prog.isActive ? "default" : "secondary"}>
+												{prog.isActive ? "Aktif" : "Tidak Aktif"}
+											</Badge>
+										</TableCell>
+										<TableCell>
+											<DropdownMenu>
+												<DropdownMenuTrigger asChild>
+													<Button variant="ghost" size="icon">
+														<DotsThreeIcon className="size-4" />
+													</Button>
+												</DropdownMenuTrigger>
+												<DropdownMenuContent align="end">
+													<DropdownMenuItem variant="destructive" onClick={() => setDeleteProgramId(prog.id)}>
+														<TrashIcon className="mr-2 size-4" />
+														Hapus
+													</DropdownMenuItem>
+												</DropdownMenuContent>
+											</DropdownMenu>
+										</TableCell>
+									</TableRow>
+								))
+							)}
+						</TableBody>
 					</Table>
 				</div>
 			</div>
