@@ -1,6 +1,7 @@
 import { ArrowLeftIcon, GearIcon, ListIcon, RocketIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import {
 	AdminPageContent,
@@ -19,7 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
-import { TryoutSettingsTab } from "./-components/tryout-settings-tab";
+import { type TryoutSettingsFormState, TryoutSettingsTab } from "./-components/tryout-settings-tab";
 import { TryoutSubtestsTab } from "./-components/tryout-subtests-tab";
 import { CATEGORY_LABELS, STATUS_CONFIG } from "./-constants";
 
@@ -36,6 +37,16 @@ function TryoutDetailPage() {
 			input: { id: tryoutId },
 		}),
 	);
+
+	const [settingsFormState, setSettingsFormState] = useState<TryoutSettingsFormState>({
+		isDirty: false,
+		canSubmit: false,
+		isSubmitting: false,
+	});
+
+	const handleFormStateChange = useCallback((state: TryoutSettingsFormState) => {
+		setSettingsFormState(state);
+	}, []);
 
 	const publishMutation = useMutation(
 		orpc.admin.tryout.updateTryout.mutationOptions({
@@ -106,6 +117,14 @@ function TryoutDetailPage() {
 					</div>
 				</AdminPageHeaderContent>
 				<AdminPageHeaderActions>
+					<Button
+						type="submit"
+						form="tryout-settings-form"
+						variant="darkBlue"
+						disabled={!settingsFormState.isDirty || !settingsFormState.canSubmit || settingsFormState.isSubmitting}
+					>
+						{settingsFormState.isSubmitting ? "Menyimpan..." : "Simpan Perubahan"}
+					</Button>
 					<Button
 						onClick={handlePublishToggle}
 						disabled={publishMutation.isPending}
@@ -179,7 +198,7 @@ function TryoutDetailPage() {
 					</TabsList>
 					<div className="mt-2">
 						<TabsContent value="settings" className="mt-0">
-							<TryoutSettingsTab tryout={tryout} onUpdate={() => refetch()} />
+							<TryoutSettingsTab tryout={tryout} onUpdate={() => refetch()} onFormStateChange={handleFormStateChange} />
 						</TabsContent>
 						<TabsContent value="subtests" className="mt-0">
 							<TryoutSubtestsTab tryoutId={tryoutId} subtests={subtests} onUpdate={() => refetch()} />

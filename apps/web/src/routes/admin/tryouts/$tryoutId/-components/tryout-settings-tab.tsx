@@ -12,6 +12,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 
+export interface TryoutSettingsFormState {
+	isDirty: boolean;
+	canSubmit: boolean;
+	isSubmitting: boolean;
+}
+
 interface TryoutSettingsTabProps {
 	tryout: {
 		id: number;
@@ -23,6 +29,7 @@ interface TryoutSettingsTabProps {
 		endsAt: Date | null;
 	};
 	onUpdate: () => void;
+	onFormStateChange?: (state: TryoutSettingsFormState) => void;
 }
 
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
@@ -31,7 +38,21 @@ const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
 	archived: { label: "Archived", className: "bg-red-100 text-red-700 border-red-200" },
 };
 
-export function TryoutSettingsTab({ tryout, onUpdate }: TryoutSettingsTabProps) {
+function FormStateNotifier({
+	state,
+	onFormStateChange,
+}: {
+	state: { isDirty: boolean; canSubmit: boolean; isSubmitting: boolean };
+	onFormStateChange?: (state: TryoutSettingsFormState) => void;
+}) {
+	useEffect(() => {
+		onFormStateChange?.(state);
+	}, [state, onFormStateChange]);
+
+	return null;
+}
+
+export function TryoutSettingsTab({ tryout, onUpdate, onFormStateChange }: TryoutSettingsTabProps) {
 	const formValues = useMemo(
 		() => ({
 			title: tryout.title,
@@ -87,6 +108,7 @@ export function TryoutSettingsTab({ tryout, onUpdate }: TryoutSettingsTabProps) 
 
 	return (
 		<form
+			id="tryout-settings-form"
 			onSubmit={(e) => {
 				e.preventDefault();
 				e.stopPropagation();
@@ -94,6 +116,11 @@ export function TryoutSettingsTab({ tryout, onUpdate }: TryoutSettingsTabProps) 
 			}}
 			className="space-y-6"
 		>
+			<form.Subscribe
+				selector={(state) => ({ isDirty: state.isDirty, canSubmit: state.canSubmit, isSubmitting: state.isSubmitting })}
+			>
+				{(state) => <FormStateNotifier state={state} onFormStateChange={onFormStateChange} />}
+			</form.Subscribe>
 			{/* Basic Information */}
 			<Card>
 				<CardHeader className="pb-3">
