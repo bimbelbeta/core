@@ -1,5 +1,6 @@
 import { BookOpenIcon, SparkleIcon } from "@phosphor-icons/react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence } from "motion/react";
+import * as m from "motion/react-m";
 import { useEffect, useState } from "react";
 
 const LOADING_TEXTS = [
@@ -31,7 +32,7 @@ export default function Loader() {
 		<div className="flex min-h-[80vh] w-full flex-col items-center justify-center gap-8 p-8">
 			<div className="relative flex items-center justify-center">
 				{/* Book Icon */}
-				<motion.div
+				<m.div
 					animate={{
 						y: [-8, 8, -8],
 						rotate: [-3, 3, -3],
@@ -44,11 +45,11 @@ export default function Loader() {
 					className="relative z-10 text-primary"
 				>
 					<BookOpenIcon size={64} weight="regular" />
-				</motion.div>
+				</m.div>
 
 				{/* Floating Particles */}
 				{[0, 1, 2, 3, 4, 5].map((i) => (
-					<motion.div
+					<m.div
 						key={i}
 						className="absolute text-yellow-500/80 dark:text-yellow-400/80"
 						initial={{ opacity: 0, scale: 0, x: 0, y: 0 }}
@@ -67,11 +68,11 @@ export default function Loader() {
 						}}
 					>
 						<SparkleIcon size={16} />
-					</motion.div>
+					</m.div>
 				))}
 
 				{/* Glow effect */}
-				<motion.div
+				<m.div
 					className="absolute -z-10 h-24 w-24 rounded-full bg-primary/20 blur-xl"
 					animate={{ scale: [1, 1.4, 1], opacity: [0.3, 0.6, 0.3] }}
 					transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
@@ -82,7 +83,7 @@ export default function Loader() {
 			<div className="flex flex-col items-center gap-3">
 				<div className="h-8 min-w-50">
 					<AnimatePresence mode="wait">
-						<motion.p
+						<m.p
 							key={currentText}
 							initial={{ opacity: 0, y: 10 }}
 							animate={{ opacity: 1, y: 0 }}
@@ -91,14 +92,14 @@ export default function Loader() {
 							className="text-center font-medium text-lg text-muted-foreground"
 						>
 							{currentText}
-						</motion.p>
+						</m.p>
 					</AnimatePresence>
 				</div>
 
 				{/* Progress Dots */}
 				<div className="flex gap-1.5">
 					{[0, 1, 2].map((i) => (
-						<motion.div
+						<m.div
 							key={i}
 							className="h-2 w-2 rounded-full bg-primary"
 							animate={{

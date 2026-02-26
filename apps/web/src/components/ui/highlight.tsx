@@ -1,6 +1,6 @@
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-import { motion } from "motion/react";
+import * as m from "motion/react-m";
 import type * as React from "react";
 
 import { cn } from "@/lib/utils";
@@ -49,7 +49,7 @@ function Highlight({
 	if (animated && !asChild) {
 		return (
 			// @ts-expect-error - Framer motion type mismatch with React 19
-			<motion.span
+			<m.span
 				className={baseClassName}
 				initial={{ opacity: 0 }}
 				animate={{ opacity: 1 }}
@@ -57,7 +57,7 @@ function Highlight({
 				{...props}
 			>
 				{children}
-			</motion.span>
+			</m.span>
 		);
 	}
 
