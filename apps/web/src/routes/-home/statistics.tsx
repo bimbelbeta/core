@@ -1,5 +1,5 @@
 import { Image } from "@unpic/react";
-import { motion } from "motion/react";
+import * as m from "motion/react-m";
 import { MotionPulse } from "@/components/motion";
 import { useAnimatedCounter } from "@/hooks/use-animations";
 
@@ -41,7 +41,7 @@ export function Statistics() {
 			<div className="container mx-auto flex w-full max-w-4xl flex-col gap-6 px-4">
 				<div className="relative">
 					<MotionPulse>
-						<motion.div
+						<m.div
 							className="absolute -top-12 -left-16 z-0 size-20 rounded-full bg-yellow-100 md:size-28"
 							initial={{ opacity: 0 }}
 							whileInView={{ opacity: 1 }}
@@ -50,7 +50,7 @@ export function Statistics() {
 						/>
 					</MotionPulse>
 					<MotionPulse>
-						<motion.div
+						<m.div
 							className="absolute -right-35 -bottom-50 z-0 size-56 rounded-full bg-tertiary-100 md:size-64"
 							initial={{ opacity: 0 }}
 							whileInView={{ opacity: 1 }}
@@ -59,7 +59,7 @@ export function Statistics() {
 						/>
 					</MotionPulse>
 
-					<motion.div
+					<m.div
 						className="relative overflow-hidden rounded-2xl bg-neutral-100 p-8 pb-40 shadow-sm md:pb-8 md:pl-56"
 						initial={{ opacity: 0, y: 20 }}
 						whileInView={{ opacity: 1, y: 0 }}
@@ -104,10 +104,10 @@ export function Statistics() {
 								</p>
 							</div>
 						</div>
-					</motion.div>
+					</m.div>
 				</div>
 
-				<motion.div
+				<m.div
 					className="relative overflow-hidden rounded-2xl border border-primary-100 bg-background p-8 pt-5 text-center shadow-sm *:text-pretty"
 					initial={{ opacity: 0, y: 20 }}
 					whileInView={{ opacity: 1, y: 0 }}
@@ -127,11 +127,11 @@ export function Statistics() {
 							</div>
 						))}
 					</div>
-				</motion.div>
+				</m.div>
 
 				<div className="relative w-full">
 					<MotionPulse>
-						<motion.div
+						<m.div
 							className="absolute -top-24 -right-10 z-20 md:-top-28 md:-right-20"
 							initial={{ opacity: 0 }}
 							whileInView={{ opacity: 1 }}
@@ -146,10 +146,10 @@ export function Statistics() {
 								height={200}
 								className="h-auto w-24 md:w-32"
 							/>
-						</motion.div>
+						</m.div>
 					</MotionPulse>
 
-					<motion.div
+					<m.div
 						className="relative overflow-hidden rounded-2xl bg-primary-300 p-6 pb-12 text-white md:p-8 md:pr-80 md:pb-16"
 						initial={{ opacity: 0, y: 20 }}
 						whileInView={{ opacity: 1, y: 0 }}
@@ -181,19 +181,19 @@ export function Statistics() {
 						<div className="relative z-10 text-center md:text-left">
 							<h3 className="mb-3 font-bold text-xl md:text-2xl">
 								bimbelbeta Hadir{" "}
-								<motion.span
+								<m.span
 									className="inline-block text-[var(--tt-color-yellow-inc-3)]"
 									whileHover={{ scale: 1.1, transition: { duration: 0.3 } }}
 								>
 									Membangun Fondasi
-								</motion.span>
+								</m.span>
 								, Bukan Sekadar Mengejar Nilai.
 							</h3>
 							<p className="text-sm leading-relaxed md:text-base">
 								Tak cuma latihan soal. Kami bangun Study Habit & mental hingga kuliah.
 							</p>
 						</div>
-					</motion.div>
+					</m.div>
 				</div>
 			</div>
 		</section>
