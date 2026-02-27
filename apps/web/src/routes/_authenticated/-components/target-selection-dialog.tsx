@@ -64,10 +64,11 @@ export function TargetSelectionDialog() {
 		},
 	});
 	const universityId = form.useStore((state) => state.values.universityId);
+	const selectedUniversityId = universityId ?? 0;
 	const { data: universities, isPending } = useQuery(orpc.university.list.queryOptions({ input: {} }));
 	const { data: studyPrograms, isFetching } = useQuery(
 		orpc.university.listStudyProgramsByUniversity.queryOptions({
-			input: { universityId: universityId ?? 0 },
+			input: { universityId: selectedUniversityId },
 			enabled: universityId !== null,
 		}),
 	);
