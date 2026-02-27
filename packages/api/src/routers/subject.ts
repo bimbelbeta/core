@@ -131,7 +131,10 @@ const listContentBySubjectCategory = authedRateLimited
 				order: contentItem.order,
 				hasVideo: isNotNull(videoMaterial.id),
 				hasNote: isNotNull(noteMaterial.id),
-				hasPracticeQuestions: isNotNull(contentPracticeQuestions.contentItemId),
+				hasPracticeQuestions: sql<boolean>`EXISTS(
+					SELECT 1 FROM ${contentPracticeQuestions}
+					WHERE ${contentPracticeQuestions.contentItemId} = ${contentItem.id}
+				)`,
 				videoCompleted: userProgress.videoCompleted,
 				noteCompleted: userProgress.noteCompleted,
 				practiceQuestionsCompleted: userProgress.practiceQuestionsCompleted,
@@ -140,7 +143,6 @@ const listContentBySubjectCategory = authedRateLimited
 			.from(contentItem)
 			.leftJoin(videoMaterial, eq(videoMaterial.contentItemId, contentItem.id))
 			.leftJoin(noteMaterial, eq(noteMaterial.contentItemId, contentItem.id))
-			.leftJoin(contentPracticeQuestions, eq(contentPracticeQuestions.contentItemId, contentItem.id))
 			.leftJoin(
 				userProgress,
 				and(eq(userProgress.contentItemId, contentItem.id), eq(userProgress.userId, context.session.user.id)),
@@ -148,17 +150,7 @@ const listContentBySubjectCategory = authedRateLimited
 			.where(and(...conditions))
 			.orderBy(contentItem.order)
 			.limit(input.limit ?? 20)
-			.offset(input.offset ?? 0)
-			.groupBy(
-				contentItem.id,
-				videoMaterial.id,
-				noteMaterial.id,
-				contentPracticeQuestions.contentItemId,
-				userProgress.videoCompleted,
-				userProgress.noteCompleted,
-				userProgress.practiceQuestionsCompleted,
-				userProgress.lastViewedAt,
-			);
+			.offset(input.offset ?? 0);
 
 		return {
 			subject: targetSubject,
@@ -348,38 +340,20 @@ const trackView = authed
 				contentItemId: input.id,
 			});
 
-			const allViews = await tx
-				.select({
-					id: recentContentView.id,
-					contentItemId: recentContentView.contentItemId,
-					viewedAt: recentContentView.viewedAt,
-				})
+			const toDelete = await tx
+				.select({ id: recentContentView.id })
 				.from(recentContentView)
 				.where(eq(recentContentView.userId, context.session.user.id))
-				.orderBy(desc(recentContentView.viewedAt));
+				.orderBy(desc(recentContentView.viewedAt))
+				.offset(5);
 
-			const contentMap = new Map<number, (typeof allViews)[0]>();
-			const duplicateIds: number[] = [];
-
-			for (const view of allViews) {
-				if (contentMap.has(view.contentItemId)) {
-					duplicateIds.push(view.id);
-				} else {
-					contentMap.set(view.contentItemId, view);
-				}
-			}
-
-			if (duplicateIds.length > 0) {
-				await tx.delete(recentContentView).where(inArray(recentContentView.id, duplicateIds));
-			}
-
-			const uniqueViews = Array.from(contentMap.values())
-				.sort((a, b) => new Date(b.viewedAt).getTime() - new Date(a.viewedAt).getTime())
-				.slice(5);
-
-			if (uniqueViews.length > 0) {
-				const idsToDelete = uniqueViews.map((v) => v.id);
-				await tx.delete(recentContentView).where(inArray(recentContentView.id, idsToDelete));
+			if (toDelete.length > 0) {
+				await tx.delete(recentContentView).where(
+					inArray(
+						recentContentView.id,
+						toDelete.map((v) => v.id),
+					),
+				);
 			}
 		});
 
@@ -397,37 +371,6 @@ const getRecentViews = authedRateLimited
 		tags: ["Content"],
 	})
 	.handler(async ({ context }) => {
-		const allViewsForCleanup = await db
-			.select({
-				id: recentContentView.id,
-				contentItemId: recentContentView.contentItemId,
-				viewedAt: recentContentView.viewedAt,
-			})
-			.from(recentContentView)
-			.where(eq(recentContentView.userId, context.session.user.id))
-			.orderBy(desc(recentContentView.viewedAt));
-
-		const contentMap = new Map<number, (typeof allViewsForCleanup)[0]>();
-		const duplicateIds: number[] = [];
-
-		for (const view of allViewsForCleanup) {
-			if (contentMap.has(view.contentItemId)) {
-				duplicateIds.push(view.id);
-			} else {
-				contentMap.set(view.contentItemId, view);
-			}
-		}
-
-		if (duplicateIds.length > 0) {
-			await db.delete(recentContentView).where(inArray(recentContentView.id, duplicateIds));
-		}
-
-		const uniqueContentIds = Array.from(contentMap.values()).map((v) => v.contentItemId);
-
-		if (uniqueContentIds.length === 0) {
-			return [];
-		}
-
 		const views = await db
 			.select({
 				viewedAt: recentContentView.viewedAt,
@@ -438,43 +381,21 @@ const getRecentViews = authedRateLimited
 				subtestShortName: subject.shortName,
 				hasVideo: isNotNull(videoMaterial.id),
 				hasNote: isNotNull(noteMaterial.id),
-				hasPracticeQuestions: isNotNull(contentPracticeQuestions.contentItemId),
+				hasPracticeQuestions: sql<boolean>`EXISTS(
+					SELECT 1 FROM ${contentPracticeQuestions}
+					WHERE ${contentPracticeQuestions.contentItemId} = ${contentItem.id}
+				)`,
 			})
 			.from(recentContentView)
 			.innerJoin(contentItem, eq(contentItem.id, recentContentView.contentItemId))
 			.innerJoin(subject, eq(subject.id, contentItem.subjectId))
 			.leftJoin(videoMaterial, eq(videoMaterial.contentItemId, contentItem.id))
 			.leftJoin(noteMaterial, eq(noteMaterial.contentItemId, contentItem.id))
-			.leftJoin(contentPracticeQuestions, eq(contentPracticeQuestions.contentItemId, contentItem.id))
-			.where(and(eq(recentContentView.userId, context.session.user.id), inArray(contentItem.id, uniqueContentIds)))
-			.groupBy(
-				recentContentView.viewedAt,
-				contentItem.id,
-				contentItem.title,
-				subject.id,
-				subject.name,
-				subject.shortName,
-				videoMaterial.id,
-				noteMaterial.id,
-				contentPracticeQuestions.contentItemId,
-			)
-			.orderBy(desc(recentContentView.viewedAt));
+			.where(eq(recentContentView.userId, context.session.user.id))
+			.orderBy(desc(recentContentView.viewedAt))
+			.limit(5);
 
-		const finalMap = new Map<number, (typeof views)[0]>();
-		for (const view of views) {
-			if (!finalMap.has(view.contentId)) {
-				finalMap.set(view.contentId, view);
-			} else {
-				const existing = finalMap.get(view.contentId)!;
-				if (new Date(view.viewedAt).getTime() > new Date(existing.viewedAt).getTime()) {
-					finalMap.set(view.contentId, view);
-				}
-			}
-		}
-
-		return Array.from(finalMap.values())
-			.sort((a, b) => new Date(b.viewedAt).getTime() - new Date(a.viewedAt).getTime())
-			.slice(0, 5);
+		return views;
 	});
 
 /**
