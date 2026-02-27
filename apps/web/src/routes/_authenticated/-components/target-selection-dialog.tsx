@@ -63,7 +63,14 @@ export function TargetSelectionDialog() {
 			});
 		},
 	});
+	const universityId = form.useStore((state) => state.values.universityId);
 	const { data: universities, isPending } = useQuery(orpc.university.list.queryOptions({ input: {} }));
+	const { data: studyPrograms, isFetching } = useQuery(
+		orpc.university.listStudyProgramsByUniversity.queryOptions({
+			input: { universityId: universityId ?? 0 },
+			enabled: universityId !== null,
+		}),
+	);
 
 	const handleClose = () => {
 		setOpen(false);
@@ -143,58 +150,44 @@ export function TargetSelectionDialog() {
 						)}
 					</form.Field>
 
-					<form.Subscribe selector={(state) => state.values.universityId}>
-						{(universityId) => {
-							// biome-ignore lint/correctness/useHookAtTopLevel: form.Subscribe creates a new component context where hooks are valid
-							const { data: studyPrograms, isFetching } = useQuery(
-								orpc.university.listStudyProgramsByUniversity.queryOptions({
-									input: { universityId: universityId ?? 0 },
-									enabled: universityId !== null,
-								}),
-							);
-
-							return (
-								<form.Field
-									name="studyProgramId"
-									validators={{
-										onChange: type("number"),
-									}}
-								>
-									{(field) => (
-										<div className="space-y-2">
-											<Label htmlFor={field.name}>
-												Program Studi
-												{isFetching && <Spinner className="inline size-3" />}
-											</Label>
-											<Select
-												value={field.state.value?.toString() ?? ""}
-												onValueChange={(value) => field.handleChange(Number.parseInt(value, 10))}
-												disabled={isFetching || !studyPrograms?.data}
-											>
-												<SelectTrigger>
-													<SelectValue
-														placeholder={!studyPrograms?.data ? "Pilih universitas dulu" : "Pilih program studi"}
-													/>
-												</SelectTrigger>
-												<SelectContent>
-													{studyPrograms?.data?.map((program) => (
-														<SelectItem key={program.id} value={program.id.toString()}>
-															{program.name}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
-											{studyPrograms?.data && studyPrograms.data.length < 1 && (
-												<p className="text-destructive text-xs">
-													Belum ada data Program Studi untuk Universitas ini. Silahkan coba lagi nanti
-												</p>
-											)}
-										</div>
-									)}
-								</form.Field>
-							);
+					<form.Field
+						name="studyProgramId"
+						validators={{
+							onChange: type("number"),
 						}}
-					</form.Subscribe>
+					>
+						{(field) => (
+							<div className="space-y-2">
+								<Label htmlFor={field.name}>
+									Program Studi
+									{isFetching && <Spinner className="inline size-3" />}
+								</Label>
+								<Select
+									value={field.state.value?.toString() ?? ""}
+									onValueChange={(value) => field.handleChange(Number.parseInt(value, 10))}
+									disabled={isFetching || !studyPrograms?.data}
+								>
+									<SelectTrigger>
+										<SelectValue
+											placeholder={!studyPrograms?.data ? "Pilih universitas dulu" : "Pilih program studi"}
+										/>
+									</SelectTrigger>
+									<SelectContent>
+										{studyPrograms?.data?.map((program) => (
+											<SelectItem key={program.id} value={program.id.toString()}>
+												{program.name}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+								{studyPrograms?.data && studyPrograms.data.length < 1 && (
+									<p className="text-destructive text-xs">
+										Belum ada data Program Studi untuk Universitas ini. Silahkan coba lagi nanti
+									</p>
+								)}
+							</div>
+						)}
+					</form.Field>
 
 					<div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
 						<Button type="button" variant="outline" onClick={handleClose} className="sm:w-auto">

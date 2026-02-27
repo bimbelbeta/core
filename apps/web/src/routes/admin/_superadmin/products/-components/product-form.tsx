@@ -109,39 +109,37 @@ export function ProductForm({ initialData, onSuccess, onCancel }: ProductFormPro
 
 	const isPending = createMutation.isPending || updateMutation.isPending;
 	const prevVariantRef = useRef<ProductVariant | null>(null);
+	const [productType, variant] = form.useStore(
+		(state) => [state.values.type as ProductType, state.values.variant as ProductVariant] as const,
+	);
+	const desiredVariant: ProductVariant =
+		productType === "subscription" ? (variant === "credits" ? "monthly" : variant) : "credits";
 
-	function VariantEffect({ productType, variant }: { productType: ProductType; variant: ProductVariant }) {
-		const desiredVariant: ProductVariant =
-			productType === "subscription" ? (variant === "credits" ? "monthly" : variant) : "credits";
+	useEffect(() => {
+		if (desiredVariant !== variant) {
+			form.setFieldValue("variant", desiredVariant);
+		}
+	}, [desiredVariant, form, variant]);
 
-		useEffect(() => {
-			if (desiredVariant !== variant) {
-				form.setFieldValue("variant", desiredVariant);
-			}
-		}, [desiredVariant, variant]);
+	useEffect(() => {
+		if (desiredVariant !== variant) return;
+		const prevVariant = prevVariantRef.current;
+		prevVariantRef.current = variant;
+		if (prevVariant === null || prevVariant === variant) return;
 
-		useEffect(() => {
-			if (desiredVariant !== variant) return;
-			const prevVariant = prevVariantRef.current;
-			prevVariantRef.current = variant;
-			if (prevVariant === null || prevVariant === variant) return;
+		if (variant === "fixed_date") {
+			form.setFieldValue("fixedExpiryMonth", 1);
+			form.setFieldValue("fixedExpiryDay", 1);
+			return;
+		}
 
-			if (variant === "fixed_date") {
-				form.setFieldValue("fixedExpiryMonth", 1);
-				form.setFieldValue("fixedExpiryDay", 1);
-				return;
-			}
+		if (variant === "monthly") {
+			form.setFieldValue("durationDays", 30);
+			return;
+		}
 
-			if (variant === "monthly") {
-				form.setFieldValue("durationDays", 30);
-				return;
-			}
-
-			form.setFieldValue("credits", 1);
-		}, [desiredVariant, variant]);
-
-		return null;
-	}
+		form.setFieldValue("credits", 1);
+	}, [desiredVariant, form, variant]);
 
 	return (
 		<form
@@ -151,12 +149,6 @@ export function ProductForm({ initialData, onSuccess, onCancel }: ProductFormPro
 			}}
 			className="flex flex-col gap-6"
 		>
-			<form.Subscribe
-				selector={(state) => [state.values.type as ProductType, state.values.variant as ProductVariant] as const}
-			>
-				{([productType, variant]) => <VariantEffect productType={productType} variant={variant} />}
-			</form.Subscribe>
-
 			<div className="grid gap-6">
 				<form.Field name="name">
 					{(field) => (
