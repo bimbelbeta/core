@@ -1,4 +1,4 @@
-import { decimal, integer, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { decimal, index, integer, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { user } from "./auth";
 
 /**
@@ -14,20 +14,24 @@ export const typeEnum = pgEnum("product_type_enum", ["subscription", "product"])
 export const statusEnum = pgEnum("transaction_status_enum", ["pending", "success", "failed"]);
 export const productVariantEnum = pgEnum("product_variant_enum", ["fixed_date", "monthly", "credits"]);
 
-export const transaction = pgTable("transaction", {
-	id: text().primaryKey(),
-	userId: text("user_id").references(() => user.id, { onDelete: "set null" }),
-	productId: uuid("product_id").references(() => product.id, { onDelete: "set null" }),
-	grossAmount: decimal("gross_amount"),
-	status: statusEnum("status").notNull().default("pending"),
-	paidAt: timestamp("paid_at"),
-	orderedAt: timestamp("ordered_at").defaultNow(),
-	createdAt: timestamp("created_at").notNull().defaultNow(),
-	updatedAt: timestamp("updated_at")
-		.defaultNow()
-		.$onUpdate(() => /* @__PURE__ */ new Date())
-		.notNull(),
-});
+export const transaction = pgTable(
+	"transaction",
+	{
+		id: text().primaryKey(),
+		userId: text("user_id").references(() => user.id, { onDelete: "set null" }),
+		productId: uuid("product_id").references(() => product.id, { onDelete: "set null" }),
+		grossAmount: decimal("gross_amount"),
+		status: statusEnum("status").notNull().default("pending"),
+		paidAt: timestamp("paid_at"),
+		orderedAt: timestamp("ordered_at").defaultNow(),
+		createdAt: timestamp("created_at").notNull().defaultNow(),
+		updatedAt: timestamp("updated_at")
+			.defaultNow()
+			.$onUpdate(() => /* @__PURE__ */ new Date())
+			.notNull(),
+	},
+	(t) => [index("idx_transaction_user_id").on(t.userId), index("idx_transaction_product_id").on(t.productId)],
+);
 
 export const product = pgTable("product", {
 	id: uuid().defaultRandom().primaryKey(),

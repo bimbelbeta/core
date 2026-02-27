@@ -1,5 +1,16 @@
 import { relations } from "drizzle-orm";
-import { boolean, integer, jsonb, pgEnum, pgTable, primaryKey, text, timestamp, unique } from "drizzle-orm/pg-core";
+import {
+	boolean,
+	index,
+	integer,
+	jsonb,
+	pgEnum,
+	pgTable,
+	primaryKey,
+	text,
+	timestamp,
+	unique,
+} from "drizzle-orm/pg-core";
 import { user } from "./auth";
 import { question, questionChoice } from "./question";
 
@@ -108,7 +119,7 @@ export const tryoutAttempt = pgTable(
 		isRevoked: boolean("is_revoked").notNull().default(false),
 		usedCredit: boolean("used_credit").notNull().default(false),
 	},
-	(t) => [unique("user_tryout_attempt").on(t.userId, t.tryoutId)],
+	(t) => [unique("user_tryout_attempt").on(t.userId, t.tryoutId), index("idx_tryout_attempt_tryout_id").on(t.tryoutId)],
 );
 
 export const tryoutAttemptRelations = relations(tryoutAttempt, ({ one, many }) => ({
@@ -140,7 +151,10 @@ export const tryoutSubtestAttempt = pgTable(
 		status: tryoutAttemptStatus("status").notNull().default("ongoing"),
 		score: integer("score"), // 1-1000 scale, null until graded
 	},
-	(t) => [unique("user_tryout_subtest_attempt").on(t.tryoutAttemptId, t.subtestId)],
+	(t) => [
+		unique("user_tryout_subtest_attempt").on(t.tryoutAttemptId, t.subtestId),
+		index("idx_tryout_subtest_attempt_subtest_id").on(t.subtestId),
+	],
 );
 
 export const tryoutSubtestAttemptRelations = relations(tryoutSubtestAttempt, ({ one }) => ({
