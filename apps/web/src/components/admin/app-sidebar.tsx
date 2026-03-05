@@ -68,22 +68,27 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
 	return (
 		<Sidebar collapsible="icon" {...props}>
-			<SidebarHeader>
-				<Link
-					to="/admin/dashboard"
-					className="flex items-center gap-2 px-2 py-1.5"
-					onClick={() => setOpenMobile(false)}
-				>
-					<div className="grid flex-1 text-left text-sm leading-tight">
-						<span className="truncate font-semibold text-sm">BimbelBeta Admin</span>
-					</div>
-				</Link>
-			</SidebarHeader>
-			<SidebarContent>
-				<NavMain items={navLinksWithActive} />
-			</SidebarContent>
-			<NavFooter />
-			<SidebarRail />
+			{/* biome-ignore lint/a11y/useKeyWithClickEvents: event delegation to close mobile sidebar on any link click */}
+			{/* biome-ignore lint/a11y/noStaticElementInteractions: event delegation to close mobile sidebar on any link click */}
+			<div
+				className="contents"
+				onClick={(e) => {
+					if ((e.target as HTMLElement).closest("a")) setOpenMobile(false);
+				}}
+			>
+				<SidebarHeader>
+					<Link to="/admin/dashboard" className="flex items-center gap-2 px-2 py-1.5">
+						<div className="grid flex-1 text-left text-sm leading-tight">
+							<span className="truncate font-semibold text-sm">BimbelBeta Admin</span>
+						</div>
+					</Link>
+				</SidebarHeader>
+				<SidebarContent>
+					<NavMain items={navLinksWithActive} />
+				</SidebarContent>
+				<NavFooter />
+				<SidebarRail />
+			</div>
 		</Sidebar>
 	);
 }

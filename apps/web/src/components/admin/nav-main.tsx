@@ -6,7 +6,6 @@ import {
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
-	useSidebar,
 } from "@/components/ui/sidebar";
 
 export function NavMain({
@@ -19,8 +18,6 @@ export function NavMain({
 		isActive?: boolean;
 	}[];
 }) {
-	const { setOpenMobile } = useSidebar();
-
 	return (
 		<SidebarGroup>
 			<SidebarGroupLabel>Menu</SidebarGroupLabel>
@@ -28,7 +25,7 @@ export function NavMain({
 				{items.map((item) => (
 					<SidebarMenuItem key={item.title}>
 						<SidebarMenuButton asChild isActive={item.isActive} tooltip={item.title}>
-							<Link to={item.url} onClick={() => setOpenMobile(false)}>
+							<Link to={item.url}>
 								<item.icon weight={item.isActive ? "fill" : "regular"} />
 								<span>{item.title}</span>
 							</Link>
@@ -40,7 +37,7 @@ export function NavMain({
 			<SidebarMenu>
 				<SidebarMenuItem>
 					<SidebarMenuButton asChild tooltip="Dashboard User">
-						<Link to="/dashboard" onClick={() => setOpenMobile(false)}>
+						<Link to="/dashboard">
 							<UserFocusIcon weight="regular" />
 							<span>User Dashboard</span>
 						</Link>
