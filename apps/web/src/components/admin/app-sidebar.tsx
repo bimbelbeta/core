@@ -10,7 +10,7 @@ import {
 	UserIcon,
 } from "@phosphor-icons/react";
 import { Link, useLocation, useRouteContext } from "@tanstack/react-router";
-import { Sidebar, SidebarContent, SidebarHeader, SidebarRail } from "@/components/ui/sidebar";
+import { Sidebar, SidebarContent, SidebarHeader, SidebarRail, useSidebar } from "@/components/ui/sidebar";
 import { NavFooter } from "./nav-footer";
 import { NavMain } from "./nav-main";
 
@@ -57,6 +57,7 @@ const allAdminNavLinks = [
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const location = useLocation();
 	const { session } = useRouteContext({ from: "/admin" });
+	const { setOpenMobile } = useSidebar();
 
 	const adminNavLinks = allAdminNavLinks.filter((link) => !link.superadminOnly || session?.user?.role === "superadmin");
 
@@ -68,7 +69,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	return (
 		<Sidebar collapsible="icon" {...props}>
 			<SidebarHeader>
-				<Link to="/admin/dashboard" className="flex items-center gap-2 px-2 py-1.5">
+				<Link
+					to="/admin/dashboard"
+					className="flex items-center gap-2 px-2 py-1.5"
+					onClick={() => setOpenMobile(false)}
+				>
 					<div className="grid flex-1 text-left text-sm leading-tight">
 						<span className="truncate font-semibold text-sm">BimbelBeta Admin</span>
 					</div>
