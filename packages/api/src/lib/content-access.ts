@@ -3,6 +3,8 @@
  * Centralized logic for determining content access based on premium status and role
  */
 
+const ALLOWED_ROLES = ["admin", "superadmin"];
+
 /**
  * Check if a user can access specific content detail (video, notes, practice questions)
  * - Admin users can access all content
@@ -16,17 +18,17 @@
  * @returns Whether the user can access the content
  */
 export function canAccessContent(
-	userIsPremium: boolean,
-	userRole: string | undefined,
-	subjectOrder: number,
-	contentOrder: number,
+  userIsPremium: boolean,
+  userRole: string | undefined,
+  subjectOrder: number,
+  contentOrder: number,
 ): boolean {
-	// Admin can access everything
-	if (userRole === "admin") return true;
-	// Premium users can access everything
-	if (userIsPremium) return true;
-	// Free users: only first content from first subject
-	return isFirstSubject(subjectOrder) && isFirstContent(contentOrder);
+  // Admin can access everything
+  if (ALLOWED_ROLES.includes(userRole || "")) return true;
+  // Premium users can access everything
+  if (userIsPremium) return true;
+  // Free users: only first content from first subject
+  return isFirstSubject(subjectOrder) && isFirstContent(contentOrder);
 }
 
 /**
@@ -34,7 +36,7 @@ export function canAccessContent(
  * @param subtestOrder - The order of subtest
  */
 export function isFirstSubtest(subtestOrder: number): boolean {
-	return subtestOrder === 1;
+  return subtestOrder === 1;
 }
 
 /**
@@ -42,7 +44,7 @@ export function isFirstSubtest(subtestOrder: number): boolean {
  * @param contentOrder - The order of content within its category
  */
 export function isFirstContent(contentOrder: number): boolean {
-	return contentOrder === 1;
+  return contentOrder === 1;
 }
 
 /**
@@ -50,7 +52,7 @@ export function isFirstContent(contentOrder: number): boolean {
  * @param subjectOrder - The order of subject
  */
 export function isFirstSubject(subjectOrder: number): boolean {
-	return subjectOrder === 1;
+  return subjectOrder === 1;
 }
 
 // Backward compatibility alias
