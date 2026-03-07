@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { type } from "arktype";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import {
 	AdminPageContent,
 	AdminPageHeader,
@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { SearchInput } from "@/components/ui/search-input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
+import { useCursorPagination } from "@/hooks/use-cursor-pagination";
 import { orpc } from "@/utils/orpc";
 import { AddUniversityDialog } from "./-components/add-university-dialog";
 
@@ -33,31 +34,33 @@ function RouteComponent() {
 	const { cursor, search } = Route.useSearch();
 
 	const [searchInput, setSearchInput] = useState(search ?? "");
-	const [cursorStack, setCursorStack] = useState<number[]>([]);
+
+	const pagination = useCursorPagination<number>({
+		urlCursor: cursor,
+		onCursorChange: (newCursor) => navigate({ search: { cursor: newCursor, search } }),
+		pageSize: 10,
+	});
 
 	const { data, isLoading, refetch } = useQuery(
 		orpc.admin.university.universities.list.queryOptions({
 			input: {
-				cursor,
-				limit: 10,
+				cursor: pagination.currentCursor,
+				limit: pagination.pageSize,
 				search: search ?? undefined,
 			},
 		}),
 	);
 
-	const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+	// Sync canGoNext with data
+	if (pagination.canGoNext !== !!data?.nextCursor) {
+		pagination.setCanGoNext(!!data?.nextCursor);
+	}
 
-	const buildSearch = useCallback(
-		(newCursor?: number) => ({
-			...(newCursor && { cursor: newCursor }),
-			...(search && { search }),
-		}),
-		[search],
-	);
+	const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
 	const handleSearch = (value: string) => {
 		setSearchInput(value);
-		setCursorStack([]);
+		pagination.reset();
 		navigate({
 			search: {
 				...(value && { search: value }),
@@ -67,16 +70,11 @@ function RouteComponent() {
 
 	const handleNext = () => {
 		if (!data?.nextCursor) return;
-		setCursorStack((prev) => [...prev, cursor ?? 0]);
-		navigate({ search: buildSearch(data.nextCursor) });
+		pagination.handleNext(data.nextCursor);
 	};
 
 	const handlePrevious = () => {
-		if (cursorStack.length === 0) return;
-		const prev = [...cursorStack];
-		const previousCursor = prev.pop()!;
-		setCursorStack(prev);
-		navigate({ search: buildSearch(previousCursor || undefined) });
+		pagination.handlePrevious();
 	};
 
 	return (
@@ -157,8 +155,8 @@ function RouteComponent() {
 							<PaginationButtons
 								onPrevious={handlePrevious}
 								onNext={handleNext}
-								hasPrevious={cursorStack.length > 0}
-								hasNext={!!data.nextCursor}
+								hasPrevious={pagination.canGoPrevious}
+								hasNext={pagination.canGoNext}
 							/>
 						</div>
 					)}

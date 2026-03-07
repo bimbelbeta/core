@@ -2,7 +2,7 @@ import { PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { type } from "arktype";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import {
 	AdminPageContent,
@@ -31,6 +31,7 @@ import { SearchInput } from "@/components/ui/search-input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
+import { useCursorPagination } from "@/hooks/use-cursor-pagination";
 import { orpc } from "@/utils/orpc";
 
 const searchSchema = type({
@@ -104,13 +105,27 @@ function QuestionsListPage() {
 	const [selectedIds, setSelectedIds] = useState<number[]>([]);
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState<number | null>(null);
 	const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
-	const [cursorStack, setCursorStack] = useState<number[]>([]);
+
+	const pagination = useCursorPagination<number>({
+		urlCursor: cursor,
+		onCursorChange: (newCursor) =>
+			navigate({
+				search: {
+					cursor: newCursor,
+					search: searchQuery,
+					type: questionType,
+					category,
+					tag,
+				},
+			}),
+		pageSize: 10,
+	});
 
 	const { data, isLoading, refetch } = useQuery(
 		orpc.admin.tryout.questions.listQuestions.queryOptions({
 			input: {
-				cursor,
-				limit: 10,
+				cursor: pagination.currentCursor,
+				limit: pagination.pageSize,
 				search: searchQuery,
 				type: questionType,
 				category,
@@ -118,6 +133,11 @@ function QuestionsListPage() {
 			},
 		}),
 	);
+
+	// Sync canGoNext with data
+	if (pagination.canGoNext !== !!data?.nextCursor) {
+		pagination.setCanGoNext(!!data?.nextCursor);
+	}
 
 	const deleteMutation = useMutation(
 		orpc.admin.tryout.questions.deleteQuestion.mutationOptions({
@@ -133,20 +153,9 @@ function QuestionsListPage() {
 		}),
 	);
 
-	const buildSearch = useCallback(
-		(newCursor?: number) => ({
-			...(newCursor && { cursor: newCursor }),
-			...(searchQuery && { search: searchQuery }),
-			...(questionType && { type: questionType }),
-			...(category && { category }),
-			...(tag && { tag }),
-		}),
-		[searchQuery, questionType, category, tag],
-	);
-
 	const handleSearch = (value: string) => {
 		setSearchInput(value);
-		setCursorStack([]);
+		pagination.reset();
 		navigate({
 			search: {
 				...(value && { search: value }),
@@ -158,7 +167,7 @@ function QuestionsListPage() {
 	};
 
 	const handleTypeChange = (value: string) => {
-		setCursorStack([]);
+		pagination.reset();
 		navigate({
 			search: {
 				...(searchQuery && { search: searchQuery }),
@@ -170,7 +179,7 @@ function QuestionsListPage() {
 	};
 
 	const handleCategoryChange = (value: string) => {
-		setCursorStack([]);
+		pagination.reset();
 		navigate({
 			search: {
 				...(searchQuery && { search: searchQuery }),
@@ -183,16 +192,11 @@ function QuestionsListPage() {
 
 	const handleNext = () => {
 		if (!data?.nextCursor) return;
-		setCursorStack((prev) => [...prev, cursor ?? 0]);
-		navigate({ search: buildSearch(data.nextCursor) });
+		pagination.handleNext(data.nextCursor);
 	};
 
 	const handlePrevious = () => {
-		if (cursorStack.length === 0) return;
-		const prev = [...cursorStack];
-		const previousCursor = prev.pop()!;
-		setCursorStack(prev);
-		navigate({ search: buildSearch(previousCursor || undefined) });
+		pagination.handlePrevious();
 	};
 
 	const handleDelete = (id: number) => {
@@ -438,8 +442,8 @@ function QuestionsListPage() {
 							<PaginationButtons
 								onPrevious={handlePrevious}
 								onNext={handleNext}
-								hasPrevious={cursorStack.length > 0}
-								hasNext={!!data.nextCursor}
+								hasPrevious={pagination.canGoPrevious}
+								hasNext={pagination.canGoNext}
 							/>
 						</div>
 					)}

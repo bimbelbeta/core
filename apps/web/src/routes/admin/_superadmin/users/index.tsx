@@ -2,7 +2,7 @@ import { CalendarDotsIcon, ClockIcon, CreditCardIcon, CrownIcon } from "@phospho
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { type } from "arktype";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import {
 	AdminPageContent,
 	AdminPageHeader,
@@ -19,6 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useCursorPagination } from "@/hooks/use-cursor-pagination";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 import { EditRoleDialog } from "./-components/edit-role-dialog";
@@ -43,19 +44,29 @@ function UsersListPage() {
 	const { cursor, search, role, isPremium } = Route.useSearch();
 
 	const [searchInput, setSearchInput] = useState(search ?? "");
-	const [cursorStack, setCursorStack] = useState<string[]>([]);
+
+	const pagination = useCursorPagination<string>({
+		urlCursor: cursor,
+		onCursorChange: (newCursor) => navigate({ search: { cursor: newCursor, search, role, isPremium } }),
+		pageSize: 10,
+	});
 
 	const { data, isLoading, refetch } = useQuery(
 		orpc.admin.users.list.queryOptions({
 			input: {
-				cursor,
-				limit: 10,
+				cursor: pagination.currentCursor,
+				limit: pagination.pageSize,
 				search: search ?? undefined,
 				role,
 				isPremium,
 			},
 		}),
 	);
+
+	// Sync canGoNext with data
+	if (pagination.canGoNext !== !!data?.nextCursor) {
+		pagination.setCanGoNext(!!data?.nextCursor);
+	}
 
 	const [editRoleUser, setEditRoleUser] = useState<{
 		userId: string;
@@ -73,19 +84,9 @@ function UsersListPage() {
 		currentPremiumExpiry: Date | null;
 	} | null>(null);
 
-	const buildSearch = useCallback(
-		(newCursor?: string) => ({
-			...(newCursor && { cursor: newCursor }),
-			...(search && { search }),
-			...(role && { role }),
-			...(isPremium !== undefined && { isPremium }),
-		}),
-		[search, role, isPremium],
-	);
-
 	const handleSearch = (value: string) => {
 		setSearchInput(value);
-		setCursorStack([]);
+		pagination.reset();
 		navigate({
 			search: {
 				...(value && { search: value }),
@@ -96,7 +97,7 @@ function UsersListPage() {
 	};
 
 	const handleRoleChange = (value: string) => {
-		setCursorStack([]);
+		pagination.reset();
 		navigate({
 			search: {
 				...(search && { search }),
@@ -107,7 +108,7 @@ function UsersListPage() {
 	};
 
 	const handlePremiumChange = (value: string) => {
-		setCursorStack([]);
+		pagination.reset();
 		navigate({
 			search: {
 				...(search && { search }),
@@ -119,16 +120,11 @@ function UsersListPage() {
 
 	const handleNext = () => {
 		if (!data?.nextCursor) return;
-		setCursorStack((prev) => [...prev, cursor ?? ""]);
-		navigate({ search: buildSearch(data.nextCursor) });
+		pagination.handleNext(data.nextCursor);
 	};
 
 	const handlePrevious = () => {
-		if (cursorStack.length === 0) return;
-		const prev = [...cursorStack];
-		const previousCursor = prev.pop()!;
-		setCursorStack(prev);
-		navigate({ search: buildSearch(previousCursor || undefined) });
+		pagination.handlePrevious();
 	};
 
 	return (
@@ -397,8 +393,8 @@ function UsersListPage() {
 							<PaginationButtons
 								onPrevious={handlePrevious}
 								onNext={handleNext}
-								hasPrevious={cursorStack.length > 0}
-								hasNext={!!data.nextCursor}
+								hasPrevious={pagination.canGoPrevious}
+								hasNext={pagination.canGoNext}
 							/>
 						</div>
 					)}

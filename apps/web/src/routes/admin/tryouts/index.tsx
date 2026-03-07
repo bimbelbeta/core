@@ -2,7 +2,7 @@ import { TrashIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { type } from "arktype";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import {
 	AdminPageContent,
@@ -30,6 +30,7 @@ import { SearchInput } from "@/components/ui/search-input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
+import { useCursorPagination } from "@/hooks/use-cursor-pagination";
 import { orpc } from "@/utils/orpc";
 import { AddTryoutDialog } from "./-components/add-tryout-dialog";
 
@@ -50,19 +51,29 @@ function TryoutsListPage() {
 	const { cursor, search, category, status } = Route.useSearch();
 
 	const [searchInput, setSearchInput] = useState(search ?? "");
-	const [cursorStack, setCursorStack] = useState<number[]>([]);
+
+	const pagination = useCursorPagination<number>({
+		urlCursor: cursor,
+		onCursorChange: (newCursor) => navigate({ search: { cursor: newCursor, search, category, status } }),
+		pageSize: 10,
+	});
 
 	const { data, isLoading, refetch } = useQuery(
 		orpc.admin.tryout.listTryouts.queryOptions({
 			input: {
-				cursor,
-				limit: 10,
+				cursor: pagination.currentCursor,
+				limit: pagination.pageSize,
 				search: search ?? undefined,
 				category,
 				status,
 			},
 		}),
 	);
+
+	// Sync canGoNext with data
+	if (pagination.canGoNext !== !!data?.nextCursor) {
+		pagination.setCanGoNext(!!data?.nextCursor);
+	}
 
 	const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState<number | null>(null);
@@ -80,19 +91,9 @@ function TryoutsListPage() {
 		}),
 	);
 
-	const buildSearch = useCallback(
-		(newCursor?: number) => ({
-			...(newCursor && { cursor: newCursor }),
-			...(search && { search }),
-			...(category && { category }),
-			...(status && { status }),
-		}),
-		[search, category, status],
-	);
-
 	const handleSearch = (value: string) => {
 		setSearchInput(value);
-		setCursorStack([]);
+		pagination.reset();
 		navigate({
 			search: {
 				...(value && { search: value }),
@@ -103,7 +104,7 @@ function TryoutsListPage() {
 	};
 
 	const handleCategoryChange = (value: string) => {
-		setCursorStack([]);
+		pagination.reset();
 		navigate({
 			search: {
 				...(search && { search }),
@@ -114,7 +115,7 @@ function TryoutsListPage() {
 	};
 
 	const handleStatusChange = (value: string) => {
-		setCursorStack([]);
+		pagination.reset();
 		navigate({
 			search: {
 				...(search && { search }),
@@ -126,16 +127,11 @@ function TryoutsListPage() {
 
 	const handleNext = () => {
 		if (!data?.nextCursor) return;
-		setCursorStack((prev) => [...prev, cursor ?? 0]);
-		navigate({ search: buildSearch(data.nextCursor) });
+		pagination.handleNext(data.nextCursor);
 	};
 
 	const handlePrevious = () => {
-		if (cursorStack.length === 0) return;
-		const prev = [...cursorStack];
-		const previousCursor = prev.pop()!;
-		setCursorStack(prev);
-		navigate({ search: buildSearch(previousCursor || undefined) });
+		pagination.handlePrevious();
 	};
 
 	const handleDelete = (id: number) => {
@@ -286,8 +282,8 @@ function TryoutsListPage() {
 							<PaginationButtons
 								onPrevious={handlePrevious}
 								onNext={handleNext}
-								hasPrevious={cursorStack.length > 0}
-								hasNext={!!data.nextCursor}
+								hasPrevious={pagination.canGoPrevious}
+								hasNext={pagination.canGoNext}
 							/>
 						</div>
 					)}

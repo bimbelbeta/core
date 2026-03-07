@@ -9,5 +9,9 @@
 		"composite": true,
 		"emitDeclarationOnly": true,
 		"tsBuildInfoFile": "dist/.tsbuildinfo"
+	},
+	"paths": {
+		"@/*": ["./src/*"],
+		"*": ["./src/*"]
 	}
 }

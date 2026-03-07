@@ -60,13 +60,9 @@ function TryoutDetailPage() {
 		}),
 	);
 
-	if (isPending) {
-		return <DetailPageSkeleton variant="tryout" />;
-	}
+	if (isPending) return <DetailPageSkeleton variant="tryout" />;
 
-	if (!data?.tryout) {
-		throw notFound();
-	}
+	if (!data?.tryout) throw notFound();
 
 	const tryout = data.tryout;
 	const subtests = data.subtests ?? [];
@@ -195,6 +191,7 @@ function TryoutDetailPage() {
 								</span>
 							)}
 						</TabsTrigger>
+						<TabsTrigger value="attempts">Attempts</TabsTrigger>
 					</TabsList>
 					<div className="mt-2">
 						<TabsContent value="settings" className="mt-0">
@@ -203,6 +200,7 @@ function TryoutDetailPage() {
 						<TabsContent value="subtests" className="mt-0">
 							<TryoutSubtestsTab tryoutId={tryoutId} subtests={subtests} onUpdate={() => refetch()} />
 						</TabsContent>
+						<TabsContent value="attempts" />
 					</div>
 				</Tabs>
 			</AdminPageContent>

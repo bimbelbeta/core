@@ -2,8 +2,9 @@ import { db } from "@bimbelbeta/db";
 import { tryout } from "@bimbelbeta/db/schema/tryout";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { and, eq, gt, like } from "drizzle-orm";
-import { admin } from "../..";
+import { and, eq, gt, ilike } from "drizzle-orm";
+import { admin } from "../../..";
+import { tryoutAttemptRouter } from "./attempt";
 
 const createTryout = admin
 	.route({
@@ -62,30 +63,17 @@ const listTryouts = admin
 		}),
 	)
 	.handler(async ({ input }) => {
-		const conditions = [];
-
-		if (input.cursor) {
-			conditions.push(gt(tryout.id, input.cursor));
-		}
-
-		if (input.search) {
-			conditions.push(like(tryout.title, `%${input.search}%`));
-		}
-
-		if (input.category) {
-			conditions.push(eq(tryout.category, input.category));
-		}
-
-		if (input.status) {
-			conditions.push(eq(tryout.status, input.status));
-		}
-
-		const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
-
 		const rows = await db
 			.select()
 			.from(tryout)
-			.where(whereClause)
+			.where(
+				and(
+					input.cursor ? gt(tryout.id, input.cursor) : undefined,
+					input.search ? ilike(tryout.title, `%${input.search}%`) : undefined,
+					input.category ? eq(tryout.category, input.category) : undefined,
+					input.status ? eq(tryout.status, input.status) : undefined,
+				),
+			)
 			.limit(input.limit + 1)
 			.orderBy(tryout.id);
 
@@ -203,4 +191,5 @@ export const tryoutRouter = {
 	getTryout,
 	updateTryout,
 	deleteTryout,
+	attempts: tryoutAttemptRouter,
 };
