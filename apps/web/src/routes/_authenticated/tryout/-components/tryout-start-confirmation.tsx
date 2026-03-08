@@ -1,351 +1,199 @@
-import { useUploadFile } from "@better-upload/client";
-import { CoinsIcon, KeyIcon, UploadSimpleIcon, XIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouteContext, useRouter } from "@tanstack/react-router";
 import * as m from "motion/react-m";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { cn } from "@/lib/utils";
-import { getApiUrl, orpc } from "@/utils/orpc";
+import { orpc } from "@/utils/orpc";
+import { AccessCodeInput } from "./access-code-input";
+import { CreditOption } from "./credit-option";
+import { UploadPaymentProof } from "./upload-payment-proof";
 
 interface TryoutStartConfirmationProps {
-	children: React.ReactNode;
-	disabled?: boolean;
+  children: React.ReactNode;
+  disabled?: boolean;
 }
 
 type DialogStep = "notice" | "submit-url" | "premium";
 
 export function TryoutStartConfirmation({ children, disabled = false }: TryoutStartConfirmationProps) {
-	const { session } = useRouteContext({ from: "/_authenticated" });
-	const isPremium = session?.user.isPremium;
+  const { session } = useRouteContext({ from: "/_authenticated" });
+  const isPremium = session?.user.isPremium;
 
-	const { data } = useQuery(orpc.tryout.featured.queryOptions());
+  const { data } = useQuery(orpc.tryout.featured.queryOptions());
+  const creditBalanceQuery = useQuery(orpc.credit.balance.queryOptions());
 
-	// Fetch credit balance
-	const creditBalanceQuery = useQuery(orpc.credit.balance.queryOptions());
-	const creditBalance = creditBalanceQuery.data?.balance ?? 0;
-	const hasCredits = creditBalance > 0;
+  const hasCredits = (creditBalanceQuery.data?.balance ?? 0) > 0;
 
-	const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
-	const [accessCode, setAccessCode] = useState("");
-	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-	const [errors, setErrors] = useState<string | null>(null);
-	const [isOpen, setIsOpen] = useState(false);
-	const [step, setStep] = useState<DialogStep>(isPremium ? "premium" : "notice");
-	const router = useRouter();
+  const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
+  const [errors, setErrors] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [step, setStep] = useState<DialogStep>(isPremium ? "premium" : "notice");
+  const router = useRouter();
 
-	const {
-		upload,
-		progress,
-		isPending: isUploading,
-		reset: resetUpload,
-	} = useUploadFile({
-		route: "tryout",
-		api: `${getApiUrl()}/upload`,
-		credentials: "include",
-		onUploadComplete: ({ file }) => {
-			setUploadedUrl(file.objectInfo.key);
-			setErrors(null);
-		},
-		onError: (error) => {
-			setErrors(error.message);
-			setPreviewUrl(null);
-		},
-	});
+  const startTryoutMutation = useMutation(
+    orpc.tryout.start.mutationOptions({
+      onSuccess: () => {
+        setIsOpen(false);
+        creditBalanceQuery.refetch();
+        if (data) {
+          if (data.id) router.navigate({ to: "/tryout/$tryoutId", params: { tryoutId: data.id.toString() } });
+        }
+      },
+    }),
+  );
+  if (!data) return null;
 
-	const startTryoutMutation = useMutation(
-		orpc.tryout.start.mutationOptions({
-			onSuccess: () => {
-				setIsOpen(false);
-				// Invalidate credit balance after using a credit
-				creditBalanceQuery.refetch();
-				if (data) router.navigate({ to: "/tryout/$tryoutId", params: { tryoutId: data?.id.toString() } });
-			},
-		}),
-	);
-	if (!data) return null;
+  const handleStart = () => {
+    setErrors(null);
+    if (isPremium) {
+      startTryoutMutation.mutate({ id: data.id });
+    } else {
+      if (!uploadedUrl) {
+        setErrors("Silakan upload bukti pembayaran terlebih dahulu");
+        return;
+      }
+      startTryoutMutation.mutate({ id: data.id, imageUrl: uploadedUrl });
+    }
+  };
 
-	const handleStart = () => {
-		setErrors(null);
-		if (isPremium) {
-			startTryoutMutation.mutate({ id: data.id });
-		} else {
-			if (!uploadedUrl) {
-				setErrors("Silakan upload bukti pembayaran terlebih dahulu");
-				return;
-			}
-			startTryoutMutation.mutate({ id: data.id, imageUrl: uploadedUrl });
-		}
-	};
+  const handleStartWithCredit = () => {
+    setErrors(null);
+    startTryoutMutation.mutate({ id: data.id, useCredit: true });
+  };
 
-	const handleStartWithCredit = () => {
-		setErrors(null);
-		startTryoutMutation.mutate({ id: data.id, useCredit: true });
-	};
+  const handleStartWithAccessCode = (code: string) => {
+    setErrors(null);
+    startTryoutMutation.mutate({ id: data.id, accessCode: code });
+  };
 
-	const handleStartWithAccessCode = () => {
-		setErrors(null);
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (!open) {
+      setStep(isPremium ? "premium" : "notice");
+      setUploadedUrl(null);
+      setErrors(null);
+    }
+  };
 
-		const code = accessCode.trim();
-		if (!code) {
-			setErrors("Masukkan kode akses terlebih dahulu");
-			return;
-		}
+  const handleTryoutGratis = () => {
+    setStep("submit-url");
+  };
 
-		startTryoutMutation.mutate({ id: data.id, accessCode: code });
-	};
+  const handleBeliPaket = () => {
+    setIsOpen(false);
+    router.navigate({ to: "/premium" });
+  };
 
-	const handleOpenChange = (open: boolean) => {
-		setIsOpen(open);
-		if (!open) {
-			setStep(isPremium ? "premium" : "notice");
-			setUploadedUrl(null);
-			setAccessCode("");
-			setPreviewUrl(null);
-			setErrors(null);
-			resetUpload();
-		}
-	};
+  const handleUploadComplete = (url: string) => {
+    setUploadedUrl(url);
+    setErrors(null);
+  };
 
-	const handleTryoutGratis = () => {
-		setStep("submit-url");
-	};
+  const handleUploadError = () => {
+    setUploadedUrl(null);
+  };
 
-	const handleBeliPaket = () => {
-		setIsOpen(false);
-		router.navigate({ to: "/premium" });
-	};
+  const startErrorMessage = startTryoutMutation.error?.message;
 
-	const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const file = e.target.files?.[0];
-		if (file) {
-			// Create preview URL
-			const objectUrl = URL.createObjectURL(file);
-			setPreviewUrl(objectUrl);
-			setErrors(null);
-			// Start upload
-			upload(file);
-		}
-		e.target.value = "";
-	};
-
-	const handleRemoveFile = () => {
-		setUploadedUrl(null);
-		if (previewUrl) {
-			URL.revokeObjectURL(previewUrl);
-			setPreviewUrl(null);
-		}
-		resetUpload();
-	};
-
-	const startErrorMessage = startTryoutMutation.error?.message;
-
-	return (
-		<Dialog open={isOpen} onOpenChange={handleOpenChange}>
-			<DialogTrigger asChild disabled={disabled}>
-				{children}
-			</DialogTrigger>
-			<DialogContent>
-				{step === "premium" ? (
-					<DialogHeader>
-						<DialogTitle>Mulai Tryout</DialogTitle>
-						<DialogDescription>Kamu siap memulai tryout ini.</DialogDescription>
-					</DialogHeader>
-				) : step === "notice" ? (
-					<m.div
-						key="notice"
-						initial={{ opacity: 0, x: 50 }}
-						animate={{ opacity: 1, x: 0 }}
-						exit={{ opacity: 0, x: -50 }}
-						transition={{ duration: 0.3, ease: "easeOut" }}
-					>
-						<DialogHeader>
-							<DialogTitle>Pilih Metode</DialogTitle>
-							<DialogDescription>Pilih cara untuk memulai tryout ini.</DialogDescription>
-						</DialogHeader>
-						<div className="space-y-4 pt-4">
-							{/* Credit option - show prominently if user has credits */}
-							{hasCredits && (
-								<div className="rounded-lg border-2 border-amber-200 bg-amber-50 p-4">
-									<div className="flex items-center gap-3">
-										<div className="rounded-full bg-amber-100 p-2">
-											<CoinsIcon size={20} weight="fill" className="text-amber-600" />
-										</div>
-										<div className="flex-1">
-											<p className="font-medium text-amber-900">Gunakan Kredit Tryout</p>
-											<p className="text-amber-700 text-sm">
-												Kamu punya <strong>{creditBalance}</strong> kredit
-											</p>
-										</div>
-									</div>
-									<Button
-										onClick={handleStartWithCredit}
-										disabled={startTryoutMutation.isPending}
-										className="mt-3 w-full bg-amber-600 hover:bg-amber-700"
-									>
-										{startTryoutMutation.isPending ? (
-											<>
-												<Spinner /> Memulai...
-											</>
-										) : (
-											<>
-												<CoinsIcon size={18} weight="fill" className="mr-1" />
-												Gunakan 1 Kredit
-											</>
-										)}
-									</Button>
-								</div>
-							)}
-
-							<DialogFooter className="flex flex-col gap-3 sm:flex-col">
-								<div className="rounded-lg border bg-muted/20 p-4">
-									<div className="mb-2 flex items-center gap-2">
-										<KeyIcon size={18} className="text-muted-foreground" />
-										<p className="font-medium text-sm">Gunakan Kode Akses</p>
-									</div>
-									<div className="flex gap-2">
-										<Input
-											value={accessCode}
-											onChange={(e) => setAccessCode(e.target.value.toUpperCase())}
-											placeholder="Masukkan kode"
-											autoComplete="off"
-											disabled={startTryoutMutation.isPending}
-										/>
-										<Button
-											onClick={handleStartWithAccessCode}
-											disabled={startTryoutMutation.isPending || !accessCode.trim()}
-										>
-											{startTryoutMutation.isPending ? "Memproses..." : "Gunakan"}
-										</Button>
-									</div>
-								</div>
-								<Button onClick={handleTryoutGratis} variant={hasCredits ? "outline" : "default"} className="w-full">
-									{hasCredits ? "Upload Bukti Pembayaran" : "Tryout Gratis"}
-								</Button>
-								<Button variant="outline" onClick={handleBeliPaket} className="w-full">
-									Beli Paket
-								</Button>
-							</DialogFooter>
-						</div>
-					</m.div>
-				) : (
-					<m.div
-						key="submit-url"
-						initial={{ opacity: 0, x: 50 }}
-						animate={{ opacity: 1, x: 0 }}
-						exit={{ opacity: 0, x: -50 }}
-						transition={{ duration: 0.3, ease: "easeOut" }}
-					>
-						<DialogHeader>
-							<DialogTitle>Upload Bukti Pembayaran</DialogTitle>
-							<DialogDescription>
-								Untuk melanjutkan, silakan upload bukti pembayaran Anda (maksimal 2MB).
-							</DialogDescription>
-						</DialogHeader>
-						<div className="space-y-4 pt-4">
-							{/* Upload area */}
-							{!previewUrl ? (
-								<label
-									className={cn(
-										"flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-6 transition-colors",
-										"hover:border-primary hover:bg-muted/50",
-										isUploading && "pointer-events-none opacity-50",
-									)}
-								>
-									<UploadSimpleIcon className="size-8 text-muted-foreground" />
-									<span className="text-muted-foreground text-sm">Klik untuk memilih gambar atau drag & drop</span>
-									<span className="text-muted-foreground text-xs">PNG, JPG, GIF (maks 2MB)</span>
-									<input
-										type="file"
-										accept="image/*"
-										className="hidden"
-										onChange={handleFileSelect}
-										disabled={isUploading}
-									/>
-								</label>
-							) : (
-								<div className="relative">
-									{/* Image preview */}
-									<div className="relative overflow-hidden rounded-lg border">
-										<img src={previewUrl} alt="Preview bukti pembayaran" className="h-48 w-full object-cover" />
-										{/* Remove button */}
-										{!isUploading && (
-											<button
-												type="button"
-												onClick={handleRemoveFile}
-												className="absolute top-2 right-2 rounded-full bg-background/80 p-1 hover:bg-background"
-											>
-												<XIcon className="size-4" />
-											</button>
-										)}
-										{/* Progress overlay */}
-										{isUploading && (
-											<div className="absolute inset-0 flex items-center justify-center bg-background/60">
-												<div className="flex flex-col items-center gap-2">
-													<Spinner />
-													<span className="font-medium text-sm">{Math.round(progress * 100)}%</span>
-												</div>
-											</div>
-										)}
-									</div>
-									{/* Progress bar */}
-									{isUploading && (
-										<div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
-											<div
-												className="h-full bg-primary transition-all duration-300"
-												style={{ width: `${progress * 100}%` }}
-											/>
-										</div>
-									)}
-									{/* Success indicator */}
-									{uploadedUrl && !isUploading && (
-										<p className="mt-2 text-center text-green-600 text-sm">Upload berhasil!</p>
-									)}
-								</div>
-							)}
-							{(errors || startErrorMessage) && (
-								<p className="text-destructive text-sm">{errors ?? startErrorMessage}</p>
-							)}
-							<DialogFooter>
-								<Button
-									onClick={handleStart}
-									disabled={startTryoutMutation.isPending || isUploading || !uploadedUrl}
-									className="w-full"
-								>
-									{startTryoutMutation.isPending ? "Memproses..." : "Mulai Tryout"}
-								</Button>
-							</DialogFooter>
-						</div>
-					</m.div>
-				)}
-				{step === "premium" && (
-					<DialogFooter>
-						<Button onClick={handleStart} disabled={startTryoutMutation.isPending} className="w-full">
-							{startTryoutMutation.isPending ? (
-								<>
-									<Spinner /> Memulai...
-								</>
-							) : (
-								"Mulai Tryout"
-							)}
-						</Button>
-					</DialogFooter>
-				)}
-				{step === "notice" && (errors || startErrorMessage) && (
-					<p className="text-destructive text-sm">{errors ?? startErrorMessage}</p>
-				)}
-			</DialogContent>
-		</Dialog>
-	);
+  return (
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild disabled={disabled}>
+        {children}
+      </DialogTrigger>
+      <DialogContent>
+        {step === "premium" ? (
+          <DialogHeader>
+            <DialogTitle>Mulai Tryout</DialogTitle>
+            <DialogDescription>Kamu siap memulai tryout ini.</DialogDescription>
+          </DialogHeader>
+        ) : step === "notice" ? (
+          <m.div
+            key="notice"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -50 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+          >
+            <DialogHeader>
+              <DialogTitle>Pilih Metode</DialogTitle>
+              <DialogDescription>Pilih cara untuk memulai tryout ini.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 pt-4">
+              <CreditOption onUseCredit={handleStartWithCredit} isLoading={startTryoutMutation.isPending} />
+              <DialogFooter className="flex flex-col gap-3 sm:flex-col">
+                <AccessCodeInput onSubmit={handleStartWithAccessCode} isLoading={startTryoutMutation.isPending} />
+                <Button onClick={handleTryoutGratis} variant={hasCredits ? "outline" : "default"} className="w-full">
+                  {hasCredits ? "Upload Bukti Pembayaran" : "Tryout Gratis"}
+                </Button>
+                <Button variant="outline" onClick={handleBeliPaket} className="w-full">
+                  Beli Paket
+                </Button>
+              </DialogFooter>
+            </div>
+          </m.div>
+        ) : (
+          <m.div
+            key="submit-url"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -50 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+          >
+            <DialogHeader>
+              <DialogTitle>Upload Bukti Pembayaran</DialogTitle>
+              <DialogDescription>
+                Untuk melanjutkan, silakan upload bukti pembayaran Anda (maksimal 2MB).
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 pt-4">
+              <UploadPaymentProof
+                onUploadComplete={handleUploadComplete}
+                onError={handleUploadError}
+                onRemove={handleUploadError}
+                disabled={startTryoutMutation.isPending}
+              />
+              {(errors || startErrorMessage) && (
+                <p className="text-destructive text-sm">{errors ?? startErrorMessage}</p>
+              )}
+              <DialogFooter>
+                <Button
+                  onClick={handleStart}
+                  disabled={startTryoutMutation.isPending || !uploadedUrl}
+                  className="w-full"
+                >
+                  {startTryoutMutation.isPending ? "Memproses..." : "Mulai Tryout"}
+                </Button>
+              </DialogFooter>
+            </div>
+          </m.div>
+        )}
+        {step === "premium" && (
+          <DialogFooter>
+            <Button onClick={handleStart} disabled={startTryoutMutation.isPending} className="w-full">
+              {startTryoutMutation.isPending ? (
+                <>
+                  <Spinner /> Memulai...
+                </>
+              ) : (
+                "Mulai Tryout"
+              )}
+            </Button>
+          </DialogFooter>
+        )}
+        {step === "notice" && (errors || startErrorMessage) && (
+          <p className="text-destructive text-sm">{errors ?? startErrorMessage}</p>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
 }
