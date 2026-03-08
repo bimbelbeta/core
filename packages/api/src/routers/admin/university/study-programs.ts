@@ -1,6 +1,5 @@
 import { db } from "@bimbelbeta/db";
 import { studyProgram } from "@bimbelbeta/db/schema/university";
-import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { and, eq, gt, sql } from "drizzle-orm";
 import { admin } from "../../../index";
@@ -22,17 +21,6 @@ const list = admin
 	.handler(async ({ input }) => {
 		const limit = Math.min(input.limit ?? 20, 100);
 
-		const conditions = [];
-		if (input.cursor) {
-			conditions.push(gt(studyProgram.id, input.cursor));
-		}
-		if (input.search) {
-			conditions.push(sql`${studyProgram.name} ILIKE ${`%${input.search}%`}`);
-		}
-		if (input.category) {
-			conditions.push(eq(studyProgram.category, input.category));
-		}
-
 		const results = await db
 			.select({
 				id: studyProgram.id,
@@ -42,7 +30,13 @@ const list = admin
 				category: studyProgram.category,
 			})
 			.from(studyProgram)
-			.where(conditions.length > 0 ? and(...conditions) : undefined)
+			.where(
+				and(
+					input.cursor ? gt(studyProgram.id, input.cursor) : undefined,
+					input.search ? sql`${studyProgram.name} ILIKE ${`%${input.search}%`}` : undefined,
+					input.category ? eq(studyProgram.category, input.category) : undefined,
+				),
+			)
 			.orderBy(studyProgram.id)
 			.limit(limit + 1);
 
@@ -60,7 +54,7 @@ const find = admin
 		tags: ["Admin - Study Programs"],
 	})
 	.input(type({ id: "number" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const [program] = await db
 			.select({
 				id: studyProgram.id,
@@ -74,7 +68,7 @@ const find = admin
 			.limit(1);
 
 		if (!program) {
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Program studi tidak ditemukan",
 			});
 		}
@@ -97,7 +91,7 @@ const create = admin
 		}),
 	)
 	.output(type({ message: "string", id: "number" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const [created] = await db
 			.insert(studyProgram)
 			.values({
@@ -109,7 +103,7 @@ const create = admin
 			.returning();
 
 		if (!created) {
-			throw new ORPCError("INTERNAL_SERVER_ERROR", {
+			throw errors.INTERNAL_SERVER_ERROR({
 				message: "Gagal membuat program studi",
 			});
 		}
@@ -136,7 +130,7 @@ const update = admin
 		}),
 	)
 	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const updateData: {
 			name?: string;
 			slug?: string;
@@ -155,7 +149,7 @@ const update = admin
 		const [updated] = await db.update(studyProgram).set(updateData).where(eq(studyProgram.id, input.id)).returning();
 
 		if (!updated) {
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Program studi tidak ditemukan",
 			});
 		}
@@ -171,11 +165,11 @@ const remove = admin
 	})
 	.input(type({ id: "number" }))
 	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const [deleted] = await db.delete(studyProgram).where(eq(studyProgram.id, input.id)).returning();
 
 		if (!deleted) {
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Program studi tidak ditemukan",
 			});
 		}

@@ -1,6 +1,5 @@
 import { db } from "@bimbelbeta/db";
 import { question, questionChoice } from "@bimbelbeta/db/schema/question";
-import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { and, eq, gt, like, sql } from "drizzle-orm";
 import { admin } from "../..";
@@ -29,7 +28,7 @@ const createQuestion = admin
 		}),
 	)
 	.output(type({ message: "string", id: "number" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const choices = input.choices;
 		const contentJson = typeof input.content === "object" ? input.content : null;
 		const discussionJson = typeof input.discussion === "object" ? input.discussion : null;
@@ -39,14 +38,14 @@ const createQuestion = admin
 
 		if (input.type === "multiple_choice") {
 			if (!choices || choices.length < 2) {
-				throw new ORPCError("BAD_REQUEST", {
+				throw errors.BAD_REQUEST({
 					message: "Multiple choice harus memiliki minimal 2 pilihan",
 				});
 			}
 
 			const correctCount = choices.filter((c) => c.isCorrect).length;
 			if (correctCount !== 1) {
-				throw new ORPCError("BAD_REQUEST", {
+				throw errors.BAD_REQUEST({
 					message: "Multiple choice harus memiliki tepat 1 pilihan yang benar",
 				});
 			}
@@ -54,7 +53,7 @@ const createQuestion = admin
 
 		if (input.type === "multiple_choice_complex") {
 			if (!choices || choices.length < 2) {
-				throw new ORPCError("BAD_REQUEST", {
+				throw errors.BAD_REQUEST({
 					message: "Pilihan majemuk kompleks harus memiliki minimal 2 pilihan",
 				});
 			}
@@ -76,7 +75,7 @@ const createQuestion = admin
 				.returning();
 
 			if (!newQuestion)
-				throw new ORPCError("INTERNAL_SERVER_ERROR", {
+				throw errors.INTERNAL_SERVER_ERROR({
 					message: "Gagal membuat question",
 				});
 
@@ -119,51 +118,30 @@ const listQuestions = admin
 		}),
 	)
 	.handler(async ({ input }) => {
-		const conditions = [];
-
-		if (input.cursor) {
-			conditions.push(gt(question.id, input.cursor));
-		}
-
-		if (input.search) {
-			conditions.push(like(question.content, `%${input.search}%`));
-		}
-
-		if (input.type) {
-			conditions.push(eq(question.type, input.type));
-		}
-
-		if (input.tag) {
-			conditions.push(
-				sql`EXISTS (
-					SELECT 1
-					FROM unnest(${question.tags}) AS tag
-					WHERE tag ILIKE ${`%${input.tag}%`}
-				)`,
-			);
-		}
-
-		// Category filter - looks for exact category tag (sd, smp, sma, utbk)
-		if (input.category) {
-			conditions.push(sql`${input.category} = ANY(${question.tags})`);
-		}
-
-		// Exclude specific question IDs (useful for filtering out already linked questions)
-		if (input.excludeIds && input.excludeIds.length > 0) {
-			conditions.push(
-				sql`${question.id} NOT IN (${sql.join(
-					input.excludeIds.map((id) => sql`${id}`),
-					sql`, `,
-				)})`,
-			);
-		}
-
-		const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
-
 		const rows = await db
 			.select()
 			.from(question)
-			.where(whereClause)
+			.where(
+				and(
+					input.cursor ? gt(question.id, input.cursor) : undefined,
+					input.search ? like(question.content, `%${input.search}%`) : undefined,
+					input.type ? eq(question.type, input.type) : undefined,
+					input.tag
+						? sql`EXISTS (
+					SELECT 1
+					FROM unnest(${question.tags}) AS tag
+					WHERE tag ILIKE ${`%${input.tag}%`}
+				)`
+						: undefined,
+					input.category ? sql`${input.category} = ANY(${question.tags})` : undefined,
+					input.excludeIds && input.excludeIds.length > 0
+						? sql`${question.id} NOT IN (${sql.join(
+								input.excludeIds.map((id) => sql`${id}`),
+								sql`, `,
+							)})`
+						: undefined,
+				),
+			)
 			.limit(input.limit + 1)
 			.orderBy(question.id);
 
@@ -188,11 +166,11 @@ const getQuestion = admin
 		tags: ["Admin - Questions"],
 	})
 	.input(type({ id: "number" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const [questionData] = await db.select().from(question).where(eq(question.id, input.id)).limit(1);
 
 		if (!questionData)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Question tidak ditemukan",
 			});
 
@@ -239,7 +217,7 @@ const updateQuestion = admin
 		}),
 	)
 	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const contentJson = typeof input.content === "object" ? input.content : null;
 		const discussionJson = typeof input.discussion === "object" ? input.discussion : null;
 
@@ -261,7 +239,7 @@ const updateQuestion = admin
 				.returning();
 
 			if (!q)
-				throw new ORPCError("NOT_FOUND", {
+				throw errors.NOT_FOUND({
 					message: "Question tidak ditemukan",
 				});
 
@@ -314,11 +292,11 @@ const deleteQuestion = admin
 	})
 	.input(type({ id: "number" }))
 	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const [deleted] = await db.delete(question).where(eq(question.id, input.id)).returning();
 
 		if (!deleted) {
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Question tidak ditemukan",
 			});
 		}
@@ -340,7 +318,7 @@ const createChoice = admin
 		}),
 	)
 	.output(type({ message: "string", id: "number" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const existingChoices = await db
 			.select({ code: questionChoice.code })
 			.from(questionChoice)
@@ -351,7 +329,7 @@ const createChoice = admin
 		const nextCode = choiceCodes.find((code) => !usedCodes.includes(code));
 
 		if (!nextCode) {
-			throw new ORPCError("BAD_REQUEST", {
+			throw errors.BAD_REQUEST({
 				message: "Maksimal pilihan tercapai (7 pilihan)",
 			});
 		}
@@ -367,7 +345,7 @@ const createChoice = admin
 			.returning();
 
 		if (!created)
-			throw new ORPCError("INTERNAL_SERVER_ERROR", {
+			throw errors.INTERNAL_SERVER_ERROR({
 				message: "Gagal membuat choice",
 			});
 
@@ -391,7 +369,7 @@ const updateChoice = admin
 		}),
 	)
 	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const updateData: { content?: string; isCorrect?: boolean } = {};
 
 		if (input.content !== undefined) updateData.content = input.content;
@@ -404,7 +382,7 @@ const updateChoice = admin
 			.returning();
 
 		if (!updated)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Choice tidak ditemukan",
 			});
 
@@ -419,11 +397,11 @@ const deleteChoice = admin
 	})
 	.input(type({ id: "number" }))
 	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const [deleted] = await db.delete(questionChoice).where(eq(questionChoice.id, input.id)).returning();
 
 		if (!deleted) {
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Choice tidak ditemukan",
 			});
 		}

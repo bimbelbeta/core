@@ -1,6 +1,5 @@
 import { db } from "@bimbelbeta/db";
 import { tryout, tryoutSubtest } from "@bimbelbeta/db/schema/tryout";
-import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { eq, sql } from "drizzle-orm";
 import { admin } from "../..";
@@ -24,11 +23,11 @@ const getSubtest = admin
 			"scoringMap?": "Record<string, number> | null",
 		}),
 	)
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const [subtest] = await db.select().from(tryoutSubtest).where(eq(tryoutSubtest.id, input.id)).limit(1);
 
 		if (!subtest) {
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Subtest tidak ditemukan",
 			});
 		}
@@ -52,7 +51,7 @@ const createSubtest = admin
 		}),
 	)
 	.output(type({ message: "string", id: "number" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const [tryoutExists] = await db
 			.select({ id: tryout.id })
 			.from(tryout)
@@ -60,7 +59,7 @@ const createSubtest = admin
 			.limit(1);
 
 		if (!tryoutExists)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Tryout tidak ditemukan",
 			});
 
@@ -84,7 +83,7 @@ const createSubtest = admin
 			.returning();
 
 		if (!created)
-			throw new ORPCError("INTERNAL_SERVER_ERROR", {
+			throw errors.INTERNAL_SERVER_ERROR({
 				message: "Gagal membuat subtest",
 			});
 
@@ -111,7 +110,7 @@ const updateSubtest = admin
 		}),
 	)
 	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const updateData: {
 			name?: string;
 			description?: string | null;
@@ -129,7 +128,7 @@ const updateSubtest = admin
 		const [updated] = await db.update(tryoutSubtest).set(updateData).where(eq(tryoutSubtest.id, input.id)).returning();
 
 		if (!updated)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Subtest tidak ditemukan",
 			});
 
@@ -144,11 +143,11 @@ const deleteSubtest = admin
 	})
 	.input(type({ id: "number" }))
 	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const [deleted] = await db.delete(tryoutSubtest).where(eq(tryoutSubtest.id, input.id)).returning();
 
 		if (!deleted) {
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Subtest tidak ditemukan",
 			});
 		}

@@ -1,6 +1,6 @@
 import { db } from "@bimbelbeta/db";
 import { product, transaction } from "@bimbelbeta/db/schema/transaction";
-import { ORPCError } from "@orpc/client";
+
 import { type } from "arktype";
 import { eq } from "drizzle-orm";
 import { authed, pub } from "..";
@@ -122,11 +122,11 @@ const getStatus = authed
 		tags: ["Payment"],
 	})
 	.input(type({ orderId: "string" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const tx = await db.select().from(transaction).where(eq(transaction.id, input.orderId)).limit(1);
 
 		if (!tx.length) {
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Transaction not found",
 			});
 		}

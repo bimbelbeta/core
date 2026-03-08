@@ -1,7 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
 import { db } from "@bimbelbeta/db";
 import { tryout, tryoutAccessCode } from "@bimbelbeta/db/schema/tryout";
-import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { and, eq, gt, ilike } from "drizzle-orm";
 import { admin } from "../../..";
@@ -35,8 +34,7 @@ const createTryout = admin
 			endsAt: "string?",
 		}),
 	)
-	.output(type({ message: "string", id: "number" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const [created] = await db
 			.insert(tryout)
 			.values({
@@ -50,7 +48,7 @@ const createTryout = admin
 			.returning();
 
 		if (!created)
-			throw new ORPCError("INTERNAL_SERVER_ERROR", {
+			throw errors.INTERNAL_SERVER_ERROR({
 				message: "Gagal membuat tryout",
 			});
 
@@ -107,11 +105,11 @@ const getTryout = admin
 		tags: ["Admin - Tryouts"],
 	})
 	.input(type({ id: "number" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const [tryoutData] = await db.select().from(tryout).where(eq(tryout.id, input.id)).limit(1);
 
 		if (!tryoutData)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Tryout tidak ditemukan",
 			});
 
@@ -147,7 +145,7 @@ const updateTryout = admin
 		}),
 	)
 	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const updateData: {
 			title?: string;
 			description?: string | null;
@@ -171,7 +169,7 @@ const updateTryout = admin
 		const [updated] = await db.update(tryout).set(updateData).where(eq(tryout.id, input.id)).returning();
 
 		if (!updated)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Tryout tidak ditemukan",
 			});
 
@@ -186,11 +184,11 @@ const deleteTryout = admin
 	})
 	.input(type({ id: "number" }))
 	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const [deleted] = await db.delete(tryout).where(eq(tryout.id, input.id)).returning();
 
 		if (!deleted) {
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Tryout tidak ditemukan",
 			});
 		}
@@ -250,18 +248,18 @@ const createAccessCode = admin
 			maxUses: "number?",
 		}),
 	)
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const existingTryout = await db.query.tryout.findFirst({
 			where: eq(tryout.id, input.id),
 			columns: { id: true },
 		});
 
 		if (!existingTryout) {
-			throw new ORPCError("NOT_FOUND", { message: "Tryout tidak ditemukan" });
+			throw errors.NOT_FOUND({ message: "Tryout tidak ditemukan" });
 		}
 
 		if (input.maxUses !== undefined && input.maxUses <= 0) {
-			throw new ORPCError("BAD_REQUEST", { message: "Maksimal penggunaan harus lebih dari 0" });
+			throw errors.BAD_REQUEST({ message: "Maksimal penggunaan harus lebih dari 0" });
 		}
 
 		const plainCode = (input.code?.trim() || generateAccessCode()).toUpperCase();
@@ -289,7 +287,7 @@ const createAccessCode = admin
 				});
 
 			if (!created) {
-				throw new ORPCError("INTERNAL_SERVER_ERROR", {
+				throw errors.INTERNAL_SERVER_ERROR({
 					message: "Gagal membuat kode akses",
 				});
 			}
@@ -299,7 +297,7 @@ const createAccessCode = admin
 				code: plainCode,
 			};
 		} catch {
-			throw new ORPCError("CONFLICT", {
+			throw errors.BAD_REQUEST({
 				message: "Kode akses sudah ada untuk tryout ini",
 			});
 		}
@@ -318,7 +316,7 @@ const updateAccessCodeStatus = admin
 			isActive: "boolean",
 		}),
 	)
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const [updated] = await db
 			.update(tryoutAccessCode)
 			.set({
@@ -332,7 +330,7 @@ const updateAccessCodeStatus = admin
 			});
 
 		if (!updated) {
-			throw new ORPCError("NOT_FOUND", { message: "Kode akses tidak ditemukan" });
+			throw errors.NOT_FOUND({ message: "Kode akses tidak ditemukan" });
 		}
 
 		return updated;

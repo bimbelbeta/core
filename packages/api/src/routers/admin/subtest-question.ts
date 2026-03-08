@@ -1,7 +1,6 @@
 import { db } from "@bimbelbeta/db";
 import { question } from "@bimbelbeta/db/schema/question";
 import { tryoutSubtestQuestion } from "@bimbelbeta/db/schema/tryout";
-import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { admin } from "../..";
@@ -56,7 +55,7 @@ const addQuestionToSubtest = admin
 		}),
 	)
 	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		let nextOrder = input.order;
 
 		if (nextOrder === undefined) {
@@ -75,7 +74,7 @@ const addQuestionToSubtest = admin
 				order: nextOrder,
 			});
 		} catch (_error) {
-			throw new ORPCError("CONFLICT", {
+			throw errors.BAD_REQUEST({
 				message: "Question sudah ada di subtest ini",
 			});
 		}
@@ -96,9 +95,9 @@ const bulkAddQuestionsToSubtest = admin
 		}),
 	)
 	.output(type({ message: "string", addedCount: "number" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		if (!input.questionIds || input.questionIds.length === 0) {
-			throw new ORPCError("BAD_REQUEST", {
+			throw errors.BAD_REQUEST({
 				message: "Question IDs tidak boleh kosong",
 			});
 		}
@@ -112,7 +111,7 @@ const bulkAddQuestionsToSubtest = admin
 		const newQuestionIds = input.questionIds.filter((id) => !existingIds.includes(id));
 
 		if (newQuestionIds.length === 0) {
-			throw new ORPCError("BAD_REQUEST", {
+			throw errors.BAD_REQUEST({
 				message: "Semua question sudah ada di subtest ini",
 			});
 		}
@@ -151,9 +150,9 @@ const bulkRemoveQuestionsFromSubtest = admin
 		}),
 	)
 	.output(type({ message: "string", removedCount: "number" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		if (!input.questionIds || input.questionIds.length === 0) {
-			throw new ORPCError("BAD_REQUEST", {
+			throw errors.BAD_REQUEST({
 				message: "Question IDs tidak boleh kosong",
 			});
 		}
@@ -187,7 +186,7 @@ const updateSubtestQuestionOrder = admin
 		}),
 	)
 	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const [updated] = await db
 			.update(tryoutSubtestQuestion)
 			.set({ order: input.order })
@@ -195,7 +194,7 @@ const updateSubtestQuestionOrder = admin
 			.returning();
 
 		if (!updated)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Question tidak ditemukan di subtest",
 			});
 
@@ -210,7 +209,7 @@ const removeQuestionFromSubtest = admin
 	})
 	.input(type({ subtestId: "number", questionId: "number" }))
 	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const [deleted] = await db
 			.delete(tryoutSubtestQuestion)
 			.where(
@@ -222,7 +221,7 @@ const removeQuestionFromSubtest = admin
 			.returning();
 
 		if (!deleted) {
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Question tidak ditemukan di subtest",
 			});
 		}

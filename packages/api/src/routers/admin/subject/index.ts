@@ -7,11 +7,11 @@ import {
 	subject,
 	videoMaterial,
 } from "@bimbelbeta/db/schema/subject";
-import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { and, asc, eq } from "drizzle-orm";
-import { admin } from "../..";
-import { convertToTiptap } from "../../lib/convert-to-tiptap";
+import { admin } from "../../..";
+import { convertToTiptap } from "../../../lib/convert-to-tiptap";
+import { validateGradeLevel } from "./utils";
 
 /**
  * Create new subject (class)
@@ -34,33 +34,14 @@ const createSubject = admin
 		}),
 	)
 	.output(type({ message: "string", id: "number" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		// Validate gradeLevel based on category
 		if (input.gradeLevel !== undefined && input.gradeLevel !== null) {
 			const category = input.category ?? "utbk";
-			if (category === "utbk") {
-				throw new ORPCError("BAD_REQUEST", {
-					message: "UTBK tidak boleh memiliki gradeLevel",
-				});
-			}
-
-			const validGradeRange: Record<string, [number, number]> = {
-				sd: [1, 6],
-				smp: [7, 9],
-				sma: [10, 12],
-			};
-
-			const range = validGradeRange[category];
-			if (!range) {
-				throw new ORPCError("BAD_REQUEST", {
-					message: `Kategori ${category} tidak valid`,
-				});
-			}
-
-			const [min, max] = range;
-			if (input.gradeLevel < min || input.gradeLevel > max) {
-				throw new ORPCError("BAD_REQUEST", {
-					message: `GradeLevel harus antara ${min} dan ${max} untuk kategori ${category.toUpperCase()}`,
+			const validation = validateGradeLevel(category, input.gradeLevel);
+			if (!validation.valid) {
+				throw errors.BAD_REQUEST({
+					message: validation.message,
 				});
 			}
 		}
@@ -78,7 +59,7 @@ const createSubject = admin
 			.returning();
 
 		if (!created)
-			throw new ORPCError("INTERNAL_SERVER_ERROR", {
+			throw errors.INTERNAL_SERVER_ERROR({
 				message: "Gagal membuat kelas",
 			});
 
@@ -110,9 +91,9 @@ const updateSubject = admin
 		}),
 	)
 	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		// Validate gradeLevel based on category if both provided or fetch existing
-		if (input.gradeLevel !== undefined) {
+		if (input.gradeLevel !== undefined && input.gradeLevel !== null) {
 			let category = input.category;
 
 			// If category not provided, fetch existing
@@ -125,30 +106,11 @@ const updateSubject = admin
 				if (existing) category = existing.category;
 			}
 
-			if (input.gradeLevel !== null && category) {
-				if (category === "utbk") {
-					throw new ORPCError("BAD_REQUEST", {
-						message: "UTBK tidak boleh memiliki gradeLevel",
-					});
-				}
-
-				const validGradeRange: Record<string, [number, number]> = {
-					sd: [1, 6],
-					smp: [7, 9],
-					sma: [10, 12],
-				};
-
-				const range = validGradeRange[category];
-				if (!range) {
-					throw new ORPCError("BAD_REQUEST", {
-						message: `Kategori ${category} tidak valid`,
-					});
-				}
-
-				const [min, max] = range;
-				if (input.gradeLevel < min || input.gradeLevel > max) {
-					throw new ORPCError("BAD_REQUEST", {
-						message: `GradeLevel harus antara ${min} dan ${max} untuk kategori ${category.toUpperCase()}`,
+			if (category) {
+				const validation = validateGradeLevel(category, input.gradeLevel);
+				if (!validation.valid) {
+					throw errors.BAD_REQUEST({
+						message: validation.message,
 					});
 				}
 			}
@@ -176,7 +138,7 @@ const updateSubject = admin
 		const [updatedRow] = await db.update(subject).set(updateData).where(eq(subject.id, input.id)).returning();
 
 		if (!updatedRow)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Kelas tidak ditemukan",
 			});
 
@@ -195,11 +157,11 @@ const deleteSubject = admin
 	})
 	.input(type({ id: "number" }))
 	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const [deletedRow] = await db.delete(subject).where(eq(subject.id, input.id)).returning();
 
 		if (!deletedRow)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Kelas tidak ditemukan",
 			});
 
@@ -261,7 +223,7 @@ const createContent = admin
 			createdMaterials: "object",
 		}),
 	)
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const hasVideo = input.video !== undefined && input.video !== null;
 		const hasNote = input.note !== undefined && input.note !== null;
 		const hasPracticeQuestions =
@@ -270,7 +232,7 @@ const createContent = admin
 			input.practiceQuestionIds.length > 0;
 
 		if (!hasVideo && !hasNote && !hasPracticeQuestions) {
-			throw new ORPCError("BAD_REQUEST", {
+			throw errors.BAD_REQUEST({
 				message: "Konten harus memiliki minimal salah satu: video, catatan, atau latihan soal",
 			});
 		}
@@ -286,7 +248,7 @@ const createContent = admin
 				typeof input.video.videoUrl !== "string" ||
 				!input.video.videoUrl.trim()
 			) {
-				throw new ORPCError("BAD_REQUEST", {
+				throw errors.BAD_REQUEST({
 					message: "Video harus memiliki title, videoUrl, dan content yang valid",
 				});
 			}
@@ -295,7 +257,7 @@ const createContent = admin
 		// Validate note structure if provided
 		if (hasNote) {
 			if (typeof input.note !== "object" || !("content" in input.note) || typeof input.note.content !== "object") {
-				throw new ORPCError("BAD_REQUEST", {
+				throw errors.BAD_REQUEST({
 					message: "Catatan harus memiliki content yang valid (Tiptap JSON)",
 				});
 			}
@@ -314,7 +276,7 @@ const createContent = admin
 				.returning();
 
 			if (!newContent)
-				throw new ORPCError("INTERNAL_SERVER_ERROR", {
+				throw errors.INTERNAL_SERVER_ERROR({
 					message: "Gagal membuat konten",
 				});
 
@@ -395,7 +357,7 @@ const updateContent = admin
 		}),
 	)
 	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const updateData: { title?: string; order?: number; updatedAt: Date } = {
 			updatedAt: new Date(),
 		};
@@ -406,7 +368,7 @@ const updateContent = admin
 		const [updated] = await db.update(contentItem).set(updateData).where(eq(contentItem.id, input.id)).returning();
 
 		if (!updated)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Konten tidak ditemukan",
 			});
 
@@ -425,11 +387,11 @@ const deleteContent = admin
 	})
 	.input(type({ id: "number" }))
 	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const [deleted] = await db.delete(contentItem).where(eq(contentItem.id, input.id)).returning();
 
 		if (!deleted)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Konten tidak ditemukan",
 			});
 
@@ -453,10 +415,10 @@ const reorderContent = admin
 		}),
 	)
 	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		// Validate items array at runtime
 		if (!Array.isArray(input.items)) {
-			throw new ORPCError("BAD_REQUEST", {
+			throw errors.BAD_REQUEST({
 				message: "Items harus berupa array",
 			});
 		}
@@ -466,7 +428,7 @@ const reorderContent = admin
 		// Validate each item
 		for (const item of items) {
 			if (typeof item.id !== "number" || typeof item.order !== "number") {
-				throw new ORPCError("BAD_REQUEST", {
+				throw errors.BAD_REQUEST({
 					message: "Setiap item harus memiliki id dan order bertipe number",
 				});
 			}
@@ -514,10 +476,10 @@ const upsertVideo = admin
 		}),
 	)
 	.output(type({ message: "string", videoId: "number" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		// Validate video URL
 		if (!input.videoUrl) {
-			throw new ORPCError("BAD_REQUEST", {
+			throw errors.BAD_REQUEST({
 				message: "Video URL wajib diisi",
 			});
 		}
@@ -530,7 +492,7 @@ const upsertVideo = admin
 			.limit(1);
 
 		if (!content)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Konten tidak ditemukan",
 			});
 
@@ -553,7 +515,7 @@ const upsertVideo = admin
 			.returning();
 
 		if (!video)
-			throw new ORPCError("INTERNAL_SERVER_ERROR", {
+			throw errors.INTERNAL_SERVER_ERROR({
 				message: "Gagal menyimpan video material",
 			});
 
@@ -572,11 +534,11 @@ const deleteVideo = admin
 	})
 	.input(type({ id: "number" }))
 	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const [deleted] = await db.delete(videoMaterial).where(eq(videoMaterial.contentItemId, input.id)).returning();
 
 		if (!deleted)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Video material tidak ditemukan",
 			});
 
@@ -600,7 +562,7 @@ const upsertNote = admin
 		}),
 	)
 	.output(type({ message: "string", noteId: "number" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		// Check if content exists
 		const [content] = await db
 			.select({ id: contentItem.id })
@@ -609,7 +571,7 @@ const upsertNote = admin
 			.limit(1);
 
 		if (!content)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Konten tidak ditemukan",
 			});
 
@@ -630,7 +592,7 @@ const upsertNote = admin
 			.returning();
 
 		if (!note)
-			throw new ORPCError("INTERNAL_SERVER_ERROR", {
+			throw errors.INTERNAL_SERVER_ERROR({
 				message: "Gagal menyimpan catatan material",
 			});
 
@@ -652,11 +614,11 @@ const deleteNote = admin
 	})
 	.input(type({ id: "number" }))
 	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const [deleted] = await db.delete(noteMaterial).where(eq(noteMaterial.contentItemId, input.id)).returning();
 
 		if (!deleted)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Catatan material tidak ditemukan",
 			});
 
@@ -727,7 +689,7 @@ const getContentPracticeQuestions = admin
 		tags: ["Admin - Content"],
 	})
 	.input(type({ id: "number" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		// Check if content exists
 		const [content] = await db
 			.select({ id: contentItem.id })
@@ -736,7 +698,7 @@ const getContentPracticeQuestions = admin
 			.limit(1);
 
 		if (!content)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Konten tidak ditemukan",
 			});
 
@@ -816,7 +778,7 @@ const unlinkSinglePracticeQuestion = admin
 		}),
 	)
 	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const [deleted] = await db
 			.delete(contentPracticeQuestions)
 			.where(
@@ -828,7 +790,7 @@ const unlinkSinglePracticeQuestion = admin
 			.returning();
 
 		if (!deleted) {
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Soal tidak ditemukan di konten ini",
 			});
 		}
@@ -873,7 +835,7 @@ const reorderPracticeQuestions = admin
 		}),
 	)
 	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		// Check if content exists
 		const [content] = await db
 			.select({ id: contentItem.id })
@@ -882,7 +844,7 @@ const reorderPracticeQuestions = admin
 			.limit(1);
 
 		if (!content)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Konten tidak ditemukan",
 			});
 
@@ -937,7 +899,7 @@ const addPracticeQuestions = admin
 		}),
 	)
 	.output(type({ message: "string", addedCount: "number" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		// Check if content exists
 		const [content] = await db
 			.select({ id: contentItem.id })
@@ -946,7 +908,7 @@ const addPracticeQuestions = admin
 			.limit(1);
 
 		if (!content)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Konten tidak ditemukan",
 			});
 

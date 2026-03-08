@@ -12,7 +12,7 @@ import {
 	tryoutSubtestQuestion,
 	tryoutUserAnswer,
 } from "@bimbelbeta/db/schema/tryout";
-import { ORPCError } from "@orpc/client";
+
 import { type } from "arktype";
 import { and, desc, eq, isNull, or, sql } from "drizzle-orm";
 import { authed } from "../index";
@@ -111,7 +111,7 @@ const find = authed
 			},
 		});
 
-		if (!tryoutData) throw new ORPCError("NOT_FOUND", { message: "Tryout tidak ditemukan." });
+		if (!tryoutData) throw errors.NOT_FOUND({ message: "Tryout tidak ditemukan." });
 
 		const attempt = await db.query.tryoutAttempt.findFirst({
 			where: and(eq(tryoutAttempt.tryoutId, input.id), eq(tryoutAttempt.userId, context.session.user.id)),
@@ -254,7 +254,7 @@ const start = authed
 		tags: ["Tryouts"],
 	})
 	.input(type({ id: "number", imageUrl: "string?", useCredit: "boolean?", accessCode: "string?" }))
-	.handler(async ({ input, context }) => {
+	.handler(async ({ input, context, errors }) => {
 		const tryoutData = await db.query.tryout.findFirst({
 			where: and(eq(tryout.id, input.id), eq(tryout.status, "published")),
 			with: {
@@ -264,7 +264,7 @@ const start = authed
 			},
 		});
 
-		if (!tryoutData) throw new ORPCError("NOT_FOUND", { message: "Tryout not found" });
+		if (!tryoutData) throw errors.NOT_FOUND({ message: "Tryout not found" });
 
 		// Access control: Premium users OR users with image OR users with credits OR valid access code
 		const isPremiumUser = context.session.user.isPremium;
@@ -297,25 +297,25 @@ const start = authed
 				})) ?? null;
 
 			if (!validAccessCode) {
-				throw new ORPCError("FORBIDDEN", {
+				throw errors.FORBIDDEN({
 					message: "Kode akses tidak valid",
 				});
 			}
 
 			if (!validAccessCode.isActive) {
-				throw new ORPCError("FORBIDDEN", {
+				throw errors.FORBIDDEN({
 					message: "Kode akses tidak aktif",
 				});
 			}
 
 			if (validAccessCode.expiresAt && validAccessCode.expiresAt < now) {
-				throw new ORPCError("FORBIDDEN", {
+				throw errors.FORBIDDEN({
 					message: "Kode akses sudah kedaluwarsa",
 				});
 			}
 
 			if (validAccessCode.maxUses !== null && validAccessCode.usedCount >= validAccessCode.maxUses) {
-				throw new ORPCError("FORBIDDEN", {
+				throw errors.FORBIDDEN({
 					message: "Kuota kode akses sudah habis",
 				});
 			}
@@ -324,24 +324,24 @@ const start = authed
 		const usesAccessCode = !!validAccessCode && !wantsToUseCredit;
 
 		if (!isPremiumUser && !hasImageProof && !wantsToUseCredit && !usesAccessCode) {
-			throw new ORPCError("FORBIDDEN", {
+			throw errors.FORBIDDEN({
 				message: "Upload bukti pembayaran, gunakan kredit tryout, atau masukkan kode akses",
 			});
 		}
 
 		if (wantsToUseCredit && userCredits <= 0) {
-			throw new ORPCError("FORBIDDEN", {
+			throw errors.FORBIDDEN({
 				message: "Kredit tryout tidak cukup",
 			});
 		}
 
 		if (tryoutData.startsAt && tryoutData.startsAt > now) {
-			throw new ORPCError("BAD_REQUEST", {
+			throw errors.BAD_REQUEST({
 				message: "Tryout belum dimulai",
 			});
 		}
 		if (tryoutData.endsAt && tryoutData.endsAt < now) {
-			throw new ORPCError("BAD_REQUEST", {
+			throw errors.BAD_REQUEST({
 				message: "Tryout sudah selesai",
 			});
 		}
@@ -352,13 +352,13 @@ const start = authed
 
 		if (existingAttempt) {
 			if (existingAttempt.isRevoked) {
-				throw new ORPCError("FORBIDDEN", { message: "Attempt telah dibatalkan" });
+				throw errors.FORBIDDEN({ message: "Attempt telah dibatalkan" });
 			}
 			return existingAttempt;
 		}
 
 		if (tryoutData.subtests.length === 0) {
-			throw new ORPCError("BAD_REQUEST", { message: "Tryout tidak memiliki subtest" });
+			throw errors.BAD_REQUEST({ message: "Tryout tidak memiliki subtest" });
 		}
 
 		let cumulativeMinutes = 0;
@@ -396,7 +396,7 @@ const start = authed
 					})
 					.returning();
 
-				if (!newAttempt) throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Failed to create attempt" });
+				if (!newAttempt) throw errors.INTERNAL_SERVER_ERROR({ message: "Failed to create attempt" });
 
 				// Record credit consumption
 				await trx.insert(creditTransaction).values({
@@ -423,7 +423,7 @@ const start = authed
 				})
 				.returning();
 
-			if (!newAttempt) throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Failed to create attempt" });
+			if (!newAttempt) throw errors.INTERNAL_SERVER_ERROR({ message: "Failed to create attempt" });
 
 			if (usesAccessCode && validAccessCode) {
 				const [updatedCode] = await trx
@@ -440,7 +440,7 @@ const start = authed
 					.returning({ id: tryoutAccessCode.id });
 
 				if (!updatedCode) {
-					throw new ORPCError("FORBIDDEN", {
+					throw errors.FORBIDDEN({
 						message: "Kuota kode akses sudah habis",
 					});
 				}
@@ -468,7 +468,7 @@ const startSubtest = authed
 		tags: ["Tryouts"],
 	})
 	.input(type({ tryoutId: "number", subtestId: "number" }))
-	.handler(async ({ input, context }) => {
+	.handler(async ({ input, context, errors }) => {
 		const attempt = await db.query.tryoutAttempt.findFirst({
 			where: and(eq(tryoutAttempt.tryoutId, input.tryoutId), eq(tryoutAttempt.userId, context.session.user.id)),
 			with: {
@@ -476,7 +476,7 @@ const startSubtest = authed
 			},
 		});
 
-		if (!attempt) throw new ORPCError("BAD_REQUEST", { message: "Anda belum memulai tryout ini" });
+		if (!attempt) throw errors.BAD_REQUEST({ message: "Anda belum memulai tryout ini" });
 
 		const existingSubtestAttempt = attempt.subtestAttempts.find((sa) => sa.subtestId === input.subtestId);
 		if (existingSubtestAttempt) {
@@ -492,10 +492,10 @@ const startSubtest = authed
 			},
 		});
 
-		if (!tryoutData) throw new ORPCError("NOT_FOUND", { message: "Tryout not found" });
+		if (!tryoutData) throw errors.NOT_FOUND({ message: "Tryout not found" });
 
 		const currentIndex = tryoutData.subtests.findIndex((s) => s.id === input.subtestId);
-		if (currentIndex === -1) throw new ORPCError("NOT_FOUND", { message: "Subtest not found" });
+		if (currentIndex === -1) throw errors.NOT_FOUND({ message: "Subtest not found" });
 
 		const currentSubtest = tryoutData.subtests[currentIndex]!;
 
@@ -503,7 +503,7 @@ const startSubtest = authed
 			const prevSubtest = tryoutData.subtests[currentIndex - 1]!;
 			const prevAttempt = attempt.subtestAttempts.find((sa) => sa.subtestId === prevSubtest.id);
 			if (!prevAttempt || prevAttempt.status !== "finished") {
-				throw new ORPCError("BAD_REQUEST", {
+				throw errors.BAD_REQUEST({
 					message: "Selesaikan subtest sebelumnya terlebih dahulu",
 				});
 			}
@@ -547,7 +547,7 @@ const saveAnswer = authed
 			essayAnswer: "string?",
 		}),
 	)
-	.handler(async ({ input, context }) => {
+	.handler(async ({ input, context, errors }) => {
 		const attempt = await db.query.tryoutAttempt.findFirst({
 			where: and(
 				eq(tryoutAttempt.tryoutId, input.tryoutId),
@@ -560,18 +560,18 @@ const saveAnswer = authed
 		});
 
 		if (!attempt)
-			throw new ORPCError("BAD_REQUEST", {
+			throw errors.BAD_REQUEST({
 				message: "No active attempt found",
 			});
 
 		const currentSubtestAttempt = attempt.subtestAttempts.find((sa) => sa.status === "ongoing");
 		if (!currentSubtestAttempt)
-			throw new ORPCError("BAD_REQUEST", {
+			throw errors.BAD_REQUEST({
 				message: "No active subtest found",
 			});
 
 		if (currentSubtestAttempt.deadline && currentSubtestAttempt.deadline < new Date()) {
-			throw new ORPCError("BAD_REQUEST", {
+			throw errors.BAD_REQUEST({
 				message: "Subtest deadline has passed",
 			});
 		}
@@ -604,7 +604,7 @@ const toggleRaguRagu = authed
 		tags: ["Tryouts"],
 	})
 	.input(type({ tryoutId: "number", questionId: "number" }))
-	.handler(async ({ input, context }) => {
+	.handler(async ({ input, context, errors }) => {
 		const attempt = await db.query.tryoutAttempt.findFirst({
 			where: and(
 				eq(tryoutAttempt.tryoutId, input.tryoutId),
@@ -617,18 +617,18 @@ const toggleRaguRagu = authed
 		});
 
 		if (!attempt)
-			throw new ORPCError("BAD_REQUEST", {
+			throw errors.BAD_REQUEST({
 				message: "No active attempt found",
 			});
 
 		const currentSubtestAttempt = attempt.subtestAttempts.find((sa) => sa.status === "ongoing");
 		if (!currentSubtestAttempt)
-			throw new ORPCError("BAD_REQUEST", {
+			throw errors.BAD_REQUEST({
 				message: "No active subtest found",
 			});
 
 		if (currentSubtestAttempt.deadline && currentSubtestAttempt.deadline < new Date()) {
-			throw new ORPCError("BAD_REQUEST", {
+			throw errors.BAD_REQUEST({
 				message: "Subtest deadline has passed",
 			});
 		}
@@ -660,7 +660,7 @@ const submitSubtest = authed
 		tags: ["Tryouts"],
 	})
 	.input(type({ tryoutId: "number", subtestId: "number" }))
-	.handler(async ({ input, context }) => {
+	.handler(async ({ input, context, errors }) => {
 		const attempt = await db.query.tryoutAttempt.findFirst({
 			where: and(
 				eq(tryoutAttempt.tryoutId, input.tryoutId),
@@ -672,13 +672,13 @@ const submitSubtest = authed
 			},
 		});
 
-		if (!attempt) throw new ORPCError("BAD_REQUEST", { message: "Gagal menemukan pengerjaan tryout." });
+		if (!attempt) throw errors.BAD_REQUEST({ message: "Gagal menemukan pengerjaan tryout." });
 
 		const currentSubtestAttempt = attempt.subtestAttempts.find(
 			(sa) => sa.subtestId === input.subtestId && sa.status === "ongoing",
 		);
 
-		if (!currentSubtestAttempt) throw new ORPCError("BAD_REQUEST", { message: "Subtest not active" });
+		if (!currentSubtestAttempt) throw errors.BAD_REQUEST({ message: "Subtest not active" });
 
 		const tryoutData = await db.query.tryout.findFirst({
 			where: eq(tryout.id, input.tryoutId),
@@ -689,14 +689,14 @@ const submitSubtest = authed
 			},
 		});
 
-		if (!tryoutData) throw new ORPCError("NOT_FOUND", { message: "Tryout not found" });
+		if (!tryoutData) throw errors.NOT_FOUND({ message: "Tryout not found" });
 
 		const currentIndex = tryoutData.subtests.findIndex((s) => s.id === input.subtestId);
-		if (currentIndex === -1) throw new ORPCError("NOT_FOUND", { message: "Subtest not found" });
+		if (currentIndex === -1) throw errors.NOT_FOUND({ message: "Subtest not found" });
 
 		const now = new Date();
 		if (attempt.deadline && attempt.deadline < now) {
-			throw new ORPCError("BAD_REQUEST", {
+			throw errors.BAD_REQUEST({
 				message: "Tryout telah berakhir",
 			});
 		}
@@ -739,7 +739,7 @@ const submitTryout = authed
 		tags: ["Tryouts"],
 	})
 	.input(type({ tryoutId: "number" }))
-	.handler(async ({ input, context }) => {
+	.handler(async ({ input, context, errors }) => {
 		const attempt = await db.query.tryoutAttempt.findFirst({
 			where: and(
 				eq(tryoutAttempt.tryoutId, input.tryoutId),
@@ -748,7 +748,7 @@ const submitTryout = authed
 			),
 		});
 
-		if (!attempt) throw new ORPCError("BAD_REQUEST", { message: "Gagal menemukan pengerjaan tryout." });
+		if (!attempt) throw errors.BAD_REQUEST({ message: "Gagal menemukan pengerjaan tryout." });
 
 		const scores = await calculateTryoutScores(attempt.id);
 

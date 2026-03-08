@@ -1,6 +1,6 @@
 import { db } from "@bimbelbeta/db";
 import { programYearlyData, studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
-import { ORPCError } from "@orpc/client";
+
 import { type } from "arktype";
 import { and, desc, eq, gt, ilike, or } from "drizzle-orm";
 import { authed } from "../index";
@@ -148,7 +148,7 @@ const find = authed
 		tags: ["Universities"],
 	})
 	.input(type({ id: "number" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const [uni] = await db
 			.select({
 				id: university.id,
@@ -165,7 +165,7 @@ const find = authed
 			.limit(1);
 
 		if (!uni) {
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Universitas tidak ditemukan",
 			});
 		}

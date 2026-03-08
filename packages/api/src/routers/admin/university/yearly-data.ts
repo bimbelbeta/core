@@ -1,6 +1,5 @@
 import { db } from "@bimbelbeta/db";
 import { programYearlyData, studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
-import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { and, desc, eq, gt } from "drizzle-orm";
 import { admin } from "../../../index";
@@ -22,17 +21,6 @@ const list = admin
 	.handler(async ({ input }) => {
 		const limit = Math.min(input.limit ?? 20, 100);
 
-		const conditions = [];
-		if (input.cursor) {
-			conditions.push(gt(universityStudyProgram.id, input.cursor));
-		}
-		if (input.universityId) {
-			conditions.push(eq(universityStudyProgram.universityId, input.universityId));
-		}
-		if (input.studyProgramId) {
-			conditions.push(eq(universityStudyProgram.studyProgramId, input.studyProgramId));
-		}
-
 		const results = await db
 			.select({
 				id: universityStudyProgram.id,
@@ -51,7 +39,13 @@ const list = admin
 			.from(universityStudyProgram)
 			.innerJoin(university, eq(university.id, universityStudyProgram.universityId))
 			.innerJoin(studyProgram, eq(studyProgram.id, universityStudyProgram.studyProgramId))
-			.where(conditions.length > 0 ? and(...conditions) : undefined)
+			.where(
+				and(
+					input.cursor ? gt(universityStudyProgram.id, input.cursor) : undefined,
+					input.universityId ? eq(universityStudyProgram.universityId, input.universityId) : undefined,
+					input.studyProgramId ? eq(universityStudyProgram.studyProgramId, input.studyProgramId) : undefined,
+				),
+			)
 			.orderBy(universityStudyProgram.id)
 			.limit(limit + 1);
 
@@ -81,7 +75,7 @@ const find = admin
 		tags: ["Admin - University Programs"],
 	})
 	.input(type({ id: "number" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const [link] = await db
 			.select({
 				id: universityStudyProgram.id,
@@ -104,7 +98,7 @@ const find = admin
 			.limit(1);
 
 		if (!link) {
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Program universitas tidak ditemukan",
 			});
 		}
@@ -152,7 +146,7 @@ const create = admin
 		}),
 	)
 	.output(type({ message: "string", id: "number" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const [existing] = await db
 			.select({ id: universityStudyProgram.id })
 			.from(universityStudyProgram)
@@ -165,7 +159,7 @@ const create = admin
 			.limit(1);
 
 		if (existing) {
-			throw new ORPCError("BAD_REQUEST", {
+			throw errors.BAD_REQUEST({
 				message: "Program universitas sudah ada",
 			});
 		}
@@ -183,7 +177,7 @@ const create = admin
 			.returning();
 
 		if (!created) {
-			throw new ORPCError("INTERNAL_SERVER_ERROR", {
+			throw errors.INTERNAL_SERVER_ERROR({
 				message: "Gagal membuat program universitas",
 			});
 		}
@@ -211,7 +205,7 @@ const update = admin
 		}),
 	)
 	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const updateData: {
 			tuition?: number | null;
 			capacity?: number | null;
@@ -236,7 +230,7 @@ const update = admin
 			.returning();
 
 		if (!updated) {
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Program universitas tidak ditemukan",
 			});
 		}
@@ -252,14 +246,14 @@ const remove = admin
 	})
 	.input(type({ id: "number" }))
 	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const [deleted] = await db
 			.delete(universityStudyProgram)
 			.where(eq(universityStudyProgram.id, input.id))
 			.returning();
 
 		if (!deleted) {
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Program universitas tidak ditemukan",
 			});
 		}
@@ -284,7 +278,7 @@ const upsertYearlyData = admin
 		}),
 	)
 	.output(type({ message: "string", id: "number" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const [existing] = await db
 			.select({ id: programYearlyData.id })
 			.from(programYearlyData)
@@ -314,7 +308,7 @@ const upsertYearlyData = admin
 			.returning();
 
 		if (!result) {
-			throw new ORPCError("INTERNAL_SERVER_ERROR", {
+			throw errors.INTERNAL_SERVER_ERROR({
 				message: "Gagal menyimpan data tahunan",
 			});
 		}
@@ -333,14 +327,14 @@ const deleteYearlyData = admin
 	})
 	.input(type({ id: "number", year: "number" }))
 	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const [deleted] = await db
 			.delete(programYearlyData)
 			.where(and(eq(programYearlyData.universityStudyProgramId, input.id), eq(programYearlyData.year, input.year)))
 			.returning();
 
 		if (!deleted) {
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Data tahunan tidak ditemukan",
 			});
 		}

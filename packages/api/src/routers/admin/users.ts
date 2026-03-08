@@ -1,7 +1,6 @@
 import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { creditTransaction } from "@bimbelbeta/db/schema/credit";
-import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { and, desc, eq, gt, like, or } from "drizzle-orm";
 import { superadmin } from "../..";
@@ -53,11 +52,11 @@ const get = superadmin
 		tags: ["Admin - Users"],
 	})
 	.input(type({ userId: "string" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const [userData] = await db.select().from(user).where(eq(user.id, input.userId)).limit(1);
 
 		if (!userData) {
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "User tidak ditemukan",
 			});
 		}
@@ -90,11 +89,11 @@ const update = superadmin
 		}),
 	)
 	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, errors }) => {
 		const [existingUser] = await db.select().from(user).where(eq(user.id, input.userId)).limit(1);
 
 		if (!existingUser) {
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "User tidak ditemukan",
 			});
 		}
@@ -117,7 +116,7 @@ const update = superadmin
 		const [updated] = await db.update(user).set(updateData).where(eq(user.id, input.userId)).returning();
 
 		if (!updated) {
-			throw new ORPCError("INTERNAL_SERVER_ERROR", {
+			throw errors.INTERNAL_SERVER_ERROR({
 				message: "Gagal memperbarui user",
 			});
 		}
