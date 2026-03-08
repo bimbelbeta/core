@@ -13,7 +13,7 @@ import {
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { and, desc, eq, ilike, inArray, isNotNull, sql } from "drizzle-orm";
-import { authed, authedRateLimited } from "../index";
+import { authed } from "../index";
 import { canAccessContent } from "../lib/content-access";
 import { convertToTiptap } from "../lib/convert-to-tiptap";
 import type { ChoiceWithAnswer } from "../types/question";
@@ -86,7 +86,7 @@ const listSubjects = authed
  * Frontend will show lock overlay for premium content
  * GET /api/subjects/{subjectId}/content or /api/subjects/by-shortname/{shortName}/content
  */
-const listContentBySubjectCategory = authedRateLimited
+const listContentBySubjectCategory = authed
 	.route({
 		path: "/subjects/{subjectId}/content",
 		method: "GET",
@@ -158,7 +158,7 @@ const listContentBySubjectCategory = authedRateLimited
 		};
 	});
 
-const getContentById = authedRateLimited
+const getContentById = authed
 	.route({
 		path: "/content/{contentId}",
 		method: "GET",
@@ -364,7 +364,7 @@ const trackView = authed
  * Get recent 5 content views for dashboard
  * GET /api/content/recent
  */
-const getRecentViews = authedRateLimited
+const getRecentViews = authed
 	.route({
 		path: "/content/recent",
 		method: "GET",

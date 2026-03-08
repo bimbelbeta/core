@@ -49,14 +49,12 @@ const requirePremium = o.middleware(({ context, next, errors }) => {
 	});
 });
 
-export const authed = pub.use(requireAuth);
-export const premium = authed.use(requirePremium);
-export const admin = authed.use(requireAdmin);
-export const superadmin = authed.use(requireSuperAdmin);
-
 const rateLimit = createRatelimitMiddleware({
 	limiter: ({ context }) => (context.session.user.isPremium ? premiumRatelimiter : freeRatelimiter),
 	key: ({ context }) => context.session.user.id,
 });
 
-export const authedRateLimited = authed.use(rateLimit);
+export const authed = pub.use(requireAuth).use(rateLimit);
+export const premium = authed.use(requirePremium);
+export const admin = authed.use(requireAdmin);
+export const superadmin = authed.use(requireSuperAdmin);
