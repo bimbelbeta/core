@@ -38,6 +38,40 @@ export const tryout = pgTable("tryout", {
 export const tryoutRelations = relations(tryout, ({ many }) => ({
 	subtests: many(tryoutSubtest),
 	attempts: many(tryoutAttempt),
+	accessCodes: many(tryoutAccessCode),
+}));
+
+export const tryoutAccessCode = pgTable(
+	"tryout_access_code",
+	{
+		id: integer().primaryKey().generatedAlwaysAsIdentity(),
+		tryoutId: integer("tryout_id")
+			.notNull()
+			.references(() => tryout.id, { onDelete: "cascade" }),
+		codeHash: text("code_hash").notNull(),
+		codePreview: text("code_preview").notNull(),
+		label: text(),
+		isActive: boolean("is_active").notNull().default(true),
+		expiresAt: timestamp("expires_at"),
+		maxUses: integer("max_uses"),
+		usedCount: integer("used_count").notNull().default(0),
+		createdAt: timestamp("created_at").defaultNow(),
+		updatedAt: timestamp("updated_at")
+			.defaultNow()
+			.$onUpdate(() => new Date()),
+	},
+	(t) => [
+		index("idx_tryout_access_code_tryout_id").on(t.tryoutId),
+		unique("uq_tryout_access_code_hash").on(t.tryoutId, t.codeHash),
+	],
+);
+
+export const tryoutAccessCodeRelations = relations(tryoutAccessCode, ({ one, many }) => ({
+	tryout: one(tryout, {
+		fields: [tryoutAccessCode.tryoutId],
+		references: [tryout.id],
+	}),
+	attempts: many(tryoutAttempt),
 }));
 
 export const tryoutSubtest = pgTable(
@@ -118,6 +152,8 @@ export const tryoutAttempt = pgTable(
 		submittedImageUrl: text("submitted_image_url"),
 		isRevoked: boolean("is_revoked").notNull().default(false),
 		usedCredit: boolean("used_credit").notNull().default(false),
+		usedAccessCode: boolean("used_access_code").notNull().default(false),
+		accessCodeId: integer("access_code_id").references(() => tryoutAccessCode.id, { onDelete: "set null" }),
 	},
 	(t) => [unique("user_tryout_attempt").on(t.userId, t.tryoutId), index("idx_tryout_attempt_tryout_id").on(t.tryoutId)],
 );
@@ -130,6 +166,10 @@ export const tryoutAttemptRelations = relations(tryoutAttempt, ({ one, many }) =
 	user: one(user, {
 		fields: [tryoutAttempt.userId],
 		references: [user.id],
+	}),
+	accessCode: one(tryoutAccessCode, {
+		fields: [tryoutAttempt.accessCodeId],
+		references: [tryoutAccessCode.id],
 	}),
 	subtestAttempts: many(tryoutSubtestAttempt),
 	userAnswers: many(tryoutUserAnswer),

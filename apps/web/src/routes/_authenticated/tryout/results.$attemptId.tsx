@@ -162,7 +162,7 @@ function RouteComponent() {
 												size="icon"
 												className="h-8 w-8 rounded-md bg-[#009CA6] hover:cursor-pointer hover:bg-[#008a93]"
 												onClick={() => {
-													if (session.data?.user.isPremium || data.usedCredit) {
+													if (session.data?.user.isPremium || data.usedCredit || data.usedAccessCode) {
 														navigate({
 															to: "/tryout/review/$attemptId/$subtestId",
 															params: {

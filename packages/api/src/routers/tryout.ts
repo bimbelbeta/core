@@ -1,9 +1,11 @@
+import { createHash } from "node:crypto";
 import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { creditTransaction } from "@bimbelbeta/db/schema/credit";
 import { question, questionChoice } from "@bimbelbeta/db/schema/question";
 import {
 	tryout,
+	tryoutAccessCode,
 	tryoutAttempt,
 	tryoutSubtest,
 	tryoutSubtestAttempt,
@@ -12,7 +14,7 @@ import {
 } from "@bimbelbeta/db/schema/tryout";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, isNull, or, sql } from "drizzle-orm";
 import { authed } from "../index";
 import { calculateTryoutScores, saveScoresToDatabase } from "../lib/calculate-score";
 import { convertToTiptap } from "../lib/convert-to-tiptap";
@@ -251,7 +253,7 @@ const start = authed
 		method: "POST",
 		tags: ["Tryouts"],
 	})
-	.input(type({ id: "number", imageUrl: "string?", useCredit: "boolean?" }))
+	.input(type({ id: "number", imageUrl: "string?", useCredit: "boolean?", accessCode: "string?" }))
 	.handler(async ({ input, context }) => {
 		const tryoutData = await db.query.tryout.findFirst({
 			where: and(eq(tryout.id, input.id), eq(tryout.status, "published")),
@@ -264,15 +266,66 @@ const start = authed
 
 		if (!tryoutData) throw new ORPCError("NOT_FOUND", { message: "Tryout not found" });
 
-		// Access control: Premium users OR users with image OR users with credits
+		// Access control: Premium users OR users with image OR users with credits OR valid access code
 		const isPremiumUser = context.session.user.isPremium;
 		const hasImageProof = !!input.imageUrl;
 		const wantsToUseCredit = !!input.useCredit;
 		const userCredits = context.session.user.tryoutCredits ?? 0;
+		const accessCodeInput = input.accessCode?.trim();
+		const now = new Date();
 
-		if (!isPremiumUser && !hasImageProof && !wantsToUseCredit) {
+		let validAccessCode: {
+			id: number;
+			isActive: boolean;
+			expiresAt: Date | null;
+			maxUses: number | null;
+			usedCount: number;
+		} | null = null;
+
+		if (accessCodeInput) {
+			const codeHash = createHash("sha256").update(accessCodeInput).digest("hex");
+			validAccessCode =
+				(await db.query.tryoutAccessCode.findFirst({
+					where: and(eq(tryoutAccessCode.tryoutId, input.id), eq(tryoutAccessCode.codeHash, codeHash)),
+					columns: {
+						id: true,
+						isActive: true,
+						expiresAt: true,
+						maxUses: true,
+						usedCount: true,
+					},
+				})) ?? null;
+
+			if (!validAccessCode) {
+				throw new ORPCError("FORBIDDEN", {
+					message: "Kode akses tidak valid",
+				});
+			}
+
+			if (!validAccessCode.isActive) {
+				throw new ORPCError("FORBIDDEN", {
+					message: "Kode akses tidak aktif",
+				});
+			}
+
+			if (validAccessCode.expiresAt && validAccessCode.expiresAt < now) {
+				throw new ORPCError("FORBIDDEN", {
+					message: "Kode akses sudah kedaluwarsa",
+				});
+			}
+
+			if (validAccessCode.maxUses !== null && validAccessCode.usedCount >= validAccessCode.maxUses) {
+				throw new ORPCError("FORBIDDEN", {
+					message: "Kuota kode akses sudah habis",
+				});
+			}
+		}
+
+		const usesAccessCode = !!validAccessCode && !wantsToUseCredit;
+
+		if (!isPremiumUser && !hasImageProof && !wantsToUseCredit && !usesAccessCode) {
 			throw new ORPCError("FORBIDDEN", {
-				message: "Upload bukti pembayaran atau gunakan kredit tryout",
+				message: "Upload bukti pembayaran, gunakan kredit tryout, atau masukkan kode akses",
 			});
 		}
 
@@ -282,7 +335,6 @@ const start = authed
 			});
 		}
 
-		const now = new Date();
 		if (tryoutData.startsAt && tryoutData.startsAt > now) {
 			throw new ORPCError("BAD_REQUEST", {
 				message: "Tryout belum dimulai",
@@ -366,10 +418,33 @@ const start = authed
 					userId: context.session.user.id,
 					submittedImageUrl: input.imageUrl,
 					deadline: overallDeadline,
+					usedAccessCode: usesAccessCode,
+					accessCodeId: usesAccessCode ? validAccessCode?.id : null,
 				})
 				.returning();
 
 			if (!newAttempt) throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Failed to create attempt" });
+
+			if (usesAccessCode && validAccessCode) {
+				const [updatedCode] = await trx
+					.update(tryoutAccessCode)
+					.set({
+						usedCount: sql`${tryoutAccessCode.usedCount} + 1`,
+					})
+					.where(
+						and(
+							eq(tryoutAccessCode.id, validAccessCode.id),
+							or(isNull(tryoutAccessCode.maxUses), sql`${tryoutAccessCode.usedCount} < ${tryoutAccessCode.maxUses}`),
+						),
+					)
+					.returning({ id: tryoutAccessCode.id });
+
+				if (!updatedCode) {
+					throw new ORPCError("FORBIDDEN", {
+						message: "Kuota kode akses sudah habis",
+					});
+				}
+			}
 
 			return newAttempt;
 		});
@@ -742,6 +817,7 @@ const attemptResult = authed
 				completedAt: true,
 				status: true,
 				usedCredit: true,
+				usedAccessCode: true,
 			},
 			with: {
 				tryout: {
@@ -824,6 +900,7 @@ const review = authed
 			columns: {
 				id: true,
 				usedCredit: true,
+				usedAccessCode: true,
 			},
 			with: {
 				subtestAttempts: true,
@@ -832,7 +909,7 @@ const review = authed
 
 		if (!attempt) throw errors.NOT_FOUND({ message: "Gagal menemukan pengerjaan tryout." });
 
-		const canSeeDiscussion = context.session.user.isPremium || attempt.usedCredit;
+		const canSeeDiscussion = context.session.user.isPremium || attempt.usedCredit || attempt.usedAccessCode;
 
 		const subtestAttempt = attempt.subtestAttempts.find((sa) => sa.subtestId === input.subtestId);
 

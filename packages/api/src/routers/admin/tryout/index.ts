@@ -1,10 +1,23 @@
+import { createHash, randomBytes } from "node:crypto";
 import { db } from "@bimbelbeta/db";
-import { tryout } from "@bimbelbeta/db/schema/tryout";
+import { tryout, tryoutAccessCode } from "@bimbelbeta/db/schema/tryout";
 import { ORPCError } from "@orpc/client";
 import { type } from "arktype";
 import { and, eq, gt, ilike } from "drizzle-orm";
 import { admin } from "../../..";
 import { tryoutAttemptRouter } from "./attempt";
+
+const maskCode = (code: string) => {
+	if (code.length <= 4) {
+		return `${code}${"*".repeat(4)}`;
+	}
+
+	return `${code.slice(0, 4)}${"*".repeat(Math.max(code.length - 4, 4))}`;
+};
+
+const generateAccessCode = () => {
+	return randomBytes(6).toString("base64url").toUpperCase();
+};
 
 const createTryout = admin
 	.route({
@@ -185,11 +198,154 @@ const deleteTryout = admin
 		return { message: "Tryout berhasil dihapus" };
 	});
 
+const listAccessCodes = admin
+	.route({
+		path: "/admin/tryouts/{id}/access-codes",
+		method: "GET",
+		tags: ["Admin - Tryouts"],
+	})
+	.input(type({ id: "number" }))
+	.handler(async ({ input }) => {
+		const rows = await db.query.tryoutAccessCode.findMany({
+			where: eq(tryoutAccessCode.tryoutId, input.id),
+			columns: {
+				id: true,
+				codePreview: true,
+				label: true,
+				isActive: true,
+				expiresAt: true,
+				maxUses: true,
+				usedCount: true,
+				createdAt: true,
+				updatedAt: true,
+			},
+			orderBy: (accessCodes, { desc }) => [desc(accessCodes.createdAt)],
+		});
+
+		return rows.map((row) => ({
+			id: row.id,
+			label: row.label,
+			isActive: row.isActive,
+			expiresAt: row.expiresAt,
+			maxUses: row.maxUses,
+			usedCount: row.usedCount,
+			createdAt: row.createdAt,
+			updatedAt: row.updatedAt,
+			codePreview: row.codePreview,
+		}));
+	});
+
+const createAccessCode = admin
+	.route({
+		path: "/admin/tryouts/{id}/access-codes",
+		method: "POST",
+		tags: ["Admin - Tryouts"],
+	})
+	.input(
+		type({
+			id: "number",
+			label: "string?",
+			code: "string?",
+			expiresAt: "string?",
+			maxUses: "number?",
+		}),
+	)
+	.handler(async ({ input }) => {
+		const existingTryout = await db.query.tryout.findFirst({
+			where: eq(tryout.id, input.id),
+			columns: { id: true },
+		});
+
+		if (!existingTryout) {
+			throw new ORPCError("NOT_FOUND", { message: "Tryout tidak ditemukan" });
+		}
+
+		if (input.maxUses !== undefined && input.maxUses <= 0) {
+			throw new ORPCError("BAD_REQUEST", { message: "Maksimal penggunaan harus lebih dari 0" });
+		}
+
+		const plainCode = (input.code?.trim() || generateAccessCode()).toUpperCase();
+		const codeHash = createHash("sha256").update(plainCode).digest("hex");
+
+		try {
+			const [created] = await db
+				.insert(tryoutAccessCode)
+				.values({
+					tryoutId: input.id,
+					codeHash,
+					codePreview: maskCode(plainCode),
+					label: input.label?.trim() || null,
+					expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
+					maxUses: input.maxUses ?? null,
+				})
+				.returning({
+					id: tryoutAccessCode.id,
+					label: tryoutAccessCode.label,
+					isActive: tryoutAccessCode.isActive,
+					expiresAt: tryoutAccessCode.expiresAt,
+					maxUses: tryoutAccessCode.maxUses,
+					usedCount: tryoutAccessCode.usedCount,
+					createdAt: tryoutAccessCode.createdAt,
+				});
+
+			if (!created) {
+				throw new ORPCError("INTERNAL_SERVER_ERROR", {
+					message: "Gagal membuat kode akses",
+				});
+			}
+
+			return {
+				...created,
+				code: plainCode,
+			};
+		} catch {
+			throw new ORPCError("CONFLICT", {
+				message: "Kode akses sudah ada untuk tryout ini",
+			});
+		}
+	});
+
+const updateAccessCodeStatus = admin
+	.route({
+		path: "/admin/tryouts/{id}/access-codes/{accessCodeId}",
+		method: "PATCH",
+		tags: ["Admin - Tryouts"],
+	})
+	.input(
+		type({
+			id: "number",
+			accessCodeId: "number",
+			isActive: "boolean",
+		}),
+	)
+	.handler(async ({ input }) => {
+		const [updated] = await db
+			.update(tryoutAccessCode)
+			.set({
+				isActive: input.isActive,
+				updatedAt: new Date(),
+			})
+			.where(and(eq(tryoutAccessCode.id, input.accessCodeId), eq(tryoutAccessCode.tryoutId, input.id)))
+			.returning({
+				id: tryoutAccessCode.id,
+				isActive: tryoutAccessCode.isActive,
+			});
+
+		if (!updated) {
+			throw new ORPCError("NOT_FOUND", { message: "Kode akses tidak ditemukan" });
+		}
+
+		return updated;
+	});
+
 export const tryoutRouter = {
 	createTryout,
 	listTryouts,
 	getTryout,
 	updateTryout,
 	deleteTryout,
+	listAccessCodes,
+	createAccessCode,
+	updateAccessCodeStatus,
 	attempts: tryoutAttemptRouter,
 };

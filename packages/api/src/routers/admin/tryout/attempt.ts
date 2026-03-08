@@ -20,12 +20,26 @@ const getByTryout = admin
 	.handler(async ({ input }) => {
 		const rows = await db
 			.select({
-				attempt: tryoutAttempt,
+				attempt: {
+					id: tryoutAttempt.id,
+					userId: tryoutAttempt.userId,
+					tryoutId: tryoutAttempt.tryoutId,
+					startedAt: tryoutAttempt.startedAt,
+					deadline: tryoutAttempt.deadline,
+					completedAt: tryoutAttempt.completedAt,
+					status: tryoutAttempt.status,
+					score: tryoutAttempt.score,
+					submittedImageUrl: tryoutAttempt.submittedImageUrl,
+					isRevoked: tryoutAttempt.isRevoked,
+					usedCredit: tryoutAttempt.usedCredit,
+					usedAccessCode: tryoutAttempt.usedAccessCode,
+				},
 				user: {
 					id: user.id,
 					name: user.name,
 					email: user.email,
 					image: user.image,
+					isPremium: user.isPremium,
 				},
 			})
 			.from(tryoutAttempt)

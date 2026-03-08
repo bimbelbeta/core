@@ -1,5 +1,5 @@
 import { useUploadFile } from "@better-upload/client";
-import { Coins, UploadSimpleIcon, XIcon } from "@phosphor-icons/react";
+import { CoinsIcon, KeyIcon, UploadSimpleIcon, XIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouteContext, useRouter } from "@tanstack/react-router";
 import * as m from "motion/react-m";
@@ -14,6 +14,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { getApiUrl, orpc } from "@/utils/orpc";
@@ -37,6 +38,7 @@ export function TryoutStartConfirmation({ children, disabled = false }: TryoutSt
 	const hasCredits = creditBalance > 0;
 
 	const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
+	const [accessCode, setAccessCode] = useState("");
 	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 	const [errors, setErrors] = useState<string | null>(null);
 	const [isOpen, setIsOpen] = useState(false);
@@ -92,11 +94,24 @@ export function TryoutStartConfirmation({ children, disabled = false }: TryoutSt
 		startTryoutMutation.mutate({ id: data.id, useCredit: true });
 	};
 
+	const handleStartWithAccessCode = () => {
+		setErrors(null);
+
+		const code = accessCode.trim();
+		if (!code) {
+			setErrors("Masukkan kode akses terlebih dahulu");
+			return;
+		}
+
+		startTryoutMutation.mutate({ id: data.id, accessCode: code });
+	};
+
 	const handleOpenChange = (open: boolean) => {
 		setIsOpen(open);
 		if (!open) {
 			setStep(isPremium ? "premium" : "notice");
 			setUploadedUrl(null);
+			setAccessCode("");
 			setPreviewUrl(null);
 			setErrors(null);
 			resetUpload();
@@ -134,6 +149,8 @@ export function TryoutStartConfirmation({ children, disabled = false }: TryoutSt
 		resetUpload();
 	};
 
+	const startErrorMessage = startTryoutMutation.error?.message;
+
 	return (
 		<Dialog open={isOpen} onOpenChange={handleOpenChange}>
 			<DialogTrigger asChild disabled={disabled}>
@@ -163,7 +180,7 @@ export function TryoutStartConfirmation({ children, disabled = false }: TryoutSt
 								<div className="rounded-lg border-2 border-amber-200 bg-amber-50 p-4">
 									<div className="flex items-center gap-3">
 										<div className="rounded-full bg-amber-100 p-2">
-											<Coins size={20} weight="fill" className="text-amber-600" />
+											<CoinsIcon size={20} weight="fill" className="text-amber-600" />
 										</div>
 										<div className="flex-1">
 											<p className="font-medium text-amber-900">Gunakan Kredit Tryout</p>
@@ -183,7 +200,7 @@ export function TryoutStartConfirmation({ children, disabled = false }: TryoutSt
 											</>
 										) : (
 											<>
-												<Coins size={18} weight="fill" className="mr-1" />
+												<CoinsIcon size={18} weight="fill" className="mr-1" />
 												Gunakan 1 Kredit
 											</>
 										)}
@@ -192,6 +209,27 @@ export function TryoutStartConfirmation({ children, disabled = false }: TryoutSt
 							)}
 
 							<DialogFooter className="flex flex-col gap-3 sm:flex-col">
+								<div className="rounded-lg border bg-muted/20 p-4">
+									<div className="mb-2 flex items-center gap-2">
+										<KeyIcon size={18} className="text-muted-foreground" />
+										<p className="font-medium text-sm">Gunakan Kode Akses</p>
+									</div>
+									<div className="flex gap-2">
+										<Input
+											value={accessCode}
+											onChange={(e) => setAccessCode(e.target.value.toUpperCase())}
+											placeholder="Masukkan kode"
+											autoComplete="off"
+											disabled={startTryoutMutation.isPending}
+										/>
+										<Button
+											onClick={handleStartWithAccessCode}
+											disabled={startTryoutMutation.isPending || !accessCode.trim()}
+										>
+											{startTryoutMutation.isPending ? "Memproses..." : "Gunakan"}
+										</Button>
+									</div>
+								</div>
 								<Button onClick={handleTryoutGratis} variant={hasCredits ? "outline" : "default"} className="w-full">
 									{hasCredits ? "Upload Bukti Pembayaran" : "Tryout Gratis"}
 								</Button>
@@ -276,7 +314,9 @@ export function TryoutStartConfirmation({ children, disabled = false }: TryoutSt
 									)}
 								</div>
 							)}
-							{errors && <p className="text-destructive text-sm">{errors}</p>}
+							{(errors || startErrorMessage) && (
+								<p className="text-destructive text-sm">{errors ?? startErrorMessage}</p>
+							)}
 							<DialogFooter>
 								<Button
 									onClick={handleStart}
@@ -301,6 +341,9 @@ export function TryoutStartConfirmation({ children, disabled = false }: TryoutSt
 							)}
 						</Button>
 					</DialogFooter>
+				)}
+				{step === "notice" && (errors || startErrorMessage) && (
+					<p className="text-destructive text-sm">{errors ?? startErrorMessage}</p>
 				)}
 			</DialogContent>
 		</Dialog>

@@ -82,6 +82,24 @@ export const TryoutAttemptsTab = () => {
 		}
 	};
 
+	const getAccessSource = ({
+		isPremium,
+		usedAccessCode,
+		usedCredit,
+		submittedImageUrl,
+	}: {
+		isPremium: boolean | null;
+		usedAccessCode: boolean;
+		usedCredit: boolean;
+		submittedImageUrl: string | null;
+	}) => {
+		if (usedAccessCode) return "Access Code";
+		if (usedCredit) return "Credit";
+		if (submittedImageUrl) return "Payment Proof";
+		if (isPremium) return "Premium";
+		return "Unknown";
+	};
+
 	return (
 		<Card>
 			<CardHeader className="pb-3">
@@ -98,6 +116,7 @@ export const TryoutAttemptsTab = () => {
 							<TableRow className="bg-muted/30">
 								<TableHead className="w-12 pl-4 text-center">No</TableHead>
 								<TableHead>User</TableHead>
+								<TableHead className="w-32">Sumber Akses</TableHead>
 								<TableHead className="w-28">Status</TableHead>
 								<TableHead className="w-24">Skor</TableHead>
 								<TableHead className="w-36">Mulai</TableHead>
@@ -106,10 +125,10 @@ export const TryoutAttemptsTab = () => {
 						</TableHeader>
 						<TableBody>
 							{isPending ? (
-								<TableSkeleton columns={6} />
+								<TableSkeleton columns={7} />
 							) : data?.attempts.length === 0 ? (
 								<TableRow>
-									<TableCell colSpan={6} className="h-48">
+									<TableCell colSpan={7} className="h-48">
 										<Empty>
 											<EmptyHeader>
 												<EmptyMedia variant="icon">
@@ -127,6 +146,12 @@ export const TryoutAttemptsTab = () => {
 										const statusConfig = getStatusConfig(attempt.status);
 										const startedAt = attempt.startedAt ? new Date(attempt.startedAt) : null;
 										const completedAt = attempt.completedAt ? new Date(attempt.completedAt) : null;
+										const accessSource = getAccessSource({
+											isPremium: user.isPremium,
+											usedAccessCode: attempt.usedAccessCode,
+											usedCredit: attempt.usedCredit,
+											submittedImageUrl: attempt.submittedImageUrl,
+										});
 
 										return (
 											<TableRow key={attempt.id} className="hover:bg-muted/30">
@@ -134,6 +159,12 @@ export const TryoutAttemptsTab = () => {
 													<div className="mx-auto flex size-6 items-center justify-center rounded-full bg-muted font-medium font-mono text-xs">
 														{index + 1}
 													</div>
+												</TableCell>
+
+												<TableCell>
+													<Badge variant="outline" className="text-xs">
+														{accessSource}
+													</Badge>
 												</TableCell>
 
 												<TableCell>
