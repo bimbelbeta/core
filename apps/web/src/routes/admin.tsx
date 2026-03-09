@@ -49,7 +49,7 @@ function AdminLayout() {
 					<Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
 					<AdminBreadcrumb />
 				</header>
-				<main className="flex flex-1 flex-col gap-4">
+				<main className="flex flex-1 flex-col gap-4 [&_[data-slot=table-container]]:min-h-96">
 					<Outlet />
 				</main>
 			</SidebarInset>
