@@ -6,7 +6,7 @@ interface TableSkeletonProps {
 	rows?: number;
 }
 
-export function TableSkeleton({ columns, rows = 5 }: TableSkeletonProps) {
+export function TableSkeleton({ columns, rows = 10 }: TableSkeletonProps) {
 	return (
 		<>
 			{Array.from({ length: rows }).map((_, i) => (

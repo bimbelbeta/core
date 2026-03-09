@@ -11,11 +11,11 @@ import {
 	AdminPageRoot,
 	AdminPageTitle,
 } from "@/components/admin/admin-page";
-import { DetailPageSkeleton } from "@/components/admin/detail-page-skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { cn } from "@/lib/utils";
@@ -61,14 +61,13 @@ function TryoutDetailPage() {
 		}),
 	);
 
-	if (isPending) return <DetailPageSkeleton variant="tryout" />;
+	if (!isPending && !data?.tryout) throw notFound();
 
-	if (!data?.tryout) throw notFound();
-
-	const tryout = data.tryout;
-	const subtests = data.subtests ?? [];
+	const tryout = data?.tryout;
+	const subtests = data?.subtests ?? [];
 
 	const handlePublishToggle = () => {
+		if (!tryout) return;
 		const newStatus = tryout.status === "published" ? "draft" : "published";
 		publishMutation.mutate({
 			id: tryoutId,
@@ -77,6 +76,7 @@ function TryoutDetailPage() {
 	};
 
 	const formatDateRange = () => {
+		if (!tryout) return "Tidak dijadwalkan";
 		if (!tryout.startsAt && !tryout.endsAt) return "Tidak dijadwalkan";
 		if (tryout.startsAt && !tryout.endsAt) {
 			return `Mulai ${new Date(tryout.startsAt).toLocaleDateString("id-ID")}`;
@@ -100,10 +100,14 @@ function TryoutDetailPage() {
 							</Link>
 						</Button>
 						<div className="flex flex-col gap-1">
-							<div className="flex items-center gap-2">
-								<AdminPageTitle className="text-xl">{tryout.title}</AdminPageTitle>
-								<Badge variant="outline">{CATEGORY_LABELS[tryout.category]}</Badge>
-							</div>
+							{isPending ? (
+								<Skeleton className="h-7 w-48" />
+							) : (
+								<div className="flex items-center gap-2">
+									<AdminPageTitle className="text-xl">{tryout!.title}</AdminPageTitle>
+									<Badge variant="outline">{CATEGORY_LABELS[tryout!.category]}</Badge>
+								</div>
+							)}
 						</div>
 					</div>
 				</AdminPageHeaderContent>
@@ -112,16 +116,18 @@ function TryoutDetailPage() {
 						type="submit"
 						form="tryout-settings-form"
 						variant="darkBlue"
-						disabled={!settingsFormState.isDirty || !settingsFormState.canSubmit || settingsFormState.isSubmitting}
+						disabled={
+							isPending || !settingsFormState.isDirty || !settingsFormState.canSubmit || settingsFormState.isSubmitting
+						}
 					>
 						{settingsFormState.isSubmitting ? "Menyimpan..." : "Simpan Perubahan"}
 					</Button>
 					<Button
 						onClick={handlePublishToggle}
-						disabled={publishMutation.isPending}
-						variant={tryout.status === "published" ? "outline" : "default"}
+						disabled={isPending || publishMutation.isPending}
+						variant={tryout?.status === "published" ? "outline" : "default"}
 					>
-						{publishMutation.isPending ? "Memproses..." : tryout.status === "published" ? "Unpublish" : "Publish"}
+						{publishMutation.isPending ? "Memproses..." : tryout?.status === "published" ? "Unpublish" : "Publish"}
 					</Button>
 				</AdminPageHeaderActions>
 			</AdminPageHeader>
@@ -132,71 +138,96 @@ function TryoutDetailPage() {
 						<CardTitle className="text-base">Ringkasan</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-							<div className="space-y-1">
-								<p className="text-muted-foreground text-xs uppercase tracking-wide">Status</p>
-								<div className="flex items-center gap-2">
-									<div
-										className={cn("size-2 rounded-full", {
-											"bg-green-500": tryout.status === "published",
-											"bg-gray-400": tryout.status === "draft",
-											"bg-red-500": tryout.status === "archived",
-										})}
-									/>
-									<span className="font-medium capitalize">{tryout.status}</span>
-								</div>
+						{isPending ? (
+							<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+								{Array.from({ length: 4 }).map((_, i) => (
+									// biome-ignore lint/suspicious/noArrayIndexKey: simple skeleton loader
+									<div key={i} className="space-y-1">
+										<Skeleton className="h-3 w-16" />
+										<Skeleton className="h-5 w-24" />
+									</div>
+								))}
 							</div>
-							<div className="space-y-1">
-								<p className="text-muted-foreground text-xs uppercase tracking-wide">Kategori</p>
-								<p className="font-medium">{CATEGORY_LABELS[tryout.category]}</p>
-							</div>
-							<div className="space-y-1">
-								<p className="text-muted-foreground text-xs uppercase tracking-wide">Jumlah Subtest</p>
-								<p className="font-medium">{subtests.length}</p>
-							</div>
-							<div className="space-y-1">
-								<p className="text-muted-foreground text-xs uppercase tracking-wide">Jadwal</p>
-								<p className="font-medium text-sm">{formatDateRange()}</p>
-							</div>
-						</div>
-						{tryout.description && (
+						) : (
 							<>
-								<Separator className="my-4" />
-								<p className="text-muted-foreground text-sm">{tryout.description}</p>
+								<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+									<div className="space-y-1">
+										<p className="text-muted-foreground text-xs uppercase tracking-wide">Status</p>
+										<div className="flex items-center gap-2">
+											<div
+												className={cn("size-2 rounded-full", {
+													"bg-green-500": tryout!.status === "published",
+													"bg-gray-400": tryout!.status === "draft",
+													"bg-red-500": tryout!.status === "archived",
+												})}
+											/>
+											<span className="font-medium capitalize">{tryout!.status}</span>
+										</div>
+									</div>
+									<div className="space-y-1">
+										<p className="text-muted-foreground text-xs uppercase tracking-wide">Kategori</p>
+										<p className="font-medium">{CATEGORY_LABELS[tryout!.category]}</p>
+									</div>
+									<div className="space-y-1">
+										<p className="text-muted-foreground text-xs uppercase tracking-wide">Jumlah Subtest</p>
+										<p className="font-medium">{subtests.length}</p>
+									</div>
+									<div className="space-y-1">
+										<p className="text-muted-foreground text-xs uppercase tracking-wide">Jadwal</p>
+										<p className="font-medium text-sm">{formatDateRange()}</p>
+									</div>
+								</div>
+								{tryout!.description && (
+									<>
+										<Separator className="my-4" />
+										<p className="text-muted-foreground text-sm">{tryout!.description}</p>
+									</>
+								)}
 							</>
 						)}
 					</CardContent>
 				</Card>
 
-				<Tabs defaultValue="settings" className="w-full">
-					<TabsList>
-						<TabsTrigger value="settings" className="inline-flex gap-2">
-							<GearIcon className="size-4" />
-							Pengaturan
-						</TabsTrigger>
-						<TabsTrigger value="subtests" className="inline-flex gap-2">
-							<ListIcon className="size-4" />
-							Subtest
-							{subtests.length > 0 && (
-								<span className="ml-1 rounded-full bg-primary/10 px-1.5 py-0.5 font-medium text-primary text-xs">
-									{subtests.length}
-								</span>
-							)}
-						</TabsTrigger>
-						<TabsTrigger value="attempts">Attempts</TabsTrigger>
-					</TabsList>
-					<div className="mt-2">
-						<TabsContent value="settings" className="mt-0">
-							<TryoutSettingsTab tryout={tryout} onUpdate={() => refetch()} onFormStateChange={handleFormStateChange} />
-						</TabsContent>
-						<TabsContent value="subtests" className="mt-0">
-							<TryoutSubtestsTab tryoutId={tryoutId} subtests={subtests} onUpdate={() => refetch()} />
-						</TabsContent>
-						<TabsContent value="attempts">
-							<TryoutAttemptsTab />
-						</TabsContent>
+				{isPending ? (
+					<div className="space-y-2">
+						<Skeleton className="h-10 w-64" />
+						<Skeleton className="h-48 w-full" />
 					</div>
-				</Tabs>
+				) : (
+					<Tabs defaultValue="settings" className="w-full">
+						<TabsList>
+							<TabsTrigger value="settings" className="inline-flex gap-2">
+								<GearIcon className="size-4" />
+								Pengaturan
+							</TabsTrigger>
+							<TabsTrigger value="subtests" className="inline-flex gap-2">
+								<ListIcon className="size-4" />
+								Subtest
+								{subtests.length > 0 && (
+									<span className="ml-1 rounded-full bg-primary/10 px-1.5 py-0.5 font-medium text-primary text-xs">
+										{subtests.length}
+									</span>
+								)}
+							</TabsTrigger>
+							<TabsTrigger value="attempts">Attempts</TabsTrigger>
+						</TabsList>
+						<div className="mt-2">
+							<TabsContent value="settings" className="mt-0">
+								<TryoutSettingsTab
+									tryout={tryout!}
+									onUpdate={() => refetch()}
+									onFormStateChange={handleFormStateChange}
+								/>
+							</TabsContent>
+							<TabsContent value="subtests" className="mt-0">
+								<TryoutSubtestsTab tryoutId={tryoutId} subtests={subtests} onUpdate={() => refetch()} />
+							</TabsContent>
+							<TabsContent value="attempts">
+								<TryoutAttemptsTab />
+							</TabsContent>
+						</div>
+					</Tabs>
+				)}
 			</AdminPageContent>
 		</AdminPageRoot>
 	);
