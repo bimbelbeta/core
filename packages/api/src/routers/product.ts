@@ -1,14 +1,12 @@
+import { listProductsOutput, listProductsRoute } from "@bimbelbeta/contract";
 import { db } from "@bimbelbeta/db";
 import { product } from "@bimbelbeta/db/schema/transaction";
 import { desc } from "drizzle-orm";
-import { pub } from "../index";
+import { authed } from "../index";
 
-const list = pub
-	.route({
-		path: "/products",
-		method: "GET",
-		tags: ["Products"],
-	})
+const list = authed
+	.route(listProductsRoute)
+	.output(listProductsOutput)
 	.handler(async () => {
 		const products = await db
 			.select({

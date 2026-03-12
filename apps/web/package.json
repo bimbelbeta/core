@@ -16,7 +16,7 @@
 		"@fontsource-variable/lexend": "^5.2.11",
 		"@orpc/client": "catalog:",
 		"@orpc/server": "catalog:",
-		"@orpc/tanstack-query": "^1.13.4",
+		"@orpc/tanstack-query": "^1.13.6",
 		"@phosphor-icons/react": "^2.1.10",
 		"@radix-ui/react-accordion": "^1.2.12",
 		"@radix-ui/react-alert-dialog": "^1.1.15",

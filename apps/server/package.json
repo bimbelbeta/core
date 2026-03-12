@@ -14,7 +14,7 @@
 		"@bimbelbeta/api": "workspace:*",
 		"@bimbelbeta/auth": "workspace:*",
 		"@orpc/arktype": "catalog:",
-		"@orpc/experimental-ratelimit": "^1.13.4",
+		"@orpc/experimental-ratelimit": "^1.13.6",
 		"@orpc/openapi": "catalog:",
 		"@orpc/server": "catalog:",
 		"arktype": "catalog:",

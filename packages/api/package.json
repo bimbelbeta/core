@@ -25,10 +25,11 @@
 	},
 	"dependencies": {
 		"@bimbelbeta/auth": "workspace:*",
+		"@bimbelbeta/contract": "workspace:*",
 		"@bimbelbeta/db": "workspace:*",
 		"@orpc/arktype": "catalog:",
 		"@orpc/client": "catalog:",
-		"@orpc/experimental-ratelimit": "^1.13.4",
+		"@orpc/experimental-ratelimit": "^1.13.6",
 		"@orpc/openapi": "catalog:",
 		"@orpc/server": "catalog:",
 		"arktype": "catalog:",
