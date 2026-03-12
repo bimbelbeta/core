@@ -1,29 +1,16 @@
+import { product } from "@bimbelbeta/db/schema/transaction";
 import { oc } from "@orpc/contract";
-import { type } from "arktype";
+import { createSelectSchema } from "drizzle-arktype";
 
-const ProductSchema = type({
-	id: "string",
-	name: "string",
-	slug: "string",
-	description: "string | null",
-	price: "string",
-	type: "'subscription' | 'product'",
-	variant: "'fixed_date' | 'monthly' | 'credits'",
-	fixedExpiryMonth: "number | null",
-	fixedExpiryDay: "number | null",
-	durationDays: "number | null",
-	credits: "number | null",
-});
+const ProductSchema = createSelectSchema(product).omit("createdAt", "updatedAt", "deletedAt");
 
-export const listProductsOutput = ProductSchema.array();
-
-export const listProductsRoute = {
-	path: "/products",
-	method: "GET",
-	tags: ["Products"],
-} as const;
-
-export const listProductsContract = oc.route(listProductsRoute).output(listProductsOutput);
+export const listProductsContract = oc
+	.route({
+		path: "/products",
+		method: "GET",
+		tags: ["Products"],
+	})
+	.output(ProductSchema.array());
 
 export const productContract = {
 	list: listProductsContract,
