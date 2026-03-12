@@ -248,7 +248,7 @@ const Carousel: React.FC<CarouselProps> = ({
 						if (!item) return null;
 						return (
 							<button
-								key={`${item.id}-${index}`}
+								key={`${item.id}`}
 								type="button"
 								className="absolute cursor-pointer"
 								style={{
