@@ -1,7 +1,6 @@
 import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { createRatelimitMiddleware } from "@orpc/experimental-ratelimit";
-import { ORPCError } from "@orpc/server";
 import { eq } from "drizzle-orm";
 import { o } from ".";
 import { freeRatelimiter, premiumRatelimiter } from "./rate-limiter";
@@ -54,9 +53,7 @@ export const requirePremium = o.middleware(({ context, next }) => {
 		context.session?.user.role !== "admin" &&
 		context.session?.user.role !== "superadmin"
 	)
-		throw new ORPCError("FORBIDDEN", {
-			message: "Akun premium dibutuhkan untuk mengakses resource ini.",
-		});
+		throw errors.ERROR_CODE();
 
 	return next({
 		context: {

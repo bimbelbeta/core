@@ -1,7 +1,7 @@
+import { oc } from "@bimbelbeta/contract";
 import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { creditTransaction } from "@bimbelbeta/db/schema/credit";
-import { ORPCError } from "@orpc/client";
 import { and, desc, eq, gt, like, or } from "drizzle-orm";
 import { superadmin } from "../..";
 
@@ -52,7 +52,7 @@ const find = superadmin.admin.users.find.handler(async ({ input }: { input: GetU
 	const [userData] = await db.select().from(user).where(eq(user.id, input.userId)).limit(1);
 
 	if (!userData) {
-		throw new ORPCError("NOT_FOUND", { message: "User tidak ditemukan" });
+		throw oc.NOT_FOUND({ message: "User tidak ditemukan" });
 	}
 
 	const history = await db
@@ -72,7 +72,7 @@ const update = superadmin.admin.users.update.handler(async ({ input }: { input: 
 	const [existingUser] = await db.select().from(user).where(eq(user.id, input.userId)).limit(1);
 
 	if (!existingUser) {
-		throw new ORPCError("NOT_FOUND", { message: "User tidak ditemukan" });
+		throw oc.NOT_FOUND({ message: "User tidak ditemukan" });
 	}
 
 	const updateData: {
@@ -93,7 +93,7 @@ const update = superadmin.admin.users.update.handler(async ({ input }: { input: 
 	const [updated] = await db.update(user).set(updateData).where(eq(user.id, input.userId)).returning();
 
 	if (!updated) {
-		throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Gagal memperbarui user" });
+		throw oc.INTERNAL_SERVER_ERROR({ message: "Gagal memperbarui user" });
 	}
 
 	return { message: "User berhasil diperbarui" };

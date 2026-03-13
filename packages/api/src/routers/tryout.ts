@@ -10,7 +10,6 @@ import {
 	tryoutSubtestQuestion,
 	tryoutUserAnswer,
 } from "@bimbelbeta/db/schema/tryout";
-import { ORPCError } from "@orpc/client";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { authed } from "../index";
 import { calculateTryoutScores, saveScoresToDatabase } from "../lib/calculate-score";
@@ -18,7 +17,7 @@ import { convertToTiptap } from "../lib/convert-to-tiptap";
 import type { HandlerOptions } from "../lib/router-definition/handler-options";
 import type { ReviewQuestion, TryoutQuestion } from "../types/question";
 
-const list = authed.tryout.list.handler(async ({ context }: HandlerOptions<typeof authed.tryout.list>) => {
+const list = authed.tryout.list.handler(async ({ context, errors }: HandlerOptions<typeof authed.tryout.list>) => {
 	const now = new Date();
 	const tryouts = await db
 		.select({
@@ -93,7 +92,7 @@ const find = authed.tryout.find.handler(
 			},
 		});
 
-		if (!tryoutData) throw new ORPCError("NOT_FOUND", { message: "Tryout tidak ditemukan." });
+		if (!tryoutData) throw errors.NOT_FOUND({ message: "Tryout tidak ditemukan." });
 
 		const attempt = await db.query.tryoutAttempt.findFirst({
 			where: and(eq(tryoutAttempt.tryoutId, input.id), eq(tryoutAttempt.userId, context.session.user.id)),
@@ -230,7 +229,7 @@ const find = authed.tryout.find.handler(
 	},
 );
 
-const start = authed.tryout.start.handler(async ({ input, context }: HandlerOptions<typeof authed.tryout.start>) => {
+const start = authed.tryout.start.handler(async ({ input, context, errors }: HandlerOptions<typeof authed.tryout.start>) => {
 	const tryoutData = await db.query.tryout.findFirst({
 		where: and(eq(tryout.id, input.id), eq(tryout.status, "published")),
 		with: {
@@ -240,7 +239,7 @@ const start = authed.tryout.start.handler(async ({ input, context }: HandlerOpti
 		},
 	});
 
-	if (!tryoutData) throw new ORPCError("NOT_FOUND", { message: "Tryout not found" });
+	if (!tryoutData) throw errors.NOT_FOUND({ message: "Tryout not found" });
 
 	// Access control: Premium users OR users with image OR users with credits
 	const isPremiumUser = context.session.user.isPremium;
@@ -249,25 +248,25 @@ const start = authed.tryout.start.handler(async ({ input, context }: HandlerOpti
 	const userCredits = context.session.user.tryoutCredits ?? 0;
 
 	if (!isPremiumUser && !hasImageProof && !wantsToUseCredit) {
-		throw new ORPCError("FORBIDDEN", {
+		throw errors.FORBIDDEN({
 			message: "Upload bukti pembayaran atau gunakan kredit tryout",
 		});
 	}
 
 	if (wantsToUseCredit && userCredits <= 0) {
-		throw new ORPCError("FORBIDDEN", {
+		throw errors.FORBIDDEN({
 			message: "Kredit tryout tidak cukup",
 		});
 	}
 
 	const now = new Date();
 	if (tryoutData.startsAt && tryoutData.startsAt > now) {
-		throw new ORPCError("BAD_REQUEST", {
+		throw errors.BAD_REQUEST({
 			message: "Tryout belum dimulai",
 		});
 	}
 	if (tryoutData.endsAt && tryoutData.endsAt < now) {
-		throw new ORPCError("BAD_REQUEST", {
+		throw errors.BAD_REQUEST({
 			message: "Tryout sudah selesai",
 		});
 	}
@@ -278,13 +277,13 @@ const start = authed.tryout.start.handler(async ({ input, context }: HandlerOpti
 
 	if (existingAttempt) {
 		if (existingAttempt.isRevoked) {
-			throw new ORPCError("FORBIDDEN", { message: "Attempt telah dibatalkan" });
+			throw errors.FORBIDDEN({ message: "Attempt telah dibatalkan" });
 		}
 		return existingAttempt;
 	}
 
 	if (tryoutData.subtests.length === 0) {
-		throw new ORPCError("BAD_REQUEST", { message: "Tryout tidak memiliki subtest" });
+		throw errors.BAD_REQUEST({ message: "Tryout tidak memiliki subtest" });
 	}
 
 	let cumulativeMinutes = 0;
@@ -322,7 +321,7 @@ const start = authed.tryout.start.handler(async ({ input, context }: HandlerOpti
 				})
 				.returning();
 
-			if (!newAttempt) throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Failed to create attempt" });
+			if (!newAttempt) throw errors.INTERNAL_SERVER_ERROR({ message: "Failed to create attempt" });
 
 			// Record credit consumption
 			await trx.insert(creditTransaction).values({
@@ -347,7 +346,7 @@ const start = authed.tryout.start.handler(async ({ input, context }: HandlerOpti
 			})
 			.returning();
 
-		if (!newAttempt) throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Failed to create attempt" });
+		if (!newAttempt) throw errors.INTERNAL_SERVER_ERROR({ message: "Failed to create attempt" });
 
 		return newAttempt;
 	});
@@ -365,7 +364,7 @@ const start = authed.tryout.start.handler(async ({ input, context }: HandlerOpti
 });
 
 const startSubtest = authed.tryout.startSubtest.handler(
-	async ({ input, context }: HandlerOptions<typeof authed.tryout.startSubtest>) => {
+	async ({ input, context, errors }: HandlerOptions<typeof authed.tryout.startSubtest>) => {
 		const attempt = await db.query.tryoutAttempt.findFirst({
 			where: and(eq(tryoutAttempt.tryoutId, input.tryoutId), eq(tryoutAttempt.userId, context.session.user.id)),
 			with: {
@@ -373,7 +372,7 @@ const startSubtest = authed.tryout.startSubtest.handler(
 			},
 		});
 
-		if (!attempt) throw new ORPCError("BAD_REQUEST", { message: "Anda belum memulai tryout ini" });
+		if (!attempt) throw errors.BAD_REQUEST({ message: "Anda belum memulai tryout ini" });
 
 		const existingSubtestAttempt = attempt.subtestAttempts.find((sa) => sa.subtestId === input.subtestId);
 		if (existingSubtestAttempt) {
@@ -389,10 +388,10 @@ const startSubtest = authed.tryout.startSubtest.handler(
 			},
 		});
 
-		if (!tryoutData) throw new ORPCError("NOT_FOUND", { message: "Tryout not found" });
+		if (!tryoutData) throw errors.NOT_FOUND({ message: "Tryout not found" });
 
 		const currentIndex = tryoutData.subtests.findIndex((s) => s.id === input.subtestId);
-		if (currentIndex === -1) throw new ORPCError("NOT_FOUND", { message: "Subtest not found" });
+		if (currentIndex === -1) throw errors.NOT_FOUND({ message: "Subtest not found" });
 
 		const currentSubtest = tryoutData.subtests[currentIndex]!;
 
@@ -400,7 +399,7 @@ const startSubtest = authed.tryout.startSubtest.handler(
 			const prevSubtest = tryoutData.subtests[currentIndex - 1]!;
 			const prevAttempt = attempt.subtestAttempts.find((sa) => sa.subtestId === prevSubtest.id);
 			if (!prevAttempt || prevAttempt.status !== "finished") {
-				throw new ORPCError("BAD_REQUEST", {
+				throw errors.BAD_REQUEST({
 					message: "Selesaikan subtest sebelumnya terlebih dahulu",
 				});
 			}
@@ -427,7 +426,7 @@ const startSubtest = authed.tryout.startSubtest.handler(
 			.returning();
 
 		if (!subAttempt) {
-			throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Failed to start subtest" });
+			throw errors.INTERNAL_SERVER_ERROR({ message: "Failed to start subtest" });
 		}
 
 		return subAttempt;
@@ -435,7 +434,7 @@ const startSubtest = authed.tryout.startSubtest.handler(
 );
 
 const saveAnswer = authed.tryout.saveAnswer.handler(
-	async ({ input, context }: HandlerOptions<typeof authed.tryout.saveAnswer>) => {
+	async ({ input, context, errors }: HandlerOptions<typeof authed.tryout.saveAnswer>) => {
 		const attempt = await db.query.tryoutAttempt.findFirst({
 			where: and(
 				eq(tryoutAttempt.tryoutId, input.tryoutId),
@@ -448,18 +447,18 @@ const saveAnswer = authed.tryout.saveAnswer.handler(
 		});
 
 		if (!attempt)
-			throw new ORPCError("BAD_REQUEST", {
+			throw errors.BAD_REQUEST({
 				message: "No active attempt found",
 			});
 
 		const currentSubtestAttempt = attempt.subtestAttempts.find((sa) => sa.status === "ongoing");
 		if (!currentSubtestAttempt)
-			throw new ORPCError("BAD_REQUEST", {
+			throw errors.BAD_REQUEST({
 				message: "No active subtest found",
 			});
 
 		if (currentSubtestAttempt.deadline && currentSubtestAttempt.deadline < new Date()) {
-			throw new ORPCError("BAD_REQUEST", {
+			throw errors.BAD_REQUEST({
 				message: "Subtest deadline has passed",
 			});
 		}
@@ -487,7 +486,7 @@ const saveAnswer = authed.tryout.saveAnswer.handler(
 );
 
 const toggleRaguRagu = authed.tryout.toggleRaguRagu.handler(
-	async ({ input, context }: HandlerOptions<typeof authed.tryout.toggleRaguRagu>) => {
+	async ({ input, context, errors }: HandlerOptions<typeof authed.tryout.toggleRaguRagu>) => {
 		const attempt = await db.query.tryoutAttempt.findFirst({
 			where: and(
 				eq(tryoutAttempt.tryoutId, input.tryoutId),
@@ -500,18 +499,18 @@ const toggleRaguRagu = authed.tryout.toggleRaguRagu.handler(
 		});
 
 		if (!attempt)
-			throw new ORPCError("BAD_REQUEST", {
+			throw errors.BAD_REQUEST({
 				message: "No active attempt found",
 			});
 
 		const currentSubtestAttempt = attempt.subtestAttempts.find((sa) => sa.status === "ongoing");
 		if (!currentSubtestAttempt)
-			throw new ORPCError("BAD_REQUEST", {
+			throw errors.BAD_REQUEST({
 				message: "No active subtest found",
 			});
 
 		if (currentSubtestAttempt.deadline && currentSubtestAttempt.deadline < new Date()) {
-			throw new ORPCError("BAD_REQUEST", {
+			throw errors.BAD_REQUEST({
 				message: "Subtest deadline has passed",
 			});
 		}
@@ -538,7 +537,7 @@ const toggleRaguRagu = authed.tryout.toggleRaguRagu.handler(
 );
 
 const submitSubtest = authed.tryout.submitSubtest.handler(
-	async ({ input, context }: HandlerOptions<typeof authed.tryout.submitSubtest>) => {
+	async ({ input, context, errors }: HandlerOptions<typeof authed.tryout.submitSubtest>) => {
 		const attempt = await db.query.tryoutAttempt.findFirst({
 			where: and(
 				eq(tryoutAttempt.tryoutId, input.tryoutId),
@@ -550,13 +549,13 @@ const submitSubtest = authed.tryout.submitSubtest.handler(
 			},
 		});
 
-		if (!attempt) throw new ORPCError("BAD_REQUEST", { message: "Gagal menemukan pengerjaan tryout." });
+		if (!attempt) throw errors.BAD_REQUEST({ message: "Gagal menemukan pengerjaan tryout." });
 
 		const currentSubtestAttempt = attempt.subtestAttempts.find(
 			(sa) => sa.subtestId === input.subtestId && sa.status === "ongoing",
 		);
 
-		if (!currentSubtestAttempt) throw new ORPCError("BAD_REQUEST", { message: "Subtest not active" });
+		if (!currentSubtestAttempt) throw errors.BAD_REQUEST({ message: "Subtest not active" });
 
 		const tryoutData = await db.query.tryout.findFirst({
 			where: eq(tryout.id, input.tryoutId),
@@ -567,14 +566,14 @@ const submitSubtest = authed.tryout.submitSubtest.handler(
 			},
 		});
 
-		if (!tryoutData) throw new ORPCError("NOT_FOUND", { message: "Tryout not found" });
+		if (!tryoutData) throw errors.NOT_FOUND({ message: "Tryout not found" });
 
 		const currentIndex = tryoutData.subtests.findIndex((s) => s.id === input.subtestId);
-		if (currentIndex === -1) throw new ORPCError("NOT_FOUND", { message: "Subtest not found" });
+		if (currentIndex === -1) throw errors.NOT_FOUND({ message: "Subtest not found" });
 
 		const now = new Date();
 		if (attempt.deadline && attempt.deadline < now) {
-			throw new ORPCError("BAD_REQUEST", {
+			throw errors.BAD_REQUEST({
 				message: "Tryout telah berakhir",
 			});
 		}
@@ -612,7 +611,7 @@ const submitSubtest = authed.tryout.submitSubtest.handler(
 );
 
 const submitTryout = authed.tryout.submitTryout.handler(
-	async ({ input, context }: HandlerOptions<typeof authed.tryout.submitTryout>) => {
+	async ({ input, context, errors }: HandlerOptions<typeof authed.tryout.submitTryout>) => {
 		const attempt = await db.query.tryoutAttempt.findFirst({
 			where: and(
 				eq(tryoutAttempt.tryoutId, input.tryoutId),
@@ -621,7 +620,7 @@ const submitTryout = authed.tryout.submitTryout.handler(
 			),
 		});
 
-		if (!attempt) throw new ORPCError("BAD_REQUEST", { message: "Gagal menemukan pengerjaan tryout." });
+		if (!attempt) throw errors.BAD_REQUEST({ message: "Gagal menemukan pengerjaan tryout." });
 
 		const scores = await calculateTryoutScores(attempt.id);
 
@@ -639,7 +638,7 @@ const submitTryout = authed.tryout.submitTryout.handler(
 	},
 );
 
-const history = authed.tryout.history.handler(async ({ context }: HandlerOptions<typeof authed.tryout.history>) => {
+const history = authed.tryout.history.handler(async ({ context, errors }: HandlerOptions<typeof authed.tryout.history>) => {
 	const attempts = await db.query.tryoutAttempt.findMany({
 		where: and(eq(tryoutAttempt.userId, context.session.user.id), eq(tryoutAttempt.status, "finished")),
 		columns: {

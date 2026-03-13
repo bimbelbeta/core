@@ -1,6 +1,6 @@
+import { oc } from "@bimbelbeta/contract";
 import { db } from "@bimbelbeta/db";
 import { question, questionChoice } from "@bimbelbeta/db/schema/question";
-import { ORPCError } from "@orpc/client";
 import { and, eq, gt, like, sql } from "drizzle-orm";
 import { admin } from "../..";
 import { convertToTiptap } from "../../lib/convert-to-tiptap";
@@ -68,14 +68,14 @@ const createQuestion = admin.admin.tryout.questions.createQuestion.handler(
 
 		if (input.type === "multiple_choice") {
 			if (!choices || choices.length < 2) {
-				throw new ORPCError("BAD_REQUEST", {
+				throw oc.BAD_REQUEST({
 					message: "Multiple choice harus memiliki minimal 2 pilihan",
 				});
 			}
 
 			const correctCount = choices.filter((choice: QuestionChoiceInput) => choice.isCorrect).length;
 			if (correctCount !== 1) {
-				throw new ORPCError("BAD_REQUEST", {
+				throw oc.BAD_REQUEST({
 					message: "Multiple choice harus memiliki tepat 1 pilihan yang benar",
 				});
 			}
@@ -83,7 +83,7 @@ const createQuestion = admin.admin.tryout.questions.createQuestion.handler(
 
 		if (input.type === "multiple_choice_complex") {
 			if (!choices || choices.length < 2) {
-				throw new ORPCError("BAD_REQUEST", {
+				throw oc.BAD_REQUEST({
 					message: "Pilihan majemuk kompleks harus memiliki minimal 2 pilihan",
 				});
 			}
@@ -105,7 +105,7 @@ const createQuestion = admin.admin.tryout.questions.createQuestion.handler(
 				.returning();
 
 			if (!newQuestion)
-				throw new ORPCError("INTERNAL_SERVER_ERROR", {
+				throw oc.INTERNAL_SERVER_ERROR({
 					message: "Gagal membuat question",
 				});
 
@@ -198,7 +198,7 @@ const find = admin.admin.tryout.questions.find.handler(async ({ input }: { input
 	const [questionData] = await db.select().from(question).where(eq(question.id, input.id)).limit(1);
 
 	if (!questionData)
-		throw new ORPCError("NOT_FOUND", {
+		throw oc.NOT_FOUND({
 			message: "Question tidak ditemukan",
 		});
 
@@ -244,7 +244,7 @@ const updateQuestion = admin.admin.tryout.questions.updateQuestion.handler(
 				.returning();
 
 			if (!q)
-				throw new ORPCError("NOT_FOUND", {
+				throw oc.NOT_FOUND({
 					message: "Question tidak ditemukan",
 				});
 
@@ -299,7 +299,7 @@ const deleteQuestion = admin.admin.tryout.questions.deleteQuestion.handler(
 		const [deleted] = await db.delete(question).where(eq(question.id, input.id)).returning();
 
 		if (!deleted) {
-			throw new ORPCError("NOT_FOUND", {
+			throw oc.NOT_FOUND({
 				message: "Question tidak ditemukan",
 			});
 		}
@@ -320,7 +320,7 @@ const createChoice = admin.admin.tryout.questions.createChoice.handler(
 		const nextCode = choiceCodes.find((code) => !usedCodes.includes(code));
 
 		if (!nextCode) {
-			throw new ORPCError("BAD_REQUEST", {
+			throw oc.BAD_REQUEST({
 				message: "Maksimal pilihan tercapai (7 pilihan)",
 			});
 		}
@@ -336,7 +336,7 @@ const createChoice = admin.admin.tryout.questions.createChoice.handler(
 			.returning();
 
 		if (!created)
-			throw new ORPCError("INTERNAL_SERVER_ERROR", {
+			throw oc.INTERNAL_SERVER_ERROR({
 				message: "Gagal membuat choice",
 			});
 
@@ -361,7 +361,7 @@ const updateChoice = admin.admin.tryout.questions.updateChoice.handler(
 			.returning();
 
 		if (!updated)
-			throw new ORPCError("NOT_FOUND", {
+			throw oc.NOT_FOUND({
 				message: "Choice tidak ditemukan",
 			});
 
@@ -374,7 +374,7 @@ const deleteChoice = admin.admin.tryout.questions.deleteChoice.handler(
 		const [deleted] = await db.delete(questionChoice).where(eq(questionChoice.id, input.id)).returning();
 
 		if (!deleted) {
-			throw new ORPCError("NOT_FOUND", {
+			throw oc.NOT_FOUND({
 				message: "Choice tidak ditemukan",
 			});
 		}

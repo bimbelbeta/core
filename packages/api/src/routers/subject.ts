@@ -10,7 +10,6 @@ import {
 	userSubjectView,
 	videoMaterial,
 } from "@bimbelbeta/db/schema/subject";
-import { ORPCError } from "@orpc/client";
 import { and, desc, eq, ilike, inArray, sql } from "drizzle-orm";
 import { authed } from "../index";
 import { canAccessContent } from "../lib/content-access";
@@ -22,7 +21,7 @@ function escapeLikePattern(value: string): string {
 	return value.replace(/[%_\\]/g, (char) => `\\${char}`);
 }
 
-const list = authed.subject.list.handler(async ({ input, context }: HandlerOptions<typeof authed.subject.list>) => {
+const list = authed.subject.list.handler(async ({ input, context, errors }: HandlerOptions<typeof authed.subject.list>) => {
 	const conditions = [];
 	if (input?.category) {
 		conditions.push(eq(subject.category, input.category));
@@ -65,7 +64,7 @@ const list = authed.subject.list.handler(async ({ input, context }: HandlerOptio
 });
 
 const listContent = authed.subject.listContent.handler(
-	async ({ input, context }: HandlerOptions<typeof authed.subject.listContent>) => {
+	async ({ input, context, errors }: HandlerOptions<typeof authed.subject.listContent>) => {
 		const [targetSubject] = await db
 			.select({
 				id: subject.id,
@@ -81,7 +80,7 @@ const listContent = authed.subject.listContent.handler(
 			.limit(1);
 
 		if (!targetSubject) {
-			throw new ORPCError("NOT_FOUND", { message: "Subject tidak ditemukan" });
+			throw errors.NOT_FOUND({ message: "Subject tidak ditemukan" });
 		}
 
 		const conditions = [eq(contentItem.subjectId, input.subjectId)];
@@ -125,9 +124,9 @@ const listContent = authed.subject.listContent.handler(
 );
 
 const findContent = authed.subject.findContent.handler(
-	async ({ input, context }: HandlerOptions<typeof authed.subject.findContent>) => {
+	async ({ input, context, errors }: HandlerOptions<typeof authed.subject.findContent>) => {
 		if (!Number.isFinite(input.contentId) || input.contentId <= 0) {
-			throw new ORPCError("BAD_REQUEST", { message: "Invalid content ID" });
+			throw errors.BAD_REQUEST({ message: "Invalid content ID" });
 		}
 
 		const [row] = await db
@@ -153,7 +152,7 @@ const findContent = authed.subject.findContent.handler(
 			.limit(1);
 
 		if (!row) {
-			throw new ORPCError("NOT_FOUND", { message: "Konten tidak ditemukan" });
+			throw errors.NOT_FOUND({ message: "Konten tidak ditemukan" });
 		}
 
 		const hasAccess = canAccessContent(
@@ -164,7 +163,7 @@ const findContent = authed.subject.findContent.handler(
 		);
 
 		if (!hasAccess) {
-			throw new ORPCError("FORBIDDEN", { message: "Konten ini memerlukan akun premium" });
+			throw errors.FORBIDDEN({ message: "Konten ini memerlukan akun premium" });
 		}
 
 		const practiceQuestionsRows = await db
@@ -258,7 +257,7 @@ const findContent = authed.subject.findContent.handler(
 );
 
 const trackView = authed.subject.trackView.handler(
-	async ({ input, context }: HandlerOptions<typeof authed.subject.trackView>) => {
+	async ({ input, context, errors }: HandlerOptions<typeof authed.subject.trackView>) => {
 		const [item] = await db
 			.select({ id: contentItem.id })
 			.from(contentItem)
@@ -266,7 +265,7 @@ const trackView = authed.subject.trackView.handler(
 			.limit(1);
 
 		if (!item)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Konten tidak ditemukan",
 			});
 
@@ -304,7 +303,7 @@ const trackView = authed.subject.trackView.handler(
 );
 
 const listRecentViews = authed.subject.listRecentViews.handler(
-	async ({ context }: HandlerOptions<typeof authed.subject.listRecentViews>) => {
+	async ({ context, errors }: HandlerOptions<typeof authed.subject.listRecentViews>) => {
 		const views = await db
 			.select({
 				viewedAt: recentContentView.viewedAt,
@@ -334,7 +333,7 @@ const listRecentViews = authed.subject.listRecentViews.handler(
 );
 
 const trackSubjectView = authed.subject.trackSubjectView.handler(
-	async ({ input, context }: HandlerOptions<typeof authed.subject.trackSubjectView>) => {
+	async ({ input, context, errors }: HandlerOptions<typeof authed.subject.trackSubjectView>) => {
 		const [targetSubject] = await db
 			.select({ id: subject.id })
 			.from(subject)
@@ -342,7 +341,7 @@ const trackSubjectView = authed.subject.trackSubjectView.handler(
 			.limit(1);
 
 		if (!targetSubject) {
-			throw new ORPCError("NOT_FOUND", { message: "Subject tidak ditemukan" });
+			throw errors.NOT_FOUND({ message: "Subject tidak ditemukan" });
 		}
 
 		await db
@@ -361,7 +360,7 @@ const trackSubjectView = authed.subject.trackSubjectView.handler(
 );
 
 const updateProgress = authed.subject.updateProgress.handler(
-	async ({ input, context }: HandlerOptions<typeof authed.subject.updateProgress>) => {
+	async ({ input, context, errors }: HandlerOptions<typeof authed.subject.updateProgress>) => {
 		const [item] = await db
 			.select({ id: contentItem.id })
 			.from(contentItem)
@@ -369,7 +368,7 @@ const updateProgress = authed.subject.updateProgress.handler(
 			.limit(1);
 
 		if (!item)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Konten tidak ditemukan",
 			});
 
@@ -405,7 +404,7 @@ const updateProgress = authed.subject.updateProgress.handler(
 	},
 );
 
-const stats = authed.subject.stats.handler(async ({ context }: HandlerOptions<typeof authed.subject.stats>) => {
+const stats = authed.subject.stats.handler(async ({ context, errors }: HandlerOptions<typeof authed.subject.stats>) => {
 	const [stats] = await db
 		.select({
 			materialsCompleted: sql<number>`COUNT(DISTINCT CASE WHEN ${userProgress.videoCompleted} = true OR ${userProgress.noteCompleted} = true OR ${userProgress.practiceQuestionsCompleted} = true THEN ${userProgress.contentItemId} END)`,

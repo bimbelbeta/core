@@ -1,16 +1,15 @@
 import { db } from "@bimbelbeta/db";
 import { tryout, tryoutSubtest } from "@bimbelbeta/db/schema/tryout";
-import { ORPCError } from "@orpc/client";
 import { eq, sql } from "drizzle-orm";
 import { admin } from "../..";
 import type { HandlerOptions } from "../../lib/router-definition/handler-options";
 
 const find = admin.admin.tryout.subtest.find.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.tryout.subtest.find>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.tryout.subtest.find>) => {
 		const [subtest] = await db.select().from(tryoutSubtest).where(eq(tryoutSubtest.id, input.id)).limit(1);
 
 		if (!subtest) {
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Subtest tidak ditemukan",
 			});
 		}
@@ -20,7 +19,7 @@ const find = admin.admin.tryout.subtest.find.handler(
 );
 
 const createSubtest = admin.admin.tryout.subtest.createSubtest.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.tryout.subtest.createSubtest>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.tryout.subtest.createSubtest>) => {
 		const [tryoutExists] = await db
 			.select({ id: tryout.id })
 			.from(tryout)
@@ -28,7 +27,7 @@ const createSubtest = admin.admin.tryout.subtest.createSubtest.handler(
 			.limit(1);
 
 		if (!tryoutExists)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Tryout tidak ditemukan",
 			});
 
@@ -52,7 +51,7 @@ const createSubtest = admin.admin.tryout.subtest.createSubtest.handler(
 			.returning();
 
 		if (!created)
-			throw new ORPCError("INTERNAL_SERVER_ERROR", {
+			throw errors.INTERNAL_SERVER_ERROR({
 				message: "Gagal membuat subtest",
 			});
 
@@ -64,7 +63,7 @@ const createSubtest = admin.admin.tryout.subtest.createSubtest.handler(
 );
 
 const updateSubtest = admin.admin.tryout.subtest.updateSubtest.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.tryout.subtest.updateSubtest>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.tryout.subtest.updateSubtest>) => {
 		const updateData: {
 			name?: string;
 			description?: string | null;
@@ -82,7 +81,7 @@ const updateSubtest = admin.admin.tryout.subtest.updateSubtest.handler(
 		const [updated] = await db.update(tryoutSubtest).set(updateData).where(eq(tryoutSubtest.id, input.id)).returning();
 
 		if (!updated)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Subtest tidak ditemukan",
 			});
 
@@ -91,11 +90,11 @@ const updateSubtest = admin.admin.tryout.subtest.updateSubtest.handler(
 );
 
 const deleteSubtest = admin.admin.tryout.subtest.deleteSubtest.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.tryout.subtest.deleteSubtest>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.tryout.subtest.deleteSubtest>) => {
 		const [deleted] = await db.delete(tryoutSubtest).where(eq(tryoutSubtest.id, input.id)).returning();
 
 		if (!deleted) {
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Subtest tidak ditemukan",
 			});
 		}

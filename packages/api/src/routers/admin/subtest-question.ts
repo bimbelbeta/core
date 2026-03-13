@@ -1,14 +1,13 @@
 import { db } from "@bimbelbeta/db";
 import { question } from "@bimbelbeta/db/schema/question";
 import { tryoutSubtestQuestion } from "@bimbelbeta/db/schema/tryout";
-import { ORPCError } from "@orpc/client";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { admin } from "../..";
 import { convertToTiptap } from "../../lib/convert-to-tiptap";
 import type { HandlerOptions } from "../../lib/router-definition/handler-options";
 
 const list = admin.admin.tryout.questionsBulk.list.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.tryout.questionsBulk.list>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.tryout.questionsBulk.list>) => {
 		const questionsData = await db
 			.select({
 				id: tryoutSubtestQuestion.questionId,
@@ -38,7 +37,7 @@ const list = admin.admin.tryout.questionsBulk.list.handler(
 );
 
 const addQuestionToSubtest = admin.admin.tryout.questionsBulk.addQuestionToSubtest.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.tryout.questionsBulk.addQuestionToSubtest>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.tryout.questionsBulk.addQuestionToSubtest>) => {
 		let nextOrder = input.order;
 
 		if (nextOrder === undefined) {
@@ -57,7 +56,7 @@ const addQuestionToSubtest = admin.admin.tryout.questionsBulk.addQuestionToSubte
 				order: nextOrder,
 			});
 		} catch (_error) {
-			throw new ORPCError("CONFLICT", {
+			throw errors.CONFLICT({
 				message: "Question sudah ada di subtest ini",
 			});
 		}
@@ -67,9 +66,9 @@ const addQuestionToSubtest = admin.admin.tryout.questionsBulk.addQuestionToSubte
 );
 
 const bulkAddQuestionsToSubtest = admin.admin.tryout.questionsBulk.bulkAddQuestionsToSubtest.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.tryout.questionsBulk.bulkAddQuestionsToSubtest>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.tryout.questionsBulk.bulkAddQuestionsToSubtest>) => {
 		if (!input.questionIds || input.questionIds.length === 0) {
-			throw new ORPCError("BAD_REQUEST", {
+			throw errors.BAD_REQUEST({
 				message: "Question IDs tidak boleh kosong",
 			});
 		}
@@ -83,7 +82,7 @@ const bulkAddQuestionsToSubtest = admin.admin.tryout.questionsBulk.bulkAddQuesti
 		const newQuestionIds = input.questionIds.filter((id: number) => !existingIds.includes(id));
 
 		if (newQuestionIds.length === 0) {
-			throw new ORPCError("BAD_REQUEST", {
+			throw errors.BAD_REQUEST({
 				message: "Semua question sudah ada di subtest ini",
 			});
 		}
@@ -111,9 +110,9 @@ const bulkAddQuestionsToSubtest = admin.admin.tryout.questionsBulk.bulkAddQuesti
 );
 
 const bulkRemoveQuestionsFromSubtest = admin.admin.tryout.questionsBulk.bulkRemoveQuestionsFromSubtest.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.tryout.questionsBulk.bulkRemoveQuestionsFromSubtest>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.tryout.questionsBulk.bulkRemoveQuestionsFromSubtest>) => {
 		if (!input.questionIds || input.questionIds.length === 0) {
-			throw new ORPCError("BAD_REQUEST", {
+			throw errors.BAD_REQUEST({
 				message: "Question IDs tidak boleh kosong",
 			});
 		}
@@ -136,7 +135,7 @@ const bulkRemoveQuestionsFromSubtest = admin.admin.tryout.questionsBulk.bulkRemo
 );
 
 const updateSubtestQuestionOrder = admin.admin.tryout.questionsBulk.updateSubtestQuestionOrder.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.tryout.questionsBulk.updateSubtestQuestionOrder>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.tryout.questionsBulk.updateSubtestQuestionOrder>) => {
 		const [updated] = await db
 			.update(tryoutSubtestQuestion)
 			.set({ order: input.order })
@@ -144,7 +143,7 @@ const updateSubtestQuestionOrder = admin.admin.tryout.questionsBulk.updateSubtes
 			.returning();
 
 		if (!updated)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Question tidak ditemukan di subtest",
 			});
 
@@ -153,7 +152,7 @@ const updateSubtestQuestionOrder = admin.admin.tryout.questionsBulk.updateSubtes
 );
 
 const removeQuestionFromSubtest = admin.admin.tryout.questionsBulk.removeQuestionFromSubtest.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.tryout.questionsBulk.removeQuestionFromSubtest>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.tryout.questionsBulk.removeQuestionFromSubtest>) => {
 		const [deleted] = await db
 			.delete(tryoutSubtestQuestion)
 			.where(
@@ -165,7 +164,7 @@ const removeQuestionFromSubtest = admin.admin.tryout.questionsBulk.removeQuestio
 			.returning();
 
 		if (!deleted) {
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Question tidak ditemukan di subtest",
 			});
 		}

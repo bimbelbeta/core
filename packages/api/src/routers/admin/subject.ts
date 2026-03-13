@@ -7,7 +7,6 @@ import {
 	subject,
 	videoMaterial,
 } from "@bimbelbeta/db/schema/subject";
-import { ORPCError } from "@orpc/client";
 import { and, asc, eq } from "drizzle-orm";
 import { admin } from "../..";
 import { convertToTiptap } from "../../lib/convert-to-tiptap";
@@ -18,12 +17,12 @@ import type { HandlerOptions } from "../../lib/router-definition/handler-options
  * POST /api/admin/subjects
  */
 const createSubject = admin.admin.subject.createSubject.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.subject.createSubject>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.subject.createSubject>) => {
 		// Validate gradeLevel based on category
 		if (input.gradeLevel !== undefined && input.gradeLevel !== null) {
 			const category = input.category ?? "utbk";
 			if (category === "utbk") {
-				throw new ORPCError("BAD_REQUEST", {
+				throw errors.BAD_REQUEST({
 					message: "UTBK tidak boleh memiliki gradeLevel",
 				});
 			}
@@ -36,14 +35,14 @@ const createSubject = admin.admin.subject.createSubject.handler(
 
 			const range = validGradeRange[category];
 			if (!range) {
-				throw new ORPCError("BAD_REQUEST", {
+				throw errors.BAD_REQUEST({
 					message: `Kategori ${category} tidak valid`,
 				});
 			}
 
 			const [min, max] = range;
 			if (input.gradeLevel < min || input.gradeLevel > max) {
-				throw new ORPCError("BAD_REQUEST", {
+				throw errors.BAD_REQUEST({
 					message: `GradeLevel harus antara ${min} dan ${max} untuk kategori ${category.toUpperCase()}`,
 				});
 			}
@@ -62,7 +61,7 @@ const createSubject = admin.admin.subject.createSubject.handler(
 			.returning();
 
 		if (!created)
-			throw new ORPCError("INTERNAL_SERVER_ERROR", {
+			throw errors.INTERNAL_SERVER_ERROR({
 				message: "Gagal membuat kelas",
 			});
 
@@ -78,7 +77,7 @@ const createSubject = admin.admin.subject.createSubject.handler(
  * PATCH /api/admin/subjects/{id}
  */
 const updateSubject = admin.admin.subject.updateSubject.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.subject.updateSubject>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.subject.updateSubject>) => {
 		// Validate gradeLevel based on category if both provided or fetch existing
 		if (input.gradeLevel !== undefined) {
 			let category = input.category;
@@ -95,7 +94,7 @@ const updateSubject = admin.admin.subject.updateSubject.handler(
 
 			if (input.gradeLevel !== null && category) {
 				if (category === "utbk") {
-					throw new ORPCError("BAD_REQUEST", {
+					throw errors.BAD_REQUEST({
 						message: "UTBK tidak boleh memiliki gradeLevel",
 					});
 				}
@@ -108,14 +107,14 @@ const updateSubject = admin.admin.subject.updateSubject.handler(
 
 				const range = validGradeRange[category];
 				if (!range) {
-					throw new ORPCError("BAD_REQUEST", {
+					throw errors.BAD_REQUEST({
 						message: `Kategori ${category} tidak valid`,
 					});
 				}
 
 				const [min, max] = range;
 				if (input.gradeLevel < min || input.gradeLevel > max) {
-					throw new ORPCError("BAD_REQUEST", {
+					throw errors.BAD_REQUEST({
 						message: `GradeLevel harus antara ${min} dan ${max} untuk kategori ${category.toUpperCase()}`,
 					});
 				}
@@ -144,7 +143,7 @@ const updateSubject = admin.admin.subject.updateSubject.handler(
 		const [updatedRow] = await db.update(subject).set(updateData).where(eq(subject.id, input.id)).returning();
 
 		if (!updatedRow)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Kelas tidak ditemukan",
 			});
 
@@ -157,11 +156,11 @@ const updateSubject = admin.admin.subject.updateSubject.handler(
  * DELETE /api/admin/subjects/{id}
  */
 const deleteSubject = admin.admin.subject.deleteSubject.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.subject.deleteSubject>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.subject.deleteSubject>) => {
 		const [deletedRow] = await db.delete(subject).where(eq(subject.id, input.id)).returning();
 
 		if (!deletedRow)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Kelas tidak ditemukan",
 			});
 
@@ -174,7 +173,7 @@ const deleteSubject = admin.admin.subject.deleteSubject.handler(
  * PATCH /api/admin/subjects/reorder
  */
 const reorderSubjects = admin.admin.subject.reorderSubjects.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.subject.reorderSubjects>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.subject.reorderSubjects>) => {
 		const items = input.items as { id: number; order: number }[];
 
 		await db.transaction(async (tx) => {
@@ -192,7 +191,7 @@ const reorderSubjects = admin.admin.subject.reorderSubjects.handler(
  * POST /api/admin/content
  */
 const createContent = admin.admin.subject.createContent.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.subject.createContent>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.subject.createContent>) => {
 		const hasVideo = input.video !== undefined && input.video !== null;
 		const hasNote = input.note !== undefined && input.note !== null;
 		const hasPracticeQuestions =
@@ -201,7 +200,7 @@ const createContent = admin.admin.subject.createContent.handler(
 			input.practiceQuestionIds.length > 0;
 
 		if (!hasVideo && !hasNote && !hasPracticeQuestions) {
-			throw new ORPCError("BAD_REQUEST", {
+			throw errors.BAD_REQUEST({
 				message: "Konten harus memiliki minimal salah satu: video, catatan, atau latihan soal",
 			});
 		}
@@ -217,7 +216,7 @@ const createContent = admin.admin.subject.createContent.handler(
 				typeof input.video.videoUrl !== "string" ||
 				!input.video.videoUrl.trim()
 			) {
-				throw new ORPCError("BAD_REQUEST", {
+				throw errors.BAD_REQUEST({
 					message: "Video harus memiliki title, videoUrl, dan content yang valid",
 				});
 			}
@@ -226,7 +225,7 @@ const createContent = admin.admin.subject.createContent.handler(
 		// Validate note structure if provided
 		if (hasNote) {
 			if (typeof input.note !== "object" || !("content" in input.note) || typeof input.note.content !== "object") {
-				throw new ORPCError("BAD_REQUEST", {
+				throw errors.BAD_REQUEST({
 					message: "Catatan harus memiliki content yang valid (Tiptap JSON)",
 				});
 			}
@@ -245,7 +244,7 @@ const createContent = admin.admin.subject.createContent.handler(
 				.returning();
 
 			if (!newContent)
-				throw new ORPCError("INTERNAL_SERVER_ERROR", {
+				throw errors.INTERNAL_SERVER_ERROR({
 					message: "Gagal membuat konten",
 				});
 
@@ -314,7 +313,7 @@ const createContent = admin.admin.subject.createContent.handler(
  * PATCH /api/admin/content/{id}
  */
 const updateContent = admin.admin.subject.updateContent.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.subject.updateContent>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.subject.updateContent>) => {
 		const updateData: { title?: string; order?: number; updatedAt: Date } = {
 			updatedAt: new Date(),
 		};
@@ -325,7 +324,7 @@ const updateContent = admin.admin.subject.updateContent.handler(
 		const [updated] = await db.update(contentItem).set(updateData).where(eq(contentItem.id, input.id)).returning();
 
 		if (!updated)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Konten tidak ditemukan",
 			});
 
@@ -338,11 +337,11 @@ const updateContent = admin.admin.subject.updateContent.handler(
  * DELETE /api/admin/content/{id}
  */
 const deleteContent = admin.admin.subject.deleteContent.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.subject.deleteContent>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.subject.deleteContent>) => {
 		const [deleted] = await db.delete(contentItem).where(eq(contentItem.id, input.id)).returning();
 
 		if (!deleted)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Konten tidak ditemukan",
 			});
 
@@ -355,10 +354,10 @@ const deleteContent = admin.admin.subject.deleteContent.handler(
  * PATCH /api/admin/content/reorder
  */
 const reorderContent = admin.admin.subject.reorderContent.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.subject.reorderContent>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.subject.reorderContent>) => {
 		// Validate items array at runtime
 		if (!Array.isArray(input.items)) {
-			throw new ORPCError("BAD_REQUEST", {
+			throw errors.BAD_REQUEST({
 				message: "Items harus berupa array",
 			});
 		}
@@ -368,7 +367,7 @@ const reorderContent = admin.admin.subject.reorderContent.handler(
 		// Validate each item
 		for (const item of items) {
 			if (typeof item.id !== "number" || typeof item.order !== "number") {
-				throw new ORPCError("BAD_REQUEST", {
+				throw errors.BAD_REQUEST({
 					message: "Setiap item harus memiliki id dan order bertipe number",
 				});
 			}
@@ -404,10 +403,10 @@ const reorderContent = admin.admin.subject.reorderContent.handler(
  * POST /api/admin/content/{id}/video
  */
 const upsertVideo = admin.admin.subject.upsertVideo.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.subject.upsertVideo>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.subject.upsertVideo>) => {
 		// Validate video URL
 		if (!input.videoUrl) {
-			throw new ORPCError("BAD_REQUEST", {
+			throw errors.BAD_REQUEST({
 				message: "Video URL wajib diisi",
 			});
 		}
@@ -420,7 +419,7 @@ const upsertVideo = admin.admin.subject.upsertVideo.handler(
 			.limit(1);
 
 		if (!content)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Konten tidak ditemukan",
 			});
 
@@ -443,7 +442,7 @@ const upsertVideo = admin.admin.subject.upsertVideo.handler(
 			.returning();
 
 		if (!video)
-			throw new ORPCError("INTERNAL_SERVER_ERROR", {
+			throw errors.INTERNAL_SERVER_ERROR({
 				message: "Gagal menyimpan video material",
 			});
 
@@ -456,11 +455,11 @@ const upsertVideo = admin.admin.subject.upsertVideo.handler(
  * DELETE /api/admin/content/{id}/video
  */
 const deleteVideo = admin.admin.subject.deleteVideo.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.subject.deleteVideo>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.subject.deleteVideo>) => {
 		const [deleted] = await db.delete(videoMaterial).where(eq(videoMaterial.contentItemId, input.id)).returning();
 
 		if (!deleted)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Video material tidak ditemukan",
 			});
 
@@ -473,7 +472,7 @@ const deleteVideo = admin.admin.subject.deleteVideo.handler(
  * POST /api/admin/content/{id}/note
  */
 const upsertNote = admin.admin.subject.upsertNote.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.subject.upsertNote>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.subject.upsertNote>) => {
 		// Check if content exists
 		const [content] = await db
 			.select({ id: contentItem.id })
@@ -482,7 +481,7 @@ const upsertNote = admin.admin.subject.upsertNote.handler(
 			.limit(1);
 
 		if (!content)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Konten tidak ditemukan",
 			});
 
@@ -503,7 +502,7 @@ const upsertNote = admin.admin.subject.upsertNote.handler(
 			.returning();
 
 		if (!note)
-			throw new ORPCError("INTERNAL_SERVER_ERROR", {
+			throw errors.INTERNAL_SERVER_ERROR({
 				message: "Gagal menyimpan catatan material",
 			});
 
@@ -519,11 +518,11 @@ const upsertNote = admin.admin.subject.upsertNote.handler(
  * DELETE /api/admin/content/{id}/note
  */
 const deleteNote = admin.admin.subject.deleteNote.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.subject.deleteNote>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.subject.deleteNote>) => {
 		const [deleted] = await db.delete(noteMaterial).where(eq(noteMaterial.contentItemId, input.id)).returning();
 
 		if (!deleted)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Catatan material tidak ditemukan",
 			});
 
@@ -536,7 +535,7 @@ const deleteNote = admin.admin.subject.deleteNote.handler(
  * POST /api/admin/content/{id}/practice-questions
  */
 const linkPracticeQuestions = admin.admin.subject.linkPracticeQuestions.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.subject.linkPracticeQuestions>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.subject.linkPracticeQuestions>) => {
 		// Delete existing practice question links
 		await db.delete(contentPracticeQuestions).where(eq(contentPracticeQuestions.contentItemId, input.id));
 
@@ -560,7 +559,7 @@ const linkPracticeQuestions = admin.admin.subject.linkPracticeQuestions.handler(
  * DELETE /api/admin/content/{id}/practice-questions
  */
 const unlinkPracticeQuestions = admin.admin.subject.unlinkPracticeQuestions.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.subject.unlinkPracticeQuestions>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.subject.unlinkPracticeQuestions>) => {
 		await db.delete(contentPracticeQuestions).where(eq(contentPracticeQuestions.contentItemId, input.id));
 
 		return { message: "Latihan soal berhasil dihapus dari konten" };
@@ -572,7 +571,7 @@ const unlinkPracticeQuestions = admin.admin.subject.unlinkPracticeQuestions.hand
  * GET /api/admin/content/{id}/practice-questions
  */
 const listPracticeQuestions = admin.admin.subject.listPracticeQuestions.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.subject.listPracticeQuestions>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.subject.listPracticeQuestions>) => {
 		// Check if content exists
 		const [content] = await db
 			.select({ id: contentItem.id })
@@ -581,7 +580,7 @@ const listPracticeQuestions = admin.admin.subject.listPracticeQuestions.handler(
 			.limit(1);
 
 		if (!content)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Konten tidak ditemukan",
 			});
 
@@ -650,7 +649,7 @@ const listPracticeQuestions = admin.admin.subject.listPracticeQuestions.handler(
  * DELETE /api/admin/content/{id}/practice-questions/{questionId}
  */
 const unlinkSinglePracticeQuestion = admin.admin.subject.unlinkSinglePracticeQuestion.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.subject.unlinkSinglePracticeQuestion>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.subject.unlinkSinglePracticeQuestion>) => {
 		const [deleted] = await db
 			.delete(contentPracticeQuestions)
 			.where(
@@ -662,7 +661,7 @@ const unlinkSinglePracticeQuestion = admin.admin.subject.unlinkSinglePracticeQue
 			.returning();
 
 		if (!deleted) {
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Soal tidak ditemukan di konten ini",
 			});
 		}
@@ -696,7 +695,7 @@ const unlinkSinglePracticeQuestion = admin.admin.subject.unlinkSinglePracticeQue
  * PATCH /api/admin/content/{id}/practice-questions/reorder
  */
 const reorderPracticeQuestions = admin.admin.subject.reorderPracticeQuestions.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.subject.reorderPracticeQuestions>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.subject.reorderPracticeQuestions>) => {
 		// Check if content exists
 		const [content] = await db
 			.select({ id: contentItem.id })
@@ -705,7 +704,7 @@ const reorderPracticeQuestions = admin.admin.subject.reorderPracticeQuestions.ha
 			.limit(1);
 
 		if (!content)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Konten tidak ditemukan",
 			});
 
@@ -749,7 +748,7 @@ const reorderPracticeQuestions = admin.admin.subject.reorderPracticeQuestions.ha
  * POST /api/admin/content/{id}/practice-questions/add
  */
 const addPracticeQuestions = admin.admin.subject.addPracticeQuestions.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.subject.addPracticeQuestions>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.subject.addPracticeQuestions>) => {
 		// Check if content exists
 		const [content] = await db
 			.select({ id: contentItem.id })
@@ -758,7 +757,7 @@ const addPracticeQuestions = admin.admin.subject.addPracticeQuestions.handler(
 			.limit(1);
 
 		if (!content)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Konten tidak ditemukan",
 			});
 

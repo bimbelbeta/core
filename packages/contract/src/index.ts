@@ -19,3 +19,6 @@ export const contract = {
 	university: universityContract,
 	userSettings: userSettingsContract,
 };
+
+// Export the orpc errors helpers so runtime code can construct typed errors
+export { oc } from "./lib/contract-definition";

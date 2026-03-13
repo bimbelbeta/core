@@ -1,12 +1,11 @@
 import { db } from "@bimbelbeta/db";
 import { studyProgram } from "@bimbelbeta/db/schema/university";
-import { ORPCError } from "@orpc/client";
 import { and, eq, gt, sql } from "drizzle-orm";
 import { admin } from "../../../index";
 import type { HandlerOptions } from "../../../lib/router-definition/handler-options";
 
 const list = admin.admin.university.studyPrograms.list.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.university.studyPrograms.list>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.university.studyPrograms.list>) => {
 		const limit = Math.min(input.limit ?? 20, 100);
 
 		const conditions = [];
@@ -42,7 +41,7 @@ const list = admin.admin.university.studyPrograms.list.handler(
 );
 
 const find = admin.admin.university.studyPrograms.find.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.university.studyPrograms.find>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.university.studyPrograms.find>) => {
 		const [program] = await db
 			.select({
 				id: studyProgram.id,
@@ -56,7 +55,7 @@ const find = admin.admin.university.studyPrograms.find.handler(
 			.limit(1);
 
 		if (!program) {
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Program studi tidak ditemukan",
 			});
 		}
@@ -66,7 +65,7 @@ const find = admin.admin.university.studyPrograms.find.handler(
 );
 
 const create = admin.admin.university.studyPrograms.create.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.university.studyPrograms.create>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.university.studyPrograms.create>) => {
 		const [created] = await db
 			.insert(studyProgram)
 			.values({
@@ -78,7 +77,7 @@ const create = admin.admin.university.studyPrograms.create.handler(
 			.returning();
 
 		if (!created) {
-			throw new ORPCError("INTERNAL_SERVER_ERROR", {
+			throw errors.INTERNAL_SERVER_ERROR({
 				message: "Gagal membuat program studi",
 			});
 		}
@@ -91,7 +90,7 @@ const create = admin.admin.university.studyPrograms.create.handler(
 );
 
 const update = admin.admin.university.studyPrograms.update.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.university.studyPrograms.update>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.university.studyPrograms.update>) => {
 		const updateData: {
 			name?: string;
 			slug?: string;
@@ -110,7 +109,7 @@ const update = admin.admin.university.studyPrograms.update.handler(
 		const [updated] = await db.update(studyProgram).set(updateData).where(eq(studyProgram.id, input.id)).returning();
 
 		if (!updated) {
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Program studi tidak ditemukan",
 			});
 		}
@@ -120,11 +119,11 @@ const update = admin.admin.university.studyPrograms.update.handler(
 );
 
 const remove = admin.admin.university.studyPrograms.remove.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.university.studyPrograms.remove>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.university.studyPrograms.remove>) => {
 		const [deleted] = await db.delete(studyProgram).where(eq(studyProgram.id, input.id)).returning();
 
 		if (!deleted) {
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Program studi tidak ditemukan",
 			});
 		}

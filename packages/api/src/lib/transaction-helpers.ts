@@ -1,8 +1,8 @@
+import { oc } from "@bimbelbeta/contract";
 import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { creditTransaction } from "@bimbelbeta/db/schema/credit";
 import { product, transaction } from "@bimbelbeta/db/schema/transaction";
-import { ORPCError } from "@orpc/client";
 import { eq, sql } from "drizzle-orm";
 
 export type TransactionWithProduct = {
@@ -72,7 +72,7 @@ export async function verifyMidtransTransaction(orderId: string): Promise<Midtra
 
 	if (!statusResponse.ok) {
 		console.error(`Midtrans API error: ${statusResponse.status}`);
-		throw new ORPCError("INTERNAL_SERVER_ERROR", {
+		throw oc.INTERNAL_SERVER_ERROR({
 			message: "Failed to verify transaction status",
 		});
 	}

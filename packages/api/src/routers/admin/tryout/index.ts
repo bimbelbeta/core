@@ -1,13 +1,12 @@
 import { db } from "@bimbelbeta/db";
 import { tryout } from "@bimbelbeta/db/schema/tryout";
-import { ORPCError } from "@orpc/client";
 import { and, eq, gt, ilike } from "drizzle-orm";
 import { admin } from "../../..";
 import type { HandlerOptions } from "../../../lib/router-definition/handler-options";
 import { tryoutAttemptRouter } from "./attempt";
 
 const createTryout = admin.admin.tryout.createTryout.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.tryout.createTryout>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.tryout.createTryout>) => {
 		const [created] = await db
 			.insert(tryout)
 			.values({
@@ -21,7 +20,7 @@ const createTryout = admin.admin.tryout.createTryout.handler(
 			.returning();
 
 		if (!created)
-			throw new ORPCError("INTERNAL_SERVER_ERROR", {
+			throw errors.INTERNAL_SERVER_ERROR({
 				message: "Gagal membuat tryout",
 			});
 
@@ -32,7 +31,7 @@ const createTryout = admin.admin.tryout.createTryout.handler(
 	},
 );
 
-const list = admin.admin.tryout.list.handler(async ({ input }: HandlerOptions<typeof admin.admin.tryout.list>) => {
+const list = admin.admin.tryout.list.handler(async ({ input, errors }: HandlerOptions<typeof admin.admin.tryout.list>) => {
 	const rows = await db
 		.select()
 		.from(tryout)
@@ -57,11 +56,11 @@ const list = admin.admin.tryout.list.handler(async ({ input }: HandlerOptions<ty
 	};
 });
 
-const find = admin.admin.tryout.find.handler(async ({ input }: HandlerOptions<typeof admin.admin.tryout.find>) => {
+const find = admin.admin.tryout.find.handler(async ({ input, errors }: HandlerOptions<typeof admin.admin.tryout.find>) => {
 	const [tryoutData] = await db.select().from(tryout).where(eq(tryout.id, input.id)).limit(1);
 
 	if (!tryoutData)
-		throw new ORPCError("NOT_FOUND", {
+		throw errors.NOT_FOUND({
 			message: "Tryout tidak ditemukan",
 		});
 
@@ -80,7 +79,7 @@ const find = admin.admin.tryout.find.handler(async ({ input }: HandlerOptions<ty
 });
 
 const updateTryout = admin.admin.tryout.updateTryout.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.tryout.updateTryout>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.tryout.updateTryout>) => {
 		const updateData: {
 			title?: string;
 			description?: string | null;
@@ -104,7 +103,7 @@ const updateTryout = admin.admin.tryout.updateTryout.handler(
 		const [updated] = await db.update(tryout).set(updateData).where(eq(tryout.id, input.id)).returning();
 
 		if (!updated)
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Tryout tidak ditemukan",
 			});
 
@@ -113,11 +112,11 @@ const updateTryout = admin.admin.tryout.updateTryout.handler(
 );
 
 const deleteTryout = admin.admin.tryout.deleteTryout.handler(
-	async ({ input }: HandlerOptions<typeof admin.admin.tryout.deleteTryout>) => {
+	async ({ input, errors }: HandlerOptions<typeof admin.admin.tryout.deleteTryout>) => {
 		const [deleted] = await db.delete(tryout).where(eq(tryout.id, input.id)).returning();
 
 		if (!deleted) {
-			throw new ORPCError("NOT_FOUND", {
+			throw errors.NOT_FOUND({
 				message: "Tryout tidak ditemukan",
 			});
 		}

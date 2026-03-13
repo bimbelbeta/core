@@ -1,6 +1,6 @@
+import { oc } from "@bimbelbeta/contract";
 import { db } from "@bimbelbeta/db";
 import { product } from "@bimbelbeta/db/schema/transaction";
-import { ORPCError } from "@orpc/client";
 import { and, desc, eq, gt, ilike, isNotNull, isNull } from "drizzle-orm";
 import { superadmin } from "../..";
 import { generateSlug } from "../../lib/utils";
@@ -75,7 +75,7 @@ const find = superadmin.admin.products.find.handler(async ({ input }: { input: P
 	const [productData] = await db.select().from(product).where(eq(product.id, input.productId)).limit(1);
 
 	if (!productData) {
-		throw new ORPCError("NOT_FOUND", { message: "Product tidak ditemukan" });
+		throw oc.NOT_FOUND({ message: "Product tidak ditemukan" });
 	}
 
 	return { product: productData };
@@ -84,27 +84,27 @@ const find = superadmin.admin.products.find.handler(async ({ input }: { input: P
 const create = superadmin.admin.products.create.handler(async ({ input }: { input: CreateProductInput }) => {
 	if (input.variant === "fixed_date") {
 		if (!input.fixedExpiryMonth || !input.fixedExpiryDay) {
-			throw new ORPCError("BAD_REQUEST", {
+			throw oc.BAD_REQUEST({
 				message: "fixedExpiryMonth dan fixedExpiryDay wajib diisi untuk variant fixed_date",
 			});
 		}
 		if (input.fixedExpiryMonth < 1 || input.fixedExpiryMonth > 12) {
-			throw new ORPCError("BAD_REQUEST", { message: "fixedExpiryMonth harus antara 1 dan 12" });
+			throw oc.BAD_REQUEST({ message: "fixedExpiryMonth harus antara 1 dan 12" });
 		}
 		if (input.fixedExpiryDay < 1 || input.fixedExpiryDay > 31) {
-			throw new ORPCError("BAD_REQUEST", { message: "fixedExpiryDay harus antara 1 dan 31" });
+			throw oc.BAD_REQUEST({ message: "fixedExpiryDay harus antara 1 dan 31" });
 		}
 	}
 
 	if (input.variant === "monthly") {
 		if (!input.durationDays || input.durationDays < 1) {
-			throw new ORPCError("BAD_REQUEST", { message: "durationDays wajib diisi untuk variant monthly" });
+			throw oc.BAD_REQUEST({ message: "durationDays wajib diisi untuk variant monthly" });
 		}
 	}
 
 	if (input.variant === "credits") {
 		if (!input.credits || input.credits < 1) {
-			throw new ORPCError("BAD_REQUEST", { message: "credits wajib diisi untuk variant credits" });
+			throw oc.BAD_REQUEST({ message: "credits wajib diisi untuk variant credits" });
 		}
 	}
 
@@ -112,7 +112,7 @@ const create = superadmin.admin.products.create.handler(async ({ input }: { inpu
 
 	const [existingSlug] = await db.select().from(product).where(eq(product.slug, slug)).limit(1);
 	if (existingSlug) {
-		throw new ORPCError("BAD_REQUEST", { message: `Slug "${slug}" sudah digunakan` });
+		throw oc.BAD_REQUEST({ message: `Slug "${slug}" sudah digunakan` });
 	}
 
 	const [created] = await db
@@ -132,7 +132,7 @@ const create = superadmin.admin.products.create.handler(async ({ input }: { inpu
 		.returning();
 
 	if (!created) {
-		throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Gagal membuat product" });
+		throw oc.INTERNAL_SERVER_ERROR({ message: "Gagal membuat product" });
 	}
 
 	return {
@@ -145,11 +145,11 @@ const update = superadmin.admin.products.update.handler(async ({ input }: { inpu
 	const [existing] = await db.select().from(product).where(eq(product.id, input.productId)).limit(1);
 
 	if (!existing) {
-		throw new ORPCError("NOT_FOUND", { message: "Product tidak ditemukan" });
+		throw oc.NOT_FOUND({ message: "Product tidak ditemukan" });
 	}
 
 	if (existing.deletedAt) {
-		throw new ORPCError("BAD_REQUEST", {
+		throw oc.BAD_REQUEST({
 			message: "Tidak dapat mengupdate product yang sudah dihapus. Gunakan restore terlebih dahulu.",
 		});
 	}
@@ -160,7 +160,7 @@ const update = superadmin.admin.products.update.handler(async ({ input }: { inpu
 		const month = input.fixedExpiryMonth ?? existing.fixedExpiryMonth;
 		const day = input.fixedExpiryDay ?? existing.fixedExpiryDay;
 		if (!month || !day) {
-			throw new ORPCError("BAD_REQUEST", {
+			throw oc.BAD_REQUEST({
 				message: "fixedExpiryMonth dan fixedExpiryDay wajib diisi untuk variant fixed_date",
 			});
 		}
@@ -169,14 +169,14 @@ const update = superadmin.admin.products.update.handler(async ({ input }: { inpu
 	if (effectiveVariant === "monthly") {
 		const duration = input.durationDays ?? existing.durationDays;
 		if (!duration || duration < 1) {
-			throw new ORPCError("BAD_REQUEST", { message: "durationDays wajib diisi untuk variant monthly" });
+			throw oc.BAD_REQUEST({ message: "durationDays wajib diisi untuk variant monthly" });
 		}
 	}
 
 	if (effectiveVariant === "credits") {
 		const credits = input.credits ?? existing.credits;
 		if (!credits || credits < 1) {
-			throw new ORPCError("BAD_REQUEST", { message: "credits wajib diisi untuk variant credits" });
+			throw oc.BAD_REQUEST({ message: "credits wajib diisi untuk variant credits" });
 		}
 	}
 
@@ -185,7 +185,7 @@ const update = superadmin.admin.products.update.handler(async ({ input }: { inpu
 	if (nextSlug && nextSlug !== existing.slug) {
 		const [slugConflict] = await db.select().from(product).where(eq(product.slug, nextSlug)).limit(1);
 		if (slugConflict) {
-			throw new ORPCError("BAD_REQUEST", { message: `Slug "${nextSlug}" sudah digunakan` });
+			throw oc.BAD_REQUEST({ message: `Slug "${nextSlug}" sudah digunakan` });
 		}
 	}
 
@@ -238,7 +238,7 @@ const update = superadmin.admin.products.update.handler(async ({ input }: { inpu
 	const [updated] = await db.update(product).set(updateData).where(eq(product.id, input.productId)).returning();
 
 	if (!updated) {
-		throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Gagal memperbarui product" });
+		throw oc.INTERNAL_SERVER_ERROR({ message: "Gagal memperbarui product" });
 	}
 
 	return { message: "Product berhasil diperbarui" };
@@ -248,11 +248,11 @@ const deleteProduct = superadmin.admin.products.delete.handler(async ({ input }:
 	const [existing] = await db.select().from(product).where(eq(product.id, input.productId)).limit(1);
 
 	if (!existing) {
-		throw new ORPCError("NOT_FOUND", { message: "Product tidak ditemukan" });
+		throw oc.NOT_FOUND({ message: "Product tidak ditemukan" });
 	}
 
 	if (existing.deletedAt) {
-		throw new ORPCError("BAD_REQUEST", { message: "Product sudah dihapus" });
+		throw oc.BAD_REQUEST({ message: "Product sudah dihapus" });
 	}
 
 	const [updated] = await db
@@ -262,7 +262,7 @@ const deleteProduct = superadmin.admin.products.delete.handler(async ({ input }:
 		.returning();
 
 	if (!updated) {
-		throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Gagal menghapus product" });
+		throw oc.INTERNAL_SERVER_ERROR({ message: "Gagal menghapus product" });
 	}
 
 	return { message: "Product berhasil dihapus" };
@@ -276,7 +276,7 @@ const restore = superadmin.admin.products.restore.handler(async ({ input }: { in
 		.limit(1);
 
 	if (!existing) {
-		throw new ORPCError("NOT_FOUND", { message: "Product tidak ditemukan atau belum dihapus" });
+		throw oc.NOT_FOUND({ message: "Product tidak ditemukan atau belum dihapus" });
 	}
 
 	const [updated] = await db
@@ -286,7 +286,7 @@ const restore = superadmin.admin.products.restore.handler(async ({ input }: { in
 		.returning();
 
 	if (!updated) {
-		throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Gagal memulihkan product" });
+		throw oc.INTERNAL_SERVER_ERROR({ message: "Gagal memulihkan product" });
 	}
 
 	return { message: "Product berhasil dipulihkan" };
