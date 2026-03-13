@@ -2,36 +2,34 @@ import { db } from "@bimbelbeta/db";
 import { tryout } from "@bimbelbeta/db/schema/tryout";
 import { and, eq, gt, ilike } from "drizzle-orm";
 import { admin } from "../../..";
-import type { HandlerOptions } from "../../../lib/router-definition/handler-options";
+
 import { tryoutAttemptRouter } from "./attempt";
 
-const createTryout = admin.admin.tryout.createTryout.handler(
-	async ({ input, errors }: HandlerOptions<typeof admin.admin.tryout.createTryout>) => {
-		const [created] = await db
-			.insert(tryout)
-			.values({
-				title: input.title,
-				description: input.description ?? null,
-				category: input.category,
-				status: input.status ?? "draft",
-				startsAt: input.startsAt ? new Date(input.startsAt) : null,
-				endsAt: input.endsAt ? new Date(input.endsAt) : null,
-			})
-			.returning();
+const createTryout = admin.admin.tryout.createTryout.handler(async ({ input, errors }) => {
+	const [created] = await db
+		.insert(tryout)
+		.values({
+			title: input.title,
+			description: input.description ?? null,
+			category: input.category,
+			status: input.status ?? "draft",
+			startsAt: input.startsAt ? new Date(input.startsAt) : null,
+			endsAt: input.endsAt ? new Date(input.endsAt) : null,
+		})
+		.returning();
 
-		if (!created)
-			throw errors.INTERNAL_SERVER_ERROR({
-				message: "Gagal membuat tryout",
-			});
+	if (!created)
+		throw errors.INTERNAL_SERVER_ERROR({
+			message: "Gagal membuat tryout",
+		});
 
-		return {
-			message: "Tryout berhasil dibuat",
-			id: created.id,
-		};
-	},
-);
+	return {
+		message: "Tryout berhasil dibuat",
+		id: created.id,
+	};
+});
 
-const list = admin.admin.tryout.list.handler(async ({ input, errors }: HandlerOptions<typeof admin.admin.tryout.list>) => {
+const list = admin.admin.tryout.list.handler(async ({ input }) => {
 	const rows = await db
 		.select()
 		.from(tryout)
@@ -56,7 +54,7 @@ const list = admin.admin.tryout.list.handler(async ({ input, errors }: HandlerOp
 	};
 });
 
-const find = admin.admin.tryout.find.handler(async ({ input, errors }: HandlerOptions<typeof admin.admin.tryout.find>) => {
+const find = admin.admin.tryout.find.handler(async ({ input, errors }) => {
 	const [tryoutData] = await db.select().from(tryout).where(eq(tryout.id, input.id)).limit(1);
 
 	if (!tryoutData)
@@ -78,52 +76,48 @@ const find = admin.admin.tryout.find.handler(async ({ input, errors }: HandlerOp
 	};
 });
 
-const updateTryout = admin.admin.tryout.updateTryout.handler(
-	async ({ input, errors }: HandlerOptions<typeof admin.admin.tryout.updateTryout>) => {
-		const updateData: {
-			title?: string;
-			description?: string | null;
-			category?: "sd" | "smp" | "sma" | "utbk";
-			duration?: number;
-			status?: "draft" | "published" | "archived";
-			startsAt?: Date | null;
-			endsAt?: Date | null;
-			updatedAt: Date;
-		} = {
-			updatedAt: new Date(),
-		};
+const updateTryout = admin.admin.tryout.updateTryout.handler(async ({ input, errors }) => {
+	const updateData: {
+		title?: string;
+		description?: string | null;
+		category?: "sd" | "smp" | "sma" | "utbk";
+		duration?: number;
+		status?: "draft" | "published" | "archived";
+		startsAt?: Date | null;
+		endsAt?: Date | null;
+		updatedAt: Date;
+	} = {
+		updatedAt: new Date(),
+	};
 
-		if (input.title !== undefined) updateData.title = input.title;
-		if (input.description !== undefined) updateData.description = input.description ?? null;
-		if (input.category !== undefined) updateData.category = input.category;
-		if (input.status !== undefined) updateData.status = input.status;
-		if (input.startsAt !== undefined) updateData.startsAt = input.startsAt ? new Date(input.startsAt) : null;
-		if (input.endsAt !== undefined) updateData.endsAt = input.endsAt ? new Date(input.endsAt) : null;
+	if (input.title !== undefined) updateData.title = input.title;
+	if (input.description !== undefined) updateData.description = input.description ?? null;
+	if (input.category !== undefined) updateData.category = input.category;
+	if (input.status !== undefined) updateData.status = input.status;
+	if (input.startsAt !== undefined) updateData.startsAt = input.startsAt ? new Date(input.startsAt) : null;
+	if (input.endsAt !== undefined) updateData.endsAt = input.endsAt ? new Date(input.endsAt) : null;
 
-		const [updated] = await db.update(tryout).set(updateData).where(eq(tryout.id, input.id)).returning();
+	const [updated] = await db.update(tryout).set(updateData).where(eq(tryout.id, input.id)).returning();
 
-		if (!updated)
-			throw errors.NOT_FOUND({
-				message: "Tryout tidak ditemukan",
-			});
+	if (!updated)
+		throw errors.NOT_FOUND({
+			message: "Tryout tidak ditemukan",
+		});
 
-		return { message: "Tryout berhasil diperbarui" };
-	},
-);
+	return { message: "Tryout berhasil diperbarui" };
+});
 
-const deleteTryout = admin.admin.tryout.deleteTryout.handler(
-	async ({ input, errors }: HandlerOptions<typeof admin.admin.tryout.deleteTryout>) => {
-		const [deleted] = await db.delete(tryout).where(eq(tryout.id, input.id)).returning();
+const deleteTryout = admin.admin.tryout.deleteTryout.handler(async ({ input, errors }) => {
+	const [deleted] = await db.delete(tryout).where(eq(tryout.id, input.id)).returning();
 
-		if (!deleted) {
-			throw errors.NOT_FOUND({
-				message: "Tryout tidak ditemukan",
-			});
-		}
+	if (!deleted) {
+		throw errors.NOT_FOUND({
+			message: "Tryout tidak ditemukan",
+		});
+	}
 
-		return { message: "Tryout berhasil dihapus" };
-	},
-);
+	return { message: "Tryout berhasil dihapus" };
+});
 
 export const tryoutRouter = {
 	createTryout,

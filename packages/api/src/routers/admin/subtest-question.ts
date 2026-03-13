@@ -4,40 +4,37 @@ import { tryoutSubtestQuestion } from "@bimbelbeta/db/schema/tryout";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { admin } from "../..";
 import { convertToTiptap } from "../../lib/convert-to-tiptap";
-import type { HandlerOptions } from "../../lib/router-definition/handler-options";
 
-const list = admin.admin.tryout.questionsBulk.list.handler(
-	async ({ input, errors }: HandlerOptions<typeof admin.admin.tryout.questionsBulk.list>) => {
-		const questionsData = await db
-			.select({
-				id: tryoutSubtestQuestion.questionId,
-				order: tryoutSubtestQuestion.order,
-				question: {
-					id: question.id,
-					type: question.type,
-					content: question.content,
-					contentJson: question.contentJson,
-				},
-			})
-			.from(tryoutSubtestQuestion)
-			.innerJoin(question, eq(tryoutSubtestQuestion.questionId, question.id))
-			.where(eq(tryoutSubtestQuestion.subtestId, input.subtestId))
-			.orderBy(tryoutSubtestQuestion.order);
+const list = admin.admin.tryout.questionsBulk.list.handler(async ({ input }) => {
+	const questionsData = await db
+		.select({
+			id: tryoutSubtestQuestion.questionId,
+			order: tryoutSubtestQuestion.order,
+			question: {
+				id: question.id,
+				type: question.type,
+				content: question.content,
+				contentJson: question.contentJson,
+			},
+		})
+		.from(tryoutSubtestQuestion)
+		.innerJoin(question, eq(tryoutSubtestQuestion.questionId, question.id))
+		.where(eq(tryoutSubtestQuestion.subtestId, input.subtestId))
+		.orderBy(tryoutSubtestQuestion.order);
 
-		return {
-			questions: questionsData.map((q) => ({
-				...q,
-				question: {
-					...q.question,
-					content: q.question.contentJson ?? convertToTiptap(q.question.content),
-				},
-			})),
-		};
-	},
-);
+	return {
+		questions: questionsData.map((q) => ({
+			...q,
+			question: {
+				...q.question,
+				content: q.question.contentJson ?? convertToTiptap(q.question.content),
+			},
+		})),
+	};
+});
 
 const addQuestionToSubtest = admin.admin.tryout.questionsBulk.addQuestionToSubtest.handler(
-	async ({ input, errors }: HandlerOptions<typeof admin.admin.tryout.questionsBulk.addQuestionToSubtest>) => {
+	async ({ input, errors }) => {
 		let nextOrder = input.order;
 
 		if (nextOrder === undefined) {
@@ -56,7 +53,7 @@ const addQuestionToSubtest = admin.admin.tryout.questionsBulk.addQuestionToSubte
 				order: nextOrder,
 			});
 		} catch (_error) {
-			throw errors.CONFLICT({
+			throw errors.BAD_REQUEST({
 				message: "Question sudah ada di subtest ini",
 			});
 		}
@@ -66,7 +63,7 @@ const addQuestionToSubtest = admin.admin.tryout.questionsBulk.addQuestionToSubte
 );
 
 const bulkAddQuestionsToSubtest = admin.admin.tryout.questionsBulk.bulkAddQuestionsToSubtest.handler(
-	async ({ input, errors }: HandlerOptions<typeof admin.admin.tryout.questionsBulk.bulkAddQuestionsToSubtest>) => {
+	async ({ input, errors }) => {
 		if (!input.questionIds || input.questionIds.length === 0) {
 			throw errors.BAD_REQUEST({
 				message: "Question IDs tidak boleh kosong",
@@ -110,7 +107,7 @@ const bulkAddQuestionsToSubtest = admin.admin.tryout.questionsBulk.bulkAddQuesti
 );
 
 const bulkRemoveQuestionsFromSubtest = admin.admin.tryout.questionsBulk.bulkRemoveQuestionsFromSubtest.handler(
-	async ({ input, errors }: HandlerOptions<typeof admin.admin.tryout.questionsBulk.bulkRemoveQuestionsFromSubtest>) => {
+	async ({ input, errors }) => {
 		if (!input.questionIds || input.questionIds.length === 0) {
 			throw errors.BAD_REQUEST({
 				message: "Question IDs tidak boleh kosong",
@@ -135,7 +132,7 @@ const bulkRemoveQuestionsFromSubtest = admin.admin.tryout.questionsBulk.bulkRemo
 );
 
 const updateSubtestQuestionOrder = admin.admin.tryout.questionsBulk.updateSubtestQuestionOrder.handler(
-	async ({ input, errors }: HandlerOptions<typeof admin.admin.tryout.questionsBulk.updateSubtestQuestionOrder>) => {
+	async ({ input, errors }) => {
 		const [updated] = await db
 			.update(tryoutSubtestQuestion)
 			.set({ order: input.order })
@@ -152,7 +149,7 @@ const updateSubtestQuestionOrder = admin.admin.tryout.questionsBulk.updateSubtes
 );
 
 const removeQuestionFromSubtest = admin.admin.tryout.questionsBulk.removeQuestionFromSubtest.handler(
-	async ({ input, errors }: HandlerOptions<typeof admin.admin.tryout.questionsBulk.removeQuestionFromSubtest>) => {
+	async ({ input, errors }) => {
 		const [deleted] = await db
 			.delete(tryoutSubtestQuestion)
 			.where(

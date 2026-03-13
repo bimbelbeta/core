@@ -47,13 +47,13 @@ export const requireAuth = o.middleware(async ({ context, next, errors }) => {
 	});
 });
 
-export const requirePremium = o.middleware(({ context, next }) => {
+export const requirePremium = o.middleware(({ context, next, errors }) => {
 	if (
 		!context.session?.user.isPremium &&
 		context.session?.user.role !== "admin" &&
 		context.session?.user.role !== "superadmin"
 	)
-		throw errors.ERROR_CODE();
+		throw errors.FORBIDDEN();
 
 	return next({
 		context: {

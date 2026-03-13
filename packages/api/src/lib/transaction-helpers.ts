@@ -1,4 +1,3 @@
-import { oc } from "@bimbelbeta/contract";
 import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { creditTransaction } from "@bimbelbeta/db/schema/credit";
@@ -72,9 +71,7 @@ export async function verifyMidtransTransaction(orderId: string): Promise<Midtra
 
 	if (!statusResponse.ok) {
 		console.error(`Midtrans API error: ${statusResponse.status}`);
-		throw oc.INTERNAL_SERVER_ERROR({
-			message: "Failed to verify transaction status",
-		});
+		throw new Error("Failed to verify transaction status");
 	}
 
 	return statusResponse.json() as Promise<MidtransStatus>;

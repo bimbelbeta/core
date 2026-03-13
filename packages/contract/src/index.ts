@@ -21,4 +21,5 @@ export const contract = {
 };
 
 // Export the orpc errors helpers so runtime code can construct typed errors
-export { oc } from "./lib/contract-definition";
+// Also export a typed alias named `errors` for clearer runtime imports
+export { oc, oc as errors } from "./lib/contract-definition";

@@ -1,4 +1,3 @@
-import { oc } from "@bimbelbeta/contract";
 import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { creditTransaction } from "@bimbelbeta/db/schema/credit";
@@ -11,16 +10,6 @@ type ListUsersInput = {
 	search?: string;
 	role?: "user" | "admin" | "superadmin";
 	isPremium?: boolean;
-};
-
-type GetUserInput = {
-	userId: string;
-};
-
-type UpdateUserInput = GetUserInput & {
-	role?: "user" | "admin" | "superadmin";
-	isPremium?: boolean;
-	premiumExpiresAt?: Date | null;
 };
 
 const list = superadmin.admin.users.list.handler(async ({ input }: { input: ListUsersInput }) => {
@@ -48,11 +37,11 @@ const list = superadmin.admin.users.list.handler(async ({ input }: { input: List
 	};
 });
 
-const find = superadmin.admin.users.find.handler(async ({ input }: { input: GetUserInput }) => {
+const find = superadmin.admin.users.find.handler(async ({ input, errors }) => {
 	const [userData] = await db.select().from(user).where(eq(user.id, input.userId)).limit(1);
 
 	if (!userData) {
-		throw oc.NOT_FOUND({ message: "User tidak ditemukan" });
+		throw errors.NOT_FOUND({ message: "User tidak ditemukan" });
 	}
 
 	const history = await db
@@ -68,11 +57,11 @@ const find = superadmin.admin.users.find.handler(async ({ input }: { input: GetU
 	};
 });
 
-const update = superadmin.admin.users.update.handler(async ({ input }: { input: UpdateUserInput }) => {
+const update = superadmin.admin.users.update.handler(async ({ input, errors }) => {
 	const [existingUser] = await db.select().from(user).where(eq(user.id, input.userId)).limit(1);
 
 	if (!existingUser) {
-		throw oc.NOT_FOUND({ message: "User tidak ditemukan" });
+		throw errors.NOT_FOUND({ message: "User tidak ditemukan" });
 	}
 
 	const updateData: {
@@ -93,7 +82,7 @@ const update = superadmin.admin.users.update.handler(async ({ input }: { input: 
 	const [updated] = await db.update(user).set(updateData).where(eq(user.id, input.userId)).returning();
 
 	if (!updated) {
-		throw oc.INTERNAL_SERVER_ERROR({ message: "Gagal memperbarui user" });
+		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memperbarui user" });
 	}
 
 	return { message: "User berhasil diperbarui" };
