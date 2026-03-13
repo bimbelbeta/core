@@ -2,15 +2,12 @@ import { db } from "@bimbelbeta/db";
 import { product, transaction } from "@bimbelbeta/db/schema/transaction";
 import { eq } from "drizzle-orm";
 import { authed, pub } from "../index";
-import { createSubscriptionTransaction } from "../lib/midtrans";
-
-import {
-	calculatePurchaseBenefits,
-	fetchTransactionWithProduct,
-	processSuccessfulTransaction,
-	updateTransactionStatus,
-	verifyMidtransTransaction,
-} from "../lib/transaction-helpers";
+import { calculatePurchaseBenefits } from "../lib/transactions/benefits";
+import { createSubscriptionTransaction } from "../lib/transactions/client";
+import { processSuccessfulTransaction } from "../lib/transactions/processor";
+import { fetchTransactionWithProduct } from "../lib/transactions/products";
+import { updateTransactionStatus } from "../lib/transactions/status";
+import { verifyMidtransTransaction } from "../lib/transactions/verification";
 
 const subscribe = authed.transaction.subscribe.handler(async ({ input, context, errors }) => {
 	const [plan] = await db.select().from(product).where(eq(product.slug, input.slug)).limit(1);
