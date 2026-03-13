@@ -44,7 +44,7 @@ export const Route = createFileRoute("/admin/classes/$subjectId/")({
 	validateSearch: searchSchema,
 });
 
-type ContentListItem = NonNullable<BodyOutputs["subject"]["listContentBySubjectCategory"]>["items"][number];
+type ContentListItem = NonNullable<BodyOutputs["subject"]["listContent"]>["items"][number];
 
 function RouteComponent() {
 	const { subjectId: rawSubjectId } = Route.useParams();
@@ -70,7 +70,7 @@ function RouteComponent() {
 	};
 
 	const contents = useQuery(
-		orpc.subject.listContentBySubjectCategory.queryOptions({
+		orpc.subject.listContent.queryOptions({
 			input: {
 				subjectId,
 				search: searchQuery || undefined,

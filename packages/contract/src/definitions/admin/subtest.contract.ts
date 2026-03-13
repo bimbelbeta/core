@@ -13,7 +13,7 @@ const SubtestSchema = type({
 });
 
 export const adminSubtestContract = {
-	getSubtest: oc
+	find: oc
 		.route({ path: "/admin/tryouts/subtests/{id}", method: "GET", tags: ["Admin - Tryouts"] })
 		.input(type({ id: "number" }))
 		.output(SubtestSchema),

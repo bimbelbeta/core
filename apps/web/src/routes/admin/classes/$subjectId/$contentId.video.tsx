@@ -38,7 +38,7 @@ function RouteComponent() {
 	const [showPreview, setShowPreview] = useState(true);
 
 	const content = useQuery(
-		orpc.subject.getContentById.queryOptions({
+		orpc.subject.findContent.queryOptions({
 			input: { contentId },
 		}),
 	);
@@ -48,7 +48,7 @@ function RouteComponent() {
 			onSuccess: (data) => {
 				toast.success(data.message);
 				queryClient.invalidateQueries({
-					queryKey: orpc.subject.getContentById.queryKey({
+					queryKey: orpc.subject.findContent.queryKey({
 						input: {
 							contentId,
 						},
@@ -66,7 +66,7 @@ function RouteComponent() {
 			onSuccess: (data) => {
 				toast.success(data.message);
 				queryClient.invalidateQueries({
-					queryKey: orpc.subject.getContentById.queryKey({
+					queryKey: orpc.subject.findContent.queryKey({
 						input: {
 							contentId,
 						},

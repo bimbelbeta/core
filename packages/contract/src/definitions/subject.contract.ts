@@ -106,7 +106,7 @@ const ProgressStatsSchema = type({
 });
 
 export const subjectContract = {
-	listSubjects: oc
+	list: oc
 		.route({
 			path: "/subjects",
 			method: "GET",
@@ -119,7 +119,7 @@ export const subjectContract = {
 			}),
 		)
 		.output(SubjectWithContentSchema.array()),
-	listContentBySubjectCategory: oc
+	listContent: oc
 		.route({
 			path: "/subjects/{subjectId}/content",
 			method: "GET",
@@ -134,7 +134,7 @@ export const subjectContract = {
 			}),
 		)
 		.output(SubjectContentSchema),
-	getContentById: oc
+	findContent: oc
 		.route({
 			path: "/content/{contentId}",
 			method: "GET",
@@ -154,7 +154,7 @@ export const subjectContract = {
 		})
 		.input(type({ id: "number" }))
 		.output(MessageResponseSchema),
-	getRecentViews: oc
+	listRecentViews: oc
 		.route({
 			path: "/content/recent",
 			method: "GET",
@@ -177,7 +177,7 @@ export const subjectContract = {
 		})
 		.input(UpdateProgressInputSchema)
 		.output(MessageResponseSchema),
-	getProgressStats: oc
+	stats: oc
 		.route({
 			path: "/content/progress/stats",
 			method: "GET",

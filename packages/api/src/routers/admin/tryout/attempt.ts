@@ -10,7 +10,7 @@ type GetByTryoutInput = {
 	limit: number;
 };
 
-const getByTryout = admin.admin.tryout.attempts.getByTryout.handler(async ({ input }: { input: GetByTryoutInput }) => {
+const list = admin.admin.tryout.attempts.list.handler(async ({ input }: { input: GetByTryoutInput }) => {
 	const rows = await db
 		.select({
 			attempt: tryoutAttempt,
@@ -44,5 +44,5 @@ const getByTryout = admin.admin.tryout.attempts.getByTryout.handler(async ({ inp
 });
 
 export const tryoutAttemptRouter = {
-	getByTryout,
+	list,
 };

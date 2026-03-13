@@ -19,7 +19,7 @@ function RouteComponent() {
 	const location = useLocation();
 
 	const content = useQuery(
-		orpc.subject.getContentById.queryOptions({
+		orpc.subject.findContent.queryOptions({
 			input: { contentId },
 		}),
 	);

@@ -78,7 +78,7 @@ export function EditQuestionForm({ question, initialChoices, onSuccess, onCancel
 		orpc.admin.tryout.questions.updateQuestion.mutationOptions({
 			onSuccess: () => {
 				queryClient.invalidateQueries({
-					queryKey: orpc.admin.tryout.questions.getQuestion.queryKey({ input: { id: question.id } }),
+					queryKey: orpc.admin.tryout.questions.find.queryKey({ input: { id: question.id } }),
 				});
 				toast.success("Soal berhasil diperbarui");
 				onSuccess();

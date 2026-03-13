@@ -10,21 +10,19 @@ import { tryoutRouter } from "./tryout";
 import { universityRouter } from "./university";
 import { userSettingsRouter } from "./user-settings";
 
-export const appRouter = o.router(
-  {
-    healthCheck: pub.healthCheck.handler(() => {
-      return { message: "OK" };
-    }),
-    subject: subjectRouter,
-    tryout: tryoutRouter,
-    university: universityRouter,
-    admin: adminRouter,
-    transaction: transactionRouter,
-    credit: creditRouter,
-    product: productRouter,
-    userSettings: userSettingsRouter,
-  },
-);
+export const appRouter = o.router({
+	healthCheck: pub.healthCheck.handler(() => {
+		return { message: "OK" };
+	}),
+	subject: subjectRouter,
+	tryout: tryoutRouter,
+	university: universityRouter,
+	admin: adminRouter,
+	transaction: transactionRouter,
+	credit: creditRouter,
+	product: productRouter,
+	userSettings: userSettingsRouter,
+});
 
 export type AppRouter = typeof appRouter;
 export type AppRouterClient = RouterClient<typeof appRouter>;

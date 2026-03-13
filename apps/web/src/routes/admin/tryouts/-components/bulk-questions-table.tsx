@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import type { BodyOutputs } from "@/utils/orpc";
 
 interface BulkQuestionsTableProps {
-	questions: BodyOutputs["admin"]["tryout"]["questionsBulk"]["listSubtestQuestions"]["questions"];
+	questions: BodyOutputs["admin"]["tryout"]["questionsBulk"]["list"]["questions"];
 	isPending?: boolean;
 	selectedIds: Set<number>;
 	onSelectionChange: (ids: Set<number>) => void;

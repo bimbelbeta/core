@@ -23,7 +23,7 @@ function RouteComponent() {
 	const [showPremiumModal, setShowPremiumModal] = useState(false);
 
 	const content = useQuery({
-		...orpc.subject.getContentById.queryOptions({
+		...orpc.subject.findContent.queryOptions({
 			input: { contentId },
 		}),
 		// Don't retry on 403 FORBIDDEN - user doesn't have access
@@ -68,7 +68,7 @@ function RouteComponent() {
 						// Update last tracked timestamp
 						sessionStorage.setItem(storageKey, now.toString());
 						queryClient.invalidateQueries({
-							queryKey: orpc.subject.getRecentViews.key(),
+							queryKey: orpc.subject.listRecentViews.key(),
 						});
 					},
 				},

@@ -11,7 +11,7 @@ export function PassingGradeActivity() {
 	const [searchQuery, setSearchQuery] = useState("");
 	const debouncedSearchQuery = useDebounceValue(searchQuery, 1500);
 	const { data: universities, isPending } = useQuery(
-		orpc.university.listStudyPrograms.queryOptions({
+		orpc.university.listPrograms.queryOptions({
 			input: {
 				search: debouncedSearchQuery,
 			},

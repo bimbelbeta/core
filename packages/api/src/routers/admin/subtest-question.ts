@@ -4,63 +4,67 @@ import { tryoutSubtestQuestion } from "@bimbelbeta/db/schema/tryout";
 import { ORPCError } from "@orpc/client";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { admin } from "../..";
-import type { HandlerOptions } from "../../lib/router-definition/handler-options";
 import { convertToTiptap } from "../../lib/convert-to-tiptap";
+import type { HandlerOptions } from "../../lib/router-definition/handler-options";
 
-const listSubtestQuestions = admin.admin.tryout.questionsBulk.listSubtestQuestions.handler(async ({ input }: HandlerOptions<typeof admin.admin.tryout.questionsBulk.listSubtestQuestions>) => {
-	const questionsData = await db
-		.select({
-			id: tryoutSubtestQuestion.questionId,
-			order: tryoutSubtestQuestion.order,
-			question: {
-				id: question.id,
-				type: question.type,
-				content: question.content,
-				contentJson: question.contentJson,
-			},
-		})
-		.from(tryoutSubtestQuestion)
-		.innerJoin(question, eq(tryoutSubtestQuestion.questionId, question.id))
-		.where(eq(tryoutSubtestQuestion.subtestId, input.subtestId))
-		.orderBy(tryoutSubtestQuestion.order);
-
-	return {
-		questions: questionsData.map((q) => ({
-			...q,
-			question: {
-				...q.question,
-				content: q.question.contentJson ?? convertToTiptap(q.question.content),
-			},
-		})),
-	};
-});
-
-const addQuestionToSubtest = admin.admin.tryout.questionsBulk.addQuestionToSubtest.handler(async ({ input }: HandlerOptions<typeof admin.admin.tryout.questionsBulk.addQuestionToSubtest>) => {
-	let nextOrder = input.order;
-
-	if (nextOrder === undefined) {
-		const [maxOrderResult] = await db
-			.select({ maxOrder: sql<number>`max(${tryoutSubtestQuestion.order})` })
+const list = admin.admin.tryout.questionsBulk.list.handler(
+	async ({ input }: HandlerOptions<typeof admin.admin.tryout.questionsBulk.list>) => {
+		const questionsData = await db
+			.select({
+				id: tryoutSubtestQuestion.questionId,
+				order: tryoutSubtestQuestion.order,
+				question: {
+					id: question.id,
+					type: question.type,
+					content: question.content,
+					contentJson: question.contentJson,
+				},
+			})
 			.from(tryoutSubtestQuestion)
-			.where(eq(tryoutSubtestQuestion.subtestId, input.subtestId));
+			.innerJoin(question, eq(tryoutSubtestQuestion.questionId, question.id))
+			.where(eq(tryoutSubtestQuestion.subtestId, input.subtestId))
+			.orderBy(tryoutSubtestQuestion.order);
 
-		nextOrder = (maxOrderResult?.maxOrder ?? 0) + 1;
-	}
+		return {
+			questions: questionsData.map((q) => ({
+				...q,
+				question: {
+					...q.question,
+					content: q.question.contentJson ?? convertToTiptap(q.question.content),
+				},
+			})),
+		};
+	},
+);
 
-	try {
-		await db.insert(tryoutSubtestQuestion).values({
-			subtestId: input.subtestId,
-			questionId: input.questionId,
-			order: nextOrder,
-		});
-	} catch (_error) {
-		throw new ORPCError("CONFLICT", {
-			message: "Question sudah ada di subtest ini",
-		});
-	}
+const addQuestionToSubtest = admin.admin.tryout.questionsBulk.addQuestionToSubtest.handler(
+	async ({ input }: HandlerOptions<typeof admin.admin.tryout.questionsBulk.addQuestionToSubtest>) => {
+		let nextOrder = input.order;
 
-	return { message: "Question berhasil ditambahkan ke subtest" };
-});
+		if (nextOrder === undefined) {
+			const [maxOrderResult] = await db
+				.select({ maxOrder: sql<number>`max(${tryoutSubtestQuestion.order})` })
+				.from(tryoutSubtestQuestion)
+				.where(eq(tryoutSubtestQuestion.subtestId, input.subtestId));
+
+			nextOrder = (maxOrderResult?.maxOrder ?? 0) + 1;
+		}
+
+		try {
+			await db.insert(tryoutSubtestQuestion).values({
+				subtestId: input.subtestId,
+				questionId: input.questionId,
+				order: nextOrder,
+			});
+		} catch (_error) {
+			throw new ORPCError("CONFLICT", {
+				message: "Question sudah ada di subtest ini",
+			});
+		}
+
+		return { message: "Question berhasil ditambahkan ke subtest" };
+	},
+);
 
 const bulkAddQuestionsToSubtest = admin.admin.tryout.questionsBulk.bulkAddQuestionsToSubtest.handler(
 	async ({ input }: HandlerOptions<typeof admin.admin.tryout.questionsBulk.bulkAddQuestionsToSubtest>) => {
@@ -171,7 +175,7 @@ const removeQuestionFromSubtest = admin.admin.tryout.questionsBulk.removeQuestio
 );
 
 export const subtestQuestionRouter = {
-	listSubtestQuestions,
+	list,
 	addQuestionToSubtest,
 	bulkAddQuestionsToSubtest,
 	bulkRemoveQuestionsFromSubtest,

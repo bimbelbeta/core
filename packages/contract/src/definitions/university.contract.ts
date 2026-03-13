@@ -77,7 +77,7 @@ const FindOutput = type({
 });
 
 export const universityContract = {
-	listStudyPrograms: oc
+	listPrograms: oc
 		.route({
 			path: "/universities/study-programs",
 			method: "GET",
@@ -93,7 +93,7 @@ export const universityContract = {
 		})
 		.input(ListInput)
 		.output(ListOutput),
-	listStudyProgramsByUniversity: oc
+	listProgramsByUniversity: oc
 		.route({
 			path: "/universities/{universityId}/study-programs",
 			method: "GET",

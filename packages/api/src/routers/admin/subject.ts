@@ -10,87 +10,18 @@ import {
 import { ORPCError } from "@orpc/client";
 import { and, asc, eq } from "drizzle-orm";
 import { admin } from "../..";
-import type { HandlerOptions } from "../../lib/router-definition/handler-options";
 import { convertToTiptap } from "../../lib/convert-to-tiptap";
+import type { HandlerOptions } from "../../lib/router-definition/handler-options";
 
 /**
  * Create new subject (class)
  * POST /api/admin/subjects
  */
-const createSubject = admin.admin.subject.createSubject.handler(async ({ input }: HandlerOptions<typeof admin.admin.subject.createSubject>) => {
-	// Validate gradeLevel based on category
-	if (input.gradeLevel !== undefined && input.gradeLevel !== null) {
-		const category = input.category ?? "utbk";
-		if (category === "utbk") {
-			throw new ORPCError("BAD_REQUEST", {
-				message: "UTBK tidak boleh memiliki gradeLevel",
-			});
-		}
-
-		const validGradeRange: Record<string, [number, number]> = {
-			sd: [1, 6],
-			smp: [7, 9],
-			sma: [10, 12],
-		};
-
-		const range = validGradeRange[category];
-		if (!range) {
-			throw new ORPCError("BAD_REQUEST", {
-				message: `Kategori ${category} tidak valid`,
-			});
-		}
-
-		const [min, max] = range;
-		if (input.gradeLevel < min || input.gradeLevel > max) {
-			throw new ORPCError("BAD_REQUEST", {
-				message: `GradeLevel harus antara ${min} dan ${max} untuk kategori ${category.toUpperCase()}`,
-			});
-		}
-	}
-
-	const [created] = await db
-		.insert(subject)
-		.values({
-			name: input.name,
-			shortName: input.shortName,
-			description: input.description ?? null,
-			order: input.order ?? 1,
-			category: input.category ?? "utbk",
-			gradeLevel: input.gradeLevel ?? null,
-		})
-		.returning();
-
-	if (!created)
-		throw new ORPCError("INTERNAL_SERVER_ERROR", {
-			message: "Gagal membuat kelas",
-		});
-
-	return {
-		message: "Kelas berhasil dibuat",
-		id: created.id,
-	};
-});
-
-/**
- * Update subject (class)
- * PATCH /api/admin/subjects/{id}
- */
-const updateSubject = admin.admin.subject.updateSubject.handler(async ({ input }: HandlerOptions<typeof admin.admin.subject.updateSubject>) => {
-	// Validate gradeLevel based on category if both provided or fetch existing
-	if (input.gradeLevel !== undefined) {
-		let category = input.category;
-
-		// If category not provided, fetch existing
-		if (!category) {
-			const [existing] = await db
-				.select({ category: subject.category })
-				.from(subject)
-				.where(eq(subject.id, input.id))
-				.limit(1);
-			if (existing) category = existing.category;
-		}
-
-		if (input.gradeLevel !== null && category) {
+const createSubject = admin.admin.subject.createSubject.handler(
+	async ({ input }: HandlerOptions<typeof admin.admin.subject.createSubject>) => {
+		// Validate gradeLevel based on category
+		if (input.gradeLevel !== undefined && input.gradeLevel !== null) {
+			const category = input.category ?? "utbk";
 			if (category === "utbk") {
 				throw new ORPCError("BAD_REQUEST", {
 					message: "UTBK tidak boleh memiliki gradeLevel",
@@ -117,649 +48,754 @@ const updateSubject = admin.admin.subject.updateSubject.handler(async ({ input }
 				});
 			}
 		}
-	}
 
-	const updateData: {
-		name?: string;
-		shortName?: string;
-		description?: string | null;
-		order?: number;
-		category?: "sd" | "smp" | "sma" | "utbk";
-		gradeLevel?: number | null;
-		updatedAt: Date;
-	} = {
-		updatedAt: new Date(),
-	};
+		const [created] = await db
+			.insert(subject)
+			.values({
+				name: input.name,
+				shortName: input.shortName,
+				description: input.description ?? null,
+				order: input.order ?? 1,
+				category: input.category ?? "utbk",
+				gradeLevel: input.gradeLevel ?? null,
+			})
+			.returning();
 
-	if (input.name !== undefined) updateData.name = input.name;
-	if (input.shortName !== undefined) updateData.shortName = input.shortName;
-	if (input.description !== undefined) updateData.description = input.description ?? null;
-	if (input.order !== undefined) updateData.order = input.order;
-	if (input.category !== undefined) updateData.category = input.category;
-	if (input.gradeLevel !== undefined) updateData.gradeLevel = input.gradeLevel ?? null;
+		if (!created)
+			throw new ORPCError("INTERNAL_SERVER_ERROR", {
+				message: "Gagal membuat kelas",
+			});
 
-	const [updatedRow] = await db.update(subject).set(updateData).where(eq(subject.id, input.id)).returning();
+		return {
+			message: "Kelas berhasil dibuat",
+			id: created.id,
+		};
+	},
+);
 
-	if (!updatedRow)
-		throw new ORPCError("NOT_FOUND", {
-			message: "Kelas tidak ditemukan",
-		});
+/**
+ * Update subject (class)
+ * PATCH /api/admin/subjects/{id}
+ */
+const updateSubject = admin.admin.subject.updateSubject.handler(
+	async ({ input }: HandlerOptions<typeof admin.admin.subject.updateSubject>) => {
+		// Validate gradeLevel based on category if both provided or fetch existing
+		if (input.gradeLevel !== undefined) {
+			let category = input.category;
 
-	return { message: "Kelas berhasil diperbarui" };
-});
+			// If category not provided, fetch existing
+			if (!category) {
+				const [existing] = await db
+					.select({ category: subject.category })
+					.from(subject)
+					.where(eq(subject.id, input.id))
+					.limit(1);
+				if (existing) category = existing.category;
+			}
+
+			if (input.gradeLevel !== null && category) {
+				if (category === "utbk") {
+					throw new ORPCError("BAD_REQUEST", {
+						message: "UTBK tidak boleh memiliki gradeLevel",
+					});
+				}
+
+				const validGradeRange: Record<string, [number, number]> = {
+					sd: [1, 6],
+					smp: [7, 9],
+					sma: [10, 12],
+				};
+
+				const range = validGradeRange[category];
+				if (!range) {
+					throw new ORPCError("BAD_REQUEST", {
+						message: `Kategori ${category} tidak valid`,
+					});
+				}
+
+				const [min, max] = range;
+				if (input.gradeLevel < min || input.gradeLevel > max) {
+					throw new ORPCError("BAD_REQUEST", {
+						message: `GradeLevel harus antara ${min} dan ${max} untuk kategori ${category.toUpperCase()}`,
+					});
+				}
+			}
+		}
+
+		const updateData: {
+			name?: string;
+			shortName?: string;
+			description?: string | null;
+			order?: number;
+			category?: "sd" | "smp" | "sma" | "utbk";
+			gradeLevel?: number | null;
+			updatedAt: Date;
+		} = {
+			updatedAt: new Date(),
+		};
+
+		if (input.name !== undefined) updateData.name = input.name;
+		if (input.shortName !== undefined) updateData.shortName = input.shortName;
+		if (input.description !== undefined) updateData.description = input.description ?? null;
+		if (input.order !== undefined) updateData.order = input.order;
+		if (input.category !== undefined) updateData.category = input.category;
+		if (input.gradeLevel !== undefined) updateData.gradeLevel = input.gradeLevel ?? null;
+
+		const [updatedRow] = await db.update(subject).set(updateData).where(eq(subject.id, input.id)).returning();
+
+		if (!updatedRow)
+			throw new ORPCError("NOT_FOUND", {
+				message: "Kelas tidak ditemukan",
+			});
+
+		return { message: "Kelas berhasil diperbarui" };
+	},
+);
 
 /**
  * Delete subject (class)
  * DELETE /api/admin/subjects/{id}
  */
-const deleteSubject = admin.admin.subject.deleteSubject.handler(async ({ input }: HandlerOptions<typeof admin.admin.subject.deleteSubject>) => {
-	const [deletedRow] = await db.delete(subject).where(eq(subject.id, input.id)).returning();
+const deleteSubject = admin.admin.subject.deleteSubject.handler(
+	async ({ input }: HandlerOptions<typeof admin.admin.subject.deleteSubject>) => {
+		const [deletedRow] = await db.delete(subject).where(eq(subject.id, input.id)).returning();
 
-	if (!deletedRow)
-		throw new ORPCError("NOT_FOUND", {
-			message: "Kelas tidak ditemukan",
-		});
+		if (!deletedRow)
+			throw new ORPCError("NOT_FOUND", {
+				message: "Kelas tidak ditemukan",
+			});
 
-	return { message: "Kelas berhasil dihapus" };
-});
+		return { message: "Kelas berhasil dihapus" };
+	},
+);
 
 /**
  * Reorder subtests (classes)
  * PATCH /api/admin/subjects/reorder
  */
-const reorderSubjects = admin.admin.subject.reorderSubjects.handler(async ({ input }: HandlerOptions<typeof admin.admin.subject.reorderSubjects>) => {
-	const items = input.items as { id: number; order: number }[];
+const reorderSubjects = admin.admin.subject.reorderSubjects.handler(
+	async ({ input }: HandlerOptions<typeof admin.admin.subject.reorderSubjects>) => {
+		const items = input.items as { id: number; order: number }[];
 
-	await db.transaction(async (tx) => {
-		for (const item of items) {
-			await tx.update(subject).set({ order: item.order, updatedAt: new Date() }).where(eq(subject.id, item.id));
-		}
-	});
+		await db.transaction(async (tx) => {
+			for (const item of items) {
+				await tx.update(subject).set({ order: item.order, updatedAt: new Date() }).where(eq(subject.id, item.id));
+			}
+		});
 
-	return { message: "Urutan kelas berhasil diperbarui" };
-});
+		return { message: "Urutan kelas berhasil diperbarui" };
+	},
+);
 
 /**
  * Create new content item
  * POST /api/admin/content
  */
-const createContent = admin.admin.subject.createContent.handler(async ({ input }: HandlerOptions<typeof admin.admin.subject.createContent>) => {
-	const hasVideo = input.video !== undefined && input.video !== null;
-	const hasNote = input.note !== undefined && input.note !== null;
-	const hasPracticeQuestions =
-		input.practiceQuestionIds !== undefined &&
-		input.practiceQuestionIds !== null &&
-		input.practiceQuestionIds.length > 0;
+const createContent = admin.admin.subject.createContent.handler(
+	async ({ input }: HandlerOptions<typeof admin.admin.subject.createContent>) => {
+		const hasVideo = input.video !== undefined && input.video !== null;
+		const hasNote = input.note !== undefined && input.note !== null;
+		const hasPracticeQuestions =
+			input.practiceQuestionIds !== undefined &&
+			input.practiceQuestionIds !== null &&
+			input.practiceQuestionIds.length > 0;
 
-	if (!hasVideo && !hasNote && !hasPracticeQuestions) {
-		throw new ORPCError("BAD_REQUEST", {
-			message: "Konten harus memiliki minimal salah satu: video, catatan, atau latihan soal",
+		if (!hasVideo && !hasNote && !hasPracticeQuestions) {
+			throw new ORPCError("BAD_REQUEST", {
+				message: "Konten harus memiliki minimal salah satu: video, catatan, atau latihan soal",
+			});
+		}
+
+		// Validate video structure if provided
+		if (hasVideo) {
+			if (
+				typeof input.video !== "object" ||
+				!("title" in input.video) ||
+				!("videoUrl" in input.video) ||
+				!("content" in input.video) ||
+				typeof input.video.title !== "string" ||
+				typeof input.video.videoUrl !== "string" ||
+				!input.video.videoUrl.trim()
+			) {
+				throw new ORPCError("BAD_REQUEST", {
+					message: "Video harus memiliki title, videoUrl, dan content yang valid",
+				});
+			}
+		}
+
+		// Validate note structure if provided
+		if (hasNote) {
+			if (typeof input.note !== "object" || !("content" in input.note) || typeof input.note.content !== "object") {
+				throw new ORPCError("BAD_REQUEST", {
+					message: "Catatan harus memiliki content yang valid (Tiptap JSON)",
+				});
+			}
+		}
+
+		// Create content and materials in a transaction
+		const result = await db.transaction(async (tx) => {
+			// Insert content item
+			const [newContent] = await tx
+				.insert(contentItem)
+				.values({
+					subjectId: input.subjectId,
+					title: input.title,
+					order: input.order,
+				})
+				.returning();
+
+			if (!newContent)
+				throw new ORPCError("INTERNAL_SERVER_ERROR", {
+					message: "Gagal membuat konten",
+				});
+
+			const createdMaterials: {
+				video?: number;
+				note?: number;
+				practiceQuestions?: number;
+			} = {};
+
+			// Insert video material if provided
+			if (hasVideo && input.video) {
+				const [video] = await tx
+					.insert(videoMaterial)
+					.values({
+						contentItemId: newContent.id,
+						videoUrl: (input.video as { videoUrl: string }).videoUrl,
+						content: (input.video as { content: object }).content,
+					})
+					.returning();
+
+				if (video) createdMaterials.video = video.id;
+			}
+
+			// Insert note material if provided
+			if (hasNote && input.note) {
+				const [note] = await tx
+					.insert(noteMaterial)
+					.values({
+						contentItemId: newContent.id,
+						content: (input.note as { content: object }).content,
+					})
+					.returning();
+
+				if (note) createdMaterials.note = note.id;
+			}
+
+			// Insert practice questions if provided
+			if (hasPracticeQuestions && input.practiceQuestionIds) {
+				await tx.insert(contentPracticeQuestions).values(
+					input.practiceQuestionIds.map((questionId: number, index: number) => ({
+						contentItemId: newContent.id,
+						questionId,
+						order: index + 1,
+					})),
+				);
+
+				createdMaterials.practiceQuestions = input.practiceQuestionIds.length;
+			}
+
+			return {
+				contentId: newContent.id,
+				createdMaterials,
+			};
 		});
-	}
-
-	// Validate video structure if provided
-	if (hasVideo) {
-		if (
-			typeof input.video !== "object" ||
-			!("title" in input.video) ||
-			!("videoUrl" in input.video) ||
-			!("content" in input.video) ||
-			typeof input.video.title !== "string" ||
-			typeof input.video.videoUrl !== "string" ||
-			!input.video.videoUrl.trim()
-		) {
-			throw new ORPCError("BAD_REQUEST", {
-				message: "Video harus memiliki title, videoUrl, dan content yang valid",
-			});
-		}
-	}
-
-	// Validate note structure if provided
-	if (hasNote) {
-		if (typeof input.note !== "object" || !("content" in input.note) || typeof input.note.content !== "object") {
-			throw new ORPCError("BAD_REQUEST", {
-				message: "Catatan harus memiliki content yang valid (Tiptap JSON)",
-			});
-		}
-	}
-
-	// Create content and materials in a transaction
-	const result = await db.transaction(async (tx) => {
-		// Insert content item
-		const [newContent] = await tx
-			.insert(contentItem)
-			.values({
-				subjectId: input.subjectId,
-				title: input.title,
-				order: input.order,
-			})
-			.returning();
-
-		if (!newContent)
-			throw new ORPCError("INTERNAL_SERVER_ERROR", {
-				message: "Gagal membuat konten",
-			});
-
-		const createdMaterials: {
-			video?: number;
-			note?: number;
-			practiceQuestions?: number;
-		} = {};
-
-		// Insert video material if provided
-		if (hasVideo && input.video) {
-			const [video] = await tx
-				.insert(videoMaterial)
-				.values({
-					contentItemId: newContent.id,
-					videoUrl: (input.video as { videoUrl: string }).videoUrl,
-					content: (input.video as { content: object }).content,
-				})
-				.returning();
-
-			if (video) createdMaterials.video = video.id;
-		}
-
-		// Insert note material if provided
-		if (hasNote && input.note) {
-			const [note] = await tx
-				.insert(noteMaterial)
-				.values({
-					contentItemId: newContent.id,
-					content: (input.note as { content: object }).content,
-				})
-				.returning();
-
-			if (note) createdMaterials.note = note.id;
-		}
-
-		// Insert practice questions if provided
-		if (hasPracticeQuestions && input.practiceQuestionIds) {
-			await tx.insert(contentPracticeQuestions).values(
-				input.practiceQuestionIds.map((questionId: number, index: number) => ({
-					contentItemId: newContent.id,
-					questionId,
-					order: index + 1,
-				})),
-			);
-
-			createdMaterials.practiceQuestions = input.practiceQuestionIds.length;
-		}
 
 		return {
-			contentId: newContent.id,
-			createdMaterials,
+			message: "Konten berhasil dibuat",
+			contentId: result.contentId,
+			createdMaterials: result.createdMaterials,
 		};
-	});
-
-	return {
-		message: "Konten berhasil dibuat",
-		contentId: result.contentId,
-		createdMaterials: result.createdMaterials,
-	};
-});
+	},
+);
 
 /**
  * Update content item
  * PATCH /api/admin/content/{id}
  */
-const updateContent = admin.admin.subject.updateContent.handler(async ({ input }: HandlerOptions<typeof admin.admin.subject.updateContent>) => {
-	const updateData: { title?: string; order?: number; updatedAt: Date } = {
-		updatedAt: new Date(),
-	};
+const updateContent = admin.admin.subject.updateContent.handler(
+	async ({ input }: HandlerOptions<typeof admin.admin.subject.updateContent>) => {
+		const updateData: { title?: string; order?: number; updatedAt: Date } = {
+			updatedAt: new Date(),
+		};
 
-	if (input.title !== undefined) updateData.title = input.title;
-	if (input.order !== undefined) updateData.order = input.order;
+		if (input.title !== undefined) updateData.title = input.title;
+		if (input.order !== undefined) updateData.order = input.order;
 
-	const [updated] = await db.update(contentItem).set(updateData).where(eq(contentItem.id, input.id)).returning();
+		const [updated] = await db.update(contentItem).set(updateData).where(eq(contentItem.id, input.id)).returning();
 
-	if (!updated)
-		throw new ORPCError("NOT_FOUND", {
-			message: "Konten tidak ditemukan",
-		});
+		if (!updated)
+			throw new ORPCError("NOT_FOUND", {
+				message: "Konten tidak ditemukan",
+			});
 
-	return { message: "Konten berhasil diperbarui" };
-});
+		return { message: "Konten berhasil diperbarui" };
+	},
+);
 
 /**
  * Delete content item
  * DELETE /api/admin/content/{id}
  */
-const deleteContent = admin.admin.subject.deleteContent.handler(async ({ input }: HandlerOptions<typeof admin.admin.subject.deleteContent>) => {
-	const [deleted] = await db.delete(contentItem).where(eq(contentItem.id, input.id)).returning();
+const deleteContent = admin.admin.subject.deleteContent.handler(
+	async ({ input }: HandlerOptions<typeof admin.admin.subject.deleteContent>) => {
+		const [deleted] = await db.delete(contentItem).where(eq(contentItem.id, input.id)).returning();
 
-	if (!deleted)
-		throw new ORPCError("NOT_FOUND", {
-			message: "Konten tidak ditemukan",
-		});
+		if (!deleted)
+			throw new ORPCError("NOT_FOUND", {
+				message: "Konten tidak ditemukan",
+			});
 
-	return { message: "Konten berhasil dihapus" };
-});
+		return { message: "Konten berhasil dihapus" };
+	},
+);
 
 /**
  * Reorder content items
  * PATCH /api/admin/content/reorder
  */
-const reorderContent = admin.admin.subject.reorderContent.handler(async ({ input }: HandlerOptions<typeof admin.admin.subject.reorderContent>) => {
-	// Validate items array at runtime
-	if (!Array.isArray(input.items)) {
-		throw new ORPCError("BAD_REQUEST", {
-			message: "Items harus berupa array",
-		});
-	}
-
-	const items = input.items as { id: number; order: number }[];
-
-	// Validate each item
-	for (const item of items) {
-		if (typeof item.id !== "number" || typeof item.order !== "number") {
+const reorderContent = admin.admin.subject.reorderContent.handler(
+	async ({ input }: HandlerOptions<typeof admin.admin.subject.reorderContent>) => {
+		// Validate items array at runtime
+		if (!Array.isArray(input.items)) {
 			throw new ORPCError("BAD_REQUEST", {
-				message: "Setiap item harus memiliki id dan order bertipe number",
+				message: "Items harus berupa array",
 			});
 		}
-	}
 
-	// Use transaction for atomic updates
-	// First set all orders to negative values to avoid unique constraint violation
-	// Then set them to their final values
-	await db.transaction(async (tx) => {
-		// Step 1: Set all orders to negative (temporary) values
-		for (const [i, item] of items.entries()) {
-			await tx
-				.update(contentItem)
-				.set({ order: -(i + 1000), updatedAt: new Date() })
-				.where(and(eq(contentItem.id, item.id), eq(contentItem.subjectId, input.subjectId)));
-		}
+		const items = input.items as { id: number; order: number }[];
 
-		// Step 2: Set final order values
+		// Validate each item
 		for (const item of items) {
-			await tx
-				.update(contentItem)
-				.set({ order: item.order, updatedAt: new Date() })
-				.where(and(eq(contentItem.id, item.id), eq(contentItem.subjectId, input.subjectId)));
+			if (typeof item.id !== "number" || typeof item.order !== "number") {
+				throw new ORPCError("BAD_REQUEST", {
+					message: "Setiap item harus memiliki id dan order bertipe number",
+				});
+			}
 		}
-	});
 
-	return { message: "Urutan konten berhasil diperbarui" };
-});
+		// Use transaction for atomic updates
+		// First set all orders to negative values to avoid unique constraint violation
+		// Then set them to their final values
+		await db.transaction(async (tx) => {
+			// Step 1: Set all orders to negative (temporary) values
+			for (const [i, item] of items.entries()) {
+				await tx
+					.update(contentItem)
+					.set({ order: -(i + 1000), updatedAt: new Date() })
+					.where(and(eq(contentItem.id, item.id), eq(contentItem.subjectId, input.subjectId)));
+			}
+
+			// Step 2: Set final order values
+			for (const item of items) {
+				await tx
+					.update(contentItem)
+					.set({ order: item.order, updatedAt: new Date() })
+					.where(and(eq(contentItem.id, item.id), eq(contentItem.subjectId, input.subjectId)));
+			}
+		});
+
+		return { message: "Urutan konten berhasil diperbarui" };
+	},
+);
 
 /**
  * Add/Update video material
  * POST /api/admin/content/{id}/video
  */
-const upsertVideo = admin.admin.subject.upsertVideo.handler(async ({ input }: HandlerOptions<typeof admin.admin.subject.upsertVideo>) => {
-	// Validate video URL
-	if (!input.videoUrl) {
-		throw new ORPCError("BAD_REQUEST", {
-			message: "Video URL wajib diisi",
-		});
-	}
+const upsertVideo = admin.admin.subject.upsertVideo.handler(
+	async ({ input }: HandlerOptions<typeof admin.admin.subject.upsertVideo>) => {
+		// Validate video URL
+		if (!input.videoUrl) {
+			throw new ORPCError("BAD_REQUEST", {
+				message: "Video URL wajib diisi",
+			});
+		}
 
-	// Check if content exists
-	const [content] = await db
-		.select({ id: contentItem.id })
-		.from(contentItem)
-		.where(eq(contentItem.id, input.id))
-		.limit(1);
+		// Check if content exists
+		const [content] = await db
+			.select({ id: contentItem.id })
+			.from(contentItem)
+			.where(eq(contentItem.id, input.id))
+			.limit(1);
 
-	if (!content)
-		throw new ORPCError("NOT_FOUND", {
-			message: "Konten tidak ditemukan",
-		});
+		if (!content)
+			throw new ORPCError("NOT_FOUND", {
+				message: "Konten tidak ditemukan",
+			});
 
-	// Upsert video material
-	const [video] = await db
-		.insert(videoMaterial)
-		.values({
-			contentItemId: input.id,
-			videoUrl: input.videoUrl,
-			content: input.content,
-		})
-		.onConflictDoUpdate({
-			target: videoMaterial.contentItemId,
-			set: {
+		// Upsert video material
+		const [video] = await db
+			.insert(videoMaterial)
+			.values({
+				contentItemId: input.id,
 				videoUrl: input.videoUrl,
 				content: input.content,
-				updatedAt: new Date(),
-			},
-		})
-		.returning();
+			})
+			.onConflictDoUpdate({
+				target: videoMaterial.contentItemId,
+				set: {
+					videoUrl: input.videoUrl,
+					content: input.content,
+					updatedAt: new Date(),
+				},
+			})
+			.returning();
 
-	if (!video)
-		throw new ORPCError("INTERNAL_SERVER_ERROR", {
-			message: "Gagal menyimpan video material",
-		});
+		if (!video)
+			throw new ORPCError("INTERNAL_SERVER_ERROR", {
+				message: "Gagal menyimpan video material",
+			});
 
-	return { message: "Video material berhasil disimpan", videoId: video.id };
-});
+		return { message: "Video material berhasil disimpan", videoId: video.id };
+	},
+);
 
 /**
  * Delete video material
  * DELETE /api/admin/content/{id}/video
  */
-const deleteVideo = admin.admin.subject.deleteVideo.handler(async ({ input }: HandlerOptions<typeof admin.admin.subject.deleteVideo>) => {
-	const [deleted] = await db.delete(videoMaterial).where(eq(videoMaterial.contentItemId, input.id)).returning();
+const deleteVideo = admin.admin.subject.deleteVideo.handler(
+	async ({ input }: HandlerOptions<typeof admin.admin.subject.deleteVideo>) => {
+		const [deleted] = await db.delete(videoMaterial).where(eq(videoMaterial.contentItemId, input.id)).returning();
 
-	if (!deleted)
-		throw new ORPCError("NOT_FOUND", {
-			message: "Video material tidak ditemukan",
-		});
+		if (!deleted)
+			throw new ORPCError("NOT_FOUND", {
+				message: "Video material tidak ditemukan",
+			});
 
-	return { message: "Video material berhasil dihapus" };
-});
+		return { message: "Video material berhasil dihapus" };
+	},
+);
 
 /**
  * Add/Update note material
  * POST /api/admin/content/{id}/note
  */
-const upsertNote = admin.admin.subject.upsertNote.handler(async ({ input }: HandlerOptions<typeof admin.admin.subject.upsertNote>) => {
-	// Check if content exists
-	const [content] = await db
-		.select({ id: contentItem.id })
-		.from(contentItem)
-		.where(eq(contentItem.id, input.id))
-		.limit(1);
+const upsertNote = admin.admin.subject.upsertNote.handler(
+	async ({ input }: HandlerOptions<typeof admin.admin.subject.upsertNote>) => {
+		// Check if content exists
+		const [content] = await db
+			.select({ id: contentItem.id })
+			.from(contentItem)
+			.where(eq(contentItem.id, input.id))
+			.limit(1);
 
-	if (!content)
-		throw new ORPCError("NOT_FOUND", {
-			message: "Konten tidak ditemukan",
-		});
+		if (!content)
+			throw new ORPCError("NOT_FOUND", {
+				message: "Konten tidak ditemukan",
+			});
 
-	// Upsert note material
-	const [note] = await db
-		.insert(noteMaterial)
-		.values({
-			contentItemId: input.id,
-			content: input.content,
-		})
-		.onConflictDoUpdate({
-			target: noteMaterial.contentItemId,
-			set: {
+		// Upsert note material
+		const [note] = await db
+			.insert(noteMaterial)
+			.values({
+				contentItemId: input.id,
 				content: input.content,
-				updatedAt: new Date(),
-			},
-		})
-		.returning();
+			})
+			.onConflictDoUpdate({
+				target: noteMaterial.contentItemId,
+				set: {
+					content: input.content,
+					updatedAt: new Date(),
+				},
+			})
+			.returning();
 
-	if (!note)
-		throw new ORPCError("INTERNAL_SERVER_ERROR", {
-			message: "Gagal menyimpan catatan material",
-		});
+		if (!note)
+			throw new ORPCError("INTERNAL_SERVER_ERROR", {
+				message: "Gagal menyimpan catatan material",
+			});
 
-	return {
-		message: "Catatan material berhasil disimpan",
-		noteId: note.id,
-	};
-});
+		return {
+			message: "Catatan material berhasil disimpan",
+			noteId: note.id,
+		};
+	},
+);
 
 /**
  * Delete note material
  * DELETE /api/admin/content/{id}/note
  */
-const deleteNote = admin.admin.subject.deleteNote.handler(async ({ input }: HandlerOptions<typeof admin.admin.subject.deleteNote>) => {
-	const [deleted] = await db.delete(noteMaterial).where(eq(noteMaterial.contentItemId, input.id)).returning();
+const deleteNote = admin.admin.subject.deleteNote.handler(
+	async ({ input }: HandlerOptions<typeof admin.admin.subject.deleteNote>) => {
+		const [deleted] = await db.delete(noteMaterial).where(eq(noteMaterial.contentItemId, input.id)).returning();
 
-	if (!deleted)
-		throw new ORPCError("NOT_FOUND", {
-			message: "Catatan material tidak ditemukan",
-		});
+		if (!deleted)
+			throw new ORPCError("NOT_FOUND", {
+				message: "Catatan material tidak ditemukan",
+			});
 
-	return { message: "Catatan material berhasil dihapus" };
-});
+		return { message: "Catatan material berhasil dihapus" };
+	},
+);
 
 /**
  * Link practice questions to content
  * POST /api/admin/content/{id}/practice-questions
  */
-const linkPracticeQuestions = admin.admin.subject.linkPracticeQuestions.handler(async ({ input }: HandlerOptions<typeof admin.admin.subject.linkPracticeQuestions>) => {
-	// Delete existing practice question links
-	await db.delete(contentPracticeQuestions).where(eq(contentPracticeQuestions.contentItemId, input.id));
+const linkPracticeQuestions = admin.admin.subject.linkPracticeQuestions.handler(
+	async ({ input }: HandlerOptions<typeof admin.admin.subject.linkPracticeQuestions>) => {
+		// Delete existing practice question links
+		await db.delete(contentPracticeQuestions).where(eq(contentPracticeQuestions.contentItemId, input.id));
 
-	// Insert new practice question links
-	if (input.questionIds.length > 0) {
-		await db.insert(contentPracticeQuestions).values(
-			input.questionIds.map((questionId: number, index: number) => ({
-				contentItemId: input.id,
-				questionId,
-				order: index + 1,
-			})),
-		);
-	}
+		// Insert new practice question links
+		if (input.questionIds.length > 0) {
+			await db.insert(contentPracticeQuestions).values(
+				input.questionIds.map((questionId: number, index: number) => ({
+					contentItemId: input.id,
+					questionId,
+					order: index + 1,
+				})),
+			);
+		}
 
-	return { message: "Latihan soal berhasil dihubungkan ke konten" };
-});
+		return { message: "Latihan soal berhasil dihubungkan ke konten" };
+	},
+);
 
 /**
  * Remove all practice questions from content
  * DELETE /api/admin/content/{id}/practice-questions
  */
-const unlinkPracticeQuestions = admin.admin.subject.unlinkPracticeQuestions.handler(async ({ input }: HandlerOptions<typeof admin.admin.subject.unlinkPracticeQuestions>) => {
-	await db.delete(contentPracticeQuestions).where(eq(contentPracticeQuestions.contentItemId, input.id));
+const unlinkPracticeQuestions = admin.admin.subject.unlinkPracticeQuestions.handler(
+	async ({ input }: HandlerOptions<typeof admin.admin.subject.unlinkPracticeQuestions>) => {
+		await db.delete(contentPracticeQuestions).where(eq(contentPracticeQuestions.contentItemId, input.id));
 
-	return { message: "Latihan soal berhasil dihapus dari konten" };
-});
+		return { message: "Latihan soal berhasil dihapus dari konten" };
+	},
+);
 
 /**
  * Get practice questions linked to a content item
  * GET /api/admin/content/{id}/practice-questions
  */
-const getContentPracticeQuestions = admin.admin.subject.getContentPracticeQuestions.handler(async ({ input }: HandlerOptions<typeof admin.admin.subject.getContentPracticeQuestions>) => {
-	// Check if content exists
-	const [content] = await db
-		.select({ id: contentItem.id })
-		.from(contentItem)
-		.where(eq(contentItem.id, input.id))
-		.limit(1);
+const listPracticeQuestions = admin.admin.subject.listPracticeQuestions.handler(
+	async ({ input }: HandlerOptions<typeof admin.admin.subject.listPracticeQuestions>) => {
+		// Check if content exists
+		const [content] = await db
+			.select({ id: contentItem.id })
+			.from(contentItem)
+			.where(eq(contentItem.id, input.id))
+			.limit(1);
 
-	if (!content)
-		throw new ORPCError("NOT_FOUND", {
-			message: "Konten tidak ditemukan",
-		});
+		if (!content)
+			throw new ORPCError("NOT_FOUND", {
+				message: "Konten tidak ditemukan",
+			});
 
-	// Get linked questions with their details
-	const linkedQuestions = await db
-		.select({
-			questionId: contentPracticeQuestions.questionId,
-			order: contentPracticeQuestions.order,
-			type: question.type,
-			content: question.content,
-			contentJson: question.contentJson,
-			discussion: question.discussion,
-			discussionJson: question.discussionJson,
-			tags: question.tags,
-		})
-		.from(contentPracticeQuestions)
-		.innerJoin(question, eq(contentPracticeQuestions.questionId, question.id))
-		.where(eq(contentPracticeQuestions.contentItemId, input.id))
-		.orderBy(asc(contentPracticeQuestions.order));
+		// Get linked questions with their details
+		const linkedQuestions = await db
+			.select({
+				questionId: contentPracticeQuestions.questionId,
+				order: contentPracticeQuestions.order,
+				type: question.type,
+				content: question.content,
+				contentJson: question.contentJson,
+				discussion: question.discussion,
+				discussionJson: question.discussionJson,
+				tags: question.tags,
+			})
+			.from(contentPracticeQuestions)
+			.innerJoin(question, eq(contentPracticeQuestions.questionId, question.id))
+			.where(eq(contentPracticeQuestions.contentItemId, input.id))
+			.orderBy(asc(contentPracticeQuestions.order));
 
-	// Get choices for each question
-	const questionIds = linkedQuestions.map((q) => q.questionId);
-	const choices =
-		questionIds.length > 0
-			? await db
-					.select()
-					.from(questionChoice)
-					.where(questionIds.length === 1 ? eq(questionChoice.questionId, questionIds[0]!) : undefined)
-			: [];
+		// Get choices for each question
+		const questionIds = linkedQuestions.map((q) => q.questionId);
+		const choices =
+			questionIds.length > 0
+				? await db
+						.select()
+						.from(questionChoice)
+						.where(questionIds.length === 1 ? eq(questionChoice.questionId, questionIds[0]!) : undefined)
+				: [];
 
-	// If we have multiple questions, we need to fetch all choices
-	let allChoices = choices;
-	if (questionIds.length > 1) {
-		allChoices = await db.select().from(questionChoice).orderBy(questionChoice.code);
-	}
+		// If we have multiple questions, we need to fetch all choices
+		let allChoices = choices;
+		if (questionIds.length > 1) {
+			allChoices = await db.select().from(questionChoice).orderBy(questionChoice.code);
+		}
 
-	// Group choices by question id
-	const choicesByQuestionId = allChoices.reduce(
-		(acc, choice) => {
-			const qId = choice.questionId;
-			if (!acc[qId]) {
-				acc[qId] = [];
-			}
-			acc[qId].push(choice);
-			return acc;
-		},
-		{} as Record<number, typeof allChoices>,
-	);
+		// Group choices by question id
+		const choicesByQuestionId = allChoices.reduce(
+			(acc, choice) => {
+				const qId = choice.questionId;
+				if (!acc[qId]) {
+					acc[qId] = [];
+				}
+				acc[qId].push(choice);
+				return acc;
+			},
+			{} as Record<number, typeof allChoices>,
+		);
 
-	return {
-		questions: linkedQuestions.map((q) => ({
-			questionId: q.questionId,
-			order: q.order,
-			type: q.type,
-			content: q.contentJson ?? convertToTiptap(q.content),
-			discussion: q.discussionJson ?? convertToTiptap(q.discussion),
-			tags: q.tags ?? [],
-			choices: choicesByQuestionId[q.questionId] ?? [],
-		})),
-	};
-});
+		return {
+			questions: linkedQuestions.map((q) => ({
+				questionId: q.questionId,
+				order: q.order,
+				type: q.type,
+				content: q.contentJson ?? convertToTiptap(q.content),
+				discussion: q.discussionJson ?? convertToTiptap(q.discussion),
+				tags: q.tags ?? [],
+				choices: choicesByQuestionId[q.questionId] ?? [],
+			})),
+		};
+	},
+);
 
 /**
  * Remove a single practice question from content
  * DELETE /api/admin/content/{id}/practice-questions/{questionId}
  */
-const unlinkSinglePracticeQuestion = admin.admin.subject.unlinkSinglePracticeQuestion.handler(async ({ input }: HandlerOptions<typeof admin.admin.subject.unlinkSinglePracticeQuestion>) => {
-	const [deleted] = await db
-		.delete(contentPracticeQuestions)
-		.where(
-			and(
-				eq(contentPracticeQuestions.contentItemId, input.id),
-				eq(contentPracticeQuestions.questionId, input.questionId),
-			),
-		)
-		.returning();
-
-	if (!deleted) {
-		throw new ORPCError("NOT_FOUND", {
-			message: "Soal tidak ditemukan di konten ini",
-		});
-	}
-
-	// Re-order remaining questions
-	const remaining = await db
-		.select({ questionId: contentPracticeQuestions.questionId })
-		.from(contentPracticeQuestions)
-		.where(eq(contentPracticeQuestions.contentItemId, input.id))
-		.orderBy(asc(contentPracticeQuestions.order));
-
-	// Update order for each remaining question
-	for (let i = 0; i < remaining.length; i++) {
-		await db
-			.update(contentPracticeQuestions)
-			.set({ order: i + 1 })
+const unlinkSinglePracticeQuestion = admin.admin.subject.unlinkSinglePracticeQuestion.handler(
+	async ({ input }: HandlerOptions<typeof admin.admin.subject.unlinkSinglePracticeQuestion>) => {
+		const [deleted] = await db
+			.delete(contentPracticeQuestions)
 			.where(
 				and(
 					eq(contentPracticeQuestions.contentItemId, input.id),
-					eq(contentPracticeQuestions.questionId, remaining[i]!.questionId),
+					eq(contentPracticeQuestions.questionId, input.questionId),
 				),
-			);
-	}
+			)
+			.returning();
 
-	return { message: "Soal berhasil dihapus dari konten" };
-});
-
-/**
- * Reorder practice questions in a content item
- * PATCH /api/admin/content/{id}/practice-questions/reorder
- */
-const reorderPracticeQuestions = admin.admin.subject.reorderPracticeQuestions.handler(async ({ input }: HandlerOptions<typeof admin.admin.subject.reorderPracticeQuestions>) => {
-	// Check if content exists
-	const [content] = await db
-		.select({ id: contentItem.id })
-		.from(contentItem)
-		.where(eq(contentItem.id, input.id))
-		.limit(1);
-
-	if (!content)
-		throw new ORPCError("NOT_FOUND", {
-			message: "Konten tidak ditemukan",
-		});
-
-	// Update order for each question in a transaction
-	await db.transaction(async (tx) => {
-		// First, set all orders to negative (temporary) values to avoid unique constraint issues
-		for (let i = 0; i < input.questionIds.length; i++) {
-			const questionId = input.questionIds[i]!;
-			await tx
-				.update(contentPracticeQuestions)
-				.set({ order: -(i + 1000) })
-				.where(
-					and(
-						eq(contentPracticeQuestions.contentItemId, input.id),
-						eq(contentPracticeQuestions.questionId, questionId),
-					),
-				);
+		if (!deleted) {
+			throw new ORPCError("NOT_FOUND", {
+				message: "Soal tidak ditemukan di konten ini",
+			});
 		}
 
-		// Then set final order values
-		for (let i = 0; i < input.questionIds.length; i++) {
-			const questionId = input.questionIds[i]!;
-			await tx
+		// Re-order remaining questions
+		const remaining = await db
+			.select({ questionId: contentPracticeQuestions.questionId })
+			.from(contentPracticeQuestions)
+			.where(eq(contentPracticeQuestions.contentItemId, input.id))
+			.orderBy(asc(contentPracticeQuestions.order));
+
+		// Update order for each remaining question
+		for (let i = 0; i < remaining.length; i++) {
+			await db
 				.update(contentPracticeQuestions)
 				.set({ order: i + 1 })
 				.where(
 					and(
 						eq(contentPracticeQuestions.contentItemId, input.id),
-						eq(contentPracticeQuestions.questionId, questionId),
+						eq(contentPracticeQuestions.questionId, remaining[i]!.questionId),
 					),
 				);
 		}
-	});
 
-	return { message: "Urutan latihan soal berhasil diperbarui" };
-});
+		return { message: "Soal berhasil dihapus dari konten" };
+	},
+);
+
+/**
+ * Reorder practice questions in a content item
+ * PATCH /api/admin/content/{id}/practice-questions/reorder
+ */
+const reorderPracticeQuestions = admin.admin.subject.reorderPracticeQuestions.handler(
+	async ({ input }: HandlerOptions<typeof admin.admin.subject.reorderPracticeQuestions>) => {
+		// Check if content exists
+		const [content] = await db
+			.select({ id: contentItem.id })
+			.from(contentItem)
+			.where(eq(contentItem.id, input.id))
+			.limit(1);
+
+		if (!content)
+			throw new ORPCError("NOT_FOUND", {
+				message: "Konten tidak ditemukan",
+			});
+
+		// Update order for each question in a transaction
+		await db.transaction(async (tx) => {
+			// First, set all orders to negative (temporary) values to avoid unique constraint issues
+			for (let i = 0; i < input.questionIds.length; i++) {
+				const questionId = input.questionIds[i]!;
+				await tx
+					.update(contentPracticeQuestions)
+					.set({ order: -(i + 1000) })
+					.where(
+						and(
+							eq(contentPracticeQuestions.contentItemId, input.id),
+							eq(contentPracticeQuestions.questionId, questionId),
+						),
+					);
+			}
+
+			// Then set final order values
+			for (let i = 0; i < input.questionIds.length; i++) {
+				const questionId = input.questionIds[i]!;
+				await tx
+					.update(contentPracticeQuestions)
+					.set({ order: i + 1 })
+					.where(
+						and(
+							eq(contentPracticeQuestions.contentItemId, input.id),
+							eq(contentPracticeQuestions.questionId, questionId),
+						),
+					);
+			}
+		});
+
+		return { message: "Urutan latihan soal berhasil diperbarui" };
+	},
+);
 
 /**
  * Add practice questions to content (append to existing)
  * POST /api/admin/content/{id}/practice-questions/add
  */
-const addPracticeQuestions = admin.admin.subject.addPracticeQuestions.handler(async ({ input }: HandlerOptions<typeof admin.admin.subject.addPracticeQuestions>) => {
-	// Check if content exists
-	const [content] = await db
-		.select({ id: contentItem.id })
-		.from(contentItem)
-		.where(eq(contentItem.id, input.id))
-		.limit(1);
+const addPracticeQuestions = admin.admin.subject.addPracticeQuestions.handler(
+	async ({ input }: HandlerOptions<typeof admin.admin.subject.addPracticeQuestions>) => {
+		// Check if content exists
+		const [content] = await db
+			.select({ id: contentItem.id })
+			.from(contentItem)
+			.where(eq(contentItem.id, input.id))
+			.limit(1);
 
-	if (!content)
-		throw new ORPCError("NOT_FOUND", {
-			message: "Konten tidak ditemukan",
-		});
+		if (!content)
+			throw new ORPCError("NOT_FOUND", {
+				message: "Konten tidak ditemukan",
+			});
 
-	// Get existing questions to find max order and avoid duplicates
-	const existing = await db
-		.select({
-			questionId: contentPracticeQuestions.questionId,
-			order: contentPracticeQuestions.order,
-		})
-		.from(contentPracticeQuestions)
-		.where(eq(contentPracticeQuestions.contentItemId, input.id));
+		// Get existing questions to find max order and avoid duplicates
+		const existing = await db
+			.select({
+				questionId: contentPracticeQuestions.questionId,
+				order: contentPracticeQuestions.order,
+			})
+			.from(contentPracticeQuestions)
+			.where(eq(contentPracticeQuestions.contentItemId, input.id));
 
-	const existingIds = new Set(existing.map((e) => e.questionId));
-	const maxOrder = existing.length > 0 ? Math.max(...existing.map((e) => e.order)) : 0;
+		const existingIds = new Set(existing.map((e) => e.questionId));
+		const maxOrder = existing.length > 0 ? Math.max(...existing.map((e) => e.order)) : 0;
 
-	// Filter out duplicates
-	const newQuestionIds = input.questionIds.filter((id: number) => !existingIds.has(id));
+		// Filter out duplicates
+		const newQuestionIds = input.questionIds.filter((id: number) => !existingIds.has(id));
 
-	if (newQuestionIds.length === 0) {
-		return { message: "Semua soal sudah ada di konten ini", addedCount: 0 };
-	}
+		if (newQuestionIds.length === 0) {
+			return { message: "Semua soal sudah ada di konten ini", addedCount: 0 };
+		}
 
-	// Insert new questions with proper order
-	await db.insert(contentPracticeQuestions).values(
-		newQuestionIds.map((questionId: number, index: number) => ({
-			contentItemId: input.id,
-			questionId,
-			order: maxOrder + index + 1,
-		})),
-	);
+		// Insert new questions with proper order
+		await db.insert(contentPracticeQuestions).values(
+			newQuestionIds.map((questionId: number, index: number) => ({
+				contentItemId: input.id,
+				questionId,
+				order: maxOrder + index + 1,
+			})),
+		);
 
-	return {
-		message: `${newQuestionIds.length} soal berhasil ditambahkan`,
-		addedCount: newQuestionIds.length,
-	};
-});
+		return {
+			message: `${newQuestionIds.length} soal berhasil ditambahkan`,
+			addedCount: newQuestionIds.length,
+		};
+	},
+);
 
 export const adminSubjectRouter = {
 	createSubject,
@@ -776,7 +812,7 @@ export const adminSubjectRouter = {
 	deleteNote,
 	linkPracticeQuestions,
 	unlinkPracticeQuestions,
-	getContentPracticeQuestions,
+	listPracticeQuestions,
 	unlinkSinglePracticeQuestion,
 	reorderPracticeQuestions,
 	addPracticeQuestions,

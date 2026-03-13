@@ -24,7 +24,7 @@ function QuestionDetailPage() {
 	const [isEditing, setIsEditing] = useState(false);
 
 	const { data, isPending } = useQuery(
-		orpc.admin.tryout.questions.getQuestion.queryOptions({
+		orpc.admin.tryout.questions.find.queryOptions({
 			input: { id: questionId },
 		}),
 	);

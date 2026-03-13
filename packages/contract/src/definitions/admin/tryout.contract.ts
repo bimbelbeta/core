@@ -40,7 +40,7 @@ const TryoutAttemptSchema = type({
 });
 
 export const adminTryoutAttemptContract = {
-	getByTryout: oc
+	list: oc
 		.route({ path: "/admin/tryouts/{id}/attempts", method: "GET", tags: ["Admin - Tryouts"] })
 		.input(type({ id: "number", after: "number?", limit: "number = 10" }))
 		.output(
@@ -71,7 +71,7 @@ export const adminTryoutContract = {
 			}),
 		)
 		.output(type({ message: "string", id: "number" })),
-	listTryouts: oc
+	list: oc
 		.route({ path: "/admin/tryouts", method: "GET", tags: ["Admin - Tryouts"] })
 		.input(
 			type({
@@ -83,7 +83,7 @@ export const adminTryoutContract = {
 			}),
 		)
 		.output(type({ tryouts: TryoutSchema.array(), nextCursor: "number?" })),
-	getTryout: oc
+	find: oc
 		.route({ path: "/admin/tryouts/{id}", method: "GET", tags: ["Admin - Tryouts"] })
 		.input(type({ id: "number" }))
 		.output(type({ tryout: TryoutSchema, subtests: TryoutSubtestSchema.array() })),

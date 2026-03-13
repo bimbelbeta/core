@@ -39,7 +39,7 @@ export function QuestionPickerDialog({
 	const scrollRef = useRef<HTMLDivElement>(null);
 
 	const { data, isPending, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery(
-		orpc.admin.tryout.questions.listQuestions.infiniteOptions({
+		orpc.admin.tryout.questions.list.infiniteOptions({
 			input: (pageParam) => ({
 				cursor: pageParam,
 				limit: 20,
@@ -68,12 +68,12 @@ export function QuestionPickerDialog({
 				toast.success(result.message);
 				setSelectedQuestionIds(new Set());
 				queryClient.invalidateQueries({
-					queryKey: orpc.admin.subject.getContentPracticeQuestions.queryKey({
+					queryKey: orpc.admin.subject.listPracticeQuestions.queryKey({
 						input: { id: contentId },
 					}),
 				});
 				queryClient.invalidateQueries({
-					queryKey: orpc.subject.getContentById.queryKey({
+					queryKey: orpc.subject.findContent.queryKey({
 						input: { contentId },
 					}),
 				});

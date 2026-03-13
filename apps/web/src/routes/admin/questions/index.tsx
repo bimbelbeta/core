@@ -122,7 +122,7 @@ function QuestionsListPage() {
 	});
 
 	const { data, isLoading, refetch } = useQuery(
-		orpc.admin.tryout.questions.listQuestions.queryOptions({
+		orpc.admin.tryout.questions.list.queryOptions({
 			input: {
 				cursor: pagination.currentCursor,
 				limit: pagination.pageSize,

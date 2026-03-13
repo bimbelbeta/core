@@ -16,7 +16,7 @@ function RouteComponent() {
 	const queryClient = useQueryClient();
 
 	const content = useQuery(
-		orpc.subject.getContentById.queryOptions({
+		orpc.subject.findContent.queryOptions({
 			input: { contentId },
 		}),
 	);
@@ -25,7 +25,7 @@ function RouteComponent() {
 		orpc.subject.updateProgress.mutationOptions({
 			onSuccess: () => {
 				queryClient.invalidateQueries({
-					queryKey: orpc.subject.getProgressStats.key(),
+					queryKey: orpc.subject.stats.key(),
 				});
 			},
 		}),

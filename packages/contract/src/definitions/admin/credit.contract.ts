@@ -34,7 +34,7 @@ export const adminCreditContract = {
 		})
 		.input(CreditAdjustmentInputSchema)
 		.output(CreditAdjustmentOutputSchema),
-	getUserCredits: oc
+	find: oc
 		.route({
 			path: "/admin/users/{userId}/credits",
 			method: "GET",

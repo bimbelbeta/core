@@ -15,13 +15,14 @@ import { and, desc, eq, ilike, inArray, sql } from "drizzle-orm";
 import { authed } from "../index";
 import { canAccessContent } from "../lib/content-access";
 import { convertToTiptap } from "../lib/convert-to-tiptap";
+import type { HandlerOptions } from "../lib/router-definition/handler-options";
 import type { ChoiceWithAnswer } from "../types/question";
 
 function escapeLikePattern(value: string): string {
 	return value.replace(/[%_\\]/g, (char) => `\\${char}`);
 }
 
-const listSubjects = authed.subject.listSubjects.handler(async ({ input, context }) => {
+const list = authed.subject.list.handler(async ({ input, context }: HandlerOptions<typeof authed.subject.list>) => {
 	const conditions = [];
 	if (input?.category) {
 		conditions.push(eq(subject.category, input.category));
@@ -63,326 +64,348 @@ const listSubjects = authed.subject.listSubjects.handler(async ({ input, context
 	return subjects;
 });
 
-const listContentBySubjectCategory = authed.subject.listContentBySubjectCategory.handler(async ({ input, context }) => {
-	const [targetSubject] = await db
-		.select({
-			id: subject.id,
-			name: subject.name,
-			shortName: subject.shortName,
-			description: subject.description,
-			order: subject.order,
-			category: subject.category,
-			gradeLevel: subject.gradeLevel,
-		})
-		.from(subject)
-		.where(eq(subject.id, input.subjectId))
-		.limit(1);
+const listContent = authed.subject.listContent.handler(
+	async ({ input, context }: HandlerOptions<typeof authed.subject.listContent>) => {
+		const [targetSubject] = await db
+			.select({
+				id: subject.id,
+				name: subject.name,
+				shortName: subject.shortName,
+				description: subject.description,
+				order: subject.order,
+				category: subject.category,
+				gradeLevel: subject.gradeLevel,
+			})
+			.from(subject)
+			.where(eq(subject.id, input.subjectId))
+			.limit(1);
 
-	if (!targetSubject) {
-		throw new ORPCError("NOT_FOUND", { message: "Subject tidak ditemukan" });
-	}
+		if (!targetSubject) {
+			throw new ORPCError("NOT_FOUND", { message: "Subject tidak ditemukan" });
+		}
 
-	const conditions = [eq(contentItem.subjectId, input.subjectId)];
-	if (input.search) {
-		conditions.push(ilike(contentItem.title, `%${escapeLikePattern(input.search)}%`));
-	}
+		const conditions = [eq(contentItem.subjectId, input.subjectId)];
+		if (input.search) {
+			conditions.push(ilike(contentItem.title, `%${escapeLikePattern(input.search)}%`));
+		}
 
-	const items = await db
-		.select({
-			id: contentItem.id,
-			title: contentItem.title,
-			order: contentItem.order,
-			hasVideo: sql<boolean>`${videoMaterial.id} IS NOT NULL`,
-			hasNote: sql<boolean>`${noteMaterial.id} IS NOT NULL`,
-			hasPracticeQuestions: sql<boolean>`EXISTS(
+		const items = await db
+			.select({
+				id: contentItem.id,
+				title: contentItem.title,
+				order: contentItem.order,
+				hasVideo: sql<boolean>`${videoMaterial.id} IS NOT NULL`,
+				hasNote: sql<boolean>`${noteMaterial.id} IS NOT NULL`,
+				hasPracticeQuestions: sql<boolean>`EXISTS(
 				SELECT 1 FROM ${contentPracticeQuestions}
 				WHERE ${contentPracticeQuestions.contentItemId} = ${contentItem.id}
 			)`,
-			videoCompleted: userProgress.videoCompleted,
-			noteCompleted: userProgress.noteCompleted,
-			practiceQuestionsCompleted: userProgress.practiceQuestionsCompleted,
-			lastViewedAt: userProgress.lastViewedAt,
-		})
-		.from(contentItem)
-		.leftJoin(videoMaterial, eq(videoMaterial.contentItemId, contentItem.id))
-		.leftJoin(noteMaterial, eq(noteMaterial.contentItemId, contentItem.id))
-		.leftJoin(
-			userProgress,
-			and(eq(userProgress.contentItemId, contentItem.id), eq(userProgress.userId, context.session.user.id)),
-		)
-		.where(and(...conditions))
-		.orderBy(contentItem.order)
-		.limit(input.limit ?? 20)
-		.offset(input.offset ?? 0);
+				videoCompleted: userProgress.videoCompleted,
+				noteCompleted: userProgress.noteCompleted,
+				practiceQuestionsCompleted: userProgress.practiceQuestionsCompleted,
+				lastViewedAt: userProgress.lastViewedAt,
+			})
+			.from(contentItem)
+			.leftJoin(videoMaterial, eq(videoMaterial.contentItemId, contentItem.id))
+			.leftJoin(noteMaterial, eq(noteMaterial.contentItemId, contentItem.id))
+			.leftJoin(
+				userProgress,
+				and(eq(userProgress.contentItemId, contentItem.id), eq(userProgress.userId, context.session.user.id)),
+			)
+			.where(and(...conditions))
+			.orderBy(contentItem.order)
+			.limit(input.limit ?? 20)
+			.offset(input.offset ?? 0);
 
-	return {
-		subject: targetSubject,
-		items,
-	};
-});
+		return {
+			subject: targetSubject,
+			items,
+		};
+	},
+);
 
-const getContentById = authed.subject.getContentById.handler(async ({ input, context }) => {
-	if (!Number.isFinite(input.contentId) || input.contentId <= 0) {
-		throw new ORPCError("BAD_REQUEST", { message: "Invalid content ID" });
-	}
-
-	const [row] = await db
-		.select({
-			id: contentItem.id,
-			title: contentItem.title,
-			order: contentItem.order,
-			subjectId: contentItem.subjectId,
-			subtestOrder: subject.order,
-
-			videoId: videoMaterial.id,
-			videoUrl: videoMaterial.videoUrl,
-			videoContent: videoMaterial.content,
-
-			noteId: noteMaterial.id,
-			noteContent: noteMaterial.content,
-		})
-		.from(contentItem)
-		.innerJoin(subject, eq(subject.id, contentItem.subjectId))
-		.leftJoin(videoMaterial, eq(videoMaterial.contentItemId, contentItem.id))
-		.leftJoin(noteMaterial, eq(noteMaterial.contentItemId, contentItem.id))
-		.where(eq(contentItem.id, input.contentId))
-		.limit(1);
-
-	if (!row) {
-		throw new ORPCError("NOT_FOUND", { message: "Konten tidak ditemukan" });
-	}
-
-	const hasAccess = canAccessContent(
-		context.session.user.isPremium,
-		context.session.user.role,
-		row.subtestOrder,
-		row.order,
-	);
-
-	if (!hasAccess) {
-		throw new ORPCError("FORBIDDEN", { message: "Konten ini memerlukan akun premium" });
-	}
-
-	const practiceQuestionsRows = await db
-		.select({
-			questionId: contentPracticeQuestions.questionId,
-			order: contentPracticeQuestions.order,
-			questionContent: question.content,
-			questionContentJson: question.contentJson,
-			questionDiscussion: question.discussion,
-			questionDiscussionJson: question.discussionJson,
-			questionType: question.type,
-			essayCorrectAnswer: question.essayCorrectAnswer,
-			answerId: questionChoice.id,
-			answerContent: questionChoice.content,
-			answerCode: questionChoice.code,
-			answerIsCorrect: questionChoice.isCorrect,
-		})
-		.from(contentPracticeQuestions)
-		.innerJoin(question, eq(question.id, contentPracticeQuestions.questionId))
-		.leftJoin(questionChoice, eq(questionChoice.questionId, question.id))
-		.where(eq(contentPracticeQuestions.contentItemId, input.contentId))
-		.orderBy(contentPracticeQuestions.order, questionChoice.code);
-
-	const questionMap = new Map<
-		number,
-		{
-			questionId: number;
-			order: number;
-			question: string;
-			discussion: string;
-			type: "multiple_choice" | "multiple_choice_complex" | "essay";
-			essayCorrectAnswer: string | null;
-			answers: ChoiceWithAnswer[];
+const findContent = authed.subject.findContent.handler(
+	async ({ input, context }: HandlerOptions<typeof authed.subject.findContent>) => {
+		if (!Number.isFinite(input.contentId) || input.contentId <= 0) {
+			throw new ORPCError("BAD_REQUEST", { message: "Invalid content ID" });
 		}
-	>();
 
-	for (const row of practiceQuestionsRows) {
-		if (!questionMap.has(row.questionId)) {
-			questionMap.set(row.questionId, {
-				questionId: row.questionId,
-				order: row.order,
-				question: row.questionContentJson || convertToTiptap(row.questionContent),
-				discussion: row.questionDiscussionJson || convertToTiptap(row.questionDiscussion),
-				type: row.questionType,
-				essayCorrectAnswer: row.essayCorrectAnswer ?? null,
-				answers: [],
-			});
+		const [row] = await db
+			.select({
+				id: contentItem.id,
+				title: contentItem.title,
+				order: contentItem.order,
+				subjectId: contentItem.subjectId,
+				subtestOrder: subject.order,
+
+				videoId: videoMaterial.id,
+				videoUrl: videoMaterial.videoUrl,
+				videoContent: videoMaterial.content,
+
+				noteId: noteMaterial.id,
+				noteContent: noteMaterial.content,
+			})
+			.from(contentItem)
+			.innerJoin(subject, eq(subject.id, contentItem.subjectId))
+			.leftJoin(videoMaterial, eq(videoMaterial.contentItemId, contentItem.id))
+			.leftJoin(noteMaterial, eq(noteMaterial.contentItemId, contentItem.id))
+			.where(eq(contentItem.id, input.contentId))
+			.limit(1);
+
+		if (!row) {
+			throw new ORPCError("NOT_FOUND", { message: "Konten tidak ditemukan" });
 		}
-		if (row.answerId !== null) {
-			questionMap.get(row.questionId)?.answers.push({
-				id: row.answerId,
-				content: row.answerContent!,
-				code: row.answerCode!,
-				isCorrect: row.answerIsCorrect!,
-			});
+
+		const hasAccess = canAccessContent(
+			context.session.user.isPremium,
+			context.session.user.role,
+			row.subtestOrder,
+			row.order,
+		);
+
+		if (!hasAccess) {
+			throw new ORPCError("FORBIDDEN", { message: "Konten ini memerlukan akun premium" });
 		}
-	}
 
-	const questions = Array.from(questionMap.values())
-		.map((q) => ({
-			...q,
-			answers: q.answers.sort((a, b) => a.code.localeCompare(b.code)),
-		}))
-		.sort((a, b) => a.order - b.order);
+		const practiceQuestionsRows = await db
+			.select({
+				questionId: contentPracticeQuestions.questionId,
+				order: contentPracticeQuestions.order,
+				questionContent: question.content,
+				questionContentJson: question.contentJson,
+				questionDiscussion: question.discussion,
+				questionDiscussionJson: question.discussionJson,
+				questionType: question.type,
+				essayCorrectAnswer: question.essayCorrectAnswer,
+				answerId: questionChoice.id,
+				answerContent: questionChoice.content,
+				answerCode: questionChoice.code,
+				answerIsCorrect: questionChoice.isCorrect,
+			})
+			.from(contentPracticeQuestions)
+			.innerJoin(question, eq(question.id, contentPracticeQuestions.questionId))
+			.leftJoin(questionChoice, eq(questionChoice.questionId, question.id))
+			.where(eq(contentPracticeQuestions.contentItemId, input.contentId))
+			.orderBy(contentPracticeQuestions.order, questionChoice.code);
 
-	return {
-		id: row.id,
-		title: row.title,
-		subjectId: row.subjectId,
-		video: row.videoId
-			? {
-					id: row.videoId,
-					videoUrl: row.videoUrl,
-					content: row.videoContent,
-				}
-			: null,
-		note: row.noteId
-			? {
-					id: row.noteId,
-					content: row.noteContent,
-				}
-			: null,
-		practiceQuestions:
-			questions.length > 0
+		const questionMap = new Map<
+			number,
+			{
+				questionId: number;
+				order: number;
+				question: string;
+				discussion: string;
+				type: "multiple_choice" | "multiple_choice_complex" | "essay";
+				essayCorrectAnswer: string | null;
+				answers: ChoiceWithAnswer[];
+			}
+		>();
+
+		for (const row of practiceQuestionsRows) {
+			if (!questionMap.has(row.questionId)) {
+				questionMap.set(row.questionId, {
+					questionId: row.questionId,
+					order: row.order,
+					question: row.questionContentJson || convertToTiptap(row.questionContent),
+					discussion: row.questionDiscussionJson || convertToTiptap(row.questionDiscussion),
+					type: row.questionType,
+					essayCorrectAnswer: row.essayCorrectAnswer ?? null,
+					answers: [],
+				});
+			}
+			if (row.answerId !== null) {
+				questionMap.get(row.questionId)?.answers.push({
+					id: row.answerId,
+					content: row.answerContent!,
+					code: row.answerCode!,
+					isCorrect: row.answerIsCorrect!,
+				});
+			}
+		}
+
+		const questions = Array.from(questionMap.values())
+			.map((q) => ({
+				...q,
+				answers: q.answers.sort((a, b) => a.code.localeCompare(b.code)),
+			}))
+			.sort((a, b) => a.order - b.order);
+
+		return {
+			id: row.id,
+			title: row.title,
+			subjectId: row.subjectId,
+			video: row.videoId
 				? {
-						questions,
+						id: row.videoId,
+						videoUrl: row.videoUrl!,
+						content: row.videoContent,
 					}
 				: null,
-	};
-});
+			note: row.noteId
+				? {
+						id: row.noteId,
+						content: row.noteContent,
+					}
+				: null,
+			practiceQuestions:
+				questions.length > 0
+					? {
+							questions,
+						}
+					: null,
+		};
+	},
+);
 
-const trackView = authed.subject.trackView.handler(async ({ input, context }) => {
-	const [item] = await db.select({ id: contentItem.id }).from(contentItem).where(eq(contentItem.id, input.id)).limit(1);
+const trackView = authed.subject.trackView.handler(
+	async ({ input, context }: HandlerOptions<typeof authed.subject.trackView>) => {
+		const [item] = await db
+			.select({ id: contentItem.id })
+			.from(contentItem)
+			.where(eq(contentItem.id, input.id))
+			.limit(1);
 
-	if (!item)
-		throw new ORPCError("NOT_FOUND", {
-			message: "Konten tidak ditemukan",
+		if (!item)
+			throw new ORPCError("NOT_FOUND", {
+				message: "Konten tidak ditemukan",
+			});
+
+		await db.transaction(async (tx) => {
+			await tx
+				.delete(recentContentView)
+				.where(
+					and(eq(recentContentView.userId, context.session.user.id), eq(recentContentView.contentItemId, input.id)),
+				);
+
+			await tx.insert(recentContentView).values({
+				userId: context.session.user.id,
+				contentItemId: input.id,
+			});
+
+			const toDelete = await tx
+				.select({ id: recentContentView.id })
+				.from(recentContentView)
+				.where(eq(recentContentView.userId, context.session.user.id))
+				.orderBy(desc(recentContentView.viewedAt))
+				.offset(5);
+
+			if (toDelete.length > 0) {
+				await tx.delete(recentContentView).where(
+					inArray(
+						recentContentView.id,
+						toDelete.map((v) => v.id),
+					),
+				);
+			}
 		});
 
-	await db.transaction(async (tx) => {
-		await tx
-			.delete(recentContentView)
-			.where(and(eq(recentContentView.userId, context.session.user.id), eq(recentContentView.contentItemId, input.id)));
+		return { message: "Berhasil mencatat aktivitas" };
+	},
+);
 
-		await tx.insert(recentContentView).values({
-			userId: context.session.user.id,
-			contentItemId: input.id,
-		});
-
-		const toDelete = await tx
-			.select({ id: recentContentView.id })
-			.from(recentContentView)
-			.where(eq(recentContentView.userId, context.session.user.id))
-			.orderBy(desc(recentContentView.viewedAt))
-			.offset(5);
-
-		if (toDelete.length > 0) {
-			await tx.delete(recentContentView).where(
-				inArray(
-					recentContentView.id,
-					toDelete.map((v) => v.id),
-				),
-			);
-		}
-	});
-
-	return { message: "Berhasil mencatat aktivitas" };
-});
-
-const getRecentViews = authed.subject.getRecentViews.handler(async ({ context }) => {
-	const views = await db
-		.select({
-			viewedAt: recentContentView.viewedAt,
-			contentId: contentItem.id,
-			contentTitle: contentItem.title,
-			subjectId: subject.id,
-			subtestName: subject.name,
-			subtestShortName: subject.shortName,
-			hasVideo: sql<boolean>`${videoMaterial.id} IS NOT NULL`,
-			hasNote: sql<boolean>`${noteMaterial.id} IS NOT NULL`,
-			hasPracticeQuestions: sql<boolean>`EXISTS(
+const listRecentViews = authed.subject.listRecentViews.handler(
+	async ({ context }: HandlerOptions<typeof authed.subject.listRecentViews>) => {
+		const views = await db
+			.select({
+				viewedAt: recentContentView.viewedAt,
+				contentId: contentItem.id,
+				contentTitle: contentItem.title,
+				subjectId: subject.id,
+				subtestName: subject.name,
+				subtestShortName: subject.shortName,
+				hasVideo: sql<boolean>`${videoMaterial.id} IS NOT NULL`,
+				hasNote: sql<boolean>`${noteMaterial.id} IS NOT NULL`,
+				hasPracticeQuestions: sql<boolean>`EXISTS(
 				SELECT 1 FROM ${contentPracticeQuestions}
 				WHERE ${contentPracticeQuestions.contentItemId} = ${contentItem.id}
 			)`,
-		})
-		.from(recentContentView)
-		.innerJoin(contentItem, eq(contentItem.id, recentContentView.contentItemId))
-		.innerJoin(subject, eq(subject.id, contentItem.subjectId))
-		.leftJoin(videoMaterial, eq(videoMaterial.contentItemId, contentItem.id))
-		.leftJoin(noteMaterial, eq(noteMaterial.contentItemId, contentItem.id))
-		.where(eq(recentContentView.userId, context.session.user.id))
-		.orderBy(desc(recentContentView.viewedAt))
-		.limit(5);
+			})
+			.from(recentContentView)
+			.innerJoin(contentItem, eq(contentItem.id, recentContentView.contentItemId))
+			.innerJoin(subject, eq(subject.id, contentItem.subjectId))
+			.leftJoin(videoMaterial, eq(videoMaterial.contentItemId, contentItem.id))
+			.leftJoin(noteMaterial, eq(noteMaterial.contentItemId, contentItem.id))
+			.where(eq(recentContentView.userId, context.session.user.id))
+			.orderBy(desc(recentContentView.viewedAt))
+			.limit(5);
 
-	return views;
-});
+		return views;
+	},
+);
 
-const trackSubjectView = authed.subject.trackSubjectView.handler(async ({ input, context }) => {
-	const [targetSubject] = await db
-		.select({ id: subject.id })
-		.from(subject)
-		.where(eq(subject.id, input.subjectId))
-		.limit(1);
+const trackSubjectView = authed.subject.trackSubjectView.handler(
+	async ({ input, context }: HandlerOptions<typeof authed.subject.trackSubjectView>) => {
+		const [targetSubject] = await db
+			.select({ id: subject.id })
+			.from(subject)
+			.where(eq(subject.id, input.subjectId))
+			.limit(1);
 
-	if (!targetSubject) {
-		throw new ORPCError("NOT_FOUND", { message: "Subject tidak ditemukan" });
-	}
+		if (!targetSubject) {
+			throw new ORPCError("NOT_FOUND", { message: "Subject tidak ditemukan" });
+		}
 
-	await db
-		.insert(userSubjectView)
-		.values({
-			userId: context.session.user.id,
-			subjectId: input.subjectId,
-		})
-		.onConflictDoUpdate({
-			target: [userSubjectView.userId, userSubjectView.subjectId],
-			set: { viewedAt: new Date(), updatedAt: new Date() },
-		});
+		await db
+			.insert(userSubjectView)
+			.values({
+				userId: context.session.user.id,
+				subjectId: input.subjectId,
+			})
+			.onConflictDoUpdate({
+				target: [userSubjectView.userId, userSubjectView.subjectId],
+				set: { viewedAt: new Date(), updatedAt: new Date() },
+			});
 
-	return { message: "Berhasil mencatat aktivitas" };
-});
+		return { message: "Berhasil mencatat aktivitas" };
+	},
+);
 
-const updateProgress = authed.subject.updateProgress.handler(async ({ input, context }) => {
-	const [item] = await db.select({ id: contentItem.id }).from(contentItem).where(eq(contentItem.id, input.id)).limit(1);
+const updateProgress = authed.subject.updateProgress.handler(
+	async ({ input, context }: HandlerOptions<typeof authed.subject.updateProgress>) => {
+		const [item] = await db
+			.select({ id: contentItem.id })
+			.from(contentItem)
+			.where(eq(contentItem.id, input.id))
+			.limit(1);
 
-	if (!item)
-		throw new ORPCError("NOT_FOUND", {
-			message: "Konten tidak ditemukan",
-		});
+		if (!item)
+			throw new ORPCError("NOT_FOUND", {
+				message: "Konten tidak ditemukan",
+			});
 
-	const updateData: {
-		videoCompleted?: boolean;
-		noteCompleted?: boolean;
-		practiceQuestionsCompleted?: boolean;
-		lastViewedAt: Date;
-		updatedAt: Date;
-	} = {
-		lastViewedAt: new Date(),
-		updatedAt: new Date(),
-	};
+		const updateData: {
+			videoCompleted?: boolean;
+			noteCompleted?: boolean;
+			practiceQuestionsCompleted?: boolean;
+			lastViewedAt: Date;
+			updatedAt: Date;
+		} = {
+			lastViewedAt: new Date(),
+			updatedAt: new Date(),
+		};
 
-	if (input.videoCompleted !== undefined) updateData.videoCompleted = input.videoCompleted;
-	if (input.noteCompleted !== undefined) updateData.noteCompleted = input.noteCompleted;
-	if (input.practiceQuestionsCompleted !== undefined)
-		updateData.practiceQuestionsCompleted = input.practiceQuestionsCompleted;
+		if (input.videoCompleted !== undefined) updateData.videoCompleted = input.videoCompleted;
+		if (input.noteCompleted !== undefined) updateData.noteCompleted = input.noteCompleted;
+		if (input.practiceQuestionsCompleted !== undefined)
+			updateData.practiceQuestionsCompleted = input.practiceQuestionsCompleted;
 
-	await db
-		.insert(userProgress)
-		.values({
-			userId: context.session.user.id,
-			contentItemId: input.id,
-			...updateData,
-		})
-		.onConflictDoUpdate({
-			target: [userProgress.userId, userProgress.contentItemId],
-			set: updateData,
-		});
+		await db
+			.insert(userProgress)
+			.values({
+				userId: context.session.user.id,
+				contentItemId: input.id,
+				...updateData,
+			})
+			.onConflictDoUpdate({
+				target: [userProgress.userId, userProgress.contentItemId],
+				set: updateData,
+			});
 
-	return { message: "Progress berhasil disimpan" };
-});
+		return { message: "Progress berhasil disimpan" };
+	},
+);
 
-const getProgressStats = authed.subject.getProgressStats.handler(async ({ context }) => {
+const stats = authed.subject.stats.handler(async ({ context }: HandlerOptions<typeof authed.subject.stats>) => {
 	const [stats] = await db
 		.select({
 			materialsCompleted: sql<number>`COUNT(DISTINCT CASE WHEN ${userProgress.videoCompleted} = true OR ${userProgress.noteCompleted} = true OR ${userProgress.practiceQuestionsCompleted} = true THEN ${userProgress.contentItemId} END)`,
@@ -396,12 +419,12 @@ const getProgressStats = authed.subject.getProgressStats.handler(async ({ contex
 });
 
 export const subjectRouter = {
-	listSubjects,
-	listContentBySubjectCategory,
-	getContentById,
+	list,
+	listContent,
+	findContent,
 	trackView,
 	trackSubjectView,
-	getRecentViews,
+	listRecentViews,
 	updateProgress,
-	getProgressStats,
+	stats,
 };

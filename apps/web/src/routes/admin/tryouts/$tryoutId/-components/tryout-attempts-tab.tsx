@@ -49,7 +49,7 @@ export const TryoutAttemptsTab = () => {
 	});
 
 	const { data, isPending } = useQuery(
-		orpc.admin.tryout.attempts.getByTryout.queryOptions({
+		orpc.admin.tryout.attempts.list.queryOptions({
 			input: {
 				id: Number(id),
 				after: pagination.currentCursor,

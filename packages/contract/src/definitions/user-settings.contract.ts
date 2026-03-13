@@ -41,7 +41,7 @@ const SetTargetOutputSchema = type({
 });
 
 export const userSettingsContract = {
-	get: oc
+	find: oc
 		.route({
 			path: "/user/target",
 			method: "GET",

@@ -59,7 +59,7 @@ function TryoutsListPage() {
 	});
 
 	const { data, isLoading, refetch } = useQuery(
-		orpc.admin.tryout.listTryouts.queryOptions({
+		orpc.admin.tryout.list.queryOptions({
 			input: {
 				cursor: pagination.currentCursor,
 				limit: pagination.pageSize,

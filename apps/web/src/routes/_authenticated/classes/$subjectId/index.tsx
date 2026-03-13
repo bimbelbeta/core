@@ -51,7 +51,7 @@ function RouteComponent() {
 	};
 
 	const contents = useQuery({
-		...orpc.subject.listContentBySubjectCategory.queryOptions({
+		...orpc.subject.listContent.queryOptions({
 			input: {
 				subjectId,
 				search: searchQuery || undefined,

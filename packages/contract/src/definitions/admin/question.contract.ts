@@ -52,7 +52,7 @@ export const adminQuestionContract = {
 			}),
 		)
 		.output(type({ message: "string", id: "number" })),
-	listQuestions: oc
+	list: oc
 		.route({ path: "/admin/questions", method: "GET", tags: ["Admin - Questions"] })
 		.input(
 			type({
@@ -66,7 +66,7 @@ export const adminQuestionContract = {
 			}),
 		)
 		.output(type({ questions: QuestionListItemSchema.array(), nextCursor: "number?" })),
-	getQuestion: oc
+	find: oc
 		.route({ path: "/admin/questions/{id}", method: "GET", tags: ["Admin - Questions"] })
 		.input(type({ id: "number" }))
 		.output(type({ question: QuestionDetailSchema, choices: ChoiceSchema.array() })),

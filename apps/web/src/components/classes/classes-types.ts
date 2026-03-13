@@ -12,7 +12,7 @@ export type SubjectListItem = {
 	hasViewed?: boolean;
 };
 
-export type ContentListItem = NonNullable<BodyOutputs["subject"]["listContentBySubjectCategory"]>["items"][number];
+export type ContentListItem = NonNullable<BodyOutputs["subject"]["listContent"]>["items"][number];
 
 export type ContentActionItem = {
 	hasVideo: boolean | unknown;

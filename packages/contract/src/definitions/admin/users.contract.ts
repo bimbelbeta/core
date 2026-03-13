@@ -38,7 +38,7 @@ export const adminUsersContract = {
 		})
 		.input(UserListInputSchema)
 		.output(UserListOutputSchema),
-	get: oc
+	find: oc
 		.route({
 			path: "/admin/users/{userId}",
 			method: "GET",

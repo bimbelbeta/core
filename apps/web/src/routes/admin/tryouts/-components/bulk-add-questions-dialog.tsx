@@ -26,7 +26,7 @@ export function BulkAddQuestionsDialog({
 	const scrollRef = useRef<HTMLDivElement>(null);
 
 	const { data, isPending, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery(
-		orpc.admin.tryout.questions.listQuestions.infiniteOptions({
+		orpc.admin.tryout.questions.list.infiniteOptions({
 			input: (pageParam) => ({
 				cursor: pageParam,
 				limit: 20,

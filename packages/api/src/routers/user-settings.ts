@@ -3,8 +3,9 @@ import { user } from "@bimbelbeta/db/schema/auth";
 import { universityStudyProgram } from "@bimbelbeta/db/schema/university";
 import { and, eq } from "drizzle-orm";
 import { authed } from "../index";
+import type { HandlerOptions } from "../lib/router-definition/handler-options";
 
-const get = authed.userSettings.get.handler(async ({ context }) => {
+const find = authed.userSettings.find.handler(async ({ context }: HandlerOptions<typeof authed.userSettings.find>) => {
 	const userId = context.session.user.id;
 
 	const [userData] = await db
@@ -47,6 +48,7 @@ const get = authed.userSettings.get.handler(async ({ context }) => {
 			tuition: studyProgramData.tuition,
 			capacity: studyProgramData.capacity,
 			accreditation: studyProgramData.accreditation,
+			averageScore: studyProgramData.averageScore,
 			studyProgram: {
 				id: studyProgramData.studyProgram.id,
 				name: studyProgramData.studyProgram.name,
@@ -62,42 +64,44 @@ const get = authed.userSettings.get.handler(async ({ context }) => {
 	};
 });
 
-const set = authed.userSettings.set.handler(async ({ input, context, errors }) => {
-	const { universityId, studyProgramId } = input;
-	const userId = context.session.user.id;
+const set = authed.userSettings.set.handler(
+	async ({ input, context, errors }: HandlerOptions<typeof authed.userSettings.set>) => {
+		const { universityId, studyProgramId } = input;
+		const userId = context.session.user.id;
 
-	const existing = await db
-		.select()
-		.from(universityStudyProgram)
-		.where(
-			and(
-				eq(universityStudyProgram.universityId, universityId),
-				eq(universityStudyProgram.studyProgramId, studyProgramId),
-			),
-		)
-		.limit(1);
+		const existing = await db
+			.select()
+			.from(universityStudyProgram)
+			.where(
+				and(
+					eq(universityStudyProgram.universityId, universityId),
+					eq(universityStudyProgram.studyProgramId, studyProgramId),
+				),
+			)
+			.limit(1);
 
-	if (!existing) {
-		throw errors.BAD_REQUEST({
-			message: "Kombinasi universitas dan program studi tidak valid",
-		});
-	}
+		if (!existing) {
+			throw errors.BAD_REQUEST({
+				message: "Kombinasi universitas dan program studi tidak valid",
+			});
+		}
 
-	await db
-		.update(user)
-		.set({
-			targetUniversityId: universityId,
-			targetStudyProgramId: studyProgramId,
-		})
-		.where(eq(user.id, userId));
+		await db
+			.update(user)
+			.set({
+				targetUniversityId: universityId,
+				targetStudyProgramId: studyProgramId,
+			})
+			.where(eq(user.id, userId));
 
-	return {
-		success: true,
-		message: "Target universitas dan program studi berhasil disimpan",
-	};
-});
+		return {
+			success: true,
+			message: "Target universitas dan program studi berhasil disimpan",
+		};
+	},
+);
 
 export const userSettingsRouter = {
-	get,
+	find,
 	set,
 };

@@ -10,7 +10,7 @@ const QuestionSummarySchema = type({
 });
 
 export const adminSubtestQuestionContract = {
-	listSubtestQuestions: oc
+	list: oc
 		.route({ path: "/admin/tryouts/subtests/{subtestId}/questions", method: "GET", tags: ["Admin - Tryouts"] })
 		.input(type({ subtestId: "number" }))
 		.output(type({ questions: type({ id: "number", order: "number | null", question: QuestionSummarySchema }, "[]") })),

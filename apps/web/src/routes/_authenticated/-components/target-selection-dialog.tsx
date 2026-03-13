@@ -28,7 +28,7 @@ export function TargetSelectionDialog() {
 	const queryClient = useQueryClient();
 	const { session } = useRouteContext({ from: "/_authenticated" });
 	const userKey = session?.user?.email || session?.user?.id || "guest";
-	const { data } = useQuery(orpc.userSettings.get.queryOptions());
+	const { data } = useQuery(orpc.userSettings.find.queryOptions());
 
 	const [open, setOpen] = useState<boolean>(false);
 	useEffect(() => {
@@ -39,7 +39,7 @@ export function TargetSelectionDialog() {
 		orpc.userSettings.set.mutationOptions({
 			onSuccess: () => {
 				setOpen(false);
-				queryClient.invalidateQueries({ queryKey: orpc.userSettings.get.queryKey() });
+				queryClient.invalidateQueries({ queryKey: orpc.userSettings.find.queryKey() });
 			},
 			onError: (error: Error) => {
 				toast.error(error.message || "Gagal menyimpan target");
@@ -117,7 +117,7 @@ export function TargetSelectionDialog() {
 										form.setFieldValue("studyProgramId", null);
 										if (prevUniversityId) {
 											queryClient.removeQueries({
-												queryKey: orpc.university.listStudyProgramsByUniversity.queryKey({
+												queryKey: orpc.university.listProgramsByUniversity.queryKey({
 													input: { universityId: prevUniversityId },
 												}),
 											});
@@ -147,7 +147,7 @@ export function TargetSelectionDialog() {
 						{(universityId) => {
 							// biome-ignore lint/correctness/useHookAtTopLevel: form.Subscribe creates a new component context where hooks are valid
 							const { data: studyPrograms, isFetching } = useQuery(
-								orpc.university.listStudyProgramsByUniversity.queryOptions({
+								orpc.university.listProgramsByUniversity.queryOptions({
 									input: { universityId: universityId ?? 0 },
 									enabled: universityId !== null,
 								}),

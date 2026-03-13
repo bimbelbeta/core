@@ -48,7 +48,7 @@ const list = superadmin.admin.users.list.handler(async ({ input }: { input: List
 	};
 });
 
-const get = superadmin.admin.users.get.handler(async ({ input }: { input: GetUserInput }) => {
+const find = superadmin.admin.users.find.handler(async ({ input }: { input: GetUserInput }) => {
 	const [userData] = await db.select().from(user).where(eq(user.id, input.userId)).limit(1);
 
 	if (!userData) {
@@ -101,6 +101,6 @@ const update = superadmin.admin.users.update.handler(async ({ input }: { input: 
 
 export const usersRouter = {
 	list,
-	get,
+	find,
 	update,
 };

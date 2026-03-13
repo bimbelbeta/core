@@ -19,7 +19,7 @@ function RouteComponent() {
 	const hasUpdatedProgress = useRef(false);
 
 	const content = useQuery(
-		orpc.subject.getContentById.queryOptions({
+		orpc.subject.findContent.queryOptions({
 			input: { contentId },
 		}),
 	);
@@ -29,11 +29,11 @@ function RouteComponent() {
 			onSuccess: () => {
 				console.log("Progress updated successfully for video:", contentId);
 				queryClient.invalidateQueries({
-					queryKey: orpc.subject.getProgressStats.key(),
+					queryKey: orpc.subject.stats.key(),
 				});
 				// Also invalidate the content list to refresh completed status
 				queryClient.invalidateQueries({
-					queryKey: orpc.subject.listContentBySubjectCategory.key(),
+					queryKey: orpc.subject.listContent.key(),
 				});
 			},
 			onError: (error) => {

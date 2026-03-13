@@ -131,72 +131,70 @@ const createQuestion = admin.admin.tryout.questions.createQuestion.handler(
 	},
 );
 
-const listQuestions = admin.admin.tryout.questions.listQuestions.handler(
-	async ({ input }: { input: ListQuestionsInput }) => {
-		const conditions = [];
+const list = admin.admin.tryout.questions.list.handler(async ({ input }: { input: ListQuestionsInput }) => {
+	const conditions = [];
 
-		if (input.cursor) {
-			conditions.push(gt(question.id, input.cursor));
-		}
+	if (input.cursor) {
+		conditions.push(gt(question.id, input.cursor));
+	}
 
-		if (input.search) {
-			conditions.push(like(question.content, `%${input.search}%`));
-		}
+	if (input.search) {
+		conditions.push(like(question.content, `%${input.search}%`));
+	}
 
-		if (input.type) {
-			conditions.push(eq(question.type, input.type));
-		}
+	if (input.type) {
+		conditions.push(eq(question.type, input.type));
+	}
 
-		if (input.tag) {
-			conditions.push(
-				sql`EXISTS (
+	if (input.tag) {
+		conditions.push(
+			sql`EXISTS (
 					SELECT 1
 					FROM unnest(${question.tags}) AS tag
 					WHERE tag ILIKE ${`%${input.tag}%`}
 				)`,
-			);
-		}
+		);
+	}
 
-		// Category filter - looks for exact category tag (sd, smp, sma, utbk)
-		if (input.category) {
-			conditions.push(sql`${input.category} = ANY(${question.tags})`);
-		}
+	// Category filter - looks for exact category tag (sd, smp, sma, utbk)
+	if (input.category) {
+		conditions.push(sql`${input.category} = ANY(${question.tags})`);
+	}
 
-		// Exclude specific question IDs (useful for filtering out already linked questions)
-		if (input.excludeIds && input.excludeIds.length > 0) {
-			conditions.push(
-				sql`${question.id} NOT IN (${sql.join(
-					input.excludeIds.map((id: number) => sql`${id}`),
-					sql`, `,
-				)})`,
-			);
-		}
+	// Exclude specific question IDs (useful for filtering out already linked questions)
+	if (input.excludeIds && input.excludeIds.length > 0) {
+		conditions.push(
+			sql`${question.id} NOT IN (${sql.join(
+				input.excludeIds.map((id: number) => sql`${id}`),
+				sql`, `,
+			)})`,
+		);
+	}
 
-		const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+	const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-		const rows = await db
-			.select()
-			.from(question)
-			.where(whereClause)
-			.limit(input.limit + 1)
-			.orderBy(question.id);
+	const rows = await db
+		.select()
+		.from(question)
+		.where(whereClause)
+		.limit(input.limit + 1)
+		.orderBy(question.id);
 
-		const hasMore = rows.length > input.limit;
-		const questionsList = hasMore ? rows.slice(0, input.limit) : rows;
-		const lastQuestion = questionsList.at(-1);
+	const hasMore = rows.length > input.limit;
+	const questionsList = hasMore ? rows.slice(0, input.limit) : rows;
+	const lastQuestion = questionsList.at(-1);
 
-		return {
-			questions: questionsList.map((q) => ({
-				...q,
-				content: q.contentJson ?? convertToTiptap(q.content),
-				discussion: q.discussionJson ?? convertToTiptap(q.discussion),
-			})),
-			nextCursor: hasMore && lastQuestion ? lastQuestion.id : undefined,
-		};
-	},
-);
+	return {
+		questions: questionsList.map((q) => ({
+			...q,
+			content: q.contentJson ?? convertToTiptap(q.content),
+			discussion: q.discussionJson ?? convertToTiptap(q.discussion),
+		})),
+		nextCursor: hasMore && lastQuestion ? lastQuestion.id : undefined,
+	};
+});
 
-const getQuestion = admin.admin.tryout.questions.getQuestion.handler(async ({ input }: { input: QuestionIdInput }) => {
+const find = admin.admin.tryout.questions.find.handler(async ({ input }: { input: QuestionIdInput }) => {
 	const [questionData] = await db.select().from(question).where(eq(question.id, input.id)).limit(1);
 
 	if (!questionData)
@@ -387,8 +385,8 @@ const deleteChoice = admin.admin.tryout.questions.deleteChoice.handler(
 
 export const questionRouter = {
 	createQuestion,
-	listQuestions,
-	getQuestion,
+	list,
+	find,
 	updateQuestion,
 	deleteQuestion,
 	createChoice,

@@ -38,7 +38,7 @@ function RouteComponent() {
 		}),
 	);
 
-	const target = useQuery(orpc.userSettings.get.queryOptions());
+	const target = useQuery(orpc.userSettings.find.queryOptions());
 
 	if (isPending) {
 		return (

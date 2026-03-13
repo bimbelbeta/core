@@ -98,7 +98,7 @@ export const adminSubjectContract = {
 		.route({ path: "/admin/content/{id}/practice-questions", method: "DELETE", tags: ["Admin - Content"] })
 		.input(type({ id: "number" }))
 		.output(MessageResponseSchema),
-	getContentPracticeQuestions: oc
+	listPracticeQuestions: oc
 		.route({ path: "/admin/content/{id}/practice-questions", method: "GET", tags: ["Admin - Content"] })
 		.input(type({ id: "number" }))
 		.output(

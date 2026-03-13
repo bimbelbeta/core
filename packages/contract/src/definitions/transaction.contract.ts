@@ -34,7 +34,7 @@ export const transactionContract = {
 		.input(type({}))
 		.output(NotificationOutputSchema),
 
-	getStatus: oc
+	status: oc
 		.route({
 			path: "/transactions/status",
 			method: "GET",
