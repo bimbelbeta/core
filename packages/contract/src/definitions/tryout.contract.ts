@@ -1,81 +1,79 @@
+import { question, questionChoice } from "@bimbelbeta/db/schema/question";
+import {
+	tryout,
+	tryoutAttempt,
+	tryoutSubtest,
+	tryoutSubtestAttempt,
+	tryoutUserAnswer,
+} from "@bimbelbeta/db/schema/tryout";
 import { type } from "arktype";
+import { createSelectSchema } from "drizzle-arktype";
 import { oc } from "../lib/contract-definition";
 
 const TryoutAttemptStatus = "'not_started' | 'ongoing' | 'finished'";
-const TryoutQuestionType = "'multiple_choice' | 'multiple_choice_complex' | 'essay'";
 
-const ChoiceSchema = type({
-	id: "number",
-	content: "string",
-	code: "string",
-});
+const ChoiceSchema = createSelectSchema(questionChoice).pick("content", "code").merge({ id: "number" });
 
-const ChoiceWithAnswerSchema = type({
-	id: "number",
-	content: "string",
-	code: "string",
-	isCorrect: "boolean",
-});
+const ChoiceWithAnswerSchema = createSelectSchema(questionChoice)
+	.pick("content", "code", "isCorrect")
+	.merge({ id: "number" });
 
-const UserAnswerSchema = type({
-	selectedChoiceId: "number | null",
-	selectedChoiceIds: "number[] | null",
-	essayAnswer: "string | null",
-	isDoubtful: "boolean",
-});
+const UserAnswerSchema = createSelectSchema(tryoutUserAnswer).pick(
+	"selectedChoiceId",
+	"selectedChoiceIds",
+	"essayAnswer",
+	"isDoubtful",
+);
+
+const TryoutSchema = createSelectSchema(tryout)
+	.pick("title", "description", "passingGrade", "category", "status", "startsAt", "endsAt", "createdAt", "updatedAt")
+	.merge({ id: "number" });
+
+const TryoutListItemSchema = createSelectSchema(tryout)
+	.pick("title", "passingGrade", "startsAt", "endsAt")
+	.merge({ id: "number" });
+
+const QuestionBaseSchema = createSelectSchema(question).pick("content", "type").merge({ id: "number" });
+
+const ReviewQuestionBaseSchema = createSelectSchema(question)
+	.pick("content", "type", "discussion")
+	.merge({ id: "number" });
 
 const TryoutQuestionSchema = type({
-	id: "number",
-	content: "unknown",
-	type: TryoutQuestionType,
+	"...": QuestionBaseSchema,
 	choices: ChoiceSchema.array(),
 	userAnswer: UserAnswerSchema,
 });
 
 const ReviewQuestionSchema = type({
-	id: "number",
-	content: "unknown",
-	type: TryoutQuestionType,
+	"...": ReviewQuestionBaseSchema,
 	discussion: "unknown | null",
 	choices: ChoiceWithAnswerSchema.array(),
 	userAnswer: UserAnswerSchema,
 });
 
-const TryoutSubtestSchema = type({
-	id: "number",
-	tryoutId: "number",
-	name: "string",
-	description: "string | null",
-	duration: "number",
-	questionOrder: "string",
-	order: "number",
-	scoringMap: "Record<string, number> | null",
-});
+const TryoutSubtestSchema = createSelectSchema(tryoutSubtest)
+	.pick("tryoutId", "name", "description", "duration", "questionOrder", "order", "scoringMap")
+	.merge({ id: "number" });
 
-const TryoutAttemptSchema = type({
-	id: "number",
-	userId: "string",
-	tryoutId: "number",
-	startedAt: "Date",
-	deadline: "Date",
-	completedAt: "Date | null",
-	status: TryoutAttemptStatus,
-	score: "number | null",
-	submittedImageUrl: "string | null",
-	isRevoked: "boolean",
-	usedCredit: "boolean",
-});
+const TryoutAttemptSchema = createSelectSchema(tryoutAttempt)
+	.pick(
+		"userId",
+		"tryoutId",
+		"startedAt",
+		"deadline",
+		"completedAt",
+		"status",
+		"score",
+		"submittedImageUrl",
+		"isRevoked",
+		"usedCredit",
+	)
+	.merge({ id: "number" });
 
-const TryoutSubtestAttemptSchema = type({
-	id: "number",
-	tryoutAttemptId: "number",
-	subtestId: "number",
-	startedAt: "Date",
-	completedAt: "Date | null",
-	deadline: "Date",
-	status: TryoutAttemptStatus,
-	score: "number | null",
-});
+const TryoutSubtestAttemptSchema = createSelectSchema(tryoutSubtestAttempt)
+	.pick("tryoutAttemptId", "subtestId", "startedAt", "completedAt", "deadline", "status", "score")
+	.merge({ id: "number" });
 
 const TryoutHistoryItemSchema = type({
 	id: "number",
@@ -93,11 +91,7 @@ export const tryoutContract = {
 	list: oc.route({ path: "/tryouts", method: "GET", tags: ["Tryouts"] }).output(
 		type(
 			{
-				id: "number",
-				title: "string",
-				passingGrade: "number",
-				startsAt: "Date | null",
-				endsAt: "Date | null",
+				"...": TryoutListItemSchema,
 				attemptId: "number | null",
 				attemptStatus: `${TryoutAttemptStatus} | null`,
 				isOpen: "boolean",
@@ -107,11 +101,7 @@ export const tryoutContract = {
 	),
 	featured: oc.route({ path: "/tryouts/featured", method: "GET", tags: ["Tryouts"] }).output(
 		type({
-			id: "number",
-			title: "string",
-			passingGrade: "number",
-			startsAt: "Date | null",
-			endsAt: "Date | null",
+			"...": TryoutListItemSchema,
 			startedAt: "Date | null",
 			completedAt: "Date | null",
 			attemptId: "number | null",
@@ -124,27 +114,11 @@ export const tryoutContract = {
 		.input(type({ id: "number" }))
 		.output(
 			type({
-				id: "number",
-				title: "string",
-				description: "string | null",
-				passingGrade: "number",
-				category: "'sd' | 'smp' | 'sma' | 'utbk'",
-				status: "'draft' | 'published' | 'archived'",
-				startsAt: "Date | null",
-				endsAt: "Date | null",
-				createdAt: "Date | null",
-				updatedAt: "Date | null",
+				"...": TryoutSchema,
 				subtests: TryoutSubtestSchema.array(),
 				attempt: TryoutAttemptSchema,
 				currentSubtest: type({
-					id: "number",
-					tryoutId: "number",
-					name: "string",
-					description: "string | null",
-					duration: "number",
-					questionOrder: "string",
-					order: "number",
-					scoringMap: "Record<string, number> | null",
+					"...": TryoutSubtestSchema,
 					questions: TryoutQuestionSchema.array(),
 					deadline: "Date | null",
 					status: TryoutAttemptStatus,

@@ -1,10 +1,11 @@
+import { question } from "@bimbelbeta/db/schema/question";
 import { type } from "arktype";
+import { createSelectSchema } from "drizzle-arktype";
 import { oc } from "../../lib/contract-definition";
 
 const MessageResponseSchema = type({ message: "string" });
 const QuestionSummarySchema = type({
-	id: "number",
-	type: "'essay' | 'multiple_choice' | 'multiple_choice_complex'",
+	"...": createSelectSchema(question).pick("type", "contentJson").merge({ id: "number" }),
 	content: "unknown",
 	"contentJson?": "unknown",
 });

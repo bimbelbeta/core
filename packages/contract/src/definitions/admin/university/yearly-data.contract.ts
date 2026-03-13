@@ -1,25 +1,19 @@
+import { programYearlyData, studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
 import { type } from "arktype";
+import { createSelectSchema } from "drizzle-arktype";
 import { oc } from "../../../lib/contract-definition";
 
-const UniversityProgramSummarySchema = type({ id: "number", name: "string", slug: "string" });
-const StudyProgramSummarySchema = type({ id: "number", name: "string", category: '"SAINTEK" | "SOSHUM" | null' });
-const YearlyDataSchema = type({
-	id: "number",
-	year: "number",
-	averageGrade: "number | null",
-	passingGrade: "number | null",
-	applicantCount: "number | null",
-	passedCount: "number | null",
-});
+const UniversityProgramSummarySchema = createSelectSchema(university).pick("name", "slug").merge({ id: "number" });
+const StudyProgramSummarySchema = createSelectSchema(studyProgram).pick("name", "category").merge({ id: "number" });
+const YearlyDataSchema = createSelectSchema(programYearlyData)
+	.pick("year", "averageGrade", "passingGrade", "applicantCount", "passedCount")
+	.merge({ id: "number" });
 const UniversityProgramSchema = type({
-	id: "number",
+	"...": createSelectSchema(universityStudyProgram)
+		.pick("tuition", "capacity", "accreditation", "averageScore", "isActive")
+		.merge({ id: "number" }),
 	university: UniversityProgramSummarySchema,
 	studyProgram: StudyProgramSummarySchema,
-	tuition: "number | null",
-	capacity: "number | null",
-	accreditation: "string | null",
-	averageScore: "number | null",
-	isActive: "boolean",
 });
 
 export const adminUniversityProgramsContract = {
@@ -30,7 +24,12 @@ export const adminUniversityProgramsContract = {
 	find: oc
 		.route({ path: "/admin/university-programs/{id}", method: "GET", tags: ["Admin - University Programs"] })
 		.input(type({ id: "number" }))
-		.output(type({ ...UniversityProgramSchema, yearlyData: YearlyDataSchema.array() })),
+		.output(
+			type({
+				"...": UniversityProgramSchema,
+				yearlyData: YearlyDataSchema.array(),
+			}),
+		),
 	create: oc
 		.route({ path: "/admin/university-programs", method: "POST", tags: ["Admin - University Programs"] })
 		.input(

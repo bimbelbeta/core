@@ -1,17 +1,13 @@
+import { questionChoice } from "@bimbelbeta/db/schema/question";
 import { type } from "arktype";
+import { createSelectSchema } from "drizzle-arktype";
 import { oc } from "../../lib/contract-definition";
 
 const MessageResponseSchema = type({ message: "string" });
 const ContentMaterialCountSchema = type({ "video?": "number", "note?": "number", "practiceQuestions?": "number" });
-const QuestionChoiceSchema = type({
-	id: "number",
-	questionId: "number",
-	code: "string",
-	content: "string",
-	isCorrect: "boolean",
-	createdAt: "Date | null",
-	updatedAt: "Date | null",
-});
+const QuestionChoiceSchema = createSelectSchema(questionChoice)
+	.pick("questionId", "code", "content", "isCorrect", "createdAt", "updatedAt")
+	.merge({ id: "number" });
 
 export const adminSubjectContract = {
 	createSubject: oc

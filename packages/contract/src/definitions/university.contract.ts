@@ -1,4 +1,6 @@
+import { programYearlyData, studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
 import { type } from "arktype";
+import { createSelectSchema } from "drizzle-arktype";
 import { oc } from "../lib/contract-definition";
 
 const ListInput = type({
@@ -7,14 +9,9 @@ const ListInput = type({
 	search: "string?",
 });
 
-const UniversityListOutputItem = type({
-	id: "number",
-	name: "string",
-	slug: "string",
-	logo: "string | null",
-	location: "string | null",
-	rank: "number | null",
-});
+const UniversityListOutputItem = createSelectSchema(university)
+	.pick("name", "slug", "logo", "location", "rank")
+	.merge({ id: "number" });
 
 const ListOutput = type({
 	data: UniversityListOutputItem.array(),
@@ -37,37 +34,26 @@ const ListStudyProgramsOutput = type({
 	nextCursor: "number?",
 });
 
-const StudyProgramOutput = type({
-	id: "number",
-	name: "string",
-});
+const StudyProgramOutput = createSelectSchema(studyProgram).pick("name").merge({ id: "number" });
 
-const UniversityDetailOutput = type({
-	id: "number",
-	name: "string",
-	slug: "string",
-	logo: "string | null",
-	description: "string | null",
-	location: "string | null",
-	website: "string | null",
-	rank: "number | null",
-});
+const UniversityDetailOutput = createSelectSchema(university)
+	.pick("name", "slug", "logo", "description", "location", "website", "rank")
+	.merge({ id: "number" });
 
-const YearlyDataOutput = type({
-	year: "number",
-	averageGrade: "number | null",
-	passingGrade: "number | null",
-	applicantCount: "number | null",
-	passedCount: "number | null",
-});
+const YearlyDataOutput = createSelectSchema(programYearlyData).pick(
+	"year",
+	"averageGrade",
+	"passingGrade",
+	"applicantCount",
+	"passedCount",
+);
 
 const StudyProgramWithYearlyDataOutput = type({
-	id: "number",
+	"...": createSelectSchema(universityStudyProgram)
+		.pick("tuition", "capacity", "accreditation")
+		.merge({ id: "number" }),
 	name: "string",
 	category: "string",
-	tuition: "number | null",
-	capacity: "number | null",
-	accreditation: "string | null",
 	yearlyData: YearlyDataOutput.array(),
 });
 

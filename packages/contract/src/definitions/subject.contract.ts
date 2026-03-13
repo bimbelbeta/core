@@ -1,28 +1,32 @@
+import { questionChoice } from "@bimbelbeta/db/schema/question";
+import { contentItem, noteMaterial, subject, videoMaterial } from "@bimbelbeta/db/schema/subject";
 import { type } from "arktype";
+import { createSelectSchema } from "drizzle-arktype";
 import { oc } from "../lib/contract-definition";
 
-const SubjectSchema = type({
-	id: "number",
-	name: "string",
-	shortName: "string",
-	description: "string | null",
-	order: "number",
-	category: "'sd' | 'smp' | 'sma' | 'utbk'",
-	gradeLevel: "number | null",
-});
+const SubjectSchema = createSelectSchema(subject)
+	.pick("name", "shortName", "description", "order", "category", "gradeLevel")
+	.merge({ id: "number" });
 
+const ContentItemSchema = createSelectSchema(contentItem).pick("title", "order").merge({ id: "number" });
+
+const ContentItemDetailSchema = createSelectSchema(contentItem)
+	.pick("subjectId", "title", "order")
+	.merge({ id: "number" });
+
+const VideoMaterialSchema = createSelectSchema(videoMaterial).pick("videoUrl", "content").merge({ id: "number" });
+
+const NoteMaterialSchema = createSelectSchema(noteMaterial).pick("content").merge({ id: "number" });
+
+// Extended/computed schemas with additional fields
 const SubjectWithContentSchema = type({
-	...SubjectSchema,
-	description: "string",
-	gradeLevel: "string",
+	"...": SubjectSchema,
 	totalContent: "number",
 	hasViewed: "boolean",
 });
 
 const ContentItemWithProgressSchema = type({
-	id: "number",
-	title: "string",
-	order: "number",
+	"...": ContentItemSchema,
 	hasVideo: "boolean",
 	hasNote: "boolean",
 	hasPracticeQuestions: "boolean",
@@ -37,12 +41,9 @@ const SubjectContentSchema = type({
 	items: ContentItemWithProgressSchema.array(),
 });
 
-const ChoiceWithAnswerSchema = type({
-	id: "number",
-	code: "string",
-	content: "string",
-	isCorrect: "boolean",
-});
+const ChoiceWithAnswerSchema = createSelectSchema(questionChoice)
+	.pick("code", "content", "isCorrect")
+	.merge({ id: "number" });
 
 const PracticeQuestionSchema = type({
 	questionId: "number",
@@ -54,25 +55,12 @@ const PracticeQuestionSchema = type({
 	answers: ChoiceWithAnswerSchema.array(),
 });
 
-const VideoMaterialSchema = type({
-	id: "number",
-	videoUrl: "string",
-	content: "unknown",
-});
-
-const NoteMaterialSchema = type({
-	id: "number",
-	content: "unknown",
-});
-
 const PracticeQuestionsSchema = type({
 	questions: PracticeQuestionSchema.array(),
 });
 
 const SubjectContentDetailSchema = type({
-	id: "number",
-	title: "string",
-	subjectId: "number",
+	"...": ContentItemDetailSchema,
 	video: VideoMaterialSchema.or("null"),
 	note: NoteMaterialSchema.or("null"),
 	practiceQuestions: PracticeQuestionsSchema.or("null"),

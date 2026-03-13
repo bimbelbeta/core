@@ -1,43 +1,30 @@
+import { tryout, tryoutAttempt, tryoutSubtest } from "@bimbelbeta/db/schema/tryout";
 import { type } from "arktype";
+import { createSelectSchema } from "drizzle-arktype";
 import { oc } from "../../lib/contract-definition";
 
-const TryoutSchema = type({
-	id: "number",
-	title: "string",
-	description: "string | null",
-	passingGrade: "number",
-	category: "'sd' | 'smp' | 'sma' | 'utbk'",
-	status: "'draft' | 'published' | 'archived'",
-	startsAt: "Date | null",
-	endsAt: "Date | null",
-	createdAt: "Date | null",
-	updatedAt: "Date | null",
-});
+const TryoutSchema = createSelectSchema(tryout)
+	.pick("title", "description", "passingGrade", "category", "status", "startsAt", "endsAt", "createdAt", "updatedAt")
+	.merge({ id: "number" });
 
-const TryoutSubtestSchema = type({
-	id: "number",
-	tryoutId: "number",
-	name: "string",
-	description: "string | null",
-	duration: "number",
-	questionOrder: "string",
-	order: "number",
-	scoringMap: "Record<string, number> | null",
-});
+const TryoutSubtestSchema = createSelectSchema(tryoutSubtest)
+	.pick("tryoutId", "name", "description", "duration", "questionOrder", "order", "scoringMap")
+	.merge({ id: "number" });
 
-const TryoutAttemptSchema = type({
-	id: "number",
-	userId: "string",
-	tryoutId: "number",
-	startedAt: "Date",
-	deadline: "Date",
-	completedAt: "Date | null",
-	status: "'not_started' | 'ongoing' | 'finished'",
-	score: "number | null",
-	submittedImageUrl: "string | null",
-	isRevoked: "boolean",
-	usedCredit: "boolean",
-});
+const TryoutAttemptSchema = createSelectSchema(tryoutAttempt)
+	.pick(
+		"userId",
+		"tryoutId",
+		"startedAt",
+		"deadline",
+		"completedAt",
+		"status",
+		"score",
+		"submittedImageUrl",
+		"isRevoked",
+		"usedCredit",
+	)
+	.merge({ id: "number" });
 
 export const adminTryoutAttemptContract = {
 	list: oc

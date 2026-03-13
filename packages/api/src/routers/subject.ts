@@ -23,12 +23,8 @@ function escapeLikePattern(value: string): string {
 
 const list = authed.subject.list.handler(async ({ input, context }) => {
 	const conditions = [];
-	if (input?.category) {
-		conditions.push(eq(subject.category, input.category));
-	}
-	if (input?.search) {
-		conditions.push(ilike(subject.name, `%${escapeLikePattern(input.search)}%`));
-	}
+	if (input?.category) conditions.push(eq(subject.category, input.category));
+	if (input?.search) conditions.push(ilike(subject.name, `%${escapeLikePattern(input.search)}%`));
 
 	const subjects = await db
 		.select({
@@ -229,6 +225,7 @@ const findContent = authed.subject.findContent.handler(async ({ input, context, 
 	return {
 		id: row.id,
 		title: row.title,
+		order: row.order,
 		subjectId: row.subjectId,
 		video: row.videoId
 			? {

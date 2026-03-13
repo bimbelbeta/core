@@ -1,16 +1,11 @@
+import { tryoutSubtest } from "@bimbelbeta/db/schema/tryout";
 import { type } from "arktype";
+import { createSelectSchema } from "drizzle-arktype";
 import { oc } from "../../lib/contract-definition";
 
-const SubtestSchema = type({
-	id: "number",
-	tryoutId: "number",
-	name: "string",
-	description: "string | null",
-	duration: "number",
-	questionOrder: "string",
-	order: "number",
-	scoringMap: "Record<string, number> | null",
-});
+const SubtestSchema = createSelectSchema(tryoutSubtest)
+	.pick("tryoutId", "name", "description", "duration", "questionOrder", "order", "scoringMap")
+	.merge({ id: "number" });
 
 export const adminSubtestContract = {
 	find: oc

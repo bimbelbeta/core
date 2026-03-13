@@ -1,27 +1,16 @@
+import { studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
 import { type } from "arktype";
+import { createSelectSchema } from "drizzle-arktype";
 import { oc } from "../lib/contract-definition";
 
-const UniversitySchema = type({
-	id: "number",
-	name: "string",
-	slug: "string",
-	logo: "string | null",
-});
+const UniversitySchema = createSelectSchema(university).pick("name", "slug", "logo").merge({ id: "number" });
 
-const StudyProgramSchema = type({
-	id: "number",
-	name: "string",
-	category: "string | null",
-});
+const StudyProgramSchema = createSelectSchema(studyProgram).pick("name", "category").merge({ id: "number" });
 
 const StudyProgramDataSchema = type({
-	id: "number",
-	universityId: "number",
-	studyProgramId: "number",
-	tuition: "number | null",
-	capacity: "number | null",
-	accreditation: "string | null",
-	averageScore: "number | null",
+	"...": createSelectSchema(universityStudyProgram)
+		.pick("universityId", "studyProgramId", "tuition", "capacity", "accreditation", "averageScore")
+		.merge({ id: "number" }),
 	studyProgram: StudyProgramSchema,
 	university: UniversitySchema,
 });

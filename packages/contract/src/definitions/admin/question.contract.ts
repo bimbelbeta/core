@@ -1,39 +1,40 @@
+import { question, questionChoice } from "@bimbelbeta/db/schema/question";
 import { type } from "arktype";
+import { createSelectSchema } from "drizzle-arktype";
 import { oc } from "../../lib/contract-definition";
 
-const ChoiceSchema = type({
-	id: "number",
-	questionId: "number",
-	code: "string",
-	content: "string",
-	isCorrect: "boolean",
-	createdAt: "Date | null",
-	updatedAt: "Date | null",
-});
+const ChoiceSchema = createSelectSchema(questionChoice)
+	.pick("questionId", "code", "content", "isCorrect", "createdAt", "updatedAt")
+	.merge({ id: "number" });
 const QuestionTypeSchema = "'multiple_choice' | 'multiple_choice_complex' | 'essay'";
 const QuestionChoiceInputSchema = type({
 	content: "string",
 	isCorrect: "boolean",
 });
+const QuestionBaseSchema = createSelectSchema(question)
+	.pick(
+		"type",
+		"content",
+		"discussion",
+		"contentJson",
+		"discussionJson",
+		"essayCorrectAnswer",
+		"tags",
+		"createdAt",
+		"updatedAt",
+	)
+	.merge({ id: "number" });
 const QuestionListItemSchema = type({
-	id: "number",
-	type: QuestionTypeSchema,
+	"...": QuestionBaseSchema,
 	content: "unknown",
 	discussion: "unknown",
-	contentJson: "unknown | null",
-	discussionJson: "unknown | null",
-	essayCorrectAnswer: "string | null",
-	tags: "string[] | null",
-	createdAt: "Date | null",
-	updatedAt: "Date | null",
 });
 const QuestionDetailSchema = type({
-	id: "number",
-	type: QuestionTypeSchema,
+	"...": createSelectSchema(question)
+		.pick("type", "content", "discussion", "essayCorrectAnswer", "tags")
+		.merge({ id: "number" }),
 	content: "unknown",
 	discussion: "unknown",
-	essayCorrectAnswer: "string | null",
-	tags: "string[] | null",
 });
 
 const MessageResponseSchema = type({ message: "string" });

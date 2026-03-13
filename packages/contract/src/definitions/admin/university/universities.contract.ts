@@ -1,17 +1,11 @@
+import { university } from "@bimbelbeta/db/schema/university";
 import { type } from "arktype";
+import { createSelectSchema } from "drizzle-arktype";
 import { oc } from "../../../lib/contract-definition";
 
-const UniversitySchema = type({
-	id: "number",
-	name: "string",
-	slug: "string",
-	logo: "string | null",
-	description: "string | null",
-	location: "string | null",
-	website: "string | null",
-	rank: "number | null",
-	isActive: "boolean",
-});
+const UniversitySchema = createSelectSchema(university)
+	.pick("name", "slug", "logo", "description", "location", "website", "rank", "isActive")
+	.merge({ id: "number" });
 
 export const adminUniversitiesContract = {
 	list: oc
