@@ -1,23 +1,13 @@
 import { type } from "arktype";
 import { oc } from "../lib/contract-definition";
 
-const SubscribeInputSchema = type({
-	slug: "string",
-});
-
 const SubscribeOutputSchema = type({
 	token: "string",
 	redirectUrl: "string",
 });
 
-const NotificationInputSchema = type({});
-
 const NotificationOutputSchema = type({
 	status: "string",
-});
-
-const GetStatusInputSchema = type({
-	orderId: "string",
 });
 
 const GetStatusOutputSchema = type({
@@ -32,7 +22,7 @@ export const transactionContract = {
 			method: "POST",
 			tags: ["Payment", "Subscription"],
 		})
-		.input(SubscribeInputSchema)
+		.input(type({ slug: "string" }))
 		.output(SubscribeOutputSchema),
 
 	notification: oc
@@ -41,7 +31,7 @@ export const transactionContract = {
 			method: "POST",
 			tags: ["Payment", "Webhook"],
 		})
-		.input(NotificationInputSchema)
+		.input(type({}))
 		.output(NotificationOutputSchema),
 
 	getStatus: oc
@@ -50,6 +40,6 @@ export const transactionContract = {
 			method: "GET",
 			tags: ["Payment"],
 		})
-		.input(GetStatusInputSchema)
+		.input(type({ orderId: "string" }))
 		.output(GetStatusOutputSchema),
 };
