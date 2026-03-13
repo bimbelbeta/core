@@ -2,89 +2,70 @@ import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { subject } from "@bimbelbeta/db/schema/subject";
 import { transaction } from "@bimbelbeta/db/schema/transaction";
-import { type } from "arktype";
 import { and, count, eq, gte, sql } from "drizzle-orm";
 import { admin } from "../../index";
 
-const stats = admin
-	.route({
-		path: "/admin/dashboard/stats",
-		method: "GET",
-		tags: ["Admin - Dashboard"],
-	})
-	.output(
-		type({
-			totalUsers: "number",
-			premiumUsers: "number",
-			activeSubjects: "number",
-			monthlyRevenue: "number",
-			usersTrend: "number",
-			premiumTrend: "number",
-			subjectsTrend: "number",
-			revenueTrend: "number",
-		}),
-	)
-	.handler(async () => {
-		const now = new Date();
-		const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-		const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+const stats = admin.admin.dashboard.stats.handler(async () => {
+	const now = new Date();
+	const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+	const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
 
-		const currentUsers = await db.select({ count: count() }).from(user);
+	const currentUsers = await db.select({ count: count() }).from(user);
 
-		const currentPremium = await db.select({ count: count() }).from(user).where(eq(user.isPremium, true));
+	const currentPremium = await db.select({ count: count() }).from(user).where(eq(user.isPremium, true));
 
-		const currentSubjects = await db.select({ count: count() }).from(subject);
+	const currentSubjects = await db.select({ count: count() }).from(subject);
 
-		const currentRevenue = await db
-			.select({ total: sql<number>`COALESCE(CAST(SUM(${transaction.grossAmount}) AS FLOAT), 0)` })
-			.from(transaction)
-			.where(and(eq(transaction.status, "success"), gte(transaction.paidAt, currentMonthStart)));
+	const currentRevenue = await db
+		.select({ total: sql<number>`COALESCE(CAST(SUM(${transaction.grossAmount}) AS FLOAT), 0)` })
+		.from(transaction)
+		.where(and(eq(transaction.status, "success"), gte(transaction.paidAt, currentMonthStart)));
 
-		const lastMonthUsers = await db.select({ count: count() }).from(user).where(gte(user.createdAt, lastMonthStart));
+	const lastMonthUsers = await db.select({ count: count() }).from(user).where(gte(user.createdAt, lastMonthStart));
 
-		const lastMonthPremium = await db
-			.select({ count: count() })
-			.from(user)
-			.where(and(eq(user.isPremium, true), gte(user.premiumExpiresAt, lastMonthStart)));
+	const lastMonthPremium = await db
+		.select({ count: count() })
+		.from(user)
+		.where(and(eq(user.isPremium, true), gte(user.premiumExpiresAt, lastMonthStart)));
 
-		const lastMonthSubjects = await db
-			.select({ count: count() })
-			.from(subject)
-			.where(gte(subject.createdAt, lastMonthStart));
+	const lastMonthSubjects = await db
+		.select({ count: count() })
+		.from(subject)
+		.where(gte(subject.createdAt, lastMonthStart));
 
-		const lastMonthRevenue = await db
-			.select({ total: sql<number>`COALESCE(CAST(SUM(${transaction.grossAmount}) AS FLOAT), 0)` })
-			.from(transaction)
-			.where(
-				and(
-					eq(transaction.status, "success"),
-					gte(transaction.paidAt, new Date(now.getFullYear(), now.getMonth() - 2, 1)),
-				),
-			);
+	const lastMonthRevenue = await db
+		.select({ total: sql<number>`COALESCE(CAST(SUM(${transaction.grossAmount}) AS FLOAT), 0)` })
+		.from(transaction)
+		.where(
+			and(
+				eq(transaction.status, "success"),
+				gte(transaction.paidAt, new Date(now.getFullYear(), now.getMonth() - 2, 1)),
+			),
+		);
 
-		return {
-			totalUsers: currentUsers[0]?.count ?? 0,
-			premiumUsers: currentPremium[0]?.count ?? 0,
-			activeSubjects: currentSubjects[0]?.count ?? 0,
-			monthlyRevenue: currentRevenue[0]?.total ?? 0,
-			usersTrend:
-				(lastMonthUsers[0]?.count ?? 0) > 0
-					? ((currentUsers[0]?.count ?? 0 - lastMonthUsers[0]!.count) / lastMonthUsers[0]!.count) * 100
-					: 0,
-			premiumTrend:
-				(lastMonthPremium[0]?.count ?? 0) > 0
-					? ((currentPremium[0]?.count ?? 0 - lastMonthPremium[0]!.count) / lastMonthPremium[0]!.count) * 100
-					: 0,
-			subjectsTrend:
-				(lastMonthSubjects[0]?.count ?? 0) > 0
-					? ((currentSubjects[0]?.count ?? 0 - lastMonthSubjects[0]!.count) / lastMonthSubjects[0]!.count) * 100
-					: 0,
-			revenueTrend:
-				(lastMonthRevenue[0]?.total ?? 0) > 0
-					? ((currentRevenue[0]?.total ?? 0 - lastMonthRevenue[0]!.total) / lastMonthRevenue[0]!.total) * 100
-					: 0,
-		};
-	});
+	return {
+		totalUsers: currentUsers[0]?.count ?? 0,
+		premiumUsers: currentPremium[0]?.count ?? 0,
+		activeSubjects: currentSubjects[0]?.count ?? 0,
+		monthlyRevenue: currentRevenue[0]?.total ?? 0,
+		usersTrend:
+			(lastMonthUsers[0]?.count ?? 0) > 0
+				? ((currentUsers[0]?.count ?? 0 - lastMonthUsers[0]!.count) / lastMonthUsers[0]!.count) * 100
+				: 0,
+		premiumTrend:
+			(lastMonthPremium[0]?.count ?? 0) > 0
+				? ((currentPremium[0]?.count ?? 0 - lastMonthPremium[0]!.count) / lastMonthPremium[0]!.count) * 100
+				: 0,
+		subjectsTrend:
+			(lastMonthSubjects[0]?.count ?? 0) > 0
+				? ((currentSubjects[0]?.count ?? 0 - lastMonthSubjects[0]!.count) / lastMonthSubjects[0]!.count) * 100
+				: 0,
+		revenueTrend:
+			(lastMonthRevenue[0]?.total ?? 0) > 0
+				? ((currentRevenue[0]?.total ?? 0 - lastMonthRevenue[0]!.total) / lastMonthRevenue[0]!.total) * 100
+				: 0,
+	};
+});
 
 export const adminDashboardRouter = {
 	stats,

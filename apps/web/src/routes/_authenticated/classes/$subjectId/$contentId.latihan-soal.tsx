@@ -112,7 +112,7 @@ function RouteComponent() {
 										Kunci jawaban: <span className="font-semibold">{q.essayCorrectAnswer}</span>
 									</p>
 								)}
-								{q.discussion && (
+								{Boolean(q.discussion) && (
 									<div className="mt-3 border-neutral-200 border-t pt-3">
 										<p className="mb-1 font-medium text-sm">Pembahasan:</p>
 										<TiptapRenderer content={q.discussion} />

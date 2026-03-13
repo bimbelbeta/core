@@ -172,7 +172,7 @@ function QuestionDetailPage() {
 							</div>
 						)}
 
-						{question.discussion && (
+						{Boolean(question.discussion) && (
 							<div>
 								<h3 className="mb-2 font-medium text-muted-foreground text-sm">Pembahasan</h3>
 								<TiptapRenderer

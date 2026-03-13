@@ -21,6 +21,7 @@ const StudyProgramDataSchema = type({
 	tuition: "number | null",
 	capacity: "number | null",
 	accreditation: "string | null",
+	averageScore: "number | null",
 	studyProgram: StudyProgramSchema,
 	university: UniversitySchema,
 });

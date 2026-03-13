@@ -1,6 +1,6 @@
 import { product } from "@bimbelbeta/db/schema/transaction";
-import { oc } from "@orpc/contract";
 import { createSelectSchema } from "drizzle-arktype";
+import { oc } from "../lib/contract-definition";
 
 const ProductSchema = createSelectSchema(product).omit("createdAt", "updatedAt", "deletedAt");
 

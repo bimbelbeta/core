@@ -1,24 +1,12 @@
 import { db } from "@bimbelbeta/db";
 import { university } from "@bimbelbeta/db/schema/university";
 import { ORPCError } from "@orpc/client";
-import { type } from "arktype";
 import { and, eq, gt, sql } from "drizzle-orm";
 import { admin } from "../../../index";
+import type { HandlerOptions } from "../../../lib/router-definition/handler-options";
 
-const list = admin
-	.route({
-		path: "/admin/universities",
-		method: "GET",
-		tags: ["Admin - Universities"],
-	})
-	.input(
-		type({
-			cursor: "number?",
-			limit: "number?",
-			search: "string?",
-		}),
-	)
-	.handler(async ({ input }) => {
+const list = admin.admin.university.universities.list.handler(
+	async ({ input }: HandlerOptions<typeof admin.admin.university.universities.list>) => {
 		const limit = Math.min(input.limit ?? 20, 100);
 
 		const conditions = [];
@@ -35,7 +23,9 @@ const list = admin
 				name: university.name,
 				slug: university.slug,
 				logo: university.logo,
+				description: university.description,
 				location: university.location,
+				website: university.website,
 				rank: university.rank,
 				isActive: university.isActive,
 			})
@@ -49,16 +39,11 @@ const list = admin
 		const nextCursor = hasMore ? data[data.length - 1]!.id : null;
 
 		return { data, nextCursor };
-	});
+	},
+);
 
-const find = admin
-	.route({
-		path: "/admin/universities/{id}",
-		method: "GET",
-		tags: ["Admin - Universities"],
-	})
-	.input(type({ id: "number" }))
-	.handler(async ({ input }) => {
+const find = admin.admin.university.universities.find.handler(
+	async ({ input }: HandlerOptions<typeof admin.admin.university.universities.find>) => {
 		const [uni] = await db
 			.select({
 				id: university.id,
@@ -82,27 +67,11 @@ const find = admin
 		}
 
 		return uni;
-	});
+	},
+);
 
-const create = admin
-	.route({
-		path: "/admin/universities",
-		method: "POST",
-		tags: ["Admin - Universities"],
-	})
-	.input(
-		type({
-			name: "string",
-			slug: "string",
-			logo: "string?",
-			description: "string?",
-			location: "string?",
-			website: "string?",
-			rank: "number?",
-		}),
-	)
-	.output(type({ message: "string", id: "number" }))
-	.handler(async ({ input }) => {
+const create = admin.admin.university.universities.create.handler(
+	async ({ input }: HandlerOptions<typeof admin.admin.university.universities.create>) => {
 		const [created] = await db
 			.insert(university)
 			.values({
@@ -126,29 +95,11 @@ const create = admin
 			message: "Universitas berhasil dibuat",
 			id: created.id,
 		};
-	});
+	},
+);
 
-const update = admin
-	.route({
-		path: "/admin/universities/{id}",
-		method: "PATCH",
-		tags: ["Admin - Universities"],
-	})
-	.input(
-		type({
-			id: "number",
-			name: "string?",
-			slug: "string?",
-			logo: "string?",
-			description: "string?",
-			location: "string?",
-			website: "string?",
-			rank: "number?",
-			isActive: "boolean?",
-		}),
-	)
-	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
+const update = admin.admin.university.universities.update.handler(
+	async ({ input }: HandlerOptions<typeof admin.admin.university.universities.update>) => {
 		const updateData: {
 			name?: string;
 			slug?: string;
@@ -181,17 +132,11 @@ const update = admin
 		}
 
 		return { message: "Universitas berhasil diperbarui" };
-	});
+	},
+);
 
-const remove = admin
-	.route({
-		path: "/admin/universities/{id}",
-		method: "DELETE",
-		tags: ["Admin - Universities"],
-	})
-	.input(type({ id: "number" }))
-	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
+const remove = admin.admin.university.universities.remove.handler(
+	async ({ input }: HandlerOptions<typeof admin.admin.university.universities.remove>) => {
 		const [deleted] = await db.delete(university).where(eq(university.id, input.id)).returning();
 
 		if (!deleted) {
@@ -201,7 +146,8 @@ const remove = admin
 		}
 
 		return { message: "Universitas berhasil dihapus" };
-	});
+	},
+);
 
 export const adminUniversityRouter = {
 	list,

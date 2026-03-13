@@ -1,35 +1,64 @@
 import { db } from "@bimbelbeta/db";
 import { question, questionChoice } from "@bimbelbeta/db/schema/question";
 import { ORPCError } from "@orpc/client";
-import { type } from "arktype";
 import { and, eq, gt, like, sql } from "drizzle-orm";
 import { admin } from "../..";
 import { convertToTiptap } from "../../lib/convert-to-tiptap";
 
-const createQuestion = admin
-	.route({
-		path: "/admin/questions",
-		method: "POST",
-		tags: ["Admin - Questions"],
-	})
-	.input(
-		type({
-			type: "'multiple_choice' | 'multiple_choice_complex' | 'essay'",
-			content: "unknown",
-			discussion: "unknown",
-			tags: "string[]?",
-			essayCorrectAnswer: "string?",
-			choices: type(
-				{
-					content: "string",
-					isCorrect: "boolean",
-				},
-				"[]",
-			).optional(),
-		}),
-	)
-	.output(type({ message: "string", id: "number" }))
-	.handler(async ({ input }) => {
+type QuestionType = "multiple_choice" | "multiple_choice_complex" | "essay";
+
+type QuestionChoiceInput = {
+	id?: number;
+	content: string;
+	isCorrect: boolean;
+};
+
+type CreateQuestionInput = {
+	type: QuestionType;
+	content: unknown;
+	discussion: unknown;
+	tags?: string[];
+	essayCorrectAnswer?: string;
+	choices?: QuestionChoiceInput[];
+};
+
+type ListQuestionsInput = {
+	cursor?: number;
+	limit: number;
+	search?: string;
+	type?: QuestionType;
+	tag?: string;
+	category?: "sd" | "smp" | "sma" | "utbk";
+	excludeIds?: number[];
+};
+
+type QuestionIdInput = {
+	id: number;
+};
+
+type UpdateQuestionInput = {
+	id: number;
+	content: unknown;
+	discussion: unknown;
+	tags?: string[];
+	essayCorrectAnswer?: string;
+	choices?: QuestionChoiceInput[];
+};
+
+type CreateChoiceInput = {
+	questionId: number;
+	content: string;
+	isCorrect: boolean;
+};
+
+type UpdateChoiceInput = {
+	id: number;
+	content?: string;
+	isCorrect?: boolean;
+};
+
+const createQuestion = admin.admin.tryout.questions.createQuestion.handler(
+	async ({ input }: { input: CreateQuestionInput }) => {
 		const choices = input.choices;
 		const contentJson = typeof input.content === "object" ? input.content : null;
 		const discussionJson = typeof input.discussion === "object" ? input.discussion : null;
@@ -44,7 +73,7 @@ const createQuestion = admin
 				});
 			}
 
-			const correctCount = choices.filter((c) => c.isCorrect).length;
+			const correctCount = choices.filter((choice: QuestionChoiceInput) => choice.isCorrect).length;
 			if (correctCount !== 1) {
 				throw new ORPCError("BAD_REQUEST", {
 					message: "Multiple choice harus memiliki tepat 1 pilihan yang benar",
@@ -82,7 +111,7 @@ const createQuestion = admin
 
 			if ((input.type === "multiple_choice" || input.type === "multiple_choice_complex") && choices) {
 				const choiceCodes = ["A", "B", "C", "D", "E", "F", "G"] as const;
-				const choicesToInsert = choices.map((choice, index) => ({
+				const choicesToInsert = choices.map((choice: QuestionChoiceInput, index: number) => ({
 					questionId: newQuestion.id,
 					code: choiceCodes[index] || "A",
 					content: choice.content,
@@ -99,26 +128,11 @@ const createQuestion = admin
 			message: "Question berhasil dibuat",
 			id: result,
 		};
-	});
+	},
+);
 
-const listQuestions = admin
-	.route({
-		path: "/admin/questions",
-		method: "GET",
-		tags: ["Admin - Questions"],
-	})
-	.input(
-		type({
-			cursor: "number?",
-			limit: "number = 10",
-			search: "string?",
-			type: type("'multiple_choice' | 'multiple_choice_complex' | 'essay'")?.optional(),
-			tag: "string?",
-			category: type("'sd' | 'smp' | 'sma' | 'utbk'")?.optional(),
-			excludeIds: "number[]?",
-		}),
-	)
-	.handler(async ({ input }) => {
+const listQuestions = admin.admin.tryout.questions.listQuestions.handler(
+	async ({ input }: { input: ListQuestionsInput }) => {
 		const conditions = [];
 
 		if (input.cursor) {
@@ -152,7 +166,7 @@ const listQuestions = admin
 		if (input.excludeIds && input.excludeIds.length > 0) {
 			conditions.push(
 				sql`${question.id} NOT IN (${sql.join(
-					input.excludeIds.map((id) => sql`${id}`),
+					input.excludeIds.map((id: number) => sql`${id}`),
 					sql`, `,
 				)})`,
 			);
@@ -179,67 +193,38 @@ const listQuestions = admin
 			})),
 			nextCursor: hasMore && lastQuestion ? lastQuestion.id : undefined,
 		};
-	});
+	},
+);
 
-const getQuestion = admin
-	.route({
-		path: "/admin/questions/{id}",
-		method: "GET",
-		tags: ["Admin - Questions"],
-	})
-	.input(type({ id: "number" }))
-	.handler(async ({ input }) => {
-		const [questionData] = await db.select().from(question).where(eq(question.id, input.id)).limit(1);
+const getQuestion = admin.admin.tryout.questions.getQuestion.handler(async ({ input }: { input: QuestionIdInput }) => {
+	const [questionData] = await db.select().from(question).where(eq(question.id, input.id)).limit(1);
 
-		if (!questionData)
-			throw new ORPCError("NOT_FOUND", {
-				message: "Question tidak ditemukan",
-			});
+	if (!questionData)
+		throw new ORPCError("NOT_FOUND", {
+			message: "Question tidak ditemukan",
+		});
 
-		const choicesData = await db
-			.select()
-			.from(questionChoice)
-			.where(eq(questionChoice.questionId, input.id))
-			.orderBy(questionChoice.code);
+	const choicesData = await db
+		.select()
+		.from(questionChoice)
+		.where(eq(questionChoice.questionId, input.id))
+		.orderBy(questionChoice.code);
 
-		return {
-			question: {
-				id: questionData.id,
-				type: questionData.type,
-				content: questionData.contentJson ?? convertToTiptap(questionData.content),
-				discussion: questionData.discussionJson ?? convertToTiptap(questionData.discussion),
-				essayCorrectAnswer: questionData.essayCorrectAnswer,
-				tags: questionData.tags,
-			},
-			choices: choicesData,
-		};
-	});
+	return {
+		question: {
+			id: questionData.id,
+			type: questionData.type,
+			content: questionData.contentJson ?? convertToTiptap(questionData.content),
+			discussion: questionData.discussionJson ?? convertToTiptap(questionData.discussion),
+			essayCorrectAnswer: questionData.essayCorrectAnswer,
+			tags: questionData.tags,
+		},
+		choices: choicesData,
+	};
+});
 
-const updateQuestion = admin
-	.route({
-		path: "/admin/questions/{id}",
-		method: "PATCH",
-		tags: ["Admin - Questions"],
-	})
-	.input(
-		type({
-			id: "number",
-			content: "unknown",
-			discussion: "unknown",
-			tags: "string[]?",
-			essayCorrectAnswer: "string?",
-			choices: type(
-				{
-					"id?": "number",
-					content: "string",
-					isCorrect: "boolean",
-				},
-				"[]",
-			).optional(),
-		}),
-	)
-	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
+const updateQuestion = admin.admin.tryout.questions.updateQuestion.handler(
+	async ({ input }: { input: UpdateQuestionInput }) => {
 		const contentJson = typeof input.content === "object" ? input.content : null;
 		const discussionJson = typeof input.discussion === "object" ? input.discussion : null;
 
@@ -268,9 +253,13 @@ const updateQuestion = admin
 			if (input.choices) {
 				const existingChoices = await tx.select().from(questionChoice).where(eq(questionChoice.questionId, input.id));
 
-				const incomingIds = new Set(input.choices.filter((c) => c.id && c.id > 0).map((c) => c.id as number));
+				const incomingIds = new Set(
+					input.choices
+						.filter((choice: QuestionChoiceInput) => choice.id && choice.id > 0)
+						.map((choice) => choice.id as number),
+				);
 
-				const toDelete = existingChoices.filter((c) => !incomingIds.has(c.id));
+				const toDelete = existingChoices.filter((choice) => !incomingIds.has(choice.id));
 				for (const choice of toDelete) {
 					await tx.delete(questionChoice).where(eq(questionChoice.id, choice.id));
 				}
@@ -304,17 +293,11 @@ const updateQuestion = admin
 		});
 
 		return { message: "Question berhasil diperbarui" };
-	});
+	},
+);
 
-const deleteQuestion = admin
-	.route({
-		path: "/admin/questions/{id}",
-		method: "DELETE",
-		tags: ["Admin - Questions"],
-	})
-	.input(type({ id: "number" }))
-	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
+const deleteQuestion = admin.admin.tryout.questions.deleteQuestion.handler(
+	async ({ input }: { input: QuestionIdInput }) => {
 		const [deleted] = await db.delete(question).where(eq(question.id, input.id)).returning();
 
 		if (!deleted) {
@@ -324,23 +307,11 @@ const deleteQuestion = admin
 		}
 
 		return { message: "Question berhasil dihapus" };
-	});
+	},
+);
 
-const createChoice = admin
-	.route({
-		path: "/admin/questions/{questionId}/choices",
-		method: "POST",
-		tags: ["Admin - Questions"],
-	})
-	.input(
-		type({
-			questionId: "number",
-			content: "string",
-			isCorrect: "boolean",
-		}),
-	)
-	.output(type({ message: "string", id: "number" }))
-	.handler(async ({ input }) => {
+const createChoice = admin.admin.tryout.questions.createChoice.handler(
+	async ({ input }: { input: CreateChoiceInput }) => {
 		const existingChoices = await db
 			.select({ code: questionChoice.code })
 			.from(questionChoice)
@@ -375,23 +346,11 @@ const createChoice = admin
 			message: "Choice berhasil dibuat",
 			id: created.id,
 		};
-	});
+	},
+);
 
-const updateChoice = admin
-	.route({
-		path: "/admin/questions/choices/{id}",
-		method: "PATCH",
-		tags: ["Admin - Questions"],
-	})
-	.input(
-		type({
-			id: "number",
-			content: "string?",
-			isCorrect: "boolean?",
-		}),
-	)
-	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
+const updateChoice = admin.admin.tryout.questions.updateChoice.handler(
+	async ({ input }: { input: UpdateChoiceInput }) => {
 		const updateData: { content?: string; isCorrect?: boolean } = {};
 
 		if (input.content !== undefined) updateData.content = input.content;
@@ -409,17 +368,11 @@ const updateChoice = admin
 			});
 
 		return { message: "Choice berhasil diperbarui" };
-	});
+	},
+);
 
-const deleteChoice = admin
-	.route({
-		path: "/admin/questions/choices/{id}",
-		method: "DELETE",
-		tags: ["Admin - Questions"],
-	})
-	.input(type({ id: "number" }))
-	.output(type({ message: "string" }))
-	.handler(async ({ input }) => {
+const deleteChoice = admin.admin.tryout.questions.deleteChoice.handler(
+	async ({ input }: { input: QuestionIdInput }) => {
 		const [deleted] = await db.delete(questionChoice).where(eq(questionChoice.id, input.id)).returning();
 
 		if (!deleted) {
@@ -429,7 +382,8 @@ const deleteChoice = admin
 		}
 
 		return { message: "Choice berhasil dihapus" };
-	});
+	},
+);
 
 export const questionRouter = {
 	createQuestion,

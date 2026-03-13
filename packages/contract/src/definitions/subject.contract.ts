@@ -1,10 +1,15 @@
-import { questionChoice } from "@bimbelbeta/db/schema/question";
-import { contentItem, noteMaterial, subject, videoMaterial } from "@bimbelbeta/db/schema/subject";
 import { type } from "arktype";
-import { createSelectSchema } from "drizzle-arktype";
 import { oc } from "../lib/contract-definition";
 
-const SubjectSchema = createSelectSchema(subject).omit("createdAt", "updatedAt");
+const SubjectSchema = type({
+	id: "number",
+	name: "string",
+	shortName: "string",
+	description: "string | null",
+	order: "number",
+	category: "'sd' | 'smp' | 'sma' | 'utbk'",
+	gradeLevel: "number | null",
+});
 
 const SubjectWithContentSchema = type({
 	...SubjectSchema,
@@ -21,10 +26,10 @@ const ContentItemWithProgressSchema = type({
 	hasVideo: "boolean",
 	hasNote: "boolean",
 	hasPracticeQuestions: "boolean",
-	videoCompleted: "boolean?",
-	noteCompleted: "boolean?",
-	practiceQuestionsCompleted: "boolean?",
-	lastViewedAt: "Date?",
+	videoCompleted: "boolean | null",
+	noteCompleted: "boolean | null",
+	practiceQuestionsCompleted: "boolean | null",
+	lastViewedAt: "Date | null",
 });
 
 const SubjectContentSchema = type({
@@ -32,7 +37,12 @@ const SubjectContentSchema = type({
 	items: ContentItemWithProgressSchema.array(),
 });
 
-const ChoiceWithAnswerSchema = createSelectSchema(questionChoice).omit("questionId", "createdAt", "updatedAt");
+const ChoiceWithAnswerSchema = type({
+	id: "number",
+	code: "string",
+	content: "string",
+	isCorrect: "boolean",
+});
 
 const PracticeQuestionSchema = type({
 	questionId: "number",
@@ -44,18 +54,25 @@ const PracticeQuestionSchema = type({
 	answers: ChoiceWithAnswerSchema.array(),
 });
 
-const VideoMaterialSchema = createSelectSchema(videoMaterial).omit("contentItemId", "createdAt", "updatedAt");
+const VideoMaterialSchema = type({
+	id: "number",
+	videoUrl: "string",
+	content: "unknown",
+});
 
-const NoteMaterialSchema = createSelectSchema(noteMaterial).omit("contentItemId", "createdAt", "updatedAt");
+const NoteMaterialSchema = type({
+	id: "number",
+	content: "unknown",
+});
 
 const PracticeQuestionsSchema = type({
 	questions: PracticeQuestionSchema.array(),
 });
 
-const ContentItemBaseSchema = createSelectSchema(contentItem).omit("order", "createdAt", "updatedAt");
-
 const SubjectContentDetailSchema = type({
-	...ContentItemBaseSchema,
+	id: "number",
+	title: "string",
+	subjectId: "number",
 	video: VideoMaterialSchema.or("null"),
 	note: NoteMaterialSchema.or("null"),
 	practiceQuestions: PracticeQuestionsSchema.or("null"),
