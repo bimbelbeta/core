@@ -1,108 +1,84 @@
 import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
-import { universityStudyProgram } from "@bimbelbeta/db/schema/university";
+import { studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
 import { and, eq } from "drizzle-orm";
 import { authed } from "../index";
 
-const find = authed.userSettings.find.handler(async ({ context }) => {
-	const userId = context.session.user.id;
+const find = authed.userSettings.find.handler(async ({ context, errors }) => {
+  if (!context.session.user.targetUniversityId || !context.session.user.targetStudyProgramId)
+    return {
+      university: null,
+      studyProgram: null,
+    };
 
-	const [userData] = await db
-		.select({
-			targetUniversityId: user.targetUniversityId,
-			targetStudyProgramId: user.targetStudyProgramId,
-		})
-		.from(user)
-		.where(eq(user.id, userId))
-		.limit(1);
+  const [data] = await db
+    .select({
+      university: {
+        id: university.id,
+        name: university.name,
+        slug: university.slug,
+        logo: university.logo,
+      },
+      studyProgram: {
+        id: studyProgram.id,
+        name: studyProgram.name,
+        slug: studyProgram.slug,
+        category: studyProgram.category,
+        accreditation: universityStudyProgram.accreditation,
+        averageScore: universityStudyProgram.averageScore,
+      },
+    })
+    .from(university)
+    .innerJoin(universityStudyProgram, eq(universityStudyProgram.universityId, university.id))
+    .innerJoin(studyProgram, eq(studyProgram.id, universityStudyProgram.studyProgramId))
+    .where(
+      and(
+        eq(university.id, context.session.user.targetUniversityId),
+        eq(studyProgram.id, context.session.user.targetStudyProgramId),
+      ),
+    );
 
-	if (!userData?.targetUniversityId || !userData?.targetStudyProgramId) {
-		return {
-			studyProgramData: null,
-		};
-	}
+  if (!data) throw errors.NOT_FOUND();
 
-	const studyProgramData = await db.query.universityStudyProgram.findFirst({
-		where: {
-			studyProgramId: { eq: userData.targetStudyProgramId },
-			universityId: { eq: userData.targetUniversityId },
-		},
-		with: {
-			studyProgram: true,
-			university: true,
-		},
-	});
-
-	if (!studyProgramData)
-		return {
-			studyProgramData: null,
-		};
-
-	// Transform to match contract schema exactly
-	return {
-		studyProgramData: {
-			id: studyProgramData.id,
-			universityId: studyProgramData.universityId,
-			studyProgramId: studyProgramData.studyProgramId,
-			tuition: studyProgramData.tuition,
-			capacity: studyProgramData.capacity,
-			accreditation: studyProgramData.accreditation,
-			averageScore: studyProgramData.averageScore,
-			studyProgram: studyProgramData.studyProgram
-				? {
-						id: studyProgramData.studyProgram.id,
-						name: studyProgramData.studyProgram.name,
-						category: studyProgramData.studyProgram.category,
-					}
-				: null,
-			university: studyProgramData.university
-				? {
-						id: studyProgramData.university.id,
-						name: studyProgramData.university.name,
-						slug: studyProgramData.university.slug,
-						logo: studyProgramData.university.logo,
-					}
-				: null,
-		},
-	};
+  return data;
 });
 
-const set = authed.userSettings.set.handler(async ({ input, context, errors }) => {
-	const { universityId, studyProgramId } = input;
-	const userId = context.session.user.id;
+const update = authed.userSettings.update.handler(async ({ input, context, errors }) => {
+  const { universityId, studyProgramId } = input;
+  const userId = context.session.user.id;
 
-	const existing = await db
-		.select()
-		.from(universityStudyProgram)
-		.where(
-			and(
-				eq(universityStudyProgram.universityId, universityId),
-				eq(universityStudyProgram.studyProgramId, studyProgramId),
-			),
-		)
-		.limit(1);
+  const existing = await db
+    .select()
+    .from(universityStudyProgram)
+    .where(
+      and(
+        eq(universityStudyProgram.universityId, universityId),
+        eq(universityStudyProgram.studyProgramId, studyProgramId),
+      ),
+    )
+    .limit(1);
 
-	if (!existing) {
-		throw errors.BAD_REQUEST({
-			message: "Kombinasi universitas dan program studi tidak valid",
-		});
-	}
+  if (!existing) {
+    throw errors.BAD_REQUEST({
+      message: "Kombinasi universitas dan program studi tidak valid",
+    });
+  }
 
-	await db
-		.update(user)
-		.set({
-			targetUniversityId: universityId,
-			targetStudyProgramId: studyProgramId,
-		})
-		.where(eq(user.id, userId));
+  await db
+    .update(user)
+    .set({
+      targetUniversityId: universityId,
+      targetStudyProgramId: studyProgramId,
+    })
+    .where(eq(user.id, userId));
 
-	return {
-		success: true,
-		message: "Target universitas dan program studi berhasil disimpan",
-	};
+  return {
+    success: true,
+    message: "Target universitas dan program studi berhasil disimpan",
+  };
 });
 
 export const userSettingsRouter = {
-	find,
-	set,
+  find,
+  update,
 };

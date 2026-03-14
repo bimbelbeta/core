@@ -5,3 +5,7 @@ export function generateSlug(name: string): string {
 		.replace(/\s+/g, "-")
 		.replace(/[^\w-]+/g, "");
 }
+
+export function numericToNumber(val: string | null): number | null {
+	return val ? Number(val) : null;
+}

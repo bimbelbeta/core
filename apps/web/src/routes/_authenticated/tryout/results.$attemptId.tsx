@@ -59,7 +59,7 @@ function RouteComponent() {
 		);
 	}
 
-	const passingGrade = target.data?.studyProgramData?.averageScore || 600;
+	const passingGrade = target.data?.studyProgram?.averageScore || 600;
 
 	if (error || !data) {
 		return <ErrorComponent error={error} />;
@@ -103,9 +103,9 @@ function RouteComponent() {
 					<CardHeader className="flex items-center justify-between gap-2 pb-2">
 						<CardTitle className="font-medium text-muted-foreground text-sm">
 							Passing Grade
-							{target.data?.studyProgramData && (
+							{target.data?.studyProgram && (
 								<p className="text-xs">
-									{target.data.studyProgramData.studyProgram?.name} {target.data.studyProgramData.university.name}
+									{target.data.studyProgram.name} {target.data.university.name}
 								</p>
 							)}
 						</CardTitle>

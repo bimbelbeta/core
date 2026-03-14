@@ -12,11 +12,11 @@ import { oc } from "../lib/contract-definition";
 
 const TryoutAttemptStatus = "'not_started' | 'ongoing' | 'finished'";
 
-const ChoiceSchema = createSelectSchema(questionChoice).pick("content", "code").merge({ id: "number" });
+const ChoiceSchema = createSelectSchema(questionChoice).pick("code").merge({ id: "number", content: "string" });
 
 const ChoiceWithAnswerSchema = createSelectSchema(questionChoice)
-	.pick("content", "code", "isCorrect")
-	.merge({ id: "number" });
+	.pick("code", "isCorrect")
+	.merge({ id: "number", content: "string" });
 
 const UserAnswerSchema = createSelectSchema(tryoutUserAnswer).pick(
 	"selectedChoiceId",
@@ -33,11 +33,11 @@ const TryoutListItemSchema = createSelectSchema(tryout)
 	.pick("title", "passingGrade", "startsAt", "endsAt")
 	.merge({ id: "number" });
 
-const QuestionBaseSchema = createSelectSchema(question).pick("content", "type").merge({ id: "number" });
+const QuestionBaseSchema = createSelectSchema(question).pick("type").merge({ id: "number", content: "string" });
 
 const ReviewQuestionBaseSchema = createSelectSchema(question)
-	.pick("content", "type", "discussion")
-	.merge({ id: "number" });
+	.pick("type", "discussion")
+	.merge({ id: "number", content: "string" });
 
 const TryoutQuestionSchema = type({
 	"...": QuestionBaseSchema,
@@ -47,7 +47,7 @@ const TryoutQuestionSchema = type({
 
 const ReviewQuestionSchema = type({
 	"...": ReviewQuestionBaseSchema,
-	discussion: "unknown | null",
+	discussion: "string | null",
 	choices: ChoiceWithAnswerSchema.array(),
 	userAnswer: UserAnswerSchema,
 });

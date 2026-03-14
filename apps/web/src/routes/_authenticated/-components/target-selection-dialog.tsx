@@ -32,11 +32,11 @@ export function TargetSelectionDialog() {
 
 	const [open, setOpen] = useState<boolean>(false);
 	useEffect(() => {
-		if (data && !data.studyProgramData) setOpen(true);
+		if (data && !data.studyProgram) setOpen(true);
 	}, [data]);
 
-	const setMutation = useMutation(
-		orpc.userSettings.set.mutationOptions({
+	const updateMutation = useMutation(
+		orpc.userSettings.update.mutationOptions({
 			onSuccess: () => {
 				setOpen(false);
 				queryClient.invalidateQueries({ queryKey: orpc.userSettings.find.queryKey() });
@@ -57,7 +57,7 @@ export function TargetSelectionDialog() {
 				toast.error("Mohon pilih universitas dan program studi");
 				return;
 			}
-			setMutation.mutate({
+			updateMutation.mutate({
 				universityId: value.universityId,
 				studyProgramId: value.studyProgramId,
 			});
@@ -204,10 +204,10 @@ export function TargetSelectionDialog() {
 							{(state) => (
 								<Button
 									type="submit"
-									className={cn("sm:w-auto", setMutation.isPending && "cursor-not-allowed")}
+									className={cn("sm:w-auto", updateMutation.isPending && "cursor-not-allowed")}
 									disabled={!state.canSubmit}
 								>
-									{setMutation.isPending ? (
+									{updateMutation.isPending ? (
 										<>
 											<Spinner />
 											Menyimpan...
