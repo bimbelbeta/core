@@ -1,13 +1,11 @@
 import { db } from "@bimbelbeta/db";
-import { question, questionChoice } from "@bimbelbeta/db/schema/question";
 import {
 	tryoutAttempt,
 	tryoutSubtest,
 	tryoutSubtestAttempt,
 	tryoutSubtestQuestion,
-	tryoutUserAnswer,
 } from "@bimbelbeta/db/schema/tryout";
-import { eq, inArray } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 export interface SubtestScoreResult {
 	subtestAttemptId: number;
@@ -64,7 +62,9 @@ export async function calculateTryoutScores(attemptId: number): Promise<TryoutSc
 	}
 
 	const userAnswers = await db.query.tryoutUserAnswer.findMany({
-		where: eq(tryoutUserAnswer.attemptId, attemptId),
+		where: {
+			attemptId: { eq: attemptId },
+		},
 		with: {
 			selectedChoice: {
 				columns: {
@@ -92,7 +92,11 @@ export async function calculateTryoutScores(attemptId: number): Promise<TryoutSc
 
 		const questionIds = subtestQuestions.map((q) => q.questionId);
 		const questions = await db.query.question.findMany({
-			where: inArray(question.id, questionIds),
+			where: {
+				id: {
+					in: questionIds,
+				},
+			},
 			columns: {
 				id: true,
 				type: true,
@@ -107,7 +111,11 @@ export async function calculateTryoutScores(attemptId: number): Promise<TryoutSc
 		const allComplexChoices =
 			complexQuestionIds.length > 0
 				? await db.query.questionChoice.findMany({
-						where: inArray(questionChoice.questionId, complexQuestionIds),
+						where: {
+							questionId: {
+								in: complexQuestionIds,
+							},
+						},
 						columns: {
 							questionId: true,
 							id: true,

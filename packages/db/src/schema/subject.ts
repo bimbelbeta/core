@@ -1,4 +1,4 @@
-import { relations } from "drizzle-orm";
+import { defineRelationsPart } from "drizzle-orm";
 import { boolean, index, integer, jsonb, pgEnum, pgTable, text, timestamp, unique } from "drizzle-orm/pg-core";
 import { user } from "./auth";
 import { question } from "./question";
@@ -153,83 +153,107 @@ export const userSubjectView = pgTable(
 /*
   Relations
 */
-export const subjectRelations = relations(subject, ({ many }) => ({
-	contentItems: many(contentItem),
-	userSubjectViews: many(userSubjectView),
-}));
-
-export const contentItemRelations = relations(contentItem, ({ one, many }) => ({
-	subject: one(subject, {
-		fields: [contentItem.subjectId],
-		references: [subject.id],
+export const subjectRelations = defineRelationsPart(
+	{
+		subject,
+		contentItem,
+		videoMaterial,
+		noteMaterial,
+		contentPracticeQuestions,
+		userProgress,
+		recentContentView,
+		userSubjectView,
+		user,
+		question,
+	},
+	(r) => ({
+		subject: {
+			contentItems: r.many.contentItem({
+				from: r.subject.id,
+				to: r.contentItem.subjectId,
+			}),
+			userSubjectViews: r.many.userSubjectView({
+				from: r.subject.id,
+				to: r.userSubjectView.subjectId,
+			}),
+		},
+		contentItem: {
+			subject: r.one.subject({
+				from: r.contentItem.subjectId,
+				to: r.subject.id,
+			}),
+			videoMaterial: r.one.videoMaterial({
+				from: r.contentItem.id,
+				to: r.videoMaterial.contentItemId,
+			}),
+			noteMaterial: r.one.noteMaterial({
+				from: r.contentItem.id,
+				to: r.noteMaterial.contentItemId,
+			}),
+			practiceQuestions: r.many.contentPracticeQuestions({
+				from: r.contentItem.id,
+				to: r.contentPracticeQuestions.contentItemId,
+			}),
+			userProgress: r.many.userProgress({
+				from: r.contentItem.id,
+				to: r.userProgress.contentItemId,
+			}),
+			recentViews: r.many.recentContentView({
+				from: r.contentItem.id,
+				to: r.recentContentView.contentItemId,
+			}),
+		},
+		videoMaterial: {
+			contentItem: r.one.contentItem({
+				from: r.videoMaterial.contentItemId,
+				to: r.contentItem.id,
+			}),
+		},
+		noteMaterial: {
+			contentItem: r.one.contentItem({
+				from: r.noteMaterial.contentItemId,
+				to: r.contentItem.id,
+			}),
+		},
+		contentPracticeQuestions: {
+			contentItem: r.one.contentItem({
+				from: r.contentPracticeQuestions.contentItemId,
+				to: r.contentItem.id,
+			}),
+			question: r.one.question({
+				from: r.contentPracticeQuestions.questionId,
+				to: r.question.id,
+			}),
+		},
+		userProgress: {
+			user: r.one.user({
+				from: r.userProgress.userId,
+				to: r.user.id,
+			}),
+			contentItem: r.one.contentItem({
+				from: r.userProgress.contentItemId,
+				to: r.contentItem.id,
+			}),
+		},
+		recentContentView: {
+			user: r.one.user({
+				from: r.recentContentView.userId,
+				to: r.user.id,
+			}),
+			contentItem: r.one.contentItem({
+				from: r.recentContentView.contentItemId,
+				to: r.contentItem.id,
+			}),
+		},
+		userSubjectView: {
+			user: r.one.user({
+				from: r.userSubjectView.userId,
+				to: r.user.id,
+			}),
+			subject: r.one.subject({
+				from: r.userSubjectView.subjectId,
+				to: r.subject.id,
+			}),
+		},
 	}),
-	videoMaterial: one(videoMaterial, {
-		fields: [contentItem.id],
-		references: [videoMaterial.contentItemId],
-	}),
-	noteMaterial: one(noteMaterial, {
-		fields: [contentItem.id],
-		references: [noteMaterial.contentItemId],
-	}),
-	practiceQuestions: many(contentPracticeQuestions),
-	userProgress: many(userProgress),
-	recentViews: many(recentContentView),
-}));
-
-export const videoMaterialRelations = relations(videoMaterial, ({ one }) => ({
-	contentItem: one(contentItem, {
-		fields: [videoMaterial.contentItemId],
-		references: [contentItem.id],
-	}),
-}));
-
-export const noteMaterialRelations = relations(noteMaterial, ({ one }) => ({
-	contentItem: one(contentItem, {
-		fields: [noteMaterial.contentItemId],
-		references: [contentItem.id],
-	}),
-}));
-
-export const contentPracticeQuestionsRelations = relations(contentPracticeQuestions, ({ one }) => ({
-	contentItem: one(contentItem, {
-		fields: [contentPracticeQuestions.contentItemId],
-		references: [contentItem.id],
-	}),
-	question: one(question, {
-		fields: [contentPracticeQuestions.questionId],
-		references: [question.id],
-	}),
-}));
-
-export const userProgressRelations = relations(userProgress, ({ one }) => ({
-	user: one(user, {
-		fields: [userProgress.userId],
-		references: [user.id],
-	}),
-	contentItem: one(contentItem, {
-		fields: [userProgress.contentItemId],
-		references: [contentItem.id],
-	}),
-}));
-
-export const recentContentViewRelations = relations(recentContentView, ({ one }) => ({
-	user: one(user, {
-		fields: [recentContentView.userId],
-		references: [user.id],
-	}),
-	contentItem: one(contentItem, {
-		fields: [recentContentView.contentItemId],
-		references: [contentItem.id],
-	}),
-}));
-
-export const userSubjectViewRelations = relations(userSubjectView, ({ one }) => ({
-	user: one(user, {
-		fields: [userSubjectView.userId],
-		references: [user.id],
-	}),
-	subject: one(subject, {
-		fields: [userSubjectView.subjectId],
-		references: [subject.id],
-	}),
-}));
+);

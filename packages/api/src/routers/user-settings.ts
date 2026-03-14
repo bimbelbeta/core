@@ -23,10 +23,10 @@ const find = authed.userSettings.find.handler(async ({ context }) => {
 	}
 
 	const studyProgramData = await db.query.universityStudyProgram.findFirst({
-		where: and(
-			eq(universityStudyProgram.studyProgramId, userData.targetStudyProgramId),
-			eq(universityStudyProgram.universityId, userData.targetUniversityId),
-		),
+		where: {
+			studyProgramId: { eq: userData.targetStudyProgramId },
+			universityId: { eq: userData.targetUniversityId },
+		},
 		with: {
 			studyProgram: true,
 			university: true,
@@ -48,17 +48,21 @@ const find = authed.userSettings.find.handler(async ({ context }) => {
 			capacity: studyProgramData.capacity,
 			accreditation: studyProgramData.accreditation,
 			averageScore: studyProgramData.averageScore,
-			studyProgram: {
-				id: studyProgramData.studyProgram.id,
-				name: studyProgramData.studyProgram.name,
-				category: studyProgramData.studyProgram.category,
-			},
-			university: {
-				id: studyProgramData.university.id,
-				name: studyProgramData.university.name,
-				slug: studyProgramData.university.slug,
-				logo: studyProgramData.university.logo,
-			},
+			studyProgram: studyProgramData.studyProgram
+				? {
+						id: studyProgramData.studyProgram.id,
+						name: studyProgramData.studyProgram.name,
+						category: studyProgramData.studyProgram.category,
+					}
+				: null,
+			university: studyProgramData.university
+				? {
+						id: studyProgramData.university.id,
+						name: studyProgramData.university.name,
+						slug: studyProgramData.university.slug,
+						logo: studyProgramData.university.logo,
+					}
+				: null,
 		},
 	};
 });

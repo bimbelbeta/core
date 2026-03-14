@@ -1,6 +1,6 @@
-import { relations } from "drizzle-orm";
+import { defineRelationsPart } from "drizzle-orm";
 import { boolean, char, integer, jsonb, pgEnum, pgTable, text, timestamp, unique } from "drizzle-orm/pg-core";
-import { tryoutSubtestQuestion } from "./tryout";
+import { tryoutSubtest, tryoutSubtestQuestion } from "./tryout";
 
 export const questionType = pgEnum("question_type", ["multiple_choice", "multiple_choice_complex", "essay"]);
 
@@ -16,11 +16,6 @@ export const question = pgTable("question", {
 	createdAt: timestamp("created_at").defaultNow(),
 	updatedAt: timestamp("updated_at").defaultNow(),
 });
-
-export const questionRelations = relations(question, ({ many }) => ({
-	choices: many(questionChoice),
-	subtests: many(tryoutSubtestQuestion),
-}));
 
 export const questionChoice = pgTable(
 	"question_choice",
@@ -38,9 +33,24 @@ export const questionChoice = pgTable(
 	(t) => [unique("question_choice_unique").on(t.questionId, t.code)],
 );
 
-export const questionChoiceRelations = relations(questionChoice, ({ one }) => ({
-	question: one(question, {
-		fields: [questionChoice.questionId],
-		references: [question.id],
+export const questionRelations = defineRelationsPart(
+	{ question, questionChoice, tryoutSubtest, tryoutSubtestQuestion },
+	(r) => ({
+		question: {
+			choices: r.many.questionChoice({
+				from: r.question.id,
+				to: r.questionChoice.questionId,
+			}),
+			subtests: r.many.tryoutSubtestQuestion({
+				from: r.question.id,
+				to: r.tryoutSubtestQuestion.questionId,
+			}),
+		},
+		questionChoice: {
+			question: r.one.question({
+				from: r.questionChoice.questionId,
+				to: r.question.id,
+			}),
+		},
 	}),
-}));
+);

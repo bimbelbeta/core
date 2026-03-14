@@ -5,7 +5,6 @@ import { question, questionChoice } from "@bimbelbeta/db/schema/question";
 import {
 	tryout,
 	tryoutAttempt,
-	tryoutSubtest,
 	tryoutSubtestAttempt,
 	tryoutSubtestQuestion,
 	tryoutUserAnswer,
@@ -81,7 +80,10 @@ const featured = authed.tryout.featured.handler(async ({ context, errors }) => {
 
 const find = authed.tryout.find.handler(async ({ input, context, errors }) => {
 	const tryoutData = await db.query.tryout.findFirst({
-		where: and(eq(tryout.id, input.id), eq(tryout.status, "published")),
+		where: {
+			id: { eq: input.id },
+			status: { eq: "published" },
+		},
 		with: {
 			subtests: {
 				orderBy: (subtests, { asc }) => [asc(subtests.order)],
@@ -92,7 +94,10 @@ const find = authed.tryout.find.handler(async ({ input, context, errors }) => {
 	if (!tryoutData) throw errors.NOT_FOUND({ message: "Tryout tidak ditemukan." });
 
 	const attempt = await db.query.tryoutAttempt.findFirst({
-		where: and(eq(tryoutAttempt.tryoutId, input.id), eq(tryoutAttempt.userId, context.session.user.id)),
+		where: {
+			tryoutId: { eq: input.id },
+			userId: { eq: context.session.user.id },
+		},
 		with: {
 			subtestAttempts: true,
 		},
@@ -227,7 +232,10 @@ const find = authed.tryout.find.handler(async ({ input, context, errors }) => {
 
 const start = authed.tryout.start.handler(async ({ input, context, errors }) => {
 	const tryoutData = await db.query.tryout.findFirst({
-		where: and(eq(tryout.id, input.id), eq(tryout.status, "published")),
+		where: {
+			id: { eq: input.id },
+			status: { eq: "published" },
+		},
 		with: {
 			subtests: {
 				orderBy: (subtests, { asc }) => [asc(subtests.order)],
@@ -268,7 +276,10 @@ const start = authed.tryout.start.handler(async ({ input, context, errors }) => 
 	}
 
 	const existingAttempt = await db.query.tryoutAttempt.findFirst({
-		where: and(eq(tryoutAttempt.tryoutId, input.id), eq(tryoutAttempt.userId, context.session.user.id)),
+		where: {
+			tryoutId: { eq: input.id },
+			userId: { eq: context.session.user.id },
+		},
 	});
 
 	if (existingAttempt) {
@@ -361,7 +372,10 @@ const start = authed.tryout.start.handler(async ({ input, context, errors }) => 
 
 const startSubtest = authed.tryout.startSubtest.handler(async ({ input, context, errors }) => {
 	const attempt = await db.query.tryoutAttempt.findFirst({
-		where: and(eq(tryoutAttempt.tryoutId, input.tryoutId), eq(tryoutAttempt.userId, context.session.user.id)),
+		where: {
+			tryoutId: { eq: input.tryoutId },
+			userId: { eq: context.session.user.id },
+		},
 		with: {
 			subtestAttempts: true,
 		},
@@ -375,7 +389,9 @@ const startSubtest = authed.tryout.startSubtest.handler(async ({ input, context,
 	}
 
 	const tryoutData = await db.query.tryout.findFirst({
-		where: eq(tryout.id, input.tryoutId),
+		where: {
+			id: { eq: input.tryoutId },
+		},
 		with: {
 			subtests: {
 				orderBy: (subtests, { asc }) => [asc(subtests.order)],
@@ -429,11 +445,11 @@ const startSubtest = authed.tryout.startSubtest.handler(async ({ input, context,
 
 const saveAnswer = authed.tryout.saveAnswer.handler(async ({ input, context, errors }) => {
 	const attempt = await db.query.tryoutAttempt.findFirst({
-		where: and(
-			eq(tryoutAttempt.tryoutId, input.tryoutId),
-			eq(tryoutAttempt.userId, context.session.user.id),
-			eq(tryoutAttempt.status, "ongoing"),
-		),
+		where: {
+			tryoutId: { eq: input.tryoutId },
+			userId: { eq: context.session.user.id },
+			status: { eq: "ongoing" },
+		},
 		with: {
 			subtestAttempts: true,
 		},
@@ -479,11 +495,11 @@ const saveAnswer = authed.tryout.saveAnswer.handler(async ({ input, context, err
 
 const toggleRaguRagu = authed.tryout.toggleRaguRagu.handler(async ({ input, context, errors }) => {
 	const attempt = await db.query.tryoutAttempt.findFirst({
-		where: and(
-			eq(tryoutAttempt.tryoutId, input.tryoutId),
-			eq(tryoutAttempt.userId, context.session.user.id),
-			eq(tryoutAttempt.status, "ongoing"),
-		),
+		where: {
+			tryoutId: { eq: input.tryoutId },
+			userId: { eq: context.session.user.id },
+			status: { eq: "ongoing" },
+		},
 		with: {
 			subtestAttempts: true,
 		},
@@ -507,7 +523,10 @@ const toggleRaguRagu = authed.tryout.toggleRaguRagu.handler(async ({ input, cont
 	}
 
 	const existingAnswer = await db.query.tryoutUserAnswer.findFirst({
-		where: and(eq(tryoutUserAnswer.attemptId, attempt.id), eq(tryoutUserAnswer.questionId, input.questionId)),
+		where: {
+			attemptId: { eq: attempt.id },
+			questionId: { eq: input.questionId },
+		},
 	});
 
 	if (existingAnswer) {
@@ -528,11 +547,11 @@ const toggleRaguRagu = authed.tryout.toggleRaguRagu.handler(async ({ input, cont
 
 const submitSubtest = authed.tryout.submitSubtest.handler(async ({ input, context, errors }) => {
 	const attempt = await db.query.tryoutAttempt.findFirst({
-		where: and(
-			eq(tryoutAttempt.tryoutId, input.tryoutId),
-			eq(tryoutAttempt.userId, context.session.user.id),
-			eq(tryoutAttempt.status, "ongoing"),
-		),
+		where: {
+			tryoutId: { eq: input.tryoutId },
+			userId: { eq: context.session.user.id },
+			status: { eq: "ongoing" },
+		},
 		with: {
 			subtestAttempts: true,
 		},
@@ -547,7 +566,9 @@ const submitSubtest = authed.tryout.submitSubtest.handler(async ({ input, contex
 	if (!currentSubtestAttempt) throw errors.BAD_REQUEST({ message: "Subtest not active" });
 
 	const tryoutData = await db.query.tryout.findFirst({
-		where: eq(tryout.id, input.tryoutId),
+		where: {
+			id: { eq: input.tryoutId },
+		},
 		with: {
 			subtests: {
 				orderBy: (subtests, { asc }) => [asc(subtests.order)],
@@ -600,11 +621,11 @@ const submitSubtest = authed.tryout.submitSubtest.handler(async ({ input, contex
 
 const submitTryout = authed.tryout.submitTryout.handler(async ({ input, context, errors }) => {
 	const attempt = await db.query.tryoutAttempt.findFirst({
-		where: and(
-			eq(tryoutAttempt.tryoutId, input.tryoutId),
-			eq(tryoutAttempt.userId, context.session.user.id),
-			eq(tryoutAttempt.status, "ongoing"),
-		),
+		where: {
+			tryoutId: { eq: input.tryoutId },
+			userId: { eq: context.session.user.id },
+			status: { eq: "ongoing" },
+		},
 	});
 
 	if (!attempt) throw errors.BAD_REQUEST({ message: "Gagal menemukan pengerjaan tryout." });
@@ -626,7 +647,10 @@ const submitTryout = authed.tryout.submitTryout.handler(async ({ input, context,
 
 const history = authed.tryout.history.handler(async ({ context }) => {
 	const attempts = await db.query.tryoutAttempt.findMany({
-		where: and(eq(tryoutAttempt.userId, context.session.user.id), eq(tryoutAttempt.status, "finished")),
+		where: {
+			userId: { eq: context.session.user.id },
+			status: { eq: "finished" },
+		},
 		columns: {
 			id: true,
 			score: true,
@@ -634,7 +658,7 @@ const history = authed.tryout.history.handler(async ({ context }) => {
 			startedAt: true,
 			completedAt: true,
 		},
-		orderBy: desc(tryoutAttempt.startedAt),
+		orderBy: { startedAt: "desc" },
 		with: {
 			tryout: {
 				columns: {
@@ -650,11 +674,11 @@ const history = authed.tryout.history.handler(async ({ context }) => {
 
 const attemptResult = authed.tryout.attemptResult.handler(async ({ input, context, errors }) => {
 	const attempt = await db.query.tryoutAttempt.findFirst({
-		where: and(
-			eq(tryoutAttempt.id, input.attemptId),
-			eq(tryoutAttempt.userId, context.session.user.id),
-			eq(tryoutAttempt.status, "finished"),
-		),
+		where: {
+			id: { eq: input.attemptId },
+			userId: { eq: context.session.user.id },
+			status: { eq: "finished" },
+		},
 		columns: {
 			id: true,
 			startedAt: true,
@@ -703,7 +727,10 @@ const attemptResult = authed.tryout.attemptResult.handler(async ({ input, contex
 
 const review = authed.tryout.review.handler(async ({ input, context, errors }) => {
 	const attempt = await db.query.tryoutAttempt.findFirst({
-		where: and(eq(tryoutAttempt.id, input.attemptId), eq(tryoutAttempt.userId, context.session.user.id)),
+		where: {
+			id: { eq: input.attemptId },
+			userId: { eq: context.session.user.id },
+		},
 		columns: {
 			id: true,
 			usedCredit: true,
@@ -781,7 +808,9 @@ const review = authed.tryout.review.handler(async ({ input, context, errors }) =
 	}
 
 	const subtestData = await db.query.tryoutSubtest.findFirst({
-		where: eq(tryoutSubtest.id, input.subtestId),
+		where: {
+			id: { eq: input.subtestId },
+		},
 		columns: {
 			name: true,
 		},
