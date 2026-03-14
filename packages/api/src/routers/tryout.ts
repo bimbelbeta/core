@@ -666,7 +666,46 @@ const history = authed.tryout.history.handler(async ({ context }) => {
 					title: true,
 				},
 			},
-		},
+		});
+
+		if (!tryoutData) throw new ORPCError("NOT_FOUND", { message: "Tryout not found" });
+
+		const currentIndex = tryoutData.subtests.findIndex((s) => s.id === input.subtestId);
+		if (currentIndex === -1) throw new ORPCError("NOT_FOUND", { message: "Subtest not found" });
+
+		const now = new Date();
+		if (attempt.deadline && attempt.deadline < now)
+			throw new ORPCError("BAD_REQUEST", {
+				message: "Tryout telah berakhir",
+			});
+
+		await db
+			.update(tryoutSubtestAttempt)
+			.set({ status: "finished", completedAt: new Date() })
+			.where(eq(tryoutSubtestAttempt.id, currentSubtestAttempt.id));
+
+		const nextSubtest = tryoutData.subtests[currentIndex + 1];
+		if (nextSubtest) {
+			const proposedNextDeadline = new Date(Date.now() + nextSubtest.duration * 60 * 1000);
+			const nextDeadline = new Date(Math.min(proposedNextDeadline.getTime(), attempt.deadline.getTime()));
+			await db.insert(tryoutSubtestAttempt).values({
+				tryoutAttemptId: attempt.id,
+				subtestId: nextSubtest.id,
+				deadline: nextDeadline,
+			});
+			return { success: true, nextSubtestId: nextSubtest.id };
+		}
+
+		const scores = await calculateTryoutScores(attempt.id);
+
+		await db
+			.update(tryoutAttempt)
+			.set({ status: "finished", completedAt: new Date() })
+			.where(eq(tryoutAttempt.id, attempt.id));
+
+		await saveScoresToDatabase(attempt.id, scores);
+
+		return { success: true, nextSubtestId: null };
 	});
 
 	return attempts;

@@ -4,6 +4,7 @@ import {
 	index,
 	integer,
 	jsonb,
+	numeric,
 	pgEnum,
 	pgTable,
 	primaryKey,
@@ -90,7 +91,7 @@ export const tryoutAttempt = pgTable(
 		deadline: timestamp("deadline").notNull(),
 		completedAt: timestamp("completed_at"),
 		status: tryoutAttemptStatus("status").notNull().default("ongoing"),
-		score: integer("score"), // Can be calculated later
+		score: numeric("score", { precision: 10, scale: 2 }), // Can be calculated later
 		submittedImageUrl: text("submitted_image_url"),
 		isRevoked: boolean("is_revoked").notNull().default(false),
 		usedCredit: boolean("used_credit").notNull().default(false),
@@ -112,7 +113,7 @@ export const tryoutSubtestAttempt = pgTable(
 		completedAt: timestamp("completed_at"),
 		deadline: timestamp("deadline").notNull(),
 		status: tryoutAttemptStatus("status").notNull().default("ongoing"),
-		score: integer("score"), // 1-1000 scale, null until graded
+		score: numeric("score", { precision: 10, scale: 2 }), // Can be calculated later
 	},
 	(t) => [
 		unique("user_tryout_subtest_attempt").on(t.tryoutAttemptId, t.subtestId),
