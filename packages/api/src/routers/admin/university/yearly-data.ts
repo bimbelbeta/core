@@ -2,7 +2,7 @@ import { db } from "@bimbelbeta/db";
 import { programYearlyData, studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
 import { and, asc, desc, eq, gt, lt } from "drizzle-orm";
 import { admin } from "../../../index";
-import { createIdCursor, parseIdCursor } from "../../../lib/pagination/cursor";
+import { buildIdCursorPage, parseIdCursor } from "../../../lib/pagination/cursor";
 
 const list = admin.admin.university.universityPrograms.list.handler(async ({ input }) => {
 	const limit = Math.min(input.limit ?? 20, 100);
@@ -25,7 +25,7 @@ const list = admin.admin.university.universityPrograms.list.handler(async ({ inp
 		conditions.push(eq(universityStudyProgram.studyProgramId, input.studyProgramId));
 	}
 
-	let results = await db
+	const rows = await db
 		.select({
 			id: universityStudyProgram.id,
 			universityId: university.id,
@@ -47,27 +47,10 @@ const list = admin.admin.university.universityPrograms.list.handler(async ({ inp
 		.orderBy(isBackward ? desc(universityStudyProgram.id) : asc(universityStudyProgram.id))
 		.limit(limit + 1);
 
-	const hasExtra = results.length > limit;
-	if (hasExtra) {
-		results = results.slice(0, limit);
-	}
-
-	if (isBackward) {
-		results.reverse();
-	}
-
-	const firstItem = results[0];
-	const lastItem = results[results.length - 1];
-
-	const pageInfo = {
-		hasNextPage: isBackward ? true : hasExtra,
-		hasPreviousPage: isBackward ? hasExtra : !!cursor,
-		startCursor: firstItem ? createIdCursor(firstItem.id) : null,
-		endCursor: lastItem ? createIdCursor(lastItem.id) : null,
-	};
+	const { items, pageInfo } = buildIdCursorPage(rows, limit, isBackward, !!cursor);
 
 	return {
-		items: results.map((r) => ({
+		items: items.map((r) => ({
 			id: r.id,
 			university: { id: r.universityId, name: r.universityName, slug: r.universitySlug },
 			studyProgram: { id: r.studyProgramId, name: r.studyProgramName, category: r.studyProgramCategory },

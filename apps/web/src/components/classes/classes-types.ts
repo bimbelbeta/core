@@ -15,9 +15,9 @@ export type SubjectListItem = {
 export type ContentListItem = NonNullable<BodyOutputs["subject"]["listContent"]>["items"][number];
 
 export type ContentActionItem = {
-	hasVideo: boolean | unknown;
-	hasNote: boolean | unknown;
-	hasPracticeQuestions: boolean | unknown;
+	hasVideo: boolean;
+	hasNote: boolean;
+	hasPracticeQuestions: boolean;
 	videoCompleted?: boolean | null;
 	noteCompleted?: boolean | null;
 	practiceQuestionsCompleted?: boolean | null;

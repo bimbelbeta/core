@@ -1,5 +1,3 @@
-"use client";
-
 import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
 import { Image } from "@unpic/react";
 import type React from "react";

@@ -1,5 +1,3 @@
-"use client";
-
 import { forwardRef, useCallback } from "react";
 // --- Tiptap UI ---
 import type { UndoRedoAction, UseUndoRedoConfig } from "@/components/tiptap-ui/undo-redo-button";

@@ -36,11 +36,13 @@ const TryoutListItemSchema = createSelectSchema(tryout)
 	.pick("title", "passingGrade", "startsAt", "endsAt")
 	.merge({ id: "number", startsAt: "Date | null", endsAt: "Date | null" });
 
-const QuestionBaseSchema = createSelectSchema(question).pick("type").merge({ id: "number", content: "unknown" });
+const QuestionBaseSchema = createSelectSchema(question)
+	.pick("type")
+	.merge({ id: "number", content: "Record<string, unknown>" });
 
 const ReviewQuestionBaseSchema = createSelectSchema(question)
 	.pick("type", "discussion")
-	.merge({ id: "number", content: "unknown" });
+	.merge({ id: "number", content: "Record<string, unknown>" });
 
 const TryoutQuestionSchema = type({
 	"...": QuestionBaseSchema,
@@ -50,7 +52,7 @@ const TryoutQuestionSchema = type({
 
 const ReviewQuestionSchema = type({
 	"...": ReviewQuestionBaseSchema,
-	discussion: "unknown | null",
+	discussion: "Record<string, unknown> | null",
 	choices: ChoiceWithAnswerSchema.array(),
 	userAnswer: UserAnswerSchema,
 });

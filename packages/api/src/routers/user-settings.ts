@@ -58,7 +58,7 @@ const update = authed.userSettings.update.handler(async ({ input, context, error
 		)
 		.limit(1);
 
-	if (!existing) {
+	if (existing.length === 0) {
 		throw errors.BAD_REQUEST({
 			message: "Kombinasi universitas dan program studi tidak valid",
 		});

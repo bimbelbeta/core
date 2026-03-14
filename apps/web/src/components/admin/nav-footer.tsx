@@ -1,5 +1,3 @@
-"use client";
-
 import { SignOutIcon, SpinnerIcon } from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useRouteContext } from "@tanstack/react-router";

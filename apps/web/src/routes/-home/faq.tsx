@@ -1,6 +1,6 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Container } from "@/components/ui/container";
-import { Heading } from "./-componenets/heading";
+import { Heading } from "./-components/heading";
 import { DATA } from "./data";
 
 export function FAQ() {

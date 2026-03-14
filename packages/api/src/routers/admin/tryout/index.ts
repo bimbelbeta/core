@@ -2,7 +2,7 @@ import { db } from "@bimbelbeta/db";
 import { tryout } from "@bimbelbeta/db/schema/tryout";
 import { and, asc, desc, eq, gt, ilike, lt } from "drizzle-orm";
 import { admin } from "../../..";
-import { createIdCursor, parseIdCursor } from "../../../lib/pagination/cursor";
+import { buildIdCursorPage, parseIdCursor } from "../../../lib/pagination/cursor";
 
 import { tryoutAttemptRouter } from "./attempt";
 
@@ -43,29 +43,16 @@ const list = admin.admin.tryout.list.handler(async ({ input }) => {
 		cursorId !== undefined ? (isBackward ? lt(tryout.id, cursorId) : gt(tryout.id, cursorId)) : undefined,
 	];
 
-	let rows = await db
+	const rows = await db
 		.select()
 		.from(tryout)
 		.where(and(...baseFilters.filter(Boolean)))
 		.orderBy(isBackward ? desc(tryout.id) : asc(tryout.id))
 		.limit(limit + 1);
 
-	const hasExtra = rows.length > limit;
-	if (hasExtra) rows = rows.slice(0, limit);
-	if (isBackward) rows.reverse();
+	const { items, pageInfo } = buildIdCursorPage(rows, limit, isBackward, !!cursorStr);
 
-	const firstItem = rows[0];
-	const lastItem = rows[rows.length - 1];
-
-	return {
-		items: rows,
-		pageInfo: {
-			hasNextPage: isBackward ? true : hasExtra,
-			hasPreviousPage: isBackward ? hasExtra : !!cursorStr,
-			startCursor: firstItem ? createIdCursor(firstItem.id) : null,
-			endCursor: lastItem ? createIdCursor(lastItem.id) : null,
-		},
-	};
+	return { items, pageInfo };
 });
 
 const find = admin.admin.tryout.find.handler(async ({ input, errors }) => {

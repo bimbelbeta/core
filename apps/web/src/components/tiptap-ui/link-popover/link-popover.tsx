@@ -1,5 +1,3 @@
-"use client";
-
 import type { Editor } from "@tiptap/react";
 import { forwardRef, useCallback, useEffect, useState } from "react";
 // --- Icons ---

@@ -47,7 +47,7 @@ export const requireAuth = o.middleware(async ({ context, next, errors }) => {
 	});
 });
 
-export const requirePremium = o.middleware(({ context, next, errors }) => {
+export const requirePremium = o.middleware(async ({ context, next, errors }) => {
 	if (
 		!context.session?.user.isPremium &&
 		context.session?.user.role !== "admin" &&

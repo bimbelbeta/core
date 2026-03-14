@@ -2,16 +2,13 @@ import { db } from "@bimbelbeta/db";
 import { question, questionChoice } from "@bimbelbeta/db/schema/question";
 import { and, asc, desc, eq, gt, like, lt, sql } from "drizzle-orm";
 import { admin } from "../..";
+import { resolveQuestionContent } from "../../lib/content-utils";
 import { convertToTiptap } from "../../lib/convert-to-tiptap";
-import { createIdCursor, parseIdCursor } from "../../lib/pagination/cursor";
+import { buildIdCursorPage, parseIdCursor } from "../../lib/pagination/cursor";
 
 const createQuestion = admin.admin.tryout.questions.createQuestion.handler(async ({ input, errors }) => {
 	const choices = input.choices;
-	const contentJson = typeof input.content === "object" ? input.content : null;
-	const discussionJson = typeof input.discussion === "object" ? input.discussion : null;
-
-	const contentText = typeof input.content === "string" ? input.content : JSON.stringify(input.content);
-	const discussionText = typeof input.discussion === "string" ? input.discussion : JSON.stringify(input.discussion);
+	const { contentJson, discussionJson, contentText, discussionText } = resolveQuestionContent(input);
 
 	if (input.type === "multiple_choice") {
 		if (!choices || choices.length < 2) {
@@ -124,32 +121,22 @@ const list = admin.admin.tryout.questions.list.handler(async ({ input }) => {
 
 	const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-	let rows = await db
+	const rows = await db
 		.select()
 		.from(question)
 		.where(whereClause)
 		.orderBy(isBackward ? desc(question.id) : asc(question.id))
 		.limit(limit + 1);
 
-	const hasExtra = rows.length > limit;
-	if (hasExtra) rows = rows.slice(0, limit);
-	if (isBackward) rows.reverse();
-
-	const firstItem = rows[0];
-	const lastItem = rows[rows.length - 1];
+	const { items, pageInfo } = buildIdCursorPage(rows, limit, isBackward, !!cursorStr);
 
 	return {
-		items: rows.map((q) => ({
+		items: items.map((q) => ({
 			...q,
 			content: q.contentJson ?? convertToTiptap(q.content),
 			discussion: q.discussionJson ?? convertToTiptap(q.discussion),
 		})),
-		pageInfo: {
-			hasNextPage: isBackward ? true : hasExtra,
-			hasPreviousPage: isBackward ? hasExtra : !!cursorStr,
-			startCursor: firstItem ? createIdCursor(firstItem.id) : null,
-			endCursor: lastItem ? createIdCursor(lastItem.id) : null,
-		},
+		pageInfo,
 	};
 });
 
@@ -181,11 +168,7 @@ const find = admin.admin.tryout.questions.find.handler(async ({ input, errors })
 });
 
 const updateQuestion = admin.admin.tryout.questions.updateQuestion.handler(async ({ input, errors }) => {
-	const contentJson = typeof input.content === "object" ? input.content : null;
-	const discussionJson = typeof input.discussion === "object" ? input.discussion : null;
-
-	const contentText = typeof input.content === "string" ? input.content : JSON.stringify(input.content);
-	const discussionText = typeof input.discussion === "string" ? input.discussion : JSON.stringify(input.discussion);
+	const { contentJson, discussionJson, contentText, discussionText } = resolveQuestionContent(input);
 
 	await db.transaction(async (tx) => {
 		const [q] = await tx

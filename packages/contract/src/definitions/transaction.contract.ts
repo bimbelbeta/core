@@ -15,6 +15,15 @@ const GetStatusOutputSchema = type({
 	paidAt: "string | null",
 });
 
+const MidtransNotificationSchema = type({
+	order_id: "string",
+	status_code: "string",
+	gross_amount: "string",
+	signature_key: "string",
+	transaction_status: "string",
+	"fraud_status?": "string",
+});
+
 export const transactionContract = {
 	subscribe: oc
 		.route({
@@ -31,7 +40,7 @@ export const transactionContract = {
 			method: "POST",
 			tags: ["Payment", "Webhook"],
 		})
-		.input(type({}))
+		.input(MidtransNotificationSchema)
 		.output(NotificationOutputSchema),
 
 	status: oc

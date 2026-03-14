@@ -1,5 +1,3 @@
-"use client";
-
 import type { Editor } from "@tiptap/react";
 import { forwardRef, useCallback, useState } from "react";
 import { CornerDownLeftIcon } from "@/components/tiptap-icons/corner-down-left-icon";

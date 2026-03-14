@@ -7,7 +7,7 @@ import { experimental_ArkTypeToJsonSchemaConverter as ArkTypeToJsonSchemaConvert
 import { RatelimitHandlerPlugin } from "@orpc/experimental-ratelimit";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { OpenAPIReferencePlugin } from "@orpc/openapi/plugins";
-import { onError } from "@orpc/server";
+import { ORPCError, onError } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -51,6 +51,12 @@ app.use(
 
 app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
+function logUnexpectedError(error: unknown) {
+	if (!(error instanceof ORPCError)) {
+		console.error("[unexpected error]", error);
+	}
+}
+
 export const apiHandler = new OpenAPIHandler(appRouter, {
 	plugins: [
 		new OpenAPIReferencePlugin({
@@ -58,20 +64,12 @@ export const apiHandler = new OpenAPIHandler(appRouter, {
 		}),
 		new RatelimitHandlerPlugin(),
 	],
-	interceptors: [
-		onError((error) => {
-			console.error(error);
-		}),
-	],
+	interceptors: [onError(logUnexpectedError)],
 });
 
 export const rpcHandler = new RPCHandler(appRouter, {
 	plugins: [new RatelimitHandlerPlugin()],
-	interceptors: [
-		onError((error) => {
-			console.error(error);
-		}),
-	],
+	interceptors: [onError(logUnexpectedError)],
 });
 
 app.post("/upload", async (c) => {

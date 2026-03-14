@@ -1,5 +1,3 @@
-"use client";
-
 import { forwardRef, useCallback } from "react";
 // --- Tiptap UI ---
 import type { TextAlign, UseTextAlignConfig } from "@/components/tiptap-ui/text-align-button";

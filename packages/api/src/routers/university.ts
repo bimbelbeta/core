@@ -2,7 +2,7 @@ import { db } from "@bimbelbeta/db";
 import { programYearlyData, studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
 import { and, asc, desc, eq, gt, ilike, lt, or } from "drizzle-orm";
 import { authed } from "../index";
-import { createIdCursor, parseIdCursor } from "../lib/pagination/cursor";
+import { buildIdCursorPage, parseIdCursor } from "../lib/pagination/cursor";
 
 const listPrograms = authed.university.listPrograms.handler(async ({ input }) => {
 	const limit = Math.min(input.limit ?? 20, 100);
@@ -17,7 +17,7 @@ const listPrograms = authed.university.listPrograms.handler(async ({ input }) =>
 			: undefined,
 	];
 
-	let data = await db
+	const data = await db
 		.select({
 			id: university.id,
 			name: university.name,
@@ -36,22 +36,9 @@ const listPrograms = authed.university.listPrograms.handler(async ({ input }) =>
 		.orderBy(isBackward ? desc(university.id) : asc(university.id))
 		.limit(limit + 1);
 
-	const hasExtra = data.length > limit;
-	if (hasExtra) data = data.slice(0, limit);
-	if (isBackward) data.reverse();
+	const { items, pageInfo } = buildIdCursorPage(data, limit, isBackward, !!cursorStr);
 
-	const firstItem = data[0];
-	const lastItem = data[data.length - 1];
-
-	return {
-		items: data,
-		pageInfo: {
-			hasNextPage: isBackward ? true : hasExtra,
-			hasPreviousPage: isBackward ? hasExtra : !!cursorStr,
-			startCursor: firstItem ? createIdCursor(firstItem.id) : null,
-			endCursor: lastItem ? createIdCursor(lastItem.id) : null,
-		},
-	};
+	return { items, pageInfo };
 });
 
 const list = authed.university.list.handler(async ({ input }) => {
@@ -65,7 +52,7 @@ const list = authed.university.list.handler(async ({ input }) => {
 		input.search && input.search.length > 0 ? ilike(university.name, `%${input.search}%`) : undefined,
 	];
 
-	let universities = await db
+	const rows = await db
 		.select({
 			id: university.id,
 			name: university.name,
@@ -79,22 +66,9 @@ const list = authed.university.list.handler(async ({ input }) => {
 		.orderBy(isBackward ? desc(university.id) : asc(university.id))
 		.limit(limit + 1);
 
-	const hasExtra = universities.length > limit;
-	if (hasExtra) universities = universities.slice(0, limit);
-	if (isBackward) universities.reverse();
+	const { items, pageInfo } = buildIdCursorPage(rows, limit, isBackward, !!cursorStr);
 
-	const firstItem = universities[0];
-	const lastItem = universities[universities.length - 1];
-
-	return {
-		items: universities,
-		pageInfo: {
-			hasNextPage: isBackward ? true : hasExtra,
-			hasPreviousPage: isBackward ? hasExtra : !!cursorStr,
-			startCursor: firstItem ? createIdCursor(firstItem.id) : null,
-			endCursor: lastItem ? createIdCursor(lastItem.id) : null,
-		},
-	};
+	return { items, pageInfo };
 });
 
 const listProgramsByUniversity = authed.university.listProgramsByUniversity.handler(async ({ input, errors }) => {

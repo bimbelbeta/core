@@ -1,5 +1,3 @@
-"use client";
-
 import { useInView as useFramerInView } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 

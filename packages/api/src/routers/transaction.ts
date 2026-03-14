@@ -7,7 +7,7 @@ import { createSubscriptionTransaction } from "../lib/transactions/client";
 import { processSuccessfulTransaction } from "../lib/transactions/processor";
 import { fetchTransactionWithProduct } from "../lib/transactions/products";
 import { updateTransactionStatus } from "../lib/transactions/status";
-import { verifyMidtransTransaction } from "../lib/transactions/verification";
+import { verifyMidtransSignature, verifyMidtransTransaction } from "../lib/transactions/verification";
 
 const subscribe = authed.transaction.subscribe.handler(async ({ input, context, errors }) => {
 	const [plan] = await db.select().from(product).where(eq(product.slug, input.slug)).limit(1);
@@ -41,23 +41,25 @@ const subscribe = authed.transaction.subscribe.handler(async ({ input, context, 
 	});
 });
 
-const notification = pub.transaction.notification.handler(async ({ input }) => {
-	const { order_id } = input as { order_id: string };
+const notification = pub.transaction.notification.handler(async ({ input, errors }) => {
+	const { order_id, status_code, gross_amount, signature_key } = input;
 	const purchaseDate = new Date();
+
+	if (!verifyMidtransSignature(order_id, status_code, gross_amount, signature_key)) {
+		throw errors.UNAUTHORIZED({ message: "Invalid webhook signature." });
+	}
 
 	const { transaction_status: transactionStatus, fraud_status: fraudStatus } =
 		await verifyMidtransTransaction(order_id);
 
 	const existingTransaction = await fetchTransactionWithProduct(order_id);
 	if (!existingTransaction) {
-		console.error(`Transaction not found for order ID: ${order_id}`);
 		return { status: "not_found" };
 	}
 
 	const tx = existingTransaction.tx;
 
 	if (tx.paidAt) {
-		console.log(`Transaction ${order_id} already processed`);
 		return { status: "already_processed" };
 	}
 

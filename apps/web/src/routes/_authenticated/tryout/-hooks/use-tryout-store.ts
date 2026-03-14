@@ -96,7 +96,7 @@ export const useTryoutStore = create<TryoutStore>((set, _get) => ({
 
 	nextQuestion: () =>
 		set((state) => ({
-			currentQuestionIndex: state.currentQuestionIndex + 1,
+			currentQuestionIndex: Math.min(state.questions.length - 1, state.currentQuestionIndex + 1),
 		})),
 
 	prevQuestion: () =>
@@ -114,6 +114,6 @@ export const useTryoutStore = create<TryoutStore>((set, _get) => ({
 			complexAnswers: {},
 			essayAnswers: {},
 			raguRaguIds: new Set(),
-			showQuestionGrid: true,
+			showQuestionGrid: false,
 		}),
 }));

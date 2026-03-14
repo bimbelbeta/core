@@ -1,7 +1,7 @@
 import { PaginationInputSchema } from "@bimbelbeta/contract/common/pagination";
 import { PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { type } from "arktype";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -32,7 +32,9 @@ import { SearchInput } from "@/components/ui/search-input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
+import { extractTextFromTiptap, truncateText } from "@/lib/content-text";
 import { orpc } from "@/utils/orpc";
+import { useQuestionsSearch } from "./-hooks/use-questions-search";
 
 const searchSchema = type({
 	"...": PaginationInputSchema,
@@ -59,41 +61,10 @@ const QUESTION_TYPE_BADGE_VARIANTS: Record<string, "default" | "secondary" | "ou
 	essay: "outline",
 };
 
-function extractTextFromTiptap(content: unknown): string {
-	if (typeof content === "string") {
-		return content.replace(/<[^>]*>/g, " ").trim();
-	}
-	if (typeof content === "object" && content !== null) {
-		const text: string[] = [];
-		const extract = (node: unknown) => {
-			if (typeof node === "string") {
-				text.push(node);
-			} else if (typeof node === "object" && node !== null) {
-				const obj = node as Record<string, unknown>;
-				if (obj.text && typeof obj.text === "string") {
-					text.push(obj.text);
-				}
-				if (Array.isArray(obj.content)) {
-					obj.content.forEach(extract);
-				}
-			}
-		};
-		extract(content);
-		return text.join(" ").trim();
-	}
-	return String(content ?? "")
-		.replace(/<[^>]*>/g, " ")
-		.trim();
-}
-
-function truncateText(text: string, maxLength = 120): string {
-	if (text.length <= maxLength) return text;
-	return `${text.slice(0, maxLength).trim()}...`;
-}
-
 function QuestionsListPage() {
-	const navigate = useNavigate({ from: "/admin/questions/" });
-	const { after, before, limit = 10, search, type: questionType, category, tag } = Route.useSearch();
+	const { searchParams, handleSearch, handleTypeChange, handleCategoryChange, handleNext, handlePrevious } =
+		useQuestionsSearch();
+	const { after, before, limit, search, questionType, category, tag } = searchParams;
 
 	const [searchInput, setSearchInput] = useState(search ?? "");
 	const [selectedIds, setSelectedIds] = useState<number[]>([]);
@@ -116,14 +87,6 @@ function QuestionsListPage() {
 
 	const pageInfo = data?.pageInfo;
 
-	const baseSearchParams = {
-		...(search && { search }),
-		...(questionType && { type: questionType }),
-		...(category && { category }),
-		...(tag && { tag }),
-		limit,
-	};
-
 	const deleteMutation = useMutation(
 		orpc.admin.tryout.questions.deleteQuestion.mutationOptions({
 			onSuccess: () => {
@@ -138,61 +101,9 @@ function QuestionsListPage() {
 		}),
 	);
 
-	const handleSearch = (value: string) => {
+	const onSearch = (value: string) => {
 		setSearchInput(value);
-		navigate({
-			search: {
-				...(value && { search: value }),
-				...(questionType && { type: questionType }),
-				...(category && { category }),
-				...(tag && { tag }),
-				limit,
-			},
-		});
-	};
-
-	const handleTypeChange = (value: string) => {
-		navigate({
-			search: {
-				...(search && { search }),
-				...(value !== "all" && { type: value as "multiple_choice" | "multiple_choice_complex" | "essay" }),
-				...(category && { category }),
-				...(tag && { tag }),
-				limit,
-			},
-		});
-	};
-
-	const handleCategoryChange = (value: string) => {
-		navigate({
-			search: {
-				...(search && { search }),
-				...(questionType && { type: questionType }),
-				...(value !== "all" && { category: value as "sd" | "smp" | "sma" | "utbk" }),
-				...(tag && { tag }),
-				limit,
-			},
-		});
-	};
-
-	const handleNext = () => {
-		if (!pageInfo?.endCursor) return;
-		navigate({
-			search: {
-				after: pageInfo.endCursor,
-				...baseSearchParams,
-			},
-		});
-	};
-
-	const handlePrevious = () => {
-		if (!pageInfo?.startCursor) return;
-		navigate({
-			search: {
-				before: pageInfo.startCursor,
-				...baseSearchParams,
-			},
-		});
+		handleSearch(value);
 	};
 
 	const handleDelete = (id: number) => {
@@ -260,7 +171,7 @@ function QuestionsListPage() {
 				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 					<SearchInput
 						value={searchInput}
-						onChange={handleSearch}
+						onChange={onSearch}
 						placeholder="Cari soal..."
 						className="w-full sm:max-w-sm md:max-w-md"
 					/>
@@ -436,8 +347,8 @@ function QuestionsListPage() {
 					{data && data.items.length > 0 && (
 						<div className="border-t p-4">
 							<PaginationButtons
-								onPrevious={handlePrevious}
-								onNext={handleNext}
+								onPrevious={() => pageInfo?.startCursor && handlePrevious(pageInfo.startCursor)}
+								onNext={() => pageInfo?.endCursor && handleNext(pageInfo.endCursor)}
 								hasPrevious={!!pageInfo?.hasPreviousPage}
 								hasNext={!!pageInfo?.hasNextPage}
 							/>

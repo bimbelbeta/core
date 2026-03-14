@@ -10,10 +10,11 @@ import {
 	userSubjectView,
 	videoMaterial,
 } from "@bimbelbeta/db/schema/subject";
-import { and, desc, eq, ilike, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, gt, ilike, inArray, lt, sql } from "drizzle-orm";
 import { authed } from "../index";
 import { canAccessContent } from "../lib/content-access";
 import { convertToTiptap } from "../lib/convert-to-tiptap";
+import { buildIdCursorPage, parseIdCursor } from "../lib/pagination/cursor";
 
 import type { ChoiceWithAnswer } from "../types/question";
 
@@ -78,12 +79,20 @@ const listContent = authed.subject.listContent.handler(async ({ input, context, 
 		throw errors.NOT_FOUND({ message: "Subject tidak ditemukan" });
 	}
 
+	const limit = input.limit ?? 20;
+	const isBackward = !!input.before;
+	const cursorStr = input.after ?? input.before;
+	const cursorId = cursorStr ? parseIdCursor(cursorStr) : null;
+
 	const conditions = [eq(contentItem.subjectId, input.subjectId)];
 	if (input.search) {
 		conditions.push(ilike(contentItem.title, `%${escapeLikePattern(input.search)}%`));
 	}
+	if (cursorId !== null) {
+		conditions.push(isBackward ? lt(contentItem.id, cursorId) : gt(contentItem.id, cursorId));
+	}
 
-	const items = await db
+	const rows = await db
 		.select({
 			id: contentItem.id,
 			title: contentItem.title,
@@ -107,13 +116,15 @@ const listContent = authed.subject.listContent.handler(async ({ input, context, 
 			and(eq(userProgress.contentItemId, contentItem.id), eq(userProgress.userId, context.session.user.id)),
 		)
 		.where(and(...conditions))
-		.orderBy(contentItem.order)
-		.limit(input.limit ?? 20)
-		.offset(input.offset ?? 0);
+		.orderBy(isBackward ? desc(contentItem.id) : contentItem.id)
+		.limit(limit + 1);
+
+	const { items, pageInfo } = buildIdCursorPage(rows, limit, isBackward, !!cursorStr);
 
 	return {
 		subject: targetSubject,
 		items,
+		pageInfo,
 	};
 });
 
@@ -294,8 +305,8 @@ const listRecentViews = authed.subject.listRecentViews.handler(async ({ context 
 			contentId: contentItem.id,
 			contentTitle: contentItem.title,
 			subjectId: subject.id,
-			subtestName: subject.name,
-			subtestShortName: subject.shortName,
+			subjectName: subject.name,
+			subjectShortName: subject.shortName,
 			hasVideo: sql<boolean>`${videoMaterial.id} IS NOT NULL`,
 			hasNote: sql<boolean>`${noteMaterial.id} IS NOT NULL`,
 			hasPracticeQuestions: sql<boolean>`EXISTS(

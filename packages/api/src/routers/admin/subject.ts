@@ -11,39 +11,42 @@ import { and, asc, eq } from "drizzle-orm";
 import { admin } from "../..";
 import { convertToTiptap } from "../../lib/convert-to-tiptap";
 
-/**
- * Create new subject (class)
- * POST /api/admin/subjects
- */
+const VALID_GRADE_RANGE: Record<string, [number, number]> = {
+	sd: [1, 6],
+	smp: [7, 9],
+	sma: [10, 12],
+};
+
+function validateGradeLevel(
+	gradeLevel: number,
+	category: string,
+	errors: { BAD_REQUEST: (opts: { message: string }) => Error },
+): void {
+	if (category === "utbk") {
+		throw errors.BAD_REQUEST({
+			message: "UTBK tidak boleh memiliki gradeLevel",
+		});
+	}
+
+	const range = VALID_GRADE_RANGE[category];
+	if (!range) {
+		throw errors.BAD_REQUEST({
+			message: `Kategori ${category} tidak valid`,
+		});
+	}
+
+	const [min, max] = range;
+	if (gradeLevel < min || gradeLevel > max) {
+		throw errors.BAD_REQUEST({
+			message: `GradeLevel harus antara ${min} dan ${max} untuk kategori ${category.toUpperCase()}`,
+		});
+	}
+}
+
 const createSubject = admin.admin.subject.createSubject.handler(async ({ input, errors }) => {
-	// Validate gradeLevel based on category
 	if (input.gradeLevel !== undefined && input.gradeLevel !== null) {
 		const category = input.category ?? "utbk";
-		if (category === "utbk") {
-			throw errors.BAD_REQUEST({
-				message: "UTBK tidak boleh memiliki gradeLevel",
-			});
-		}
-
-		const validGradeRange: Record<string, [number, number]> = {
-			sd: [1, 6],
-			smp: [7, 9],
-			sma: [10, 12],
-		};
-
-		const range = validGradeRange[category];
-		if (!range) {
-			throw errors.BAD_REQUEST({
-				message: `Kategori ${category} tidak valid`,
-			});
-		}
-
-		const [min, max] = range;
-		if (input.gradeLevel < min || input.gradeLevel > max) {
-			throw errors.BAD_REQUEST({
-				message: `GradeLevel harus antara ${min} dan ${max} untuk kategori ${category.toUpperCase()}`,
-			});
-		}
+		validateGradeLevel(input.gradeLevel, category, errors);
 	}
 
 	const [created] = await db
@@ -69,16 +72,10 @@ const createSubject = admin.admin.subject.createSubject.handler(async ({ input, 
 	};
 });
 
-/**
- * Update subject (class)
- * PATCH /api/admin/subjects/{id}
- */
 const updateSubject = admin.admin.subject.updateSubject.handler(async ({ input, errors }) => {
-	// Validate gradeLevel based on category if both provided or fetch existing
 	if (input.gradeLevel !== undefined) {
 		let category = input.category;
 
-		// If category not provided, fetch existing
 		if (!category) {
 			const [existing] = await db
 				.select({ category: subject.category })
@@ -89,31 +86,7 @@ const updateSubject = admin.admin.subject.updateSubject.handler(async ({ input, 
 		}
 
 		if (input.gradeLevel !== null && category) {
-			if (category === "utbk") {
-				throw errors.BAD_REQUEST({
-					message: "UTBK tidak boleh memiliki gradeLevel",
-				});
-			}
-
-			const validGradeRange: Record<string, [number, number]> = {
-				sd: [1, 6],
-				smp: [7, 9],
-				sma: [10, 12],
-			};
-
-			const range = validGradeRange[category];
-			if (!range) {
-				throw errors.BAD_REQUEST({
-					message: `Kategori ${category} tidak valid`,
-				});
-			}
-
-			const [min, max] = range;
-			if (input.gradeLevel < min || input.gradeLevel > max) {
-				throw errors.BAD_REQUEST({
-					message: `GradeLevel harus antara ${min} dan ${max} untuk kategori ${category.toUpperCase()}`,
-				});
-			}
+			validateGradeLevel(input.gradeLevel, category, errors);
 		}
 	}
 
@@ -146,10 +119,6 @@ const updateSubject = admin.admin.subject.updateSubject.handler(async ({ input, 
 	return { message: "Kelas berhasil diperbarui" };
 });
 
-/**
- * Delete subject (class)
- * DELETE /api/admin/subjects/{id}
- */
 const deleteSubject = admin.admin.subject.deleteSubject.handler(async ({ input, errors }) => {
 	const [deletedRow] = await db.delete(subject).where(eq(subject.id, input.id)).returning();
 
@@ -161,15 +130,9 @@ const deleteSubject = admin.admin.subject.deleteSubject.handler(async ({ input, 
 	return { message: "Kelas berhasil dihapus" };
 });
 
-/**
- * Reorder subtests (classes)
- * PATCH /api/admin/subjects/reorder
- */
 const reorderSubjects = admin.admin.subject.reorderSubjects.handler(async ({ input }) => {
-	const items = input.items as { id: number; order: number }[];
-
 	await db.transaction(async (tx) => {
-		for (const item of items) {
+		for (const item of input.items) {
 			await tx.update(subject).set({ order: item.order, updatedAt: new Date() }).where(eq(subject.id, item.id));
 		}
 	});
@@ -177,17 +140,10 @@ const reorderSubjects = admin.admin.subject.reorderSubjects.handler(async ({ inp
 	return { message: "Urutan kelas berhasil diperbarui" };
 });
 
-/**
- * Create new content item
- * POST /api/admin/content
- */
 const createContent = admin.admin.subject.createContent.handler(async ({ input, errors }) => {
-	const hasVideo = input.video !== undefined && input.video !== null;
-	const hasNote = input.note !== undefined && input.note !== null;
-	const hasPracticeQuestions =
-		input.practiceQuestionIds !== undefined &&
-		input.practiceQuestionIds !== null &&
-		input.practiceQuestionIds.length > 0;
+	const hasVideo = input.video !== undefined;
+	const hasNote = input.note !== undefined;
+	const hasPracticeQuestions = (input.practiceQuestionIds?.length ?? 0) > 0;
 
 	if (!hasVideo && !hasNote && !hasPracticeQuestions) {
 		throw errors.BAD_REQUEST({
@@ -195,35 +151,7 @@ const createContent = admin.admin.subject.createContent.handler(async ({ input, 
 		});
 	}
 
-	// Validate video structure if provided
-	if (hasVideo) {
-		if (
-			typeof input.video !== "object" ||
-			!("title" in input.video) ||
-			!("videoUrl" in input.video) ||
-			!("content" in input.video) ||
-			typeof input.video.title !== "string" ||
-			typeof input.video.videoUrl !== "string" ||
-			!input.video.videoUrl.trim()
-		) {
-			throw errors.BAD_REQUEST({
-				message: "Video harus memiliki title, videoUrl, dan content yang valid",
-			});
-		}
-	}
-
-	// Validate note structure if provided
-	if (hasNote) {
-		if (typeof input.note !== "object" || !("content" in input.note) || typeof input.note.content !== "object") {
-			throw errors.BAD_REQUEST({
-				message: "Catatan harus memiliki content yang valid (Tiptap JSON)",
-			});
-		}
-	}
-
-	// Create content and materials in a transaction
 	const result = await db.transaction(async (tx) => {
-		// Insert content item
 		const [newContent] = await tx
 			.insert(contentItem)
 			.values({
@@ -244,34 +172,31 @@ const createContent = admin.admin.subject.createContent.handler(async ({ input, 
 			practiceQuestions?: number;
 		} = {};
 
-		// Insert video material if provided
 		if (hasVideo && input.video) {
 			const [video] = await tx
 				.insert(videoMaterial)
 				.values({
 					contentItemId: newContent.id,
-					videoUrl: (input.video as { videoUrl: string }).videoUrl,
-					content: (input.video as { content: object }).content,
+					videoUrl: input.video.videoUrl,
+					content: input.video.content,
 				})
 				.returning();
 
 			if (video) createdMaterials.video = video.id;
 		}
 
-		// Insert note material if provided
 		if (hasNote && input.note) {
 			const [note] = await tx
 				.insert(noteMaterial)
 				.values({
 					contentItemId: newContent.id,
-					content: (input.note as { content: object }).content,
+					content: input.note.content,
 				})
 				.returning();
 
 			if (note) createdMaterials.note = note.id;
 		}
 
-		// Insert practice questions if provided
 		if (hasPracticeQuestions && input.practiceQuestionIds) {
 			await tx.insert(contentPracticeQuestions).values(
 				input.practiceQuestionIds.map((questionId: number, index: number) => ({
@@ -297,10 +222,6 @@ const createContent = admin.admin.subject.createContent.handler(async ({ input, 
 	};
 });
 
-/**
- * Update content item
- * PATCH /api/admin/content/{id}
- */
 const updateContent = admin.admin.subject.updateContent.handler(async ({ input, errors }) => {
 	const updateData: { title?: string; order?: number; updatedAt: Date } = {
 		updatedAt: new Date(),
@@ -319,10 +240,6 @@ const updateContent = admin.admin.subject.updateContent.handler(async ({ input, 
 	return { message: "Konten berhasil diperbarui" };
 });
 
-/**
- * Delete content item
- * DELETE /api/admin/content/{id}
- */
 const deleteContent = admin.admin.subject.deleteContent.handler(async ({ input, errors }) => {
 	const [deleted] = await db.delete(contentItem).where(eq(contentItem.id, input.id)).returning();
 
@@ -334,35 +251,12 @@ const deleteContent = admin.admin.subject.deleteContent.handler(async ({ input, 
 	return { message: "Konten berhasil dihapus" };
 });
 
-/**
- * Reorder content items
- * PATCH /api/admin/content/reorder
- */
-const reorderContent = admin.admin.subject.reorderContent.handler(async ({ input, errors }) => {
-	// Validate items array at runtime
-	if (!Array.isArray(input.items)) {
-		throw errors.BAD_REQUEST({
-			message: "Items harus berupa array",
-		});
-	}
-
-	const items = input.items as { id: number; order: number }[];
-
-	// Validate each item
-	for (const item of items) {
-		if (typeof item.id !== "number" || typeof item.order !== "number") {
-			throw errors.BAD_REQUEST({
-				message: "Setiap item harus memiliki id dan order bertipe number",
-			});
-		}
-	}
-
-	// Use transaction for atomic updates
+const reorderContent = admin.admin.subject.reorderContent.handler(async ({ input }) => {
 	// First set all orders to negative values to avoid unique constraint violation
 	// Then set them to their final values
 	await db.transaction(async (tx) => {
 		// Step 1: Set all orders to negative (temporary) values
-		for (const [i, item] of items.entries()) {
+		for (const [i, item] of input.items.entries()) {
 			await tx
 				.update(contentItem)
 				.set({ order: -(i + 1000), updatedAt: new Date() })
@@ -370,7 +264,7 @@ const reorderContent = admin.admin.subject.reorderContent.handler(async ({ input
 		}
 
 		// Step 2: Set final order values
-		for (const item of items) {
+		for (const item of input.items) {
 			await tx
 				.update(contentItem)
 				.set({ order: item.order, updatedAt: new Date() })
@@ -381,19 +275,13 @@ const reorderContent = admin.admin.subject.reorderContent.handler(async ({ input
 	return { message: "Urutan konten berhasil diperbarui" };
 });
 
-/**
- * Add/Update video material
- * POST /api/admin/content/{id}/video
- */
 const upsertVideo = admin.admin.subject.upsertVideo.handler(async ({ input, errors }) => {
-	// Validate video URL
 	if (!input.videoUrl) {
 		throw errors.BAD_REQUEST({
 			message: "Video URL wajib diisi",
 		});
 	}
 
-	// Check if content exists
 	const [content] = await db
 		.select({ id: contentItem.id })
 		.from(contentItem)
@@ -405,7 +293,6 @@ const upsertVideo = admin.admin.subject.upsertVideo.handler(async ({ input, erro
 			message: "Konten tidak ditemukan",
 		});
 
-	// Upsert video material
 	const [video] = await db
 		.insert(videoMaterial)
 		.values({
@@ -431,10 +318,6 @@ const upsertVideo = admin.admin.subject.upsertVideo.handler(async ({ input, erro
 	return { message: "Video material berhasil disimpan", videoId: video.id };
 });
 
-/**
- * Delete video material
- * DELETE /api/admin/content/{id}/video
- */
 const deleteVideo = admin.admin.subject.deleteVideo.handler(async ({ input, errors }) => {
 	const [deleted] = await db.delete(videoMaterial).where(eq(videoMaterial.contentItemId, input.id)).returning();
 
@@ -446,12 +329,7 @@ const deleteVideo = admin.admin.subject.deleteVideo.handler(async ({ input, erro
 	return { message: "Video material berhasil dihapus" };
 });
 
-/**
- * Add/Update note material
- * POST /api/admin/content/{id}/note
- */
 const upsertNote = admin.admin.subject.upsertNote.handler(async ({ input, errors }) => {
-	// Check if content exists
 	const [content] = await db
 		.select({ id: contentItem.id })
 		.from(contentItem)
@@ -463,7 +341,6 @@ const upsertNote = admin.admin.subject.upsertNote.handler(async ({ input, errors
 			message: "Konten tidak ditemukan",
 		});
 
-	// Upsert note material
 	const [note] = await db
 		.insert(noteMaterial)
 		.values({
@@ -490,10 +367,6 @@ const upsertNote = admin.admin.subject.upsertNote.handler(async ({ input, errors
 	};
 });
 
-/**
- * Delete note material
- * DELETE /api/admin/content/{id}/note
- */
 const deleteNote = admin.admin.subject.deleteNote.handler(async ({ input, errors }) => {
 	const [deleted] = await db.delete(noteMaterial).where(eq(noteMaterial.contentItemId, input.id)).returning();
 
@@ -505,15 +378,9 @@ const deleteNote = admin.admin.subject.deleteNote.handler(async ({ input, errors
 	return { message: "Catatan material berhasil dihapus" };
 });
 
-/**
- * Link practice questions to content
- * POST /api/admin/content/{id}/practice-questions
- */
 const linkPracticeQuestions = admin.admin.subject.linkPracticeQuestions.handler(async ({ input }) => {
-	// Delete existing practice question links
 	await db.delete(contentPracticeQuestions).where(eq(contentPracticeQuestions.contentItemId, input.id));
 
-	// Insert new practice question links
 	if (input.questionIds.length > 0) {
 		await db.insert(contentPracticeQuestions).values(
 			input.questionIds.map((questionId: number, index: number) => ({
@@ -527,22 +394,13 @@ const linkPracticeQuestions = admin.admin.subject.linkPracticeQuestions.handler(
 	return { message: "Latihan soal berhasil dihubungkan ke konten" };
 });
 
-/**
- * Remove all practice questions from content
- * DELETE /api/admin/content/{id}/practice-questions
- */
 const unlinkPracticeQuestions = admin.admin.subject.unlinkPracticeQuestions.handler(async ({ input }) => {
 	await db.delete(contentPracticeQuestions).where(eq(contentPracticeQuestions.contentItemId, input.id));
 
 	return { message: "Latihan soal berhasil dihapus dari konten" };
 });
 
-/**
- * Get practice questions linked to a content item
- * GET /api/admin/content/{id}/practice-questions
- */
 const listPracticeQuestions = admin.admin.subject.listPracticeQuestions.handler(async ({ input, errors }) => {
-	// Check if content exists
 	const [content] = await db
 		.select({ id: contentItem.id })
 		.from(contentItem)
@@ -554,7 +412,6 @@ const listPracticeQuestions = admin.admin.subject.listPracticeQuestions.handler(
 			message: "Konten tidak ditemukan",
 		});
 
-	// Get linked questions with their details
 	const linkedQuestions = await db
 		.select({
 			questionId: contentPracticeQuestions.questionId,
@@ -571,7 +428,6 @@ const listPracticeQuestions = admin.admin.subject.listPracticeQuestions.handler(
 		.where(eq(contentPracticeQuestions.contentItemId, input.id))
 		.orderBy(asc(contentPracticeQuestions.order));
 
-	// Get choices for each question
 	const questionIds = linkedQuestions.map((q) => q.questionId);
 	const choices =
 		questionIds.length > 0
@@ -581,13 +437,11 @@ const listPracticeQuestions = admin.admin.subject.listPracticeQuestions.handler(
 					.where(questionIds.length === 1 ? eq(questionChoice.questionId, questionIds[0]!) : undefined)
 			: [];
 
-	// If we have multiple questions, we need to fetch all choices
 	let allChoices = choices;
 	if (questionIds.length > 1) {
 		allChoices = await db.select().from(questionChoice).orderBy(questionChoice.code);
 	}
 
-	// Group choices by question id
 	const choicesByQuestionId = allChoices.reduce(
 		(acc, choice) => {
 			const qId = choice.questionId;
@@ -613,10 +467,6 @@ const listPracticeQuestions = admin.admin.subject.listPracticeQuestions.handler(
 	};
 });
 
-/**
- * Remove a single practice question from content
- * DELETE /api/admin/content/{id}/practice-questions/{questionId}
- */
 const unlinkSinglePracticeQuestion = admin.admin.subject.unlinkSinglePracticeQuestion.handler(
 	async ({ input, errors }) => {
 		const [deleted] = await db
@@ -642,7 +492,6 @@ const unlinkSinglePracticeQuestion = admin.admin.subject.unlinkSinglePracticeQue
 			.where(eq(contentPracticeQuestions.contentItemId, input.id))
 			.orderBy(asc(contentPracticeQuestions.order));
 
-		// Update order for each remaining question
 		for (let i = 0; i < remaining.length; i++) {
 			await db
 				.update(contentPracticeQuestions)
@@ -659,12 +508,7 @@ const unlinkSinglePracticeQuestion = admin.admin.subject.unlinkSinglePracticeQue
 	},
 );
 
-/**
- * Reorder practice questions in a content item
- * PATCH /api/admin/content/{id}/practice-questions/reorder
- */
 const reorderPracticeQuestions = admin.admin.subject.reorderPracticeQuestions.handler(async ({ input, errors }) => {
-	// Check if content exists
 	const [content] = await db
 		.select({ id: contentItem.id })
 		.from(contentItem)
@@ -676,9 +520,7 @@ const reorderPracticeQuestions = admin.admin.subject.reorderPracticeQuestions.ha
 			message: "Konten tidak ditemukan",
 		});
 
-	// Update order for each question in a transaction
 	await db.transaction(async (tx) => {
-		// First, set all orders to negative (temporary) values to avoid unique constraint issues
 		for (let i = 0; i < input.questionIds.length; i++) {
 			const questionId = input.questionIds[i]!;
 			await tx
@@ -710,12 +552,7 @@ const reorderPracticeQuestions = admin.admin.subject.reorderPracticeQuestions.ha
 	return { message: "Urutan latihan soal berhasil diperbarui" };
 });
 
-/**
- * Add practice questions to content (append to existing)
- * POST /api/admin/content/{id}/practice-questions/add
- */
 const addPracticeQuestions = admin.admin.subject.addPracticeQuestions.handler(async ({ input, errors }) => {
-	// Check if content exists
 	const [content] = await db
 		.select({ id: contentItem.id })
 		.from(contentItem)
@@ -739,14 +576,12 @@ const addPracticeQuestions = admin.admin.subject.addPracticeQuestions.handler(as
 	const existingIds = new Set(existing.map((e) => e.questionId));
 	const maxOrder = existing.length > 0 ? Math.max(...existing.map((e) => e.order)) : 0;
 
-	// Filter out duplicates
 	const newQuestionIds = input.questionIds.filter((id: number) => !existingIds.has(id));
 
 	if (newQuestionIds.length === 0) {
 		return { message: "Semua soal sudah ada di konten ini", addedCount: 0 };
 	}
 
-	// Insert new questions with proper order
 	await db.insert(contentPracticeQuestions).values(
 		newQuestionIds.map((questionId: number, index: number) => ({
 			contentItemId: input.id,

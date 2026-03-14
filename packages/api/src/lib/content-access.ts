@@ -54,6 +54,3 @@ export function isFirstContent(contentOrder: number): boolean {
 export function isFirstSubject(subjectOrder: number): boolean {
 	return subjectOrder === 1;
 }
-
-// Backward compatibility alias
-export const isFirstSubtest_OLD = isFirstSubtest;
