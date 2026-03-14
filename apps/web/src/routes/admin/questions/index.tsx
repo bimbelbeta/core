@@ -1,3 +1,4 @@
+import { PaginationInputSchema } from "@bimbelbeta/contract/common/pagination";
 import { PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
@@ -31,11 +32,10 @@ import { SearchInput } from "@/components/ui/search-input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
-import { useCursorPagination } from "@/hooks/use-cursor-pagination";
 import { orpc } from "@/utils/orpc";
 
 const searchSchema = type({
-	"cursor?": "number",
+	"...": PaginationInputSchema,
 	"search?": "string",
 	"type?": "'multiple_choice' | 'multiple_choice_complex' | 'essay'",
 	"category?": "'sd' | 'smp' | 'sma' | 'utbk'",
@@ -93,40 +93,20 @@ function truncateText(text: string, maxLength = 120): string {
 
 function QuestionsListPage() {
 	const navigate = useNavigate({ from: "/admin/questions/" });
+	const { after, before, limit = 10, search, type: questionType, category, tag } = Route.useSearch();
 
-	const search = Route.useSearch();
-	const cursor = search.cursor;
-	const searchQuery = search.search;
-	const questionType = search.type;
-	const category = search.category;
-	const tag = search.tag;
-
-	const [searchInput, setSearchInput] = useState(searchQuery ?? "");
+	const [searchInput, setSearchInput] = useState(search ?? "");
 	const [selectedIds, setSelectedIds] = useState<number[]>([]);
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState<number | null>(null);
 	const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
 
-	const pagination = useCursorPagination<number>({
-		urlCursor: cursor,
-		onCursorChange: (newCursor) =>
-			navigate({
-				search: {
-					cursor: newCursor,
-					search: searchQuery,
-					type: questionType,
-					category,
-					tag,
-				},
-			}),
-		pageSize: 10,
-	});
-
 	const { data, isLoading, refetch } = useQuery(
 		orpc.admin.tryout.questions.list.queryOptions({
 			input: {
-				cursor: pagination.currentCursor,
-				limit: pagination.pageSize,
-				search: searchQuery,
+				after,
+				before,
+				limit,
+				search: search ?? undefined,
 				type: questionType,
 				category,
 				tag,
@@ -134,10 +114,15 @@ function QuestionsListPage() {
 		}),
 	);
 
-	// Sync canGoNext with data
-	if (pagination.canGoNext !== !!data?.nextCursor) {
-		pagination.setCanGoNext(!!data?.nextCursor);
-	}
+	const pageInfo = data?.pageInfo;
+
+	const baseSearchParams = {
+		...(search && { search }),
+		...(questionType && { type: questionType }),
+		...(category && { category }),
+		...(tag && { tag }),
+		limit,
+	};
 
 	const deleteMutation = useMutation(
 		orpc.admin.tryout.questions.deleteQuestion.mutationOptions({
@@ -155,48 +140,59 @@ function QuestionsListPage() {
 
 	const handleSearch = (value: string) => {
 		setSearchInput(value);
-		pagination.reset();
 		navigate({
 			search: {
 				...(value && { search: value }),
 				...(questionType && { type: questionType }),
 				...(category && { category }),
 				...(tag && { tag }),
+				limit,
 			},
 		});
 	};
 
 	const handleTypeChange = (value: string) => {
-		pagination.reset();
 		navigate({
 			search: {
-				...(searchQuery && { search: searchQuery }),
+				...(search && { search }),
 				...(value !== "all" && { type: value as "multiple_choice" | "multiple_choice_complex" | "essay" }),
 				...(category && { category }),
 				...(tag && { tag }),
+				limit,
 			},
 		});
 	};
 
 	const handleCategoryChange = (value: string) => {
-		pagination.reset();
 		navigate({
 			search: {
-				...(searchQuery && { search: searchQuery }),
+				...(search && { search }),
 				...(questionType && { type: questionType }),
 				...(value !== "all" && { category: value as "sd" | "smp" | "sma" | "utbk" }),
 				...(tag && { tag }),
+				limit,
 			},
 		});
 	};
 
 	const handleNext = () => {
-		if (!data?.nextCursor) return;
-		pagination.handleNext(data.nextCursor);
+		if (!pageInfo?.endCursor) return;
+		navigate({
+			search: {
+				after: pageInfo.endCursor,
+				...baseSearchParams,
+			},
+		});
 	};
 
 	const handlePrevious = () => {
-		pagination.handlePrevious();
+		if (!pageInfo?.startCursor) return;
+		navigate({
+			search: {
+				before: pageInfo.startCursor,
+				...baseSearchParams,
+			},
+		});
 	};
 
 	const handleDelete = (id: number) => {
@@ -229,10 +225,10 @@ function QuestionsListPage() {
 	};
 
 	const toggleSelectAll = () => {
-		if (selectedIds.length === (data?.questions.length ?? 0)) {
+		if (selectedIds.length === (data?.items.length ?? 0)) {
 			setSelectedIds([]);
 		} else {
-			setSelectedIds(data?.questions.map((q) => q.id) ?? []);
+			setSelectedIds(data?.items.map((q) => q.id) ?? []);
 		}
 	};
 
@@ -240,8 +236,8 @@ function QuestionsListPage() {
 		setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
 	};
 
-	const allSelected = selectedIds.length === (data?.questions.length ?? 0) && (data?.questions.length ?? 0) > 0;
-	const someSelected = selectedIds.length > 0 && selectedIds.length < (data?.questions.length ?? 0);
+	const allSelected = selectedIds.length === (data?.items.length ?? 0) && (data?.items.length ?? 0) > 0;
+	const someSelected = selectedIds.length > 0 && selectedIds.length < (data?.items.length ?? 0);
 
 	return (
 		<AdminPageRoot>
@@ -346,7 +342,7 @@ function QuestionsListPage() {
 							<TableBody>
 								{isLoading ? (
 									<TableSkeleton columns={6} />
-								) : data?.questions.length === 0 ? (
+								) : data?.items.length === 0 ? (
 									<TableRow>
 										<TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
 											Tidak ada soal ditemukan.
@@ -355,7 +351,7 @@ function QuestionsListPage() {
 										</TableCell>
 									</TableRow>
 								) : (
-									data?.questions.map((q) => {
+									data?.items.map((q) => {
 										const contentPreview = truncateText(extractTextFromTiptap(q.content));
 										return (
 											<TableRow key={q.id} className="group hover:bg-muted/30">
@@ -437,13 +433,13 @@ function QuestionsListPage() {
 						</Table>
 					</div>
 
-					{data && data.questions.length > 0 && (
+					{data && data.items.length > 0 && (
 						<div className="border-t p-4">
 							<PaginationButtons
 								onPrevious={handlePrevious}
 								onNext={handleNext}
-								hasPrevious={pagination.canGoPrevious}
-								hasNext={pagination.canGoNext}
+								hasPrevious={!!pageInfo?.hasPreviousPage}
+								hasNext={!!pageInfo?.hasNextPage}
 							/>
 						</div>
 					)}

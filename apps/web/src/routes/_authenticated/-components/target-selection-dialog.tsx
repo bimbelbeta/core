@@ -123,20 +123,20 @@ export function TargetSelectionDialog() {
 											});
 										}
 									}}
-									disabled={isPending || (universities?.data && universities.data.length < 1)}
+									disabled={isPending || (universities?.items && universities.items.length < 1)}
 								>
 									<SelectTrigger>
 										<SelectValue placeholder="Pilih universitas" />
 									</SelectTrigger>
 									<SelectContent>
-										{universities?.data?.map((uni) => (
+										{universities?.items?.map((uni) => (
 											<SelectItem key={uni.id} value={uni.id.toString()}>
 												{uni.name}
 											</SelectItem>
 										))}
 									</SelectContent>
 								</Select>
-								{universities?.data && universities.data.length < 1 && (
+								{universities?.items && universities.items.length < 1 && (
 									<p className="text-destructive text-xs">Belum ada data Universitas. Silahkan coba lagi nanti</p>
 								)}
 							</div>

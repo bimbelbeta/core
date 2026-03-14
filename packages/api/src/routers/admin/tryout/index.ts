@@ -1,7 +1,8 @@
 import { db } from "@bimbelbeta/db";
 import { tryout } from "@bimbelbeta/db/schema/tryout";
-import { and, eq, gt, ilike } from "drizzle-orm";
+import { and, asc, desc, eq, gt, ilike, lt } from "drizzle-orm";
 import { admin } from "../../..";
+import { createIdCursor, parseIdCursor } from "../../../lib/pagination/cursor";
 
 import { tryoutAttemptRouter } from "./attempt";
 
@@ -30,27 +31,40 @@ const createTryout = admin.admin.tryout.createTryout.handler(async ({ input, err
 });
 
 const list = admin.admin.tryout.list.handler(async ({ input }) => {
-	const rows = await db
+	const limit = input.limit ?? 10;
+	const isBackward = !!input.before;
+	const cursorStr = input.before || input.after;
+	const cursorId = cursorStr ? parseIdCursor(cursorStr) : undefined;
+
+	const baseFilters = [
+		input.search ? ilike(tryout.title, `%${input.search}%`) : undefined,
+		input.category ? eq(tryout.category, input.category) : undefined,
+		input.status ? eq(tryout.status, input.status) : undefined,
+		cursorId !== undefined ? (isBackward ? lt(tryout.id, cursorId) : gt(tryout.id, cursorId)) : undefined,
+	];
+
+	let rows = await db
 		.select()
 		.from(tryout)
-		.where(
-			and(
-				input.cursor ? gt(tryout.id, input.cursor) : undefined,
-				input.search ? ilike(tryout.title, `%${input.search}%`) : undefined,
-				input.category ? eq(tryout.category, input.category) : undefined,
-				input.status ? eq(tryout.status, input.status) : undefined,
-			),
-		)
-		.limit(input.limit + 1)
-		.orderBy(tryout.id);
+		.where(and(...baseFilters.filter(Boolean)))
+		.orderBy(isBackward ? desc(tryout.id) : asc(tryout.id))
+		.limit(limit + 1);
 
-	const hasMore = rows.length > input.limit;
-	const tryoutsList = hasMore ? rows.slice(0, input.limit) : rows;
-	const lastTryout = tryoutsList.at(-1);
+	const hasExtra = rows.length > limit;
+	if (hasExtra) rows = rows.slice(0, limit);
+	if (isBackward) rows.reverse();
+
+	const firstItem = rows[0];
+	const lastItem = rows[rows.length - 1];
 
 	return {
-		tryouts: tryoutsList,
-		nextCursor: hasMore && lastTryout ? lastTryout.id : undefined,
+		items: rows,
+		pageInfo: {
+			hasNextPage: isBackward ? true : hasExtra,
+			hasPreviousPage: isBackward ? hasExtra : !!cursorStr,
+			startCursor: firstItem ? createIdCursor(firstItem.id) : null,
+			endCursor: lastItem ? createIdCursor(lastItem.id) : null,
+		},
 	};
 });
 

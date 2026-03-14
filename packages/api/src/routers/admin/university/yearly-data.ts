@@ -1,14 +1,22 @@
 import { db } from "@bimbelbeta/db";
 import { programYearlyData, studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
-import { and, desc, eq, gt } from "drizzle-orm";
+import { and, asc, desc, eq, gt, lt } from "drizzle-orm";
 import { admin } from "../../../index";
+import { createIdCursor, parseIdCursor } from "../../../lib/pagination/cursor";
 
 const list = admin.admin.university.universityPrograms.list.handler(async ({ input }) => {
 	const limit = Math.min(input.limit ?? 20, 100);
+	const isBackward = !!input.before;
+	const cursor = input.before || input.after;
 
 	const conditions = [];
-	if (input.cursor) {
-		conditions.push(gt(universityStudyProgram.id, input.cursor));
+	if (cursor) {
+		const cursorId = parseIdCursor(cursor);
+		if (isBackward) {
+			conditions.push(lt(universityStudyProgram.id, cursorId));
+		} else {
+			conditions.push(gt(universityStudyProgram.id, cursorId));
+		}
 	}
 	if (input.universityId) {
 		conditions.push(eq(universityStudyProgram.universityId, input.universityId));
@@ -17,7 +25,7 @@ const list = admin.admin.university.universityPrograms.list.handler(async ({ inp
 		conditions.push(eq(universityStudyProgram.studyProgramId, input.studyProgramId));
 	}
 
-	const results = await db
+	let results = await db
 		.select({
 			id: universityStudyProgram.id,
 			universityId: university.id,
@@ -36,15 +44,30 @@ const list = admin.admin.university.universityPrograms.list.handler(async ({ inp
 		.innerJoin(university, eq(university.id, universityStudyProgram.universityId))
 		.innerJoin(studyProgram, eq(studyProgram.id, universityStudyProgram.studyProgramId))
 		.where(conditions.length > 0 ? and(...conditions) : undefined)
-		.orderBy(universityStudyProgram.id)
+		.orderBy(isBackward ? desc(universityStudyProgram.id) : asc(universityStudyProgram.id))
 		.limit(limit + 1);
 
-	const hasMore = results.length > limit;
-	const data = hasMore ? results.slice(0, limit) : results;
-	const nextCursor = hasMore ? data[data.length - 1]!.id : null;
+	const hasExtra = results.length > limit;
+	if (hasExtra) {
+		results = results.slice(0, limit);
+	}
+
+	if (isBackward) {
+		results.reverse();
+	}
+
+	const firstItem = results[0];
+	const lastItem = results[results.length - 1];
+
+	const pageInfo = {
+		hasNextPage: isBackward ? true : hasExtra,
+		hasPreviousPage: isBackward ? hasExtra : !!cursor,
+		startCursor: firstItem ? createIdCursor(firstItem.id) : null,
+		endCursor: lastItem ? createIdCursor(lastItem.id) : null,
+	};
 
 	return {
-		data: data.map((r) => ({
+		items: results.map((r) => ({
 			id: r.id,
 			university: { id: r.universityId, name: r.universityName, slug: r.universitySlug },
 			studyProgram: { id: r.studyProgramId, name: r.studyProgramName, category: r.studyProgramCategory },
@@ -54,7 +77,7 @@ const list = admin.admin.university.universityPrograms.list.handler(async ({ inp
 			averageScore: r.averageScore,
 			isActive: r.isActive,
 		})),
-		nextCursor,
+		pageInfo,
 	};
 });
 

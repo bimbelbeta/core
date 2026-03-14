@@ -2,22 +2,22 @@ import { user } from "@bimbelbeta/db/schema/auth";
 import { creditTransaction } from "@bimbelbeta/db/schema/credit";
 import { type } from "arktype";
 import { createSelectSchema } from "drizzle-arktype";
+import { PageInfoSchema, PaginationInputSchema } from "../../common/pagination";
 import { oc } from "../../lib/contract-definition";
 
 const UserSchema = createSelectSchema(user);
 const CreditTransactionSchema = createSelectSchema(creditTransaction);
 
 const UserListInputSchema = type({
-	cursor: "string?",
-	limit: "number = 10",
+	"...": PaginationInputSchema,
 	search: "string?",
 	role: "'user' | 'admin' | 'superadmin'?",
 	isPremium: "boolean?",
 });
 
 const UserListOutputSchema = type({
-	users: UserSchema.array(),
-	nextCursor: "string?",
+	items: UserSchema.array(),
+	pageInfo: PageInfoSchema,
 });
 
 const UserDetailOutputSchema = type({

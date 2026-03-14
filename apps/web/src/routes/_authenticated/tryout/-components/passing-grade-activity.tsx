@@ -45,14 +45,14 @@ export function PassingGradeActivity() {
 									<Skeleton className="h-8 w-full" />
 								</TableCell>
 							</TableRow>
-						) : universities?.data.length === 0 ? (
+						) : universities?.items.length === 0 ? (
 							<TableRow>
 								<TableCell colSpan={4} className="h-20 text-center text-muted-foreground">
 									Gagal menemukan Prodi/Universitas. Silahkan coba kata kunci lain. <SmileySadIcon className="inline" />
 								</TableCell>
 							</TableRow>
 						) : (
-							universities?.data.map((university) => (
+							universities?.items.map((university) => (
 								<TableRow key={`${university.id}-${university.studyProgram}`}>
 									<TableCell>{university.name}</TableCell>
 									<TableCell>{university.rank}</TableCell>

@@ -1,3 +1,4 @@
+import { PaginationInputSchema } from "@bimbelbeta/contract/common/pagination";
 import { CalendarDotsIcon, PackageIcon, TrashIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -18,7 +19,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { useCursorPagination } from "@/hooks/use-cursor-pagination";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 import { DeleteProductDialog } from "./-components/delete-product-dialog";
@@ -26,7 +26,7 @@ import { RestoreProductDialog } from "./-components/restore-product-dialog";
 import { formatCurrency, formatRelativeDate, variantConfig } from "./-utils";
 
 const searchSchema = type({
-	"cursor?": "string",
+	"...": PaginationInputSchema,
 	"search?": "string",
 	"variant?": "'fixed_date' | 'monthly' | 'credits'",
 	"includeDeleted?": "boolean",
@@ -39,21 +39,16 @@ export const Route = createFileRoute("/admin/_superadmin/products/")({
 
 function ProductsListPage() {
 	const navigate = Route.useNavigate();
-	const { cursor, search, variant, includeDeleted } = Route.useSearch();
+	const { after, before, limit = 10, search, variant, includeDeleted } = Route.useSearch();
 
 	const [searchInput, setSearchInput] = useState(search ?? "");
-
-	const pagination = useCursorPagination<string>({
-		urlCursor: cursor,
-		onCursorChange: (newCursor) => navigate({ search: { cursor: newCursor, search, variant, includeDeleted } }),
-		pageSize: 10,
-	});
 
 	const { data, isLoading, refetch } = useQuery(
 		orpc.admin.products.list.queryOptions({
 			input: {
-				cursor: pagination.currentCursor,
-				limit: pagination.pageSize,
+				after,
+				before,
+				limit,
 				search: search ?? undefined,
 				variant,
 				includeDeleted,
@@ -61,55 +56,70 @@ function ProductsListPage() {
 		}),
 	);
 
-	// Sync canGoNext with data
-	if (pagination.canGoNext !== !!data?.nextCursor) {
-		pagination.setCanGoNext(!!data?.nextCursor);
-	}
+	const pageInfo = data?.pageInfo;
 
 	const [deleteProductId, setDeleteProductId] = useState<string | null>(null);
 	const [restoreProductId, setRestoreProductId] = useState<string | null>(null);
 
+	const baseSearchParams = {
+		...(search && { search }),
+		...(variant && { variant }),
+		...(includeDeleted !== undefined && { includeDeleted }),
+		limit,
+	};
+
 	const handleSearch = (value: string) => {
 		setSearchInput(value);
-		pagination.reset();
 		navigate({
 			search: {
 				...(value && { search: value }),
 				...(variant && { variant }),
 				...(includeDeleted !== undefined && { includeDeleted }),
+				limit,
 			},
 		});
 	};
 
 	const handleVariantChange = (value: string) => {
-		pagination.reset();
 		navigate({
 			search: {
 				...(search && { search }),
 				...(value !== "all" && { variant: value as "fixed_date" | "monthly" | "credits" }),
 				...(includeDeleted !== undefined && { includeDeleted }),
+				limit,
 			},
 		});
 	};
 
 	const handleIncludeDeletedChange = (value: string) => {
-		pagination.reset();
 		navigate({
 			search: {
 				...(search && { search }),
 				...(variant && { variant }),
 				...(value === "true" && { includeDeleted: true }),
+				limit,
 			},
 		});
 	};
 
 	const handleNext = () => {
-		if (!data?.nextCursor) return;
-		pagination.handleNext(data.nextCursor);
+		if (!pageInfo?.endCursor) return;
+		navigate({
+			search: {
+				after: pageInfo.endCursor,
+				...baseSearchParams,
+			},
+		});
 	};
 
 	const handlePrevious = () => {
-		pagination.handlePrevious();
+		if (!pageInfo?.startCursor) return;
+		navigate({
+			search: {
+				before: pageInfo.startCursor,
+				...baseSearchParams,
+			},
+		});
 	};
 
 	return (
@@ -175,7 +185,7 @@ function ProductsListPage() {
 						<TableBody>
 							{isLoading ? (
 								<TableSkeleton columns={6} />
-							) : data?.products.length === 0 ? (
+							) : data?.items.length === 0 ? (
 								<TableRow>
 									<TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
 										Tidak ada product ditemukan.
@@ -183,7 +193,7 @@ function ProductsListPage() {
 								</TableRow>
 							) : (
 								<TooltipProvider delayDuration={200}>
-									{data?.products.map((product) => {
+									{data?.items.map((product) => {
 										const variantInfo = variantConfig[product.variant] ?? variantConfig.credits;
 										const VariantIcon = variantInfo.icon;
 										const createdDate = product.createdAt ? new Date(product.createdAt) : null;
@@ -280,8 +290,8 @@ function ProductsListPage() {
 							<PaginationButtons
 								onPrevious={handlePrevious}
 								onNext={handleNext}
-								hasPrevious={pagination.canGoPrevious}
-								hasNext={pagination.canGoNext}
+								hasPrevious={!!pageInfo?.hasPreviousPage}
+								hasNext={!!pageInfo?.hasNextPage}
 							/>
 						</div>
 					)}

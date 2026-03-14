@@ -41,19 +41,19 @@ export function QuestionPickerDialog({
 	const { data, isPending, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery(
 		orpc.admin.tryout.questions.list.infiniteOptions({
 			input: (pageParam) => ({
-				cursor: pageParam,
+				after: pageParam,
 				limit: 20,
 				search: search || undefined,
 				category: categoryFilter !== "all" ? categoryFilter : undefined,
 				type: typeFilter !== "all" ? typeFilter : undefined,
 				excludeIds: excludeIds.length > 0 ? excludeIds : undefined,
 			}),
-			getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
-			initialPageParam: undefined as number | undefined,
+			getNextPageParam: (lastPage) => (lastPage.pageInfo.hasNextPage ? lastPage.pageInfo.endCursor : undefined),
+			initialPageParam: undefined as string | undefined,
 		}),
 	);
 
-	const questions = data?.pages.flatMap((page) => page.questions) ?? [];
+	const questions = data?.pages.flatMap((page) => page.items) ?? [];
 
 	const handleScroll = useCallback(() => {
 		const el = scrollRef.current;

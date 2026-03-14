@@ -1,14 +1,22 @@
 import { db } from "@bimbelbeta/db";
 import { studyProgram } from "@bimbelbeta/db/schema/university";
-import { and, eq, gt, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gt, lt, sql } from "drizzle-orm";
 import { admin } from "../../../index";
+import { createIdCursor, parseIdCursor } from "../../../lib/pagination/cursor";
 
 const list = admin.admin.university.studyPrograms.list.handler(async ({ input }) => {
 	const limit = Math.min(input.limit ?? 20, 100);
+	const isBackward = !!input.before;
+	const cursor = input.before || input.after;
 
 	const conditions = [];
-	if (input.cursor) {
-		conditions.push(gt(studyProgram.id, input.cursor));
+	if (cursor) {
+		const cursorId = parseIdCursor(cursor);
+		if (isBackward) {
+			conditions.push(lt(studyProgram.id, cursorId));
+		} else {
+			conditions.push(gt(studyProgram.id, cursorId));
+		}
 	}
 	if (input.search) {
 		conditions.push(sql`${studyProgram.name} ILIKE ${`%${input.search}%`}`);
@@ -17,7 +25,7 @@ const list = admin.admin.university.studyPrograms.list.handler(async ({ input })
 		conditions.push(eq(studyProgram.category, input.category));
 	}
 
-	const results = await db
+	let results = await db
 		.select({
 			id: studyProgram.id,
 			name: studyProgram.name,
@@ -27,14 +35,29 @@ const list = admin.admin.university.studyPrograms.list.handler(async ({ input })
 		})
 		.from(studyProgram)
 		.where(conditions.length > 0 ? and(...conditions) : undefined)
-		.orderBy(studyProgram.id)
+		.orderBy(isBackward ? desc(studyProgram.id) : asc(studyProgram.id))
 		.limit(limit + 1);
 
-	const hasMore = results.length > limit;
-	const data = hasMore ? results.slice(0, limit) : results;
-	const nextCursor = hasMore ? data[data.length - 1]!.id : undefined;
+	const hasExtra = results.length > limit;
+	if (hasExtra) {
+		results = results.slice(0, limit);
+	}
 
-	return { data, nextCursor };
+	if (isBackward) {
+		results.reverse();
+	}
+
+	const firstItem = results[0];
+	const lastItem = results[results.length - 1];
+
+	const pageInfo = {
+		hasNextPage: isBackward ? true : hasExtra,
+		hasPreviousPage: isBackward ? hasExtra : !!cursor,
+		startCursor: firstItem ? createIdCursor(firstItem.id) : null,
+		endCursor: lastItem ? createIdCursor(lastItem.id) : null,
+	};
+
+	return { items: results, pageInfo };
 });
 
 const find = admin.admin.university.studyPrograms.find.handler(async ({ input, errors }) => {

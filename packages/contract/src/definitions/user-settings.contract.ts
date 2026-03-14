@@ -4,41 +4,41 @@ import { createSelectSchema } from "drizzle-arktype";
 import { oc } from "../lib/contract-definition";
 
 const GetTargetOutputSchema = type({
-  university: createSelectSchema(university).pick("name", "slug", "logo").merge({ id: "number" }),
-  studyProgram: createSelectSchema(studyProgram)
-    .pick("name", "slug", "category")
-    .merge({ id: "number" })
-    .merge(createSelectSchema(universityStudyProgram).pick("averageScore", "accreditation")),
+	university: createSelectSchema(university).pick("name", "slug", "logo").merge({ id: "number" }),
+	studyProgram: createSelectSchema(studyProgram)
+		.pick("name", "slug", "category")
+		.merge({ id: "number" })
+		.merge(createSelectSchema(universityStudyProgram).pick("averageScore", "accreditation")),
 }).or({
-  university: "null",
-  studyProgram: "null",
+	university: "null",
+	studyProgram: "null",
 });
 
 const UpdateTargetInputSchema = type({
-  universityId: "number",
-  studyProgramId: "number",
+	universityId: "number",
+	studyProgramId: "number",
 });
 
 const SetTargetOutputSchema = type({
-  success: "boolean",
-  message: "string",
+	success: "boolean",
+	message: "string",
 });
 
 export const userSettingsContract = {
-  find: oc
-    .route({
-      path: "/user/target",
-      method: "GET",
-      tags: ["User"],
-    })
-    .output(GetTargetOutputSchema),
+	find: oc
+		.route({
+			path: "/user/target",
+			method: "GET",
+			tags: ["User"],
+		})
+		.output(GetTargetOutputSchema),
 
-  update: oc
-    .route({
-      path: "/user/target",
-      method: "PATCH",
-      tags: ["User"],
-    })
-    .input(UpdateTargetInputSchema)
-    .output(SetTargetOutputSchema),
+	update: oc
+		.route({
+			path: "/user/target",
+			method: "PATCH",
+			tags: ["User"],
+		})
+		.input(UpdateTargetInputSchema)
+		.output(SetTargetOutputSchema),
 };

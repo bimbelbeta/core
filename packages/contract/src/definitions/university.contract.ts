@@ -1,11 +1,11 @@
 import { programYearlyData, studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
 import { type } from "arktype";
 import { createSelectSchema } from "drizzle-arktype";
+import { PageInfoSchema, PaginationInputSchema } from "../common/pagination";
 import { oc } from "../lib/contract-definition";
 
 const ListInput = type({
-	cursor: "number?",
-	limit: "number = 15",
+	"...": PaginationInputSchema,
 	search: "string?",
 });
 
@@ -14,8 +14,8 @@ const UniversityListOutputItem = createSelectSchema(university)
 	.merge({ id: "number" });
 
 const ListOutput = type({
-	data: UniversityListOutputItem.array(),
-	nextCursor: "number?",
+	items: UniversityListOutputItem.array(),
+	pageInfo: PageInfoSchema,
 });
 
 const ListStudyProgramsOutputItem = type({
@@ -30,8 +30,8 @@ const ListStudyProgramsOutputItem = type({
 });
 
 const ListStudyProgramsOutput = type({
-	data: ListStudyProgramsOutputItem.array(),
-	nextCursor: "number?",
+	items: ListStudyProgramsOutputItem.array(),
+	pageInfo: PageInfoSchema,
 });
 
 const StudyProgramOutput = createSelectSchema(studyProgram).pick("name").merge({ id: "number" });

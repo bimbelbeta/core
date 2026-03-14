@@ -1,6 +1,7 @@
 import { studyProgram } from "@bimbelbeta/db/schema/university";
 import { type } from "arktype";
 import { createSelectSchema } from "drizzle-arktype";
+import { PageInfoSchema, PaginationInputSchema } from "../../../common/pagination";
 import { oc } from "../../../lib/contract-definition";
 
 const StudyProgramSchema = createSelectSchema(studyProgram)
@@ -10,8 +11,8 @@ const StudyProgramSchema = createSelectSchema(studyProgram)
 export const adminStudyProgramsContract = {
 	list: oc
 		.route({ path: "/admin/study-programs", method: "GET", tags: ["Admin - Study Programs"] })
-		.input(type({ cursor: "number?", limit: "number?", search: "string?", category: '"SAINTEK" | "SOSHUM"?' }))
-		.output(type({ data: StudyProgramSchema.array(), nextCursor: "number?" })),
+		.input(type({ "...": PaginationInputSchema, search: "string?", category: '"SAINTEK" | "SOSHUM"?' }))
+		.output(type({ items: StudyProgramSchema.array(), pageInfo: PageInfoSchema })),
 	find: oc
 		.route({ path: "/admin/study-programs/{id}", method: "GET", tags: ["Admin - Study Programs"] })
 		.input(type({ id: "number" }))

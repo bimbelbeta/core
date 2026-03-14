@@ -1,21 +1,21 @@
 import { product } from "@bimbelbeta/db/schema/transaction";
 import { type } from "arktype";
 import { createSelectSchema } from "drizzle-arktype";
+import { PageInfoSchema, PaginationInputSchema } from "../../common/pagination";
 import { oc } from "../../lib/contract-definition";
 
 const ProductSchema = createSelectSchema(product);
 
 const ProductListInputSchema = type({
-	cursor: "string?",
-	limit: "number = 10",
+	"...": PaginationInputSchema,
 	search: "string?",
 	variant: "'fixed_date' | 'monthly' | 'credits'?",
 	includeDeleted: "boolean?",
 });
 
 const ProductListOutputSchema = type({
-	products: ProductSchema.array(),
-	nextCursor: "string?",
+	items: ProductSchema.array(),
+	pageInfo: PageInfoSchema,
 });
 
 const ProductDetailOutputSchema = type({

@@ -1,6 +1,7 @@
 import { programYearlyData, studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
 import { type } from "arktype";
 import { createSelectSchema } from "drizzle-arktype";
+import { PageInfoSchema, PaginationInputSchema } from "../../../common/pagination";
 import { oc } from "../../../lib/contract-definition";
 
 const UniversityProgramSummarySchema = createSelectSchema(university).pick("name", "slug").merge({ id: "number" });
@@ -19,8 +20,8 @@ const UniversityProgramSchema = type({
 export const adminUniversityProgramsContract = {
 	list: oc
 		.route({ path: "/admin/university-programs", method: "GET", tags: ["Admin - University Programs"] })
-		.input(type({ cursor: "number?", limit: "number?", universityId: "number?", studyProgramId: "number?" }))
-		.output(type({ data: UniversityProgramSchema.array(), nextCursor: "number | null" })),
+		.input(type({ "...": PaginationInputSchema, universityId: "number?", studyProgramId: "number?" }))
+		.output(type({ items: UniversityProgramSchema.array(), pageInfo: PageInfoSchema })),
 	find: oc
 		.route({ path: "/admin/university-programs/{id}", method: "GET", tags: ["Admin - University Programs"] })
 		.input(type({ id: "number" }))

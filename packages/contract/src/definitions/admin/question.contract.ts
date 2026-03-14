@@ -1,6 +1,7 @@
 import { question, questionChoice } from "@bimbelbeta/db/schema/question";
 import { type } from "arktype";
 import { createSelectSchema } from "drizzle-arktype";
+import { PageInfoSchema, PaginationInputSchema } from "../../common/pagination";
 import { oc } from "../../lib/contract-definition";
 
 const ChoiceSchema = createSelectSchema(questionChoice)
@@ -57,8 +58,7 @@ export const adminQuestionContract = {
 		.route({ path: "/admin/questions", method: "GET", tags: ["Admin - Questions"] })
 		.input(
 			type({
-				cursor: "number?",
-				limit: "number = 10",
+				"...": PaginationInputSchema,
 				search: "string?",
 				type: "'multiple_choice' | 'multiple_choice_complex' | 'essay'?",
 				tag: "string?",
@@ -66,7 +66,7 @@ export const adminQuestionContract = {
 				excludeIds: "number[]?",
 			}),
 		)
-		.output(type({ questions: QuestionListItemSchema.array(), nextCursor: "number?" })),
+		.output(type({ items: QuestionListItemSchema.array(), pageInfo: PageInfoSchema })),
 	find: oc
 		.route({ path: "/admin/questions/{id}", method: "GET", tags: ["Admin - Questions"] })
 		.input(type({ id: "number" }))

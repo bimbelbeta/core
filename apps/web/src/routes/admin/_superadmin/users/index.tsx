@@ -1,3 +1,4 @@
+import { PaginationInputSchema } from "@bimbelbeta/contract/common/pagination";
 import { CalendarDotsIcon, ClockIcon, CreditCardIcon, CrownIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -19,7 +20,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { useCursorPagination } from "@/hooks/use-cursor-pagination";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 import { EditRoleDialog } from "./-components/edit-role-dialog";
@@ -28,7 +28,7 @@ import { GrantPremiumDialog } from "./-components/grant-premium-dialog";
 import { formatPremiumExpiry, formatRelativeDate, getInitials, roleConfig } from "./-utils";
 
 const searchSchema = type({
-	"cursor?": "string",
+	"...": PaginationInputSchema,
 	"search?": "string",
 	"role?": "'user' | 'admin' | 'superadmin'",
 	"isPremium?": "boolean",
@@ -41,21 +41,16 @@ export const Route = createFileRoute("/admin/_superadmin/users/")({
 
 function UsersListPage() {
 	const navigate = Route.useNavigate();
-	const { cursor, search, role, isPremium } = Route.useSearch();
+	const { after, before, limit = 10, search, role, isPremium } = Route.useSearch();
 
 	const [searchInput, setSearchInput] = useState(search ?? "");
-
-	const pagination = useCursorPagination<string>({
-		urlCursor: cursor,
-		onCursorChange: (newCursor) => navigate({ search: { cursor: newCursor, search, role, isPremium } }),
-		pageSize: 10,
-	});
 
 	const { data, isLoading, refetch } = useQuery(
 		orpc.admin.users.list.queryOptions({
 			input: {
-				cursor: pagination.currentCursor,
-				limit: pagination.pageSize,
+				after,
+				before,
+				limit,
 				search: search ?? undefined,
 				role,
 				isPremium,
@@ -63,10 +58,7 @@ function UsersListPage() {
 		}),
 	);
 
-	// Sync canGoNext with data
-	if (pagination.canGoNext !== !!data?.nextCursor) {
-		pagination.setCanGoNext(!!data?.nextCursor);
-	}
+	const pageInfo = data?.pageInfo;
 
 	const [editRoleUser, setEditRoleUser] = useState<{
 		userId: string;
@@ -84,47 +76,81 @@ function UsersListPage() {
 		currentPremiumExpiry: Date | null;
 	} | null>(null);
 
+	const baseSearchParams = {
+		...(search && { search }),
+		...(role && { role }),
+		...(isPremium !== undefined && { isPremium }),
+		limit,
+	};
+
 	const handleSearch = (value: string) => {
 		setSearchInput(value);
-		pagination.reset();
 		navigate({
-			search: {
-				...(value && { search: value }),
-				...(role && { role }),
-				...(isPremium !== undefined && { isPremium }),
-			},
+			search: value
+				? {
+						search: value,
+						...(role && { role }),
+						...(isPremium !== undefined && { isPremium }),
+						limit,
+					}
+				: baseSearchParams,
 		});
 	};
 
 	const handleRoleChange = (value: string) => {
-		pagination.reset();
 		navigate({
-			search: {
-				...(search && { search }),
-				...(value !== "all" && { role: value as "user" | "admin" | "superadmin" }),
-				...(isPremium !== undefined && { isPremium }),
-			},
+			search:
+				value !== "all"
+					? {
+							role: value as "user" | "admin" | "superadmin",
+							...(search && { search }),
+							...(isPremium !== undefined && { isPremium }),
+							limit,
+						}
+					: {
+							...(search && { search }),
+							...(isPremium !== undefined && { isPremium }),
+							limit,
+						},
 		});
 	};
 
 	const handlePremiumChange = (value: string) => {
-		pagination.reset();
 		navigate({
-			search: {
-				...(search && { search }),
-				...(role && { role }),
-				...(value !== "all" && { isPremium: value === "true" }),
-			},
+			search:
+				value !== "all"
+					? {
+							isPremium: value === "true",
+							...(search && { search }),
+							...(role && { role }),
+							limit,
+						}
+					: {
+							...(search && { search }),
+							...(role && { role }),
+							limit,
+						},
 		});
 	};
 
 	const handleNext = () => {
-		if (!data?.nextCursor) return;
-		pagination.handleNext(data.nextCursor);
+		if (!pageInfo?.endCursor) return;
+		navigate({
+			search: {
+				after: pageInfo.endCursor,
+				...baseSearchParams,
+			},
+		});
 	};
 
 	const handlePrevious = () => {
-		pagination.handlePrevious();
+		if (!pageInfo?.startCursor) return;
+		navigate({
+			search: {
+				before: pageInfo.startCursor,
+				...baseSearchParams,
+			},
+		});
 	};
 
 	return (
@@ -188,7 +214,7 @@ function UsersListPage() {
 							<TableBody>
 								{isLoading ? (
 									<TableSkeleton columns={6} />
-								) : data?.users.length === 0 ? (
+								) : data?.items.length === 0 ? (
 									<TableRow>
 										<TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
 											Tidak ada user ditemukan.
@@ -196,7 +222,7 @@ function UsersListPage() {
 									</TableRow>
 								) : (
 									<TooltipProvider delayDuration={200}>
-										{data?.users.map((user) => {
+										{data?.items.map((user) => {
 											const roleInfo = roleConfig[user.role as keyof typeof roleConfig] ?? roleConfig.user;
 											const RoleIcon = roleInfo.icon;
 											const premiumDate = user.premiumExpiresAt ? new Date(user.premiumExpiresAt) : null;
@@ -266,7 +292,7 @@ function UsersListPage() {
 													<TableCell>
 														{user.isPremium ? (
 															<div className="flex flex-col justify-center gap-2">
-																<div className="flex w-fit items-center gap-1.5 rounded-full border border-amber-200 bg-gradient-to-r from-amber-50 to-yellow-50 px-2.5 py-1 shadow-xs">
+																<div className="flex w-fit items-center gap-1.5 rounded-full border border-amber-200 bg-linear-to-r from-amber-50 to-yellow-50 px-2.5 py-1 shadow-xs">
 																	<CrownIcon className="size-3.5 text-amber-500" weight="fill" />
 																	<span className="font-bold text-amber-700 text-xs tracking-wide">PREMIUM</span>
 																</div>
@@ -393,8 +419,8 @@ function UsersListPage() {
 							<PaginationButtons
 								onPrevious={handlePrevious}
 								onNext={handleNext}
-								hasPrevious={pagination.canGoPrevious}
-								hasNext={pagination.canGoNext}
+								hasPrevious={!!pageInfo?.hasPreviousPage}
+								hasNext={!!pageInfo?.hasNextPage}
 							/>
 						</div>
 					)}

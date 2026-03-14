@@ -8,6 +8,10 @@
 		"./*": {
 			"types": "./dist/*.d.mts",
 			"default": "./dist/*.mjs"
+		},
+		"./*/*": {
+			"types": "./dist/*/*.d.mts",
+			"default": "./dist/*/*.mjs"
 		}
 	},
 	"type": "module",

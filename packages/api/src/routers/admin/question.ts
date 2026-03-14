@@ -1,8 +1,9 @@
 import { db } from "@bimbelbeta/db";
 import { question, questionChoice } from "@bimbelbeta/db/schema/question";
-import { and, eq, gt, like, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gt, like, lt, sql } from "drizzle-orm";
 import { admin } from "../..";
 import { convertToTiptap } from "../../lib/convert-to-tiptap";
+import { createIdCursor, parseIdCursor } from "../../lib/pagination/cursor";
 
 const createQuestion = admin.admin.tryout.questions.createQuestion.handler(async ({ input, errors }) => {
 	const choices = input.choices;
@@ -77,10 +78,15 @@ const createQuestion = admin.admin.tryout.questions.createQuestion.handler(async
 });
 
 const list = admin.admin.tryout.questions.list.handler(async ({ input }) => {
+	const limit = input.limit ?? 10;
+	const isBackward = !!input.before;
+	const cursorStr = input.before || input.after;
+	const cursorId = cursorStr ? parseIdCursor(cursorStr) : undefined;
+
 	const conditions = [];
 
-	if (input.cursor) {
-		conditions.push(gt(question.id, input.cursor));
+	if (cursorId !== undefined) {
+		conditions.push(isBackward ? lt(question.id, cursorId) : gt(question.id, cursorId));
 	}
 
 	if (input.search) {
@@ -118,24 +124,32 @@ const list = admin.admin.tryout.questions.list.handler(async ({ input }) => {
 
 	const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-	const rows = await db
+	let rows = await db
 		.select()
 		.from(question)
 		.where(whereClause)
-		.limit(input.limit + 1)
-		.orderBy(question.id);
+		.orderBy(isBackward ? desc(question.id) : asc(question.id))
+		.limit(limit + 1);
 
-	const hasMore = rows.length > input.limit;
-	const questionsList = hasMore ? rows.slice(0, input.limit) : rows;
-	const lastQuestion = questionsList.at(-1);
+	const hasExtra = rows.length > limit;
+	if (hasExtra) rows = rows.slice(0, limit);
+	if (isBackward) rows.reverse();
+
+	const firstItem = rows[0];
+	const lastItem = rows[rows.length - 1];
 
 	return {
-		questions: questionsList.map((q) => ({
+		items: rows.map((q) => ({
 			...q,
 			content: q.contentJson ?? convertToTiptap(q.content),
 			discussion: q.discussionJson ?? convertToTiptap(q.discussion),
 		})),
-		nextCursor: hasMore && lastQuestion ? lastQuestion.id : undefined,
+		pageInfo: {
+			hasNextPage: isBackward ? true : hasExtra,
+			hasPreviousPage: isBackward ? hasExtra : !!cursorStr,
+			startCursor: firstItem ? createIdCursor(firstItem.id) : null,
+			endCursor: lastItem ? createIdCursor(lastItem.id) : null,
+		},
 	};
 });
 

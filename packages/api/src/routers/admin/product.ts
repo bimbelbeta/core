@@ -1,31 +1,45 @@
 import { db } from "@bimbelbeta/db";
 import { product } from "@bimbelbeta/db/schema/transaction";
-import { and, desc, eq, gt, ilike, isNotNull, isNull } from "drizzle-orm";
+import { and, asc, desc, eq, gt, ilike, isNotNull, isNull, lt } from "drizzle-orm";
 import { superadmin } from "../..";
+import { decodeCursor, encodeCursor } from "../../lib/pagination/cursor";
 import { generateSlug } from "../../lib/utils";
 
 const list = superadmin.admin.products.list.handler(async ({ input }) => {
-	const rows = await db
+	const limit = input.limit ?? 10;
+	const isBackward = !!input.before;
+	const cursorStr = input.before || input.after;
+	const cursorId = cursorStr ? decodeCursor(cursorStr) : undefined;
+
+	const baseFilters = [
+		cursorId !== undefined ? (isBackward ? lt(product.id, cursorId) : gt(product.id, cursorId)) : undefined,
+		input.search ? ilike(product.name, `%${input.search}%`) : undefined,
+		input.variant ? eq(product.variant, input.variant) : undefined,
+		!input.includeDeleted ? isNull(product.deletedAt) : undefined,
+	];
+
+	let rows = await db
 		.select()
 		.from(product)
-		.where(
-			and(
-				input.cursor ? gt(product.id, input.cursor) : undefined,
-				input.search ? ilike(product.name, `%${input.search}%`) : undefined,
-				input.variant ? eq(product.variant, input.variant) : undefined,
-				!input.includeDeleted ? isNull(product.deletedAt) : undefined,
-			),
-		)
-		.limit(input.limit + 1)
-		.orderBy(desc(product.createdAt));
+		.where(and(...baseFilters.filter(Boolean)))
+		.orderBy(isBackward ? desc(product.id) : asc(product.id))
+		.limit(limit + 1);
 
-	const hasMore = rows.length > input.limit;
-	const products = hasMore ? rows.slice(0, input.limit) : rows;
-	const lastProduct = products.at(-1);
+	const hasExtra = rows.length > limit;
+	if (hasExtra) rows = rows.slice(0, limit);
+	if (isBackward) rows.reverse();
+
+	const firstItem = rows[0];
+	const lastItem = rows[rows.length - 1];
 
 	return {
-		products,
-		nextCursor: hasMore && lastProduct?.id ? lastProduct.id : undefined,
+		items: rows,
+		pageInfo: {
+			hasNextPage: isBackward ? true : hasExtra,
+			hasPreviousPage: isBackward ? hasExtra : !!cursorStr,
+			startCursor: firstItem ? encodeCursor(firstItem.id) : null,
+			endCursor: lastItem ? encodeCursor(lastItem.id) : null,
+		},
 	};
 });
 

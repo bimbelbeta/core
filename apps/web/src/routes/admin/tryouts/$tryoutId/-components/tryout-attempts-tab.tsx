@@ -1,6 +1,7 @@
 import { CalendarDotsIcon, ChartBarIcon, TimerIcon, UserIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
+import { useState } from "react";
 import { PaginationButtons } from "@/components/admin/pagination-buttons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +10,6 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { useCursorPagination } from "@/hooks/use-cursor-pagination";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 
@@ -43,25 +43,21 @@ function formatRelativeDate(date: Date) {
 export const TryoutAttemptsTab = () => {
 	const { tryoutId: id } = useParams({ from: "/admin/tryouts/$tryoutId/" });
 
-	const pagination = useCursorPagination<number>({
-		initialCursor: undefined,
-		pageSize: 10,
-	});
+	const [after, setAfter] = useState<string | undefined>();
+	const [before, setBefore] = useState<string | undefined>();
 
 	const { data, isPending } = useQuery(
 		orpc.admin.tryout.attempts.list.queryOptions({
 			input: {
 				id: Number(id),
-				after: pagination.currentCursor,
-				limit: pagination.pageSize,
+				after,
+				before,
+				limit: 10,
 			},
 		}),
 	);
 
-	// Sync canGoNext with data
-	if (pagination.canGoNext !== !!data?.nextCursor) {
-		pagination.setCanGoNext(!!data?.nextCursor);
-	}
+	const pageInfo = data?.pageInfo;
 
 	const getStatusConfig = (status: string) => {
 		switch (status) {
@@ -80,6 +76,18 @@ export const TryoutAttemptsTab = () => {
 			default:
 				return { variant: "outline" as const, label: "Belum Mulai", className: "" };
 		}
+	};
+
+	const handleNext = () => {
+		if (!pageInfo?.endCursor) return;
+		setAfter(pageInfo.endCursor);
+		setBefore(undefined);
+	};
+
+	const handlePrevious = () => {
+		if (!pageInfo?.startCursor) return;
+		setBefore(pageInfo.startCursor);
+		setAfter(undefined);
 	};
 
 	return (
@@ -107,7 +115,7 @@ export const TryoutAttemptsTab = () => {
 						<TableBody>
 							{isPending ? (
 								<TableSkeleton columns={6} />
-							) : data?.attempts.length === 0 ? (
+							) : data?.items.length === 0 ? (
 								<TableRow>
 									<TableCell colSpan={6} className="h-48">
 										<Empty>
@@ -123,7 +131,7 @@ export const TryoutAttemptsTab = () => {
 								</TableRow>
 							) : (
 								<TooltipProvider delayDuration={200}>
-									{data?.attempts.map(({ attempt, user }, index) => {
+									{data?.items.map(({ attempt, user }, index) => {
 										const statusConfig = getStatusConfig(attempt.status);
 										const startedAt = attempt.startedAt ? new Date(attempt.startedAt) : null;
 										const completedAt = attempt.completedAt ? new Date(attempt.completedAt) : null;
@@ -233,10 +241,10 @@ export const TryoutAttemptsTab = () => {
 				{data && (
 					<div className="mt-4">
 						<PaginationButtons
-							onPrevious={() => pagination.handlePrevious()}
-							onNext={() => data.nextCursor && pagination.handleNext(data.nextCursor)}
-							hasPrevious={pagination.canGoPrevious}
-							hasNext={pagination.canGoNext}
+							onPrevious={handlePrevious}
+							onNext={handleNext}
+							hasPrevious={!!pageInfo?.hasPreviousPage}
+							hasNext={!!pageInfo?.hasNextPage}
 						/>
 					</div>
 				)}

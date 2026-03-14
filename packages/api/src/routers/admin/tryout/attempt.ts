@@ -1,17 +1,29 @@
 import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { tryoutAttempt } from "@bimbelbeta/db/schema/tryout";
-import { and, eq, gt } from "drizzle-orm";
+import { and, asc, desc, eq, gt, lt } from "drizzle-orm";
 import { admin } from "../../..";
+import { createIdCursor, parseIdCursor } from "../../../lib/pagination/cursor";
 
 type GetByTryoutInput = {
 	id: number;
-	after?: number;
-	limit: number;
+	after?: string;
+	before?: string;
+	limit?: number;
 };
 
 const list = admin.admin.tryout.attempts.list.handler(async ({ input }: { input: GetByTryoutInput }) => {
-	const rows = await db
+	const limit = input.limit ?? 10;
+	const isBackward = !!input.before;
+	const cursorStr = input.before || input.after;
+	const cursorId = cursorStr ? parseIdCursor(cursorStr) : undefined;
+
+	const baseFilters = [
+		eq(tryoutAttempt.tryoutId, input.id),
+		cursorId !== undefined ? (isBackward ? lt(tryoutAttempt.id, cursorId) : gt(tryoutAttempt.id, cursorId)) : undefined,
+	];
+
+	let rows = await db
 		.select({
 			attempt: tryoutAttempt,
 			user: {
@@ -23,23 +35,25 @@ const list = admin.admin.tryout.attempts.list.handler(async ({ input }: { input:
 		})
 		.from(tryoutAttempt)
 		.innerJoin(user, eq(user.id, tryoutAttempt.userId))
-		.where(and(eq(tryoutAttempt.tryoutId, input.id), input.after ? gt(tryoutAttempt.id, input.after) : undefined))
-		.orderBy(tryoutAttempt.id)
-		.limit(input.limit + 1);
+		.where(and(...baseFilters.filter(Boolean)))
+		.orderBy(isBackward ? desc(tryoutAttempt.id) : asc(tryoutAttempt.id))
+		.limit(limit + 1);
 
-	if (rows.length === 0 || !rows)
-		return {
-			attempts: [],
-			nextCursor: null,
-		};
+	const hasExtra = rows.length > limit;
+	if (hasExtra) rows = rows.slice(0, limit);
+	if (isBackward) rows.reverse();
 
-	const hasMore = rows.length > input.limit;
-	const data = hasMore ? rows.slice(0, input.limit) : rows;
-	const lastAttempt = data.at(-1);
+	const firstItem = rows[0];
+	const lastItem = rows[rows.length - 1];
 
 	return {
-		attempts: data,
-		nextCursor: hasMore && lastAttempt ? lastAttempt.attempt.id : undefined,
+		items: rows,
+		pageInfo: {
+			hasNextPage: isBackward ? true : hasExtra,
+			hasPreviousPage: isBackward ? hasExtra : !!cursorStr,
+			startCursor: firstItem ? createIdCursor(firstItem.attempt.id) : null,
+			endCursor: lastItem ? createIdCursor(lastItem.attempt.id) : null,
+		},
 	};
 });
 

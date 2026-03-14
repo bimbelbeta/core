@@ -5,80 +5,80 @@ import { and, eq } from "drizzle-orm";
 import { authed } from "../index";
 
 const find = authed.userSettings.find.handler(async ({ context, errors }) => {
-  if (!context.session.user.targetUniversityId || !context.session.user.targetStudyProgramId)
-    return {
-      university: null,
-      studyProgram: null,
-    };
+	if (!context.session.user.targetUniversityId || !context.session.user.targetStudyProgramId)
+		return {
+			university: null,
+			studyProgram: null,
+		};
 
-  const [data] = await db
-    .select({
-      university: {
-        id: university.id,
-        name: university.name,
-        slug: university.slug,
-        logo: university.logo,
-      },
-      studyProgram: {
-        id: studyProgram.id,
-        name: studyProgram.name,
-        slug: studyProgram.slug,
-        category: studyProgram.category,
-        accreditation: universityStudyProgram.accreditation,
-        averageScore: universityStudyProgram.averageScore,
-      },
-    })
-    .from(university)
-    .innerJoin(universityStudyProgram, eq(universityStudyProgram.universityId, university.id))
-    .innerJoin(studyProgram, eq(studyProgram.id, universityStudyProgram.studyProgramId))
-    .where(
-      and(
-        eq(university.id, context.session.user.targetUniversityId),
-        eq(studyProgram.id, context.session.user.targetStudyProgramId),
-      ),
-    );
+	const [data] = await db
+		.select({
+			university: {
+				id: university.id,
+				name: university.name,
+				slug: university.slug,
+				logo: university.logo,
+			},
+			studyProgram: {
+				id: studyProgram.id,
+				name: studyProgram.name,
+				slug: studyProgram.slug,
+				category: studyProgram.category,
+				accreditation: universityStudyProgram.accreditation,
+				averageScore: universityStudyProgram.averageScore,
+			},
+		})
+		.from(university)
+		.innerJoin(universityStudyProgram, eq(universityStudyProgram.universityId, university.id))
+		.innerJoin(studyProgram, eq(studyProgram.id, universityStudyProgram.studyProgramId))
+		.where(
+			and(
+				eq(university.id, context.session.user.targetUniversityId),
+				eq(studyProgram.id, context.session.user.targetStudyProgramId),
+			),
+		);
 
-  if (!data) throw errors.NOT_FOUND();
+	if (!data) throw errors.NOT_FOUND();
 
-  return data;
+	return data;
 });
 
 const update = authed.userSettings.update.handler(async ({ input, context, errors }) => {
-  const { universityId, studyProgramId } = input;
-  const userId = context.session.user.id;
+	const { universityId, studyProgramId } = input;
+	const userId = context.session.user.id;
 
-  const existing = await db
-    .select()
-    .from(universityStudyProgram)
-    .where(
-      and(
-        eq(universityStudyProgram.universityId, universityId),
-        eq(universityStudyProgram.studyProgramId, studyProgramId),
-      ),
-    )
-    .limit(1);
+	const existing = await db
+		.select()
+		.from(universityStudyProgram)
+		.where(
+			and(
+				eq(universityStudyProgram.universityId, universityId),
+				eq(universityStudyProgram.studyProgramId, studyProgramId),
+			),
+		)
+		.limit(1);
 
-  if (!existing) {
-    throw errors.BAD_REQUEST({
-      message: "Kombinasi universitas dan program studi tidak valid",
-    });
-  }
+	if (!existing) {
+		throw errors.BAD_REQUEST({
+			message: "Kombinasi universitas dan program studi tidak valid",
+		});
+	}
 
-  await db
-    .update(user)
-    .set({
-      targetUniversityId: universityId,
-      targetStudyProgramId: studyProgramId,
-    })
-    .where(eq(user.id, userId));
+	await db
+		.update(user)
+		.set({
+			targetUniversityId: universityId,
+			targetStudyProgramId: studyProgramId,
+		})
+		.where(eq(user.id, userId));
 
-  return {
-    success: true,
-    message: "Target universitas dan program studi berhasil disimpan",
-  };
+	return {
+		success: true,
+		message: "Target universitas dan program studi berhasil disimpan",
+	};
 });
 
 export const userSettingsRouter = {
-  find,
-  update,
+	find,
+	update,
 };

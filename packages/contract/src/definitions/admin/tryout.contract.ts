@@ -1,6 +1,7 @@
 import { tryout, tryoutAttempt, tryoutSubtest } from "@bimbelbeta/db/schema/tryout";
 import { type } from "arktype";
 import { createSelectSchema } from "drizzle-arktype";
+import { PageInfoSchema, PaginationInputSchema } from "../../common/pagination";
 import { oc } from "../../lib/contract-definition";
 
 const TryoutSchema = createSelectSchema(tryout)
@@ -29,17 +30,17 @@ const TryoutAttemptSchema = createSelectSchema(tryoutAttempt)
 export const adminTryoutAttemptContract = {
 	list: oc
 		.route({ path: "/admin/tryouts/{id}/attempts", method: "GET", tags: ["Admin - Tryouts"] })
-		.input(type({ id: "number", after: "number?", limit: "number = 10" }))
+		.input(type({ id: "number", "...": PaginationInputSchema }))
 		.output(
 			type({
-				attempts: type(
+				items: type(
 					{
 						attempt: TryoutAttemptSchema,
 						user: { id: "string", name: "string", email: "string", image: "string | null" },
 					},
 					"[]",
 				),
-				nextCursor: "number | null | undefined",
+				pageInfo: PageInfoSchema,
 			}),
 		),
 };
@@ -62,14 +63,13 @@ export const adminTryoutContract = {
 		.route({ path: "/admin/tryouts", method: "GET", tags: ["Admin - Tryouts"] })
 		.input(
 			type({
-				cursor: "number?",
-				limit: "number = 10",
+				"...": PaginationInputSchema,
 				search: "string?",
 				category: "'sd' | 'smp' | 'sma' | 'utbk'?",
 				status: "'draft' | 'published' | 'archived'?",
 			}),
 		)
-		.output(type({ tryouts: TryoutSchema.array(), nextCursor: "number?" })),
+		.output(type({ items: TryoutSchema.array(), pageInfo: PageInfoSchema })),
 	find: oc
 		.route({ path: "/admin/tryouts/{id}", method: "GET", tags: ["Admin - Tryouts"] })
 		.input(type({ id: "number" }))
