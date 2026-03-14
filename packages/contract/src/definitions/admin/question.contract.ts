@@ -24,7 +24,7 @@ const QuestionBaseSchema = createSelectSchema(question)
 		"createdAt",
 		"updatedAt",
 	)
-	.merge({ id: "number" });
+	.merge({ id: "number", tags: "string[] | null" });
 const QuestionListItemSchema = type({
 	"...": QuestionBaseSchema,
 	content: "unknown",
@@ -33,7 +33,7 @@ const QuestionListItemSchema = type({
 const QuestionDetailSchema = type({
 	"...": createSelectSchema(question)
 		.pick("type", "content", "discussion", "essayCorrectAnswer", "tags")
-		.merge({ id: "number" }),
+		.merge({ id: "number", tags: "string[] | null" }),
 	content: "unknown",
 	discussion: "unknown",
 });

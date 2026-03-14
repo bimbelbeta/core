@@ -100,8 +100,7 @@ function RouteComponent() {
 	useEffect(() => {
 		if (
 			isExpired &&
-			data?.currentSubtest &&
-			data?.currentSubtest.deadline &&
+			data?.currentSubtest?.deadline &&
 			!hasAutoSubmitted.current &&
 			!submitSubtestMutation.isPending &&
 			canAutoSubmit

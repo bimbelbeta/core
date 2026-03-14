@@ -71,13 +71,13 @@ DropdownMenuContent.displayName = DropdownMenuPrimitive.Content.displayName;
 
 export {
 	DropdownMenu,
-	DropdownMenuTrigger,
 	DropdownMenuContent,
-	DropdownMenuItem,
 	DropdownMenuGroup,
-	DropdownMenuSub,
+	DropdownMenuItem,
 	DropdownMenuPortal,
+	DropdownMenuRadioGroup,
+	DropdownMenuSub,
 	DropdownMenuSubContent,
 	DropdownMenuSubTrigger,
-	DropdownMenuRadioGroup,
+	DropdownMenuTrigger,
 };

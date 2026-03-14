@@ -18,20 +18,23 @@ const ChoiceWithAnswerSchema = createSelectSchema(questionChoice)
 	.pick("code", "isCorrect")
 	.merge({ id: "number", content: "string" });
 
-const UserAnswerSchema = createSelectSchema(tryoutUserAnswer).pick(
-	"selectedChoiceId",
-	"selectedChoiceIds",
-	"essayAnswer",
-	"isDoubtful",
-);
+const UserAnswerSchema = createSelectSchema(tryoutUserAnswer)
+	.pick("selectedChoiceId", "selectedChoiceIds", "essayAnswer", "isDoubtful")
+	.merge({ selectedChoiceIds: "number[] | null" });
 
 const TryoutSchema = createSelectSchema(tryout)
 	.pick("title", "description", "passingGrade", "category", "status", "startsAt", "endsAt", "createdAt", "updatedAt")
-	.merge({ id: "number" });
+	.merge({
+		id: "number",
+		startsAt: "Date | null",
+		endsAt: "Date | null",
+		createdAt: "Date | null",
+		updatedAt: "Date | null",
+	});
 
 const TryoutListItemSchema = createSelectSchema(tryout)
 	.pick("title", "passingGrade", "startsAt", "endsAt")
-	.merge({ id: "number" });
+	.merge({ id: "number", startsAt: "Date | null", endsAt: "Date | null" });
 
 const QuestionBaseSchema = createSelectSchema(question).pick("type").merge({ id: "number", content: "unknown" });
 
@@ -69,11 +72,11 @@ const TryoutAttemptSchema = createSelectSchema(tryoutAttempt)
 		"isRevoked",
 		"usedCredit",
 	)
-	.merge({ id: "number" });
+	.merge({ id: "number", startedAt: "Date", deadline: "Date", completedAt: "Date | null", score: "number | null" });
 
 const TryoutSubtestAttemptSchema = createSelectSchema(tryoutSubtestAttempt)
 	.pick("tryoutAttemptId", "subtestId", "startedAt", "completedAt", "deadline", "status", "score")
-	.merge({ id: "number" });
+	.merge({ id: "number", startedAt: "Date", completedAt: "Date | null", deadline: "Date", score: "number | null" });
 
 const TryoutHistoryItemSchema = type({
 	id: "number",

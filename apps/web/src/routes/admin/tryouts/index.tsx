@@ -242,7 +242,7 @@ function TryoutsListPage() {
 																: "outline"
 													}
 												>
-													{tryout.status}
+													{tryout.status.toUpperCase()}
 												</Badge>
 											</TableCell>
 											<TableCell>

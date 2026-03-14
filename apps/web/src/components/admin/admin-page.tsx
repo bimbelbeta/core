@@ -55,11 +55,11 @@ const AdminPageHeaderActions = React.forwardRef<HTMLDivElement, React.HTMLAttrib
 AdminPageHeaderActions.displayName = "AdminPageHeaderActions";
 
 export {
+	AdminPageContent,
+	AdminPageDescription,
+	AdminPageHeader,
+	AdminPageHeaderActions,
+	AdminPageHeaderContent,
 	AdminPageRoot,
 	AdminPageTitle,
-	AdminPageDescription,
-	AdminPageContent,
-	AdminPageHeader,
-	AdminPageHeaderContent,
-	AdminPageHeaderActions,
 };

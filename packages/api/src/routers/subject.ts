@@ -35,7 +35,7 @@ const list = authed.subject.list.handler(async ({ input, context }) => {
 			order: subject.order,
 			category: subject.category,
 			gradeLevel: subject.gradeLevel,
-			totalContent: sql<number>`COUNT(${contentItem.id})`,
+			totalContent: sql<number>`COUNT(${contentItem.id})::int`,
 			hasViewed: sql<boolean>`EXISTS(
 				SELECT 1 FROM ${userSubjectView}
 				WHERE ${userSubjectView.userId} = ${context.session.user.id}

@@ -70,5 +70,5 @@ function Highlight({
 	);
 }
 
-export { Highlight, highlightVariants };
 export type { HighlightProps };
+export { Highlight, highlightVariants };

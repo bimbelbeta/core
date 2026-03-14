@@ -6,7 +6,13 @@ import { oc } from "../../lib/contract-definition";
 
 const TryoutSchema = createSelectSchema(tryout)
 	.pick("title", "description", "passingGrade", "category", "status", "startsAt", "endsAt", "createdAt", "updatedAt")
-	.merge({ id: "number" });
+	.merge({
+		id: "number",
+		startsAt: "Date | null",
+		endsAt: "Date | null",
+		createdAt: "Date | null",
+		updatedAt: "Date | null",
+	});
 
 const TryoutSubtestSchema = createSelectSchema(tryoutSubtest)
 	.pick("tryoutId", "name", "description", "duration", "questionOrder", "order", "scoringMap")
@@ -25,12 +31,12 @@ const TryoutAttemptSchema = createSelectSchema(tryoutAttempt)
 		"isRevoked",
 		"usedCredit",
 	)
-	.merge({ id: "number" });
+	.merge({ id: "number", startedAt: "Date", deadline: "Date", completedAt: "Date | null", score: "number | null" });
 
 export const adminTryoutAttemptContract = {
 	list: oc
 		.route({ path: "/admin/tryouts/{id}/attempts", method: "GET", tags: ["Admin - Tryouts"] })
-		.input(type({ id: "number", "...": PaginationInputSchema }))
+		.input(type({ "...": PaginationInputSchema, id: "number" }))
 		.output(
 			type({
 				items: type(

@@ -109,56 +109,62 @@ const find = authed.tryout.find.handler(async ({ input, context, errors }) => {
 			message: "Gagal menemukan pengerjaan tryout.",
 		});
 
-	if (attempt.status === "finished") {
+	const normalizedAttempt = { ...attempt, score: numericToNumber(attempt.score) };
+
+	if (normalizedAttempt.status === "finished") {
 		return {
 			...tryoutData,
-			attempt,
+			attempt: normalizedAttempt,
 			currentSubtest: null,
-			overallDeadline: attempt.deadline,
+			overallDeadline: normalizedAttempt.deadline,
 			totalSubtests: tryoutData.subtests.length,
 			completedSubtests: tryoutData.subtests.length,
 		};
 	}
 
 	const completedSubtestIds = new Set(
-		attempt.subtestAttempts.filter((sa) => sa.status === "finished").map((sa) => sa.subtestId),
+		normalizedAttempt.subtestAttempts.filter((sa) => sa.status === "finished").map((sa) => sa.subtestId),
 	);
 
 	const currentSubtest = tryoutData.subtests.find((s) => !completedSubtestIds.has(s.id));
 
-	if (Date.now() > attempt.deadline.getTime() && !attempt.completedAt && attempt.status === "ongoing")
+	if (
+		Date.now() > normalizedAttempt.deadline.getTime() &&
+		!normalizedAttempt.completedAt &&
+		normalizedAttempt.status === "ongoing"
+	)
 		await db
 			.update(tryoutAttempt)
 			.set({
 				completedAt: new Date(),
 				status: "finished",
 			})
-			.where(eq(tryoutAttempt.id, attempt.id));
+			.where(eq(tryoutAttempt.id, normalizedAttempt.id));
 
 	if (!currentSubtest) {
 		return {
 			...tryoutData,
-			attempt,
+			attempt: normalizedAttempt,
 			currentSubtest: null,
-			overallDeadline: attempt.deadline,
+			overallDeadline: normalizedAttempt.deadline,
 			totalSubtests: tryoutData.subtests.length,
 			completedSubtests: completedSubtestIds.size,
 		};
 	}
 
-	const currentSubtestAttempt = attempt.subtestAttempts.find((sa) => sa.subtestId === currentSubtest.id);
+	const currentSubtestAttempt = normalizedAttempt.subtestAttempts.find((sa) => sa.subtestId === currentSubtest.id);
 
 	if (!currentSubtestAttempt) {
 		return {
 			...tryoutData,
-			attempt,
+			attempt: normalizedAttempt,
 			currentSubtest: {
 				...currentSubtest,
 				questions: [],
 				deadline: null,
 				status: "ongoing",
 			},
-			overallDeadline: attempt.deadline,
+			overallDeadline: normalizedAttempt.deadline,
 			totalSubtests: tryoutData.subtests.length,
 			completedSubtests: completedSubtestIds.size,
 		};
@@ -218,14 +224,14 @@ const find = authed.tryout.find.handler(async ({ input, context, errors }) => {
 
 	return {
 		...tryoutData,
-		attempt,
+		attempt: normalizedAttempt,
 		currentSubtest: {
 			...currentSubtest,
 			questions: Array.from(questionsMap.values()),
 			deadline: currentSubtestAttempt.deadline,
 			status: currentSubtestAttempt.status,
 		},
-		overallDeadline: attempt.deadline,
+		overallDeadline: normalizedAttempt.deadline,
 		totalSubtests: tryoutData.subtests.length,
 		completedSubtests: completedSubtestIds.size,
 	};
@@ -393,7 +399,7 @@ const startSubtest = authed.tryout.startSubtest.handler(async ({ input, context,
 
 	const existingSubtestAttempt = attempt.subtestAttempts.find((sa) => sa.subtestId === input.subtestId);
 	if (existingSubtestAttempt) {
-		return existingSubtestAttempt;
+		return { ...existingSubtestAttempt, score: numericToNumber(existingSubtestAttempt.score) };
 	}
 
 	const tryoutData = await db.query.tryout.findFirst({
@@ -448,7 +454,7 @@ const startSubtest = authed.tryout.startSubtest.handler(async ({ input, context,
 		throw errors.INTERNAL_SERVER_ERROR({ message: "Failed to start subtest" });
 	}
 
-	return subAttempt;
+	return { ...subAttempt, score: numericToNumber(subAttempt.score) };
 });
 
 const saveAnswer = authed.tryout.saveAnswer.handler(async ({ input, context, errors }) => {
