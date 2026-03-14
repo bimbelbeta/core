@@ -36,6 +36,13 @@
       "when": 1772162121337,
       "tag": "0004_lush_young_avengers",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1773457971115,
+      "tag": "0005_glorious_sebastian_shaw",
+      "breakpoints": true
     }
   ]
 }

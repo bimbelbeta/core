@@ -620,11 +620,10 @@ const submitSubtest = authed
 		if (currentIndex === -1) throw new ORPCError("NOT_FOUND", { message: "Subtest not found" });
 
 		const now = new Date();
-		if (attempt.deadline && attempt.deadline < now) {
+		if (attempt.deadline && attempt.deadline < now)
 			throw new ORPCError("BAD_REQUEST", {
 				message: "Tryout telah berakhir",
 			});
-		}
 
 		await db
 			.update(tryoutSubtestAttempt)
@@ -643,7 +642,6 @@ const submitSubtest = authed
 			return { success: true, nextSubtestId: nextSubtest.id };
 		}
 
-		// This is the last subtest - calculate scores and finish tryout
 		const scores = await calculateTryoutScores(attempt.id);
 
 		await db
@@ -651,10 +649,9 @@ const submitSubtest = authed
 			.set({ status: "finished", completedAt: new Date() })
 			.where(eq(tryoutAttempt.id, attempt.id));
 
-		// Save scores to database
 		await saveScoresToDatabase(attempt.id, scores);
 
-		return { success: true, tryoutCompleted: true, score: scores.totalScore };
+		return { success: true, nextSubtestId: null };
 	});
 
 const submitTryout = authed
