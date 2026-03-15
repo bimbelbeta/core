@@ -1,9 +1,60 @@
 import { db } from "@bimbelbeta/db";
 import { tryoutAttempt, tryoutSubtestAttempt, tryoutUserAnswer } from "@bimbelbeta/db/schema/tryout";
-import { and, eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { authed } from "../../index";
 import { calculateTryoutScores, saveScoresToDatabase } from "../../lib/calculate-score";
-import { numericToNumber } from "../../lib/utils";
+import { parseNullableInt } from "../../lib/utils";
+
+type ActiveSubtestResult = {
+	attempt: Awaited<ReturnType<typeof db.query.tryoutAttempt.findFirst>> & {
+		subtestAttempts: { id: number; subtestId: number; status: string; deadline: Date | null; score: unknown }[];
+	};
+	currentSubtestAttempt: { id: number; subtestId: number; status: string; deadline: Date | null; score: unknown };
+};
+
+async function requireActiveSubtestAttempt(
+	tryoutId: number,
+	userId: string,
+	errors: { BAD_REQUEST: (opts: { message: string }) => Error },
+): Promise<ActiveSubtestResult> {
+	const attempt = await db.query.tryoutAttempt.findFirst({
+		where: {
+			tryoutId: { eq: tryoutId },
+			userId: { eq: userId },
+			status: { eq: "ongoing" },
+		},
+		with: {
+			subtestAttempts: true,
+		},
+	});
+
+	if (!attempt) throw errors.BAD_REQUEST({ message: "Tidak ada pengerjaan yang aktif" });
+
+	const currentSubtestAttempt = attempt.subtestAttempts.find((sa) => sa.status === "ongoing");
+	if (!currentSubtestAttempt) throw errors.BAD_REQUEST({ message: "Tidak ada subtest yang aktif" });
+
+	if (currentSubtestAttempt.deadline && currentSubtestAttempt.deadline < new Date()) {
+		throw errors.BAD_REQUEST({ message: "Batas waktu subtest telah habis" });
+	}
+
+	return { attempt, currentSubtestAttempt } as ActiveSubtestResult;
+}
+
+function computeSubtestDeadline(durationMinutes: number, overallDeadline: Date, startFrom: Date = new Date()): Date {
+	const proposed = new Date(startFrom.getTime() + durationMinutes * 60 * 1000);
+	return new Date(Math.min(proposed.getTime(), overallDeadline.getTime()));
+}
+
+async function fetchTryoutWithSubtests(tryoutId: number) {
+	return db.query.tryout.findFirst({
+		where: { id: { eq: tryoutId } },
+		with: {
+			subtests: {
+				orderBy: (subtests, { asc }) => [asc(subtests.order)],
+			},
+		},
+	});
+}
 
 export const startSubtest = authed.tryout.startSubtest.handler(async ({ input, context, errors }) => {
 	const attempt = await db.query.tryoutAttempt.findFirst({
@@ -20,19 +71,10 @@ export const startSubtest = authed.tryout.startSubtest.handler(async ({ input, c
 
 	const existingSubtestAttempt = attempt.subtestAttempts.find((sa) => sa.subtestId === input.subtestId);
 	if (existingSubtestAttempt) {
-		return { ...existingSubtestAttempt, score: numericToNumber(existingSubtestAttempt.score) };
+		return { ...existingSubtestAttempt, score: parseNullableInt(existingSubtestAttempt.score) };
 	}
 
-	const tryoutData = await db.query.tryout.findFirst({
-		where: {
-			id: { eq: input.tryoutId },
-		},
-		with: {
-			subtests: {
-				orderBy: (subtests, { asc }) => [asc(subtests.order)],
-			},
-		},
-	});
+	const tryoutData = await fetchTryoutWithSubtests(input.tryoutId);
 
 	if (!tryoutData) throw errors.NOT_FOUND({ message: "Tryout tidak ditemukan" });
 
@@ -60,11 +102,8 @@ export const startSubtest = authed.tryout.startSubtest.handler(async ({ input, c
 		throw errors.BAD_REQUEST({ message: "Pengerjaan tidak memiliki batas waktu" });
 	}
 
-	const proposedDeadline = prevSubtestAttempt
-		? new Date(prevSubtestAttempt.deadline.getTime() + currentSubtest.duration * 60 * 1000)
-		: new Date(Date.now() + currentSubtest.duration * 60 * 1000);
-
-	const deadline = new Date(Math.min(proposedDeadline.getTime(), attempt.deadline.getTime()));
+	const startFrom = prevSubtestAttempt ? prevSubtestAttempt.deadline : new Date();
+	const deadline = computeSubtestDeadline(currentSubtest.duration, attempt.deadline, startFrom);
 
 	const [subAttempt] = await db
 		.insert(tryoutSubtestAttempt)
@@ -79,107 +118,50 @@ export const startSubtest = authed.tryout.startSubtest.handler(async ({ input, c
 		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memulai subtest" });
 	}
 
-	return { ...subAttempt, score: numericToNumber(subAttempt.score) };
+	return { ...subAttempt, score: parseNullableInt(subAttempt.score) };
 });
 
 export const saveAnswer = authed.tryout.saveAnswer.handler(async ({ input, context, errors }) => {
-	const attempt = await db.query.tryoutAttempt.findFirst({
-		where: {
-			tryoutId: { eq: input.tryoutId },
-			userId: { eq: context.session.user.id },
-			status: { eq: "ongoing" },
-		},
-		with: {
-			subtestAttempts: true,
-		},
-	});
+	const { attempt } = await requireActiveSubtestAttempt(input.tryoutId, context.session.user.id, errors);
 
-	if (!attempt)
-		throw errors.BAD_REQUEST({
-			message: "Tidak ada pengerjaan yang aktif",
-		});
-
-	const currentSubtestAttempt = attempt.subtestAttempts.find((sa) => sa.status === "ongoing");
-	if (!currentSubtestAttempt)
-		throw errors.BAD_REQUEST({
-			message: "Tidak ada subtest yang aktif",
-		});
-
-	if (currentSubtestAttempt.deadline && currentSubtestAttempt.deadline < new Date()) {
-		throw errors.BAD_REQUEST({
-			message: "Batas waktu subtest telah habis",
-		});
-	}
+	const answerFields = {
+		selectedChoiceId: input.answerType === "choice" ? input.selectedChoiceId : null,
+		selectedChoiceIds: input.answerType === "complex" ? input.selectedChoiceIds : null,
+		essayAnswer: input.answerType === "essay" ? input.essayAnswer : null,
+	};
 
 	await db
 		.insert(tryoutUserAnswer)
 		.values({
 			attemptId: attempt.id,
 			questionId: input.questionId,
-			selectedChoiceId: input.selectedChoiceId,
-			selectedChoiceIds: input.selectedChoiceIds,
-			essayAnswer: input.essayAnswer,
+			...answerFields,
 		})
 		.onConflictDoUpdate({
 			target: [tryoutUserAnswer.attemptId, tryoutUserAnswer.questionId],
-			set: {
-				selectedChoiceId: input.selectedChoiceId,
-				selectedChoiceIds: input.selectedChoiceIds,
-				essayAnswer: input.essayAnswer,
-			},
+			set: answerFields,
+		})
+		.catch(() => {
+			throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal menyimpan jawaban." });
 		});
 
 	return { success: true };
 });
 
 export const toggleRaguRagu = authed.tryout.toggleRaguRagu.handler(async ({ input, context, errors }) => {
-	const attempt = await db.query.tryoutAttempt.findFirst({
-		where: {
-			tryoutId: { eq: input.tryoutId },
-			userId: { eq: context.session.user.id },
-			status: { eq: "ongoing" },
-		},
-		with: {
-			subtestAttempts: true,
-		},
-	});
+	const { attempt } = await requireActiveSubtestAttempt(input.tryoutId, context.session.user.id, errors);
 
-	if (!attempt)
-		throw errors.BAD_REQUEST({
-			message: "Tidak ada pengerjaan yang aktif",
-		});
-
-	const currentSubtestAttempt = attempt.subtestAttempts.find((sa) => sa.status === "ongoing");
-	if (!currentSubtestAttempt)
-		throw errors.BAD_REQUEST({
-			message: "Tidak ada subtest yang aktif",
-		});
-
-	if (currentSubtestAttempt.deadline && currentSubtestAttempt.deadline < new Date()) {
-		throw errors.BAD_REQUEST({
-			message: "Batas waktu subtest telah habis",
-		});
-	}
-
-	const existingAnswer = await db.query.tryoutUserAnswer.findFirst({
-		where: {
-			attemptId: { eq: attempt.id },
-			questionId: { eq: input.questionId },
-		},
-	});
-
-	if (existingAnswer) {
-		await db
-			.update(tryoutUserAnswer)
-			.set({ isDoubtful: !existingAnswer.isDoubtful })
-			.where(and(eq(tryoutUserAnswer.attemptId, attempt.id), eq(tryoutUserAnswer.questionId, input.questionId)));
-	} else {
-		await db.insert(tryoutUserAnswer).values({
+	await db
+		.insert(tryoutUserAnswer)
+		.values({
 			attemptId: attempt.id,
 			questionId: input.questionId,
 			isDoubtful: true,
+		})
+		.onConflictDoUpdate({
+			target: [tryoutUserAnswer.attemptId, tryoutUserAnswer.questionId],
+			set: { isDoubtful: sql`NOT ${tryoutUserAnswer.isDoubtful}` },
 		});
-	}
 
 	return { success: true };
 });
@@ -204,16 +186,7 @@ export const submitSubtest = authed.tryout.submitSubtest.handler(async ({ input,
 
 	if (!currentSubtestAttempt) throw errors.BAD_REQUEST({ message: "Subtest tidak aktif" });
 
-	const tryoutData = await db.query.tryout.findFirst({
-		where: {
-			id: { eq: input.tryoutId },
-		},
-		with: {
-			subtests: {
-				orderBy: (subtests, { asc }) => [asc(subtests.order)],
-			},
-		},
-	});
+	const tryoutData = await fetchTryoutWithSubtests(input.tryoutId);
 
 	if (!tryoutData) throw errors.NOT_FOUND({ message: "Tryout tidak ditemukan" });
 
@@ -227,31 +200,46 @@ export const submitSubtest = authed.tryout.submitSubtest.handler(async ({ input,
 		});
 	}
 
-	await db
-		.update(tryoutSubtestAttempt)
-		.set({ status: "finished", completedAt: new Date() })
-		.where(eq(tryoutSubtestAttempt.id, currentSubtestAttempt.id));
-
 	const nextSubtest = tryoutData.subtests[currentIndex + 1];
 	if (nextSubtest) {
-		const proposedNextDeadline = new Date(Date.now() + nextSubtest.duration * 60 * 1000);
-		const nextDeadline = new Date(Math.min(proposedNextDeadline.getTime(), attempt.deadline.getTime()));
-		await db.insert(tryoutSubtestAttempt).values({
-			tryoutAttemptId: attempt.id,
-			subtestId: nextSubtest.id,
-			deadline: nextDeadline,
-		});
-		return { success: true, nextSubtestId: nextSubtest.id };
+		const nextDeadline = computeSubtestDeadline(nextSubtest.duration, attempt.deadline);
+		await db
+			.transaction(async (tx) => {
+				await tx
+					.update(tryoutSubtestAttempt)
+					.set({ status: "finished", completedAt: new Date() })
+					.where(eq(tryoutSubtestAttempt.id, currentSubtestAttempt.id));
+				await tx.insert(tryoutSubtestAttempt).values({
+					tryoutAttemptId: attempt.id,
+					subtestId: nextSubtest.id,
+					deadline: nextDeadline,
+				});
+			})
+			.catch(() => {
+				throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal menyimpan progres subtest." });
+			});
+		return { success: true as const, tryoutCompleted: false as const, nextSubtestId: nextSubtest.id };
 	}
 
 	const scores = await calculateTryoutScores(attempt.id);
 
 	await db
-		.update(tryoutAttempt)
-		.set({ status: "finished", completedAt: new Date() })
-		.where(eq(tryoutAttempt.id, attempt.id));
+		.transaction(async (tx) => {
+			await tx
+				.update(tryoutSubtestAttempt)
+				.set({ status: "finished", completedAt: new Date() })
+				.where(eq(tryoutSubtestAttempt.id, currentSubtestAttempt.id));
 
-	await saveScoresToDatabase(attempt.id, scores);
+			await tx
+				.update(tryoutAttempt)
+				.set({ status: "finished", completedAt: new Date() })
+				.where(eq(tryoutAttempt.id, attempt.id));
+
+			await saveScoresToDatabase(attempt.id, scores, tx);
+		})
+		.catch(() => {
+			throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal menyimpan skor tryout." });
+		});
 
 	return { success: true, tryoutCompleted: true, score: scores.totalScore };
 });
@@ -270,14 +258,20 @@ export const submitTryout = authed.tryout.submitTryout.handler(async ({ input, c
 	const scores = await calculateTryoutScores(attempt.id);
 
 	await db
-		.update(tryoutAttempt)
-		.set({
-			status: "finished",
-			completedAt: new Date(),
-		})
-		.where(eq(tryoutAttempt.id, attempt.id));
+		.transaction(async (tx) => {
+			await tx
+				.update(tryoutAttempt)
+				.set({
+					status: "finished",
+					completedAt: new Date(),
+				})
+				.where(eq(tryoutAttempt.id, attempt.id));
 
-	await saveScoresToDatabase(attempt.id, scores);
+			await saveScoresToDatabase(attempt.id, scores, tx);
+		})
+		.catch(() => {
+			throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal menyimpan skor tryout." });
+		});
 
 	return { success: true, score: scores.totalScore };
 });

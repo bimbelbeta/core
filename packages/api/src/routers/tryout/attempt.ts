@@ -10,10 +10,69 @@ import {
 } from "@bimbelbeta/db/schema/tryout";
 import { and, eq, sql } from "drizzle-orm";
 import { authed } from "../../index";
-import { convertToTiptap } from "../../lib/convert-to-tiptap";
-import { numericToNumber } from "../../lib/utils";
+import { calculateTryoutScores, saveScoresToDatabase } from "../../lib/calculate-score";
+import { fetchContentForRead } from "../../lib/content-utils";
+import { parseNullableInt } from "../../lib/utils";
 
 import type { TryoutQuestion } from "../../types/question";
+
+/**
+ * Fetches the raw joined rows for all questions in a subtest attempt.
+ * Includes all fields needed by both attempt (questions) and review handlers.
+ */
+export async function fetchSubtestQuestionRows(subtestId: number, attemptId: number) {
+	return db
+		.select({
+			questionId: question.id,
+			questionContent: question.content,
+			questionContentJson: question.contentJson,
+			questionType: question.type,
+			discussion: question.discussion,
+			discussionJson: question.discussionJson,
+			choiceId: questionChoice.id,
+			choiceContent: questionChoice.content,
+			choiceCode: questionChoice.code,
+			isCorrectChoice: questionChoice.isCorrect,
+			userSelectedChoiceId: tryoutUserAnswer.selectedChoiceId,
+			userSelectedChoiceIds: tryoutUserAnswer.selectedChoiceIds,
+			userEssayAnswer: tryoutUserAnswer.essayAnswer,
+			userIsDoubtful: tryoutUserAnswer.isDoubtful,
+		})
+		.from(tryoutSubtestQuestion)
+		.innerJoin(question, eq(question.id, tryoutSubtestQuestion.questionId))
+		.leftJoin(questionChoice, eq(questionChoice.questionId, question.id))
+		.leftJoin(
+			tryoutUserAnswer,
+			and(eq(tryoutUserAnswer.questionId, question.id), eq(tryoutUserAnswer.attemptId, attemptId)),
+		)
+		.where(eq(tryoutSubtestQuestion.subtestId, subtestId))
+		.orderBy(tryoutSubtestQuestion.order);
+}
+
+/**
+ * Lazily finalizes an attempt whose overall deadline has passed.
+ * This is called during the `find` read handler as a deliberate design choice:
+ * the attempt is finalized on the next read after expiry rather than via a
+ * background job, keeping infrastructure simple at the cost of a write-on-read.
+ *
+ * Calculates scores and persists everything atomically so a finalized attempt
+ * always has a score — no partial-write window.
+ */
+async function finalizeExpiredAttempt(attemptId: number): Promise<void> {
+	const scores = await calculateTryoutScores(attemptId);
+
+	await db.transaction(async (tx) => {
+		await tx
+			.update(tryoutAttempt)
+			.set({
+				completedAt: new Date(),
+				status: "finished",
+			})
+			.where(eq(tryoutAttempt.id, attemptId));
+
+		await saveScoresToDatabase(attemptId, scores, tx);
+	});
+}
 
 export const find = authed.tryout.find.handler(async ({ input, context, errors }) => {
 	const tryoutData = await db.query.tryout.findFirst({
@@ -45,7 +104,7 @@ export const find = authed.tryout.find.handler(async ({ input, context, errors }
 			message: "Gagal menemukan pengerjaan tryout.",
 		});
 
-	const normalizedAttempt = { ...attempt, score: numericToNumber(attempt.score) };
+	const normalizedAttempt = { ...attempt, score: parseNullableInt(attempt.score) };
 
 	if (normalizedAttempt.status === "finished") {
 		return {
@@ -69,13 +128,7 @@ export const find = authed.tryout.find.handler(async ({ input, context, errors }
 		!normalizedAttempt.completedAt &&
 		normalizedAttempt.status === "ongoing"
 	) {
-		await db
-			.update(tryoutAttempt)
-			.set({
-				completedAt: new Date(),
-				status: "finished",
-			})
-			.where(eq(tryoutAttempt.id, normalizedAttempt.id));
+		await finalizeExpiredAttempt(normalizedAttempt.id);
 
 		return {
 			...tryoutData,
@@ -116,36 +169,14 @@ export const find = authed.tryout.find.handler(async ({ input, context, errors }
 		};
 	}
 
-	const rows = await db
-		.select({
-			questionId: question.id,
-			questionContent: question.content,
-			questionContentJson: question.contentJson,
-			questionType: question.type,
-			choiceId: questionChoice.id,
-			choiceContent: questionChoice.content,
-			choiceCode: questionChoice.code,
-			userSelectedChoiceId: tryoutUserAnswer.selectedChoiceId,
-			userSelectedChoiceIds: tryoutUserAnswer.selectedChoiceIds,
-			userEssayAnswer: tryoutUserAnswer.essayAnswer,
-			userIsDoubtful: tryoutUserAnswer.isDoubtful,
-		})
-		.from(tryoutSubtestQuestion)
-		.innerJoin(question, eq(question.id, tryoutSubtestQuestion.questionId))
-		.leftJoin(questionChoice, eq(questionChoice.questionId, question.id))
-		.leftJoin(
-			tryoutUserAnswer,
-			and(eq(tryoutUserAnswer.questionId, question.id), eq(tryoutUserAnswer.attemptId, attempt.id)),
-		)
-		.where(eq(tryoutSubtestQuestion.subtestId, currentSubtest.id))
-		.orderBy(tryoutSubtestQuestion.order);
+	const rows = await fetchSubtestQuestionRows(currentSubtest.id, attempt.id);
 
 	const questionsMap = new Map<number, TryoutQuestion>();
 	for (const row of rows) {
 		if (!questionsMap.has(row.questionId)) {
 			questionsMap.set(row.questionId, {
 				id: row.questionId,
-				content: row.questionContentJson || convertToTiptap(row.questionContent),
+				content: fetchContentForRead(row.questionContentJson, row.questionContent),
 				type: row.questionType,
 				choices: [],
 				userAnswer: {
@@ -241,7 +272,7 @@ export const start = authed.tryout.start.handler(async ({ input, context, errors
 		}
 		return {
 			...existingAttempt,
-			score: numericToNumber(existingAttempt.score),
+			score: parseNullableInt(existingAttempt.score),
 		};
 	}
 
@@ -262,7 +293,19 @@ export const start = authed.tryout.start.handler(async ({ input, context, errors
 
 	// Use a transaction to atomically create attempt and deduct credits if needed
 	const attempt = await db.transaction(async (trx) => {
-		// Deduct credit if using credit
+		const [newAttempt] = await trx
+			.insert(tryoutAttempt)
+			.values({
+				tryoutId: input.id,
+				userId: context.session.user.id,
+				submittedImageUrl: wantsToUseCredit && !isPremiumUser ? null : input.imageUrl,
+				deadline: overallDeadline,
+				usedCredit: wantsToUseCredit && !isPremiumUser,
+			})
+			.returning();
+
+		if (!newAttempt) throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal membuat pengerjaan" });
+
 		if (wantsToUseCredit && !isPremiumUser) {
 			const [updatedUser] = await trx
 				.update(user)
@@ -272,19 +315,6 @@ export const start = authed.tryout.start.handler(async ({ input, context, errors
 				.where(eq(user.id, context.session.user.id))
 				.returning({ tryoutCredits: user.tryoutCredits });
 
-			const [newAttempt] = await trx
-				.insert(tryoutAttempt)
-				.values({
-					tryoutId: input.id,
-					userId: context.session.user.id,
-					submittedImageUrl: null,
-					deadline: overallDeadline,
-					usedCredit: true,
-				})
-				.returning();
-
-			if (!newAttempt) throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal membuat pengerjaan" });
-
 			await trx.insert(creditTransaction).values({
 				userId: context.session.user.id,
 				tryoutAttemptId: newAttempt.id,
@@ -292,36 +322,21 @@ export const start = authed.tryout.start.handler(async ({ input, context, errors
 				balanceAfter: updatedUser?.tryoutCredits ?? 0,
 				note: `Used for tryout: ${tryoutData.title}`,
 			});
-
-			return newAttempt;
 		}
 
-		// Regular flow (premium user or image proof)
-		const [newAttempt] = await trx
-			.insert(tryoutAttempt)
-			.values({
-				tryoutId: input.id,
-				userId: context.session.user.id,
-				submittedImageUrl: input.imageUrl,
-				deadline: overallDeadline,
-			})
-			.returning();
-
-		if (!newAttempt) throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal membuat pengerjaan" });
+		const firstSubtest = tryoutData.subtests[0]!;
+		await trx.insert(tryoutSubtestAttempt).values({
+			tryoutAttemptId: newAttempt.id,
+			subtestId: firstSubtest.id,
+			deadline: deadlineMap.get(firstSubtest.id)!,
+		});
 
 		return newAttempt;
 	});
 
-	const firstSubtest = tryoutData.subtests[0]!;
-	await db.insert(tryoutSubtestAttempt).values({
-		tryoutAttemptId: attempt.id,
-		subtestId: firstSubtest.id,
-		deadline: deadlineMap.get(firstSubtest.id)!,
-	});
-
 	return {
 		...attempt,
-		score: numericToNumber(attempt.score),
+		score: parseNullableInt(attempt.score),
 		overallDeadline,
 	};
 });
@@ -352,7 +367,7 @@ export const history = authed.tryout.history.handler(async ({ context }) => {
 
 	return attempts.map((attempt) => ({
 		...attempt,
-		score: numericToNumber(attempt.score),
+		score: parseNullableInt(attempt.score),
 		tryout: attempt.tryout!,
 	}));
 });
@@ -409,11 +424,11 @@ export const attemptResult = authed.tryout.attemptResult.handler(async ({ input,
 
 	return {
 		...attempt,
-		score: numericToNumber(attempt.score),
+		score: parseNullableInt(attempt.score),
 		tryout: attempt.tryout!,
 		subtestAttempts: attempt.subtestAttempts.map((sa) => ({
 			...sa,
-			score: numericToNumber(sa.score),
+			score: parseNullableInt(sa.score),
 		})),
 	};
 });
