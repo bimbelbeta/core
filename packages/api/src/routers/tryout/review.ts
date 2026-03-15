@@ -1,11 +1,8 @@
 import { db } from "@bimbelbeta/db";
-import { question, questionChoice } from "@bimbelbeta/db/schema/question";
-import { tryoutSubtestQuestion, tryoutUserAnswer } from "@bimbelbeta/db/schema/tryout";
-import { and, eq } from "drizzle-orm";
 import { authed } from "../../index";
-import { convertToTiptap } from "../../lib/convert-to-tiptap";
-
+import { fetchContentForRead } from "../../lib/content-utils";
 import type { ReviewQuestion } from "../../types/question";
+import { fetchSubtestQuestionRows } from "./attempt";
 
 export const review = authed.tryout.review.handler(async ({ input, context, errors }) => {
 	const attempt = await db.query.tryoutAttempt.findFirst({
@@ -32,41 +29,16 @@ export const review = authed.tryout.review.handler(async ({ input, context, erro
 		throw errors.BAD_REQUEST({ message: "Subtest belum selesai atau tidak ditemukan." });
 	}
 
-	const rows = await db
-		.select({
-			questionId: question.id,
-			questionContent: question.content,
-			questionContentJson: question.contentJson,
-			questionType: question.type,
-			discussion: question.discussion,
-			discussionJson: question.discussionJson,
-			choiceId: questionChoice.id,
-			choiceContent: questionChoice.content,
-			choiceCode: questionChoice.code,
-			isCorrectChoice: questionChoice.isCorrect,
-			userSelectedChoiceId: tryoutUserAnswer.selectedChoiceId,
-			userSelectedChoiceIds: tryoutUserAnswer.selectedChoiceIds,
-			userEssayAnswer: tryoutUserAnswer.essayAnswer,
-			userIsDoubtful: tryoutUserAnswer.isDoubtful,
-		})
-		.from(tryoutSubtestQuestion)
-		.innerJoin(question, eq(question.id, tryoutSubtestQuestion.questionId))
-		.leftJoin(questionChoice, eq(questionChoice.questionId, question.id))
-		.leftJoin(
-			tryoutUserAnswer,
-			and(eq(tryoutUserAnswer.questionId, question.id), eq(tryoutUserAnswer.attemptId, attempt.id)),
-		)
-		.where(eq(tryoutSubtestQuestion.subtestId, input.subtestId))
-		.orderBy(tryoutSubtestQuestion.order);
+	const rows = await fetchSubtestQuestionRows(input.subtestId, attempt.id);
 
 	const questionsMap = new Map<number, ReviewQuestion>();
 	for (const row of rows) {
 		if (!questionsMap.has(row.questionId)) {
 			questionsMap.set(row.questionId, {
 				id: row.questionId,
-				content: row.questionContentJson || convertToTiptap(row.questionContent),
+				content: fetchContentForRead(row.questionContentJson, row.questionContent),
 				type: row.questionType,
-				discussion: canSeeDiscussion ? row.discussionJson || convertToTiptap(row.discussion) : null,
+				discussion: canSeeDiscussion ? fetchContentForRead(row.discussionJson, row.discussion) : null,
 				choices: [],
 				userAnswer: {
 					selectedChoiceId: row.userSelectedChoiceId,
@@ -83,7 +55,7 @@ export const review = authed.tryout.review.handler(async ({ input, context, erro
 					id: row.choiceId,
 					content: row.choiceContent!,
 					code: row.choiceCode!,
-					isCorrect: row.isCorrectChoice || false,
+					isCorrect: row.isCorrectChoice ?? false,
 				});
 			}
 		}

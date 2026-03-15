@@ -20,8 +20,11 @@ export function AnswerPanel() {
 	const saveAnswerMutation = useMutation(
 		orpc.tryout.saveAnswer.mutationOptions({
 			onSuccess: (_data, variables) => {
-				if (variables.essayAnswer !== undefined) {
-					setEssayAnswer(variables.questionId, variables.essayAnswer);
+				if ("answerType" in variables && variables.answerType === "essay" && "essayAnswer" in variables) {
+					setEssayAnswer(
+						(variables as { questionId: number; essayAnswer: string }).questionId,
+						(variables as { essayAnswer: string }).essayAnswer,
+					);
 				}
 				queryClient.invalidateQueries({ queryKey: orpc.tryout.find.key({ input: { id: tryoutId } }) });
 			},
@@ -34,8 +37,11 @@ export function AnswerPanel() {
 	const debouncedSaveAnswerMutation = useDebouncedMutation(
 		orpc.tryout.saveAnswer.mutationOptions({
 			onSuccess: (_data, variables) => {
-				if (variables.essayAnswer !== undefined) {
-					setEssayAnswer(variables.questionId, variables.essayAnswer);
+				if ("answerType" in variables && variables.answerType === "essay" && "essayAnswer" in variables) {
+					setEssayAnswer(
+						(variables as { questionId: number; essayAnswer: string }).questionId,
+						(variables as { essayAnswer: string }).essayAnswer,
+					);
 				}
 				queryClient.invalidateQueries({ queryKey: orpc.tryout.find.key({ input: { id: tryoutId } }) });
 			},
@@ -56,12 +62,13 @@ export function AnswerPanel() {
 		saveAnswerMutation.mutate({
 			tryoutId,
 			questionId,
+			answerType: "choice",
 			selectedChoiceId: choiceId,
 		});
 	};
 
 	const handleSaveEssayAnswer = (data: { tryoutId: number; questionId: number; essayAnswer: string }) => {
-		debouncedSaveAnswerMutation.debouncedMutate(data);
+		debouncedSaveAnswerMutation.debouncedMutate({ ...data, answerType: "essay" as const });
 	};
 
 	const selectedComplexIds =
@@ -79,6 +86,7 @@ export function AnswerPanel() {
 		saveAnswerMutation.mutate({
 			tryoutId,
 			questionId,
+			answerType: "complex",
 			selectedChoiceIds: updated,
 		});
 	};
@@ -88,7 +96,7 @@ export function AnswerPanel() {
 	return (
 		<div className="flex h-full flex-col">
 			<div className="flex flex-col gap-2">
-				{currentQuestion?.type === "multiple_choice" ? (
+				{currentQuestion.type === "multiple_choice" ? (
 					currentQuestion.choices?.map((choice) => (
 						<AnswerOption
 							key={choice.id}
@@ -99,7 +107,7 @@ export function AnswerPanel() {
 							disabled={saveAnswerMutation.isPending}
 						/>
 					))
-				) : currentQuestion?.type === "multiple_choice_complex" ? (
+				) : currentQuestion.type === "multiple_choice_complex" ? (
 					<div className="rounded-lg border">
 						<Table>
 							<TableHeader>

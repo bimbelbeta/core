@@ -234,6 +234,7 @@ export const start = authed.tryout.start.handler(async ({ input, context, errors
 	const hasImageProof = !!input.imageUrl;
 	const wantsToUseCredit = !!input.useCredit;
 	const userCredits = context.session.user.tryoutCredits ?? 0;
+	const usesCredit = wantsToUseCredit && !isPremiumUser;
 
 	if (!isPremiumUser && !hasImageProof && !wantsToUseCredit) {
 		throw errors.FORBIDDEN({
@@ -298,15 +299,15 @@ export const start = authed.tryout.start.handler(async ({ input, context, errors
 			.values({
 				tryoutId: input.id,
 				userId: context.session.user.id,
-				submittedImageUrl: wantsToUseCredit && !isPremiumUser ? null : input.imageUrl,
+				submittedImageUrl: usesCredit ? null : input.imageUrl,
 				deadline: overallDeadline,
-				usedCredit: wantsToUseCredit && !isPremiumUser,
+				usedCredit: usesCredit,
 			})
 			.returning();
 
 		if (!newAttempt) throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal membuat pengerjaan" });
 
-		if (wantsToUseCredit && !isPremiumUser) {
+		if (usesCredit) {
 			const [updatedUser] = await trx
 				.update(user)
 				.set({

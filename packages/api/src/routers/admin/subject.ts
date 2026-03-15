@@ -5,11 +5,14 @@ import {
 	contentPracticeQuestions,
 	noteMaterial,
 	subject,
+	type subjectCategoryEnum,
 	videoMaterial,
 } from "@bimbelbeta/db/schema/subject";
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, inArray } from "drizzle-orm";
 import { admin } from "../..";
-import { convertToTiptap } from "../../lib/convert-to-tiptap";
+import { fetchContentForRead } from "../../lib/content-utils";
+
+type SubjectCategory = (typeof subjectCategoryEnum.enumValues)[number];
 
 const VALID_GRADE_RANGE: Record<string, [number, number]> = {
 	sd: [1, 6],
@@ -43,7 +46,7 @@ function validateGradeLevel(
 	}
 }
 
-const createSubject = admin.admin.subject.createSubject.handler(async ({ input, errors }) => {
+const createSubject = admin.admin.subject.create.handler(async ({ input, errors }) => {
 	if (input.gradeLevel !== undefined && input.gradeLevel !== null) {
 		const category = input.category ?? "utbk";
 		validateGradeLevel(input.gradeLevel, category, errors);
@@ -72,7 +75,7 @@ const createSubject = admin.admin.subject.createSubject.handler(async ({ input, 
 	};
 });
 
-const updateSubject = admin.admin.subject.updateSubject.handler(async ({ input, errors }) => {
+const updateSubject = admin.admin.subject.update.handler(async ({ input, errors }) => {
 	if (input.gradeLevel !== undefined) {
 		let category = input.category;
 
@@ -95,7 +98,7 @@ const updateSubject = admin.admin.subject.updateSubject.handler(async ({ input, 
 		shortName?: string;
 		description?: string | null;
 		order?: number;
-		category?: "sd" | "smp" | "sma" | "utbk";
+		category?: SubjectCategory;
 		gradeLevel?: number | null;
 		updatedAt: Date;
 	} = {
@@ -119,7 +122,7 @@ const updateSubject = admin.admin.subject.updateSubject.handler(async ({ input, 
 	return { message: "Kelas berhasil diperbarui" };
 });
 
-const deleteSubject = admin.admin.subject.deleteSubject.handler(async ({ input, errors }) => {
+const removeSubject = admin.admin.subject.remove.handler(async ({ input, errors }) => {
 	const [deletedRow] = await db.delete(subject).where(eq(subject.id, input.id)).returning();
 
 	if (!deletedRow)
@@ -130,7 +133,7 @@ const deleteSubject = admin.admin.subject.deleteSubject.handler(async ({ input, 
 	return { message: "Kelas berhasil dihapus" };
 });
 
-const reorderSubjects = admin.admin.subject.reorderSubjects.handler(async ({ input }) => {
+const reorderSubjects = admin.admin.subject.reorder.handler(async ({ input }) => {
 	await db.transaction(async (tx) => {
 		for (const item of input.items) {
 			await tx.update(subject).set({ order: item.order, updatedAt: new Date() }).where(eq(subject.id, item.id));
@@ -140,7 +143,7 @@ const reorderSubjects = admin.admin.subject.reorderSubjects.handler(async ({ inp
 	return { message: "Urutan kelas berhasil diperbarui" };
 });
 
-const createContent = admin.admin.subject.createContent.handler(async ({ input, errors }) => {
+const createContent = admin.admin.content.createContent.handler(async ({ input, errors }) => {
 	const hasVideo = input.video !== undefined;
 	const hasNote = input.note !== undefined;
 	const hasPracticeQuestions = (input.practiceQuestionIds?.length ?? 0) > 0;
@@ -172,25 +175,25 @@ const createContent = admin.admin.subject.createContent.handler(async ({ input, 
 			practiceQuestions?: number;
 		} = {};
 
-		if (hasVideo && input.video) {
+		if (hasVideo) {
 			const [video] = await tx
 				.insert(videoMaterial)
 				.values({
 					contentItemId: newContent.id,
-					videoUrl: input.video.videoUrl,
-					content: input.video.content,
+					videoUrl: input.video!.videoUrl,
+					content: input.video!.content,
 				})
 				.returning();
 
 			if (video) createdMaterials.video = video.id;
 		}
 
-		if (hasNote && input.note) {
+		if (hasNote) {
 			const [note] = await tx
 				.insert(noteMaterial)
 				.values({
 					contentItemId: newContent.id,
-					content: input.note.content,
+					content: input.note!.content,
 				})
 				.returning();
 
@@ -222,7 +225,7 @@ const createContent = admin.admin.subject.createContent.handler(async ({ input, 
 	};
 });
 
-const updateContent = admin.admin.subject.updateContent.handler(async ({ input, errors }) => {
+const updateContent = admin.admin.content.updateContent.handler(async ({ input, errors }) => {
 	const updateData: { title?: string; order?: number; updatedAt: Date } = {
 		updatedAt: new Date(),
 	};
@@ -240,7 +243,7 @@ const updateContent = admin.admin.subject.updateContent.handler(async ({ input, 
 	return { message: "Konten berhasil diperbarui" };
 });
 
-const deleteContent = admin.admin.subject.deleteContent.handler(async ({ input, errors }) => {
+const removeContent = admin.admin.content.removeContent.handler(async ({ input, errors }) => {
 	const [deleted] = await db.delete(contentItem).where(eq(contentItem.id, input.id)).returning();
 
 	if (!deleted)
@@ -251,7 +254,7 @@ const deleteContent = admin.admin.subject.deleteContent.handler(async ({ input, 
 	return { message: "Konten berhasil dihapus" };
 });
 
-const reorderContent = admin.admin.subject.reorderContent.handler(async ({ input }) => {
+const reorderContent = admin.admin.content.reorderContent.handler(async ({ input }) => {
 	// First set all orders to negative values to avoid unique constraint violation
 	// Then set them to their final values
 	await db.transaction(async (tx) => {
@@ -275,7 +278,7 @@ const reorderContent = admin.admin.subject.reorderContent.handler(async ({ input
 	return { message: "Urutan konten berhasil diperbarui" };
 });
 
-const upsertVideo = admin.admin.subject.upsertVideo.handler(async ({ input, errors }) => {
+const upsertVideo = admin.admin.content.upsertVideo.handler(async ({ input, errors }) => {
 	if (!input.videoUrl) {
 		throw errors.BAD_REQUEST({
 			message: "Video URL wajib diisi",
@@ -318,7 +321,7 @@ const upsertVideo = admin.admin.subject.upsertVideo.handler(async ({ input, erro
 	return { message: "Video material berhasil disimpan", videoId: video.id };
 });
 
-const deleteVideo = admin.admin.subject.deleteVideo.handler(async ({ input, errors }) => {
+const removeVideo = admin.admin.content.removeVideo.handler(async ({ input, errors }) => {
 	const [deleted] = await db.delete(videoMaterial).where(eq(videoMaterial.contentItemId, input.id)).returning();
 
 	if (!deleted)
@@ -329,7 +332,7 @@ const deleteVideo = admin.admin.subject.deleteVideo.handler(async ({ input, erro
 	return { message: "Video material berhasil dihapus" };
 });
 
-const upsertNote = admin.admin.subject.upsertNote.handler(async ({ input, errors }) => {
+const upsertNote = admin.admin.content.upsertNote.handler(async ({ input, errors }) => {
 	const [content] = await db
 		.select({ id: contentItem.id })
 		.from(contentItem)
@@ -367,7 +370,7 @@ const upsertNote = admin.admin.subject.upsertNote.handler(async ({ input, errors
 	};
 });
 
-const deleteNote = admin.admin.subject.deleteNote.handler(async ({ input, errors }) => {
+const removeNote = admin.admin.content.removeNote.handler(async ({ input, errors }) => {
 	const [deleted] = await db.delete(noteMaterial).where(eq(noteMaterial.contentItemId, input.id)).returning();
 
 	if (!deleted)
@@ -378,7 +381,7 @@ const deleteNote = admin.admin.subject.deleteNote.handler(async ({ input, errors
 	return { message: "Catatan material berhasil dihapus" };
 });
 
-const linkPracticeQuestions = admin.admin.subject.linkPracticeQuestions.handler(async ({ input }) => {
+const setPracticeQuestions = admin.admin.content.setPracticeQuestions.handler(async ({ input }) => {
 	await db.delete(contentPracticeQuestions).where(eq(contentPracticeQuestions.contentItemId, input.id));
 
 	if (input.questionIds.length > 0) {
@@ -394,13 +397,13 @@ const linkPracticeQuestions = admin.admin.subject.linkPracticeQuestions.handler(
 	return { message: "Latihan soal berhasil dihubungkan ke konten" };
 });
 
-const unlinkPracticeQuestions = admin.admin.subject.unlinkPracticeQuestions.handler(async ({ input }) => {
+const clearPracticeQuestions = admin.admin.content.clearPracticeQuestions.handler(async ({ input }) => {
 	await db.delete(contentPracticeQuestions).where(eq(contentPracticeQuestions.contentItemId, input.id));
 
 	return { message: "Latihan soal berhasil dihapus dari konten" };
 });
 
-const listPracticeQuestions = admin.admin.subject.listPracticeQuestions.handler(async ({ input, errors }) => {
+const listPracticeQuestions = admin.admin.content.listPracticeQuestions.handler(async ({ input, errors }) => {
 	const [content] = await db
 		.select({ id: contentItem.id })
 		.from(contentItem)
@@ -429,18 +432,14 @@ const listPracticeQuestions = admin.admin.subject.listPracticeQuestions.handler(
 		.orderBy(asc(contentPracticeQuestions.order));
 
 	const questionIds = linkedQuestions.map((q) => q.questionId);
-	const choices =
+	const allChoices =
 		questionIds.length > 0
 			? await db
 					.select()
 					.from(questionChoice)
-					.where(questionIds.length === 1 ? eq(questionChoice.questionId, questionIds[0]!) : undefined)
+					.where(inArray(questionChoice.questionId, questionIds))
+					.orderBy(questionChoice.code)
 			: [];
-
-	let allChoices = choices;
-	if (questionIds.length > 1) {
-		allChoices = await db.select().from(questionChoice).orderBy(questionChoice.code);
-	}
 
 	const choicesByQuestionId = allChoices.reduce(
 		(acc, choice) => {
@@ -459,17 +458,17 @@ const listPracticeQuestions = admin.admin.subject.listPracticeQuestions.handler(
 			questionId: q.questionId,
 			order: q.order,
 			type: q.type,
-			content: q.contentJson ?? convertToTiptap(q.content),
-			discussion: q.discussionJson ?? convertToTiptap(q.discussion),
+			content: fetchContentForRead(q.contentJson, q.content),
+			discussion: fetchContentForRead(q.discussionJson, q.discussion),
 			tags: q.tags ?? [],
 			choices: choicesByQuestionId[q.questionId] ?? [],
 		})),
 	};
 });
 
-const unlinkSinglePracticeQuestion = admin.admin.subject.unlinkSinglePracticeQuestion.handler(
-	async ({ input, errors }) => {
-		const [deleted] = await db
+const removePracticeQuestion = admin.admin.content.removePracticeQuestion.handler(async ({ input, errors }) => {
+	await db.transaction(async (tx) => {
+		const [deleted] = await tx
 			.delete(contentPracticeQuestions)
 			.where(
 				and(
@@ -485,15 +484,14 @@ const unlinkSinglePracticeQuestion = admin.admin.subject.unlinkSinglePracticeQue
 			});
 		}
 
-		// Re-order remaining questions
-		const remaining = await db
+		const remaining = await tx
 			.select({ questionId: contentPracticeQuestions.questionId })
 			.from(contentPracticeQuestions)
 			.where(eq(contentPracticeQuestions.contentItemId, input.id))
 			.orderBy(asc(contentPracticeQuestions.order));
 
 		for (let i = 0; i < remaining.length; i++) {
-			await db
+			await tx
 				.update(contentPracticeQuestions)
 				.set({ order: i + 1 })
 				.where(
@@ -503,12 +501,12 @@ const unlinkSinglePracticeQuestion = admin.admin.subject.unlinkSinglePracticeQue
 					),
 				);
 		}
+	});
 
-		return { message: "Soal berhasil dihapus dari konten" };
-	},
-);
+	return { message: "Soal berhasil dihapus dari konten" };
+});
 
-const reorderPracticeQuestions = admin.admin.subject.reorderPracticeQuestions.handler(async ({ input, errors }) => {
+const reorderPracticeQuestions = admin.admin.content.reorderPracticeQuestions.handler(async ({ input, errors }) => {
 	const [content] = await db
 		.select({ id: contentItem.id })
 		.from(contentItem)
@@ -552,7 +550,7 @@ const reorderPracticeQuestions = admin.admin.subject.reorderPracticeQuestions.ha
 	return { message: "Urutan latihan soal berhasil diperbarui" };
 });
 
-const addPracticeQuestions = admin.admin.subject.addPracticeQuestions.handler(async ({ input, errors }) => {
+const addPracticeQuestions = admin.admin.content.addPracticeQuestions.handler(async ({ input, errors }) => {
 	const [content] = await db
 		.select({ id: contentItem.id })
 		.from(contentItem)
@@ -597,22 +595,25 @@ const addPracticeQuestions = admin.admin.subject.addPracticeQuestions.handler(as
 });
 
 export const adminSubjectRouter = {
-	createSubject,
-	updateSubject,
-	deleteSubject,
-	reorderSubjects,
+	create: createSubject,
+	update: updateSubject,
+	remove: removeSubject,
+	reorder: reorderSubjects,
+};
+
+export const adminContentRouter = {
 	createContent,
 	updateContent,
-	deleteContent,
+	removeContent,
 	reorderContent,
 	upsertVideo,
-	deleteVideo,
+	removeVideo,
 	upsertNote,
-	deleteNote,
-	linkPracticeQuestions,
-	unlinkPracticeQuestions,
+	removeNote,
+	setPracticeQuestions,
+	clearPracticeQuestions,
 	listPracticeQuestions,
-	unlinkSinglePracticeQuestion,
+	removePracticeQuestion,
 	reorderPracticeQuestions,
 	addPracticeQuestions,
 };

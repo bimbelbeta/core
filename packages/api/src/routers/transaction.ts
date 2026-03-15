@@ -1,6 +1,6 @@
 import { db } from "@bimbelbeta/db";
 import { product, transaction } from "@bimbelbeta/db/schema/transaction";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { authed, pub } from "../index";
 import { calculatePurchaseBenefits } from "../lib/transactions/benefits";
 import { createSubscriptionTransaction } from "../lib/transactions/client";
@@ -49,8 +49,11 @@ const notification = pub.transaction.notification.handler(async ({ input, errors
 		throw errors.UNAUTHORIZED({ message: "Invalid webhook signature." });
 	}
 
-	const { transaction_status: transactionStatus, fraud_status: fraudStatus } =
-		await verifyMidtransTransaction(order_id);
+	const { transaction_status: transactionStatus, fraud_status: fraudStatus } = await verifyMidtransTransaction(
+		order_id,
+	).catch(() => {
+		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memverifikasi status transaksi." });
+	});
 
 	const existingTransaction = await fetchTransactionWithProduct(order_id);
 	if (!existingTransaction) {
@@ -65,25 +68,44 @@ const notification = pub.transaction.notification.handler(async ({ input, errors
 
 	const benefits = calculatePurchaseBenefits(existingTransaction, purchaseDate);
 
-	if (transactionStatus === "capture" || transactionStatus === "settlement") {
-		const isValid = transactionStatus === "capture" ? fraudStatus === "accept" : true;
-
-		if (isValid) {
-			await db.transaction(async (trx) => {
-				await processSuccessfulTransaction(trx, order_id, tx.userId!, existingTransaction, purchaseDate, benefits);
-			});
+	if (transactionStatus === "settlement" || (transactionStatus === "capture" && fraudStatus === "accept")) {
+		const userId = tx.userId;
+		if (!userId) {
+			return { status: "user_deleted" };
 		}
+		await db
+			.transaction(async (trx) => {
+				await processSuccessfulTransaction({
+					trx,
+					orderId: order_id,
+					userId,
+					existingTransaction,
+					purchaseDate,
+					benefits,
+				});
+			})
+			.catch(() => {
+				throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memproses transaksi." });
+			});
 	} else if (transactionStatus === "cancel" || transactionStatus === "deny" || transactionStatus === "expire") {
-		await updateTransactionStatus(order_id, "failed");
+		await updateTransactionStatus(order_id, "failed").catch(() => {
+			throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memperbarui status transaksi." });
+		});
 	} else if (transactionStatus === "pending") {
-		await updateTransactionStatus(order_id, "pending");
+		await updateTransactionStatus(order_id, "pending").catch(() => {
+			throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memperbarui status transaksi." });
+		});
 	}
 
 	return { status: "ok" };
 });
 
-const status = authed.transaction.status.handler(async ({ input, errors }) => {
-	const tx = await db.select().from(transaction).where(eq(transaction.id, input.orderId)).limit(1);
+const status = authed.transaction.status.handler(async ({ input, context, errors }) => {
+	const tx = await db
+		.select()
+		.from(transaction)
+		.where(and(eq(transaction.id, input.orderId), eq(transaction.userId, context.session.user.id)))
+		.limit(1);
 
 	if (!tx.length) {
 		throw errors.NOT_FOUND({
