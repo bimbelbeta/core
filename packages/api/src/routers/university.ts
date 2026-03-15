@@ -82,12 +82,6 @@ const listProgramsByUniversity = authed.university.listProgramsByUniversity.hand
 		.where(eq(universityStudyProgram.universityId, input.universityId))
 		.orderBy(studyProgram.name);
 
-	if (studyPrograms.length === 0) {
-		throw errors.NOT_FOUND({
-			message: "Belum ada data Program Studi untuk Universitas ini",
-		});
-	}
-
 	return { items: studyPrograms };
 });
 
