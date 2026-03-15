@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, notFound, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { BackButton } from "@/components/back-button";
 import { Container } from "@/components/ui/container";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -44,6 +44,8 @@ function RouteComponent() {
 	};
 
 	const displayTitle = content.data?.title || contentId;
+
+	if (!content.isPending && !content.data) return notFound();
 
 	return (
 		<Container className="gap-3 px-0 py-4">

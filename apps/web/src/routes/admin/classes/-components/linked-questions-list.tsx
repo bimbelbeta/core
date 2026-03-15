@@ -54,7 +54,7 @@ function LinkedQuestionItem({
 	const dragControls = useDragControls();
 
 	const removeMutation = useMutation(
-		orpc.admin.subject.unlinkPracticeQuestions.mutationOptions({
+		orpc.admin.content.removePracticeQuestion.mutationOptions({
 			onSuccess: (result) => {
 				toast.success(result.message);
 				onRemoveSuccess();
@@ -138,6 +138,7 @@ function LinkedQuestionItem({
 							onClick={() => {
 								removeMutation.mutate({
 									id: contentId,
+									questionId: question.questionId,
 								});
 							}}
 						>
@@ -159,7 +160,7 @@ export function LinkedQuestionsList({ contentId, questions }: LinkedQuestionsLis
 	}
 
 	const reorderMutation = useMutation(
-		orpc.admin.subject.linkPracticeQuestions.mutationOptions({
+		orpc.admin.content.setPracticeQuestions.mutationOptions({
 			onSuccess: () => {
 				// Silent success - no toast needed for reorder
 			},

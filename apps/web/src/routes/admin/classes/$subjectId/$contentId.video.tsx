@@ -44,7 +44,7 @@ function RouteComponent() {
 	);
 
 	const saveMutation = useMutation(
-		orpc.admin.subject.upsertVideo.mutationOptions({
+		orpc.admin.content.upsertVideo.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
 				queryClient.invalidateQueries({
@@ -62,7 +62,7 @@ function RouteComponent() {
 	);
 
 	const deleteMutation = useMutation(
-		orpc.admin.subject.deleteVideo.mutationOptions({
+		orpc.admin.content.removeVideo.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
 				queryClient.invalidateQueries({
@@ -82,7 +82,7 @@ function RouteComponent() {
 	const form = useForm({
 		defaultValues: {
 			videoUrl: "",
-			content: {} as object,
+			content: {} as Record<string, unknown>,
 		},
 		onSubmit: async ({ value }) => {
 			saveMutation.mutate({
@@ -104,7 +104,7 @@ function RouteComponent() {
 			form.setFieldValue("videoUrl", content.data.video.videoUrl || "");
 		}
 		if (form.state.values.content !== content.data.video.content) {
-			form.setFieldValue("content", (content.data.video.content as object) || {});
+			form.setFieldValue("content", (content.data.video.content as Record<string, unknown>) || {});
 		}
 	}
 
@@ -228,7 +228,10 @@ function RouteComponent() {
 					{(field) => (
 						<div className="space-y-2">
 							<Label>Konten Video (Deskripsi)</Label>
-							<TiptapSimpleEditor content={field.state.value} onChange={(content) => field.handleChange(content)} />
+							<TiptapSimpleEditor
+								content={field.state.value}
+								onChange={(c) => field.handleChange(c as Record<string, unknown>)}
+							/>
 							{field.state.meta.errors.map((error) => (
 								<p key={error?.message} className="text-red-500 text-sm">
 									{error?.message}

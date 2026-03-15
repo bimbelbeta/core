@@ -1,6 +1,6 @@
 import { convertToTiptap } from "./convert-to-tiptap";
 
-export type TiptapNode = {
+type TiptapNode = {
 	type: string;
 	content?: TiptapNode[];
 	text?: string;

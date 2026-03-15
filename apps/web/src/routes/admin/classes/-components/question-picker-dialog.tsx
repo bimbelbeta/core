@@ -63,12 +63,12 @@ export function QuestionPickerDialog({
 		}
 	}, [isFetchingNextPage, hasNextPage, fetchNextPage]);
 	const addMutation = useMutation(
-		orpc.admin.subject.addPracticeQuestions.mutationOptions({
+		orpc.admin.content.addPracticeQuestions.mutationOptions({
 			onSuccess: (result) => {
 				toast.success(result.message);
 				setSelectedQuestionIds(new Set());
 				queryClient.invalidateQueries({
-					queryKey: orpc.admin.subject.listPracticeQuestions.queryKey({
+					queryKey: orpc.admin.content.listPracticeQuestions.queryKey({
 						input: { id: contentId },
 					}),
 				});

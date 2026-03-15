@@ -5,6 +5,7 @@ import { type } from "arktype";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ClassHeader } from "@/components/classes/class-header";
+import type { ContentListItem } from "@/components/classes/classes-types";
 import { ContentList } from "@/components/classes/content-list";
 import {
 	AlertDialog,
@@ -31,7 +32,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SearchInput } from "@/components/ui/search-input";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
-import type { BodyOutputs } from "@/utils/orpc";
 import { orpc } from "@/utils/orpc";
 
 const searchSchema = type({
@@ -43,8 +43,6 @@ export const Route = createFileRoute("/admin/classes/$subjectId/")({
 	component: RouteComponent,
 	validateSearch: searchSchema,
 });
-
-type ContentListItem = NonNullable<BodyOutputs["subject"]["listContent"]>["items"][number];
 
 function RouteComponent() {
 	const { subjectId: rawSubjectId } = Route.useParams();
@@ -83,7 +81,7 @@ function RouteComponent() {
 	const invalidateContent = () => queryClient.invalidateQueries({ queryKey: orpc.subject.listContent.key() });
 
 	const createMutation = useMutation(
-		orpc.admin.subject.createContent.mutationOptions({
+		orpc.admin.content.createContent.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
 				invalidateContent();
@@ -96,7 +94,7 @@ function RouteComponent() {
 	);
 
 	const updateMutation = useMutation(
-		orpc.admin.subject.updateContent.mutationOptions({
+		orpc.admin.content.updateContent.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
 				invalidateContent();
@@ -110,7 +108,7 @@ function RouteComponent() {
 	);
 
 	const deleteMutation = useMutation(
-		orpc.admin.subject.deleteContent.mutationOptions({
+		orpc.admin.content.removeContent.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
 				invalidateContent();
@@ -124,7 +122,7 @@ function RouteComponent() {
 	);
 
 	const reorderMutation = useMutation(
-		orpc.admin.subject.reorderContent.mutationOptions({
+		orpc.admin.content.reorderContent.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
 				invalidateContent();

@@ -40,17 +40,17 @@ function RouteComponent() {
 
 	// Fetch linked practice questions
 	const practiceQuestions = useQuery(
-		orpc.admin.subject.listPracticeQuestions.queryOptions({
+		orpc.admin.content.listPracticeQuestions.queryOptions({
 			input: { id: contentId },
 		}),
 	);
 
 	const unlinkAllMutation = useMutation(
-		orpc.admin.subject.unlinkPracticeQuestions.mutationOptions({
+		orpc.admin.content.clearPracticeQuestions.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
 				queryClient.invalidateQueries({
-					queryKey: orpc.admin.subject.listPracticeQuestions.queryKey({
+					queryKey: orpc.admin.content.listPracticeQuestions.queryKey({
 						input: { id: contentId },
 					}),
 				});
