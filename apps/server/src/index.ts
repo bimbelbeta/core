@@ -13,23 +13,32 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 
-const router: Router = {
-	client: custom({
-		host: process.env.S3_ENDPOINT || "",
-		region: "us-east-1",
-		accessKeyId: process.env.S3_ACCESS_KEY || "",
-		secretAccessKey: process.env.S3_SECRET_KEY || "",
-		secure: process.env.S3_SECURE === "true",
-		forcePathStyle: true,
-	}),
-	bucketName: process.env.S3_BUCKET || "temp",
-	routes: {
-		tryout: route({
-			fileTypes: ["image/*"],
-			maxFileSize: 1024 * 1024 * 2,
+function createS3Router(): Router {
+	return {
+		client: custom({
+			host: process.env.S3_ENDPOINT || "",
+			region: "us-east-1",
+			accessKeyId: process.env.S3_ACCESS_KEY || "",
+			secretAccessKey: process.env.S3_SECRET_KEY || "",
+			secure: process.env.S3_SECURE === "true",
+			forcePathStyle: true,
 		}),
-	},
-};
+		bucketName: process.env.S3_BUCKET || "temp",
+		routes: {
+			tryout: route({
+				fileTypes: ["image/*"],
+				maxFileSize: 1024 * 1024 * 2,
+			}),
+		},
+	};
+}
+
+function getCorsOrigins(): string[] {
+	return [
+		process.env.CORS_ORIGIN || "http://localhost:3000",
+		...(process.env.TRUSTED_ORIGINS ? process.env.TRUSTED_ORIGINS.split(",").map((o) => o.trim()) : []),
+	];
+}
 
 const app = new Hono();
 
@@ -37,10 +46,7 @@ app.use(logger());
 app.use(
 	"/*",
 	cors({
-		origin: [
-			process.env.CORS_ORIGIN || "http://localhost:3000",
-			...(process.env.TRUSTED_ORIGINS ? process.env.TRUSTED_ORIGINS.split(",").map((o) => o.trim()) : []),
-		],
+		origin: getCorsOrigins(),
 		allowMethods: ["GET", "POST", "PUT", "PATCH", "OPTIONS"],
 		allowHeaders: ["Content-Type", "Authorization", "Content-Length"],
 		credentials: true,
@@ -71,7 +77,7 @@ export const rpcHandler = new RPCHandler(appRouter, {
 });
 
 app.post("/upload", async (c) => {
-	return handleRequest(c.req.raw, router);
+	return handleRequest(c.req.raw, createS3Router());
 });
 
 app.use("/*", async (c, next) => {
