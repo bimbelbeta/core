@@ -3,7 +3,7 @@ import { user } from "@bimbelbeta/db/schema/auth";
 import { creditTransaction } from "@bimbelbeta/db/schema/credit";
 import { and, asc, desc, eq, gt, like, lt, or } from "drizzle-orm";
 import { superadmin } from "../..";
-import { buildIdCursorPage, parseIdCursor } from "../../lib/pagination/cursor";
+import { buildStringIdCursorPage, parseStringIdCursor } from "../../lib/pagination/cursor";
 
 const list = superadmin.admin.users.list.handler(async ({ input }) => {
 	const limit = Math.min(input.limit ?? 20, 100);
@@ -19,7 +19,7 @@ const list = superadmin.admin.users.list.handler(async ({ input }) => {
 	)[] = [];
 
 	if (cursor) {
-		const cursorId = parseIdCursor(cursor);
+		const cursorId = parseStringIdCursor(cursor);
 		if (isBackward) {
 			conditions.push(lt(user.id, cursorId));
 		} else {
@@ -40,22 +40,13 @@ const list = superadmin.admin.users.list.handler(async ({ input }) => {
 	}
 
 	const rows = await db
-		.select({
-			id: user.id,
-			name: user.name,
-			email: user.email,
-			role: user.role,
-			isPremium: user.isPremium,
-			premiumExpiresAt: user.premiumExpiresAt,
-			createdAt: user.createdAt,
-			updatedAt: user.updatedAt,
-		})
+		.select()
 		.from(user)
 		.where(conditions.length > 0 ? and(...conditions) : undefined)
 		.orderBy(isBackward ? desc(user.id) : asc(user.id))
 		.limit(limit + 1);
 
-	const { items, pageInfo } = buildIdCursorPage(rows, limit, isBackward, !!cursor);
+	const { items, pageInfo } = buildStringIdCursorPage(rows, limit, isBackward, !!cursor);
 
 	return { items, pageInfo };
 });

@@ -31,6 +31,14 @@ export function parseIdCursor(cursor: string): number {
 	return id;
 }
 
+export function createStringIdCursor(id: string): string {
+	return encodeCursor(id);
+}
+
+export function parseStringIdCursor(cursor: string): string {
+	return decodeCursor(cursor);
+}
+
 export interface IdCursorPageInfo {
 	hasNextPage: boolean;
 	hasPreviousPage: boolean;
@@ -63,6 +71,33 @@ export function buildIdCursorPage<T extends { id: number }>(
 			hasPreviousPage: isBackward ? hasExtra : hasCursor,
 			startCursor: firstItem ? createIdCursor(firstItem.id) : null,
 			endCursor: lastItem ? createIdCursor(lastItem.id) : null,
+		},
+	};
+}
+
+/**
+ * Like buildIdCursorPage but for tables with string primary keys (e.g. better-auth users).
+ */
+export function buildStringIdCursorPage<T extends { id: string }>(
+	rows: T[],
+	limit: number,
+	isBackward: boolean,
+	hasCursor: boolean,
+): { items: T[]; pageInfo: IdCursorPageInfo } {
+	const hasExtra = rows.length > limit;
+	let items = hasExtra ? rows.slice(0, limit) : rows;
+	if (isBackward) items = items.slice().reverse();
+
+	const firstItem = items[0];
+	const lastItem = items[items.length - 1];
+
+	return {
+		items,
+		pageInfo: {
+			hasNextPage: isBackward ? hasCursor : hasExtra,
+			hasPreviousPage: isBackward ? hasExtra : hasCursor,
+			startCursor: firstItem ? createStringIdCursor(firstItem.id) : null,
+			endCursor: lastItem ? createStringIdCursor(lastItem.id) : null,
 		},
 	};
 }

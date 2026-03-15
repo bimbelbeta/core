@@ -71,7 +71,7 @@ const list = authed.university.list.handler(async ({ input }) => {
 	return { items, pageInfo };
 });
 
-const listProgramsByUniversity = authed.university.listProgramsByUniversity.handler(async ({ input, errors }) => {
+const listProgramsByUniversity = authed.university.listProgramsByUniversity.handler(async ({ input }) => {
 	const studyPrograms = await db
 		.select({
 			id: studyProgram.id,

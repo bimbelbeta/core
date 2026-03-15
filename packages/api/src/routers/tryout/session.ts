@@ -1,10 +1,18 @@
 import { db } from "@bimbelbeta/db";
 import { tryoutAttempt, tryoutSubtestAttempt, tryoutUserAnswer } from "@bimbelbeta/db/schema/tryout";
-import type { ORPCErrorConstructorMap } from "@orpc/server";
+import type { ORPCError } from "@orpc/server";
 import { eq, sql } from "drizzle-orm";
 import { authed } from "../../index";
 import { calculateTryoutScores, saveScoresToDatabase } from "../../lib/calculate-score";
 import { parseNullableInt } from "../../lib/utils";
+
+type HandlerErrors = {
+	BAD_REQUEST: (opts: { message: string }) => ORPCError<"BAD_REQUEST", unknown>;
+	NOT_FOUND: (opts: { message: string }) => ORPCError<"NOT_FOUND", unknown>;
+	INTERNAL_SERVER_ERROR: (opts: { message: string }) => ORPCError<"INTERNAL_SERVER_ERROR", unknown>;
+	UNAUTHORIZED: (opts?: { message?: string }) => ORPCError<"UNAUTHORIZED", unknown>;
+	FORBIDDEN: (opts?: { message?: string }) => ORPCError<"FORBIDDEN", unknown>;
+};
 
 type ActiveSubtestResult = {
 	attempt: Awaited<ReturnType<typeof db.query.tryoutAttempt.findFirst>> & {
@@ -16,7 +24,7 @@ type ActiveSubtestResult = {
 async function requireActiveSubtestAttempt(
 	tryoutId: number,
 	userId: string,
-	errors: ORPCErrorConstructorMap<Record<string, unknown>>,
+	errors: HandlerErrors,
 ): Promise<ActiveSubtestResult> {
 	const attempt = await db.query.tryoutAttempt.findFirst({
 		where: {

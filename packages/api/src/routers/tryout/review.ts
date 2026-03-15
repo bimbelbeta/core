@@ -37,6 +37,7 @@ export const review = authed.tryout.review.handler(async ({ input, context, erro
 			questionsMap.set(row.questionId, {
 				id: row.questionId,
 				content: readTiptapContent(row.questionContentJson, row.questionContent),
+				type: row.questionType,
 				discussion: canSeeDiscussion ? readTiptapContent(row.discussionJson, row.discussion) : null,
 				choices: [],
 				userAnswer: {
