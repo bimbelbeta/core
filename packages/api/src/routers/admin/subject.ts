@@ -5,14 +5,12 @@ import {
 	contentPracticeQuestions,
 	noteMaterial,
 	subject,
-	type subjectCategoryEnum,
 	videoMaterial,
 } from "@bimbelbeta/db/schema/subject";
-import { and, asc, eq, inArray } from "drizzle-orm";
+import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import { admin } from "../..";
 import { readTiptapContent } from "../../lib/content-utils";
-
-type SubjectCategory = (typeof subjectCategoryEnum.enumValues)[number];
+import { pickDefined } from "../../lib/utils";
 
 const VALID_GRADE_RANGE: Record<string, [number, number]> = {
 	sd: [1, 6],
@@ -93,24 +91,17 @@ const updateSubject = admin.admin.subject.update.handler(async ({ input, errors 
 		}
 	}
 
-	const updateData: {
-		name?: string;
-		shortName?: string;
-		description?: string | null;
-		order?: number;
-		category?: SubjectCategory;
-		gradeLevel?: number | null;
-		updatedAt: Date;
-	} = {
+	const updateData = {
+		...pickDefined({
+			name: input.name,
+			shortName: input.shortName,
+			description: input.description !== undefined ? (input.description ?? null) : undefined,
+			order: input.order,
+			category: input.category,
+			gradeLevel: input.gradeLevel !== undefined ? (input.gradeLevel ?? null) : undefined,
+		}),
 		updatedAt: new Date(),
 	};
-
-	if (input.name !== undefined) updateData.name = input.name;
-	if (input.shortName !== undefined) updateData.shortName = input.shortName;
-	if (input.description !== undefined) updateData.description = input.description ?? null;
-	if (input.order !== undefined) updateData.order = input.order;
-	if (input.category !== undefined) updateData.category = input.category;
-	if (input.gradeLevel !== undefined) updateData.gradeLevel = input.gradeLevel ?? null;
 
 	const [updatedRow] = await db.update(subject).set(updateData).where(eq(subject.id, input.id)).returning();
 
@@ -226,12 +217,10 @@ const createContent = admin.admin.content.createContent.handler(async ({ input, 
 });
 
 const updateContent = admin.admin.content.updateContent.handler(async ({ input, errors }) => {
-	const updateData: { title?: string; order?: number; updatedAt: Date } = {
+	const updateData = {
+		...pickDefined({ title: input.title, order: input.order }),
 		updatedAt: new Date(),
 	};
-
-	if (input.title !== undefined) updateData.title = input.title;
-	if (input.order !== undefined) updateData.order = input.order;
 
 	const [updated] = await db.update(contentItem).set(updateData).where(eq(contentItem.id, input.id)).returning();
 
@@ -490,14 +479,21 @@ const removePracticeQuestion = admin.admin.content.removePracticeQuestion.handle
 			.where(eq(contentPracticeQuestions.contentItemId, input.id))
 			.orderBy(asc(contentPracticeQuestions.order));
 
-		for (let i = 0; i < remaining.length; i++) {
+		if (remaining.length > 0) {
+			const caseExpr = sql.join(
+				remaining.map((r, i) => sql`WHEN ${contentPracticeQuestions.questionId} = ${r.questionId} THEN ${i + 1}`),
+				sql` `,
+			);
 			await tx
 				.update(contentPracticeQuestions)
-				.set({ order: i + 1 })
+				.set({ order: sql`CASE ${caseExpr} END` })
 				.where(
 					and(
 						eq(contentPracticeQuestions.contentItemId, input.id),
-						eq(contentPracticeQuestions.questionId, remaining[i]!.questionId),
+						inArray(
+							contentPracticeQuestions.questionId,
+							remaining.map((r) => r.questionId),
+						),
 					),
 				);
 		}

@@ -2,6 +2,7 @@ import { db } from "@bimbelbeta/db";
 import { tryout, tryoutSubtest } from "@bimbelbeta/db/schema/tryout";
 import { eq, sql } from "drizzle-orm";
 import { admin } from "../..";
+import { pickDefined } from "../../lib/utils";
 
 const find = admin.admin.tryout.subtest.find.handler(async ({ input, errors }) => {
 	const [subtest] = await db.select().from(tryoutSubtest).where(eq(tryoutSubtest.id, input.id)).limit(1);
@@ -54,19 +55,16 @@ const createSubtest = admin.admin.tryout.subtest.createSubtest.handler(async ({ 
 });
 
 const updateSubtest = admin.admin.tryout.subtest.updateSubtest.handler(async ({ input, errors }) => {
-	const updateData: {
-		name?: string;
-		description?: string | null;
-		duration?: number;
-		questionOrder?: "random" | "sequential";
-		scoringMap?: Record<string, number> | null;
-	} = {};
-
-	if (input.name !== undefined) updateData.name = input.name;
-	if (input.description !== undefined) updateData.description = input.description ?? null;
-	if (input.duration !== undefined) updateData.duration = input.duration;
-	if (input.questionOrder !== undefined) updateData.questionOrder = input.questionOrder;
-	if (input.scoringMap !== undefined) updateData.scoringMap = input.scoringMap;
+	const updateData = {
+		...pickDefined({
+			name: input.name,
+			description: input.description !== undefined ? (input.description ?? null) : undefined,
+			duration: input.duration,
+			questionOrder: input.questionOrder,
+			scoringMap: input.scoringMap,
+		}),
+		updatedAt: new Date(),
+	};
 
 	const [updated] = await db.update(tryoutSubtest).set(updateData).where(eq(tryoutSubtest.id, input.id)).returning();
 

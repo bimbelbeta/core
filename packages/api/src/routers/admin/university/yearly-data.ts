@@ -3,6 +3,7 @@ import { programYearlyData, studyProgram, university, universityStudyProgram } f
 import { and, asc, desc, eq, gt, lt } from "drizzle-orm";
 import { admin } from "../../../index";
 import { buildIdCursorPage, parseIdCursor } from "../../../lib/pagination/cursor";
+import { pickDefined } from "../../../lib/utils";
 
 const list = admin.admin.university.universityPrograms.list.handler(async ({ input }) => {
 	const limit = Math.min(input.limit ?? 20, 100);
@@ -161,26 +162,18 @@ const create = admin.admin.university.universityPrograms.create.handler(async ({
 });
 
 const update = admin.admin.university.universityPrograms.update.handler(async ({ input, errors }) => {
-	const updateData: {
-		tuition?: number | null;
-		capacity?: number | null;
-		accreditation?: string | null;
-		averageScore?: number;
-		isActive?: boolean;
-		updatedAt: Date;
-	} = {
-		updatedAt: new Date(),
-	};
-
-	if (input.tuition !== undefined) updateData.tuition = input.tuition;
-	if (input.capacity !== undefined) updateData.capacity = input.capacity;
-	if (input.accreditation !== undefined) updateData.accreditation = input.accreditation;
-	if (input.averageScore !== undefined) updateData.averageScore = input.averageScore;
-	if (input.isActive !== undefined) updateData.isActive = input.isActive;
-
 	const [updated] = await db
 		.update(universityStudyProgram)
-		.set(updateData)
+		.set({
+			...pickDefined({
+				tuition: input.tuition,
+				capacity: input.capacity,
+				accreditation: input.accreditation,
+				averageScore: input.averageScore,
+				isActive: input.isActive,
+			}),
+			updatedAt: new Date(),
+		})
 		.where(eq(universityStudyProgram.id, input.id))
 		.returning();
 
@@ -229,8 +222,6 @@ const upsertYearlyData = admin.admin.university.universityPrograms.upsertYearlyD
 			})
 			.returning({
 				id: programYearlyData.id,
-				createdAt: programYearlyData.createdAt,
-				updatedAt: programYearlyData.updatedAt,
 			});
 
 		if (!result) {
@@ -239,9 +230,8 @@ const upsertYearlyData = admin.admin.university.universityPrograms.upsertYearlyD
 			});
 		}
 
-		const isNew = result.createdAt?.getTime() === result.updatedAt?.getTime();
 		return {
-			message: isNew ? "Data tahunan berhasil dibuat" : "Data tahunan berhasil diperbarui",
+			message: "Data tahunan berhasil disimpan",
 			id: result.id,
 		};
 	},

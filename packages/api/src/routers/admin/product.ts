@@ -35,7 +35,7 @@ const list = superadmin.admin.products.list.handler(async ({ input }) => {
 	return {
 		items: rows,
 		pageInfo: {
-			hasNextPage: isBackward ? true : hasExtra,
+			hasNextPage: isBackward ? !!cursorStr : hasExtra,
 			hasPreviousPage: isBackward ? hasExtra : !!cursorStr,
 			startCursor: firstItem ? encodeCursor(firstItem.id) : null,
 			endCursor: lastItem ? encodeCursor(lastItem.id) : null,

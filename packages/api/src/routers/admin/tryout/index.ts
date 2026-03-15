@@ -1,13 +1,11 @@
 import { db } from "@bimbelbeta/db";
-import type { subjectCategoryEnum } from "@bimbelbeta/db/schema/subject";
 import { tryout } from "@bimbelbeta/db/schema/tryout";
 import { and, asc, desc, eq, gt, ilike, lt } from "drizzle-orm";
 import { admin } from "../../..";
 import { buildIdCursorPage, parseIdCursor } from "../../../lib/pagination/cursor";
+import { pickDefined } from "../../../lib/utils";
 
 import { tryoutAttemptRouter } from "./attempt";
-
-type SubjectCategory = (typeof subjectCategoryEnum.enumValues)[number];
 
 const createTryout = admin.admin.tryout.createTryout.handler(async ({ input, errors }) => {
 	const [created] = await db
@@ -81,25 +79,17 @@ const find = admin.admin.tryout.find.handler(async ({ input, errors }) => {
 });
 
 const updateTryout = admin.admin.tryout.updateTryout.handler(async ({ input, errors }) => {
-	const updateData: {
-		title?: string;
-		description?: string | null;
-		category?: SubjectCategory;
-		duration?: number;
-		status?: "draft" | "published" | "archived";
-		startsAt?: Date | null;
-		endsAt?: Date | null;
-		updatedAt: Date;
-	} = {
+	const updateData = {
+		...pickDefined({
+			title: input.title,
+			description: input.description !== undefined ? (input.description ?? null) : undefined,
+			category: input.category,
+			status: input.status,
+			startsAt: input.startsAt !== undefined ? (input.startsAt ? new Date(input.startsAt) : null) : undefined,
+			endsAt: input.endsAt !== undefined ? (input.endsAt ? new Date(input.endsAt) : null) : undefined,
+		}),
 		updatedAt: new Date(),
 	};
-
-	if (input.title !== undefined) updateData.title = input.title;
-	if (input.description !== undefined) updateData.description = input.description ?? null;
-	if (input.category !== undefined) updateData.category = input.category;
-	if (input.status !== undefined) updateData.status = input.status;
-	if (input.startsAt !== undefined) updateData.startsAt = input.startsAt ? new Date(input.startsAt) : null;
-	if (input.endsAt !== undefined) updateData.endsAt = input.endsAt ? new Date(input.endsAt) : null;
 
 	const [updated] = await db.update(tryout).set(updateData).where(eq(tryout.id, input.id)).returning();
 
