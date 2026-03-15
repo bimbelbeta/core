@@ -39,6 +39,8 @@ const subscribe = authed.transaction.subscribe.handler(async ({ input, context, 
 		session: context.session,
 		name: plan.name,
 		price: plan.price,
+	}).catch(() => {
+		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memproses pembayaran. Silahkan coba lagi." });
 	});
 });
 
