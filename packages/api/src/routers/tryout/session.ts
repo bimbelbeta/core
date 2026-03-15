@@ -149,6 +149,11 @@ export const saveAnswer = authed.tryout.saveAnswer.handler(async ({ input, conte
 	return { success: true };
 });
 
+/**
+ * Toggles the "ragu-ragu" (uncertain/flagged for review) status of a question.
+ * In Indonesian educational context, "ragu-ragu" means a student is unsure about
+ * their answer and wants to flag it for review before final submission.
+ */
 export const toggleRaguRagu = authed.tryout.toggleRaguRagu.handler(async ({ input, context, errors }) => {
 	const { attempt } = await requireActiveSubtestAttempt(input.tryoutId, context.session.user.id, errors);
 

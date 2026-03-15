@@ -167,6 +167,11 @@ export const tryoutContract = {
 				.or(type({ tryoutId: "number", questionId: "number", answerType: "'essay'", essayAnswer: "string" })),
 		)
 		.output(type({ success: "boolean" })),
+	/**
+	 * Toggles the "ragu-ragu" (uncertain/flagged for review) status of a question.
+	 * In Indonesian educational context, "ragu-ragu" means a student is unsure about
+	 * their answer and wants to flag it for review before final submission.
+	 */
 	toggleRaguRagu: oc
 		.route({
 			path: "/tryouts/{tryoutId}/questions/{questionId}/ragu-ragu",
