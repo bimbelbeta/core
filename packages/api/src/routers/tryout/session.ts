@@ -1,5 +1,6 @@
 import { db } from "@bimbelbeta/db";
 import { tryoutAttempt, tryoutSubtestAttempt, tryoutUserAnswer } from "@bimbelbeta/db/schema/tryout";
+import type { ORPCErrorConstructorMap } from "@orpc/server";
 import { eq, sql } from "drizzle-orm";
 import { authed } from "../../index";
 import { calculateTryoutScores, saveScoresToDatabase } from "../../lib/calculate-score";
@@ -15,7 +16,7 @@ type ActiveSubtestResult = {
 async function requireActiveSubtestAttempt(
 	tryoutId: number,
 	userId: string,
-	errors: { BAD_REQUEST: (opts: { message: string }) => Error },
+	errors: ORPCErrorConstructorMap<Record<string, unknown>>,
 ): Promise<ActiveSubtestResult> {
 	const attempt = await db.query.tryoutAttempt.findFirst({
 		where: {
@@ -244,7 +245,7 @@ export const submitSubtest = authed.tryout.submitSubtest.handler(async ({ input,
 			throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal menyimpan skor tryout." });
 		});
 
-	return { success: true, tryoutCompleted: true, score: scores.totalScore };
+	return { success: true, tryoutCompleted: true as const, score: scores.totalScore };
 });
 
 export const submitTryout = authed.tryout.submitTryout.handler(async ({ input, context, errors }) => {
@@ -276,5 +277,5 @@ export const submitTryout = authed.tryout.submitTryout.handler(async ({ input, c
 			throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal menyimpan skor tryout." });
 		});
 
-	return { success: true, score: scores.totalScore };
+	return { success: true as const, score: scores.totalScore };
 });

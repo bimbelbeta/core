@@ -186,7 +186,7 @@ export const tryoutContract = {
 	submitTryout: oc
 		.route({ path: "/tryouts/{tryoutId}/submit", method: "POST", tags: ["Tryouts"] })
 		.input(type({ tryoutId: "number" }))
-		.output(type({ success: "boolean", score: "number" })),
+		.output(type({ success: "true", score: "number" })),
 	history: oc
 		.route({ path: "/tryouts/history", method: "GET", tags: ["Tryouts"] })
 		.output(TryoutHistoryItemSchema.array()),

@@ -88,7 +88,7 @@ const listProgramsByUniversity = authed.university.listProgramsByUniversity.hand
 		});
 	}
 
-	return { data: studyPrograms };
+	return { items: studyPrograms };
 });
 
 const find = authed.university.find.handler(async ({ input, errors }) => {

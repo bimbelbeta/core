@@ -88,7 +88,7 @@ export const universityContract = {
 		.input(type({ universityId: "number" }))
 		.output(
 			type({
-				data: StudyProgramOutput.array(),
+				items: StudyProgramOutput.array(),
 			}),
 		),
 	find: oc

@@ -4,7 +4,7 @@ import { studyProgram, university, universityStudyProgram } from "@bimbelbeta/db
 import { and, eq } from "drizzle-orm";
 import { authed } from "../index";
 
-const find = authed.userSettings.find.handler(async ({ context, errors }) => {
+const getTarget = authed.userSettings.getTarget.handler(async ({ context, errors }) => {
 	if (!context.session.user.targetUniversityId || !context.session.user.targetStudyProgramId)
 		return {
 			university: null,
@@ -79,6 +79,6 @@ const update = authed.userSettings.update.handler(async ({ input, context, error
 });
 
 export const userSettingsRouter = {
-	find,
+	getTarget,
 	update,
 };

@@ -28,7 +28,7 @@ export function TargetSelectionDialog() {
 	const queryClient = useQueryClient();
 	const { session } = useRouteContext({ from: "/_authenticated" });
 	const userKey = session?.user?.email || session?.user?.id || "guest";
-	const { data } = useQuery(orpc.userSettings.find.queryOptions());
+	const { data } = useQuery(orpc.userSettings.getTarget.queryOptions());
 
 	const [open, setOpen] = useState<boolean>(false);
 	useEffect(() => {
@@ -39,7 +39,7 @@ export function TargetSelectionDialog() {
 		orpc.userSettings.update.mutationOptions({
 			onSuccess: () => {
 				setOpen(false);
-				queryClient.invalidateQueries({ queryKey: orpc.userSettings.find.queryKey() });
+				queryClient.invalidateQueries({ queryKey: orpc.userSettings.getTarget.queryKey() });
 			},
 			onError: (error: Error) => {
 				toast.error(error.message || "Gagal menyimpan target");
@@ -169,22 +169,22 @@ export function TargetSelectionDialog() {
 											<Select
 												value={field.state.value?.toString() ?? ""}
 												onValueChange={(value) => field.handleChange(Number.parseInt(value, 10))}
-												disabled={isFetching || !studyPrograms?.data}
+												disabled={isFetching || !studyPrograms?.items}
 											>
 												<SelectTrigger>
 													<SelectValue
-														placeholder={!studyPrograms?.data ? "Pilih universitas dulu" : "Pilih program studi"}
+														placeholder={!studyPrograms?.items ? "Pilih universitas dulu" : "Pilih program studi"}
 													/>
 												</SelectTrigger>
 												<SelectContent>
-													{studyPrograms?.data?.map((program) => (
+													{studyPrograms?.items?.map((program) => (
 														<SelectItem key={program.id} value={program.id.toString()}>
 															{program.name}
 														</SelectItem>
 													))}
 												</SelectContent>
 											</Select>
-											{studyPrograms?.data && studyPrograms.data.length < 1 && (
+											{studyPrograms?.items && studyPrograms.items.length < 1 && (
 												<p className="text-destructive text-xs">
 													Belum ada data Program Studi untuk Universitas ini. Silahkan coba lagi nanti
 												</p>
