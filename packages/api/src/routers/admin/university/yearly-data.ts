@@ -207,12 +207,6 @@ const remove = admin.admin.university.universityPrograms.remove.handler(async ({
 
 const upsertYearlyData = admin.admin.university.universityPrograms.upsertYearlyData.handler(
 	async ({ input, errors }) => {
-		const [existing] = await db
-			.select({ id: programYearlyData.id })
-			.from(programYearlyData)
-			.where(and(eq(programYearlyData.universityStudyProgramId, input.id), eq(programYearlyData.year, input.year)))
-			.limit(1);
-
 		const [result] = await db
 			.insert(programYearlyData)
 			.values({
@@ -233,7 +227,11 @@ const upsertYearlyData = admin.admin.university.universityPrograms.upsertYearlyD
 					updatedAt: new Date(),
 				},
 			})
-			.returning();
+			.returning({
+				id: programYearlyData.id,
+				createdAt: programYearlyData.createdAt,
+				updatedAt: programYearlyData.updatedAt,
+			});
 
 		if (!result) {
 			throw errors.INTERNAL_SERVER_ERROR({
@@ -241,14 +239,15 @@ const upsertYearlyData = admin.admin.university.universityPrograms.upsertYearlyD
 			});
 		}
 
+		const isNew = result.createdAt?.getTime() === result.updatedAt?.getTime();
 		return {
-			message: existing ? "Data tahunan berhasil diperbarui" : "Data tahunan berhasil dibuat",
+			message: isNew ? "Data tahunan berhasil dibuat" : "Data tahunan berhasil diperbarui",
 			id: result.id,
 		};
 	},
 );
 
-const deleteYearlyData = admin.admin.university.universityPrograms.deleteYearlyData.handler(
+const removeYearlyData = admin.admin.university.universityPrograms.removeYearlyData.handler(
 	async ({ input, errors }) => {
 		const [deleted] = await db
 			.delete(programYearlyData)
@@ -272,5 +271,5 @@ export const adminUniversityProgramRouter = {
 	update,
 	remove,
 	upsertYearlyData,
-	deleteYearlyData,
+	removeYearlyData,
 };

@@ -215,43 +215,7 @@ export function shouldShowButton(props: {
 	return true;
 }
 
-/**
- * Custom hook that provides list functionality for Tiptap editor
- *
- * @example
- * ```tsx
- * // Simple usage
- * function MySimpleListButton() {
- *   const { isVisible, handleToggle, isActive } = useList({ type: "bulletList" })
- *
- *   if (!isVisible) return null
- *
- *   return <button onClick={handleToggle}>Bullet List</button>
- * }
- *
- * // Advanced usage with configuration
- * function MyAdvancedListButton() {
- *   const { isVisible, handleToggle, label, isActive } = useList({
- *     type: "orderedList",
- *     editor: myEditor,
- *     hideWhenUnavailable: true,
- *     onToggled: () => console.log('List toggled!')
- *   })
- *
- *   if (!isVisible) return null
- *
- *   return (
- *     <MyButton
- *       onClick={handleToggle}
- *       aria-label={label}
- *       aria-pressed={isActive}
- *     >
- *       Toggle List
- *     </MyButton>
- *   )
- * }
- * ```
- */
+/** Custom hook that provides list functionality for Tiptap editor */
 export function useList(config: UseListConfig) {
 	const { editor: providedEditor, type, hideWhenUnavailable = false, onToggled } = config;
 

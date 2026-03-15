@@ -11,7 +11,12 @@ export function createDateCursor(date: Date): string {
 }
 
 export function parseDateCursor(cursor: string): Date {
-	return new Date(decodeCursor(cursor));
+	const decoded = decodeCursor(cursor);
+	const date = new Date(decoded);
+	if (Number.isNaN(date.getTime())) {
+		throw new Error(`Invalid date cursor: ${decoded}`);
+	}
+	return date;
 }
 
 export function createIdCursor(id: number): string {
@@ -19,7 +24,11 @@ export function createIdCursor(id: number): string {
 }
 
 export function parseIdCursor(cursor: string): number {
-	return Number.parseInt(decodeCursor(cursor), 10);
+	const id = Number.parseInt(decodeCursor(cursor), 10);
+	if (Number.isNaN(id)) {
+		throw new Error(`Invalid id cursor: ${decodeCursor(cursor)}`);
+	}
+	return id;
 }
 
 export interface IdCursorPageInfo {
@@ -50,7 +59,7 @@ export function buildIdCursorPage<T extends { id: number }>(
 	return {
 		items,
 		pageInfo: {
-			hasNextPage: isBackward ? true : hasExtra,
+			hasNextPage: isBackward ? hasCursor : hasExtra,
 			hasPreviousPage: isBackward ? hasExtra : hasCursor,
 			startCursor: firstItem ? createIdCursor(firstItem.id) : null,
 			endCursor: lastItem ? createIdCursor(lastItem.id) : null,

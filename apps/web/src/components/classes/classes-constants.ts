@@ -1,3 +1,27 @@
+export type SubjectCategory = "sd" | "smp" | "sma" | "utbk";
+
+export const categoryLabel: Record<SubjectCategory, string> = {
+	sd: "SD",
+	smp: "SMP",
+	sma: "SMA",
+	utbk: "UTBK",
+};
+
+export const gradeRanges: Record<Exclude<SubjectCategory, "utbk">, [number, number]> = {
+	sd: [1, 6],
+	smp: [7, 9],
+	sma: [10, 12],
+};
+
+/** Returns a validation error message if gradeLevel is out of range, or null if valid. */
+export function validateGradeLevel(category: Exclude<SubjectCategory, "utbk">, gradeLevel: number): string | null {
+	const [min, max] = gradeRanges[category];
+	if (gradeLevel < min || gradeLevel > max) {
+		return `Grade level harus antara ${min} dan ${max} untuk kategori ${category.toUpperCase()}`;
+	}
+	return null;
+}
+
 export const subtestCardBackground = {
 	pu: "bg-secondary-400",
 	ppu: "bg-tertiary-400",

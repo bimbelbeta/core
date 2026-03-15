@@ -2,6 +2,21 @@ import { createHash } from "node:crypto";
 import type { MidtransStatus } from "./types";
 
 /**
+ * Pure, testable signature verification. Accepts an explicit serverKey so
+ * tests can call it without reading process.env.
+ */
+export function verifyMidtransSignatureWithKey(
+	orderId: string,
+	statusCode: string,
+	grossAmount: string,
+	signatureKey: string,
+	serverKey: string,
+): boolean {
+	const expected = createHash("sha512").update(`${orderId}${statusCode}${grossAmount}${serverKey}`).digest("hex");
+	return expected === signatureKey;
+}
+
+/**
  * Verifies Midtrans webhook signature.
  * SHA-512(orderId + statusCode + grossAmount + serverKey) must match the provided signature.
  */
@@ -12,8 +27,7 @@ export function verifyMidtransSignature(
 	signatureKey: string,
 ): boolean {
 	const serverKey = process.env.MIDTRANS_SERVER_KEY ?? "";
-	const expected = createHash("sha512").update(`${orderId}${statusCode}${grossAmount}${serverKey}`).digest("hex");
-	return expected === signatureKey;
+	return verifyMidtransSignatureWithKey(orderId, statusCode, grossAmount, signatureKey, serverKey);
 }
 
 export async function verifyMidtransTransaction(orderId: string): Promise<MidtransStatus> {

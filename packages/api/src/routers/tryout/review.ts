@@ -1,6 +1,6 @@
 import { db } from "@bimbelbeta/db";
 import { authed } from "../../index";
-import { fetchContentForRead } from "../../lib/content-utils";
+import { readTiptapContent } from "../../lib/content-utils";
 import type { ReviewQuestion } from "../../types/question";
 import { fetchSubtestQuestionRows } from "./attempt";
 
@@ -36,9 +36,9 @@ export const review = authed.tryout.review.handler(async ({ input, context, erro
 		if (!questionsMap.has(row.questionId)) {
 			questionsMap.set(row.questionId, {
 				id: row.questionId,
-				content: fetchContentForRead(row.questionContentJson, row.questionContent),
-				type: row.questionType,
-				discussion: canSeeDiscussion ? fetchContentForRead(row.discussionJson, row.discussion) : null,
+				content: readTiptapContent(row.questionContentJson, row.questionContent),
+				explanation: row.explanation,
+				discussion: canSeeDiscussion ? readTiptapContent(row.discussionJson, row.discussion) : null,
 				choices: [],
 				userAnswer: {
 					selectedChoiceId: row.userSelectedChoiceId,

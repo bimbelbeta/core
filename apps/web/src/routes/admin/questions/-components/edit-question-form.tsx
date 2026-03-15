@@ -14,13 +14,7 @@ import { TagInput } from "@/components/ui/tag-input";
 import { orpc } from "@/utils/orpc";
 import { MultipleChoiceComplexQuestionForm } from "./multiple-choice-complex-question-form";
 import { MultipleChoiceQuestionForm } from "./multiple-choice-question-form";
-
-export interface Choice {
-	id: number;
-	code: string;
-	content: string;
-	isCorrect: boolean;
-}
+import type { Choice } from "./types";
 
 interface EditQuestionFormProps {
 	question: {

@@ -1,9 +1,9 @@
+import { generateSlug } from "@bimbelbeta/contract/utils";
 import { db } from "@bimbelbeta/db";
 import { product } from "@bimbelbeta/db/schema/transaction";
 import { and, asc, desc, eq, gt, ilike, isNotNull, isNull, lt } from "drizzle-orm";
 import { superadmin } from "../..";
 import { decodeCursor, encodeCursor } from "../../lib/pagination/cursor";
-import { generateSlug } from "../../lib/utils";
 
 const list = superadmin.admin.products.list.handler(async ({ input }) => {
 	const limit = input.limit ?? 10;
@@ -216,7 +216,7 @@ const update = superadmin.admin.products.update.handler(async ({ input, errors }
 	return { message: "Product berhasil diperbarui" };
 });
 
-const deleteProduct = superadmin.admin.products.delete.handler(async ({ input, errors }) => {
+const remove = superadmin.admin.products.remove.handler(async ({ input, errors }) => {
 	const [existing] = await db.select().from(product).where(eq(product.id, input.productId)).limit(1);
 
 	if (!existing) {
@@ -269,6 +269,6 @@ export const adminProductRouter = {
 	find,
 	create,
 	update,
-	delete: deleteProduct,
+	remove,
 	restore,
 };

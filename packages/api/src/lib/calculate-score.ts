@@ -27,7 +27,7 @@ export interface TryoutScoreResult {
  * @param totalCount - Total number of questions
  * @returns The calculated score
  */
-function getScoreFromMap(
+export function getScoreFromMap(
 	scoringMap: Record<string, number> | null | undefined,
 	correctCount: number,
 	totalCount: number,
@@ -202,22 +202,28 @@ export async function calculateTryoutScores(attemptId: number): Promise<TryoutSc
 	};
 }
 
+type DbTx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
 /**
  * Saves calculated scores to the database.
  * Updates both subtest attempt scores and the total tryout attempt score.
- * All updates are wrapped in a transaction for atomicity.
+ * Pass an existing transaction `tx` to participate in a caller-managed transaction,
+ * or omit it to run in its own transaction.
  */
-export async function saveScoresToDatabase(attemptId: number, scores: TryoutScoreResult): Promise<void> {
-	await db.transaction(async (tx) => {
-		// Update each subtest attempt with its score
+export async function saveScoresToDatabase(attemptId: number, scores: TryoutScoreResult, tx?: DbTx): Promise<void> {
+	const persist = async (t: DbTx) => {
 		for (const subtestScore of scores.subtests) {
-			await tx
+			await t
 				.update(tryoutSubtestAttempt)
 				.set({ score: subtestScore.score.toString() })
 				.where(eq(tryoutSubtestAttempt.id, subtestScore.subtestAttemptId));
 		}
+		await t.update(tryoutAttempt).set({ score: scores.totalScore.toString() }).where(eq(tryoutAttempt.id, attemptId));
+	};
 
-		// Update the total tryout attempt score
-		await tx.update(tryoutAttempt).set({ score: scores.totalScore.toString() }).where(eq(tryoutAttempt.id, attemptId));
-	});
+	if (tx) {
+		await persist(tx);
+	} else {
+		await db.transaction(persist);
+	}
 }

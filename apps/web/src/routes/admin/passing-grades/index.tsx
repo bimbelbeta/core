@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { SearchInput } from "@/components/ui/search-input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
+import { usePaginationNavigation } from "@/hooks/use-pagination-navigation";
 import { orpc } from "@/utils/orpc";
 import { AddUniversityDialog } from "./-components/add-university-dialog";
 
@@ -65,25 +66,7 @@ function RouteComponent() {
 		});
 	};
 
-	const handleNext = () => {
-		if (!pageInfo?.endCursor) return;
-		navigate({
-			search: {
-				after: pageInfo.endCursor,
-				...baseSearchParams,
-			},
-		});
-	};
-
-	const handlePrevious = () => {
-		if (!pageInfo?.startCursor) return;
-		navigate({
-			search: {
-				before: pageInfo.startCursor,
-				...baseSearchParams,
-			},
-		});
-	};
+	const { handleNext, handlePrevious } = usePaginationNavigation(navigate, pageInfo, baseSearchParams);
 
 	return (
 		<AdminPageRoot>

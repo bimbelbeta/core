@@ -94,7 +94,7 @@ export const adminTryoutContract = {
 			}),
 		)
 		.output(type({ message: "string" })),
-	deleteTryout: oc
+	remove: oc
 		.route({ path: "/admin/tryouts/{id}", method: "DELETE", tags: ["Admin - Tryouts"] })
 		.input(type({ id: "number" }))
 		.output(type({ message: "string" })),

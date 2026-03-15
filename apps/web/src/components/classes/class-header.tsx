@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { useIsAdmin } from "@/utils/is-admin";
+import { useIsAdmin } from "@/utils/use-is-admin";
 import { BackButton } from "../back-button";
 import { Badge } from "../ui/badge";
 import type { SubjectListItem } from "./classes-types";

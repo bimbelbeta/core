@@ -97,30 +97,14 @@ const create = admin.admin.university.universities.create.handler(async ({ input
 });
 
 const update = admin.admin.university.universities.update.handler(async ({ input, errors }) => {
-	const updateData: {
-		name?: string;
-		slug?: string;
-		logo?: string | null;
-		description?: string | null;
-		location?: string | null;
-		website?: string | null;
-		rank?: number | null;
-		isActive?: boolean;
-		updatedAt: Date;
-	} = {
-		updatedAt: new Date(),
-	};
+	const { id, ...fields } = input;
+	const patch = Object.fromEntries(Object.entries(fields).filter(([, v]) => v !== undefined));
 
-	if (input.name !== undefined) updateData.name = input.name;
-	if (input.slug !== undefined) updateData.slug = input.slug;
-	if (input.logo !== undefined) updateData.logo = input.logo;
-	if (input.description !== undefined) updateData.description = input.description;
-	if (input.location !== undefined) updateData.location = input.location;
-	if (input.website !== undefined) updateData.website = input.website;
-	if (input.rank !== undefined) updateData.rank = input.rank;
-	if (input.isActive !== undefined) updateData.isActive = input.isActive;
-
-	const [updated] = await db.update(university).set(updateData).where(eq(university.id, input.id)).returning();
+	const [updated] = await db
+		.update(university)
+		.set({ ...patch, updatedAt: new Date() })
+		.where(eq(university.id, id))
+		.returning();
 
 	if (!updated) {
 		throw errors.NOT_FOUND({

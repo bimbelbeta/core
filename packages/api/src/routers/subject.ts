@@ -13,7 +13,7 @@ import {
 } from "@bimbelbeta/db/schema/subject";
 import { and, desc, eq, gt, ilike, inArray, lt, sql } from "drizzle-orm";
 import { authed } from "../index";
-import { fetchContentForRead } from "../lib/content-utils";
+import { readTiptapContent } from "../lib/content-utils";
 import { buildIdCursorPage, parseIdCursor } from "../lib/pagination/cursor";
 import { ROLES, type Role } from "../lib/roles";
 
@@ -207,8 +207,8 @@ const findContent = authed.subject.findContent.handler(async ({ input, context, 
 			questionMap.set(row.questionId, {
 				questionId: row.questionId,
 				order: row.order,
-				question: fetchContentForRead(row.questionContentJson, row.questionContent),
-				discussion: fetchContentForRead(row.questionDiscussionJson, row.questionDiscussion),
+				question: readTiptapContent(row.questionContentJson, row.questionContent),
+				discussion: readTiptapContent(row.questionDiscussionJson, row.questionDiscussion),
 				type: row.questionType,
 				essayCorrectAnswer: row.essayCorrectAnswer ?? null,
 				answers: [],

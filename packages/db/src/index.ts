@@ -50,24 +50,32 @@ const schema = {
 // Define main relations (empty base - all relations defined in parts)
 const relations = defineRelations(schema, () => ({}));
 
-// Connection config
-const connection: PoolConfig = {
-	connectionString: process.env.DATABASE_URL || "",
-	...(process.env.NODE_ENV !== "production" ? { ssl: false } : {}),
-};
+function createDb() {
+	const connection: PoolConfig = {
+		connectionString: process.env.DATABASE_URL || "",
+		...(process.env.NODE_ENV !== "production" ? { ssl: false } : {}),
+	};
 
-// Combine all relation parts
-// Order matters: main relations first, then parts
-export const db = drizzle({
-	connection,
-	schema,
-	relations: {
-		...relations,
-		...auth.authRelations,
-		...credit.creditTransactionRelations,
-		...question.questionRelations,
-		...subject.subjectRelations,
-		...tryout.tryoutRelations,
-		...university.universityRelations,
+	return drizzle({
+		connection,
+		schema,
+		relations: {
+			...relations,
+			...auth.authRelations,
+			...credit.creditTransactionRelations,
+			...question.questionRelations,
+			...subject.subjectRelations,
+			...tryout.tryoutRelations,
+			...university.universityRelations,
+		},
+	});
+}
+
+let _db: ReturnType<typeof createDb> | null = null;
+
+export const db: ReturnType<typeof createDb> = new Proxy({} as ReturnType<typeof createDb>, {
+	get(_target, prop) {
+		if (!_db) _db = createDb();
+		return (_db as unknown as Record<string | symbol, unknown>)[prop];
 	},
 });

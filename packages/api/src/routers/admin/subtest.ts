@@ -78,7 +78,7 @@ const updateSubtest = admin.admin.tryout.subtest.updateSubtest.handler(async ({ 
 	return { message: "Subtest berhasil diperbarui" };
 });
 
-const deleteSubtest = admin.admin.tryout.subtest.deleteSubtest.handler(async ({ input, errors }) => {
+const remove = admin.admin.tryout.subtest.remove.handler(async ({ input, errors }) => {
 	const [deleted] = await db.delete(tryoutSubtest).where(eq(tryoutSubtest.id, input.id)).returning();
 
 	if (!deleted) {
@@ -94,5 +94,5 @@ export const subtestRouter = {
 	find,
 	createSubtest,
 	updateSubtest,
-	deleteSubtest,
+	remove,
 };

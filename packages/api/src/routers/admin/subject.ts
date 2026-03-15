@@ -10,7 +10,7 @@ import {
 } from "@bimbelbeta/db/schema/subject";
 import { and, asc, eq, inArray } from "drizzle-orm";
 import { admin } from "../..";
-import { fetchContentForRead } from "../../lib/content-utils";
+import { readTiptapContent } from "../../lib/content-utils";
 
 type SubjectCategory = (typeof subjectCategoryEnum.enumValues)[number];
 
@@ -458,8 +458,8 @@ const listPracticeQuestions = admin.admin.content.listPracticeQuestions.handler(
 			questionId: q.questionId,
 			order: q.order,
 			type: q.type,
-			content: fetchContentForRead(q.contentJson, q.content),
-			discussion: fetchContentForRead(q.discussionJson, q.discussion),
+			content: readTiptapContent(q.contentJson, q.content),
+			discussion: readTiptapContent(q.discussionJson, q.discussion),
 			tags: q.tags ?? [],
 			choices: choicesByQuestionId[q.questionId] ?? [],
 		})),

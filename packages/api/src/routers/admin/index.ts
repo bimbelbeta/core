@@ -2,7 +2,7 @@ import { adminCreditRouter } from "./credit";
 import { adminDashboardRouter } from "./dashboard";
 import { adminProductRouter } from "./product";
 import { questionRouter } from "./question";
-import { adminSubjectRouter } from "./subject";
+import { adminContentRouter, adminSubjectRouter } from "./subject";
 import { subtestRouter } from "./subtest";
 import { subtestQuestionRouter } from "./subtest-question";
 import { tryoutRouter } from "./tryout";
@@ -12,6 +12,7 @@ import { usersRouter } from "./users";
 export const adminRouter = {
 	dashboard: adminDashboardRouter,
 	subject: adminSubjectRouter,
+	content: adminContentRouter,
 	tryout: {
 		...tryoutRouter,
 		subtest: subtestRouter,
@@ -25,5 +26,5 @@ export const adminRouter = {
 };
 
 export type { adminDashboardRouter } from "./dashboard";
-export type { adminSubjectRouter } from "./subject";
+export type { adminContentRouter, adminSubjectRouter } from "./subject";
 export type { adminUniversityRouter } from "./university";

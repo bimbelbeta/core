@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { canAccessContent } from "@/lib/premium-config";
 import { cn } from "@/lib/utils";
-import { useIsAdmin } from "@/utils/is-admin";
+import { useIsAdmin } from "@/utils/use-is-admin";
 import type { ContentActionItem, ContentListItem } from "./classes-types";
 
 const CONTENT_ACTIONS = [

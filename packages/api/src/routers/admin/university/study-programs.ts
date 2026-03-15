@@ -89,22 +89,14 @@ const create = admin.admin.university.studyPrograms.create.handler(async ({ inpu
 });
 
 const update = admin.admin.university.studyPrograms.update.handler(async ({ input, errors }) => {
-	const updateData: {
-		name?: string;
-		slug?: string;
-		description?: string | null;
-		category?: "SAINTEK" | "SOSHUM";
-		updatedAt: Date;
-	} = {
-		updatedAt: new Date(),
-	};
+	const { id, ...fields } = input;
+	const patch = Object.fromEntries(Object.entries(fields).filter(([, v]) => v !== undefined));
 
-	if (input.name !== undefined) updateData.name = input.name;
-	if (input.slug !== undefined) updateData.slug = input.slug;
-	if (input.description !== undefined) updateData.description = input.description;
-	if (input.category !== undefined) updateData.category = input.category;
-
-	const [updated] = await db.update(studyProgram).set(updateData).where(eq(studyProgram.id, input.id)).returning();
+	const [updated] = await db
+		.update(studyProgram)
+		.set({ ...patch, updatedAt: new Date() })
+		.where(eq(studyProgram.id, id))
+		.returning();
 
 	if (!updated) {
 		throw errors.NOT_FOUND({

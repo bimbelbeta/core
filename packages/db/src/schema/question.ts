@@ -6,6 +6,9 @@ export const questionType = pgEnum("question_type", ["multiple_choice", "multipl
 export const question = pgTable("question", {
 	id: integer().primaryKey().generatedAlwaysAsIdentity(),
 	type: questionType("type").notNull().default("multiple_choice"),
+	// Plain-text content kept for backward compat during Tiptap migration.
+	// Migration complete when contentJson/discussionJson are non-null for all rows;
+	// at that point content/discussion columns can be dropped.
 	content: text("content").notNull(),
 	discussion: text("discussion").notNull(),
 	contentJson: jsonb("content_json"),

@@ -1,12 +1,19 @@
-import { useNavigate } from "@tanstack/react-router";
-import { Route } from "../index";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 
 type QuestionType = "multiple_choice" | "multiple_choice_complex" | "essay";
 type QuestionCategory = "sd" | "smp" | "sma" | "utbk";
 
 export function useQuestionsSearch() {
 	const navigate = useNavigate({ from: "/admin/questions/" });
-	const { after, before, limit = 10, search, type: questionType, category, tag } = Route.useSearch();
+	const {
+		after,
+		before,
+		limit = 10,
+		search,
+		type: questionType,
+		category,
+		tag,
+	} = useSearch({ from: "/admin/questions/" });
 
 	const baseParams = {
 		...(search && { search }),

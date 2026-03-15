@@ -4,6 +4,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { type } from "arktype";
 import { Activity } from "react";
+import ErrorComponent from "@/components/error";
 import { Button } from "@/components/ui/button";
 import { orpc } from "@/utils/orpc";
 import { GuidelineActivity } from "./-components/guideline-activity";
@@ -83,6 +84,10 @@ function RouteComponent() {
 	// Fetch credit balance
 	const creditBalanceQuery = useQuery(orpc.credit.balance.queryOptions());
 	const creditBalance = creditBalanceQuery.data?.balance ?? 0;
+
+	if (creditBalanceQuery.isError) {
+		return <ErrorComponent error={creditBalanceQuery.error} />;
+	}
 
 	const setActiveTab = (newTab: "guideline" | "passing_grade" | "results") => {
 		navigate({ to: "/tryout", search: { tab: newTab } });

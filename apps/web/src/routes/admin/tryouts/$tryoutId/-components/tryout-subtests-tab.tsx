@@ -41,7 +41,7 @@ export function TryoutSubtestsTab({ tryoutId, subtests, onUpdate }: TryoutSubtes
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState<number | null>(null);
 
 	const deleteMutation = useMutation(
-		orpc.admin.tryout.subtest.deleteSubtest.mutationOptions({
+		orpc.admin.tryout.subtest.remove.mutationOptions({
 			onSuccess: () => {
 				toast.success("Subtest berhasil dihapus");
 				setDeleteDialogOpen(null);

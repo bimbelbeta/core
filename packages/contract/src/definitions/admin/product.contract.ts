@@ -91,7 +91,7 @@ export const adminProductContract = {
 			}),
 		)
 		.output(MessageResponseSchema),
-	delete: oc
+	remove: oc
 		.route({
 			path: "/admin/products/{productId}",
 			method: "DELETE",

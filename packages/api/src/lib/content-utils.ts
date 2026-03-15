@@ -26,7 +26,7 @@ export function normalizeQuestionContent(input: { content: unknown; discussion: 
 	};
 }
 
-export function fetchContentForRead(json: unknown, text: string): TiptapDocument {
+export function readTiptapContent(json: unknown, text: string): TiptapDocument {
 	if (json != null && typeof json === "object" && (json as Record<string, unknown>).type === "doc") {
 		return json as TiptapDocument;
 	}

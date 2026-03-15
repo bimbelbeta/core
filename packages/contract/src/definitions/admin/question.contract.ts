@@ -84,7 +84,7 @@ export const adminQuestionContract = {
 			}),
 		)
 		.output(MessageResponseSchema),
-	deleteQuestion: oc
+	remove: oc
 		.route({ path: "/admin/questions/{id}", method: "DELETE", tags: ["Admin - Questions"] })
 		.input(type({ id: "number" }))
 		.output(MessageResponseSchema),
@@ -96,7 +96,7 @@ export const adminQuestionContract = {
 		.route({ path: "/admin/questions/choices/{id}", method: "PATCH", tags: ["Admin - Questions"] })
 		.input(type({ id: "number", content: "string?", isCorrect: "boolean?" }))
 		.output(MessageResponseSchema),
-	deleteChoice: oc
+	removeChoice: oc
 		.route({ path: "/admin/questions/choices/{id}", method: "DELETE", tags: ["Admin - Questions"] })
 		.input(type({ id: "number" }))
 		.output(MessageResponseSchema),

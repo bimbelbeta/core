@@ -50,19 +50,23 @@ const stats = admin.admin.dashboard.stats.handler(async () => {
 		monthlyRevenue: currentRevenue[0]?.total ?? 0,
 		usersTrend:
 			(lastMonthUsers[0]?.count ?? 0) > 0
-				? ((currentUsers[0]?.count ?? 0 - lastMonthUsers[0]!.count) / lastMonthUsers[0]!.count) * 100
+				? (((currentUsers[0]?.count ?? 0) - (lastMonthUsers[0]?.count ?? 0)) / (lastMonthUsers[0]?.count ?? 1)) * 100
 				: 0,
 		premiumTrend:
 			(lastMonthPremium[0]?.count ?? 0) > 0
-				? ((currentPremium[0]?.count ?? 0 - lastMonthPremium[0]!.count) / lastMonthPremium[0]!.count) * 100
+				? (((currentPremium[0]?.count ?? 0) - (lastMonthPremium[0]?.count ?? 0)) / (lastMonthPremium[0]?.count ?? 1)) *
+					100
 				: 0,
 		subjectsTrend:
 			(lastMonthSubjects[0]?.count ?? 0) > 0
-				? ((currentSubjects[0]?.count ?? 0 - lastMonthSubjects[0]!.count) / lastMonthSubjects[0]!.count) * 100
+				? (((currentSubjects[0]?.count ?? 0) - (lastMonthSubjects[0]?.count ?? 0)) /
+						(lastMonthSubjects[0]?.count ?? 1)) *
+					100
 				: 0,
 		revenueTrend:
 			(lastMonthRevenue[0]?.total ?? 0) > 0
-				? ((currentRevenue[0]?.total ?? 0 - lastMonthRevenue[0]!.total) / lastMonthRevenue[0]!.total) * 100
+				? (((currentRevenue[0]?.total ?? 0) - (lastMonthRevenue[0]?.total ?? 0)) / (lastMonthRevenue[0]?.total ?? 1)) *
+					100
 				: 0,
 	};
 });

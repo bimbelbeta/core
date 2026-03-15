@@ -39,9 +39,7 @@ app.use(
 	cors({
 		origin: [
 			process.env.CORS_ORIGIN || "http://localhost:3000",
-			"http://localhost:3000",
-			"https://bimbelbeta.com",
-			"https://api.bimbelbeta.com",
+			...(process.env.TRUSTED_ORIGINS ? process.env.TRUSTED_ORIGINS.split(",").map((o) => o.trim()) : []),
 		],
 		allowMethods: ["GET", "POST", "PUT", "PATCH", "OPTIONS"],
 		allowHeaders: ["Content-Type", "Authorization", "Content-Length"],

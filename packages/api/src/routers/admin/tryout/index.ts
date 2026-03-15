@@ -1,10 +1,13 @@
 import { db } from "@bimbelbeta/db";
+import type { subjectCategoryEnum } from "@bimbelbeta/db/schema/subject";
 import { tryout } from "@bimbelbeta/db/schema/tryout";
 import { and, asc, desc, eq, gt, ilike, lt } from "drizzle-orm";
 import { admin } from "../../..";
 import { buildIdCursorPage, parseIdCursor } from "../../../lib/pagination/cursor";
 
 import { tryoutAttemptRouter } from "./attempt";
+
+type SubjectCategory = (typeof subjectCategoryEnum.enumValues)[number];
 
 const createTryout = admin.admin.tryout.createTryout.handler(async ({ input, errors }) => {
 	const [created] = await db
@@ -81,7 +84,7 @@ const updateTryout = admin.admin.tryout.updateTryout.handler(async ({ input, err
 	const updateData: {
 		title?: string;
 		description?: string | null;
-		category?: "sd" | "smp" | "sma" | "utbk";
+		category?: SubjectCategory;
 		duration?: number;
 		status?: "draft" | "published" | "archived";
 		startsAt?: Date | null;
@@ -108,7 +111,7 @@ const updateTryout = admin.admin.tryout.updateTryout.handler(async ({ input, err
 	return { message: "Tryout berhasil diperbarui" };
 });
 
-const deleteTryout = admin.admin.tryout.deleteTryout.handler(async ({ input, errors }) => {
+const remove = admin.admin.tryout.remove.handler(async ({ input, errors }) => {
 	const [deleted] = await db.delete(tryout).where(eq(tryout.id, input.id)).returning();
 
 	if (!deleted) {
@@ -125,6 +128,6 @@ export const tryoutRouter = {
 	list,
 	find,
 	updateTryout,
-	deleteTryout,
+	remove,
 	attempts: tryoutAttemptRouter,
 };

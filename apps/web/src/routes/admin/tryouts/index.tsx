@@ -31,6 +31,7 @@ import { SearchInput } from "@/components/ui/search-input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
+import { usePaginationNavigation } from "@/hooks/use-pagination-navigation";
 import { orpc } from "@/utils/orpc";
 import { AddTryoutDialog } from "./-components/add-tryout-dialog";
 
@@ -71,7 +72,7 @@ function TryoutsListPage() {
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState<number | null>(null);
 
 	const deleteMutation = useMutation(
-		orpc.admin.tryout.deleteTryout.mutationOptions({
+		orpc.admin.tryout.remove.mutationOptions({
 			onSuccess: () => {
 				toast.success("Tryout berhasil dihapus");
 				setDeleteDialogOpen(null);
@@ -124,25 +125,7 @@ function TryoutsListPage() {
 		});
 	};
 
-	const handleNext = () => {
-		if (!pageInfo?.endCursor) return;
-		navigate({
-			search: {
-				after: pageInfo.endCursor,
-				...baseSearchParams,
-			},
-		});
-	};
-
-	const handlePrevious = () => {
-		if (!pageInfo?.startCursor) return;
-		navigate({
-			search: {
-				before: pageInfo.startCursor,
-				...baseSearchParams,
-			},
-		});
-	};
+	const { handleNext, handlePrevious } = usePaginationNavigation(navigate, pageInfo, baseSearchParams);
 
 	const handleDelete = (id: number) => {
 		deleteMutation.mutate({ id });

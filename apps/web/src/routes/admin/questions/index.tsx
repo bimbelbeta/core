@@ -88,7 +88,7 @@ function QuestionsListPage() {
 	const pageInfo = data?.pageInfo;
 
 	const deleteMutation = useMutation(
-		orpc.admin.tryout.questions.deleteQuestion.mutationOptions({
+		orpc.admin.tryout.questions.remove.mutationOptions({
 			onSuccess: () => {
 				toast.success("Soal berhasil dihapus");
 				setDeleteDialogOpen(null);
@@ -111,24 +111,13 @@ function QuestionsListPage() {
 	};
 
 	const handleBulkDelete = async () => {
-		let successCount = 0;
-		let errorCount = 0;
+		const results = await Promise.allSettled(selectedIds.map((id) => deleteMutation.mutateAsync({ id })));
 
-		for (const id of selectedIds) {
-			try {
-				await deleteMutation.mutateAsync({ id });
-				successCount++;
-			} catch {
-				errorCount++;
-			}
-		}
+		const successCount = results.filter((r) => r.status === "fulfilled").length;
+		const errorCount = results.filter((r) => r.status === "rejected").length;
 
-		if (successCount > 0) {
-			toast.success(`${successCount} soal berhasil dihapus`);
-		}
-		if (errorCount > 0) {
-			toast.error(`${errorCount} soal gagal dihapus`);
-		}
+		if (successCount > 0) toast.success(`${successCount} soal berhasil dihapus`);
+		if (errorCount > 0) toast.error(`${errorCount} soal gagal dihapus`);
 
 		setBulkDeleteDialogOpen(false);
 		setSelectedIds([]);

@@ -85,7 +85,7 @@ const RecentViewItemSchema = type({
 });
 
 const UpdateProgressInputSchema = type({
-	id: "number",
+	contentId: "number",
 	"videoCompleted?": "boolean",
 	"noteCompleted?": "boolean",
 	"practiceQuestionsCompleted?": "boolean",
@@ -139,11 +139,11 @@ export const subjectContract = {
 		.output(SubjectContentDetailSchema),
 	trackView: oc
 		.route({
-			path: "/content/{id}/view",
+			path: "/content/{contentId}/view",
 			method: "POST",
 			tags: ["Content"],
 		})
-		.input(type({ id: "number" }))
+		.input(type({ contentId: "number" }))
 		.output(MessageResponseSchema),
 	listRecentViews: oc
 		.route({
@@ -162,7 +162,7 @@ export const subjectContract = {
 		.output(MessageResponseSchema),
 	updateProgress: oc
 		.route({
-			path: "/content/{id}/progress",
+			path: "/content/{contentId}/progress",
 			method: "PATCH",
 			tags: ["Content"],
 		})

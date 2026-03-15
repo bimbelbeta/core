@@ -1,6 +1,6 @@
 import { XIcon } from "@phosphor-icons/react";
-import * as SheetPrimitive from "@radix-ui/react-dialog";
 import { cva, type VariantProps } from "class-variance-authority";
+import { Dialog as SheetPrimitive } from "radix-ui";
 import * as React from "react";
 
 import { cn } from "@/lib/utils";

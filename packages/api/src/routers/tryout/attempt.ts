@@ -11,7 +11,7 @@ import {
 import { and, eq, sql } from "drizzle-orm";
 import { authed } from "../../index";
 import { calculateTryoutScores, saveScoresToDatabase } from "../../lib/calculate-score";
-import { fetchContentForRead } from "../../lib/content-utils";
+import { readTiptapContent } from "../../lib/content-utils";
 import { parseNullableInt } from "../../lib/utils";
 
 import type { TryoutQuestion } from "../../types/question";
@@ -176,7 +176,7 @@ export const find = authed.tryout.find.handler(async ({ input, context, errors }
 		if (!questionsMap.has(row.questionId)) {
 			questionsMap.set(row.questionId, {
 				id: row.questionId,
-				content: fetchContentForRead(row.questionContentJson, row.questionContent),
+				content: readTiptapContent(row.questionContentJson, row.questionContent),
 				type: row.questionType,
 				choices: [],
 				userAnswer: {

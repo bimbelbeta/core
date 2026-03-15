@@ -159,13 +159,9 @@ export const tryoutContract = {
 	saveAnswer: oc
 		.route({ path: "/tryouts/{tryoutId}/questions/{questionId}/answer", method: "POST", tags: ["Tryouts"] })
 		.input(
-			type({
-				tryoutId: "number",
-				questionId: "number",
-				selectedChoiceId: "number?",
-				selectedChoiceIds: "number[]?",
-				essayAnswer: "string?",
-			}),
+			type({ tryoutId: "number", questionId: "number", answerType: "'choice'", selectedChoiceId: "number" })
+				.or(type({ tryoutId: "number", questionId: "number", answerType: "'complex'", selectedChoiceIds: "number[]" }))
+				.or(type({ tryoutId: "number", questionId: "number", answerType: "'essay'", essayAnswer: "string" })),
 		)
 		.output(type({ success: "boolean" })),
 	toggleRaguRagu: oc
@@ -180,7 +176,9 @@ export const tryoutContract = {
 		.route({ path: "/tryouts/{tryoutId}/subtests/{subtestId}/submit", method: "POST", tags: ["Tryouts"] })
 		.input(type({ tryoutId: "number", subtestId: "number" }))
 		.output(
-			type({ success: "boolean", "nextSubtestId?": "number", "tryoutCompleted?": "boolean", "score?": "number" }),
+			type({ success: "true", tryoutCompleted: "false", nextSubtestId: "number" }).or(
+				type({ success: "true", tryoutCompleted: "true", score: "number" }),
+			),
 		),
 	submitTryout: oc
 		.route({ path: "/tryouts/{tryoutId}/submit", method: "POST", tags: ["Tryouts"] })

@@ -192,52 +192,7 @@ export function shouldShowButton(props: {
 	return true;
 }
 
-/**
- * Custom hook that provides heading functionality for Tiptap editor
- *
- * @example
- * ```tsx
- * // Simple usage
- * function MySimpleHeadingButton() {
- *   const { isVisible, isActive, handleToggle, Icon } = useHeading({ level: 1 })
- *
- *   if (!isVisible) return null
- *
- *   return (
- *     <button
- *       onClick={handleToggle}
- *       aria-pressed={isActive}
- *     >
- *       <Icon />
- *       Heading 1
- *     </button>
- *   )
- * }
- *
- * // Advanced usage with configuration
- * function MyAdvancedHeadingButton() {
- *   const { isVisible, isActive, handleToggle, label, Icon } = useHeading({
- *     level: 2,
- *     editor: myEditor,
- *     hideWhenUnavailable: true,
- *     onToggled: (isActive) => console.log('Heading toggled:', isActive)
- *   })
- *
- *   if (!isVisible) return null
- *
- *   return (
- *     <MyButton
- *       onClick={handleToggle}
- *       aria-label={label}
- *       aria-pressed={isActive}
- *     >
- *       <Icon />
- *       Toggle Heading 2
- *     </MyButton>
- *   )
- * }
- * ```
- */
+/** Custom hook that provides heading functionality for Tiptap editor */
 export function useHeading(config: UseHeadingConfig) {
 	const { editor: providedEditor, level, hideWhenUnavailable = false, onToggled } = config;
 

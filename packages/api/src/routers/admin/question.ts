@@ -1,14 +1,13 @@
 import { db } from "@bimbelbeta/db";
 import { question, questionChoice } from "@bimbelbeta/db/schema/question";
-import { and, asc, desc, eq, gt, like, lt, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gt, inArray, like, lt, sql } from "drizzle-orm";
 import { admin } from "../..";
-import { resolveQuestionContent } from "../../lib/content-utils";
-import { convertToTiptap } from "../../lib/convert-to-tiptap";
+import { normalizeQuestionContent, readTiptapContent } from "../../lib/content-utils";
 import { buildIdCursorPage, parseIdCursor } from "../../lib/pagination/cursor";
 
 const createQuestion = admin.admin.tryout.questions.createQuestion.handler(async ({ input, errors }) => {
 	const choices = input.choices;
-	const { contentJson, discussionJson, contentText, discussionText } = resolveQuestionContent(input);
+	const { contentJson, discussionJson, contentText, discussionText } = normalizeQuestionContent(input);
 
 	if (input.type === "multiple_choice") {
 		if (!choices || choices.length < 2) {
@@ -133,8 +132,8 @@ const list = admin.admin.tryout.questions.list.handler(async ({ input }) => {
 	return {
 		items: items.map((q) => ({
 			...q,
-			content: q.contentJson ?? convertToTiptap(q.content),
-			discussion: q.discussionJson ?? convertToTiptap(q.discussion),
+			content: readTiptapContent(q.contentJson, q.content),
+			discussion: readTiptapContent(q.discussionJson, q.discussion),
 		})),
 		pageInfo,
 	};
@@ -158,8 +157,8 @@ const find = admin.admin.tryout.questions.find.handler(async ({ input, errors })
 		question: {
 			id: questionData.id,
 			type: questionData.type,
-			content: questionData.contentJson ?? convertToTiptap(questionData.content),
-			discussion: questionData.discussionJson ?? convertToTiptap(questionData.discussion),
+			content: readTiptapContent(questionData.contentJson, questionData.content),
+			discussion: readTiptapContent(questionData.discussionJson, questionData.discussion),
 			essayCorrectAnswer: questionData.essayCorrectAnswer,
 			tags: questionData.tags,
 		},
@@ -168,7 +167,7 @@ const find = admin.admin.tryout.questions.find.handler(async ({ input, errors })
 });
 
 const updateQuestion = admin.admin.tryout.questions.updateQuestion.handler(async ({ input, errors }) => {
-	const { contentJson, discussionJson, contentText, discussionText } = resolveQuestionContent(input);
+	const { contentJson, discussionJson, contentText, discussionText } = normalizeQuestionContent(input);
 
 	await db.transaction(async (tx) => {
 		const [q] = await tx
@@ -197,8 +196,13 @@ const updateQuestion = admin.admin.tryout.questions.updateQuestion.handler(async
 			);
 
 			const toDelete = existingChoices.filter((choice) => !incomingIds.has(choice.id));
-			for (const choice of toDelete) {
-				await tx.delete(questionChoice).where(eq(questionChoice.id, choice.id));
+			if (toDelete.length > 0) {
+				await tx.delete(questionChoice).where(
+					inArray(
+						questionChoice.id,
+						toDelete.map((c) => c.id),
+					),
+				);
 			}
 
 			const choiceCodes = ["A", "B", "C", "D", "E", "F", "G"] as const;
@@ -232,7 +236,7 @@ const updateQuestion = admin.admin.tryout.questions.updateQuestion.handler(async
 	return { message: "Question berhasil diperbarui" };
 });
 
-const deleteQuestion = admin.admin.tryout.questions.deleteQuestion.handler(async ({ input, errors }) => {
+const removeQuestion = admin.admin.tryout.questions.remove.handler(async ({ input, errors }) => {
 	const [deleted] = await db.delete(question).where(eq(question.id, input.id)).returning();
 
 	if (!deleted) {
@@ -297,7 +301,7 @@ const updateChoice = admin.admin.tryout.questions.updateChoice.handler(async ({ 
 	return { message: "Choice berhasil diperbarui" };
 });
 
-const deleteChoice = admin.admin.tryout.questions.deleteChoice.handler(async ({ input, errors }) => {
+const removeChoice = admin.admin.tryout.questions.removeChoice.handler(async ({ input, errors }) => {
 	const [deleted] = await db.delete(questionChoice).where(eq(questionChoice.id, input.id)).returning();
 
 	if (!deleted) {
@@ -314,8 +318,8 @@ export const questionRouter = {
 	list,
 	find,
 	updateQuestion,
-	deleteQuestion,
+	remove: removeQuestion,
 	createChoice,
 	updateChoice,
-	deleteChoice,
+	removeChoice,
 };

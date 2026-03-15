@@ -1,3 +1,4 @@
+import { ROLES } from "@bimbelbeta/api/lib/roles";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { AdminBreadcrumb } from "@/components/admin/admin-breadcrumb";
 import { AppSidebar } from "@/components/admin/app-sidebar";
@@ -28,7 +29,7 @@ export const Route = createFileRoute("/admin")({
 					redirect: location.href,
 				},
 			});
-		if (context.session.user.role !== "admin" && context.session.user.role !== "superadmin")
+		if (context.session.user.role !== ROLES.ADMIN && context.session.user.role !== ROLES.SUPER_ADMIN)
 			throw redirect({
 				to: "/dashboard",
 				search: {
