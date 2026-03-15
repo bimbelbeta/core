@@ -1,5 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { getScoreFromMap } from "./calculate-score";
+import {
+	calcTotalScore,
+	getScoreFromMap,
+	scoreComplexChoice,
+	scoreEssay,
+	scoreMultipleChoice,
+} from "./calculate-score";
 
 // ─── scoring map lookup ────────────────────────────────────────────────────────
 describe("getScoreFromMap", () => {
@@ -43,14 +49,14 @@ describe("getScoreFromMap", () => {
 	test("returns 0 for zero correct via linear fallback", () => {
 		expect(getScoreFromMap(null, 0, 10)).toBe(0);
 	});
+
+	test("returns 0 when totalCount is 0 (prevents NaN)", () => {
+		expect(getScoreFromMap(null, 0, 0)).toBe(0);
+	});
 });
 
-// ─── multiple_choice scoring logic ────────────────────────────────────────────
-describe("multiple_choice scoring", () => {
-	function scoreMultipleChoice(isCorrect: boolean | null | undefined): boolean {
-		return !!isCorrect;
-	}
-
+// ─── multiple_choice scoring ───────────────────────────────────────────────────
+describe("scoreMultipleChoice", () => {
 	test("correct answer scores a point", () => {
 		expect(scoreMultipleChoice(true)).toBe(true);
 	});
@@ -65,16 +71,8 @@ describe("multiple_choice scoring", () => {
 	});
 });
 
-// ─── multiple_choice_complex scoring logic ────────────────────────────────────
-describe("multiple_choice_complex scoring", () => {
-	function scoreComplexChoice(selectedIds: number[], choices: Array<{ id: number; isCorrect: boolean }>): boolean {
-		const correctChoiceIds = choices.filter((c) => c.isCorrect).map((c) => c.id);
-		const selectedIncorrectChoices = selectedIds.filter((id) => !correctChoiceIds.includes(id));
-		const allCorrectSelected = correctChoiceIds.every((id) => selectedIds.includes(id));
-		const noIncorrectSelected = selectedIncorrectChoices.length === 0;
-		return allCorrectSelected && noIncorrectSelected;
-	}
-
+// ─── multiple_choice_complex scoring ─────────────────────────────────────────
+describe("scoreComplexChoice", () => {
 	const choices = [
 		{ id: 1, isCorrect: true },
 		{ id: 2, isCorrect: true },
@@ -111,14 +109,8 @@ describe("multiple_choice_complex scoring", () => {
 	});
 });
 
-// ─── essay scoring logic ───────────────────────────────────────────────────────
-describe("essay scoring", () => {
-	function scoreEssay(userAnswer: string | null | undefined, correctAnswer: string | null | undefined): boolean {
-		const userEssay = userAnswer?.trim().toLowerCase() ?? "";
-		const correctEssay = correctAnswer?.trim().toLowerCase() ?? "";
-		return !!(userEssay && correctEssay && userEssay === correctEssay);
-	}
-
+// ─── essay scoring ─────────────────────────────────────────────────────────────
+describe("scoreEssay", () => {
 	test("exact match → correct", () => {
 		expect(scoreEssay("photosynthesis", "photosynthesis")).toBe(true);
 	});
@@ -149,26 +141,21 @@ describe("essay scoring", () => {
 });
 
 // ─── total score averaging ─────────────────────────────────────────────────────
-describe("total score calculation", () => {
-	function calcTotal(scores: number[]): number {
-		if (scores.length === 0) return 0;
-		return Math.round(scores.reduce((sum, s) => sum + s, 0) / scores.length);
-	}
-
+describe("calcTotalScore", () => {
 	test("average of subtest scores", () => {
-		expect(calcTotal([500, 750, 250])).toBe(500);
+		expect(calcTotalScore([500, 750, 250])).toBe(500);
 	});
 
 	test("single subtest → that score", () => {
-		expect(calcTotal([800])).toBe(800);
+		expect(calcTotalScore([800])).toBe(800);
 	});
 
 	test("no subtests → 0", () => {
-		expect(calcTotal([])).toBe(0);
+		expect(calcTotalScore([])).toBe(0);
 	});
 
 	test("rounds to nearest integer", () => {
 		// (500 + 501) / 2 = 500.5 → 501
-		expect(calcTotal([500, 501])).toBe(501);
+		expect(calcTotalScore([500, 501])).toBe(501);
 	});
 });

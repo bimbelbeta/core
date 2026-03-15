@@ -4,6 +4,7 @@ import { and, eq } from "drizzle-orm";
 import { authed, pub } from "../index";
 import { calculatePurchaseBenefits } from "../lib/transactions/benefits";
 import { createSubscriptionTransaction } from "../lib/transactions/client";
+import { resolveNotificationOutcome } from "../lib/transactions/notification-routing";
 import { processSuccessfulTransaction } from "../lib/transactions/processor";
 import { fetchTransactionWithProduct } from "../lib/transactions/products";
 import { updateTransactionStatus } from "../lib/transactions/status";
@@ -56,43 +57,44 @@ const notification = pub.transaction.notification.handler(async ({ input, errors
 	});
 
 	const existingTransaction = await fetchTransactionWithProduct(order_id);
-	if (!existingTransaction) {
+
+	const outcome = resolveNotificationOutcome(
+		transactionStatus,
+		fraudStatus,
+		existingTransaction,
+		purchaseDate,
+		calculatePurchaseBenefits,
+	);
+
+	if (outcome.action === "not_found") {
 		return { status: "not_found" };
 	}
 
-	const tx = existingTransaction.tx;
-
-	if (tx.paidAt) {
+	if (outcome.action === "already_processed") {
 		return { status: "already_processed" };
 	}
 
-	const benefits = calculatePurchaseBenefits(existingTransaction, purchaseDate);
+	if (outcome.action === "user_deleted") {
+		return { status: "user_deleted" };
+	}
 
-	if (transactionStatus === "settlement" || (transactionStatus === "capture" && fraudStatus === "accept")) {
-		const userId = tx.userId;
-		if (!userId) {
-			return { status: "user_deleted" };
-		}
+	if (outcome.action === "process_success") {
 		await db
 			.transaction(async (trx) => {
 				await processSuccessfulTransaction({
 					trx,
 					orderId: order_id,
-					userId,
-					existingTransaction,
+					userId: outcome.userId,
+					existingTransaction: existingTransaction!,
 					purchaseDate,
-					benefits,
+					benefits: outcome.benefits,
 				});
 			})
 			.catch(() => {
 				throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memproses transaksi." });
 			});
-	} else if (transactionStatus === "cancel" || transactionStatus === "deny" || transactionStatus === "expire") {
-		await updateTransactionStatus(order_id, "failed").catch(() => {
-			throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memperbarui status transaksi." });
-		});
-	} else if (transactionStatus === "pending") {
-		await updateTransactionStatus(order_id, "pending").catch(() => {
+	} else if (outcome.action === "update_status") {
+		await updateTransactionStatus(order_id, outcome.status).catch(() => {
 			throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memperbarui status transaksi." });
 		});
 	}

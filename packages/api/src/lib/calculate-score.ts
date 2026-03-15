@@ -42,6 +42,33 @@ export function getScoreFromMap(
 	return Math.round((correctCount / totalCount) * 1000);
 }
 
+/** Returns true if the multiple-choice answer is correct. */
+export function scoreMultipleChoice(isCorrect: boolean | null | undefined): boolean {
+	return !!isCorrect;
+}
+
+/** Returns true if ALL correct choices are selected and NO incorrect choices are selected. */
+export function scoreComplexChoice(selectedIds: number[], choices: Array<{ id: number; isCorrect: boolean }>): boolean {
+	const correctChoiceIds = choices.filter((c) => c.isCorrect).map((c) => c.id);
+	const selectedIncorrectChoices = selectedIds.filter((id) => !correctChoiceIds.includes(id));
+	const allCorrectSelected = correctChoiceIds.every((id) => selectedIds.includes(id));
+	const noIncorrectSelected = selectedIncorrectChoices.length === 0;
+	return allCorrectSelected && noIncorrectSelected;
+}
+
+/** Returns true if the trimmed, lowercased essay answer matches the correct answer. */
+export function scoreEssay(userAnswer: string | null | undefined, correctAnswer: string | null | undefined): boolean {
+	const userEssay = userAnswer?.trim().toLowerCase() ?? "";
+	const correctEssay = correctAnswer?.trim().toLowerCase() ?? "";
+	return !!(userEssay && correctEssay && userEssay === correctEssay);
+}
+
+/** Calculates total score as the rounded average of per-subtest scores. Returns 0 for empty input. */
+export function calcTotalScore(scores: number[]): number {
+	if (scores.length === 0) return 0;
+	return Math.round(scores.reduce((sum, s) => sum + s, 0) / scores.length);
+}
+
 /**
  * Calculates scores for all subtests in a tryout attempt.
  * Score is on a 1-1000 scale per subtest.
@@ -149,31 +176,17 @@ export async function calculateTryoutScores(attemptId: number): Promise<TryoutSc
 			}
 
 			if (questionData.type === "multiple_choice") {
-				// Check if selected choice is correct
-				if (userAnswer.selectedChoice?.isCorrect) {
+				if (scoreMultipleChoice(userAnswer.selectedChoice?.isCorrect)) {
 					correctCount++;
 				}
 			} else if (questionData.type === "multiple_choice_complex") {
-				// Correct if: ALL correct choices are selected AND NO incorrect choices are selected
 				const selectedIds = userAnswer.selectedChoiceIds ?? [];
 				const choices = choicesByQuestion.get(questionId) ?? [];
-
-				const correctChoiceIds = choices.filter((c) => c.isCorrect).map((c) => c.id);
-				const selectedIncorrectChoices = selectedIds.filter((id) => !correctChoiceIds.includes(id));
-
-				// Correct only if all correct are selected and no incorrect are selected
-				const allCorrectSelected = correctChoiceIds.every((id) => selectedIds.includes(id));
-				const noIncorrectSelected = selectedIncorrectChoices.length === 0;
-
-				if (allCorrectSelected && noIncorrectSelected) {
+				if (scoreComplexChoice(selectedIds, choices)) {
 					correctCount++;
 				}
 			} else if (questionData.type === "essay") {
-				// Exact match comparison (case-insensitive, trimmed)
-				const userEssay = userAnswer.essayAnswer?.trim().toLowerCase() ?? "";
-				const correctEssay = questionData.essayCorrectAnswer?.trim().toLowerCase() ?? "";
-
-				if (userEssay && correctEssay && userEssay === correctEssay) {
+				if (scoreEssay(userAnswer.essayAnswer, questionData.essayCorrectAnswer)) {
 					correctCount++;
 				}
 			}
@@ -192,10 +205,7 @@ export async function calculateTryoutScores(attemptId: number): Promise<TryoutSc
 	}
 
 	// Calculate total score as average of subtest scores
-	const totalScore =
-		subtestScores.length > 0
-			? Math.round(subtestScores.reduce((sum, s) => sum + s.score, 0) / subtestScores.length)
-			: 0;
+	const totalScore = calcTotalScore(subtestScores.map((s) => s.score));
 
 	return {
 		subtests: subtestScores,
