@@ -38,6 +38,7 @@ export function getScoreFromMap(
 		return mappedScore;
 	}
 	// Fallback: linear scale (0-1000)
+	if (totalCount === 0) return 0;
 	return Math.round((correctCount / totalCount) * 1000);
 }
 

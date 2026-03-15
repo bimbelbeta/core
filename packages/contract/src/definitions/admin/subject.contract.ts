@@ -55,7 +55,7 @@ export const adminContentContract = {
 				subjectId: "number",
 				title: "string",
 				order: "number",
-				"video?": type({ videoUrl: "string", title: "string", content: "Record<string, unknown>" }),
+				"video?": type({ videoUrl: "string", content: "Record<string, unknown>" }),
 				"note?": type({ content: "Record<string, unknown>" }),
 				"practiceQuestionIds?": "number[]",
 			}),

@@ -27,7 +27,12 @@ export function normalizeQuestionContent(input: { content: unknown; discussion: 
 }
 
 export function readTiptapContent(json: unknown, text: string): TiptapDocument {
-	if (json != null && typeof json === "object" && (json as Record<string, unknown>).type === "doc") {
+	if (
+		json != null &&
+		typeof json === "object" &&
+		(json as Record<string, unknown>).type === "doc" &&
+		Array.isArray((json as Record<string, unknown>).content)
+	) {
 		return json as TiptapDocument;
 	}
 	return convertToTiptap(text);
