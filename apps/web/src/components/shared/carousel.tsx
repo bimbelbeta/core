@@ -3,7 +3,7 @@ import { Image } from "@unpic/react";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { Container } from "./ui/container";
+import { Container } from "../ui/container";
 
 export interface CarouselItem {
 	id: string | number;

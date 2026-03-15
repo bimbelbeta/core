@@ -1,4 +1,4 @@
-import { TiptapRenderer } from "@/components/tiptap-renderer";
+import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTryoutStore } from "../-hooks/use-tryout-store";
 

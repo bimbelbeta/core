@@ -1,7 +1,7 @@
 import { SignOutIcon } from "@phosphor-icons/react";
 import { useRouteContext } from "@tanstack/react-router";
 import { useState } from "react";
-import { LogoutDialog } from "@/components/logout-dialog";
+import { LogoutDialog } from "@/components/shared/logout-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SidebarFooter, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 

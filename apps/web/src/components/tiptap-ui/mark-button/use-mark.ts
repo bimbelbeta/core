@@ -9,7 +9,7 @@ import { SubscriptIcon } from "@/components/tiptap-icons/subscript-icon";
 import { SuperscriptIcon } from "@/components/tiptap-icons/superscript-icon";
 import { UnderlineIcon } from "@/components/tiptap-icons/underline-icon";
 // --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
+import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
 // --- Lib ---
 import { isMarkInSchema, isNodeTypeSelected } from "@/lib/tiptap-utils";
 

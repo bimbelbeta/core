@@ -5,7 +5,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { HighlighterIcon } from "@/components/tiptap-icons/highlighter-icon";
 import { useIsBreakpoint } from "@/hooks/use-is-breakpoint";
 // --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
+import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
 // --- Lib ---
 import { isExtensionAvailable, isMarkInSchema, isNodeTypeSelected } from "@/lib/tiptap-utils";
 

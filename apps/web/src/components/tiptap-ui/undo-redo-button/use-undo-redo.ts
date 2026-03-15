@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Redo2Icon } from "@/components/tiptap-icons/redo2-icon";
 import { Undo2Icon } from "@/components/tiptap-icons/undo2-icon";
 // --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
+import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
 // --- Lib ---
 import { isNodeTypeSelected } from "@/lib/tiptap-utils";
 

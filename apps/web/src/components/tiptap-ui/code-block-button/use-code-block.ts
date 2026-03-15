@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 // --- Icons ---
 import { CodeBlockIcon } from "@/components/tiptap-icons/code-block-icon";
 // --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
+import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
 // --- Lib ---
 import {
 	findNodePosition,

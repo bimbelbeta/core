@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { type } from "arktype";
 import { toast } from "sonner";
-import TiptapSimpleEditor from "@/components/tiptap-simple-editor";
+import TiptapSimpleEditor from "@/components/tiptap/tiptap-simple-editor";
 import {
 	AlertDialog,
 	AlertDialogAction,

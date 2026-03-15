@@ -10,7 +10,7 @@ import { HeadingSixIcon } from "@/components/tiptap-icons/heading-six-icon";
 import { HeadingThreeIcon } from "@/components/tiptap-icons/heading-three-icon";
 import { HeadingTwoIcon } from "@/components/tiptap-icons/heading-two-icon";
 // --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
+import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
 // --- Lib ---
 import {
 	findNodePosition,

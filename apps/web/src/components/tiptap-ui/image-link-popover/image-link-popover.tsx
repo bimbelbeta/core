@@ -1,18 +1,15 @@
-import type { Editor } from "@tiptap/react";
-import { forwardRef, useCallback, useState } from "react";
+import { forwardRef } from "react";
 import { CornerDownLeftIcon } from "@/components/tiptap-icons/corner-down-left-icon";
 import { ImagePlusIcon } from "@/components/tiptap-icons/image-plus-icon";
+import type { UseImageLinkPopoverConfig } from "@/components/tiptap-ui/image-link-popover/use-image-link-popover";
+import { useImageLinkPopover } from "@/components/tiptap-ui/image-link-popover/use-image-link-popover";
 import type { ButtonProps } from "@/components/tiptap-ui-primitive/button";
 import { Button } from "@/components/tiptap-ui-primitive/button";
 import { Card, CardBody, CardItemGroup } from "@/components/tiptap-ui-primitive/card";
 import { Input, InputGroup } from "@/components/tiptap-ui-primitive/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/tiptap-ui-primitive/popover";
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
 
-export interface ImageLinkPopoverProps extends Omit<ButtonProps, "type"> {
-	editor?: Editor | null;
-	onOpenChange?: (isOpen: boolean) => void;
-}
+export interface ImageLinkPopoverProps extends Omit<ButtonProps, "type">, UseImageLinkPopoverConfig {}
 
 export const ImageLinkButton = forwardRef<HTMLButtonElement, ButtonProps>(({ className, children, ...props }, ref) => {
 	return (
@@ -35,39 +32,23 @@ export const ImageLinkButton = forwardRef<HTMLButtonElement, ButtonProps>(({ cla
 ImageLinkButton.displayName = "ImageLinkButton";
 
 export const ImageLinkPopover = forwardRef<HTMLButtonElement, ImageLinkPopoverProps>(
-	({ editor: providedEditor, onClick, children, ...buttonProps }, ref) => {
-		const { editor } = useTiptapEditor(providedEditor);
-		const [isOpen, setIsOpen] = useState(false);
-		const [url, setUrl] = useState("");
-
-		const handleSetImage = useCallback(() => {
-			if (editor && url) {
-				editor.chain().focus().setImage({ src: url }).run();
-				setUrl("");
-				setIsOpen(false);
-			}
-		}, [editor, url]);
-
-		const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-			if (event.key === "Enter") {
-				event.preventDefault();
-				handleSetImage();
-			}
-		};
-
-		const handleClick = useCallback(
-			(event: React.MouseEvent<HTMLButtonElement>) => {
-				onClick?.(event);
-				if (event.defaultPrevented) return;
-				setIsOpen(!isOpen);
-			},
-			[onClick, isOpen],
-		);
+	({ editor: providedEditor, onClick, onOpenChange, children, ...buttonProps }, ref) => {
+		const { isOpen, setIsOpen, url, setUrl, handleSetImage, handleToggleOpen, handleKeyDown } = useImageLinkPopover({
+			editor: providedEditor,
+			onOpenChange,
+		});
 
 		return (
 			<Popover open={isOpen} onOpenChange={setIsOpen}>
 				<PopoverTrigger asChild>
-					<ImageLinkButton onClick={handleClick} {...buttonProps} ref={ref}>
+					<ImageLinkButton
+						onClick={(event) => {
+							onClick?.(event);
+							handleToggleOpen(event);
+						}}
+						{...buttonProps}
+						ref={ref}
+					>
 						{children ?? <ImagePlusIcon className="tiptap-button-icon" />}
 					</ImageLinkButton>
 				</PopoverTrigger>

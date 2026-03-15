@@ -5,7 +5,8 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { type } from "arktype";
 import { useState } from "react";
 import { toast } from "sonner";
-import TiptapSimpleEditor from "@/components/tiptap-simple-editor";
+import YouTubePlayer from "@/components/shared/youtube-player";
+import TiptapSimpleEditor from "@/components/tiptap/tiptap-simple-editor";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -21,7 +22,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import YouTubePlayer from "@/components/youtube-player";
 import { useDebounceValue } from "@/hooks/use-debounce-value";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";

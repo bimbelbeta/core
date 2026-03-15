@@ -6,7 +6,7 @@ import { AlignJustifyIcon } from "@/components/tiptap-icons/align-justify-icon";
 import { AlignLeftIcon } from "@/components/tiptap-icons/align-left-icon";
 import { AlignRightIcon } from "@/components/tiptap-icons/align-right-icon";
 // --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
+import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
 // --- Lib ---
 import { isExtensionAvailable, isNodeTypeSelected } from "@/lib/tiptap-utils";
 

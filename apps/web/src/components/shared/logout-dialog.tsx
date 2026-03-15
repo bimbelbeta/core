@@ -9,7 +9,7 @@ import {
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useLogout } from "@/hooks/use-logout";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 
 interface LogoutDialogProps {
 	open: boolean;

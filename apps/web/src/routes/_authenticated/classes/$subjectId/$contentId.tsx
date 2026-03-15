@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { BackButton } from "@/components/back-button";
-import { NextButton } from "@/components/next-button";
+import { BackButton } from "@/components/shared/back-button";
+import { NextButton } from "@/components/shared/next-button";
 import { PremiumGateModal } from "@/components/premium/premium-gate-modal";
 import { Container } from "@/components/ui/container";
 import { Tabs, TabsContent } from "@/components/ui/tabs";

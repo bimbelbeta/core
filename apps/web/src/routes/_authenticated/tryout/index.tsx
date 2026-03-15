@@ -4,7 +4,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { type } from "arktype";
 import { Activity } from "react";
-import ErrorComponent from "@/components/error";
+import ErrorComponent from "@/components/shared/error";
 import { Button } from "@/components/ui/button";
 import { orpc } from "@/utils/orpc";
 import { GuidelineActivity } from "./-components/guideline-activity";

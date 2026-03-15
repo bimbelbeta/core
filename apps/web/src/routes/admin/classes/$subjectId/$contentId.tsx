@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
-import { BackButton } from "@/components/back-button";
+import { BackButton } from "@/components/shared/back-button";
 import { Container } from "@/components/ui/container";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

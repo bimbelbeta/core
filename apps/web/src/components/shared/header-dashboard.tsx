@@ -1,15 +1,15 @@
 import { ListIcon, SignOutIcon, XIcon } from "@phosphor-icons/react";
 import { Link, useLocation, useRouteContext } from "@tanstack/react-router";
 import { useState } from "react";
-import { LogoutDialog } from "@/components/logout-dialog";
-import { Button } from "./ui/button";
+import { LogoutDialog } from "@/components/shared/logout-dialog";
+import { Button } from "../ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuLabel,
 	DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+} from "../ui/dropdown-menu";
 
 const links = [
 	{

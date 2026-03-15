@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Reorder, useDragControls } from "motion/react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { TiptapRenderer } from "@/components/tiptap-renderer";
+import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
 import {
 	AlertDialog,
 	AlertDialogAction,

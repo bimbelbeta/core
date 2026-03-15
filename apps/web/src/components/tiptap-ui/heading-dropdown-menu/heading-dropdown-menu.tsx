@@ -17,7 +17,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/tiptap-ui-primitive/dropdown-menu";
 // --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
+import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
 
 export interface HeadingDropdownMenuProps extends Omit<ButtonProps, "type">, UseHeadingDropdownMenuConfig {
 	/**

@@ -1,4 +1,4 @@
-import { SimpleEditor } from "./tiptap-templates/simple/simple-editor";
+import { SimpleEditor } from "../tiptap-templates/simple/simple-editor";
 
 interface TiptapSimpleEditorProps {
 	content?: object;

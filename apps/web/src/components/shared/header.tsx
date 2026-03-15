@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { authClient } from "@/lib/auth-client";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 
 export default function Header() {
 	const session = authClient.useSession();
