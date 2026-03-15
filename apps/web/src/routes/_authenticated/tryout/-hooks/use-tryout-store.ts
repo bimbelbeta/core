@@ -1,4 +1,4 @@
-import type { TryoutQuestion } from "@bimbelbeta/api/types/question";
+import type { TryoutQuestion } from "@bimbelbeta/contract/definitions/tryout.contract";
 import { create } from "zustand";
 
 interface TryoutStore {

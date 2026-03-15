@@ -1,4 +1,4 @@
-import { ROLES } from "@bimbelbeta/api/lib/roles";
+import { ROLES } from "@bimbelbeta/contract/common/roles";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { $getSession } from "@/lib/get-user";
 

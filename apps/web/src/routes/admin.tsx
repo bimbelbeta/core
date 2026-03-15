@@ -1,4 +1,4 @@
-import { ROLES } from "@bimbelbeta/api/lib/roles";
+import { ROLES } from "@bimbelbeta/contract/common/roles";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { AdminBreadcrumb } from "@/components/admin/admin-breadcrumb";
 import { AppSidebar } from "@/components/admin/app-sidebar";

@@ -92,6 +92,9 @@ const TryoutHistoryItemSchema = type({
 	},
 });
 
+export type TryoutQuestion = typeof TryoutQuestionSchema.infer;
+export type ReviewQuestion = typeof ReviewQuestionSchema.infer;
+
 export const tryoutContract = {
 	list: oc.route({ path: "/tryouts", method: "GET", tags: ["Tryouts"] }).output(
 		type(
