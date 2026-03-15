@@ -1,8 +1,9 @@
+import { adminContentRouter } from "./content";
 import { adminCreditRouter } from "./credit";
 import { adminDashboardRouter } from "./dashboard";
 import { adminProductRouter } from "./product";
 import { questionRouter } from "./question";
-import { adminContentRouter, adminSubjectRouter } from "./subject";
+import { adminSubjectRouter } from "./subject";
 import { subtestRouter } from "./subtest";
 import { subtestQuestionRouter } from "./subtest-question";
 import { tryoutRouter } from "./tryout";
@@ -25,6 +26,7 @@ export const adminRouter = {
 	products: adminProductRouter,
 };
 
+export type { adminContentRouter } from "./content";
 export type { adminDashboardRouter } from "./dashboard";
-export type { adminContentRouter, adminSubjectRouter } from "./subject";
+export type { adminSubjectRouter } from "./subject";
 export type { adminUniversityRouter } from "./university";
