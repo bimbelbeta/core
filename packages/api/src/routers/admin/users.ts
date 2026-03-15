@@ -19,14 +19,12 @@ const list = superadmin.admin.users.list.handler(async ({ input }: { input: List
 	const isBackward = !!input.before;
 	const cursor = input.before || input.after;
 
-	// Build the base query with filters
 	const baseFilters = [
 		input.search ? or(like(user.name, `%${input.search}%`), like(user.email, `%${input.search}%`)) : undefined,
 		input.role ? eq(user.role, input.role) : undefined,
 		input.isPremium !== undefined ? eq(user.isPremium, input.isPremium) : undefined,
 	];
 
-	// Apply cursor filter based on direction
 	if (cursor) {
 		const cursorDate = parseDateCursor(cursor);
 		if (isBackward) {
@@ -36,7 +34,6 @@ const list = superadmin.admin.users.list.handler(async ({ input }: { input: List
 		}
 	}
 
-	// Execute query with appropriate ordering
 	let rows = await db
 		.select()
 		.from(user)
@@ -49,19 +46,15 @@ const list = superadmin.admin.users.list.handler(async ({ input }: { input: List
 		rows = rows.slice(0, limit);
 	}
 
-	// Reverse results if going backward (items come in reverse chronological order)
 	if (isBackward) {
 		rows.reverse();
 	}
 
-	// Compute page info
 	const firstItem = rows[0];
 	const lastItem = rows[rows.length - 1];
 
-	// hasNextPage: true if going backward, OR if we're going forward and have extra items
-	// hasPreviousPage: true if we have a cursor for forward navigation, OR if going backward and have extra
 	const pageInfo = {
-		hasNextPage: isBackward ? true : hasExtra,
+		hasNextPage: isBackward ? !!cursor : hasExtra,
 		hasPreviousPage: isBackward ? hasExtra : !!cursor,
 		startCursor: firstItem ? createDateCursor(firstItem.createdAt) : null,
 		endCursor: lastItem ? createDateCursor(lastItem.createdAt) : null,

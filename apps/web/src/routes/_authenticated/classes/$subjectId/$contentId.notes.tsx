@@ -35,7 +35,7 @@ function RouteComponent() {
 	useEffect(() => {
 		if (content.data?.note) {
 			updateProgressMutation.mutate({
-				id: contentId,
+				contentId,
 				noteCompleted: true,
 			});
 		}

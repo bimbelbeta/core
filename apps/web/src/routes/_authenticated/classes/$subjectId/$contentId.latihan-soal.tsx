@@ -39,7 +39,7 @@ function RouteComponent() {
 	useEffect(() => {
 		if (content.data?.practiceQuestions) {
 			updateProgressMutation.mutate({
-				id: contentId,
+				contentId,
 				practiceQuestionsCompleted: true,
 			});
 		}

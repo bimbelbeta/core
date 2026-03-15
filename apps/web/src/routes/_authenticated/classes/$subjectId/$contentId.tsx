@@ -62,7 +62,7 @@ function RouteComponent() {
 
 		if (!lastTracked || now - Number(lastTracked) > DEBOUNCE_MS) {
 			trackViewMutation.mutate(
-				{ id: contentId },
+				{ contentId },
 				{
 					onSuccess: () => {
 						// Update last tracked timestamp

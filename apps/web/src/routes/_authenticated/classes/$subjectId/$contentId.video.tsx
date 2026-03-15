@@ -27,7 +27,6 @@ function RouteComponent() {
 	const updateProgressMutation = useMutation(
 		orpc.subject.updateProgress.mutationOptions({
 			onSuccess: () => {
-				console.log("Progress updated successfully for video:", contentId);
 				queryClient.invalidateQueries({
 					queryKey: orpc.subject.stats.key(),
 				});
@@ -49,7 +48,7 @@ function RouteComponent() {
 		if (content.data?.video && !hasUpdatedProgress.current) {
 			hasUpdatedProgress.current = true;
 			updateProgressMutation.mutate({
-				id: contentId,
+				contentId,
 				videoCompleted: true,
 			});
 		}

@@ -89,8 +89,6 @@ function RouteComponent() {
 	}
 	if (!contents.data) return notFound();
 
-	console.log(contents.data.subject);
-
 	return (
 		<div className="-mt-5 space-y-4 sm:-mt-3">
 			<ClassHeader subject={contents.data.subject} />
