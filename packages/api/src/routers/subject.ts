@@ -1,5 +1,6 @@
 import { canAccessContent } from "@bimbelbeta/contract/common/content-access";
 import { db } from "@bimbelbeta/db";
+import { user } from "@bimbelbeta/db/schema/auth";
 import { question, questionChoice } from "@bimbelbeta/db/schema/question";
 import {
 	contentItem,
@@ -162,7 +163,18 @@ const findContent = authed.subject.findContent.handler(async ({ input, context, 
 
 	const rawRole = context.session.user.role;
 	const role: Role = Object.values(ROLES).includes(rawRole as Role) ? (rawRole as Role) : ROLES.USER;
-	const hasAccess = canAccessContent(context.session.user.isPremium, role, row.subtestOrder, row.order);
+
+	let { isPremium } = context.session.user;
+	if (
+		isPremium &&
+		context.session.user.premiumExpiresAt &&
+		context.session.user.premiumExpiresAt.getTime() < Date.now()
+	) {
+		await db.update(user).set({ isPremium: false }).where(eq(user.id, context.session.user.id));
+		isPremium = false;
+	}
+
+	const hasAccess = canAccessContent(isPremium, role, row.subtestOrder, row.order);
 
 	if (!hasAccess) {
 		throw errors.FORBIDDEN({ message: "Konten ini memerlukan akun premium" });

@@ -37,13 +37,16 @@ export const requireAuth = baseImplementer.middleware(async ({ context, next, er
 export const revokeExpiredPremium = baseImplementer.middleware(async ({ context, next }) => {
 	const sess = context.session;
 	if (sess?.user.isPremium && sess.user.premiumExpiresAt && sess.user.premiumExpiresAt.getTime() < Date.now()) {
-		await db
-			.update(user)
-			.set({ isPremium: false })
-			.where(eq(user.id, sess.user.id))
-			.then(() => {
-				sess.user.isPremium = false;
-			});
+		await db.update(user).set({ isPremium: false }).where(eq(user.id, sess.user.id));
+
+		return next({
+			context: {
+				session: {
+					...sess,
+					user: { ...sess.user, isPremium: false },
+				},
+			},
+		});
 	}
 
 	return next();
