@@ -1,3 +1,4 @@
+import { canAccessContent } from "@bimbelbeta/contract/common/content-access";
 import { db } from "@bimbelbeta/db";
 import { question, questionChoice } from "@bimbelbeta/db/schema/question";
 import {
@@ -12,9 +13,9 @@ import {
 } from "@bimbelbeta/db/schema/subject";
 import { and, desc, eq, gt, ilike, inArray, lt, sql } from "drizzle-orm";
 import { authed } from "../index";
-import { canAccessContent } from "../lib/content-access";
-import { convertToTiptap } from "../lib/convert-to-tiptap";
+import { fetchContentForRead } from "../lib/content-utils";
 import { buildIdCursorPage, parseIdCursor } from "../lib/pagination/cursor";
+import type { Role } from "../lib/roles";
 
 import type { ChoiceWithAnswer } from "../types/question";
 
@@ -161,7 +162,7 @@ const findContent = authed.subject.findContent.handler(async ({ input, context, 
 
 	const hasAccess = canAccessContent(
 		context.session.user.isPremium,
-		context.session.user.role,
+		context.session.user.role as Role,
 		row.subtestOrder,
 		row.order,
 	);
@@ -196,8 +197,8 @@ const findContent = authed.subject.findContent.handler(async ({ input, context, 
 		{
 			questionId: number;
 			order: number;
-			question: string;
-			discussion: string;
+			question: Record<string, unknown>;
+			discussion: Record<string, unknown>;
 			type: "multiple_choice" | "multiple_choice_complex" | "essay";
 			essayCorrectAnswer: string | null;
 			answers: ChoiceWithAnswer[];
@@ -209,8 +210,8 @@ const findContent = authed.subject.findContent.handler(async ({ input, context, 
 			questionMap.set(row.questionId, {
 				questionId: row.questionId,
 				order: row.order,
-				question: row.questionContentJson || convertToTiptap(row.questionContent),
-				discussion: row.questionDiscussionJson || convertToTiptap(row.questionDiscussion),
+				question: fetchContentForRead(row.questionContentJson, row.questionContent),
+				discussion: fetchContentForRead(row.questionDiscussionJson, row.questionDiscussion),
 				type: row.questionType,
 				essayCorrectAnswer: row.essayCorrectAnswer ?? null,
 				answers: [],
@@ -261,7 +262,11 @@ const findContent = authed.subject.findContent.handler(async ({ input, context, 
 });
 
 const trackView = authed.subject.trackView.handler(async ({ input, context, errors }) => {
-	const [item] = await db.select({ id: contentItem.id }).from(contentItem).where(eq(contentItem.id, input.id)).limit(1);
+	const [item] = await db
+		.select({ id: contentItem.id })
+		.from(contentItem)
+		.where(eq(contentItem.id, input.contentId))
+		.limit(1);
 
 	if (!item)
 		throw errors.NOT_FOUND({
@@ -271,11 +276,16 @@ const trackView = authed.subject.trackView.handler(async ({ input, context, erro
 	await db.transaction(async (tx) => {
 		await tx
 			.delete(recentContentView)
-			.where(and(eq(recentContentView.userId, context.session.user.id), eq(recentContentView.contentItemId, input.id)));
+			.where(
+				and(
+					eq(recentContentView.userId, context.session.user.id),
+					eq(recentContentView.contentItemId, input.contentId),
+				),
+			);
 
 		await tx.insert(recentContentView).values({
 			userId: context.session.user.id,
-			contentItemId: input.id,
+			contentItemId: input.contentId,
 		});
 
 		const toDelete = await tx
@@ -352,7 +362,11 @@ const trackSubjectView = authed.subject.trackSubjectView.handler(async ({ input,
 });
 
 const updateProgress = authed.subject.updateProgress.handler(async ({ input, context, errors }) => {
-	const [item] = await db.select({ id: contentItem.id }).from(contentItem).where(eq(contentItem.id, input.id)).limit(1);
+	const [item] = await db
+		.select({ id: contentItem.id })
+		.from(contentItem)
+		.where(eq(contentItem.id, input.contentId))
+		.limit(1);
 
 	if (!item)
 		throw errors.NOT_FOUND({
@@ -379,12 +393,15 @@ const updateProgress = authed.subject.updateProgress.handler(async ({ input, con
 		.insert(userProgress)
 		.values({
 			userId: context.session.user.id,
-			contentItemId: input.id,
+			contentItemId: input.contentId,
 			...updateData,
 		})
 		.onConflictDoUpdate({
 			target: [userProgress.userId, userProgress.contentItemId],
 			set: updateData,
+		})
+		.catch(() => {
+			throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal menyimpan progres." });
 		});
 
 	return { message: "Progress berhasil disimpan" };

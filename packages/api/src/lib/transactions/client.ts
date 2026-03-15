@@ -1,11 +1,18 @@
 import type { auth } from "@bimbelbeta/auth";
 import { Snap } from "midtrans-client";
 
-export const snap = new Snap({
-	isProduction: process.env.NODE_ENV === "production",
-	serverKey: process.env.MIDTRANS_SERVER_KEY || "",
-	clientKey: process.env.MIDTRANS_CLIENT_KEY || "",
-});
+let _snap: Snap | null = null;
+
+function getSnap(): Snap {
+	if (!_snap) {
+		_snap = new Snap({
+			isProduction: process.env.NODE_ENV === "production",
+			serverKey: process.env.MIDTRANS_SERVER_KEY || "",
+			clientKey: process.env.MIDTRANS_CLIENT_KEY || "",
+		});
+	}
+	return _snap;
+}
 
 export async function createSubscriptionTransaction({
 	id,
@@ -42,7 +49,12 @@ export async function createSubscriptionTransaction({
 		},
 	};
 
-	const snapTransaction = await snap.createTransaction(params);
+	let snapTransaction: { token: string; redirect_url: string };
+	try {
+		snapTransaction = await getSnap().createTransaction(params);
+	} catch (err) {
+		throw new Error("Gagal memproses pembayaran. Silahkan coba lagi.", { cause: err });
+	}
 
 	return {
 		token: snapTransaction.token,

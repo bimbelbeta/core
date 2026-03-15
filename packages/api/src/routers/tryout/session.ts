@@ -161,6 +161,9 @@ export const toggleRaguRagu = authed.tryout.toggleRaguRagu.handler(async ({ inpu
 		.onConflictDoUpdate({
 			target: [tryoutUserAnswer.attemptId, tryoutUserAnswer.questionId],
 			set: { isDoubtful: sql`NOT ${tryoutUserAnswer.isDoubtful}` },
+		})
+		.catch(() => {
+			throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal menyimpan status ragu-ragu." });
 		});
 
 	return { success: true };
