@@ -45,11 +45,6 @@ describe("saveScoresToDatabase", () => {
 	};
 
 	test("updates each subtest attempt with its score", async () => {
-		const trx = makeMockTrx() as unknown as Parameters<typeof saveScoresToDatabase>[2];
-		await saveScoresToDatabase(ATTEMPT_ID, scores, trx);
-
-		const subtestUpdates = (makeMockTrx() as MockTrx).updates;
-		// Re-run with a real capture
 		const capture = makeMockTrx();
 		await saveScoresToDatabase(ATTEMPT_ID, scores, capture as unknown as Parameters<typeof saveScoresToDatabase>[2]);
 

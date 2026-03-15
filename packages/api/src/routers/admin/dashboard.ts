@@ -36,12 +36,7 @@ const stats = admin.admin.dashboard.stats.handler(async () => {
 	const lastMonthRevenue = await db
 		.select({ total: sql<number>`COALESCE(CAST(SUM(${transaction.grossAmount}) AS FLOAT), 0)` })
 		.from(transaction)
-		.where(
-			and(
-				eq(transaction.status, "success"),
-				gte(transaction.paidAt, new Date(now.getFullYear(), now.getMonth() - 2, 1)),
-			),
-		);
+		.where(and(eq(transaction.status, "success"), gte(transaction.paidAt, lastMonthStart)));
 
 	return {
 		totalUsers: currentUsers[0]?.count ?? 0,
