@@ -102,7 +102,7 @@ export const startSubtest = authed.tryout.startSubtest.handler(async ({ input, c
 		throw errors.BAD_REQUEST({ message: "Pengerjaan tidak memiliki batas waktu" });
 	}
 
-	const startFrom = prevSubtestAttempt ? prevSubtestAttempt.deadline : new Date();
+	const startFrom = prevSubtestAttempt?.deadline ?? new Date();
 	const deadline = computeSubtestDeadline(currentSubtest.duration, attempt.deadline, startFrom);
 
 	const [subAttempt] = await db

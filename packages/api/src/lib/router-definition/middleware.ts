@@ -2,43 +2,29 @@ import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { createRatelimitMiddleware } from "@orpc/experimental-ratelimit";
 import { eq } from "drizzle-orm";
-import { o } from ".";
-import { freeRatelimiter, premiumRatelimiter } from "./rate-limiter";
+import { ROLES } from "../roles";
+import { baseImplementer } from ".";
 
 export const rateLimit = createRatelimitMiddleware({
 	limiter: ({ context }) => (context.session.user.isPremium ? premiumRatelimiter : freeRatelimiter),
 	key: ({ context }) => context.session.user.id,
 });
 
-export const requireAdmin = o.middleware(async ({ context, next, errors }) => {
+export const requireAdmin = baseImplementer.middleware(async ({ context, next, errors }) => {
 	const role = context.session?.user.role;
-	if (role !== "admin" && role !== "superadmin") throw errors.UNAUTHORIZED();
+	if (role !== ROLES.ADMIN && role !== ROLES.SUPER_ADMIN) throw errors.UNAUTHORIZED();
 
 	return next();
 });
 
-export const requireSuperAdmin = o.middleware(async ({ context, next, errors }) => {
-	if (context.session?.user.role !== "superadmin") throw errors.UNAUTHORIZED();
+export const requireSuperAdmin = baseImplementer.middleware(async ({ context, next, errors }) => {
+	if (context.session?.user.role !== ROLES.SUPER_ADMIN) throw errors.UNAUTHORIZED();
 
 	return next();
 });
 
-export const requireAuth = o.middleware(async ({ context, next, errors }) => {
+export const requireAuth = baseImplementer.middleware(async ({ context, next, errors }) => {
 	if (!context.session?.user) throw errors.UNAUTHORIZED();
-
-	if (
-		context.session.user.isPremium &&
-		context.session.user.premiumExpiresAt &&
-		context.session.user.premiumExpiresAt.getTime() < Date.now()
-	) {
-		await db
-			.update(user)
-			.set({ isPremium: false })
-			.where(eq(user.id, context.session.user.id))
-			.then(() => {
-				context.session!.user.isPremium = false;
-			});
-	}
 
 	return next({
 		context: {
@@ -47,11 +33,26 @@ export const requireAuth = o.middleware(async ({ context, next, errors }) => {
 	});
 });
 
-export const requirePremium = o.middleware(async ({ context, next, errors }) => {
+export const revokeExpiredPremium = baseImplementer.middleware(async ({ context, next }) => {
+	const sess = context.session;
+	if (sess?.user.isPremium && sess.user.premiumExpiresAt && sess.user.premiumExpiresAt.getTime() < Date.now()) {
+		await db
+			.update(user)
+			.set({ isPremium: false })
+			.where(eq(user.id, sess.user.id))
+			.then(() => {
+				sess.user.isPremium = false;
+			});
+	}
+
+	return next();
+});
+
+export const requirePremium = baseImplementer.middleware(async ({ context, next, errors }) => {
 	if (
 		!context.session?.user.isPremium &&
-		context.session?.user.role !== "admin" &&
-		context.session?.user.role !== "superadmin"
+		context.session?.user.role !== ROLES.ADMIN &&
+		context.session?.user.role !== ROLES.SUPER_ADMIN
 	)
 		throw errors.FORBIDDEN();
 

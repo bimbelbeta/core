@@ -15,7 +15,7 @@ import { and, desc, eq, gt, ilike, inArray, lt, sql } from "drizzle-orm";
 import { authed } from "../index";
 import { fetchContentForRead } from "../lib/content-utils";
 import { buildIdCursorPage, parseIdCursor } from "../lib/pagination/cursor";
-import type { Role } from "../lib/roles";
+import { ROLES, type Role } from "../lib/roles";
 
 import type { ChoiceWithAnswer } from "../types/question";
 
@@ -160,12 +160,9 @@ const findContent = authed.subject.findContent.handler(async ({ input, context, 
 		throw errors.NOT_FOUND({ message: "Konten tidak ditemukan" });
 	}
 
-	const hasAccess = canAccessContent(
-		context.session.user.isPremium,
-		context.session.user.role as Role,
-		row.subtestOrder,
-		row.order,
-	);
+	const rawRole = context.session.user.role;
+	const role: Role = Object.values(ROLES).includes(rawRole as Role) ? (rawRole as Role) : ROLES.USER;
+	const hasAccess = canAccessContent(context.session.user.isPremium, role, row.subtestOrder, row.order);
 
 	if (!hasAccess) {
 		throw errors.FORBIDDEN({ message: "Konten ini memerlukan akun premium" });

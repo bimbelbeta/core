@@ -4,16 +4,9 @@ import { tryoutAttempt } from "@bimbelbeta/db/schema/tryout";
 import { and, asc, desc, eq, gt, lt } from "drizzle-orm";
 import { admin } from "../../..";
 import { buildIdCursorPage, parseIdCursor } from "../../../lib/pagination/cursor";
-import { numericToNumber } from "../../../lib/utils";
+import { parseNullableInt } from "../../../lib/utils";
 
-type GetByTryoutInput = {
-	id: number;
-	after?: string;
-	before?: string;
-	limit?: number;
-};
-
-const list = admin.admin.tryout.attempts.list.handler(async ({ input }: { input: GetByTryoutInput }) => {
+const list = admin.admin.tryout.attempts.list.handler(async ({ input }) => {
 	const limit = input.limit ?? 10;
 	const isBackward = !!input.before;
 	const cursorStr = input.before || input.after;
@@ -42,7 +35,7 @@ const list = admin.admin.tryout.attempts.list.handler(async ({ input }: { input:
 
 	const mappedRows = rows.map((row) => ({
 		id: row.attempt.id,
-		attempt: { ...row.attempt, score: numericToNumber(row.attempt.score) },
+		attempt: { ...row.attempt, score: parseNullableInt(row.attempt.score) },
 		user: row.user,
 	}));
 
