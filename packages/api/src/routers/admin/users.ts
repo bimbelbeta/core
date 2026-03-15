@@ -3,67 +3,61 @@ import { user } from "@bimbelbeta/db/schema/auth";
 import { creditTransaction } from "@bimbelbeta/db/schema/credit";
 import { and, asc, desc, eq, gt, like, lt, or } from "drizzle-orm";
 import { superadmin } from "../..";
-import { createDateCursor, parseDateCursor } from "../../lib/pagination/cursor";
+import { buildIdCursorPage, parseIdCursor } from "../../lib/pagination/cursor";
 
-type ListUsersInput = {
-	after?: string;
-	before?: string;
-	limit?: number;
-	search?: string;
-	role?: "user" | "admin" | "superadmin";
-	isPremium?: boolean;
-};
-
-const list = superadmin.admin.users.list.handler(async ({ input }: { input: ListUsersInput }) => {
-	const limit = input.limit ?? 10;
+const list = superadmin.admin.users.list.handler(async ({ input }) => {
+	const limit = Math.min(input.limit ?? 20, 100);
 	const isBackward = !!input.before;
 	const cursor = input.before || input.after;
 
-	const baseFilters = [
-		input.search ? or(like(user.name, `%${input.search}%`), like(user.email, `%${input.search}%`)) : undefined,
-		input.role ? eq(user.role, input.role) : undefined,
-		input.isPremium !== undefined ? eq(user.isPremium, input.isPremium) : undefined,
-	];
+	const conditions: (
+		| ReturnType<typeof eq>
+		| ReturnType<typeof like>
+		| ReturnType<typeof or>
+		| ReturnType<typeof gt>
+		| ReturnType<typeof lt>
+	)[] = [];
 
 	if (cursor) {
-		const cursorDate = parseDateCursor(cursor);
+		const cursorId = parseIdCursor(cursor);
 		if (isBackward) {
-			baseFilters.push(lt(user.createdAt, cursorDate));
+			conditions.push(lt(user.id, cursorId));
 		} else {
-			baseFilters.push(gt(user.createdAt, cursorDate));
+			conditions.push(gt(user.id, cursorId));
 		}
 	}
 
-	let rows = await db
-		.select()
+	if (input.search) {
+		conditions.push(or(like(user.name, `%${input.search}%`), like(user.email, `%${input.search}%`)));
+	}
+
+	if (input.role) {
+		conditions.push(eq(user.role, input.role));
+	}
+
+	if (input.isPremium !== undefined) {
+		conditions.push(eq(user.isPremium, input.isPremium));
+	}
+
+	const rows = await db
+		.select({
+			id: user.id,
+			name: user.name,
+			email: user.email,
+			role: user.role,
+			isPremium: user.isPremium,
+			premiumExpiresAt: user.premiumExpiresAt,
+			createdAt: user.createdAt,
+			updatedAt: user.updatedAt,
+		})
 		.from(user)
-		.where(and(...baseFilters.filter(Boolean)))
-		.orderBy(isBackward ? desc(user.createdAt) : asc(user.createdAt))
+		.where(conditions.length > 0 ? and(...conditions) : undefined)
+		.orderBy(isBackward ? desc(user.id) : asc(user.id))
 		.limit(limit + 1);
 
-	const hasExtra = rows.length > limit;
-	if (hasExtra) {
-		rows = rows.slice(0, limit);
-	}
+	const { items, pageInfo } = buildIdCursorPage(rows, limit, isBackward, !!cursor);
 
-	if (isBackward) {
-		rows.reverse();
-	}
-
-	const firstItem = rows[0];
-	const lastItem = rows[rows.length - 1];
-
-	const pageInfo = {
-		hasNextPage: isBackward ? !!cursor : hasExtra,
-		hasPreviousPage: isBackward ? hasExtra : !!cursor,
-		startCursor: firstItem ? createDateCursor(firstItem.createdAt) : null,
-		endCursor: lastItem ? createDateCursor(lastItem.createdAt) : null,
-	};
-
-	return {
-		items: rows,
-		pageInfo,
-	};
+	return { items, pageInfo };
 });
 
 const find = superadmin.admin.users.find.handler(async ({ input, errors }) => {
