@@ -3,8 +3,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTryoutStore } from "../-hooks/use-tryout-store";
 
 export function QuestionGrid() {
-	const { currentQuestionIndex, raguRaguIds, answers, essayAnswers, questions, setCurrentQuestionIndex } =
-		useTryoutStore();
+	const {
+		currentQuestionIndex,
+		raguRaguIds,
+		answers,
+		complexAnswers,
+		essayAnswers,
+		questions,
+		setCurrentQuestionIndex,
+	} = useTryoutStore();
 
 	const handleQuestionClick = (index: number) => {
 		setCurrentQuestionIndex(index);
@@ -21,7 +28,9 @@ export function QuestionGrid() {
 					const isDoubtful = raguRaguIds.has(question.id) || question.userAnswer?.isDoubtful;
 					const isAnswered =
 						answers[question.id] !== undefined ||
+						(complexAnswers[question.id]?.length ?? 0) > 0 ||
 						question.userAnswer?.selectedChoiceId !== null ||
+						(question.userAnswer?.selectedChoiceIds?.length ?? 0) > 0 ||
 						essayAnswers[question.id] !== undefined ||
 						(question.userAnswer?.essayAnswer !== null && question.userAnswer?.essayAnswer !== undefined);
 
