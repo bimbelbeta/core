@@ -1,11 +1,14 @@
 import { db } from "@bimbelbeta/db";
 import { tryout } from "@bimbelbeta/db/schema/tryout";
 import { and, asc, desc, eq, gt, ilike, lt } from "drizzle-orm";
-import { admin } from "../../..";
 import { buildIdCursorPage, parseIdCursor } from "../../../lib/pagination/cursor";
+import { baseImplementer } from "../../../lib/router-definition";
+import { rateLimit, requireAdmin, requireAuth } from "../../../lib/router-definition/middleware";
 import { pickDefined } from "../../../lib/utils";
 
 import { tryoutAttemptRouter } from "./attempt";
+
+const admin = baseImplementer.use(requireAuth).use(rateLimit).use(requireAdmin);
 
 const createTryout = admin.admin.tryout.createTryout.handler(async ({ input, errors }) => {
 	const [created] = await db
@@ -37,17 +40,17 @@ const list = admin.admin.tryout.list.handler(async ({ input }) => {
 	const cursorStr = input.before || input.after;
 	const cursorId = cursorStr ? parseIdCursor(cursorStr) : undefined;
 
-	const baseFilters = [
-		input.search ? ilike(tryout.title, `%${input.search}%`) : undefined,
-		input.category ? eq(tryout.category, input.category) : undefined,
-		input.status ? eq(tryout.status, input.status) : undefined,
-		cursorId !== undefined ? (isBackward ? lt(tryout.id, cursorId) : gt(tryout.id, cursorId)) : undefined,
-	];
-
 	const rows = await db
 		.select()
 		.from(tryout)
-		.where(and(...baseFilters.filter(Boolean)))
+		.where(
+			and(
+				input.search ? ilike(tryout.title, `%${input.search}%`) : undefined,
+				input.category ? eq(tryout.category, input.category) : undefined,
+				input.status ? eq(tryout.status, input.status) : undefined,
+				cursorId !== undefined ? (isBackward ? lt(tryout.id, cursorId) : gt(tryout.id, cursorId)) : undefined,
+			),
+		)
 		.orderBy(isBackward ? desc(tryout.id) : asc(tryout.id))
 		.limit(limit + 1);
 

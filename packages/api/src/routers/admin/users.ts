@@ -2,47 +2,29 @@ import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { creditTransaction } from "@bimbelbeta/db/schema/credit";
 import { and, asc, desc, eq, gt, like, lt, or } from "drizzle-orm";
-import { superadmin } from "../..";
 import { buildStringIdCursorPage, parseStringIdCursor } from "../../lib/pagination/cursor";
+import { baseImplementer } from "../../lib/router-definition";
+import { rateLimit, requireAuth, requireSuperAdmin } from "../../lib/router-definition/middleware";
+
+const superadmin = baseImplementer.use(requireAuth).use(rateLimit).use(requireSuperAdmin);
 
 const list = superadmin.admin.users.list.handler(async ({ input }) => {
 	const limit = Math.min(input.limit ?? 20, 100);
 	const isBackward = !!input.before;
 	const cursor = input.before || input.after;
-
-	const conditions: (
-		| ReturnType<typeof eq>
-		| ReturnType<typeof like>
-		| ReturnType<typeof or>
-		| ReturnType<typeof gt>
-		| ReturnType<typeof lt>
-	)[] = [];
-
-	if (cursor) {
-		const cursorId = parseStringIdCursor(cursor);
-		if (isBackward) {
-			conditions.push(lt(user.id, cursorId));
-		} else {
-			conditions.push(gt(user.id, cursorId));
-		}
-	}
-
-	if (input.search) {
-		conditions.push(or(like(user.name, `%${input.search}%`), like(user.email, `%${input.search}%`)));
-	}
-
-	if (input.role) {
-		conditions.push(eq(user.role, input.role));
-	}
-
-	if (input.isPremium !== undefined) {
-		conditions.push(eq(user.isPremium, input.isPremium));
-	}
+	const cursorId = cursor ? parseStringIdCursor(cursor) : undefined;
 
 	const rows = await db
 		.select()
 		.from(user)
-		.where(conditions.length > 0 ? and(...conditions) : undefined)
+		.where(
+			and(
+				cursorId !== undefined ? (isBackward ? lt(user.id, cursorId) : gt(user.id, cursorId)) : undefined,
+				input.search ? or(like(user.name, `%${input.search}%`), like(user.email, `%${input.search}%`)) : undefined,
+				input.role ? eq(user.role, input.role) : undefined,
+				input.isPremium !== undefined ? eq(user.isPremium, input.isPremium) : undefined,
+			),
+		)
 		.orderBy(isBackward ? desc(user.id) : asc(user.id))
 		.limit(limit + 1);
 

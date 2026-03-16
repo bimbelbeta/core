@@ -2,7 +2,10 @@ import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
 import { and, eq } from "drizzle-orm";
-import { authed } from "../index";
+import { baseImplementer } from "../lib/router-definition";
+import { rateLimit, requireAuth } from "../lib/router-definition/middleware";
+
+const authed = baseImplementer.use(requireAuth).use(rateLimit);
 
 const getTarget = authed.userSettings.getTarget.handler(async ({ context, errors }) => {
 	if (!context.session.user.targetUniversityId || !context.session.user.targetStudyProgramId)

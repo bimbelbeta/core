@@ -1,30 +1,18 @@
 import { db } from "@bimbelbeta/db";
 import { programYearlyData, studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
 import { and, asc, desc, eq, gt, lt } from "drizzle-orm";
-import { admin } from "../../../index";
 import { buildIdCursorPage, parseIdCursor } from "../../../lib/pagination/cursor";
+import { baseImplementer } from "../../../lib/router-definition";
+import { rateLimit, requireAdmin, requireAuth } from "../../../lib/router-definition/middleware";
 import { pickDefined } from "../../../lib/utils";
+
+const admin = baseImplementer.use(requireAuth).use(rateLimit).use(requireAdmin);
 
 const list = admin.admin.university.universityPrograms.list.handler(async ({ input }) => {
 	const limit = Math.min(input.limit ?? 20, 100);
 	const isBackward = !!input.before;
 	const cursor = input.before || input.after;
-
-	const conditions = [];
-	if (cursor) {
-		const cursorId = parseIdCursor(cursor);
-		if (isBackward) {
-			conditions.push(lt(universityStudyProgram.id, cursorId));
-		} else {
-			conditions.push(gt(universityStudyProgram.id, cursorId));
-		}
-	}
-	if (input.universityId) {
-		conditions.push(eq(universityStudyProgram.universityId, input.universityId));
-	}
-	if (input.studyProgramId) {
-		conditions.push(eq(universityStudyProgram.studyProgramId, input.studyProgramId));
-	}
+	const cursorId = cursor ? parseIdCursor(cursor) : undefined;
 
 	const rows = await db
 		.select({
@@ -44,7 +32,17 @@ const list = admin.admin.university.universityPrograms.list.handler(async ({ inp
 		.from(universityStudyProgram)
 		.innerJoin(university, eq(university.id, universityStudyProgram.universityId))
 		.innerJoin(studyProgram, eq(studyProgram.id, universityStudyProgram.studyProgramId))
-		.where(conditions.length > 0 ? and(...conditions) : undefined)
+		.where(
+			and(
+				cursorId !== undefined
+					? isBackward
+						? lt(universityStudyProgram.id, cursorId)
+						: gt(universityStudyProgram.id, cursorId)
+					: undefined,
+				input.universityId ? eq(universityStudyProgram.universityId, input.universityId) : undefined,
+				input.studyProgramId ? eq(universityStudyProgram.studyProgramId, input.studyProgramId) : undefined,
+			),
+		)
 		.orderBy(isBackward ? desc(universityStudyProgram.id) : asc(universityStudyProgram.id))
 		.limit(limit + 1);
 

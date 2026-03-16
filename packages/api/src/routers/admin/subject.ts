@@ -1,8 +1,11 @@
 import { db } from "@bimbelbeta/db";
 import { subject } from "@bimbelbeta/db/schema/subject";
 import { eq } from "drizzle-orm";
-import { admin } from "../..";
 import { pickDefined } from "../../lib/utils";
+import { baseImplementer } from "../../lib/router-definition";
+import { rateLimit, requireAdmin, requireAuth } from "../../lib/router-definition/middleware";
+
+const admin = baseImplementer.use(requireAuth).use(rateLimit).use(requireAdmin);
 
 const VALID_GRADE_RANGE: Record<string, [number, number]> = {
 	sd: [1, 6],

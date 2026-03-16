@@ -3,7 +3,10 @@ import { user } from "@bimbelbeta/db/schema/auth";
 import { subject } from "@bimbelbeta/db/schema/subject";
 import { transaction } from "@bimbelbeta/db/schema/transaction";
 import { and, count, eq, gte, sql } from "drizzle-orm";
-import { admin } from "../../index";
+import { baseImplementer } from "../../lib/router-definition";
+import { rateLimit, requireAdmin, requireAuth } from "../../lib/router-definition/middleware";
+
+const admin = baseImplementer.use(requireAuth).use(rateLimit).use(requireAdmin);
 
 const stats = admin.admin.dashboard.stats.handler(async () => {
 	const now = new Date();

@@ -1,5 +1,6 @@
 import type { Editor } from "@tiptap/react";
 import { forwardRef, useCallback, useEffect, useState } from "react";
+import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
 // --- Icons ---
 import { CornerDownLeftIcon } from "@/components/tiptap-icons/corner-down-left-icon";
 import { ExternalLinkIcon } from "@/components/tiptap-icons/external-link-icon";
@@ -17,7 +18,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/tiptap-ui-
 import { Separator } from "@/components/tiptap-ui-primitive/separator";
 // --- Hooks ---
 import { useIsBreakpoint } from "@/hooks/use-is-breakpoint";
-import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
 
 export interface LinkMainProps {
 	/**

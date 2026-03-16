@@ -1,7 +1,8 @@
 import { db } from "@bimbelbeta/db";
 import { product, transaction } from "@bimbelbeta/db/schema/transaction";
 import { and, eq } from "drizzle-orm";
-import { authed, pub } from "../index";
+import { baseImplementer } from "../lib/router-definition";
+import { rateLimit, requireAuth } from "../lib/router-definition/middleware";
 import { calculatePurchaseBenefits } from "../lib/transactions/benefits";
 import { createSubscriptionTransaction } from "../lib/transactions/client";
 import { resolveNotificationOutcome } from "../lib/transactions/notification-routing";
@@ -9,6 +10,9 @@ import { processSuccessfulTransaction } from "../lib/transactions/processor";
 import { fetchTransactionWithProduct } from "../lib/transactions/products";
 import { updateTransactionStatus } from "../lib/transactions/status";
 import { verifyMidtransSignature, verifyMidtransTransaction } from "../lib/transactions/verification";
+
+const pub = baseImplementer;
+const authed = baseImplementer.use(requireAuth).use(rateLimit);
 
 const subscribe = authed.transaction.subscribe.handler(async ({ input, context, errors }) => {
 	const [plan] = await db.select().from(product).where(eq(product.slug, input.slug)).limit(1);

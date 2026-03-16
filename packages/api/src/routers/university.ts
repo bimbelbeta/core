@@ -1,21 +1,17 @@
 import { db } from "@bimbelbeta/db";
 import { programYearlyData, studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
 import { and, asc, desc, eq, gt, ilike, lt, or } from "drizzle-orm";
-import { authed } from "../index";
 import { buildIdCursorPage, parseIdCursor } from "../lib/pagination/cursor";
+import { baseImplementer } from "../lib/router-definition";
+import { rateLimit, requireAuth } from "../lib/router-definition/middleware";
+
+const authed = baseImplementer.use(requireAuth).use(rateLimit);
 
 const listPrograms = authed.university.listPrograms.handler(async ({ input }) => {
 	const limit = Math.min(input.limit ?? 20, 100);
 	const isBackward = !!input.before;
 	const cursorStr = input.before || input.after;
 	const cursorId = cursorStr ? parseIdCursor(cursorStr) : undefined;
-
-	const baseFilters = [
-		cursorId !== undefined ? (isBackward ? lt(university.id, cursorId) : gt(university.id, cursorId)) : undefined,
-		input.search && input.search.length > 0
-			? or(ilike(university.name, `%${input.search}%`), ilike(studyProgram.name, `%${input.search}%`))
-			: undefined,
-	];
 
 	const data = await db
 		.select({
@@ -32,7 +28,14 @@ const listPrograms = authed.university.listPrograms.handler(async ({ input }) =>
 		.innerJoin(universityStudyProgram, eq(university.id, universityStudyProgram.universityId))
 		.innerJoin(studyProgram, eq(universityStudyProgram.studyProgramId, studyProgram.id))
 		.innerJoin(programYearlyData, eq(universityStudyProgram.id, programYearlyData.universityStudyProgramId))
-		.where(and(...baseFilters.filter(Boolean)))
+		.where(
+			and(
+				cursorId !== undefined ? (isBackward ? lt(university.id, cursorId) : gt(university.id, cursorId)) : undefined,
+				input.search && input.search.length > 0
+					? or(ilike(university.name, `%${input.search}%`), ilike(studyProgram.name, `%${input.search}%`))
+					: undefined,
+			),
+		)
 		.orderBy(isBackward ? desc(university.id) : asc(university.id))
 		.limit(limit + 1);
 
@@ -47,11 +50,6 @@ const list = authed.university.list.handler(async ({ input }) => {
 	const cursorStr = input.before || input.after;
 	const cursorId = cursorStr ? parseIdCursor(cursorStr) : undefined;
 
-	const baseFilters = [
-		cursorId !== undefined ? (isBackward ? lt(university.id, cursorId) : gt(university.id, cursorId)) : undefined,
-		input.search && input.search.length > 0 ? ilike(university.name, `%${input.search}%`) : undefined,
-	];
-
 	const rows = await db
 		.select({
 			id: university.id,
@@ -62,7 +60,12 @@ const list = authed.university.list.handler(async ({ input }) => {
 			rank: university.rank,
 		})
 		.from(university)
-		.where(and(...baseFilters.filter(Boolean)))
+		.where(
+			and(
+				cursorId !== undefined ? (isBackward ? lt(university.id, cursorId) : gt(university.id, cursorId)) : undefined,
+				input.search && input.search.length > 0 ? ilike(university.name, `%${input.search}%`) : undefined,
+			),
+		)
 		.orderBy(isBackward ? desc(university.id) : asc(university.id))
 		.limit(limit + 1);
 

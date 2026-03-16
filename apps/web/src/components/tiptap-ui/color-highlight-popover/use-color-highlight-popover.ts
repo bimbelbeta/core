@@ -1,7 +1,7 @@
 import { useState } from "react";
+import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
 import type { HighlightColor, UseColorHighlightConfig } from "@/components/tiptap-ui/color-highlight-button";
 import { useColorHighlight } from "@/components/tiptap-ui/color-highlight-button";
-import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
 
 export interface UseColorHighlightPopoverConfig
 	extends Pick<UseColorHighlightConfig, "editor" | "hideWhenUnavailable" | "onApplied"> {

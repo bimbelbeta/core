@@ -2,8 +2,11 @@ import { generateSlug } from "@bimbelbeta/contract/utils";
 import { db } from "@bimbelbeta/db";
 import { product } from "@bimbelbeta/db/schema/transaction";
 import { and, asc, desc, eq, gt, ilike, isNotNull, isNull, lt } from "drizzle-orm";
-import { superadmin } from "../..";
 import { decodeCursor, encodeCursor } from "../../lib/pagination/cursor";
+import { baseImplementer } from "../../lib/router-definition";
+import { rateLimit, requireAuth, requireSuperAdmin } from "../../lib/router-definition/middleware";
+
+const superadmin = baseImplementer.use(requireAuth).use(rateLimit).use(requireSuperAdmin);
 
 const list = superadmin.admin.products.list.handler(async ({ input }) => {
 	const limit = input.limit ?? 10;
@@ -11,17 +14,17 @@ const list = superadmin.admin.products.list.handler(async ({ input }) => {
 	const cursorStr = input.before || input.after;
 	const cursorId = cursorStr ? decodeCursor(cursorStr) : undefined;
 
-	const baseFilters = [
-		cursorId !== undefined ? (isBackward ? lt(product.id, cursorId) : gt(product.id, cursorId)) : undefined,
-		input.search ? ilike(product.name, `%${input.search}%`) : undefined,
-		input.variant ? eq(product.variant, input.variant) : undefined,
-		!input.includeDeleted ? isNull(product.deletedAt) : undefined,
-	];
-
 	let rows = await db
 		.select()
 		.from(product)
-		.where(and(...baseFilters.filter(Boolean)))
+		.where(
+			and(
+				cursorId !== undefined ? (isBackward ? lt(product.id, cursorId) : gt(product.id, cursorId)) : undefined,
+				input.search ? ilike(product.name, `%${input.search}%`) : undefined,
+				input.variant ? eq(product.variant, input.variant) : undefined,
+				!input.includeDeleted ? isNull(product.deletedAt) : undefined,
+			),
+		)
 		.orderBy(isBackward ? desc(product.id) : asc(product.id))
 		.limit(limit + 1);
 

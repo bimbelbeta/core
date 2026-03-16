@@ -2,9 +2,12 @@ import { db } from "@bimbelbeta/db";
 import { tryoutAttempt, tryoutSubtestAttempt, tryoutUserAnswer } from "@bimbelbeta/db/schema/tryout";
 import type { ORPCError } from "@orpc/server";
 import { eq, sql } from "drizzle-orm";
-import { authed } from "../../index";
 import { calculateTryoutScores, saveScoresToDatabase } from "../../lib/calculate-score";
+import { baseImplementer } from "../../lib/router-definition";
+import { rateLimit, requireAuth } from "../../lib/router-definition/middleware";
 import { parseNullableInt } from "../../lib/utils";
+
+const authed = baseImplementer.use(requireAuth).use(rateLimit);
 
 type HandlerErrors = {
 	BAD_REQUEST: (opts: { message: string }) => ORPCError<"BAD_REQUEST", unknown>;

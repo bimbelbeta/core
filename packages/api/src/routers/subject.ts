@@ -13,10 +13,13 @@ import {
 	videoMaterial,
 } from "@bimbelbeta/db/schema/subject";
 import { and, desc, eq, gt, ilike, inArray, lt, sql } from "drizzle-orm";
-import { authed } from "../index";
 import { readTiptapContent } from "../lib/content-utils";
 import { buildIdCursorPage, parseIdCursor } from "../lib/pagination/cursor";
 import { ROLES, type Role } from "../lib/roles";
+import { baseImplementer } from "../lib/router-definition";
+import { rateLimit, requireAuth } from "../lib/router-definition/middleware";
+
+const authed = baseImplementer.use(requireAuth).use(rateLimit);
 
 import type { ChoiceWithAnswer } from "../types/question";
 
@@ -25,10 +28,6 @@ function escapeLikePattern(value: string): string {
 }
 
 const list = authed.subject.list.handler(async ({ input, context }) => {
-	const conditions = [];
-	if (input?.category) conditions.push(eq(subject.category, input.category));
-	if (input?.search) conditions.push(ilike(subject.name, `%${escapeLikePattern(input.search)}%`));
-
 	const subjects = await db
 		.select({
 			id: subject.id,
@@ -47,7 +46,12 @@ const list = authed.subject.list.handler(async ({ input, context }) => {
 		})
 		.from(subject)
 		.leftJoin(contentItem, eq(contentItem.subjectId, subject.id))
-		.where(conditions.length > 0 ? and(...conditions) : undefined)
+		.where(
+			and(
+				input?.category ? eq(subject.category, input.category) : undefined,
+				input?.search ? ilike(subject.name, `%${escapeLikePattern(input.search)}%`) : undefined,
+			),
+		)
 		.groupBy(
 			subject.id,
 			subject.name,
@@ -86,14 +90,6 @@ const listContent = authed.subject.listContent.handler(async ({ input, context, 
 	const cursorStr = input.after ?? input.before;
 	const cursorId = cursorStr ? parseIdCursor(cursorStr) : null;
 
-	const conditions = [eq(contentItem.subjectId, input.subjectId)];
-	if (input.search) {
-		conditions.push(ilike(contentItem.title, `%${escapeLikePattern(input.search)}%`));
-	}
-	if (cursorId !== null) {
-		conditions.push(isBackward ? lt(contentItem.id, cursorId) : gt(contentItem.id, cursorId));
-	}
-
 	const rows = await db
 		.select({
 			id: contentItem.id,
@@ -117,7 +113,13 @@ const listContent = authed.subject.listContent.handler(async ({ input, context, 
 			userProgress,
 			and(eq(userProgress.contentItemId, contentItem.id), eq(userProgress.userId, context.session.user.id)),
 		)
-		.where(and(...conditions))
+		.where(
+			and(
+				eq(contentItem.subjectId, input.subjectId),
+				input.search ? ilike(contentItem.title, `%${escapeLikePattern(input.search)}%`) : undefined,
+				cursorId !== null ? (isBackward ? lt(contentItem.id, cursorId) : gt(contentItem.id, cursorId)) : undefined,
+			),
+		)
 		.orderBy(isBackward ? desc(contentItem.id) : contentItem.id)
 		.limit(limit + 1);
 

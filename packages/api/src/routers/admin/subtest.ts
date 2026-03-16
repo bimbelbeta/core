@@ -1,8 +1,11 @@
 import { db } from "@bimbelbeta/db";
 import { tryout, tryoutSubtest } from "@bimbelbeta/db/schema/tryout";
 import { eq, sql } from "drizzle-orm";
-import { admin } from "../..";
 import { pickDefined } from "../../lib/utils";
+import { baseImplementer } from "../../lib/router-definition";
+import { rateLimit, requireAdmin, requireAuth } from "../../lib/router-definition/middleware";
+
+const admin = baseImplementer.use(requireAuth).use(rateLimit).use(requireAdmin);
 
 const find = admin.admin.tryout.subtest.find.handler(async ({ input, errors }) => {
 	const [subtest] = await db.select().from(tryoutSubtest).where(eq(tryoutSubtest.id, input.id)).limit(1);

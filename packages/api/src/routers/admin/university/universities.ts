@@ -1,26 +1,17 @@
 import { db } from "@bimbelbeta/db";
 import { university } from "@bimbelbeta/db/schema/university";
 import { and, asc, desc, eq, gt, lt, sql } from "drizzle-orm";
-import { admin } from "../../../index";
 import { buildIdCursorPage, parseIdCursor } from "../../../lib/pagination/cursor";
+import { baseImplementer } from "../../../lib/router-definition";
+import { rateLimit, requireAdmin, requireAuth } from "../../../lib/router-definition/middleware";
+
+const admin = baseImplementer.use(requireAuth).use(rateLimit).use(requireAdmin);
 
 const list = admin.admin.university.universities.list.handler(async ({ input }) => {
 	const limit = Math.min(input.limit ?? 20, 100);
 	const isBackward = !!input.before;
 	const cursor = input.before || input.after;
-
-	const conditions = [];
-	if (cursor) {
-		const cursorId = parseIdCursor(cursor);
-		if (isBackward) {
-			conditions.push(lt(university.id, cursorId));
-		} else {
-			conditions.push(gt(university.id, cursorId));
-		}
-	}
-	if (input.search) {
-		conditions.push(sql`(${university.name} ILIKE ${`%${input.search}%`})`);
-	}
+	const cursorId = cursor ? parseIdCursor(cursor) : undefined;
 
 	const rows = await db
 		.select({
@@ -35,7 +26,12 @@ const list = admin.admin.university.universities.list.handler(async ({ input }) 
 			isActive: university.isActive,
 		})
 		.from(university)
-		.where(conditions.length > 0 ? and(...conditions) : undefined)
+		.where(
+			and(
+				cursorId !== undefined ? (isBackward ? lt(university.id, cursorId) : gt(university.id, cursorId)) : undefined,
+				input.search ? sql`(${university.name} ILIKE ${`%${input.search}%`})` : undefined,
+			),
+		)
 		.orderBy(isBackward ? desc(university.id) : asc(university.id))
 		.limit(limit + 1);
 

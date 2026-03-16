@@ -1,29 +1,17 @@
 import { db } from "@bimbelbeta/db";
 import { studyProgram } from "@bimbelbeta/db/schema/university";
 import { and, asc, desc, eq, gt, lt, sql } from "drizzle-orm";
-import { admin } from "../../../index";
 import { buildIdCursorPage, parseIdCursor } from "../../../lib/pagination/cursor";
+import { baseImplementer } from "../../../lib/router-definition";
+import { rateLimit, requireAdmin, requireAuth } from "../../../lib/router-definition/middleware";
+
+const admin = baseImplementer.use(requireAuth).use(rateLimit).use(requireAdmin);
 
 const list = admin.admin.university.studyPrograms.list.handler(async ({ input }) => {
 	const limit = Math.min(input.limit ?? 20, 100);
 	const isBackward = !!input.before;
 	const cursor = input.before || input.after;
-
-	const conditions = [];
-	if (cursor) {
-		const cursorId = parseIdCursor(cursor);
-		if (isBackward) {
-			conditions.push(lt(studyProgram.id, cursorId));
-		} else {
-			conditions.push(gt(studyProgram.id, cursorId));
-		}
-	}
-	if (input.search) {
-		conditions.push(sql`${studyProgram.name} ILIKE ${`%${input.search}%`}`);
-	}
-	if (input.category) {
-		conditions.push(eq(studyProgram.category, input.category));
-	}
+	const cursorId = cursor ? parseIdCursor(cursor) : undefined;
 
 	const rows = await db
 		.select({
@@ -34,7 +22,17 @@ const list = admin.admin.university.studyPrograms.list.handler(async ({ input })
 			category: studyProgram.category,
 		})
 		.from(studyProgram)
-		.where(conditions.length > 0 ? and(...conditions) : undefined)
+		.where(
+			and(
+				cursorId !== undefined
+					? isBackward
+						? lt(studyProgram.id, cursorId)
+						: gt(studyProgram.id, cursorId)
+					: undefined,
+				input.search ? sql`${studyProgram.name} ILIKE ${`%${input.search}%`}` : undefined,
+				input.category ? eq(studyProgram.category, input.category) : undefined,
+			),
+		)
 		.orderBy(isBackward ? desc(studyProgram.id) : asc(studyProgram.id))
 		.limit(limit + 1);
 

@@ -1,8 +1,11 @@
 import { db } from "@bimbelbeta/db";
-import { authed } from "../../index";
 import { readTiptapContent } from "../../lib/content-utils";
+import { baseImplementer } from "../../lib/router-definition";
+import { rateLimit, requireAuth } from "../../lib/router-definition/middleware";
 import type { ReviewQuestion } from "../../types/question";
 import { fetchSubtestQuestionRows } from "./attempt";
+
+const authed = baseImplementer.use(requireAuth).use(rateLimit);
 
 export const review = authed.tryout.review.handler(async ({ input, context, errors }) => {
 	const attempt = await db.query.tryoutAttempt.findFirst({

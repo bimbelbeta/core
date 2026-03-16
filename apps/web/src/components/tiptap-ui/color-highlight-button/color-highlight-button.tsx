@@ -1,4 +1,6 @@
 import { forwardRef, useCallback, useMemo } from "react";
+// --- Hooks ---
+import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
 // --- Tiptap UI ---
 import type { UseColorHighlightConfig } from "@/components/tiptap-ui/color-highlight-button";
 import { COLOR_HIGHLIGHT_SHORTCUT_KEY, useColorHighlight } from "@/components/tiptap-ui/color-highlight-button";
@@ -6,8 +8,6 @@ import { Badge } from "@/components/tiptap-ui-primitive/badge";
 // --- UI Primitives ---
 import type { ButtonProps } from "@/components/tiptap-ui-primitive/button";
 import { Button } from "@/components/tiptap-ui-primitive/button";
-// --- Hooks ---
-import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
 // --- Lib ---
 import { parseShortcutKeys } from "@/lib/tiptap-utils";
 

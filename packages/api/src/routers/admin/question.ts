@@ -1,9 +1,12 @@
 import { db } from "@bimbelbeta/db";
 import { question, questionChoice } from "@bimbelbeta/db/schema/question";
 import { and, asc, desc, eq, gt, inArray, like, lt, sql } from "drizzle-orm";
-import { admin } from "../..";
 import { normalizeQuestionContent, readTiptapContent } from "../../lib/content-utils";
 import { buildIdCursorPage, parseIdCursor } from "../../lib/pagination/cursor";
+import { baseImplementer } from "../../lib/router-definition";
+import { rateLimit, requireAdmin, requireAuth } from "../../lib/router-definition/middleware";
+
+const admin = baseImplementer.use(requireAuth).use(rateLimit).use(requireAdmin);
 
 const createQuestion = admin.admin.tryout.questions.createQuestion.handler(async ({ input, errors }) => {
 	const choices = input.choices;
@@ -79,51 +82,30 @@ const list = admin.admin.tryout.questions.list.handler(async ({ input }) => {
 	const cursorStr = input.before || input.after;
 	const cursorId = cursorStr ? parseIdCursor(cursorStr) : undefined;
 
-	const conditions = [];
-
-	if (cursorId !== undefined) {
-		conditions.push(isBackward ? lt(question.id, cursorId) : gt(question.id, cursorId));
-	}
-
-	if (input.search) {
-		conditions.push(like(question.content, `%${input.search}%`));
-	}
-
-	if (input.type) {
-		conditions.push(eq(question.type, input.type));
-	}
-
-	if (input.tag) {
-		conditions.push(
-			sql`EXISTS (
-					SELECT 1
-					FROM unnest(${question.tags}) AS tag
-					WHERE tag ILIKE ${`%${input.tag}%`}
-				)`,
-		);
-	}
-
-	// Category filter - looks for exact category tag (sd, smp, sma, utbk)
-	if (input.category) {
-		conditions.push(sql`${input.category} = ANY(${question.tags})`);
-	}
-
-	// Exclude specific question IDs (useful for filtering out already linked questions)
-	if (input.excludeIds && input.excludeIds.length > 0) {
-		conditions.push(
-			sql`${question.id} NOT IN (${sql.join(
-				input.excludeIds.map((id: number) => sql`${id}`),
-				sql`, `,
-			)})`,
-		);
-	}
-
-	const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
-
 	const rows = await db
 		.select()
 		.from(question)
-		.where(whereClause)
+		.where(
+			and(
+				cursorId !== undefined ? (isBackward ? lt(question.id, cursorId) : gt(question.id, cursorId)) : undefined,
+				input.search ? like(question.content, `%${input.search}%`) : undefined,
+				input.type ? eq(question.type, input.type) : undefined,
+				input.tag
+					? sql`EXISTS (
+							SELECT 1
+							FROM unnest(${question.tags}) AS tag
+							WHERE tag ILIKE ${`%${input.tag}%`}
+						)`
+					: undefined,
+				input.category ? sql`${input.category} = ANY(${question.tags})` : undefined,
+				input.excludeIds && input.excludeIds.length > 0
+					? sql`${question.id} NOT IN (${sql.join(
+							input.excludeIds.map((id: number) => sql`${id}`),
+							sql`, `,
+						)})`
+					: undefined,
+			),
+		)
 		.orderBy(isBackward ? desc(question.id) : asc(question.id))
 		.limit(limit + 1);
 

@@ -1,5 +1,4 @@
 import type { RouterClient } from "@orpc/server";
-import { pub } from "../index";
 import { baseImplementer } from "../lib/router-definition";
 import { adminRouter } from "./admin";
 import { creditRouter } from "./credit";
@@ -9,6 +8,8 @@ import { transactionRouter } from "./transaction";
 import { tryoutRouter } from "./tryout";
 import { universityRouter } from "./university";
 import { userSettingsRouter } from "./user-settings";
+
+const pub = baseImplementer;
 
 export const appRouter = baseImplementer.router({
 	healthCheck: pub.healthCheck.handler(() => {

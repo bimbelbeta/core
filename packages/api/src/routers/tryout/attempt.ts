@@ -9,12 +9,15 @@ import {
 	tryoutUserAnswer,
 } from "@bimbelbeta/db/schema/tryout";
 import { and, eq, sql } from "drizzle-orm";
-import { authed } from "../../index";
 import { calculateTryoutScores, saveScoresToDatabase } from "../../lib/calculate-score";
 import { readTiptapContent } from "../../lib/content-utils";
+import { baseImplementer } from "../../lib/router-definition";
+import { rateLimit, requireAuth } from "../../lib/router-definition/middleware";
 import { parseNullableInt } from "../../lib/utils";
 
 import type { TryoutQuestion } from "../../types/question";
+
+const authed = baseImplementer.use(requireAuth).use(rateLimit);
 
 /**
  * Fetches the raw joined rows for all questions in a subtest attempt.
