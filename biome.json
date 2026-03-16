@@ -26,7 +26,10 @@
 			"!**/.svelte-kit",
 			"!**/worker-configuration.d.ts",
 			"!**/migrations",
-			"!**/.source"
+			"!**/.source",
+			"!**/.agents",
+			"!**/.plan",
+			"!**/.desloppify"
 		]
 	},
 	"formatter": {
