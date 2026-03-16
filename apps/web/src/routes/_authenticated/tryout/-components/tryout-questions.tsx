@@ -30,6 +30,7 @@ export function TryoutQuestions({ countdownProps, data }: TryoutQuestionsProps) 
 		currentQuestionIndex,
 		setCurrentQuestionIndex,
 		setCurrentQuestion,
+		setComplexAnswer,
 		setEssayAnswer,
 		setAnswer,
 		setQuestions,
@@ -70,12 +71,14 @@ export function TryoutQuestions({ countdownProps, data }: TryoutQuestionsProps) 
 		setCurrentQuestion(questions[currentQuestionIndex]);
 	}, [questions, currentQuestionIndex, setCurrentQuestion]);
 
+	useEffect(() => {
+		setQuestions(questions);
+	}, [questions, setQuestions]);
+
 	// Sync saved essay answers from API to store (once on mount)
 	useEffect(() => {
 		if (hasInitialized.current) return;
 		hasInitialized.current = true;
-
-		setQuestions(questions);
 
 		const newRaguRaguIds = new Set<number>();
 		questions.forEach((question) => {
@@ -85,12 +88,15 @@ export function TryoutQuestions({ countdownProps, data }: TryoutQuestionsProps) 
 			if (question.userAnswer?.selectedChoiceId) {
 				setAnswer(question.id, question.userAnswer.selectedChoiceId);
 			}
+			if ((question.userAnswer?.selectedChoiceIds?.length ?? 0) > 0) {
+				setComplexAnswer(question.id, question.userAnswer.selectedChoiceIds ?? []);
+			}
 			if (question.userAnswer?.isDoubtful) {
 				newRaguRaguIds.add(question.id);
 			}
 		});
 		useTryoutStore.setState({ raguRaguIds: newRaguRaguIds });
-	}, [questions, setEssayAnswer, setAnswer, setQuestions]);
+	}, [questions, setComplexAnswer, setEssayAnswer, setAnswer]);
 
 	const showQuestionGrid = useTryoutStore((state) => state.showQuestionGrid);
 

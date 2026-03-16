@@ -1,5 +1,7 @@
-import type { TryoutQuestion } from "@bimbelbeta/contract/definitions/tryout.contract";
 import { create } from "zustand";
+import type { BodyOutputs } from "@/utils/orpc";
+
+type TryoutQuestion = NonNullable<NonNullable<BodyOutputs["tryout"]["find"]>["currentSubtest"]>["questions"][number];
 
 interface TryoutStore {
 	view: "greeting" | "questions";
