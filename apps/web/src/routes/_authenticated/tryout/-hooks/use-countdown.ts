@@ -10,14 +10,13 @@ const useCountdown = (targetDate: Date | string | number) => {
 			setCountDown(Math.max(countDownDate - Date.now(), 0));
 		}, 1000);
 
-		return () => clearInterval(interval); // Clean up interval on component unmount
+		return () => clearInterval(interval);
 	}, [countDownDate]);
 
 	return getReturnValues(countDown);
 };
 
 const getReturnValues = (countDown: number) => {
-	// calculate time left in days, hours, minutes, and seconds
 	const days = Math.floor(countDown / (1000 * 60 * 60 * 24));
 	const hours = Math.floor((countDown % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
 		.toString()

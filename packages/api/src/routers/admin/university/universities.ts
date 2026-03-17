@@ -1,28 +1,19 @@
 import { db } from "@bimbelbeta/db";
 import { university } from "@bimbelbeta/db/schema/university";
 import { and, asc, desc, eq, gt, lt, sql } from "drizzle-orm";
-import { admin } from "../../../index";
-import { createIdCursor, parseIdCursor } from "../../../lib/pagination/cursor";
+import { buildIdCursorPage, parseIdCursor } from "../../../lib/pagination/cursor";
+import { baseImplementer } from "../../../lib/router-definition";
+import { rateLimit, requireAdmin, requireAuth } from "../../../lib/router-definition/middleware";
+
+const admin = baseImplementer.use(requireAuth).use(rateLimit).use(requireAdmin);
 
 const list = admin.admin.university.universities.list.handler(async ({ input }) => {
 	const limit = Math.min(input.limit ?? 20, 100);
 	const isBackward = !!input.before;
 	const cursor = input.before || input.after;
+	const cursorId = cursor ? parseIdCursor(cursor) : undefined;
 
-	const conditions = [];
-	if (cursor) {
-		const cursorId = parseIdCursor(cursor);
-		if (isBackward) {
-			conditions.push(lt(university.id, cursorId));
-		} else {
-			conditions.push(gt(university.id, cursorId));
-		}
-	}
-	if (input.search) {
-		conditions.push(sql`(${university.name} ILIKE ${`%${input.search}%`})`);
-	}
-
-	let results = await db
+	const rows = await db
 		.select({
 			id: university.id,
 			name: university.name,
@@ -35,30 +26,18 @@ const list = admin.admin.university.universities.list.handler(async ({ input }) 
 			isActive: university.isActive,
 		})
 		.from(university)
-		.where(conditions.length > 0 ? and(...conditions) : undefined)
+		.where(
+			and(
+				cursorId !== undefined ? (isBackward ? lt(university.id, cursorId) : gt(university.id, cursorId)) : undefined,
+				input.search ? sql`(${university.name} ILIKE ${`%${input.search}%`})` : undefined,
+			),
+		)
 		.orderBy(isBackward ? desc(university.id) : asc(university.id))
 		.limit(limit + 1);
 
-	const hasExtra = results.length > limit;
-	if (hasExtra) {
-		results = results.slice(0, limit);
-	}
+	const { items, pageInfo } = buildIdCursorPage(rows, limit, isBackward, !!cursor);
 
-	if (isBackward) {
-		results.reverse();
-	}
-
-	const firstItem = results[0];
-	const lastItem = results[results.length - 1];
-
-	const pageInfo = {
-		hasNextPage: isBackward ? true : hasExtra,
-		hasPreviousPage: isBackward ? hasExtra : !!cursor,
-		startCursor: firstItem ? createIdCursor(firstItem.id) : null,
-		endCursor: lastItem ? createIdCursor(lastItem.id) : null,
-	};
-
-	return { items: results, pageInfo };
+	return { items, pageInfo };
 });
 
 const find = admin.admin.university.universities.find.handler(async ({ input, errors }) => {
@@ -114,30 +93,14 @@ const create = admin.admin.university.universities.create.handler(async ({ input
 });
 
 const update = admin.admin.university.universities.update.handler(async ({ input, errors }) => {
-	const updateData: {
-		name?: string;
-		slug?: string;
-		logo?: string | null;
-		description?: string | null;
-		location?: string | null;
-		website?: string | null;
-		rank?: number | null;
-		isActive?: boolean;
-		updatedAt: Date;
-	} = {
-		updatedAt: new Date(),
-	};
+	const { id, ...fields } = input;
+	const patch = Object.fromEntries(Object.entries(fields).filter(([, v]) => v !== undefined));
 
-	if (input.name !== undefined) updateData.name = input.name;
-	if (input.slug !== undefined) updateData.slug = input.slug;
-	if (input.logo !== undefined) updateData.logo = input.logo;
-	if (input.description !== undefined) updateData.description = input.description;
-	if (input.location !== undefined) updateData.location = input.location;
-	if (input.website !== undefined) updateData.website = input.website;
-	if (input.rank !== undefined) updateData.rank = input.rank;
-	if (input.isActive !== undefined) updateData.isActive = input.isActive;
-
-	const [updated] = await db.update(university).set(updateData).where(eq(university.id, input.id)).returning();
+	const [updated] = await db
+		.update(university)
+		.set({ ...patch, updatedAt: new Date() })
+		.where(eq(university.id, id))
+		.returning();
 
 	if (!updated) {
 		throw errors.NOT_FOUND({

@@ -1,6 +1,5 @@
 import type { RouterClient } from "@orpc/server";
-import { pub } from "../index";
-import { o } from "../lib/router-definition";
+import { baseImplementer } from "../lib/router-definition";
 import { adminRouter } from "./admin";
 import { creditRouter } from "./credit";
 import { productRouter } from "./product";
@@ -10,7 +9,9 @@ import { tryoutRouter } from "./tryout";
 import { universityRouter } from "./university";
 import { userSettingsRouter } from "./user-settings";
 
-export const appRouter = o.router({
+const pub = baseImplementer;
+
+export const appRouter = baseImplementer.router({
 	healthCheck: pub.healthCheck.handler(() => {
 		return { message: "OK" };
 	}),

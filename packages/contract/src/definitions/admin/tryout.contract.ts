@@ -60,8 +60,8 @@ export const adminTryoutContract = {
 				description: "string | null?",
 				category: "'sd' | 'smp' | 'sma' | 'utbk'",
 				status: "'draft' | 'published' | 'archived'?",
-				startsAt: "string?",
-				endsAt: "string?",
+				startsAt: "string.date?",
+				endsAt: "string.date?",
 			}),
 		)
 		.output(type({ message: "string", id: "number" })),
@@ -89,12 +89,12 @@ export const adminTryoutContract = {
 				description: "string | null?",
 				category: "'sd' | 'smp' | 'sma' | 'utbk'?",
 				status: "'draft' | 'published' | 'archived'?",
-				startsAt: "string?",
-				endsAt: "string?",
+				startsAt: "string.date?",
+				endsAt: "string.date?",
 			}),
 		)
 		.output(type({ message: "string" })),
-	deleteTryout: oc
+	remove: oc
 		.route({ path: "/admin/tryouts/{id}", method: "DELETE", tags: ["Admin - Tryouts"] })
 		.input(type({ id: "number" }))
 		.output(type({ message: "string" })),

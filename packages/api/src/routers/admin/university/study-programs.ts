@@ -1,31 +1,19 @@
 import { db } from "@bimbelbeta/db";
 import { studyProgram } from "@bimbelbeta/db/schema/university";
 import { and, asc, desc, eq, gt, lt, sql } from "drizzle-orm";
-import { admin } from "../../../index";
-import { createIdCursor, parseIdCursor } from "../../../lib/pagination/cursor";
+import { buildIdCursorPage, parseIdCursor } from "../../../lib/pagination/cursor";
+import { baseImplementer } from "../../../lib/router-definition";
+import { rateLimit, requireAdmin, requireAuth } from "../../../lib/router-definition/middleware";
+
+const admin = baseImplementer.use(requireAuth).use(rateLimit).use(requireAdmin);
 
 const list = admin.admin.university.studyPrograms.list.handler(async ({ input }) => {
 	const limit = Math.min(input.limit ?? 20, 100);
 	const isBackward = !!input.before;
 	const cursor = input.before || input.after;
+	const cursorId = cursor ? parseIdCursor(cursor) : undefined;
 
-	const conditions = [];
-	if (cursor) {
-		const cursorId = parseIdCursor(cursor);
-		if (isBackward) {
-			conditions.push(lt(studyProgram.id, cursorId));
-		} else {
-			conditions.push(gt(studyProgram.id, cursorId));
-		}
-	}
-	if (input.search) {
-		conditions.push(sql`${studyProgram.name} ILIKE ${`%${input.search}%`}`);
-	}
-	if (input.category) {
-		conditions.push(eq(studyProgram.category, input.category));
-	}
-
-	let results = await db
+	const rows = await db
 		.select({
 			id: studyProgram.id,
 			name: studyProgram.name,
@@ -34,30 +22,23 @@ const list = admin.admin.university.studyPrograms.list.handler(async ({ input })
 			category: studyProgram.category,
 		})
 		.from(studyProgram)
-		.where(conditions.length > 0 ? and(...conditions) : undefined)
+		.where(
+			and(
+				cursorId !== undefined
+					? isBackward
+						? lt(studyProgram.id, cursorId)
+						: gt(studyProgram.id, cursorId)
+					: undefined,
+				input.search ? sql`${studyProgram.name} ILIKE ${`%${input.search}%`}` : undefined,
+				input.category ? eq(studyProgram.category, input.category) : undefined,
+			),
+		)
 		.orderBy(isBackward ? desc(studyProgram.id) : asc(studyProgram.id))
 		.limit(limit + 1);
 
-	const hasExtra = results.length > limit;
-	if (hasExtra) {
-		results = results.slice(0, limit);
-	}
+	const { items, pageInfo } = buildIdCursorPage(rows, limit, isBackward, !!cursor);
 
-	if (isBackward) {
-		results.reverse();
-	}
-
-	const firstItem = results[0];
-	const lastItem = results[results.length - 1];
-
-	const pageInfo = {
-		hasNextPage: isBackward ? true : hasExtra,
-		hasPreviousPage: isBackward ? hasExtra : !!cursor,
-		startCursor: firstItem ? createIdCursor(firstItem.id) : null,
-		endCursor: lastItem ? createIdCursor(lastItem.id) : null,
-	};
-
-	return { items: results, pageInfo };
+	return { items, pageInfo };
 });
 
 const find = admin.admin.university.studyPrograms.find.handler(async ({ input, errors }) => {
@@ -106,22 +87,14 @@ const create = admin.admin.university.studyPrograms.create.handler(async ({ inpu
 });
 
 const update = admin.admin.university.studyPrograms.update.handler(async ({ input, errors }) => {
-	const updateData: {
-		name?: string;
-		slug?: string;
-		description?: string | null;
-		category?: "SAINTEK" | "SOSHUM";
-		updatedAt: Date;
-	} = {
-		updatedAt: new Date(),
-	};
+	const { id, ...fields } = input;
+	const patch = Object.fromEntries(Object.entries(fields).filter(([, v]) => v !== undefined));
 
-	if (input.name !== undefined) updateData.name = input.name;
-	if (input.slug !== undefined) updateData.slug = input.slug;
-	if (input.description !== undefined) updateData.description = input.description;
-	if (input.category !== undefined) updateData.category = input.category;
-
-	const [updated] = await db.update(studyProgram).set(updateData).where(eq(studyProgram.id, input.id)).returning();
+	const [updated] = await db
+		.update(studyProgram)
+		.set({ ...patch, updatedAt: new Date() })
+		.where(eq(studyProgram.id, id))
+		.returning();
 
 	if (!updated) {
 		throw errors.NOT_FOUND({

@@ -1,17 +1,16 @@
 import { db } from "@bimbelbeta/db";
 import { question, questionChoice } from "@bimbelbeta/db/schema/question";
-import { and, asc, desc, eq, gt, like, lt, sql } from "drizzle-orm";
-import { admin } from "../..";
-import { convertToTiptap } from "../../lib/convert-to-tiptap";
-import { createIdCursor, parseIdCursor } from "../../lib/pagination/cursor";
+import { and, asc, desc, eq, gt, inArray, like, lt, sql } from "drizzle-orm";
+import { normalizeQuestionContent, readTiptapContent } from "../../lib/content-utils";
+import { buildIdCursorPage, parseIdCursor } from "../../lib/pagination/cursor";
+import { baseImplementer } from "../../lib/router-definition";
+import { rateLimit, requireAdmin, requireAuth } from "../../lib/router-definition/middleware";
+
+const admin = baseImplementer.use(requireAuth).use(rateLimit).use(requireAdmin);
 
 const createQuestion = admin.admin.tryout.questions.createQuestion.handler(async ({ input, errors }) => {
 	const choices = input.choices;
-	const contentJson = typeof input.content === "object" ? input.content : null;
-	const discussionJson = typeof input.discussion === "object" ? input.discussion : null;
-
-	const contentText = typeof input.content === "string" ? input.content : JSON.stringify(input.content);
-	const discussionText = typeof input.discussion === "string" ? input.discussion : JSON.stringify(input.discussion);
+	const { contentJson, discussionJson, contentText, discussionText } = normalizeQuestionContent(input);
 
 	if (input.type === "multiple_choice") {
 		if (!choices || choices.length < 2) {
@@ -83,73 +82,42 @@ const list = admin.admin.tryout.questions.list.handler(async ({ input }) => {
 	const cursorStr = input.before || input.after;
 	const cursorId = cursorStr ? parseIdCursor(cursorStr) : undefined;
 
-	const conditions = [];
-
-	if (cursorId !== undefined) {
-		conditions.push(isBackward ? lt(question.id, cursorId) : gt(question.id, cursorId));
-	}
-
-	if (input.search) {
-		conditions.push(like(question.content, `%${input.search}%`));
-	}
-
-	if (input.type) {
-		conditions.push(eq(question.type, input.type));
-	}
-
-	if (input.tag) {
-		conditions.push(
-			sql`EXISTS (
-					SELECT 1
-					FROM unnest(${question.tags}) AS tag
-					WHERE tag ILIKE ${`%${input.tag}%`}
-				)`,
-		);
-	}
-
-	// Category filter - looks for exact category tag (sd, smp, sma, utbk)
-	if (input.category) {
-		conditions.push(sql`${input.category} = ANY(${question.tags})`);
-	}
-
-	// Exclude specific question IDs (useful for filtering out already linked questions)
-	if (input.excludeIds && input.excludeIds.length > 0) {
-		conditions.push(
-			sql`${question.id} NOT IN (${sql.join(
-				input.excludeIds.map((id: number) => sql`${id}`),
-				sql`, `,
-			)})`,
-		);
-	}
-
-	const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
-
-	let rows = await db
+	const rows = await db
 		.select()
 		.from(question)
-		.where(whereClause)
+		.where(
+			and(
+				cursorId !== undefined ? (isBackward ? lt(question.id, cursorId) : gt(question.id, cursorId)) : undefined,
+				input.search ? like(question.content, `%${input.search}%`) : undefined,
+				input.type ? eq(question.type, input.type) : undefined,
+				input.tag
+					? sql`EXISTS (
+							SELECT 1
+							FROM unnest(${question.tags}) AS tag
+							WHERE tag ILIKE ${`%${input.tag}%`}
+						)`
+					: undefined,
+				input.category ? sql`${input.category} = ANY(${question.tags})` : undefined,
+				input.excludeIds && input.excludeIds.length > 0
+					? sql`${question.id} NOT IN (${sql.join(
+							input.excludeIds.map((id: number) => sql`${id}`),
+							sql`, `,
+						)})`
+					: undefined,
+			),
+		)
 		.orderBy(isBackward ? desc(question.id) : asc(question.id))
 		.limit(limit + 1);
 
-	const hasExtra = rows.length > limit;
-	if (hasExtra) rows = rows.slice(0, limit);
-	if (isBackward) rows.reverse();
-
-	const firstItem = rows[0];
-	const lastItem = rows[rows.length - 1];
+	const { items, pageInfo } = buildIdCursorPage(rows, limit, isBackward, !!cursorStr);
 
 	return {
-		items: rows.map((q) => ({
+		items: items.map((q) => ({
 			...q,
-			content: q.contentJson ?? convertToTiptap(q.content),
-			discussion: q.discussionJson ?? convertToTiptap(q.discussion),
+			content: readTiptapContent(q.contentJson, q.content),
+			discussion: readTiptapContent(q.discussionJson, q.discussion),
 		})),
-		pageInfo: {
-			hasNextPage: isBackward ? true : hasExtra,
-			hasPreviousPage: isBackward ? hasExtra : !!cursorStr,
-			startCursor: firstItem ? createIdCursor(firstItem.id) : null,
-			endCursor: lastItem ? createIdCursor(lastItem.id) : null,
-		},
+		pageInfo,
 	};
 });
 
@@ -171,8 +139,8 @@ const find = admin.admin.tryout.questions.find.handler(async ({ input, errors })
 		question: {
 			id: questionData.id,
 			type: questionData.type,
-			content: questionData.contentJson ?? convertToTiptap(questionData.content),
-			discussion: questionData.discussionJson ?? convertToTiptap(questionData.discussion),
+			content: readTiptapContent(questionData.contentJson, questionData.content),
+			discussion: readTiptapContent(questionData.discussionJson, questionData.discussion),
 			essayCorrectAnswer: questionData.essayCorrectAnswer,
 			tags: questionData.tags,
 		},
@@ -181,11 +149,7 @@ const find = admin.admin.tryout.questions.find.handler(async ({ input, errors })
 });
 
 const updateQuestion = admin.admin.tryout.questions.updateQuestion.handler(async ({ input, errors }) => {
-	const contentJson = typeof input.content === "object" ? input.content : null;
-	const discussionJson = typeof input.discussion === "object" ? input.discussion : null;
-
-	const contentText = typeof input.content === "string" ? input.content : JSON.stringify(input.content);
-	const discussionText = typeof input.discussion === "string" ? input.discussion : JSON.stringify(input.discussion);
+	const { contentJson, discussionJson, contentText, discussionText } = normalizeQuestionContent(input);
 
 	await db.transaction(async (tx) => {
 		const [q] = await tx
@@ -214,8 +178,13 @@ const updateQuestion = admin.admin.tryout.questions.updateQuestion.handler(async
 			);
 
 			const toDelete = existingChoices.filter((choice) => !incomingIds.has(choice.id));
-			for (const choice of toDelete) {
-				await tx.delete(questionChoice).where(eq(questionChoice.id, choice.id));
+			if (toDelete.length > 0) {
+				await tx.delete(questionChoice).where(
+					inArray(
+						questionChoice.id,
+						toDelete.map((c) => c.id),
+					),
+				);
 			}
 
 			const choiceCodes = ["A", "B", "C", "D", "E", "F", "G"] as const;
@@ -249,7 +218,7 @@ const updateQuestion = admin.admin.tryout.questions.updateQuestion.handler(async
 	return { message: "Question berhasil diperbarui" };
 });
 
-const deleteQuestion = admin.admin.tryout.questions.deleteQuestion.handler(async ({ input, errors }) => {
+const removeQuestion = admin.admin.tryout.questions.remove.handler(async ({ input, errors }) => {
 	const [deleted] = await db.delete(question).where(eq(question.id, input.id)).returning();
 
 	if (!deleted) {
@@ -314,7 +283,7 @@ const updateChoice = admin.admin.tryout.questions.updateChoice.handler(async ({ 
 	return { message: "Choice berhasil diperbarui" };
 });
 
-const deleteChoice = admin.admin.tryout.questions.deleteChoice.handler(async ({ input, errors }) => {
+const removeChoice = admin.admin.tryout.questions.removeChoice.handler(async ({ input, errors }) => {
 	const [deleted] = await db.delete(questionChoice).where(eq(questionChoice.id, input.id)).returning();
 
 	if (!deleted) {
@@ -331,8 +300,8 @@ export const questionRouter = {
 	list,
 	find,
 	updateQuestion,
-	deleteQuestion,
+	remove: removeQuestion,
 	createChoice,
 	updateChoice,
-	deleteChoice,
+	removeChoice,
 };

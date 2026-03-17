@@ -5,6 +5,7 @@ import { type } from "arktype";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ClassHeader } from "@/components/classes/class-header";
+import type { ContentListItem } from "@/components/classes/classes-types";
 import { ContentList } from "@/components/classes/content-list";
 import {
 	AlertDialog,
@@ -31,20 +32,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SearchInput } from "@/components/ui/search-input";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
-import type { BodyOutputs } from "@/utils/orpc";
 import { orpc } from "@/utils/orpc";
 
 const searchSchema = type({
 	"q?": "string",
-	page: "number = 0",
+	"after?": "string",
 });
 
 export const Route = createFileRoute("/admin/classes/$subjectId/")({
 	component: RouteComponent,
 	validateSearch: searchSchema,
 });
-
-type ContentListItem = NonNullable<BodyOutputs["subject"]["listContent"]>["items"][number];
 
 function RouteComponent() {
 	const { subjectId: rawSubjectId } = Route.useParams();
@@ -56,16 +54,16 @@ function RouteComponent() {
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const [deletingItem, setDeletingItem] = useState<ContentListItem | null>(null);
 
-	const { q = "", page = 0 } = Route.useSearch();
+	const { q = "", after } = Route.useSearch();
 	const searchQuery = q;
 
 	const navigate = Route.useNavigate();
-	const updateSearch = (updates: { q?: string; page?: number }) => {
+	const updateSearch = (updates: { q?: string; after?: string }) => {
 		const newQ = updates.q !== undefined ? updates.q : q;
-		const newPage = updates.q !== undefined && updates.q !== q ? 0 : (updates.page ?? page);
+		const newAfter = updates.q !== undefined && updates.q !== q ? undefined : updates.after;
 
 		navigate({
-			search: newQ ? { q: newQ, page: newPage } : { page: newPage },
+			search: newQ ? { q: newQ, after: newAfter } : { after: newAfter },
 		});
 	};
 
@@ -75,16 +73,18 @@ function RouteComponent() {
 				subjectId,
 				search: searchQuery || undefined,
 				limit: 20,
-				offset: page * 20,
+				after,
 			},
 		}),
 	);
 
+	const invalidateContent = () => queryClient.invalidateQueries({ queryKey: orpc.subject.listContent.key() });
+
 	const createMutation = useMutation(
-		orpc.admin.subject.createContent.mutationOptions({
+		orpc.admin.content.createContent.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
-				queryClient.invalidateQueries();
+				invalidateContent();
 				setCreateDialogOpen(false);
 			},
 			onError: (error) => {
@@ -94,10 +94,10 @@ function RouteComponent() {
 	);
 
 	const updateMutation = useMutation(
-		orpc.admin.subject.updateContent.mutationOptions({
+		orpc.admin.content.updateContent.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
-				queryClient.invalidateQueries();
+				invalidateContent();
 				setEditDialogOpen(false);
 				setEditingItem(null);
 			},
@@ -108,10 +108,10 @@ function RouteComponent() {
 	);
 
 	const deleteMutation = useMutation(
-		orpc.admin.subject.deleteContent.mutationOptions({
+		orpc.admin.content.removeContent.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
-				queryClient.invalidateQueries();
+				invalidateContent();
 				setDeleteDialogOpen(false);
 				setDeletingItem(null);
 			},
@@ -122,10 +122,10 @@ function RouteComponent() {
 	);
 
 	const reorderMutation = useMutation(
-		orpc.admin.subject.reorderContent.mutationOptions({
+		orpc.admin.content.reorderContent.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
-				queryClient.invalidateQueries();
+				invalidateContent();
 			},
 			onError: (error) => {
 				toast.error(error.message || "Gagal mengubah urutan konten");
@@ -249,8 +249,8 @@ function RouteComponent() {
 					error={undefined}
 					searchQuery={searchQuery}
 					showCount={Boolean(searchQuery)}
-					hasMore={contents.data.items?.length === 20}
-					onLoadMore={() => updateSearch({ page: page + 1 })}
+					hasMore={!!contents.data.pageInfo?.hasNextPage}
+					onLoadMore={() => updateSearch({ after: contents.data?.pageInfo?.endCursor ?? undefined })}
 					onCreate={handleCreate}
 					onEdit={handleEdit}
 					onDelete={handleDelete}

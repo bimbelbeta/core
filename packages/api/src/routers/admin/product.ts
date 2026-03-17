@@ -1,9 +1,12 @@
+import { generateSlug } from "@bimbelbeta/contract/utils";
 import { db } from "@bimbelbeta/db";
 import { product } from "@bimbelbeta/db/schema/transaction";
 import { and, asc, desc, eq, gt, ilike, isNotNull, isNull, lt } from "drizzle-orm";
-import { superadmin } from "../..";
 import { decodeCursor, encodeCursor } from "../../lib/pagination/cursor";
-import { generateSlug } from "../../lib/utils";
+import { baseImplementer } from "../../lib/router-definition";
+import { rateLimit, requireAuth, requireSuperAdmin } from "../../lib/router-definition/middleware";
+
+const superadmin = baseImplementer.use(requireAuth).use(rateLimit).use(requireSuperAdmin);
 
 const list = superadmin.admin.products.list.handler(async ({ input }) => {
 	const limit = input.limit ?? 10;
@@ -11,17 +14,17 @@ const list = superadmin.admin.products.list.handler(async ({ input }) => {
 	const cursorStr = input.before || input.after;
 	const cursorId = cursorStr ? decodeCursor(cursorStr) : undefined;
 
-	const baseFilters = [
-		cursorId !== undefined ? (isBackward ? lt(product.id, cursorId) : gt(product.id, cursorId)) : undefined,
-		input.search ? ilike(product.name, `%${input.search}%`) : undefined,
-		input.variant ? eq(product.variant, input.variant) : undefined,
-		!input.includeDeleted ? isNull(product.deletedAt) : undefined,
-	];
-
 	let rows = await db
 		.select()
 		.from(product)
-		.where(and(...baseFilters.filter(Boolean)))
+		.where(
+			and(
+				cursorId !== undefined ? (isBackward ? lt(product.id, cursorId) : gt(product.id, cursorId)) : undefined,
+				input.search ? ilike(product.name, `%${input.search}%`) : undefined,
+				input.variant ? eq(product.variant, input.variant) : undefined,
+				!input.includeDeleted ? isNull(product.deletedAt) : undefined,
+			),
+		)
 		.orderBy(isBackward ? desc(product.id) : asc(product.id))
 		.limit(limit + 1);
 
@@ -35,7 +38,7 @@ const list = superadmin.admin.products.list.handler(async ({ input }) => {
 	return {
 		items: rows,
 		pageInfo: {
-			hasNextPage: isBackward ? true : hasExtra,
+			hasNextPage: isBackward ? !!cursorStr : hasExtra,
 			hasPreviousPage: isBackward ? hasExtra : !!cursorStr,
 			startCursor: firstItem ? encodeCursor(firstItem.id) : null,
 			endCursor: lastItem ? encodeCursor(lastItem.id) : null,
@@ -216,7 +219,7 @@ const update = superadmin.admin.products.update.handler(async ({ input, errors }
 	return { message: "Product berhasil diperbarui" };
 });
 
-const deleteProduct = superadmin.admin.products.delete.handler(async ({ input, errors }) => {
+const remove = superadmin.admin.products.remove.handler(async ({ input, errors }) => {
 	const [existing] = await db.select().from(product).where(eq(product.id, input.productId)).limit(1);
 
 	if (!existing) {
@@ -269,6 +272,6 @@ export const adminProductRouter = {
 	find,
 	create,
 	update,
-	delete: deleteProduct,
+	remove,
 	restore,
 };

@@ -2,29 +2,20 @@ import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { tryoutAttempt } from "@bimbelbeta/db/schema/tryout";
 import { and, asc, desc, eq, gt, lt } from "drizzle-orm";
-import { admin } from "../../..";
-import { createIdCursor, parseIdCursor } from "../../../lib/pagination/cursor";
-import { numericToNumber } from "../../../lib/utils";
+import { buildIdCursorPage, parseIdCursor } from "../../../lib/pagination/cursor";
+import { baseImplementer } from "../../../lib/router-definition";
+import { rateLimit, requireAdmin, requireAuth } from "../../../lib/router-definition/middleware";
+import { parseNullableInt } from "../../../lib/utils";
 
-type GetByTryoutInput = {
-	id: number;
-	after?: string;
-	before?: string;
-	limit?: number;
-};
+const admin = baseImplementer.use(requireAuth).use(rateLimit).use(requireAdmin);
 
-const list = admin.admin.tryout.attempts.list.handler(async ({ input }: { input: GetByTryoutInput }) => {
+const list = admin.admin.tryout.attempts.list.handler(async ({ input }) => {
 	const limit = input.limit ?? 10;
 	const isBackward = !!input.before;
 	const cursorStr = input.before || input.after;
 	const cursorId = cursorStr ? parseIdCursor(cursorStr) : undefined;
 
-	const baseFilters = [
-		eq(tryoutAttempt.tryoutId, input.id),
-		cursorId !== undefined ? (isBackward ? lt(tryoutAttempt.id, cursorId) : gt(tryoutAttempt.id, cursorId)) : undefined,
-	];
-
-	let rows = await db
+	const rows = await db
 		.select({
 			attempt: tryoutAttempt,
 			user: {
@@ -36,29 +27,28 @@ const list = admin.admin.tryout.attempts.list.handler(async ({ input }: { input:
 		})
 		.from(tryoutAttempt)
 		.innerJoin(user, eq(user.id, tryoutAttempt.userId))
-		.where(and(...baseFilters.filter(Boolean)))
+		.where(
+			and(
+				eq(tryoutAttempt.tryoutId, input.id),
+				cursorId !== undefined
+					? isBackward
+						? lt(tryoutAttempt.id, cursorId)
+						: gt(tryoutAttempt.id, cursorId)
+					: undefined,
+			),
+		)
 		.orderBy(isBackward ? desc(tryoutAttempt.id) : asc(tryoutAttempt.id))
 		.limit(limit + 1);
 
-	const hasExtra = rows.length > limit;
-	if (hasExtra) rows = rows.slice(0, limit);
-	if (isBackward) rows.reverse();
+	const mappedRows = rows.map((row) => ({
+		id: row.attempt.id,
+		attempt: { ...row.attempt, score: parseNullableInt(row.attempt.score) },
+		user: row.user,
+	}));
 
-	const firstItem = rows[0];
-	const lastItem = rows[rows.length - 1];
+	const { items, pageInfo } = buildIdCursorPage(mappedRows, limit, isBackward, !!cursorStr);
 
-	return {
-		items: rows.map((row) => ({
-			...row,
-			attempt: { ...row.attempt, score: numericToNumber(row.attempt.score) },
-		})),
-		pageInfo: {
-			hasNextPage: isBackward ? true : hasExtra,
-			hasPreviousPage: isBackward ? hasExtra : !!cursorStr,
-			startCursor: firstItem ? createIdCursor(firstItem.attempt.id) : null,
-			endCursor: lastItem ? createIdCursor(lastItem.attempt.id) : null,
-		},
-	};
+	return { items, pageInfo };
 });
 
 export const tryoutAttemptRouter = {

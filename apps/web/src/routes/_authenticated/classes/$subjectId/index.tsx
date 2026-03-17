@@ -19,7 +19,7 @@ import { orpc } from "@/utils/orpc";
 
 const searchSchema = type({
 	"q?": "string",
-	page: "number = 0",
+	"after?": "string",
 });
 
 export const Route = createFileRoute("/_authenticated/classes/$subjectId/")({
@@ -34,18 +34,18 @@ function RouteComponent() {
 	const userIsPremium = session.data?.user?.isPremium ?? false;
 	const userRole = session.data?.user?.role;
 
-	const { q = "", page = 0 } = Route.useSearch();
+	const { q = "", after } = Route.useSearch();
 	const searchQuery = q;
 
 	const navigate = Route.useNavigate();
-	const updateSearch = (updates: { q?: string; page?: number }) => {
+	const updateSearch = (updates: { q?: string; after?: string }) => {
 		const newQ = updates.q !== undefined ? updates.q : q;
-		const newPage = updates.q !== undefined && updates.q !== q ? 0 : (updates.page ?? page);
+		const newAfter = updates.q !== undefined && updates.q !== q ? undefined : updates.after;
 
 		navigate({
 			search: {
 				q: newQ || undefined,
-				page: newPage,
+				after: newAfter,
 			},
 		});
 	};
@@ -56,7 +56,7 @@ function RouteComponent() {
 				subjectId,
 				search: searchQuery || undefined,
 				limit: 20,
-				offset: page * 20,
+				after,
 			},
 		}),
 		placeholderData: (previousData) => previousData,
@@ -88,8 +88,6 @@ function RouteComponent() {
 		);
 	}
 	if (!contents.data) return notFound();
-
-	console.log(contents.data.subject);
 
 	return (
 		<div className="-mt-5 space-y-4 sm:-mt-3">
@@ -129,8 +127,8 @@ function RouteComponent() {
 					error={undefined}
 					searchQuery={searchQuery}
 					showCount={Boolean(searchQuery)}
-					hasMore={contents.data.items?.length === 20}
-					onLoadMore={() => updateSearch({ page: page + 1 })}
+					hasMore={!!contents.data.pageInfo?.hasNextPage}
+					onLoadMore={() => updateSearch({ after: contents.data?.pageInfo?.endCursor ?? undefined })}
 					userIsPremium={userIsPremium}
 					userRole={userRole}
 					subjectId={subjectId}

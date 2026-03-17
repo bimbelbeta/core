@@ -1,9 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
-import { orpc } from "@/utils/orpc";
+import type { BodyOutputs } from "@/utils/orpc";
 import { useTryoutStore } from "../-hooks/use-tryout-store";
 import { QuestionBody } from "./question-body";
 import { QuestionFooter } from "./question-footer";
@@ -19,18 +18,12 @@ type CountdownProps = {
 
 interface TryoutQuestionsProps {
 	countdownProps: CountdownProps;
+	data: NonNullable<BodyOutputs["tryout"]["find"]>;
 }
 
-export function TryoutQuestions({ countdownProps }: TryoutQuestionsProps) {
+export function TryoutQuestions({ countdownProps, data }: TryoutQuestionsProps) {
 	const { tryoutId: rawTryoutId } = useParams({ from: "/_authenticated/tryout/$tryoutId" });
 	const tryoutId = parseRouteParamToNumber(rawTryoutId);
-
-	const { data } = useQuery(
-		orpc.tryout.find.queryOptions({
-			input: { id: tryoutId },
-		}),
-	);
-
 	const {
 		view,
 		currentQuestion,

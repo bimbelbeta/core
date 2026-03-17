@@ -50,14 +50,11 @@ const schema = {
 // Define main relations (empty base - all relations defined in parts)
 const relations = defineRelations(schema, () => ({}));
 
-// Connection config
 const connection: PoolConfig = {
 	connectionString: process.env.DATABASE_URL || "",
 	...(process.env.NODE_ENV !== "production" ? { ssl: false } : {}),
 };
 
-// Combine all relation parts
-// Order matters: main relations first, then parts
 export const db = drizzle({
 	connection,
 	schema,

@@ -10,7 +10,7 @@ const QuestionChoiceSchema = createSelectSchema(questionChoice)
 	.merge({ id: "number" });
 
 export const adminSubjectContract = {
-	createSubject: oc
+	create: oc
 		.route({ path: "/admin/subjects", method: "POST", tags: ["Admin - Classes"] })
 		.input(
 			type({
@@ -23,7 +23,7 @@ export const adminSubjectContract = {
 			}),
 		)
 		.output(type({ message: "string", id: "number" })),
-	updateSubject: oc
+	update: oc
 		.route({ path: "/admin/subjects/{id}", method: "PATCH", tags: ["Admin - Classes"] })
 		.input(
 			type({
@@ -37,14 +37,17 @@ export const adminSubjectContract = {
 			}),
 		)
 		.output(MessageResponseSchema),
-	deleteSubject: oc
+	remove: oc
 		.route({ path: "/admin/subjects/{id}", method: "DELETE", tags: ["Admin - Classes"] })
 		.input(type({ id: "number" }))
 		.output(MessageResponseSchema),
-	reorderSubjects: oc
+	reorder: oc
 		.route({ path: "/admin/subjects/reorder", method: "PATCH", tags: ["Admin - Classes"] })
-		.input(type({ items: "unknown" }))
+		.input(type({ items: type({ id: "number", order: "number" }).array() }))
 		.output(MessageResponseSchema),
+};
+
+export const adminContentContract = {
 	createContent: oc
 		.route({ path: "/admin/content", method: "POST", tags: ["Admin - Content"] })
 		.input(
@@ -52,9 +55,9 @@ export const adminSubjectContract = {
 				subjectId: "number",
 				title: "string",
 				order: "number",
-				video: "object?",
-				note: "object?",
-				practiceQuestionIds: "number[]?",
+				"video?": type({ videoUrl: "string", content: "Record<string, unknown>" }),
+				"note?": type({ content: "Record<string, unknown>" }),
+				"practiceQuestionIds?": "number[]",
 			}),
 		)
 		.output(type({ message: "string", contentId: "number", createdMaterials: ContentMaterialCountSchema })),
@@ -62,35 +65,35 @@ export const adminSubjectContract = {
 		.route({ path: "/admin/content/{id}", method: "PATCH", tags: ["Admin - Content"] })
 		.input(type({ id: "number", title: "string?", order: "number?" }))
 		.output(MessageResponseSchema),
-	deleteContent: oc
+	removeContent: oc
 		.route({ path: "/admin/content/{id}", method: "DELETE", tags: ["Admin - Content"] })
 		.input(type({ id: "number" }))
 		.output(MessageResponseSchema),
 	reorderContent: oc
 		.route({ path: "/admin/content/reorder", method: "PATCH", tags: ["Admin - Content"] })
-		.input(type({ subjectId: "number", items: "unknown" }))
+		.input(type({ subjectId: "number", items: type({ id: "number", order: "number" }).array() }))
 		.output(MessageResponseSchema),
 	upsertVideo: oc
 		.route({ path: "/admin/content/{id}/video", method: "POST", tags: ["Admin - Content"] })
-		.input(type({ id: "number", videoUrl: "string", content: "object" }))
+		.input(type({ id: "number", videoUrl: "string", content: "Record<string, unknown>" }))
 		.output(type({ message: "string", videoId: "number" })),
-	deleteVideo: oc
+	removeVideo: oc
 		.route({ path: "/admin/content/{id}/video", method: "DELETE", tags: ["Admin - Content"] })
 		.input(type({ id: "number" }))
 		.output(MessageResponseSchema),
 	upsertNote: oc
 		.route({ path: "/admin/content/{id}/note", method: "POST", tags: ["Admin - Content"] })
-		.input(type({ id: "number", content: "object" }))
+		.input(type({ id: "number", content: "Record<string, unknown>" }))
 		.output(type({ message: "string", noteId: "number" })),
-	deleteNote: oc
+	removeNote: oc
 		.route({ path: "/admin/content/{id}/note", method: "DELETE", tags: ["Admin - Content"] })
 		.input(type({ id: "number" }))
 		.output(MessageResponseSchema),
-	linkPracticeQuestions: oc
+	setPracticeQuestions: oc
 		.route({ path: "/admin/content/{id}/practice-questions", method: "POST", tags: ["Admin - Content"] })
 		.input(type({ id: "number", questionIds: "number[]" }))
 		.output(MessageResponseSchema),
-	unlinkPracticeQuestions: oc
+	clearPracticeQuestions: oc
 		.route({ path: "/admin/content/{id}/practice-questions", method: "DELETE", tags: ["Admin - Content"] })
 		.input(type({ id: "number" }))
 		.output(MessageResponseSchema),
@@ -104,8 +107,8 @@ export const adminSubjectContract = {
 						questionId: "number",
 						order: "number",
 						type: "'multiple_choice' | 'multiple_choice_complex' | 'essay'",
-						content: "unknown",
-						discussion: "unknown",
+						content: "Record<string, unknown>",
+						discussion: "Record<string, unknown> | null",
 						tags: "string[]",
 						choices: QuestionChoiceSchema.array(),
 					},
@@ -113,7 +116,7 @@ export const adminSubjectContract = {
 				),
 			}),
 		),
-	unlinkSinglePracticeQuestion: oc
+	removePracticeQuestion: oc
 		.route({ path: "/admin/content/{id}/practice-questions/{questionId}", method: "DELETE", tags: ["Admin - Content"] })
 		.input(type({ id: "number", questionId: "number" }))
 		.output(MessageResponseSchema),

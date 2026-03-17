@@ -1,25 +1,15 @@
-import { ListIcon, SignOutIcon, SpinnerIcon, XIcon } from "@phosphor-icons/react";
-import { useQueryClient } from "@tanstack/react-query";
-import { Link, useLocation, useNavigate, useRouteContext } from "@tanstack/react-router";
+import { ListIcon, SignOutIcon, XIcon } from "@phosphor-icons/react";
+import { Link, useLocation, useRouteContext } from "@tanstack/react-router";
 import { useState } from "react";
-import {
-	AlertDialog,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { authClient } from "@/lib/auth-client";
-import { Button } from "./ui/button";
+import { LogoutDialog } from "@/components/shared/logout-dialog";
+import { Button } from "../ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuLabel,
 	DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+} from "../ui/dropdown-menu";
 
 const links = [
 	{
@@ -188,45 +178,3 @@ export function HeaderDashboard() {
 		</header>
 	);
 }
-
-const LogoutDialog = ({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) => {
-	const navigate = useNavigate();
-	const queryClient = useQueryClient();
-	const [pending, setPending] = useState(false);
-
-	return (
-		<AlertDialog open={open} onOpenChange={onOpenChange}>
-			<AlertDialogContent>
-				<AlertDialogHeader>
-					<AlertDialogTitle>Apakah anda yakin ingin keluar?</AlertDialogTitle>
-					<AlertDialogDescription>Kamu akan dikeluarkan dan harus login kembali.</AlertDialogDescription>
-				</AlertDialogHeader>
-				<AlertDialogFooter>
-					<AlertDialogCancel>Kembali</AlertDialogCancel>
-					<Button
-						onClick={async () => {
-							setPending(true);
-							await authClient.signOut();
-							queryClient.removeQueries();
-							navigate({ to: "/" });
-							setPending(false);
-						}}
-						disabled={pending}
-						variant={"destructive"}
-					>
-						{pending ? (
-							<>
-								<SpinnerIcon className="animate-spin" />
-								Memasak...
-							</>
-						) : (
-							<>
-								<SignOutIcon weight="bold" /> Keluar
-							</>
-						)}
-					</Button>
-				</AlertDialogFooter>
-			</AlertDialogContent>
-		</AlertDialog>
-	);
-};

@@ -2,9 +2,12 @@ import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
 import { and, eq } from "drizzle-orm";
-import { authed } from "../index";
+import { baseImplementer } from "../lib/router-definition";
+import { rateLimit, requireAuth } from "../lib/router-definition/middleware";
 
-const find = authed.userSettings.find.handler(async ({ context, errors }) => {
+const authed = baseImplementer.use(requireAuth).use(rateLimit);
+
+const getTarget = authed.userSettings.getTarget.handler(async ({ context, errors }) => {
 	if (!context.session.user.targetUniversityId || !context.session.user.targetStudyProgramId)
 		return {
 			university: null,
@@ -58,7 +61,7 @@ const update = authed.userSettings.update.handler(async ({ input, context, error
 		)
 		.limit(1);
 
-	if (!existing) {
+	if (existing.length === 0) {
 		throw errors.BAD_REQUEST({
 			message: "Kombinasi universitas dan program studi tidak valid",
 		});
@@ -79,6 +82,6 @@ const update = authed.userSettings.update.handler(async ({ input, context, error
 });
 
 export const userSettingsRouter = {
-	find,
+	getTarget,
 	update,
 };

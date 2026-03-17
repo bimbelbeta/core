@@ -59,7 +59,7 @@ export const noteMaterial = pgTable("note_material", {
 		.notNull()
 		.unique() // one-to-one
 		.references(() => contentItem.id, { onDelete: "cascade" }),
-	content: jsonb().notNull(), // Lexical/rich text JSON
+	content: jsonb().notNull(), // Tiptap rich text JSON
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

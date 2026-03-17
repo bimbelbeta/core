@@ -6,7 +6,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { Resend } from "resend";
 import { generateResetPasswordEmail } from "./lib/templates/reset-password";
 
-export const resend = new Resend(process.env.RESEND_API_KEY || "re_your_resend_api_key");
+export const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const auth = betterAuth({
 	database: drizzleAdapter(db, {
@@ -64,29 +64,23 @@ export const auth = betterAuth({
 	},
 	trustedOrigins: [
 		process.env.CORS_ORIGIN || "http://localhost:3000",
-		"https://bimbelbeta.com",
-		"https://www.bimbelbeta.com",
-		"https://api.bimbelbeta.com",
+		...(process.env.TRUSTED_ORIGINS ? process.env.TRUSTED_ORIGINS.split(",").map((o) => o.trim()) : []),
 	],
 	emailAndPassword: {
 		enabled: true,
 		sendResetPassword: async ({ user, url, token }) => {
-			resend.emails
-				.send({
-					from: "bimbelbeta <noreply@bimbelbeta.com>",
-					to: user.email,
-					subject: "Pesan Otomatis: Permintaan Pengaturan Ulang Kata Sandi",
-					html: generateResetPasswordEmail(user.name, url, token),
-				})
-				.catch((error) => {
-					console.error("Failed to send password reset email:", error);
-				});
+			await resend.emails.send({
+				from: "bimbelbeta <noreply@bimbelbeta.com>",
+				to: user.email,
+				subject: "Pesan Otomatis: Permintaan Pengaturan Ulang Kata Sandi",
+				html: generateResetPasswordEmail(user.name, url, token),
+			});
 		},
 	},
 	socialProviders: {
 		google: {
-			clientId: (process.env.GOOGLE_CLIENT_ID as string)?.trim(),
-			clientSecret: (process.env.GOOGLE_CLIENT_SECRET as string)?.trim(),
+			clientId: process.env.GOOGLE_CLIENT_ID ?? "",
+			clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
 			accessType: "offline",
 			prompt: "select_account consent",
 		},

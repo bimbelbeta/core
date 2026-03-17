@@ -2,8 +2,11 @@ import { db } from "@bimbelbeta/db";
 import { question } from "@bimbelbeta/db/schema/question";
 import { tryoutSubtestQuestion } from "@bimbelbeta/db/schema/tryout";
 import { and, eq, inArray, sql } from "drizzle-orm";
-import { admin } from "../..";
-import { convertToTiptap } from "../../lib/convert-to-tiptap";
+import { readTiptapContent } from "../../lib/content-utils";
+import { baseImplementer } from "../../lib/router-definition";
+import { rateLimit, requireAdmin, requireAuth } from "../../lib/router-definition/middleware";
+
+const admin = baseImplementer.use(requireAuth).use(rateLimit).use(requireAdmin);
 
 const list = admin.admin.tryout.questionsBulk.list.handler(async ({ input }) => {
 	const questionsData = await db
@@ -27,7 +30,7 @@ const list = admin.admin.tryout.questionsBulk.list.handler(async ({ input }) => 
 			...q,
 			question: {
 				...q.question,
-				content: q.question.contentJson ?? convertToTiptap(q.question.content),
+				content: readTiptapContent(q.question.contentJson, q.question.content),
 			},
 		})),
 	};
@@ -52,10 +55,15 @@ const addQuestionToSubtest = admin.admin.tryout.questionsBulk.addQuestionToSubte
 				questionId: input.questionId,
 				order: nextOrder,
 			});
-		} catch (_error) {
-			throw errors.BAD_REQUEST({
-				message: "Question sudah ada di subtest ini",
-			});
+		} catch (err) {
+			// PostgreSQL unique violation code 23505
+			const code = (err as { code?: string })?.code;
+			if (code === "23505") {
+				throw errors.BAD_REQUEST({
+					message: "Question sudah ada di subtest ini",
+				});
+			}
+			throw err;
 		}
 
 		return { message: "Question berhasil ditambahkan ke subtest" };

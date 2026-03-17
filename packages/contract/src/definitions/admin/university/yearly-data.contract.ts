@@ -74,7 +74,7 @@ export const adminUniversityProgramsContract = {
 			}),
 		)
 		.output(type({ message: "string", id: "number" })),
-	deleteYearlyData: oc
+	removeYearlyData: oc
 		.route({
 			path: "/admin/university-programs/{id}/yearly/{year}",
 			method: "DELETE",

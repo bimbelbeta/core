@@ -54,7 +54,7 @@ export const LastClasses = () => {
 							hasPracticeQuestions: Boolean(view.hasPracticeQuestions),
 						}}
 						index={idx}
-						shortName={view.subtestShortName}
+						shortName={view.subjectShortName}
 					/>
 				))}
 			</div>

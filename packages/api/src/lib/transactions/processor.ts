@@ -5,14 +5,23 @@ import { transaction } from "@bimbelbeta/db/schema/transaction";
 import { eq, sql } from "drizzle-orm";
 import type { PurchaseBenefits, TransactionWithProduct } from "./types";
 
-export async function processSuccessfulTransaction(
-	trx: Parameters<Parameters<typeof db.transaction>[0]>[0],
-	orderId: string,
-	userId: string,
-	existingTransaction: TransactionWithProduct,
-	purchaseDate: Date,
-	benefits: PurchaseBenefits,
-): Promise<void> {
+export interface ProcessSuccessfulTransactionOpts {
+	trx: Parameters<Parameters<typeof db.transaction>[0]>[0];
+	orderId: string;
+	userId: string;
+	existingTransaction: TransactionWithProduct;
+	purchaseDate: Date;
+	benefits: PurchaseBenefits;
+}
+
+export async function processSuccessfulTransaction({
+	trx,
+	orderId,
+	userId,
+	existingTransaction,
+	purchaseDate,
+	benefits,
+}: ProcessSuccessfulTransactionOpts): Promise<void> {
 	await trx
 		.update(transaction)
 		.set({

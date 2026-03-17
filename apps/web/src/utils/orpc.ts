@@ -25,7 +25,7 @@ export const queryClient = new QueryClient({
 					action: {
 						label: "Retry",
 						onClick: () => {
-							queryClient.invalidateQueries();
+							queryClient.invalidateQueries({ queryKey: query.queryKey });
 						},
 					},
 				});

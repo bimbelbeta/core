@@ -19,6 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { usePaginationNavigation } from "@/hooks/use-pagination-navigation";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 import { DeleteProductDialog } from "./-components/delete-product-dialog";
@@ -102,25 +103,7 @@ function ProductsListPage() {
 		});
 	};
 
-	const handleNext = () => {
-		if (!pageInfo?.endCursor) return;
-		navigate({
-			search: {
-				after: pageInfo.endCursor,
-				...baseSearchParams,
-			},
-		});
-	};
-
-	const handlePrevious = () => {
-		if (!pageInfo?.startCursor) return;
-		navigate({
-			search: {
-				before: pageInfo.startCursor,
-				...baseSearchParams,
-			},
-		});
-	};
+	const { handleNext, handlePrevious } = usePaginationNavigation(navigate, pageInfo, baseSearchParams);
 
 	return (
 		<AdminPageRoot>

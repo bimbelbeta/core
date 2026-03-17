@@ -2,75 +2,35 @@ import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { creditTransaction } from "@bimbelbeta/db/schema/credit";
 import { and, asc, desc, eq, gt, like, lt, or } from "drizzle-orm";
-import { superadmin } from "../..";
-import { createDateCursor, parseDateCursor } from "../../lib/pagination/cursor";
+import { buildStringIdCursorPage, parseStringIdCursor } from "../../lib/pagination/cursor";
+import { baseImplementer } from "../../lib/router-definition";
+import { rateLimit, requireAuth, requireSuperAdmin } from "../../lib/router-definition/middleware";
 
-type ListUsersInput = {
-	after?: string;
-	before?: string;
-	limit?: number;
-	search?: string;
-	role?: "user" | "admin" | "superadmin";
-	isPremium?: boolean;
-};
+const superadmin = baseImplementer.use(requireAuth).use(rateLimit).use(requireSuperAdmin);
 
-const list = superadmin.admin.users.list.handler(async ({ input }: { input: ListUsersInput }) => {
-	const limit = input.limit ?? 10;
+const list = superadmin.admin.users.list.handler(async ({ input }) => {
+	const limit = Math.min(input.limit ?? 20, 100);
 	const isBackward = !!input.before;
 	const cursor = input.before || input.after;
+	const cursorId = cursor ? parseStringIdCursor(cursor) : undefined;
 
-	// Build the base query with filters
-	const baseFilters = [
-		input.search ? or(like(user.name, `%${input.search}%`), like(user.email, `%${input.search}%`)) : undefined,
-		input.role ? eq(user.role, input.role) : undefined,
-		input.isPremium !== undefined ? eq(user.isPremium, input.isPremium) : undefined,
-	];
-
-	// Apply cursor filter based on direction
-	if (cursor) {
-		const cursorDate = parseDateCursor(cursor);
-		if (isBackward) {
-			baseFilters.push(lt(user.createdAt, cursorDate));
-		} else {
-			baseFilters.push(gt(user.createdAt, cursorDate));
-		}
-	}
-
-	// Execute query with appropriate ordering
-	let rows = await db
+	const rows = await db
 		.select()
 		.from(user)
-		.where(and(...baseFilters.filter(Boolean)))
-		.orderBy(isBackward ? desc(user.createdAt) : asc(user.createdAt))
+		.where(
+			and(
+				cursorId !== undefined ? (isBackward ? lt(user.id, cursorId) : gt(user.id, cursorId)) : undefined,
+				input.search ? or(like(user.name, `%${input.search}%`), like(user.email, `%${input.search}%`)) : undefined,
+				input.role ? eq(user.role, input.role) : undefined,
+				input.isPremium !== undefined ? eq(user.isPremium, input.isPremium) : undefined,
+			),
+		)
+		.orderBy(isBackward ? desc(user.id) : asc(user.id))
 		.limit(limit + 1);
 
-	const hasExtra = rows.length > limit;
-	if (hasExtra) {
-		rows = rows.slice(0, limit);
-	}
+	const { items, pageInfo } = buildStringIdCursorPage(rows, limit, isBackward, !!cursor);
 
-	// Reverse results if going backward (items come in reverse chronological order)
-	if (isBackward) {
-		rows.reverse();
-	}
-
-	// Compute page info
-	const firstItem = rows[0];
-	const lastItem = rows[rows.length - 1];
-
-	// hasNextPage: true if going backward, OR if we're going forward and have extra items
-	// hasPreviousPage: true if we have a cursor for forward navigation, OR if going backward and have extra
-	const pageInfo = {
-		hasNextPage: isBackward ? true : hasExtra,
-		hasPreviousPage: isBackward ? hasExtra : !!cursor,
-		startCursor: firstItem ? createDateCursor(firstItem.createdAt) : null,
-		endCursor: lastItem ? createDateCursor(lastItem.createdAt) : null,
-	};
-
-	return {
-		items: rows,
-		pageInfo,
-	};
+	return { items, pageInfo };
 });
 
 const find = superadmin.admin.users.find.handler(async ({ input, errors }) => {

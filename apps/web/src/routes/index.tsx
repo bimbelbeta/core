@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import Header from "@/components/header";
+import Header from "@/components/shared/header";
 import { createMeta } from "@/lib/seo-utils";
 import { FAQ } from "./-home/faq";
 import { Features } from "./-home/features";

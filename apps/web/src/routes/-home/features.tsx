@@ -1,7 +1,7 @@
 import { Image } from "@unpic/react";
 import { Container } from "@/components/ui/container";
-import { Heading } from "./-componenets/heading";
-import { Subheading } from "./-componenets/subheading";
+import { Heading } from "./-components/heading";
+import { Subheading } from "./-components/subheading";
 
 export function Features() {
 	return (

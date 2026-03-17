@@ -2,7 +2,7 @@ import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
-import { TiptapRenderer } from "@/components/tiptap-renderer";
+import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -63,12 +63,12 @@ export function QuestionPickerDialog({
 		}
 	}, [isFetchingNextPage, hasNextPage, fetchNextPage]);
 	const addMutation = useMutation(
-		orpc.admin.subject.addPracticeQuestions.mutationOptions({
+		orpc.admin.content.addPracticeQuestions.mutationOptions({
 			onSuccess: (result) => {
 				toast.success(result.message);
 				setSelectedQuestionIds(new Set());
 				queryClient.invalidateQueries({
-					queryKey: orpc.admin.subject.listPracticeQuestions.queryKey({
+					queryKey: orpc.admin.content.listPracticeQuestions.queryKey({
 						input: { id: contentId },
 					}),
 				});

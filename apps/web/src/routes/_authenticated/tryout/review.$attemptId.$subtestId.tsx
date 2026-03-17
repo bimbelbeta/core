@@ -2,7 +2,7 @@ import { ArrowLeftIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
-import ErrorComponent from "@/components/error";
+import ErrorComponent from "@/components/shared/error";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";

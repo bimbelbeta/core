@@ -1,12 +1,10 @@
-"use client";
-
 import { NodeSelection, TextSelection } from "@tiptap/pm/state";
 import type { Editor } from "@tiptap/react";
 import { useCallback, useEffect, useState } from "react";
+// --- Hooks ---
+import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
 // --- Icons ---
 import { BlockquoteIcon } from "@/components/tiptap-icons/blockquote-icon";
-// --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
 
 // --- UI Utils ---
 import {
@@ -140,42 +138,7 @@ export function shouldShowButton(props: { editor: Editor | null; hideWhenUnavail
 	return true;
 }
 
-/**
- * Custom hook that provides blockquote functionality for Tiptap editor
- *
- * @example
- * ```tsx
- * // Simple usage - no params needed
- * function MySimpleBlockquoteButton() {
- *   const { isVisible, handleToggle, isActive } = useBlockquote()
- *
- *   if (!isVisible) return null
- *
- *   return <button onClick={handleToggle}>Blockquote</button>
- * }
- *
- * // Advanced usage with configuration
- * function MyAdvancedBlockquoteButton() {
- *   const { isVisible, handleToggle, label, isActive } = useBlockquote({
- *     editor: myEditor,
- *     hideWhenUnavailable: true,
- *     onToggled: () => console.log('Blockquote toggled!')
- *   })
- *
- *   if (!isVisible) return null
- *
- *   return (
- *     <MyButton
- *       onClick={handleToggle}
- *       aria-label={label}
- *       aria-pressed={isActive}
- *     >
- *       Toggle Blockquote
- *     </MyButton>
- *   )
- * }
- * ```
- */
+/** Custom hook that provides blockquote toggle functionality for the Tiptap editor. */
 export function useBlockquote(config?: UseBlockquoteConfig) {
 	const { editor: providedEditor, hideWhenUnavailable = false, onToggled } = config || {};
 

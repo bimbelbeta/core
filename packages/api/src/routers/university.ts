@@ -1,8 +1,11 @@
 import { db } from "@bimbelbeta/db";
 import { programYearlyData, studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
 import { and, asc, desc, eq, gt, ilike, lt, or } from "drizzle-orm";
-import { authed } from "../index";
-import { createIdCursor, parseIdCursor } from "../lib/pagination/cursor";
+import { buildIdCursorPage, parseIdCursor } from "../lib/pagination/cursor";
+import { baseImplementer } from "../lib/router-definition";
+import { rateLimit, requireAuth } from "../lib/router-definition/middleware";
+
+const authed = baseImplementer.use(requireAuth).use(rateLimit);
 
 const listPrograms = authed.university.listPrograms.handler(async ({ input }) => {
 	const limit = Math.min(input.limit ?? 20, 100);
@@ -10,14 +13,7 @@ const listPrograms = authed.university.listPrograms.handler(async ({ input }) =>
 	const cursorStr = input.before || input.after;
 	const cursorId = cursorStr ? parseIdCursor(cursorStr) : undefined;
 
-	const baseFilters = [
-		cursorId !== undefined ? (isBackward ? lt(university.id, cursorId) : gt(university.id, cursorId)) : undefined,
-		input.search && input.search.length > 0
-			? or(ilike(university.name, `%${input.search}%`), ilike(studyProgram.name, `%${input.search}%`))
-			: undefined,
-	];
-
-	let data = await db
+	const data = await db
 		.select({
 			id: university.id,
 			name: university.name,
@@ -32,26 +28,20 @@ const listPrograms = authed.university.listPrograms.handler(async ({ input }) =>
 		.innerJoin(universityStudyProgram, eq(university.id, universityStudyProgram.universityId))
 		.innerJoin(studyProgram, eq(universityStudyProgram.studyProgramId, studyProgram.id))
 		.innerJoin(programYearlyData, eq(universityStudyProgram.id, programYearlyData.universityStudyProgramId))
-		.where(and(...baseFilters.filter(Boolean)))
+		.where(
+			and(
+				cursorId !== undefined ? (isBackward ? lt(university.id, cursorId) : gt(university.id, cursorId)) : undefined,
+				input.search && input.search.length > 0
+					? or(ilike(university.name, `%${input.search}%`), ilike(studyProgram.name, `%${input.search}%`))
+					: undefined,
+			),
+		)
 		.orderBy(isBackward ? desc(university.id) : asc(university.id))
 		.limit(limit + 1);
 
-	const hasExtra = data.length > limit;
-	if (hasExtra) data = data.slice(0, limit);
-	if (isBackward) data.reverse();
+	const { items, pageInfo } = buildIdCursorPage(data, limit, isBackward, !!cursorStr);
 
-	const firstItem = data[0];
-	const lastItem = data[data.length - 1];
-
-	return {
-		items: data,
-		pageInfo: {
-			hasNextPage: isBackward ? true : hasExtra,
-			hasPreviousPage: isBackward ? hasExtra : !!cursorStr,
-			startCursor: firstItem ? createIdCursor(firstItem.id) : null,
-			endCursor: lastItem ? createIdCursor(lastItem.id) : null,
-		},
-	};
+	return { items, pageInfo };
 });
 
 const list = authed.university.list.handler(async ({ input }) => {
@@ -60,12 +50,7 @@ const list = authed.university.list.handler(async ({ input }) => {
 	const cursorStr = input.before || input.after;
 	const cursorId = cursorStr ? parseIdCursor(cursorStr) : undefined;
 
-	const baseFilters = [
-		cursorId !== undefined ? (isBackward ? lt(university.id, cursorId) : gt(university.id, cursorId)) : undefined,
-		input.search && input.search.length > 0 ? ilike(university.name, `%${input.search}%`) : undefined,
-	];
-
-	let universities = await db
+	const rows = await db
 		.select({
 			id: university.id,
 			name: university.name,
@@ -75,29 +60,21 @@ const list = authed.university.list.handler(async ({ input }) => {
 			rank: university.rank,
 		})
 		.from(university)
-		.where(and(...baseFilters.filter(Boolean)))
+		.where(
+			and(
+				cursorId !== undefined ? (isBackward ? lt(university.id, cursorId) : gt(university.id, cursorId)) : undefined,
+				input.search && input.search.length > 0 ? ilike(university.name, `%${input.search}%`) : undefined,
+			),
+		)
 		.orderBy(isBackward ? desc(university.id) : asc(university.id))
 		.limit(limit + 1);
 
-	const hasExtra = universities.length > limit;
-	if (hasExtra) universities = universities.slice(0, limit);
-	if (isBackward) universities.reverse();
+	const { items, pageInfo } = buildIdCursorPage(rows, limit, isBackward, !!cursorStr);
 
-	const firstItem = universities[0];
-	const lastItem = universities[universities.length - 1];
-
-	return {
-		items: universities,
-		pageInfo: {
-			hasNextPage: isBackward ? true : hasExtra,
-			hasPreviousPage: isBackward ? hasExtra : !!cursorStr,
-			startCursor: firstItem ? createIdCursor(firstItem.id) : null,
-			endCursor: lastItem ? createIdCursor(lastItem.id) : null,
-		},
-	};
+	return { items, pageInfo };
 });
 
-const listProgramsByUniversity = authed.university.listProgramsByUniversity.handler(async ({ input, errors }) => {
+const listProgramsByUniversity = authed.university.listProgramsByUniversity.handler(async ({ input }) => {
 	const studyPrograms = await db
 		.select({
 			id: studyProgram.id,
@@ -108,13 +85,7 @@ const listProgramsByUniversity = authed.university.listProgramsByUniversity.hand
 		.where(eq(universityStudyProgram.universityId, input.universityId))
 		.orderBy(studyProgram.name);
 
-	if (studyPrograms.length === 0) {
-		throw errors.NOT_FOUND({
-			message: "Belum ada data Program Studi untuk Universitas ini",
-		});
-	}
-
-	return { data: studyPrograms };
+	return { items: studyPrograms };
 });
 
 const find = authed.university.find.handler(async ({ input, errors }) => {

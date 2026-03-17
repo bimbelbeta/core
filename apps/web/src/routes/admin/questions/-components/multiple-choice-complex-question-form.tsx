@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ComplexChoiceEditRow } from "./complex-choice-edit-row";
-import type { Choice } from "./edit-question-form";
+import type { Choice } from "./types";
 
 interface MultipleChoiceComplexQuestionFormProps {
 	choices: Choice[];

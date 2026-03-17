@@ -1,23 +1,13 @@
 import type { BodyOutputs } from "@/utils/orpc";
 
-export type SubjectListItem = {
-	id: number;
-	name: string;
-	shortName: string;
-	description: string | null;
-	order: number;
-	category: "sd" | "smp" | "sma" | "utbk";
-	gradeLevel: number | null;
-	totalContent?: number;
-	hasViewed?: boolean;
-};
+export type SubjectListItem = BodyOutputs["subject"]["list"][number];
 
 export type ContentListItem = NonNullable<BodyOutputs["subject"]["listContent"]>["items"][number];
 
 export type ContentActionItem = {
-	hasVideo: boolean | unknown;
-	hasNote: boolean | unknown;
-	hasPracticeQuestions: boolean | unknown;
+	hasVideo: boolean;
+	hasNote: boolean;
+	hasPracticeQuestions: boolean;
 	videoCompleted?: boolean | null;
 	noteCompleted?: boolean | null;
 	practiceQuestionsCompleted?: boolean | null;

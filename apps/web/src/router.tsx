@@ -1,9 +1,19 @@
 import { createRouter as createTanStackRouter } from "@tanstack/react-router";
-import Loader from "./components/loader";
+import { configure } from "arktype/config";
+import Loader from "./components/shared/loader";
 import "./index.css";
 import { QueryClientProvider } from "@tanstack/react-query";
-import ErrorComponent from "./components/error";
-import NotFound from "./components/not-found";
+
+configure({
+	keywords: {
+		"string.email": {
+			description: "alamat email yang valid",
+		},
+	},
+});
+
+import ErrorComponent from "./components/shared/error";
+import NotFound from "./components/shared/not-found";
 import { routeTree } from "./routeTree.gen";
 import { orpc, queryClient } from "./utils/orpc";
 

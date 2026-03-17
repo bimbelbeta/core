@@ -2,8 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { EmptyContentState } from "@/components/classes/empty-content-state";
-import { TiptapRenderer } from "@/components/tiptap-renderer";
-import YouTubePlayer from "@/components/youtube-player";
+import YouTubePlayer from "@/components/shared/youtube-player";
+import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 import { extractYouTubeId } from "@/utils/youtube";
@@ -27,7 +27,6 @@ function RouteComponent() {
 	const updateProgressMutation = useMutation(
 		orpc.subject.updateProgress.mutationOptions({
 			onSuccess: () => {
-				console.log("Progress updated successfully for video:", contentId);
 				queryClient.invalidateQueries({
 					queryKey: orpc.subject.stats.key(),
 				});
@@ -49,7 +48,7 @@ function RouteComponent() {
 		if (content.data?.video && !hasUpdatedProgress.current) {
 			hasUpdatedProgress.current = true;
 			updateProgressMutation.mutate({
-				id: contentId,
+				contentId,
 				videoCompleted: true,
 			});
 		}

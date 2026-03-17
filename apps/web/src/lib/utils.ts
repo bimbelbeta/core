@@ -8,11 +8,3 @@ export function cn(...inputs: ClassValue[]) {
 
 export type Routes = keyof FileRoutesByTo;
 export type RoutesByFullPath = keyof FileRoutesByFullPath;
-
-export const generateSlug = (name: string) => {
-	return name
-		.toLowerCase()
-		.trim()
-		.replace(/\s+/g, "-")
-		.replace(/[^\w-]+/g, "");
-};

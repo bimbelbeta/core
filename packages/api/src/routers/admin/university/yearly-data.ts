@@ -1,31 +1,20 @@
 import { db } from "@bimbelbeta/db";
 import { programYearlyData, studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
 import { and, asc, desc, eq, gt, lt } from "drizzle-orm";
-import { admin } from "../../../index";
-import { createIdCursor, parseIdCursor } from "../../../lib/pagination/cursor";
+import { buildIdCursorPage, parseIdCursor } from "../../../lib/pagination/cursor";
+import { baseImplementer } from "../../../lib/router-definition";
+import { rateLimit, requireAdmin, requireAuth } from "../../../lib/router-definition/middleware";
+import { pickDefined } from "../../../lib/utils";
+
+const admin = baseImplementer.use(requireAuth).use(rateLimit).use(requireAdmin);
 
 const list = admin.admin.university.universityPrograms.list.handler(async ({ input }) => {
 	const limit = Math.min(input.limit ?? 20, 100);
 	const isBackward = !!input.before;
 	const cursor = input.before || input.after;
+	const cursorId = cursor ? parseIdCursor(cursor) : undefined;
 
-	const conditions = [];
-	if (cursor) {
-		const cursorId = parseIdCursor(cursor);
-		if (isBackward) {
-			conditions.push(lt(universityStudyProgram.id, cursorId));
-		} else {
-			conditions.push(gt(universityStudyProgram.id, cursorId));
-		}
-	}
-	if (input.universityId) {
-		conditions.push(eq(universityStudyProgram.universityId, input.universityId));
-	}
-	if (input.studyProgramId) {
-		conditions.push(eq(universityStudyProgram.studyProgramId, input.studyProgramId));
-	}
-
-	let results = await db
+	const rows = await db
 		.select({
 			id: universityStudyProgram.id,
 			universityId: university.id,
@@ -43,31 +32,24 @@ const list = admin.admin.university.universityPrograms.list.handler(async ({ inp
 		.from(universityStudyProgram)
 		.innerJoin(university, eq(university.id, universityStudyProgram.universityId))
 		.innerJoin(studyProgram, eq(studyProgram.id, universityStudyProgram.studyProgramId))
-		.where(conditions.length > 0 ? and(...conditions) : undefined)
+		.where(
+			and(
+				cursorId !== undefined
+					? isBackward
+						? lt(universityStudyProgram.id, cursorId)
+						: gt(universityStudyProgram.id, cursorId)
+					: undefined,
+				input.universityId ? eq(universityStudyProgram.universityId, input.universityId) : undefined,
+				input.studyProgramId ? eq(universityStudyProgram.studyProgramId, input.studyProgramId) : undefined,
+			),
+		)
 		.orderBy(isBackward ? desc(universityStudyProgram.id) : asc(universityStudyProgram.id))
 		.limit(limit + 1);
 
-	const hasExtra = results.length > limit;
-	if (hasExtra) {
-		results = results.slice(0, limit);
-	}
-
-	if (isBackward) {
-		results.reverse();
-	}
-
-	const firstItem = results[0];
-	const lastItem = results[results.length - 1];
-
-	const pageInfo = {
-		hasNextPage: isBackward ? true : hasExtra,
-		hasPreviousPage: isBackward ? hasExtra : !!cursor,
-		startCursor: firstItem ? createIdCursor(firstItem.id) : null,
-		endCursor: lastItem ? createIdCursor(lastItem.id) : null,
-	};
+	const { items, pageInfo } = buildIdCursorPage(rows, limit, isBackward, !!cursor);
 
 	return {
-		items: results.map((r) => ({
+		items: items.map((r) => ({
 			id: r.id,
 			university: { id: r.universityId, name: r.universityName, slug: r.universitySlug },
 			studyProgram: { id: r.studyProgramId, name: r.studyProgramName, category: r.studyProgramCategory },
@@ -178,26 +160,18 @@ const create = admin.admin.university.universityPrograms.create.handler(async ({
 });
 
 const update = admin.admin.university.universityPrograms.update.handler(async ({ input, errors }) => {
-	const updateData: {
-		tuition?: number | null;
-		capacity?: number | null;
-		accreditation?: string | null;
-		averageScore?: number;
-		isActive?: boolean;
-		updatedAt: Date;
-	} = {
-		updatedAt: new Date(),
-	};
-
-	if (input.tuition !== undefined) updateData.tuition = input.tuition;
-	if (input.capacity !== undefined) updateData.capacity = input.capacity;
-	if (input.accreditation !== undefined) updateData.accreditation = input.accreditation;
-	if (input.averageScore !== undefined) updateData.averageScore = input.averageScore;
-	if (input.isActive !== undefined) updateData.isActive = input.isActive;
-
 	const [updated] = await db
 		.update(universityStudyProgram)
-		.set(updateData)
+		.set({
+			...pickDefined({
+				tuition: input.tuition,
+				capacity: input.capacity,
+				accreditation: input.accreditation,
+				averageScore: input.averageScore,
+				isActive: input.isActive,
+			}),
+			updatedAt: new Date(),
+		})
 		.where(eq(universityStudyProgram.id, input.id))
 		.returning();
 
@@ -224,12 +198,6 @@ const remove = admin.admin.university.universityPrograms.remove.handler(async ({
 
 const upsertYearlyData = admin.admin.university.universityPrograms.upsertYearlyData.handler(
 	async ({ input, errors }) => {
-		const [existing] = await db
-			.select({ id: programYearlyData.id })
-			.from(programYearlyData)
-			.where(and(eq(programYearlyData.universityStudyProgramId, input.id), eq(programYearlyData.year, input.year)))
-			.limit(1);
-
 		const [result] = await db
 			.insert(programYearlyData)
 			.values({
@@ -250,7 +218,9 @@ const upsertYearlyData = admin.admin.university.universityPrograms.upsertYearlyD
 					updatedAt: new Date(),
 				},
 			})
-			.returning();
+			.returning({
+				id: programYearlyData.id,
+			});
 
 		if (!result) {
 			throw errors.INTERNAL_SERVER_ERROR({
@@ -259,13 +229,13 @@ const upsertYearlyData = admin.admin.university.universityPrograms.upsertYearlyD
 		}
 
 		return {
-			message: existing ? "Data tahunan berhasil diperbarui" : "Data tahunan berhasil dibuat",
+			message: "Data tahunan berhasil disimpan",
 			id: result.id,
 		};
 	},
 );
 
-const deleteYearlyData = admin.admin.university.universityPrograms.deleteYearlyData.handler(
+const removeYearlyData = admin.admin.university.universityPrograms.removeYearlyData.handler(
 	async ({ input, errors }) => {
 		const [deleted] = await db
 			.delete(programYearlyData)
@@ -289,5 +259,5 @@ export const adminUniversityProgramRouter = {
 	update,
 	remove,
 	upsertYearlyData,
-	deleteYearlyData,
+	removeYearlyData,
 };

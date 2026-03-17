@@ -1,3 +1,4 @@
+import { generateSlug } from "@bimbelbeta/contract/utils";
 import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { type } from "arktype";
@@ -10,7 +11,6 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
-import { generateSlug } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 
 interface CreateProgramTabProps {

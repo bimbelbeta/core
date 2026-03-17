@@ -1,13 +1,11 @@
-"use client";
-
 import type { Editor } from "@tiptap/react";
 import { useCallback, useEffect, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
+// --- Hooks ---
+import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
 // --- Icons ---
 import { HighlighterIcon } from "@/components/tiptap-icons/highlighter-icon";
 import { useIsBreakpoint } from "@/hooks/use-is-breakpoint";
-// --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
 // --- Lib ---
 import { isExtensionAvailable, isMarkInSchema, isNodeTypeSelected } from "@/lib/tiptap-utils";
 

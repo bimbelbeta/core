@@ -1,11 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { BackButton } from "@/components/back-button";
 import { EmptyContentState } from "@/components/classes/empty-content-state";
 import { PracticeQuestion } from "@/components/classes/practice-question";
 import { PracticeQuestionHeader } from "@/components/classes/practice-question-header";
-import { TiptapRenderer } from "@/components/tiptap-renderer";
+import { BackButton } from "@/components/shared/back-button";
+import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 
@@ -39,7 +39,7 @@ function RouteComponent() {
 	useEffect(() => {
 		if (content.data?.practiceQuestions) {
 			updateProgressMutation.mutate({
-				id: contentId,
+				contentId,
 				practiceQuestionsCompleted: true,
 			});
 		}

@@ -21,7 +21,7 @@ interface DeleteProductDialogProps {
 
 export function DeleteProductDialog({ productId, open, onOpenChange, onSuccess }: DeleteProductDialogProps) {
 	const deleteMutation = useMutation(
-		orpc.admin.products.delete.mutationOptions({
+		orpc.admin.products.remove.mutationOptions({
 			onSuccess: () => {
 				toast.success("Product berhasil dihapus");
 				onSuccess();

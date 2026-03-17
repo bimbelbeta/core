@@ -1,12 +1,10 @@
-"use client";
-
 import { NodeSelection, TextSelection } from "@tiptap/pm/state";
 import type { Editor } from "@tiptap/react";
 import { useCallback, useEffect, useState } from "react";
+// --- Hooks ---
+import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
 // --- Icons ---
 import { CodeBlockIcon } from "@/components/tiptap-icons/code-block-icon";
-// --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
 // --- Lib ---
 import {
 	findNodePosition,
@@ -142,47 +140,8 @@ export function shouldShowButton(props: { editor: Editor | null; hideWhenUnavail
 }
 
 /**
- * Custom hook that provides code block functionality for Tiptap editor
- *
- * @example
- * ```tsx
- * // Simple usage - no params needed
- * function MySimpleCodeBlockButton() {
- *   const { isVisible, isActive, handleToggle } = useCodeBlock()
- *
- *   if (!isVisible) return null
- *
- *   return (
- *     <button
- *       onClick={handleToggle}
- *       aria-pressed={isActive}
- *     >
- *       Code Block
- *     </button>
- *   )
- * }
- *
- * // Advanced usage with configuration
- * function MyAdvancedCodeBlockButton() {
- *   const { isVisible, isActive, handleToggle, label } = useCodeBlock({
- *     editor: myEditor,
- *     hideWhenUnavailable: true,
- *     onToggled: (isActive) => console.log('Code block toggled:', isActive)
- *   })
- *
- *   if (!isVisible) return null
- *
- *   return (
- *     <MyButton
- *       onClick={handleToggle}
- *       aria-label={label}
- *       aria-pressed={isActive}
- *     >
- *       Toggle Code Block
- *     </MyButton>
- *   )
- * }
- * ```
+ * Provides code block toggle state and handler for a Tiptap editor.
+ * Pass a `UseCodeBlockConfig` to override the editor, hide when unavailable, or receive a post-toggle callback.
  */
 export function useCodeBlock(config?: UseCodeBlockConfig) {
 	const { editor: providedEditor, hideWhenUnavailable = false, onToggled } = config || {};

@@ -1,4 +1,6 @@
+import { canAccessContent } from "@bimbelbeta/contract/common/content-access";
 import { db } from "@bimbelbeta/db";
+import { user } from "@bimbelbeta/db/schema/auth";
 import { question, questionChoice } from "@bimbelbeta/db/schema/question";
 import {
 	contentItem,
@@ -10,10 +12,14 @@ import {
 	userSubjectView,
 	videoMaterial,
 } from "@bimbelbeta/db/schema/subject";
-import { and, desc, eq, ilike, inArray, sql } from "drizzle-orm";
-import { authed } from "../index";
-import { canAccessContent } from "../lib/content-access";
-import { convertToTiptap } from "../lib/convert-to-tiptap";
+import { and, desc, eq, gt, ilike, inArray, lt, sql } from "drizzle-orm";
+import { readTiptapContent } from "../lib/content-utils";
+import { buildIdCursorPage, parseIdCursor } from "../lib/pagination/cursor";
+import { ROLES, type Role } from "../lib/roles";
+import { baseImplementer } from "../lib/router-definition";
+import { rateLimit, requireAuth } from "../lib/router-definition/middleware";
+
+const authed = baseImplementer.use(requireAuth).use(rateLimit);
 
 import type { ChoiceWithAnswer } from "../types/question";
 
@@ -22,10 +28,6 @@ function escapeLikePattern(value: string): string {
 }
 
 const list = authed.subject.list.handler(async ({ input, context }) => {
-	const conditions = [];
-	if (input?.category) conditions.push(eq(subject.category, input.category));
-	if (input?.search) conditions.push(ilike(subject.name, `%${escapeLikePattern(input.search)}%`));
-
 	const subjects = await db
 		.select({
 			id: subject.id,
@@ -44,7 +46,12 @@ const list = authed.subject.list.handler(async ({ input, context }) => {
 		})
 		.from(subject)
 		.leftJoin(contentItem, eq(contentItem.subjectId, subject.id))
-		.where(conditions.length > 0 ? and(...conditions) : undefined)
+		.where(
+			and(
+				input?.category ? eq(subject.category, input.category) : undefined,
+				input?.search ? ilike(subject.name, `%${escapeLikePattern(input.search)}%`) : undefined,
+			),
+		)
 		.groupBy(
 			subject.id,
 			subject.name,
@@ -78,12 +85,12 @@ const listContent = authed.subject.listContent.handler(async ({ input, context, 
 		throw errors.NOT_FOUND({ message: "Subject tidak ditemukan" });
 	}
 
-	const conditions = [eq(contentItem.subjectId, input.subjectId)];
-	if (input.search) {
-		conditions.push(ilike(contentItem.title, `%${escapeLikePattern(input.search)}%`));
-	}
+	const limit = input.limit ?? 20;
+	const isBackward = !!input.before;
+	const cursorStr = input.after ?? input.before;
+	const cursorId = cursorStr ? parseIdCursor(cursorStr) : null;
 
-	const items = await db
+	const rows = await db
 		.select({
 			id: contentItem.id,
 			title: contentItem.title,
@@ -106,14 +113,22 @@ const listContent = authed.subject.listContent.handler(async ({ input, context, 
 			userProgress,
 			and(eq(userProgress.contentItemId, contentItem.id), eq(userProgress.userId, context.session.user.id)),
 		)
-		.where(and(...conditions))
-		.orderBy(contentItem.order)
-		.limit(input.limit ?? 20)
-		.offset(input.offset ?? 0);
+		.where(
+			and(
+				eq(contentItem.subjectId, input.subjectId),
+				input.search ? ilike(contentItem.title, `%${escapeLikePattern(input.search)}%`) : undefined,
+				cursorId !== null ? (isBackward ? lt(contentItem.id, cursorId) : gt(contentItem.id, cursorId)) : undefined,
+			),
+		)
+		.orderBy(isBackward ? desc(contentItem.id) : contentItem.id)
+		.limit(limit + 1);
+
+	const { items, pageInfo } = buildIdCursorPage(rows, limit, isBackward, !!cursorStr);
 
 	return {
 		subject: targetSubject,
 		items,
+		pageInfo,
 	};
 });
 
@@ -148,12 +163,20 @@ const findContent = authed.subject.findContent.handler(async ({ input, context, 
 		throw errors.NOT_FOUND({ message: "Konten tidak ditemukan" });
 	}
 
-	const hasAccess = canAccessContent(
-		context.session.user.isPremium,
-		context.session.user.role,
-		row.subtestOrder,
-		row.order,
-	);
+	const rawRole = context.session.user.role;
+	const role: Role = Object.values(ROLES).includes(rawRole as Role) ? (rawRole as Role) : ROLES.USER;
+
+	let { isPremium } = context.session.user;
+	if (
+		isPremium &&
+		context.session.user.premiumExpiresAt &&
+		context.session.user.premiumExpiresAt.getTime() < Date.now()
+	) {
+		await db.update(user).set({ isPremium: false }).where(eq(user.id, context.session.user.id));
+		isPremium = false;
+	}
+
+	const hasAccess = canAccessContent(isPremium, role, row.subtestOrder, row.order);
 
 	if (!hasAccess) {
 		throw errors.FORBIDDEN({ message: "Konten ini memerlukan akun premium" });
@@ -185,8 +208,8 @@ const findContent = authed.subject.findContent.handler(async ({ input, context, 
 		{
 			questionId: number;
 			order: number;
-			question: string;
-			discussion: string;
+			question: Record<string, unknown>;
+			discussion: Record<string, unknown>;
 			type: "multiple_choice" | "multiple_choice_complex" | "essay";
 			essayCorrectAnswer: string | null;
 			answers: ChoiceWithAnswer[];
@@ -198,8 +221,8 @@ const findContent = authed.subject.findContent.handler(async ({ input, context, 
 			questionMap.set(row.questionId, {
 				questionId: row.questionId,
 				order: row.order,
-				question: row.questionContentJson || convertToTiptap(row.questionContent),
-				discussion: row.questionDiscussionJson || convertToTiptap(row.questionDiscussion),
+				question: readTiptapContent(row.questionContentJson, row.questionContent),
+				discussion: readTiptapContent(row.questionDiscussionJson, row.questionDiscussion),
 				type: row.questionType,
 				essayCorrectAnswer: row.essayCorrectAnswer ?? null,
 				answers: [],
@@ -250,7 +273,11 @@ const findContent = authed.subject.findContent.handler(async ({ input, context, 
 });
 
 const trackView = authed.subject.trackView.handler(async ({ input, context, errors }) => {
-	const [item] = await db.select({ id: contentItem.id }).from(contentItem).where(eq(contentItem.id, input.id)).limit(1);
+	const [item] = await db
+		.select({ id: contentItem.id })
+		.from(contentItem)
+		.where(eq(contentItem.id, input.contentId))
+		.limit(1);
 
 	if (!item)
 		throw errors.NOT_FOUND({
@@ -260,11 +287,16 @@ const trackView = authed.subject.trackView.handler(async ({ input, context, erro
 	await db.transaction(async (tx) => {
 		await tx
 			.delete(recentContentView)
-			.where(and(eq(recentContentView.userId, context.session.user.id), eq(recentContentView.contentItemId, input.id)));
+			.where(
+				and(
+					eq(recentContentView.userId, context.session.user.id),
+					eq(recentContentView.contentItemId, input.contentId),
+				),
+			);
 
 		await tx.insert(recentContentView).values({
 			userId: context.session.user.id,
-			contentItemId: input.id,
+			contentItemId: input.contentId,
 		});
 
 		const toDelete = await tx
@@ -294,8 +326,8 @@ const listRecentViews = authed.subject.listRecentViews.handler(async ({ context 
 			contentId: contentItem.id,
 			contentTitle: contentItem.title,
 			subjectId: subject.id,
-			subtestName: subject.name,
-			subtestShortName: subject.shortName,
+			subjectName: subject.name,
+			subjectShortName: subject.shortName,
 			hasVideo: sql<boolean>`${videoMaterial.id} IS NOT NULL`,
 			hasNote: sql<boolean>`${noteMaterial.id} IS NOT NULL`,
 			hasPracticeQuestions: sql<boolean>`EXISTS(
@@ -341,7 +373,11 @@ const trackSubjectView = authed.subject.trackSubjectView.handler(async ({ input,
 });
 
 const updateProgress = authed.subject.updateProgress.handler(async ({ input, context, errors }) => {
-	const [item] = await db.select({ id: contentItem.id }).from(contentItem).where(eq(contentItem.id, input.id)).limit(1);
+	const [item] = await db
+		.select({ id: contentItem.id })
+		.from(contentItem)
+		.where(eq(contentItem.id, input.contentId))
+		.limit(1);
 
 	if (!item)
 		throw errors.NOT_FOUND({
@@ -368,12 +404,15 @@ const updateProgress = authed.subject.updateProgress.handler(async ({ input, con
 		.insert(userProgress)
 		.values({
 			userId: context.session.user.id,
-			contentItemId: input.id,
+			contentItemId: input.contentId,
 			...updateData,
 		})
 		.onConflictDoUpdate({
 			target: [userProgress.userId, userProgress.contentItemId],
 			set: updateData,
+		})
+		.catch(() => {
+			throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal menyimpan progres." });
 		});
 
 	return { message: "Progress berhasil disimpan" };

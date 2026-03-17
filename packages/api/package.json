@@ -21,7 +21,6 @@
 	},
 	"devDependencies": {
 		"@bimbelbeta/config": "workspace:*",
-		"@types/midtrans-client": "^1.4.0",
 		"tsdown": "catalog:"
 	},
 	"peerDependencies": {
@@ -32,7 +31,6 @@
 		"@bimbelbeta/contract": "workspace:*",
 		"@bimbelbeta/db": "workspace:*",
 		"@orpc/arktype": "catalog:",
-		"@orpc/client": "catalog:",
 		"@orpc/experimental-ratelimit": "^1.13.6",
 		"@orpc/openapi": "catalog:",
 		"@orpc/server": "catalog:",

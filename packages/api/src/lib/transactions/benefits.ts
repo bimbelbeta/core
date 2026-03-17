@@ -1,6 +1,6 @@
 import type { PurchaseBenefits, TransactionWithProduct } from "./types";
 
-function calculateFixedDateExpiry(purchaseDate: Date, month: number, day: number): Date {
+export function calculateFixedDateExpiry(purchaseDate: Date, month: number, day: number): Date {
 	const currentYear = purchaseDate.getFullYear();
 	const thisYearExpiry = new Date(currentYear, month - 1, day);
 
@@ -11,7 +11,7 @@ function calculateFixedDateExpiry(purchaseDate: Date, month: number, day: number
 	return thisYearExpiry;
 }
 
-function calculateMonthlyExpiry(purchaseDate: Date, durationDays: number): Date {
+export function calculateMonthlyExpiry(purchaseDate: Date, durationDays: number): Date {
 	const expiry = new Date(purchaseDate);
 	expiry.setDate(expiry.getDate() + durationDays);
 	return expiry;
@@ -25,12 +25,16 @@ export function calculatePurchaseBenefits(
 	let premiumExpiry: Date | null = null;
 
 	if (variant === "fixed_date") {
-		const month = existingTransaction.prodFixedExpiryMonth!;
-		const day = existingTransaction.prodFixedExpiryDay!;
-		premiumExpiry = calculateFixedDateExpiry(purchaseDate, month, day);
+		const month = existingTransaction.prodFixedExpiryMonth;
+		const day = existingTransaction.prodFixedExpiryDay;
+		if (month !== null && day !== null) {
+			premiumExpiry = calculateFixedDateExpiry(purchaseDate, month, day);
+		}
 	} else if (variant === "monthly") {
-		const days = existingTransaction.prodDurationDays!;
-		premiumExpiry = calculateMonthlyExpiry(purchaseDate, days);
+		const days = existingTransaction.prodDurationDays;
+		if (days !== null) {
+			premiumExpiry = calculateMonthlyExpiry(purchaseDate, days);
+		}
 	}
 
 	const grantsPremium = variant === "fixed_date" || variant === "monthly";

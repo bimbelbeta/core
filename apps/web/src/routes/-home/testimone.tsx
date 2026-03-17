@@ -1,5 +1,5 @@
-import Carousel from "@/components/carousel";
-import { Heading } from "./-componenets/heading";
+import Carousel from "@/components/shared/carousel";
+import { Heading } from "./-components/heading";
 import { DATA } from "./data";
 
 export default function Testimone() {

@@ -1,12 +1,12 @@
 import type { ChainedCommands, Editor } from "@tiptap/react";
 import { useCallback, useEffect, useState } from "react";
+// --- Hooks ---
+import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
 // --- Icons ---
 import { AlignCenterIcon } from "@/components/tiptap-icons/align-center-icon";
 import { AlignJustifyIcon } from "@/components/tiptap-icons/align-justify-icon";
 import { AlignLeftIcon } from "@/components/tiptap-icons/align-left-icon";
 import { AlignRightIcon } from "@/components/tiptap-icons/align-right-icon";
-// --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
 // --- Lib ---
 import { isExtensionAvailable, isNodeTypeSelected } from "@/lib/tiptap-utils";
 
@@ -116,43 +116,7 @@ export function shouldShowButton(props: {
 	return true;
 }
 
-/**
- * Custom hook that provides text align functionality for Tiptap editor
- *
- * @example
- * ```tsx
- * // Simple usage
- * function MySimpleAlignButton() {
- *   const { isVisible, handleTextAlign } = useTextAlign({ align: "center" })
- *
- *   if (!isVisible) return null
- *
- *   return <button onClick={handleTextAlign}>Align Center</button>
- * }
- *
- * // Advanced usage with configuration
- * function MyAdvancedAlignButton() {
- *   const { isVisible, handleTextAlign, label, isActive } = useTextAlign({
- *     editor: myEditor,
- *     align: "right",
- *     hideWhenUnavailable: true,
- *     onAligned: () => console.log('Text aligned!')
- *   })
- *
- *   if (!isVisible) return null
- *
- *   return (
- *     <MyButton
- *       onClick={handleTextAlign}
- *       aria-pressed={isActive}
- *       aria-label={label}
- *     >
- *       Align Right
- *     </MyButton>
- *   )
- * }
- * ```
- */
+/** Custom hook that provides text align functionality for Tiptap editor */
 export function useTextAlign(config: UseTextAlignConfig) {
 	const { editor: providedEditor, align, hideWhenUnavailable = false, onAligned } = config;
 

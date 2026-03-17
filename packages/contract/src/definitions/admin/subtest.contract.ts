@@ -37,7 +37,7 @@ export const adminSubtestContract = {
 			}),
 		)
 		.output(type({ message: "string" })),
-	deleteSubtest: oc
+	remove: oc
 		.route({ path: "/admin/tryouts/subtests/{id}", method: "DELETE", tags: ["Admin - Tryouts"] })
 		.input(type({ id: "number" }))
 		.output(type({ message: "string" })),

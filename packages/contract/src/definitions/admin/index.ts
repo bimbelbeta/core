@@ -2,7 +2,7 @@ import { adminCreditContract } from "./credit.contract";
 import { adminDashboardContract } from "./dashboard.contract";
 import { adminProductContract } from "./product.contract";
 import { adminQuestionContract } from "./question.contract";
-import { adminSubjectContract } from "./subject.contract";
+import { adminContentContract, adminSubjectContract } from "./subject.contract";
 import { adminSubtestContract } from "./subtest.contract";
 import { adminSubtestQuestionContract } from "./subtest-question.contract";
 import { adminTryoutContract } from "./tryout.contract";
@@ -15,6 +15,7 @@ export const adminContract = {
 	users: adminUsersContract,
 	products: adminProductContract,
 	subject: adminSubjectContract,
+	content: adminContentContract,
 	tryout: {
 		...adminTryoutContract,
 		subtest: adminSubtestContract,

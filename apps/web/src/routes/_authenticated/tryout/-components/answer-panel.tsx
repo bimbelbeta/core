@@ -59,12 +59,13 @@ export function AnswerPanel() {
 		saveAnswerMutation.mutate({
 			tryoutId,
 			questionId,
+			answerType: "choice",
 			selectedChoiceId: choiceId,
 		});
 	};
 
 	const handleSaveEssayAnswer = (data: { tryoutId: number; questionId: number; essayAnswer: string }) => {
-		debouncedSaveAnswerMutation.debouncedMutate(data);
+		debouncedSaveAnswerMutation.debouncedMutate({ ...data, answerType: "essay" as const });
 	};
 
 	const selectedComplexIds =
@@ -82,6 +83,7 @@ export function AnswerPanel() {
 		saveAnswerMutation.mutate({
 			tryoutId,
 			questionId,
+			answerType: "complex",
 			selectedChoiceIds: updated,
 		});
 	};

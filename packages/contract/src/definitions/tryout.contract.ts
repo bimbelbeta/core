@@ -36,11 +36,13 @@ const TryoutListItemSchema = createSelectSchema(tryout)
 	.pick("title", "passingGrade", "startsAt", "endsAt")
 	.merge({ id: "number", startsAt: "Date | null", endsAt: "Date | null" });
 
-const QuestionBaseSchema = createSelectSchema(question).pick("type").merge({ id: "number", content: "unknown" });
+const QuestionBaseSchema = createSelectSchema(question)
+	.pick("type")
+	.merge({ id: "number", content: "Record<string, unknown>" });
 
 const ReviewQuestionBaseSchema = createSelectSchema(question)
 	.pick("type", "discussion")
-	.merge({ id: "number", content: "unknown" });
+	.merge({ id: "number", content: "Record<string, unknown>" });
 
 const TryoutQuestionSchema = type({
 	"...": QuestionBaseSchema,
@@ -50,7 +52,7 @@ const TryoutQuestionSchema = type({
 
 const ReviewQuestionSchema = type({
 	"...": ReviewQuestionBaseSchema,
-	discussion: "unknown | null",
+	discussion: "Record<string, unknown> | null",
 	choices: ChoiceWithAnswerSchema.array(),
 	userAnswer: UserAnswerSchema,
 });
@@ -89,6 +91,9 @@ const TryoutHistoryItemSchema = type({
 		title: "string",
 	},
 });
+
+export type TryoutQuestion = typeof TryoutQuestionSchema.infer;
+export type ReviewQuestion = typeof ReviewQuestionSchema.infer;
 
 export const tryoutContract = {
 	list: oc.route({ path: "/tryouts", method: "GET", tags: ["Tryouts"] }).output(
@@ -157,15 +162,16 @@ export const tryoutContract = {
 	saveAnswer: oc
 		.route({ path: "/tryouts/{tryoutId}/questions/{questionId}/answer", method: "POST", tags: ["Tryouts"] })
 		.input(
-			type({
-				tryoutId: "number",
-				questionId: "number",
-				selectedChoiceId: "number?",
-				selectedChoiceIds: "number[]?",
-				essayAnswer: "string?",
-			}),
+			type({ tryoutId: "number", questionId: "number", answerType: "'choice'", selectedChoiceId: "number" })
+				.or(type({ tryoutId: "number", questionId: "number", answerType: "'complex'", selectedChoiceIds: "number[]" }))
+				.or(type({ tryoutId: "number", questionId: "number", answerType: "'essay'", essayAnswer: "string" })),
 		)
 		.output(type({ success: "boolean" })),
+	/**
+	 * Toggles the "ragu-ragu" (uncertain/flagged for review) status of a question.
+	 * In Indonesian educational context, "ragu-ragu" means a student is unsure about
+	 * their answer and wants to flag it for review before final submission.
+	 */
 	toggleRaguRagu: oc
 		.route({
 			path: "/tryouts/{tryoutId}/questions/{questionId}/ragu-ragu",
@@ -178,12 +184,14 @@ export const tryoutContract = {
 		.route({ path: "/tryouts/{tryoutId}/subtests/{subtestId}/submit", method: "POST", tags: ["Tryouts"] })
 		.input(type({ tryoutId: "number", subtestId: "number" }))
 		.output(
-			type({ success: "boolean", "nextSubtestId?": "number", "tryoutCompleted?": "boolean", "score?": "number" }),
+			type({ success: "true", tryoutCompleted: "false", nextSubtestId: "number" }).or(
+				type({ success: "true", tryoutCompleted: "true", score: "number" }),
+			),
 		),
 	submitTryout: oc
 		.route({ path: "/tryouts/{tryoutId}/submit", method: "POST", tags: ["Tryouts"] })
 		.input(type({ tryoutId: "number" }))
-		.output(type({ success: "boolean", score: "number" })),
+		.output(type({ success: "true", score: "number" })),
 	history: oc
 		.route({ path: "/tryouts/history", method: "GET", tags: ["Tryouts"] })
 		.output(TryoutHistoryItemSchema.array()),

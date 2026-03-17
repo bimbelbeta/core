@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type } from "arktype";
 import { useState } from "react";
 import { toast } from "sonner";
-import TiptapSimpleEditor from "@/components/tiptap-simple-editor";
+import TiptapSimpleEditor from "@/components/tiptap/tiptap-simple-editor";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,13 +14,7 @@ import { TagInput } from "@/components/ui/tag-input";
 import { orpc } from "@/utils/orpc";
 import { MultipleChoiceComplexQuestionForm } from "./multiple-choice-complex-question-form";
 import { MultipleChoiceQuestionForm } from "./multiple-choice-question-form";
-
-export interface Choice {
-	id: number;
-	code: string;
-	content: string;
-	isCorrect: boolean;
-}
+import type { Choice } from "./types";
 
 interface EditQuestionFormProps {
 	question: {

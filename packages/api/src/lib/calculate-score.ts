@@ -5,7 +5,7 @@ import {
 	tryoutSubtestAttempt,
 	tryoutSubtestQuestion,
 } from "@bimbelbeta/db/schema/tryout";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 
 export interface SubtestScoreResult {
 	subtestAttemptId: number;
@@ -27,7 +27,7 @@ export interface TryoutScoreResult {
  * @param totalCount - Total number of questions
  * @returns The calculated score
  */
-function getScoreFromMap(
+export function getScoreFromMap(
 	scoringMap: Record<string, number> | null | undefined,
 	correctCount: number,
 	totalCount: number,
@@ -38,7 +38,35 @@ function getScoreFromMap(
 		return mappedScore;
 	}
 	// Fallback: linear scale (0-1000)
+	if (totalCount === 0) return 0;
 	return Math.round((correctCount / totalCount) * 1000);
+}
+
+/** Returns true if the multiple-choice answer is correct. */
+export function scoreMultipleChoice(isCorrect: boolean | null | undefined): boolean {
+	return !!isCorrect;
+}
+
+/** Returns true if ALL correct choices are selected and NO incorrect choices are selected. */
+export function scoreComplexChoice(selectedIds: number[], choices: Array<{ id: number; isCorrect: boolean }>): boolean {
+	const correctChoiceIds = choices.filter((c) => c.isCorrect).map((c) => c.id);
+	const selectedIncorrectChoices = selectedIds.filter((id) => !correctChoiceIds.includes(id));
+	const allCorrectSelected = correctChoiceIds.every((id) => selectedIds.includes(id));
+	const noIncorrectSelected = selectedIncorrectChoices.length === 0;
+	return allCorrectSelected && noIncorrectSelected;
+}
+
+/** Returns true if the trimmed, lowercased essay answer matches the correct answer. */
+export function scoreEssay(userAnswer: string | null | undefined, correctAnswer: string | null | undefined): boolean {
+	const userEssay = userAnswer?.trim().toLowerCase() ?? "";
+	const correctEssay = correctAnswer?.trim().toLowerCase() ?? "";
+	return !!(userEssay && correctEssay && userEssay === correctEssay);
+}
+
+/** Calculates total score as the rounded average of per-subtest scores. Returns 0 for empty input. */
+export function calcTotalScore(scores: number[]): number {
+	if (scores.length === 0) return 0;
+	return Math.round(scores.reduce((sum, s) => sum + s, 0) / scores.length);
 }
 
 /**
@@ -76,69 +104,71 @@ export async function calculateTryoutScores(attemptId: number): Promise<TryoutSc
 
 	const answerMap = new Map(userAnswers.map((a) => [a.questionId, a]));
 
+	// Bulk-fetch all subtest questions for all subtests in one query
+	const subtestIds = subtestAttempts.map((sa) => sa.subtestId);
+	const allSubtestQuestions = await db
+		.select({
+			subtestId: tryoutSubtestQuestion.subtestId,
+			questionId: tryoutSubtestQuestion.questionId,
+		})
+		.from(tryoutSubtestQuestion)
+		.where(inArray(tryoutSubtestQuestion.subtestId, subtestIds));
+
+	// Group subtest questions by subtestId
+	const questionsBySubtest = new Map<number, number[]>();
+	for (const sq of allSubtestQuestions) {
+		if (!questionsBySubtest.has(sq.subtestId)) {
+			questionsBySubtest.set(sq.subtestId, []);
+		}
+		questionsBySubtest.get(sq.subtestId)!.push(sq.questionId);
+	}
+
+	// Bulk-fetch all questions for all subtests in one query
+	const allQuestionIds = allSubtestQuestions.map((sq) => sq.questionId);
+	const allQuestions =
+		allQuestionIds.length > 0
+			? await db.query.question.findMany({
+					where: { id: { in: allQuestionIds } },
+					columns: { id: true, type: true, essayCorrectAnswer: true },
+				})
+			: [];
+
+	const questionMap = new Map(allQuestions.map((q) => [q.id, q]));
+
+	// Bulk-fetch all complex choices in one query
+	const complexQuestionIds = allQuestions.filter((q) => q.type === "multiple_choice_complex").map((q) => q.id);
+	const allComplexChoices =
+		complexQuestionIds.length > 0
+			? await db.query.questionChoice.findMany({
+					where: { questionId: { in: complexQuestionIds } },
+					columns: { questionId: true, id: true, isCorrect: true },
+				})
+			: [];
+
+	// Group choices by questionId for efficient lookup
+	const choicesByQuestion = new Map<number, Array<{ id: number; isCorrect: boolean }>>();
+	for (const choice of allComplexChoices) {
+		if (!choicesByQuestion.has(choice.questionId)) {
+			choicesByQuestion.set(choice.questionId, []);
+		}
+		choicesByQuestion.get(choice.questionId)!.push({ id: choice.id, isCorrect: choice.isCorrect });
+	}
+
 	const subtestScores: SubtestScoreResult[] = [];
 
 	for (const subtestAttempt of subtestAttempts) {
-		const subtestQuestions = await db
-			.select({
-				questionId: tryoutSubtestQuestion.questionId,
-			})
-			.from(tryoutSubtestQuestion)
-			.where(eq(tryoutSubtestQuestion.subtestId, subtestAttempt.subtestId));
+		const subtestQuestionIds = questionsBySubtest.get(subtestAttempt.subtestId) ?? [];
 
-		if (subtestQuestions.length === 0) {
+		if (subtestQuestionIds.length === 0) {
 			continue;
 		}
 
-		const questionIds = subtestQuestions.map((q) => q.questionId);
-		const questions = await db.query.question.findMany({
-			where: {
-				id: {
-					in: questionIds,
-				},
-			},
-			columns: {
-				id: true,
-				type: true,
-				essayCorrectAnswer: true,
-			},
-		});
-
-		const questionMap = new Map(questions.map((q) => [q.id, q]));
-
-		const complexQuestionIds = questions.filter((q) => q.type === "multiple_choice_complex").map((q) => q.id);
-
-		const allComplexChoices =
-			complexQuestionIds.length > 0
-				? await db.query.questionChoice.findMany({
-						where: {
-							questionId: {
-								in: complexQuestionIds,
-							},
-						},
-						columns: {
-							questionId: true,
-							id: true,
-							isCorrect: true,
-						},
-					})
-				: [];
-
-		// Group choices by questionId for efficient lookup
-		const choicesByQuestion = new Map<number, Array<{ id: number; isCorrect: boolean }>>();
-		for (const choice of allComplexChoices) {
-			if (!choicesByQuestion.has(choice.questionId)) {
-				choicesByQuestion.set(choice.questionId, []);
-			}
-			choicesByQuestion.get(choice.questionId)!.push({ id: choice.id, isCorrect: choice.isCorrect });
-		}
-
 		let correctCount = 0;
-		const totalCount = subtestQuestions.length;
+		const totalCount = subtestQuestionIds.length;
 
-		for (const sq of subtestQuestions) {
-			const userAnswer = answerMap.get(sq.questionId);
-			const questionData = questionMap.get(sq.questionId);
+		for (const questionId of subtestQuestionIds) {
+			const userAnswer = answerMap.get(questionId);
+			const questionData = questionMap.get(questionId);
 
 			if (!userAnswer || !questionData) {
 				// Unanswered = incorrect
@@ -146,31 +176,17 @@ export async function calculateTryoutScores(attemptId: number): Promise<TryoutSc
 			}
 
 			if (questionData.type === "multiple_choice") {
-				// Check if selected choice is correct
-				if (userAnswer.selectedChoice?.isCorrect) {
+				if (scoreMultipleChoice(userAnswer.selectedChoice?.isCorrect)) {
 					correctCount++;
 				}
 			} else if (questionData.type === "multiple_choice_complex") {
-				// Correct if: ALL correct choices are selected AND NO incorrect choices are selected
 				const selectedIds = userAnswer.selectedChoiceIds ?? [];
-				const choices = choicesByQuestion.get(sq.questionId) ?? [];
-
-				const correctChoiceIds = choices.filter((c) => c.isCorrect).map((c) => c.id);
-				const selectedIncorrectChoices = selectedIds.filter((id) => !correctChoiceIds.includes(id));
-
-				// Correct only if all correct are selected and no incorrect are selected
-				const allCorrectSelected = correctChoiceIds.every((id) => selectedIds.includes(id));
-				const noIncorrectSelected = selectedIncorrectChoices.length === 0;
-
-				if (allCorrectSelected && noIncorrectSelected) {
+				const choices = choicesByQuestion.get(questionId) ?? [];
+				if (scoreComplexChoice(selectedIds, choices)) {
 					correctCount++;
 				}
 			} else if (questionData.type === "essay") {
-				// Exact match comparison (case-insensitive, trimmed)
-				const userEssay = userAnswer.essayAnswer?.trim().toLowerCase() ?? "";
-				const correctEssay = questionData.essayCorrectAnswer?.trim().toLowerCase() ?? "";
-
-				if (userEssay && correctEssay && userEssay === correctEssay) {
+				if (scoreEssay(userAnswer.essayAnswer, questionData.essayCorrectAnswer)) {
 					correctCount++;
 				}
 			}
@@ -189,10 +205,7 @@ export async function calculateTryoutScores(attemptId: number): Promise<TryoutSc
 	}
 
 	// Calculate total score as average of subtest scores
-	const totalScore =
-		subtestScores.length > 0
-			? Math.round(subtestScores.reduce((sum, s) => sum + s.score, 0) / subtestScores.length)
-			: 0;
+	const totalScore = calcTotalScore(subtestScores.map((s) => s.score));
 
 	return {
 		subtests: subtestScores,
@@ -200,19 +213,28 @@ export async function calculateTryoutScores(attemptId: number): Promise<TryoutSc
 	};
 }
 
+type DbTx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
 /**
  * Saves calculated scores to the database.
  * Updates both subtest attempt scores and the total tryout attempt score.
+ * Pass an existing transaction `tx` to participate in a caller-managed transaction,
+ * or omit it to run in its own transaction.
  */
-export async function saveScoresToDatabase(attemptId: number, scores: TryoutScoreResult): Promise<void> {
-	// Update each subtest attempt with its score
-	for (const subtestScore of scores.subtests) {
-		await db
-			.update(tryoutSubtestAttempt)
-			.set({ score: subtestScore.score.toString() })
-			.where(eq(tryoutSubtestAttempt.id, subtestScore.subtestAttemptId));
-	}
+export async function saveScoresToDatabase(attemptId: number, scores: TryoutScoreResult, tx?: DbTx): Promise<void> {
+	const persist = async (t: DbTx) => {
+		for (const subtestScore of scores.subtests) {
+			await t
+				.update(tryoutSubtestAttempt)
+				.set({ score: subtestScore.score.toString() })
+				.where(eq(tryoutSubtestAttempt.id, subtestScore.subtestAttemptId));
+		}
+		await t.update(tryoutAttempt).set({ score: scores.totalScore.toString() }).where(eq(tryoutAttempt.id, attemptId));
+	};
 
-	// Update the total tryout attempt score
-	await db.update(tryoutAttempt).set({ score: scores.totalScore.toString() }).where(eq(tryoutAttempt.id, attemptId));
+	if (tx) {
+		await persist(tx);
+	} else {
+		await db.transaction(persist);
+	}
 }

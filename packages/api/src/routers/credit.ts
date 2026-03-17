@@ -2,7 +2,10 @@ import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { product } from "@bimbelbeta/db/schema/transaction";
 import { and, eq, isNotNull } from "drizzle-orm";
-import { authed } from "../index";
+import { baseImplementer } from "../lib/router-definition";
+import { rateLimit, requireAuth } from "../lib/router-definition/middleware";
+
+const authed = baseImplementer.use(requireAuth).use(rateLimit);
 
 const balance = authed.credit.balance.handler(async ({ context }) => {
 	const [userData] = await db

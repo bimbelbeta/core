@@ -2,6 +2,7 @@ import { questionChoice } from "@bimbelbeta/db/schema/question";
 import { contentItem, noteMaterial, subject, videoMaterial } from "@bimbelbeta/db/schema/subject";
 import { type } from "arktype";
 import { createSelectSchema } from "drizzle-arktype";
+import { PageInfoSchema } from "../common/pagination";
 import { oc } from "../lib/contract-definition";
 
 const SubjectSchema = createSelectSchema(subject)
@@ -39,6 +40,7 @@ const ContentItemWithProgressSchema = type({
 const SubjectContentSchema = type({
 	subject: SubjectSchema,
 	items: ContentItemWithProgressSchema.array(),
+	pageInfo: PageInfoSchema,
 });
 
 const ChoiceWithAnswerSchema = createSelectSchema(questionChoice)
@@ -75,15 +77,15 @@ const RecentViewItemSchema = type({
 	contentId: "number",
 	contentTitle: "string",
 	subjectId: "number",
-	subtestName: "string",
-	subtestShortName: "string",
+	subjectName: "string",
+	subjectShortName: "string",
 	hasVideo: "boolean",
 	hasNote: "boolean",
 	hasPracticeQuestions: "boolean",
 });
 
 const UpdateProgressInputSchema = type({
-	id: "number",
+	contentId: "number",
 	"videoCompleted?": "boolean",
 	"noteCompleted?": "boolean",
 	"practiceQuestionsCompleted?": "boolean",
@@ -118,7 +120,8 @@ export const subjectContract = {
 				subjectId: "number",
 				"search?": "string",
 				"limit?": "number >= 1",
-				"offset?": "number >= 0",
+				"after?": "string",
+				"before?": "string",
 			}),
 		)
 		.output(SubjectContentSchema),
@@ -136,11 +139,11 @@ export const subjectContract = {
 		.output(SubjectContentDetailSchema),
 	trackView: oc
 		.route({
-			path: "/content/{id}/view",
+			path: "/content/{contentId}/view",
 			method: "POST",
 			tags: ["Content"],
 		})
-		.input(type({ id: "number" }))
+		.input(type({ contentId: "number" }))
 		.output(MessageResponseSchema),
 	listRecentViews: oc
 		.route({
@@ -159,7 +162,7 @@ export const subjectContract = {
 		.output(MessageResponseSchema),
 	updateProgress: oc
 		.route({
-			path: "/content/{id}/progress",
+			path: "/content/{contentId}/progress",
 			method: "PATCH",
 			tags: ["Content"],
 		})
