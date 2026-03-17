@@ -46,7 +46,8 @@ const list = admin.admin.tryout.attempts.list.handler(async ({ input }) => {
 		user: row.user,
 	}));
 
-	const attemptIds = mappedRows.map((row) => row.id);
+	const { items: pagedItems, pageInfo } = buildIdCursorPage(mappedRows, limit, isBackward, !!cursorStr);
+	const attemptIds = pagedItems.map((row) => row.id);
 	const subtestAttemptsByAttemptId = new Map<number, { subtestId: number; score: number | null }[]>();
 
 	if (attemptIds.length > 0) {
@@ -70,12 +71,10 @@ const list = admin.admin.tryout.attempts.list.handler(async ({ input }) => {
 		}
 	}
 
-	const itemsWithSubtestAttempts = mappedRows.map((row) => ({
+	const items = pagedItems.map((row) => ({
 		...row,
 		subtestAttempts: subtestAttemptsByAttemptId.get(row.id) ?? [],
 	}));
-
-	const { items, pageInfo } = buildIdCursorPage(itemsWithSubtestAttempts, limit, isBackward, !!cursorStr);
 
 	return { items, pageInfo };
 });
