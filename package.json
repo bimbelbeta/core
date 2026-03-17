@@ -19,6 +19,7 @@
 			"arktype": "^2.2.0",
 			"typescript": "^5.9.3",
 			"midtrans-client": "^1.4.3",
+			"vite": "^8.0.0",
 			"tsdown": "^0.21.2",
 			"@orpc/client": "^1.13.7",
 			"@orpc/contract": "^1.13.7"
@@ -50,8 +51,7 @@
 	},
 	"dependencies": {
 		"dotenv": "^17.2.2",
-		"typescript": "^5",
-		"vite": "^8.0.0"
+		"typescript": "^5"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.6",

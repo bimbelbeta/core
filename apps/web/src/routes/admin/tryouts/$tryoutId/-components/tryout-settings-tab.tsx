@@ -1,7 +1,7 @@
 import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { type } from "arktype";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -44,8 +44,18 @@ function FormStateNotifier({
 	state: { isDirty: boolean; canSubmit: boolean; isSubmitting: boolean };
 	onFormStateChange?: (state: TryoutSettingsFormState) => void;
 }) {
+	const prevStateRef = useRef(state);
+
 	useEffect(() => {
-		onFormStateChange?.(state);
+		const prev = prevStateRef.current;
+		if (
+			prev.isDirty !== state.isDirty ||
+			prev.canSubmit !== state.canSubmit ||
+			prev.isSubmitting !== state.isSubmitting
+		) {
+			prevStateRef.current = state;
+			onFormStateChange?.(state);
+		}
 	}, [state, onFormStateChange]);
 
 	return null;
@@ -101,8 +111,22 @@ export function TryoutSettingsTab({ tryout, onUpdate, onFormStateChange }: Tryou
 		},
 	});
 
+	const prevFormValuesRef = useRef(formValues);
+
 	useEffect(() => {
-		form.reset(formValues);
+		const prev = prevFormValuesRef.current;
+		const hasChanged =
+			prev.title !== formValues.title ||
+			prev.description !== formValues.description ||
+			prev.category !== formValues.category ||
+			prev.status !== formValues.status ||
+			prev.startsAt !== formValues.startsAt ||
+			prev.endsAt !== formValues.endsAt;
+
+		if (hasChanged) {
+			prevFormValuesRef.current = formValues;
+			form.reset(formValues);
+		}
 	}, [form, formValues]);
 
 	return (

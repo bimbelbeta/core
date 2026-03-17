@@ -60,7 +60,6 @@
 		"tailwind-merge": "^3.3.1",
 		"tailwindcss": "^4.1.18",
 		"tw-animate-css": "^1.2.5",
-		"vite-tsconfig-paths": "^6.0.5",
 		"zustand": "^5.0.10"
 	},
 	"devDependencies": {
@@ -75,7 +74,7 @@
 		"jsdom": "^27.4.0",
 		"sass-embedded": "^1.98.0",
 		"typescript": "catalog:",
-		"vite": "^7.0.0",
+		"vite": "catalog:",
 		"web-vitals": "^5.0.3"
 	}
 }
