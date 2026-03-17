@@ -1,6 +1,6 @@
 import { CaretUpIcon, CheckCircleIcon, CheckSquare, Square, XCircleIcon } from "@phosphor-icons/react";
 import { useState } from "react";
-import { TiptapRenderer } from "@/components/tiptap-renderer";
+import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 

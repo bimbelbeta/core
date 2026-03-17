@@ -1,3 +1,4 @@
+import { generateSlug } from "@bimbelbeta/contract/utils";
 import { PlusIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
@@ -18,7 +19,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
-import { generateSlug } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 
 export function AddUniversityDialog({

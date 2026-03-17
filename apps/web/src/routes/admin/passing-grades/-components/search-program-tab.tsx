@@ -37,7 +37,7 @@ export function SearchProgramTab({ onProgramSelect }: SearchProgramTabProps) {
 							</div>
 						</div>
 					))
-				) : searchResults?.data?.length === 0 ? (
+				) : searchResults?.items?.length === 0 ? (
 					<div className="flex flex-col items-center gap-2 py-8 text-center">
 						<div className="flex size-10 items-center justify-center rounded-lg bg-muted">
 							<MagnifyingGlassIcon className="size-5 text-muted-foreground" />
@@ -47,8 +47,8 @@ export function SearchProgramTab({ onProgramSelect }: SearchProgramTabProps) {
 							<p className="text-muted-foreground text-xs">Coba kata kunci lain atau buat program studi baru.</p>
 						</div>
 					</div>
-				) : searchResults?.data ? (
-					searchResults.data.map((prog) => (
+				) : searchResults?.items ? (
+					searchResults.items.map((prog) => (
 						<button
 							key={prog.id}
 							type="button"

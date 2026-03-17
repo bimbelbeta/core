@@ -1,9 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
-import { orpc } from "@/utils/orpc";
+import type { BodyOutputs } from "@/utils/orpc";
 import { useTryoutStore } from "../-hooks/use-tryout-store";
 import { QuestionBody } from "./question-body";
 import { QuestionFooter } from "./question-footer";
@@ -19,24 +18,19 @@ type CountdownProps = {
 
 interface TryoutQuestionsProps {
 	countdownProps: CountdownProps;
+	data: NonNullable<BodyOutputs["tryout"]["find"]>;
 }
 
-export function TryoutQuestions({ countdownProps }: TryoutQuestionsProps) {
+export function TryoutQuestions({ countdownProps, data }: TryoutQuestionsProps) {
 	const { tryoutId: rawTryoutId } = useParams({ from: "/_authenticated/tryout/$tryoutId" });
 	const tryoutId = parseRouteParamToNumber(rawTryoutId);
-
-	const { data } = useQuery(
-		orpc.tryout.find.queryOptions({
-			input: { id: tryoutId },
-		}),
-	);
-
 	const {
 		view,
 		currentQuestion,
 		currentQuestionIndex,
 		setCurrentQuestionIndex,
 		setCurrentQuestion,
+		setComplexAnswer,
 		setEssayAnswer,
 		setAnswer,
 		setQuestions,
@@ -77,12 +71,14 @@ export function TryoutQuestions({ countdownProps }: TryoutQuestionsProps) {
 		setCurrentQuestion(questions[currentQuestionIndex]);
 	}, [questions, currentQuestionIndex, setCurrentQuestion]);
 
+	useEffect(() => {
+		setQuestions(questions);
+	}, [questions, setQuestions]);
+
 	// Sync saved essay answers from API to store (once on mount)
 	useEffect(() => {
 		if (hasInitialized.current) return;
 		hasInitialized.current = true;
-
-		setQuestions(questions);
 
 		const newRaguRaguIds = new Set<number>();
 		questions.forEach((question) => {
@@ -92,12 +88,15 @@ export function TryoutQuestions({ countdownProps }: TryoutQuestionsProps) {
 			if (question.userAnswer?.selectedChoiceId) {
 				setAnswer(question.id, question.userAnswer.selectedChoiceId);
 			}
+			if ((question.userAnswer?.selectedChoiceIds?.length ?? 0) > 0) {
+				setComplexAnswer(question.id, question.userAnswer.selectedChoiceIds ?? []);
+			}
 			if (question.userAnswer?.isDoubtful) {
 				newRaguRaguIds.add(question.id);
 			}
 		});
 		useTryoutStore.setState({ raguRaguIds: newRaguRaguIds });
-	}, [questions, setEssayAnswer, setAnswer, setQuestions]);
+	}, [questions, setComplexAnswer, setEssayAnswer, setAnswer]);
 
 	const showQuestionGrid = useTryoutStore((state) => state.showQuestionGrid);
 

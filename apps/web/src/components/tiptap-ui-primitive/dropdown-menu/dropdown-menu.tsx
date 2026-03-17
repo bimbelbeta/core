@@ -1,4 +1,4 @@
-import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
+import { DropdownMenu as DropdownMenuPrimitive } from "radix-ui";
 import { forwardRef } from "react";
 import { cn } from "@/lib/tiptap-utils";
 import "@/components/tiptap-ui-primitive/dropdown-menu/dropdown-menu.scss";
@@ -71,13 +71,13 @@ DropdownMenuContent.displayName = DropdownMenuPrimitive.Content.displayName;
 
 export {
 	DropdownMenu,
-	DropdownMenuTrigger,
 	DropdownMenuContent,
-	DropdownMenuItem,
 	DropdownMenuGroup,
-	DropdownMenuSub,
+	DropdownMenuItem,
 	DropdownMenuPortal,
+	DropdownMenuRadioGroup,
+	DropdownMenuSub,
 	DropdownMenuSubContent,
 	DropdownMenuSubTrigger,
-	DropdownMenuRadioGroup,
+	DropdownMenuTrigger,
 };

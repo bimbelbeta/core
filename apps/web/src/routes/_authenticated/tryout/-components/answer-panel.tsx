@@ -1,13 +1,16 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useDebouncedMutation } from "@/hooks/use-debounced-mutation";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { cn } from "@/lib/utils";
+import type { BodyOutputs } from "@/utils/orpc";
 import { orpc } from "@/utils/orpc";
 import { useTryoutStore } from "../-hooks/use-tryout-store";
 import { EssayForm } from "./essay-form";
+
+type TryoutQuestion = NonNullable<NonNullable<BodyOutputs["tryout"]["find"]>["currentSubtest"]>["questions"][number];
+type Choice = TryoutQuestion["choices"][number];
 
 export function AnswerPanel() {
 	const { tryoutId: rawTryoutId } = useParams({ from: "/_authenticated/tryout/$tryoutId" });
@@ -20,7 +23,7 @@ export function AnswerPanel() {
 	const saveAnswerMutation = useMutation(
 		orpc.tryout.saveAnswer.mutationOptions({
 			onSuccess: (_data, variables) => {
-				if (variables.essayAnswer !== undefined) {
+				if ("essayAnswer" in variables && typeof variables.essayAnswer === "string") {
 					setEssayAnswer(variables.questionId, variables.essayAnswer);
 				}
 				queryClient.invalidateQueries({ queryKey: orpc.tryout.find.key({ input: { id: tryoutId } }) });
@@ -34,7 +37,7 @@ export function AnswerPanel() {
 	const debouncedSaveAnswerMutation = useDebouncedMutation(
 		orpc.tryout.saveAnswer.mutationOptions({
 			onSuccess: (_data, variables) => {
-				if (variables.essayAnswer !== undefined) {
+				if ("essayAnswer" in variables && typeof variables.essayAnswer === "string") {
 					setEssayAnswer(variables.questionId, variables.essayAnswer);
 				}
 				queryClient.invalidateQueries({ queryKey: orpc.tryout.find.key({ input: { id: tryoutId } }) });
@@ -56,12 +59,13 @@ export function AnswerPanel() {
 		saveAnswerMutation.mutate({
 			tryoutId,
 			questionId,
+			answerType: "choice",
 			selectedChoiceId: choiceId,
 		});
 	};
 
 	const handleSaveEssayAnswer = (data: { tryoutId: number; questionId: number; essayAnswer: string }) => {
-		debouncedSaveAnswerMutation.debouncedMutate(data);
+		debouncedSaveAnswerMutation.debouncedMutate({ ...data, answerType: "essay" as const });
 	};
 
 	const selectedComplexIds =
@@ -79,17 +83,21 @@ export function AnswerPanel() {
 		saveAnswerMutation.mutate({
 			tryoutId,
 			questionId,
+			answerType: "complex",
 			selectedChoiceIds: updated,
 		});
 	};
 
 	if (!currentQuestion) return null;
 
+	const isComplexQuestion = currentQuestion.type === "multiple_choice_complex";
+	const choices: Choice[] = currentQuestion.choices ?? [];
+
 	return (
-		<div className="flex h-full flex-col">
-			<div className="flex flex-col gap-2">
+		<div className="flex h-full min-h-0 flex-col">
+			<div className={cn("flex flex-col gap-2", isComplexQuestion && "min-h-0 flex-1 overflow-y-auto pr-1")}>
 				{currentQuestion?.type === "multiple_choice" ? (
-					currentQuestion.choices?.map((choice) => (
+					choices.map((choice) => (
 						<AnswerOption
 							key={choice.id}
 							code={choice.code}
@@ -100,50 +108,44 @@ export function AnswerPanel() {
 						/>
 					))
 				) : currentQuestion?.type === "multiple_choice_complex" ? (
-					<div className="rounded-lg border">
-						<Table>
-							<TableHeader>
-								<TableRow>
-									<TableHead>Pernyataan</TableHead>
-									<TableHead className="w-32 text-center">Pilih</TableHead>
-								</TableRow>
-							</TableHeader>
-							<TableBody>
-								{currentQuestion.choices?.map((choice) => {
-									const isSelected = selectedComplexIds.includes(choice.id);
-									return (
-										<TableRow key={choice.id}>
-											<TableCell>{choice.content}</TableCell>
-											<TableCell className="text-center">
-												<button
-													type="button"
-													disabled={saveAnswerMutation.isPending}
-													onClick={() => handleToggleComplexCorrect(choice.id)}
-													className={cn(
-														"mx-auto flex size-8 items-center justify-center rounded-full border-2 transition-colors",
-														isSelected
-															? "border-primary bg-primary text-primary-foreground"
-															: "border-border hover:border-primary/50",
-														saveAnswerMutation.isPending && "opacity-50",
-													)}
-												>
-													{isSelected && (
-														<svg className="size-4" fill="currentColor" viewBox="0 0 20 20">
-															<title>Selected</title>
-															<path
-																fillRule="evenodd"
-																d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-																clipRule="evenodd"
-															/>
-														</svg>
-													)}
-												</button>
-											</TableCell>
-										</TableRow>
-									);
-								})}
-							</TableBody>
-						</Table>
+					<div className="flex flex-col gap-3">
+						{choices.map((choice) => {
+							const isSelected = selectedComplexIds.includes(choice.id);
+
+							return (
+								<button
+									key={choice.id}
+									type="button"
+									aria-pressed={isSelected}
+									disabled={saveAnswerMutation.isPending}
+									onClick={() => handleToggleComplexCorrect(choice.id)}
+									className={cn(
+										"flex w-full items-start justify-between gap-3 rounded-lg border p-4 text-left transition-all",
+										isSelected ? "border-primary bg-primary/5" : "border-border hover:bg-secondary/5",
+										saveAnswerMutation.isPending && "opacity-50",
+									)}
+								>
+									<span className="min-w-0 flex-1 whitespace-normal break-words">{choice.content}</span>
+									<span
+										className={cn(
+											"flex size-8 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
+											isSelected ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background",
+										)}
+									>
+										{isSelected && (
+											<svg className="size-4" fill="currentColor" viewBox="0 0 20 20">
+												<title>Selected</title>
+												<path
+													fillRule="evenodd"
+													d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+													clipRule="evenodd"
+												/>
+											</svg>
+										)}
+									</span>
+								</button>
+							);
+						})}
 					</div>
 				) : questionId ? (
 					<EssayForm

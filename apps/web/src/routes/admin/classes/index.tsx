@@ -55,7 +55,7 @@ function RouteComponent() {
 	};
 
 	const subjectsQuery = useQuery({
-		...orpc.subject.listSubjects.queryOptions({
+		...orpc.subject.list.queryOptions({
 			input: {
 				category: activeFilter === "all" ? undefined : activeFilter,
 				search: searchQuery || undefined,

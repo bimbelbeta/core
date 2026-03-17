@@ -2,7 +2,7 @@ import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
-import { TiptapRenderer } from "@/components/tiptap-renderer";
+import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -39,21 +39,21 @@ export function QuestionPickerDialog({
 	const scrollRef = useRef<HTMLDivElement>(null);
 
 	const { data, isPending, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery(
-		orpc.admin.tryout.questions.listQuestions.infiniteOptions({
+		orpc.admin.tryout.questions.list.infiniteOptions({
 			input: (pageParam) => ({
-				cursor: pageParam,
+				after: pageParam,
 				limit: 20,
 				search: search || undefined,
 				category: categoryFilter !== "all" ? categoryFilter : undefined,
 				type: typeFilter !== "all" ? typeFilter : undefined,
 				excludeIds: excludeIds.length > 0 ? excludeIds : undefined,
 			}),
-			getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
-			initialPageParam: undefined as number | undefined,
+			getNextPageParam: (lastPage) => (lastPage.pageInfo.hasNextPage ? lastPage.pageInfo.endCursor : undefined),
+			initialPageParam: undefined as string | undefined,
 		}),
 	);
 
-	const questions = data?.pages.flatMap((page) => page.questions) ?? [];
+	const questions = data?.pages.flatMap((page) => page.items) ?? [];
 
 	const handleScroll = useCallback(() => {
 		const el = scrollRef.current;
@@ -63,17 +63,17 @@ export function QuestionPickerDialog({
 		}
 	}, [isFetchingNextPage, hasNextPage, fetchNextPage]);
 	const addMutation = useMutation(
-		orpc.admin.subject.addPracticeQuestions.mutationOptions({
+		orpc.admin.content.addPracticeQuestions.mutationOptions({
 			onSuccess: (result) => {
 				toast.success(result.message);
 				setSelectedQuestionIds(new Set());
 				queryClient.invalidateQueries({
-					queryKey: orpc.admin.subject.getContentPracticeQuestions.queryKey({
+					queryKey: orpc.admin.content.listPracticeQuestions.queryKey({
 						input: { id: contentId },
 					}),
 				});
 				queryClient.invalidateQueries({
-					queryKey: orpc.subject.getContentById.queryKey({
+					queryKey: orpc.subject.findContent.queryKey({
 						input: { contentId },
 					}),
 				});

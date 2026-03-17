@@ -1,10 +1,10 @@
 import type { Editor } from "@tiptap/react";
 import { useCallback, useEffect, useState } from "react";
+// --- Hooks ---
+import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
 // --- Icons ---
 import { Redo2Icon } from "@/components/tiptap-icons/redo2-icon";
 import { Undo2Icon } from "@/components/tiptap-icons/undo2-icon";
-// --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
 // --- Lib ---
 import { isNodeTypeSelected } from "@/lib/tiptap-utils";
 
@@ -88,42 +88,7 @@ export function shouldShowButton(props: {
 	return true;
 }
 
-/**
- * Custom hook that provides history functionality for Tiptap editor
- *
- * @example
- * ```tsx
- * // Simple usage
- * function MySimpleUndoButton() {
- *   const { isVisible, handleAction } = useHistory({ action: "undo" })
- *
- *   if (!isVisible) return null
- *
- *   return <button onClick={handleAction}>Undo</button>
- * }
- *
- * // Advanced usage with configuration
- * function MyAdvancedRedoButton() {
- *   const { isVisible, handleAction, label } = useHistory({
- *     editor: myEditor,
- *     action: "redo",
- *     hideWhenUnavailable: true,
- *     onExecuted: () => console.log('Action executed!')
- *   })
- *
- *   if (!isVisible) return null
- *
- *   return (
- *     <MyButton
- *       onClick={handleAction}
- *       aria-label={label}
- *     >
- *       Redo
- *     </MyButton>
- *   )
- * }
- * ```
- */
+/** Custom hook that provides history functionality for Tiptap editor */
 export function useUndoRedo(config: UseUndoRedoConfig) {
 	const { editor: providedEditor, action, hideWhenUnavailable = false, onExecuted } = config;
 

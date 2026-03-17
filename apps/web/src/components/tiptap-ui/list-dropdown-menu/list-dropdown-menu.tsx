@@ -1,5 +1,7 @@
 import type { Editor } from "@tiptap/react";
 import { useCallback, useState } from "react";
+// --- Hooks ---
+import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
 // --- Icons ---
 import { ChevronDownIcon } from "@/components/tiptap-icons/chevron-down-icon";
 // --- Tiptap UI ---
@@ -15,8 +17,6 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/tiptap-ui-primitive/dropdown-menu";
-// --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
 
 export interface ListDropdownMenuProps extends Omit<ButtonProps, "type"> {
 	/**

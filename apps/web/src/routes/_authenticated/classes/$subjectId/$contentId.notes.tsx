@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { EmptyContentState } from "@/components/classes/empty-content-state";
-import { TiptapRenderer } from "@/components/tiptap-renderer";
+import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 
@@ -16,7 +16,7 @@ function RouteComponent() {
 	const queryClient = useQueryClient();
 
 	const content = useQuery(
-		orpc.subject.getContentById.queryOptions({
+		orpc.subject.findContent.queryOptions({
 			input: { contentId },
 		}),
 	);
@@ -25,7 +25,7 @@ function RouteComponent() {
 		orpc.subject.updateProgress.mutationOptions({
 			onSuccess: () => {
 				queryClient.invalidateQueries({
-					queryKey: orpc.subject.getProgressStats.key(),
+					queryKey: orpc.subject.stats.key(),
 				});
 			},
 		}),
@@ -35,7 +35,7 @@ function RouteComponent() {
 	useEffect(() => {
 		if (content.data?.note) {
 			updateProgressMutation.mutate({
-				id: contentId,
+				contentId,
 				noteCompleted: true,
 			});
 		}

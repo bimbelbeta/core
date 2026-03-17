@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { isSubjectPremium } from "@/lib/premium-config";
 import { cn } from "@/lib/utils";
-import { useIsAdmin } from "@/utils/is-admin";
+import { useIsAdmin } from "@/utils/use-is-admin";
 import { Badge } from "../ui/badge";
 import { Button, buttonVariants } from "../ui/button";
 import type { SubjectListItem } from "./classes-types";

@@ -26,7 +26,7 @@ function UserDetailPage() {
 	};
 
 	const { data, isLoading, refetch } = useQuery(
-		orpc.admin.users.get.queryOptions({
+		orpc.admin.users.find.queryOptions({
 			input: { userId },
 		}),
 	);

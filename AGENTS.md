@@ -1,80 +1,63 @@
 # Agent Guidelines for bimbelbeta
 
+## Token Efficiency (IMPORTANT!)
+
+If you need to explore the codebase, avoid using the @explore tool and/or subagents at all times. Instead, spawn a new terminal session and run a Gemini CLI instance instead.
+
+Example usage:
+
+```zsh
+gemini --prompt "Find all instances of prop drilling in this codebase."
+```
+
+Only **ever** use subagents to handover complex tasks. 
+
+### Workflow
+- Keep functions focused and under 50 lines when possible
+- Use custom hooks for reusable logic in `hooks/` directories
+- Do not clear `.turbo` or other cache directories
+- Avoid prop drilling - use context (Tanstack Query/Router) or state management (zustand)
+    - NEVER prop drill results from a useQuery hook. Just call the useQuery hook in the child component again, it automatically caches so it won't make duplicate network requests.
+- NEVER add comments - code should be self-documenting
+- **CRITICAL**: Run `bun build:packages` after any changes to API routes (packages/api/src/routers/*) - this regenerates type definitions used by web/server apps
+- Run `bun lint:fix` and `bun check-types` after finishing your work
+
 ## Architecture Overview
 
-- **Monorepo**: Turbo workspace with packages (`@bimbelbeta/*`) and apps (`web`, `server`)
-- **Backend**: Drizzle ORM, Arktype validation, ORPC for type-safe API routing
-- **Frontend**: TanStack ecosystem (Router, Query, Form), Radix UI primitives, Tailwind CSS
-- **Styling**: `cn()` utility (clsx + tailwind-merge) for className composition
-- **Build System**: Turbo with remote caching (TURBO_TOKEN, TURBO_TEAM)
+- **Backend**: Drizzle ORM, Arktype validation, ORPC for type-safe API routing and contract-first approach
+- **Frontend**: TanStack ecosystem (Router, Query, Form), shadcn
 
 ## Build Commands
 
 ```bash
 # Linting and formatting
 bun lint              # Check code with Biome
-bun lint:fix          # Auto-fix issues
 bun lint:fix --unsafe # Auto-fix with unsafe fixes
 
 # Type checking
-bun check-types       # Type check all packages
-bun prepare           # Run Biome fix before type checking
+bun check-types       # Type check all packages (requires building packages first)
 
 # Building
 bun build             # Build all packages and apps
 bun build:packages    # Build only packages (not apps)
 
-# Development
-bun dev               # Start all packages in dev mode
-bun dev:web           # Start web app on port 3000
-bun dev:server        # Start server on port 3001
-
 # Database operations
 bun db:push           # Push schema changes to DB
-bun db:migrate        # Apply migrations
-bun db:generate       # Generate migration files
-bun db:studio         # Open Drizzle Studio
 bun db:reset          # Reset database and seed
 bun db:seed           # Seed database
 
-# Testing (Vitest)
+# Testing
 bun test              # Run all tests
-bun test path/to/file.test.ts  # Run single test file
-bun test --watch      # Run tests in watch mode
-
-# Run specific package command
-turbo -F @bimbelbeta/db <command>
-turbo -F @bimbelbeta/api <command>
-turbo -F web <command>
 ```
 
 ## Code Style Guidelines
 
-### Formatting
-- **Indentation**: Tabs (configured in biome.json)
-- **Line width**: 120 characters
-- **Quotes**: Double quotes for JavaScript/TypeScript
 - **Formatting tool**: Biome (run `bun lint:fix` before committing)
 
 ### TypeScript
-- **Strict mode**: Always enabled, use `@typescript/native-preview` for type checking
-- **Type inference**: No explicit types when inferrable (enforced by biome)
+- **Type inference**: No explicit types when inferrable (enforced by biome). Never use `as something` annotation, this is for codebase health and maintainability.
 - **As const**: Use `as const` assertions for literal types where needed
 - **Imports**: Use `type` keyword for type-only imports when beneficial
-
-### Import Organization
-- Workspace packages: `@bimbelbeta/package-name`
-- Catalog dependencies: Use `"catalog:"` in package.json
-- Relative imports: Use `@/` alias for app internal paths
-- Organize: External → Workspace → Relative
-
-### React Components
-- Functional components only, no class components
-- TypeScript props interfaces, destructure props
-- Use Radix UI primitives as base for UI components
-- Styling: Tailwind CSS with `cn()` utility (clsx + tailwind-merge)
-- Variants: Use class-variance-authority (cva) for component variants
-- Patterns: Separate component and container logic when complex
 
 ### Naming Conventions
 - Components: PascalCase (`UserCard`)
@@ -82,21 +65,6 @@ turbo -F web <command>
 - Types/interfaces: PascalCase (`UserProgress`)
 - Constants: UPPER_SNAKE_CASE (`SESSION_DURATION`)
 - Files: kebab-case for folders (`user-card/`), `index.ts` for exports
-
-### Database (Drizzle ORM)
-- Schema files in `packages/db/src/schema/`
-- Tables: camelCase with underscored columns (`user`, `email_verified`)
-- Relations: Define with explicit types
-- Migrations: Generate with `bun db:generate`, apply with `bun db:migrate`
-- Queries: Use Drizzle query builder, prefer type-safe operations
-
-### API Routes (ORPC)
-- Router files in `packages/api/src/routers/`
-- Define routes with explicit path, method, tags
-- Use Arktype for input/output validation (`type({...})`)
-- Auth middleware: `pub`, `authed`, `admin` from `packages/api/src/index.ts`
-- Error handling: Use `errors.NOT_FOUND()`, `errors.UNAUTHORIZED()`, or `ORPCError`
-- Transactions: Use `db.transaction(async (tx) => {...})` for multi-step ops
 
 #### Pagination
 - **Use cursor-based pagination** (not offset) for better performance
@@ -120,42 +88,13 @@ packages/api/src/routers/
 packages/db/src/schema/
   feature-name.ts    # Schema definitions
 apps/web/src/components/ui/
-  component-name.tsx # Base UI component
+  component-name.tsx # shadcn UI component
 apps/web/src/routes/
   _auth/             # Auth layout routes
   _authenticated/    # Protected routes
   -components/       # Shared route components
 ```
 
-### Best Practices
-- Keep functions focused and under 50 lines when possible
-- Use custom hooks for reusable logic in `hooks/` directories
-- Do not clear `.turbo` or other cache directories
-- Avoid prop drilling - use context (Tanstack Query/Router) or state management (zustand)
-- Minimize comments - code should be self-documenting
-- **CRITICAL**: Run `bun build:packages` after any changes to API routes (packages/api/src/routers/*) - this regenerates type definitions used by web/server apps
-- Run `bun lint:fix` and `bun check-types` before pushing
-
-### Environment Variables
-- Local dev: Use `.env` files in `apps/server/`
-- CI/CD: Set secrets in GitHub Actions or Coolify
-- Never commit `.env` files or secrets
-- Use environment-specific configs for staging/production
-
-### Deployment
-- Apps containerized with Docker (see Dockerfiles in each app)
-- Built images pushed to GitHub Container Registry (ghcr.io)
-- Deployed via Coolify webhooks on push to main
-- Turbo remote caching enabled via TURBO_TOKEN and TURBO_TEAM
-
-### CI/CD Workflows
-- `.github/workflows/migrate.yml` - Database migrations on main push
-- `.github/workflows/build-server.yml` - Build and deploy server image
-- `.github/workflows/build-web.yml` - Build and deploy web image (if exists)
-- Secrets managed in GitHub repository settings
-
 ### Git Workflow
 - Feature branches: `feature/description` or `fix/description`
 - Commit messages: Conventional Commits (feat, fix, refactor, etc.)
-- Pull requests required before merging to main
-- All CI checks must pass before merge approval

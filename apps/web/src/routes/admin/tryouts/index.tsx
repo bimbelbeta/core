@@ -1,3 +1,4 @@
+import { PaginationInputSchema } from "@bimbelbeta/contract/common/pagination";
 import { TrashIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -30,12 +31,12 @@ import { SearchInput } from "@/components/ui/search-input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
-import { useCursorPagination } from "@/hooks/use-cursor-pagination";
+import { usePaginationNavigation } from "@/hooks/use-pagination-navigation";
 import { orpc } from "@/utils/orpc";
 import { AddTryoutDialog } from "./-components/add-tryout-dialog";
 
 const searchSchema = type({
-	"cursor?": "number",
+	"...": PaginationInputSchema,
 	"search?": "string",
 	"category?": "'sd' | 'smp' | 'sma' | 'utbk'",
 	"status?": "'draft' | 'published' | 'archived'",
@@ -48,21 +49,16 @@ export const Route = createFileRoute("/admin/tryouts/")({
 
 function TryoutsListPage() {
 	const navigate = Route.useNavigate();
-	const { cursor, search, category, status } = Route.useSearch();
+	const { after, before, limit = 10, search, category, status } = Route.useSearch();
 
 	const [searchInput, setSearchInput] = useState(search ?? "");
 
-	const pagination = useCursorPagination<number>({
-		urlCursor: cursor,
-		onCursorChange: (newCursor) => navigate({ search: { cursor: newCursor, search, category, status } }),
-		pageSize: 10,
-	});
-
 	const { data, isLoading, refetch } = useQuery(
-		orpc.admin.tryout.listTryouts.queryOptions({
+		orpc.admin.tryout.list.queryOptions({
 			input: {
-				cursor: pagination.currentCursor,
-				limit: pagination.pageSize,
+				after,
+				before,
+				limit,
 				search: search ?? undefined,
 				category,
 				status,
@@ -70,16 +66,13 @@ function TryoutsListPage() {
 		}),
 	);
 
-	// Sync canGoNext with data
-	if (pagination.canGoNext !== !!data?.nextCursor) {
-		pagination.setCanGoNext(!!data?.nextCursor);
-	}
+	const pageInfo = data?.pageInfo;
 
 	const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState<number | null>(null);
 
 	const deleteMutation = useMutation(
-		orpc.admin.tryout.deleteTryout.mutationOptions({
+		orpc.admin.tryout.remove.mutationOptions({
 			onSuccess: () => {
 				toast.success("Tryout berhasil dihapus");
 				setDeleteDialogOpen(null);
@@ -91,48 +84,48 @@ function TryoutsListPage() {
 		}),
 	);
 
+	const baseSearchParams = {
+		...(search && { search }),
+		...(category && { category }),
+		...(status && { status }),
+		limit,
+	};
+
 	const handleSearch = (value: string) => {
 		setSearchInput(value);
-		pagination.reset();
 		navigate({
 			search: {
 				...(value && { search: value }),
 				...(category && { category }),
 				...(status && { status }),
+				limit,
 			},
 		});
 	};
 
 	const handleCategoryChange = (value: string) => {
-		pagination.reset();
 		navigate({
 			search: {
 				...(search && { search }),
 				...(value !== "all" && { category: value as "sd" | "smp" | "sma" | "utbk" }),
 				...(status && { status }),
+				limit,
 			},
 		});
 	};
 
 	const handleStatusChange = (value: string) => {
-		pagination.reset();
 		navigate({
 			search: {
 				...(search && { search }),
 				...(category && { category }),
 				...(value !== "all" && { status: value as "draft" | "published" | "archived" }),
+				limit,
 			},
 		});
 	};
 
-	const handleNext = () => {
-		if (!data?.nextCursor) return;
-		pagination.handleNext(data.nextCursor);
-	};
-
-	const handlePrevious = () => {
-		pagination.handlePrevious();
-	};
+	const { handleNext, handlePrevious } = usePaginationNavigation(navigate, pageInfo, baseSearchParams);
 
 	const handleDelete = (id: number) => {
 		deleteMutation.mutate({ id });
@@ -200,14 +193,14 @@ function TryoutsListPage() {
 							<TableBody>
 								{isLoading ? (
 									<TableSkeleton columns={6} />
-								) : data?.tryouts.length === 0 ? (
+								) : data?.items.length === 0 ? (
 									<TableRow>
 										<TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
 											Tidak ada tryout ditemukan.
 										</TableCell>
 									</TableRow>
 								) : (
-									data?.tryouts.map((tryout, index) => (
+									data?.items.map((tryout, index) => (
 										<TableRow key={tryout.id} className="group hover:bg-muted/30">
 											<TableCell className="text-center font-mono text-muted-foreground text-sm">{index + 1}</TableCell>
 											<TableCell className="font-medium">
@@ -232,7 +225,7 @@ function TryoutsListPage() {
 																: "outline"
 													}
 												>
-													{tryout.status}
+													{tryout.status.toUpperCase()}
 												</Badge>
 											</TableCell>
 											<TableCell>
@@ -282,8 +275,8 @@ function TryoutsListPage() {
 							<PaginationButtons
 								onPrevious={handlePrevious}
 								onNext={handleNext}
-								hasPrevious={pagination.canGoPrevious}
-								hasNext={pagination.canGoNext}
+								hasPrevious={!!pageInfo?.hasPreviousPage}
+								hasNext={!!pageInfo?.hasNextPage}
 							/>
 						</div>
 					)}

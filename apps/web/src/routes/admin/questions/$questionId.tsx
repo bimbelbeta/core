@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { DetailPageSkeleton } from "@/components/admin/detail-page-skeleton";
-import { TiptapRenderer } from "@/components/tiptap-renderer";
+import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,7 +24,7 @@ function QuestionDetailPage() {
 	const [isEditing, setIsEditing] = useState(false);
 
 	const { data, isPending } = useQuery(
-		orpc.admin.tryout.questions.getQuestion.queryOptions({
+		orpc.admin.tryout.questions.find.queryOptions({
 			input: { id: questionId },
 		}),
 	);
@@ -172,7 +172,7 @@ function QuestionDetailPage() {
 							</div>
 						)}
 
-						{question.discussion && (
+						{Boolean(question.discussion) && (
 							<div>
 								<h3 className="mb-2 font-medium text-muted-foreground text-sm">Pembahasan</h3>
 								<TiptapRenderer

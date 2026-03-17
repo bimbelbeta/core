@@ -2,7 +2,7 @@ import { CheckCircleIcon, MagnifyingGlassIcon, PlusCircleIcon } from "@phosphor-
 import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
-import { TiptapRenderer } from "@/components/tiptap-renderer";
+import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -26,18 +26,18 @@ export function BulkAddQuestionsDialog({
 	const scrollRef = useRef<HTMLDivElement>(null);
 
 	const { data, isPending, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery(
-		orpc.admin.tryout.questions.listQuestions.infiniteOptions({
+		orpc.admin.tryout.questions.list.infiniteOptions({
 			input: (pageParam) => ({
-				cursor: pageParam,
+				after: pageParam,
 				limit: 20,
 				search: search || undefined,
 			}),
-			getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
-			initialPageParam: undefined as number | undefined,
+			getNextPageParam: (lastPage) => (lastPage.pageInfo.hasNextPage ? lastPage.pageInfo.endCursor : undefined),
+			initialPageParam: undefined as string | undefined,
 		}),
 	);
 
-	const questions = data?.pages.flatMap((page) => page.questions) ?? [];
+	const questions = data?.pages.flatMap((page) => page.items) ?? [];
 
 	const handleScroll = useCallback(() => {
 		const el = scrollRef.current;

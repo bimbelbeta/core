@@ -5,8 +5,8 @@ import { Container } from "@/components/ui/container";
 import { Highlight } from "@/components/ui/highlight";
 import { cn } from "@/lib/utils";
 import { formatRupiah } from "@/utils/formatter";
-import { Heading } from "./-componenets/heading";
-import { Subheading } from "./-componenets/subheading";
+import { Heading } from "./-components/heading";
+import { Subheading } from "./-components/subheading";
 import { DATA } from "./data";
 
 export function Pricing() {

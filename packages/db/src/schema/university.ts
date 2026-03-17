@@ -1,4 +1,4 @@
-import { relations } from "drizzle-orm";
+import { defineRelationsPart } from "drizzle-orm";
 import { boolean, integer, pgEnum, pgTable, text, timestamp, unique } from "drizzle-orm/pg-core";
 
 export const studyProgramCategory = pgEnum("study_program_category", ["SAINTEK", "SOSHUM"]);
@@ -23,10 +23,6 @@ export const university = pgTable(
 	(t) => [unique("university_slug").on(t.slug)],
 );
 
-export const universityRelations = relations(university, ({ many }) => ({
-	studyPrograms: many(universityStudyProgram),
-}));
-
 export const studyProgram = pgTable(
 	"study_program",
 	{
@@ -42,10 +38,6 @@ export const studyProgram = pgTable(
 	},
 	(t) => [unique("study_program_slug").on(t.slug)],
 );
-
-export const studyProgramRelations = relations(studyProgram, ({ many }) => ({
-	universities: many(universityStudyProgram),
-}));
 
 export const universityStudyProgram = pgTable(
 	"university_study_program",
@@ -70,18 +62,6 @@ export const universityStudyProgram = pgTable(
 	(t) => [unique("university_study_program_unique").on(t.universityId, t.studyProgramId)],
 );
 
-export const universityStudyProgramRelations = relations(universityStudyProgram, ({ one, many }) => ({
-	university: one(university, {
-		fields: [universityStudyProgram.universityId],
-		references: [university.id],
-	}),
-	studyProgram: one(studyProgram, {
-		fields: [universityStudyProgram.studyProgramId],
-		references: [studyProgram.id],
-	}),
-	yearlyData: many(programYearlyData),
-}));
-
 export const programYearlyData = pgTable(
 	"program_yearly_data",
 	{
@@ -102,9 +82,45 @@ export const programYearlyData = pgTable(
 	(t) => [unique("program_yearly_data_unique").on(t.universityStudyProgramId, t.year)],
 );
 
-export const programYearlyDataRelations = relations(programYearlyData, ({ one }) => ({
-	universityStudyProgram: one(universityStudyProgram, {
-		fields: [programYearlyData.universityStudyProgramId],
-		references: [universityStudyProgram.id],
+export const universityRelations = defineRelationsPart(
+	{
+		university,
+		studyProgram,
+		universityStudyProgram,
+		programYearlyData,
+	},
+	(r) => ({
+		university: {
+			studyPrograms: r.many.universityStudyProgram({
+				from: r.university.id,
+				to: r.universityStudyProgram.universityId,
+			}),
+		},
+		studyProgram: {
+			universities: r.many.universityStudyProgram({
+				from: r.studyProgram.id,
+				to: r.universityStudyProgram.studyProgramId,
+			}),
+		},
+		universityStudyProgram: {
+			university: r.one.university({
+				from: r.universityStudyProgram.universityId,
+				to: r.university.id,
+			}),
+			studyProgram: r.one.studyProgram({
+				from: r.universityStudyProgram.studyProgramId,
+				to: r.studyProgram.id,
+			}),
+			yearlyData: r.many.programYearlyData({
+				from: r.universityStudyProgram.id,
+				to: r.programYearlyData.universityStudyProgramId,
+			}),
+		},
+		programYearlyData: {
+			universityStudyProgram: r.one.universityStudyProgram({
+				from: r.programYearlyData.universityStudyProgramId,
+				to: r.universityStudyProgram.id,
+			}),
+		},
 	}),
-}));
+);

@@ -7,29 +7,38 @@ import { experimental_ArkTypeToJsonSchemaConverter as ArkTypeToJsonSchemaConvert
 import { RatelimitHandlerPlugin } from "@orpc/experimental-ratelimit";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { OpenAPIReferencePlugin } from "@orpc/openapi/plugins";
-import { onError } from "@orpc/server";
+import { ORPCError, onError } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 
-const router: Router = {
-	client: custom({
-		host: process.env.S3_ENDPOINT || "",
-		region: "us-east-1",
-		accessKeyId: process.env.S3_ACCESS_KEY || "",
-		secretAccessKey: process.env.S3_SECRET_KEY || "",
-		secure: process.env.S3_SECURE === "true",
-		forcePathStyle: true,
-	}),
-	bucketName: process.env.S3_BUCKET || "temp",
-	routes: {
-		tryout: route({
-			fileTypes: ["image/*"],
-			maxFileSize: 1024 * 1024 * 2,
+function createS3Router(): Router {
+	return {
+		client: custom({
+			host: process.env.S3_ENDPOINT || "",
+			region: "us-east-1",
+			accessKeyId: process.env.S3_ACCESS_KEY || "",
+			secretAccessKey: process.env.S3_SECRET_KEY || "",
+			secure: process.env.S3_SECURE === "true",
+			forcePathStyle: true,
 		}),
-	},
-};
+		bucketName: process.env.S3_BUCKET || "temp",
+		routes: {
+			tryout: route({
+				fileTypes: ["image/*"],
+				maxFileSize: 1024 * 1024 * 2,
+			}),
+		},
+	};
+}
+
+function getCorsOrigins(): string[] {
+	return [
+		process.env.CORS_ORIGIN || "http://localhost:3000",
+		...(process.env.TRUSTED_ORIGINS ? process.env.TRUSTED_ORIGINS.split(",").map((o) => o.trim()) : []),
+	];
+}
 
 const app = new Hono();
 
@@ -37,12 +46,7 @@ app.use(logger());
 app.use(
 	"/*",
 	cors({
-		origin: [
-			process.env.CORS_ORIGIN || "http://localhost:3000",
-			"http://localhost:3000",
-			"https://bimbelbeta.com",
-			"https://api.bimbelbeta.com",
-		],
+		origin: getCorsOrigins(),
 		allowMethods: ["GET", "POST", "PUT", "PATCH", "OPTIONS"],
 		allowHeaders: ["Content-Type", "Authorization", "Content-Length"],
 		credentials: true,
@@ -51,6 +55,12 @@ app.use(
 
 app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
+function logUnexpectedError(error: unknown) {
+	if (!(error instanceof ORPCError)) {
+		console.error("[unexpected error]", error);
+	}
+}
+
 export const apiHandler = new OpenAPIHandler(appRouter, {
 	plugins: [
 		new OpenAPIReferencePlugin({
@@ -58,24 +68,16 @@ export const apiHandler = new OpenAPIHandler(appRouter, {
 		}),
 		new RatelimitHandlerPlugin(),
 	],
-	interceptors: [
-		onError((error) => {
-			console.error(error);
-		}),
-	],
+	interceptors: [onError(logUnexpectedError)],
 });
 
 export const rpcHandler = new RPCHandler(appRouter, {
 	plugins: [new RatelimitHandlerPlugin()],
-	interceptors: [
-		onError((error) => {
-			console.error(error);
-		}),
-	],
+	interceptors: [onError(logUnexpectedError)],
 });
 
 app.post("/upload", async (c) => {
-	return handleRequest(c.req.raw, router);
+	return handleRequest(c.req.raw, createS3Router());
 });
 
 app.use("/*", async (c, next) => {

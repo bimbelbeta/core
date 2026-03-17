@@ -1,4 +1,4 @@
-import { relations } from "drizzle-orm";
+import { defineRelationsPart } from "drizzle-orm";
 import {
 	boolean,
 	index,
@@ -36,11 +36,6 @@ export const tryout = pgTable("tryout", {
 		.$onUpdate(() => new Date()),
 });
 
-export const tryoutRelations = relations(tryout, ({ many }) => ({
-	subtests: many(tryoutSubtest),
-	attempts: many(tryoutAttempt),
-}));
-
 export const tryoutSubtest = pgTable(
 	"tryout_subtest",
 	{
@@ -58,17 +53,9 @@ export const tryoutSubtest = pgTable(
 	(t) => [unique("tryout_subtest_order").on(t.tryoutId, t.order)],
 );
 
-export const tryoutSubtestRelations = relations(tryoutSubtest, ({ one, many }) => ({
-	tryout: one(tryout, {
-		fields: [tryoutSubtest.tryoutId],
-		references: [tryout.id],
-	}),
-	questions: many(tryoutSubtestQuestion),
-}));
-
 /*
   Linking Questions to Subtests
- */
+*/
 export const tryoutSubtestQuestion = pgTable(
 	"tryout_subtest_question",
 	{
@@ -85,20 +72,9 @@ export const tryoutSubtestQuestion = pgTable(
 	(t) => [primaryKey({ columns: [t.subtestId, t.questionId] })],
 );
 
-export const tryoutSubtestQuestionRelations = relations(tryoutSubtestQuestion, ({ one }) => ({
-	subtest: one(tryoutSubtest, {
-		fields: [tryoutSubtestQuestion.subtestId],
-		references: [tryoutSubtest.id],
-	}),
-	question: one(question, {
-		fields: [tryoutSubtestQuestion.questionId],
-		references: [question.id],
-	}),
-}));
-
 /*
   Attempts & User Answers
- */
+*/
 export const tryoutAttemptStatus = pgEnum("tryout_attempt_status", ["not_started", "ongoing", "finished"]);
 
 export const tryoutAttempt = pgTable(
@@ -123,19 +99,6 @@ export const tryoutAttempt = pgTable(
 	(t) => [unique("user_tryout_attempt").on(t.userId, t.tryoutId), index("idx_tryout_attempt_tryout_id").on(t.tryoutId)],
 );
 
-export const tryoutAttemptRelations = relations(tryoutAttempt, ({ one, many }) => ({
-	tryout: one(tryout, {
-		fields: [tryoutAttempt.tryoutId],
-		references: [tryout.id],
-	}),
-	user: one(user, {
-		fields: [tryoutAttempt.userId],
-		references: [user.id],
-	}),
-	subtestAttempts: many(tryoutSubtestAttempt),
-	userAnswers: many(tryoutUserAnswer),
-}));
-
 export const tryoutSubtestAttempt = pgTable(
 	"tryout_subtest_attempt",
 	{
@@ -158,17 +121,6 @@ export const tryoutSubtestAttempt = pgTable(
 	],
 );
 
-export const tryoutSubtestAttemptRelations = relations(tryoutSubtestAttempt, ({ one }) => ({
-	tryoutAttempt: one(tryoutAttempt, {
-		fields: [tryoutSubtestAttempt.tryoutAttemptId],
-		references: [tryoutAttempt.id],
-	}),
-	subtest: one(tryoutSubtest, {
-		fields: [tryoutSubtestAttempt.subtestId],
-		references: [tryoutSubtest.id],
-	}),
-}));
-
 export const tryoutUserAnswer = pgTable(
 	"tryout_user_answer",
 	{
@@ -188,17 +140,90 @@ export const tryoutUserAnswer = pgTable(
 	(t) => [primaryKey({ columns: [t.attemptId, t.questionId] })],
 );
 
-export const tryoutUserAnswerRelations = relations(tryoutUserAnswer, ({ one }) => ({
-	attempt: one(tryoutAttempt, {
-		fields: [tryoutUserAnswer.attemptId],
-		references: [tryoutAttempt.id],
+export const tryoutRelations = defineRelationsPart(
+	{
+		tryout,
+		tryoutSubtest,
+		tryoutSubtestQuestion,
+		tryoutAttempt,
+		tryoutSubtestAttempt,
+		tryoutUserAnswer,
+		user,
+		question,
+		questionChoice,
+	},
+	(r) => ({
+		tryout: {
+			subtests: r.many.tryoutSubtest({
+				from: r.tryout.id,
+				to: r.tryoutSubtest.tryoutId,
+			}),
+			attempts: r.many.tryoutAttempt({
+				from: r.tryout.id,
+				to: r.tryoutAttempt.tryoutId,
+			}),
+		},
+		tryoutSubtest: {
+			tryout: r.one.tryout({
+				from: r.tryoutSubtest.tryoutId,
+				to: r.tryout.id,
+			}),
+			questions: r.many.tryoutSubtestQuestion({
+				from: r.tryoutSubtest.id,
+				to: r.tryoutSubtestQuestion.subtestId,
+			}),
+		},
+		tryoutSubtestQuestion: {
+			subtest: r.one.tryoutSubtest({
+				from: r.tryoutSubtestQuestion.subtestId,
+				to: r.tryoutSubtest.id,
+			}),
+			question: r.one.question({
+				from: r.tryoutSubtestQuestion.questionId,
+				to: r.question.id,
+			}),
+		},
+		tryoutAttempt: {
+			tryout: r.one.tryout({
+				from: r.tryoutAttempt.tryoutId,
+				to: r.tryout.id,
+			}),
+			user: r.one.user({
+				from: r.tryoutAttempt.userId,
+				to: r.user.id,
+			}),
+			subtestAttempts: r.many.tryoutSubtestAttempt({
+				from: r.tryoutAttempt.id,
+				to: r.tryoutSubtestAttempt.tryoutAttemptId,
+			}),
+			userAnswers: r.many.tryoutUserAnswer({
+				from: r.tryoutAttempt.id,
+				to: r.tryoutUserAnswer.attemptId,
+			}),
+		},
+		tryoutSubtestAttempt: {
+			tryoutAttempt: r.one.tryoutAttempt({
+				from: r.tryoutSubtestAttempt.tryoutAttemptId,
+				to: r.tryoutAttempt.id,
+			}),
+			subtest: r.one.tryoutSubtest({
+				from: r.tryoutSubtestAttempt.subtestId,
+				to: r.tryoutSubtest.id,
+			}),
+		},
+		tryoutUserAnswer: {
+			attempt: r.one.tryoutAttempt({
+				from: r.tryoutUserAnswer.attemptId,
+				to: r.tryoutAttempt.id,
+			}),
+			question: r.one.question({
+				from: r.tryoutUserAnswer.questionId,
+				to: r.question.id,
+			}),
+			selectedChoice: r.one.questionChoice({
+				from: r.tryoutUserAnswer.selectedChoiceId,
+				to: r.questionChoice.id,
+			}),
+		},
 	}),
-	question: one(question, {
-		fields: [tryoutUserAnswer.questionId],
-		references: [question.id],
-	}),
-	selectedChoice: one(questionChoice, {
-		fields: [tryoutUserAnswer.selectedChoiceId],
-		references: [questionChoice.id],
-	}),
-}));
+);

@@ -1,5 +1,5 @@
 import { CaretRightIcon, DotsThreeIcon } from "@phosphor-icons/react";
-import { Slot } from "@radix-ui/react-slot";
+import { Slot as SlotPrimitive } from "radix-ui";
 import type * as React from "react";
 import { cn } from "@/lib/utils";
 
@@ -31,7 +31,7 @@ function BreadcrumbLink({
 }: React.ComponentProps<"a"> & {
 	asChild?: boolean;
 }) {
-	const Comp = asChild ? Slot : "a";
+	const Comp = asChild ? SlotPrimitive.Slot : "a";
 
 	return (
 		<Comp data-slot="breadcrumb-link" className={cn("transition-colors hover:text-foreground", className)} {...props} />
@@ -80,10 +80,10 @@ function BreadcrumbEllipsis({ className, ...props }: React.ComponentProps<"span"
 
 export {
 	Breadcrumb,
-	BreadcrumbList,
+	BreadcrumbEllipsis,
 	BreadcrumbItem,
 	BreadcrumbLink,
+	BreadcrumbList,
 	BreadcrumbPage,
 	BreadcrumbSeparator,
-	BreadcrumbEllipsis,
 };

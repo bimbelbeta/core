@@ -1,6 +1,8 @@
 import { auth } from "@bimbelbeta/auth";
 import type { Context as HonoContext } from "hono";
 
+type AuthSession = typeof auth.$Infer.Session;
+
 export type CreateContextOptions = {
 	context: HonoContext;
 };
@@ -15,4 +17,6 @@ export async function createContext({ context }: CreateContextOptions) {
 	};
 }
 
-export type Context = Awaited<ReturnType<typeof createContext>>;
+export type Context = {
+	session: AuthSession | null;
+};

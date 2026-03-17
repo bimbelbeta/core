@@ -1,11 +1,18 @@
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { useIsAdmin } from "@/utils/is-admin";
-import { BackButton } from "../back-button";
+import { useIsAdmin } from "@/utils/use-is-admin";
+import { BackButton } from "../shared/back-button";
 import { Badge } from "../ui/badge";
-import type { SubjectListItem } from "./classes-types";
 
-export function ClassHeader({ subject }: { subject: SubjectListItem }) {
+type SubjectHeaderProps = {
+	id: number;
+	name: string;
+	category: "sd" | "sma" | "smp" | "utbk";
+	gradeLevel: number | null;
+	hasViewed?: boolean;
+};
+
+export function ClassHeader({ subject }: { subject: SubjectHeaderProps }) {
 	const isAdmin = useIsAdmin();
 	const backPath = isAdmin ? "/admin/classes/" : "/classes/";
 

@@ -1,15 +1,13 @@
-"use client";
-
 import type { Editor } from "@tiptap/react";
 import { useEffect, useMemo, useState } from "react";
+// --- Hooks ---
+import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
 // --- Icons ---
 import { ListIcon } from "@/components/tiptap-icons/list-icon";
 import { ListOrderedIcon } from "@/components/tiptap-icons/list-ordered-icon";
 import { ListTodoIcon } from "@/components/tiptap-icons/list-todo-icon";
 // --- Tiptap UI ---
 import { canToggleList, isListActive, type ListType, listIcons } from "@/components/tiptap-ui/list-button";
-// --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
 // --- Lib ---
 import { isNodeInSchema } from "@/lib/tiptap-utils";
 

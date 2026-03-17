@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { type } from "arktype";
 import { toast } from "sonner";
-import TiptapSimpleEditor from "@/components/tiptap-simple-editor";
+import TiptapSimpleEditor from "@/components/tiptap/tiptap-simple-editor";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -29,17 +29,17 @@ function RouteComponent() {
 	const queryClient = useQueryClient();
 
 	const content = useQuery(
-		orpc.subject.getContentById.queryOptions({
+		orpc.subject.findContent.queryOptions({
 			input: { contentId },
 		}),
 	);
 
 	const saveMutation = useMutation(
-		orpc.admin.subject.upsertNote.mutationOptions({
+		orpc.admin.content.upsertNote.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
 				queryClient.invalidateQueries({
-					queryKey: orpc.subject.getContentById.queryKey({
+					queryKey: orpc.subject.findContent.queryKey({
 						input: { contentId },
 					}),
 				});
@@ -51,11 +51,11 @@ function RouteComponent() {
 	);
 
 	const deleteMutation = useMutation(
-		orpc.admin.subject.deleteNote.mutationOptions({
+		orpc.admin.content.removeNote.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
 				queryClient.invalidateQueries({
-					queryKey: orpc.subject.getContentById.queryKey({
+					queryKey: orpc.subject.findContent.queryKey({
 						input: { contentId },
 					}),
 				});
@@ -68,7 +68,7 @@ function RouteComponent() {
 
 	const form = useForm({
 		defaultValues: {
-			content: {} as object,
+			content: {} as Record<string, unknown>,
 		},
 		onSubmit: async ({ value }) => {
 			saveMutation.mutate({
@@ -85,7 +85,7 @@ function RouteComponent() {
 
 	if (content.data?.note) {
 		if (form.state.values.content !== content.data.note.content) {
-			form.setFieldValue("content", (content.data.note.content as object) || {});
+			form.setFieldValue("content", (content.data.note.content as Record<string, unknown>) || {});
 		}
 	}
 
@@ -159,7 +159,10 @@ function RouteComponent() {
 				<form.Field name="content">
 					{(field) => (
 						<div className="space-y-2">
-							<TiptapSimpleEditor content={field.state.value} onChange={(content) => field.handleChange(content)} />
+							<TiptapSimpleEditor
+								content={field.state.value}
+								onChange={(c) => field.handleChange(c as Record<string, unknown>)}
+							/>
 							{field.state.meta.errors.map((error) => (
 								<p key={error?.message} className="text-red-500 text-sm">
 									{error?.message}

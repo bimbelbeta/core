@@ -1,6 +1,6 @@
 import { Container } from "@/components/ui/container";
-import { Body } from "./-componenets/body";
-import { Heading } from "./-componenets/heading";
+import { Body } from "./-components/body";
+import { Heading } from "./-components/heading";
 
 export function Statement() {
 	return (

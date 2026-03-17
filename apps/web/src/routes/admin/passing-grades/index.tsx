@@ -1,3 +1,4 @@
+import { PaginationInputSchema } from "@bimbelbeta/contract/common/pagination";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { type } from "arktype";
@@ -15,12 +16,12 @@ import { Badge } from "@/components/ui/badge";
 import { SearchInput } from "@/components/ui/search-input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
-import { useCursorPagination } from "@/hooks/use-cursor-pagination";
+import { usePaginationNavigation } from "@/hooks/use-pagination-navigation";
 import { orpc } from "@/utils/orpc";
 import { AddUniversityDialog } from "./-components/add-university-dialog";
 
 const searchSchema = type({
-	"cursor?": "number",
+	"...": PaginationInputSchema,
 	"search?": "string",
 });
 
@@ -31,51 +32,41 @@ export const Route = createFileRoute("/admin/passing-grades/")({
 
 function RouteComponent() {
 	const navigate = Route.useNavigate();
-	const { cursor, search } = Route.useSearch();
+	const { after, before, limit = 10, search } = Route.useSearch();
 
 	const [searchInput, setSearchInput] = useState(search ?? "");
-
-	const pagination = useCursorPagination<number>({
-		urlCursor: cursor,
-		onCursorChange: (newCursor) => navigate({ search: { cursor: newCursor, search } }),
-		pageSize: 10,
-	});
 
 	const { data, isLoading, refetch } = useQuery(
 		orpc.admin.university.universities.list.queryOptions({
 			input: {
-				cursor: pagination.currentCursor,
-				limit: pagination.pageSize,
+				after,
+				before,
+				limit,
 				search: search ?? undefined,
 			},
 		}),
 	);
 
-	// Sync canGoNext with data
-	if (pagination.canGoNext !== !!data?.nextCursor) {
-		pagination.setCanGoNext(!!data?.nextCursor);
-	}
+	const pageInfo = data?.pageInfo;
 
 	const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
+	const baseSearchParams = {
+		...(search && { search }),
+		limit,
+	};
+
 	const handleSearch = (value: string) => {
 		setSearchInput(value);
-		pagination.reset();
 		navigate({
 			search: {
 				...(value && { search: value }),
+				limit,
 			},
 		});
 	};
 
-	const handleNext = () => {
-		if (!data?.nextCursor) return;
-		pagination.handleNext(data.nextCursor);
-	};
-
-	const handlePrevious = () => {
-		pagination.handlePrevious();
-	};
+	const { handleNext, handlePrevious } = usePaginationNavigation(navigate, pageInfo, baseSearchParams);
 
 	return (
 		<AdminPageRoot>
@@ -118,14 +109,14 @@ function RouteComponent() {
 							<TableBody>
 								{isLoading ? (
 									<TableSkeleton columns={4} />
-								) : data?.data?.length === 0 ? (
+								) : data?.items?.length === 0 ? (
 									<TableRow>
 										<TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
 											Tidak ada universitas ditemukan.
 										</TableCell>
 									</TableRow>
 								) : (
-									data?.data?.map((uni, index) => (
+									data?.items?.map((uni, index) => (
 										<TableRow key={uni.id} className="group hover:bg-muted/30">
 											<TableCell className="text-center font-mono text-muted-foreground text-sm">{index + 1}</TableCell>
 											<TableCell className="font-medium">
@@ -155,8 +146,8 @@ function RouteComponent() {
 							<PaginationButtons
 								onPrevious={handlePrevious}
 								onNext={handleNext}
-								hasPrevious={pagination.canGoPrevious}
-								hasNext={pagination.canGoNext}
+								hasPrevious={!!pageInfo?.hasPreviousPage}
+								hasNext={!!pageInfo?.hasNextPage}
 							/>
 						</div>
 					)}

@@ -2,7 +2,7 @@ import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import ErrorComponent from "@/components/error";
+import ErrorComponent from "@/components/shared/error";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -38,7 +38,7 @@ function RouteComponent() {
 		}),
 	);
 
-	const target = useQuery(orpc.userSettings.get.queryOptions());
+	const target = useQuery(orpc.userSettings.getTarget.queryOptions());
 
 	if (isPending) {
 		return (
@@ -59,7 +59,7 @@ function RouteComponent() {
 		);
 	}
 
-	const passingGrade = target.data?.studyProgramData?.averageScore || 600;
+	const passingGrade = target.data?.studyProgram?.averageScore || 600;
 
 	if (error || !data) {
 		return <ErrorComponent error={error} />;
@@ -103,9 +103,9 @@ function RouteComponent() {
 					<CardHeader className="flex items-center justify-between gap-2 pb-2">
 						<CardTitle className="font-medium text-muted-foreground text-sm">
 							Passing Grade
-							{target.data?.studyProgramData && (
+							{target.data?.studyProgram && (
 								<p className="text-xs">
-									{target.data.studyProgramData.studyProgram?.name} {target.data.studyProgramData.university.name}
+									{target.data.studyProgram.name} {target.data.university.name}
 								</p>
 							)}
 						</CardTitle>

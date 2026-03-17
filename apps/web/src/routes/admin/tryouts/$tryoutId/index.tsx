@@ -34,7 +34,7 @@ function TryoutDetailPage() {
 	const tryoutId = parseRouteParamToNumber(rawTryoutId);
 
 	const { data, isPending, refetch } = useQuery(
-		orpc.admin.tryout.getTryout.queryOptions({
+		orpc.admin.tryout.find.queryOptions({
 			input: { id: tryoutId },
 		}),
 	);
