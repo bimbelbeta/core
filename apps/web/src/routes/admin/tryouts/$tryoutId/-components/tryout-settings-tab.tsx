@@ -1,11 +1,16 @@
+import { CalendarIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { type } from "arktype";
-import { useEffect, useMemo, useRef } from "react";
+import { format } from "date-fns";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -68,11 +73,14 @@ export function TryoutSettingsTab({ tryout, onUpdate, onFormStateChange }: Tryou
 			description: tryout.description ?? "",
 			category: tryout.category,
 			status: tryout.status,
-			startsAt: tryout.startsAt ? new Date(tryout.startsAt).toISOString().slice(0, 16) : "",
-			endsAt: tryout.endsAt ? new Date(tryout.endsAt).toISOString().slice(0, 16) : "",
 		}),
-		[tryout.category, tryout.description, tryout.endsAt, tryout.startsAt, tryout.status, tryout.title],
+		[tryout.category, tryout.description, tryout.status, tryout.title],
 	);
+
+	const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
+		from: tryout.startsAt ? new Date(tryout.startsAt) : undefined,
+		to: tryout.endsAt ? new Date(tryout.endsAt) : undefined,
+	});
 
 	const updateMutation = useMutation(
 		orpc.admin.tryout.updateTryout.mutationOptions({
@@ -95,8 +103,8 @@ export function TryoutSettingsTab({ tryout, onUpdate, onFormStateChange }: Tryou
 				description: value.description || undefined,
 				category: value.category,
 				status: value.status,
-				startsAt: value.startsAt || undefined,
-				endsAt: value.endsAt || undefined,
+				startsAt: dateRange.from ? dateRange.from.toISOString() : undefined,
+				endsAt: dateRange.to ? dateRange.to.toISOString() : undefined,
 			});
 		},
 		validators: {
@@ -105,8 +113,6 @@ export function TryoutSettingsTab({ tryout, onUpdate, onFormStateChange }: Tryou
 				"description?": "string",
 				category: "'sd' | 'smp' | 'sma' | 'utbk'",
 				status: "'draft' | 'published' | 'archived'",
-				"startsAt?": "string",
-				"endsAt?": "string",
 			}),
 		},
 	});
@@ -119,9 +125,7 @@ export function TryoutSettingsTab({ tryout, onUpdate, onFormStateChange }: Tryou
 			prev.title !== formValues.title ||
 			prev.description !== formValues.description ||
 			prev.category !== formValues.category ||
-			prev.status !== formValues.status ||
-			prev.startsAt !== formValues.startsAt ||
-			prev.endsAt !== formValues.endsAt;
+			prev.status !== formValues.status;
 
 		if (hasChanged) {
 			prevFormValuesRef.current = formValues;
@@ -286,57 +290,52 @@ export function TryoutSettingsTab({ tryout, onUpdate, onFormStateChange }: Tryou
 
 					<div className="border-border border-t" />
 
-					{/* Starts At */}
-					<form.Field name="startsAt">
-						{(field) => (
-							<div className="space-y-2">
-								<Label htmlFor={field.name}>
-									Tanggal Mulai <span className="font-normal text-muted-foreground">(Opsional)</span>
-								</Label>
-								<Input
-									id={field.name}
-									type="datetime-local"
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-									className="w-full max-w-sm"
+					<div className="space-y-2">
+						<Label>
+							Periode Tryout <span className="font-normal text-muted-foreground">(Opsional)</span>
+						</Label>
+						<Popover>
+							<PopoverTrigger asChild>
+								<Button
+									variant="input"
+									data-empty={!dateRange.from}
+									className="w-full max-w-sm data-[empty=true]:text-muted-foreground"
+								>
+									<CalendarIcon className="mr-2 size-4" />
+									{dateRange.from ? (
+										dateRange.to ? (
+											<>
+												{format(dateRange.from, "PPP")} - {format(dateRange.to, "PPP")}
+											</>
+										) : (
+											format(dateRange.from, "PPP")
+										)
+									) : (
+										<span>Pilih rentang tanggal</span>
+									)}
+								</Button>
+							</PopoverTrigger>
+							<PopoverContent className="w-auto p-0" align="start">
+								<Calendar
+									mode="range"
+									selected={{
+										from: dateRange.from,
+										to: dateRange.to,
+									}}
+									onSelect={(range) => {
+										setDateRange({
+											from: range?.from,
+											to: range?.to,
+										});
+									}}
+									numberOfMonths={2}
 								/>
-								<p className="text-muted-foreground text-xs">Kosongkan untuk membuat tryout tersedia segera</p>
-								{field.state.meta.errors.map((error) => (
-									<p key={error?.message} className="text-destructive text-xs">
-										{error?.message}
-									</p>
-								))}
-							</div>
-						)}
-					</form.Field>
-
-					{/* Ends At */}
-					<form.Field name="endsAt">
-						{(field) => (
-							<div className="space-y-2">
-								<Label htmlFor={field.name}>
-									Tanggal Selesai <span className="font-normal text-muted-foreground">(Opsional)</span>
-								</Label>
-								<Input
-									id={field.name}
-									type="datetime-local"
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-									className="w-full max-w-sm"
-								/>
-								<p className="text-muted-foreground text-xs">
-									Kosongkan untuk membuat tryout tersedia tanpa batas waktu
-								</p>
-								{field.state.meta.errors.map((error) => (
-									<p key={error?.message} className="text-destructive text-xs">
-										{error?.message}
-									</p>
-								))}
-							</div>
-						)}
-					</form.Field>
+							</PopoverContent>
+						</Popover>
+						<p className="text-muted-foreground text-xs">
+							Kosongkan untuk membuat tryout tersedia segera/tanpa batas waktu
+						</p>
+					</div>
 				</CardContent>
 			</Card>
 		</form>
