@@ -40,7 +40,14 @@ function formatRelativeDate(date: Date) {
 	return date.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
 }
 
-export const TryoutAttemptsTab = () => {
+interface TryoutAttemptsTabProps {
+	subtests: {
+		id: number;
+		name: string;
+	}[];
+}
+
+export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 	const { tryoutId: id } = useParams({ from: "/admin/tryouts/$tryoutId/" });
 
 	const [after, setAfter] = useState<string | undefined>();
@@ -58,6 +65,7 @@ export const TryoutAttemptsTab = () => {
 	);
 
 	const pageInfo = data?.pageInfo;
+	const tableColumnCount = 6 + subtests.length;
 
 	const getStatusConfig = (status: string) => {
 		switch (status) {
@@ -108,16 +116,21 @@ export const TryoutAttemptsTab = () => {
 								<TableHead>User</TableHead>
 								<TableHead className="w-28">Status</TableHead>
 								<TableHead className="w-24">Skor</TableHead>
+								{subtests.map((subtest) => (
+									<TableHead key={subtest.id} className="min-w-28">
+										{subtest.name}
+									</TableHead>
+								))}
 								<TableHead className="w-36">Mulai</TableHead>
 								<TableHead className="w-36 pr-4">Selesai</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody>
 							{isPending ? (
-								<TableSkeleton columns={6} />
+								<TableSkeleton columns={tableColumnCount} />
 							) : data?.items.length === 0 ? (
 								<TableRow>
-									<TableCell colSpan={6} className="h-48">
+									<TableCell colSpan={tableColumnCount} className="h-48">
 										<Empty>
 											<EmptyHeader>
 												<EmptyMedia variant="icon">
@@ -131,10 +144,13 @@ export const TryoutAttemptsTab = () => {
 								</TableRow>
 							) : (
 								<TooltipProvider delayDuration={200}>
-									{data?.items.map(({ attempt, user }, index) => {
+									{data?.items.map(({ attempt, user, subtestAttempts }, index) => {
 										const statusConfig = getStatusConfig(attempt.status);
 										const startedAt = attempt.startedAt ? new Date(attempt.startedAt) : null;
 										const completedAt = attempt.completedAt ? new Date(attempt.completedAt) : null;
+										const subtestScoreMap = new Map(
+											subtestAttempts.map((subtestAttempt) => [subtestAttempt.subtestId, subtestAttempt.score]),
+										);
 
 										return (
 											<TableRow key={attempt.id} className="hover:bg-muted/30">
@@ -181,6 +197,22 @@ export const TryoutAttemptsTab = () => {
 														</span>
 													</div>
 												</TableCell>
+
+												{subtests.map((subtest) => {
+													const subtestScore = subtestScoreMap.get(subtest.id);
+													return (
+														<TableCell key={subtest.id}>
+															<span
+																className={cn(
+																	"font-semibold text-sm tabular-nums",
+																	subtestScore == null ? "text-muted-foreground" : "text-foreground",
+																)}
+															>
+																{subtestScore ?? "-"}
+															</span>
+														</TableCell>
+													);
+												})}
 
 												<TableCell>
 													{startedAt ? (

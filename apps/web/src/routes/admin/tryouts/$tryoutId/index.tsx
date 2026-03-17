@@ -223,7 +223,7 @@ function TryoutDetailPage() {
 								<TryoutSubtestsTab tryoutId={tryoutId} subtests={subtests} onUpdate={() => refetch()} />
 							</TabsContent>
 							<TabsContent value="attempts">
-								<TryoutAttemptsTab />
+								<TryoutAttemptsTab subtests={subtests} />
 							</TabsContent>
 						</div>
 					</Tabs>

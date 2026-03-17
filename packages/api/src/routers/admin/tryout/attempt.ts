@@ -1,7 +1,7 @@
 import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
-import { tryoutAttempt } from "@bimbelbeta/db/schema/tryout";
-import { and, asc, desc, eq, gt, lt } from "drizzle-orm";
+import { tryoutAttempt, tryoutSubtestAttempt } from "@bimbelbeta/db/schema/tryout";
+import { and, asc, desc, eq, gt, inArray, lt } from "drizzle-orm";
 import { buildIdCursorPage, parseIdCursor } from "../../../lib/pagination/cursor";
 import { baseImplementer } from "../../../lib/router-definition";
 import { rateLimit, requireAdmin, requireAuth } from "../../../lib/router-definition/middleware";
@@ -46,7 +46,36 @@ const list = admin.admin.tryout.attempts.list.handler(async ({ input }) => {
 		user: row.user,
 	}));
 
-	const { items, pageInfo } = buildIdCursorPage(mappedRows, limit, isBackward, !!cursorStr);
+	const attemptIds = mappedRows.map((row) => row.id);
+	const subtestAttemptsByAttemptId = new Map<number, { subtestId: number; score: number | null }[]>();
+
+	if (attemptIds.length > 0) {
+		const subtestAttempts = await db
+			.select({
+				tryoutAttemptId: tryoutSubtestAttempt.tryoutAttemptId,
+				subtestId: tryoutSubtestAttempt.subtestId,
+				score: tryoutSubtestAttempt.score,
+			})
+			.from(tryoutSubtestAttempt)
+			.where(inArray(tryoutSubtestAttempt.tryoutAttemptId, attemptIds))
+			.orderBy(asc(tryoutSubtestAttempt.subtestId));
+
+		for (const subtestAttempt of subtestAttempts) {
+			const attempts = subtestAttemptsByAttemptId.get(subtestAttempt.tryoutAttemptId) ?? [];
+			attempts.push({
+				subtestId: subtestAttempt.subtestId,
+				score: parseNullableInt(subtestAttempt.score),
+			});
+			subtestAttemptsByAttemptId.set(subtestAttempt.tryoutAttemptId, attempts);
+		}
+	}
+
+	const itemsWithSubtestAttempts = mappedRows.map((row) => ({
+		...row,
+		subtestAttempts: subtestAttemptsByAttemptId.get(row.id) ?? [],
+	}));
+
+	const { items, pageInfo } = buildIdCursorPage(itemsWithSubtestAttempts, limit, isBackward, !!cursorStr);
 
 	return { items, pageInfo };
 });
