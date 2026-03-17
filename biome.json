@@ -29,7 +29,8 @@
 			"!**/.source",
 			"!**/.agents",
 			"!**/.plan",
-			"!**/.desloppify"
+			"!**/.desloppify",
+			"!**/midtrans-client.d.ts"
 		]
 	},
 	"formatter": {
