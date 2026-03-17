@@ -31,7 +31,7 @@
 		"@bimbelbeta/contract": "workspace:*",
 		"@bimbelbeta/db": "workspace:*",
 		"@orpc/arktype": "catalog:",
-		"@orpc/experimental-ratelimit": "^1.13.7",
+		"@orpc/experimental-ratelimit": "catalog:",
 		"@orpc/openapi": "catalog:",
 		"@orpc/server": "catalog:",
 		"arktype": "catalog:",

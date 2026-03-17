@@ -16,6 +16,7 @@
 		"@orpc/arktype": "catalog:",
 		"@orpc/openapi": "catalog:",
 		"@orpc/server": "catalog:",
+		"@orpc/experimental-ratelimit": "catalog:",
 		"arktype": "catalog:",
 		"better-auth": "catalog:",
 		"dotenv": "catalog:",
