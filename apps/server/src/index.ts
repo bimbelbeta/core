@@ -27,7 +27,7 @@ function createS3Router(): Router {
 		routes: {
 			tryout: route({
 				fileTypes: ["image/*"],
-				maxFileSize: 1024 * 1024 * 2,
+				maxFileSize: 1024 * 1024 * 5,
 			}),
 		},
 	};

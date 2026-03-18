@@ -1,5 +1,5 @@
 import { useUploadFile } from "@better-upload/client";
-import { Coins, UploadSimpleIcon, XIcon } from "@phosphor-icons/react";
+import { CoinsIcon, UploadSimpleIcon, XIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouteContext, useRouter } from "@tanstack/react-router";
 import * as m from "motion/react-m";
@@ -163,7 +163,7 @@ export function TryoutStartConfirmation({ children, disabled = false }: TryoutSt
 								<div className="rounded-lg border-2 border-amber-200 bg-amber-50 p-4">
 									<div className="flex items-center gap-3">
 										<div className="rounded-full bg-amber-100 p-2">
-											<Coins size={20} weight="fill" className="text-amber-600" />
+											<CoinsIcon size={20} weight="fill" className="text-amber-600" />
 										</div>
 										<div className="flex-1">
 											<p className="font-medium text-amber-900">Gunakan Kredit Tryout</p>
@@ -212,7 +212,7 @@ export function TryoutStartConfirmation({ children, disabled = false }: TryoutSt
 						<DialogHeader>
 							<DialogTitle>Upload Bukti Pembayaran</DialogTitle>
 							<DialogDescription>
-								Untuk melanjutkan, silakan upload bukti pembayaran Anda (maksimal 2MB).
+								Untuk melanjutkan, silakan upload bukti pembayaran Anda (maksimal 5MB).
 							</DialogDescription>
 						</DialogHeader>
 						<div className="space-y-4 pt-4">
@@ -227,7 +227,7 @@ export function TryoutStartConfirmation({ children, disabled = false }: TryoutSt
 								>
 									<UploadSimpleIcon className="size-8 text-muted-foreground" />
 									<span className="text-muted-foreground text-sm">Klik untuk memilih gambar atau drag & drop</span>
-									<span className="text-muted-foreground text-xs">PNG, JPG, GIF (maks 2MB)</span>
+									<span className="text-muted-foreground text-xs">PNG, JPG, GIF (maks 5MB)</span>
 									<input
 										type="file"
 										accept="image/*"
