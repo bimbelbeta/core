@@ -67,8 +67,8 @@ export const adminTryoutContract = {
 				description: "string | null?",
 				category: "'sd' | 'smp' | 'sma' | 'utbk'",
 				status: "'draft' | 'published' | 'archived'?",
-				startsAt: "string.date?",
-				endsAt: "string.date?",
+				startsAt: "string?",
+				endsAt: "string?",
 			}),
 		)
 		.output(type({ message: "string", id: "number" })),
@@ -96,8 +96,8 @@ export const adminTryoutContract = {
 				description: "string | null?",
 				category: "'sd' | 'smp' | 'sma' | 'utbk'?",
 				status: "'draft' | 'published' | 'archived'?",
-				startsAt: "string.date?",
-				endsAt: "string.date?",
+				startsAt: "string?",
+				endsAt: "string?",
 			}),
 		)
 		.output(type({ message: "string" })),
