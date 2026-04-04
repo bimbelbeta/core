@@ -43,10 +43,13 @@ export const adminTryoutAttemptContract = {
 					{
 						attempt: TryoutAttemptSchema,
 						user: { id: "string", name: "string", email: "string", image: "string | null" },
-						subtestAttempts: type({
-							subtestId: "number",
-							score: "number | null",
-						}, "[]"),
+						subtestAttempts: type(
+							{
+								subtestId: "number",
+								score: "number | null",
+							},
+							"[]",
+						),
 					},
 					"[]",
 				),
