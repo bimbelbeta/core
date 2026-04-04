@@ -183,7 +183,7 @@ export function TryoutStartConfirmation({ children, disabled = false }: TryoutSt
 											</>
 										) : (
 											<>
-												<Coins size={18} weight="fill" className="mr-1" />
+												<CoinsIcon size={18} weight="fill" className="mr-1" />
 												Gunakan 1 Kredit
 											</>
 										)}

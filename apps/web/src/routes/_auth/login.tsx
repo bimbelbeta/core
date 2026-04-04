@@ -1,7 +1,7 @@
 import { ArrowLeftIcon, GoogleLogoIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link, useLocation, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { type } from "arktype";
 import { toast } from "sonner";
@@ -41,7 +41,6 @@ function SignInForm() {
 	const navigate = useNavigate({
 		from: "/",
 	});
-	const location = useLocation();
 	const queryClient = useQueryClient();
 	const { isPending } = authClient.useSession();
 
@@ -178,7 +177,7 @@ function SignInForm() {
 					onClick={() => {
 						authClient.signIn.social({
 							provider: "google",
-							callbackURL: `${location.url}/dashboard`,
+							callbackURL: `${window.location.href}/dashboard`,
 						});
 					}}
 					variant="outline"

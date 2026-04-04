@@ -1,6 +1,6 @@
 import { CheckCircle } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
-import { createFileRoute, Link, useLocation, useNavigate, useSearch } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { type } from "arktype";
 import { useState } from "react";
@@ -29,7 +29,6 @@ export const Route = createFileRoute("/_auth/forgot-password")({
 
 function RouteComponent() {
 	const navigate = useNavigate();
-	const location = useLocation();
 	const search = useSearch({ from: "/_auth/forgot-password" });
 	const [hasSubmitted, setHasSubmitted] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -42,7 +41,7 @@ function RouteComponent() {
 			setIsSubmitting(true);
 			const { error } = await authClient.requestPasswordReset({
 				email: value.email,
-				redirectTo: `${location.url.origin}/reset-password`,
+				redirectTo: `${window.location.origin}/reset-password`,
 			});
 
 			if (error) {
