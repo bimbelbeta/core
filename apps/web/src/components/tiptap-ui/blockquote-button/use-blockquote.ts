@@ -40,7 +40,7 @@ export interface UseBlockquoteConfig {
  * Checks if blockquote can be toggled in the current editor state
  */
 export function canToggleBlockquote(editor: Editor | null, turnInto = true): boolean {
-	if (!editor || !editor.isEditable) return false;
+	if (!editor?.isEditable) return false;
 	if (!isNodeInSchema("blockquote", editor) || isNodeTypeSelected(editor, ["image"])) return false;
 
 	if (!turnInto) {
@@ -70,7 +70,7 @@ export function canToggleBlockquote(editor: Editor | null, turnInto = true): boo
  * Toggles blockquote formatting for a specific node or the current selection
  */
 export function toggleBlockquote(editor: Editor | null): boolean {
-	if (!editor || !editor.isEditable) return false;
+	if (!editor?.isEditable) return false;
 	if (!canToggleBlockquote(editor)) return false;
 
 	try {
@@ -128,7 +128,7 @@ export function toggleBlockquote(editor: Editor | null): boolean {
 export function shouldShowButton(props: { editor: Editor | null; hideWhenUnavailable: boolean }): boolean {
 	const { editor, hideWhenUnavailable } = props;
 
-	if (!editor || !editor.isEditable) return false;
+	if (!editor?.isEditable) return false;
 	if (!isNodeInSchema("blockquote", editor)) return false;
 
 	if (hideWhenUnavailable && !editor.isActive("code")) {

@@ -39,7 +39,7 @@ export interface UseCodeBlockConfig {
  * Checks if code block can be toggled in the current editor state
  */
 export function canToggle(editor: Editor | null, turnInto = true): boolean {
-	if (!editor || !editor.isEditable) return false;
+	if (!editor?.isEditable) return false;
 	if (!isNodeInSchema("codeBlock", editor) || isNodeTypeSelected(editor, ["image"])) return false;
 
 	if (!turnInto) {
@@ -69,7 +69,7 @@ export function canToggle(editor: Editor | null, turnInto = true): boolean {
  * Toggles code block in the editor
  */
 export function toggleCodeBlock(editor: Editor | null): boolean {
-	if (!editor || !editor.isEditable) return false;
+	if (!editor?.isEditable) return false;
 	if (!canToggle(editor)) return false;
 
 	try {
@@ -129,7 +129,7 @@ export function toggleCodeBlock(editor: Editor | null): boolean {
 export function shouldShowButton(props: { editor: Editor | null; hideWhenUnavailable: boolean }): boolean {
 	const { editor, hideWhenUnavailable } = props;
 
-	if (!editor || !editor.isEditable) return false;
+	if (!editor?.isEditable) return false;
 	if (!isNodeInSchema("codeBlock", editor)) return false;
 
 	if (hideWhenUnavailable && !editor.isActive("code")) {

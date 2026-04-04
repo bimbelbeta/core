@@ -178,7 +178,7 @@ export function findNodePosition(props: {
 }): { pos: number; node: PMNode } | null {
 	const { editor, node, nodePos } = props;
 
-	if (!editor || !editor.state?.doc) return null;
+	if (!editor?.state?.doc) return null;
 
 	// Zero is valid position
 	const hasValidNode = node !== undefined && node !== null;
@@ -232,7 +232,7 @@ export function isNodeTypeSelected(
 	nodeTypeNames: string[] = [],
 	checkAncestorNodes = false,
 ): boolean {
-	if (!editor || !editor.state.selection) return false;
+	if (!editor?.state.selection) return false;
 
 	const { selection } = editor.state;
 	if (selection.empty) return false;

@@ -111,7 +111,7 @@ export function pickHighlightColorsByValue(values: string[]) {
  * Checks if highlight can be applied based on the mode and current editor state
  */
 export function canColorHighlight(editor: Editor | null, mode: HighlightMode = "mark"): boolean {
-	if (!editor || !editor.isEditable) return false;
+	if (!editor?.isEditable) return false;
 
 	if (mode === "mark") {
 		if (!isMarkInSchema("highlight", editor) || isNodeTypeSelected(editor, ["image"])) return false;
@@ -135,7 +135,7 @@ export function isColorHighlightActive(
 	highlightColor?: string,
 	mode: HighlightMode = "mark",
 ): boolean {
-	if (!editor || !editor.isEditable) return false;
+	if (!editor?.isEditable) return false;
 
 	if (mode === "mark") {
 		return highlightColor ? editor.isActive("highlight", { color: highlightColor }) : editor.isActive("highlight");
@@ -163,7 +163,7 @@ export function isColorHighlightActive(
  * Removes highlight based on the mode
  */
 export function removeHighlight(editor: Editor | null, mode: HighlightMode = "mark"): boolean {
-	if (!editor || !editor.isEditable) return false;
+	if (!editor?.isEditable) return false;
 	if (!canColorHighlight(editor, mode)) return false;
 
 	if (mode === "mark") {
@@ -182,7 +182,7 @@ export function shouldShowButton(props: {
 }): boolean {
 	const { editor, hideWhenUnavailable, mode } = props;
 
-	if (!editor || !editor.isEditable) return false;
+	if (!editor?.isEditable) return false;
 
 	if (mode === "mark") {
 		if (!isMarkInSchema("highlight", editor)) return false;

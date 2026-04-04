@@ -27,7 +27,7 @@ const listPrograms = authed.university.listPrograms.handler(async ({ input }) =>
 		.from(university)
 		.innerJoin(universityStudyProgram, eq(university.id, universityStudyProgram.universityId))
 		.innerJoin(studyProgram, eq(universityStudyProgram.studyProgramId, studyProgram.id))
-		.innerJoin(programYearlyData, eq(universityStudyProgram.id, programYearlyData.universityStudyProgramId))
+		.leftJoin(programYearlyData, eq(universityStudyProgram.id, programYearlyData.universityStudyProgramId))
 		.where(
 			and(
 				cursorId !== undefined ? (isBackward ? lt(university.id, cursorId) : gt(university.id, cursorId)) : undefined,

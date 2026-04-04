@@ -66,7 +66,7 @@ export const HEADING_SHORTCUT_KEYS: Record<Level, string> = {
  * Checks if heading can be toggled in the current editor state
  */
 export function canToggle(editor: Editor | null, level?: Level, turnInto = true): boolean {
-	if (!editor || !editor.isEditable) return false;
+	if (!editor?.isEditable) return false;
 	if (!isNodeInSchema("heading", editor) || isNodeTypeSelected(editor, ["image"])) return false;
 
 	if (!turnInto) {
@@ -98,7 +98,7 @@ export function canToggle(editor: Editor | null, level?: Level, turnInto = true)
  * Checks if heading is currently active
  */
 export function isHeadingActive(editor: Editor | null, level?: Level | Level[]): boolean {
-	if (!editor || !editor.isEditable) return false;
+	if (!editor?.isEditable) return false;
 
 	if (Array.isArray(level)) {
 		return level.some((l) => editor.isActive("heading", { level: l }));
@@ -111,7 +111,7 @@ export function isHeadingActive(editor: Editor | null, level?: Level | Level[]):
  * Toggles heading in the editor
  */
 export function toggleHeading(editor: Editor | null, level: Level | Level[]): boolean {
-	if (!editor || !editor.isEditable) return false;
+	if (!editor?.isEditable) return false;
 
 	const levels = Array.isArray(level) ? level : [level];
 	const toggleLevel = levels.find((l) => canToggle(editor, l));
@@ -178,7 +178,7 @@ export function shouldShowButton(props: {
 }): boolean {
 	const { editor, level, hideWhenUnavailable } = props;
 
-	if (!editor || !editor.isEditable) return false;
+	if (!editor?.isEditable) return false;
 	if (!isNodeInSchema("heading", editor)) return false;
 
 	if (hideWhenUnavailable && !editor.isActive("code")) {

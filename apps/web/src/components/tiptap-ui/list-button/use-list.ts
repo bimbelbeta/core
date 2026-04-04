@@ -64,7 +64,7 @@ export const LIST_SHORTCUT_KEYS: Record<ListType, string> = {
  * Checks if a list can be toggled in the current editor state
  */
 export function canToggleList(editor: Editor | null, type: ListType, turnInto = true): boolean {
-	if (!editor || !editor.isEditable) return false;
+	if (!editor?.isEditable) return false;
 	if (!isNodeInSchema(type, editor) || isNodeTypeSelected(editor, ["image"])) return false;
 
 	if (!turnInto) {
@@ -112,7 +112,7 @@ export function canToggleList(editor: Editor | null, type: ListType, turnInto = 
  * Checks if list is currently active
  */
 export function isListActive(editor: Editor | null, type: ListType): boolean {
-	if (!editor || !editor.isEditable) return false;
+	if (!editor?.isEditable) return false;
 
 	switch (type) {
 		case "bulletList":
@@ -130,7 +130,7 @@ export function isListActive(editor: Editor | null, type: ListType): boolean {
  * Toggles list in the editor
  */
 export function toggleList(editor: Editor | null, type: ListType): boolean {
-	if (!editor || !editor.isEditable) return false;
+	if (!editor?.isEditable) return false;
 	if (!canToggleList(editor, type)) return false;
 
 	try {
@@ -205,7 +205,7 @@ export function shouldShowButton(props: {
 }): boolean {
 	const { editor, type, hideWhenUnavailable } = props;
 
-	if (!editor || !editor.isEditable) return false;
+	if (!editor?.isEditable) return false;
 	if (!isNodeInSchema(type, editor)) return false;
 
 	if (hideWhenUnavailable && !editor.isActive("code")) {

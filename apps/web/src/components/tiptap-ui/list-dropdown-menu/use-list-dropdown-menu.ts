@@ -56,12 +56,12 @@ export const listOptions: ListOption[] = [
 ];
 
 export function canToggleAnyList(editor: Editor | null, listTypes: ListType[]): boolean {
-	if (!editor || !editor.isEditable) return false;
+	if (!editor?.isEditable) return false;
 	return listTypes.some((type) => canToggleList(editor, type));
 }
 
 export function isAnyListActive(editor: Editor | null, listTypes: ListType[]): boolean {
-	if (!editor || !editor.isEditable) return false;
+	if (!editor?.isEditable) return false;
 	return listTypes.some((type) => isListActive(editor, type));
 }
 
@@ -93,7 +93,7 @@ export function shouldShowListDropdown(params: {
  * Gets the currently active list type from the available types
  */
 export function getActiveListType(editor: Editor | null, availableTypes: ListType[]): ListType | undefined {
-	if (!editor || !editor.isEditable) return undefined;
+	if (!editor?.isEditable) return undefined;
 	return availableTypes.find((type) => isListActive(editor, type));
 }
 
