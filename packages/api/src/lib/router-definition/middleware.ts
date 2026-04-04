@@ -4,10 +4,18 @@ import { createRatelimitMiddleware } from "@orpc/experimental-ratelimit";
 import { eq } from "drizzle-orm";
 import { ROLES } from "../roles";
 import { baseImplementer } from ".";
-import { getFreeRatelimiter, getPremiumRatelimiter } from "./rate-limiter";
+import { getAdminBypassRatelimiter, getFreeRatelimiter, getPremiumRatelimiter } from "./rate-limiter";
+
+export function resolveRatelimiterForUser(user: { role: string; isPremium: boolean }) {
+	if (user.role === ROLES.ADMIN || user.role === ROLES.SUPER_ADMIN) {
+		return getAdminBypassRatelimiter();
+	}
+
+	return user.isPremium ? getPremiumRatelimiter() : getFreeRatelimiter();
+}
 
 export const rateLimit = createRatelimitMiddleware({
-	limiter: ({ context }) => (context.session.user.isPremium ? getPremiumRatelimiter() : getFreeRatelimiter()),
+	limiter: ({ context }) => resolveRatelimiterForUser(context.session.user),
 	key: ({ context }) => context.session.user.id,
 });
 
