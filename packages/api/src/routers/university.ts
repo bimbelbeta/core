@@ -30,7 +30,11 @@ const listPrograms = authed.university.listPrograms.handler(async ({ input }) =>
 		.leftJoin(programYearlyData, eq(universityStudyProgram.id, programYearlyData.universityStudyProgramId))
 		.where(
 			and(
-				cursorId !== undefined ? (isBackward ? lt(universityStudyProgram.id, cursorId) : gt(universityStudyProgram.id, cursorId)) : undefined,
+				cursorId !== undefined
+					? isBackward
+						? lt(universityStudyProgram.id, cursorId)
+						: gt(universityStudyProgram.id, cursorId)
+					: undefined,
 				input.search && input.search.length > 0
 					? or(ilike(university.name, `%${input.search}%`), ilike(studyProgram.name, `%${input.search}%`))
 					: undefined,

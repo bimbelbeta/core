@@ -1,5 +1,7 @@
 import { ListIcon, SignOutIcon, XIcon } from "@phosphor-icons/react";
 import { Link, useLocation, useRouteContext } from "@tanstack/react-router";
+import { AnimatePresence } from "motion/react";
+import * as m from "motion/react-m";
 import { useState } from "react";
 import { LogoutDialog } from "@/components/shared/logout-dialog";
 import { Button } from "../ui/button";
@@ -106,73 +108,96 @@ export function HeaderDashboard() {
 			</div>
 
 			{/* Mobile Menu Overlay */}
-			{mobileMenuOpen && (
-				<div className="fixed inset-0 z-50 flex flex-col bg-white p-6 shadow-lg md:hidden">
-					<div className="flex items-center justify-between">
-						<Link to="/" className="font-bold text-2xl leading-none" onClick={() => setMobileMenuOpen(false)}>
-							<span className="text-secondary-900">Bimbel</span>
-							<span className="text-tertiary-1000">Beta</span>
-						</Link>
-						<Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
-							<XIcon className="size-6" />
-						</Button>
-					</div>
-
-					<div className="mt-8 flex flex-col gap-4">
-						{links.map((link) => {
-							const isActive = !link.external && location.pathname.startsWith(link.to);
-
-							if (link.external) {
-								return (
-									<a
-										key={link.to}
-										href={link.to}
-										target="_blank"
-										rel="noopener noreferrer"
-										className="rounded-md px-4 py-3 font-medium text-lg text-secondary-900 hover:bg-accent"
-										onClick={() => setMobileMenuOpen(false)}
-									>
-										{link.name}
-									</a>
-								);
-							}
-
-							return (
-								<Link
-									key={link.to}
-									to={link.to}
-									className={`rounded-md px-4 py-3 text-lg hover:bg-accent ${
-										isActive ? "bg-secondary-100/50 font-bold text-secondary-700" : "font-medium text-secondary-900"
-									}`}
-									onClick={() => setMobileMenuOpen(false)}
-								>
-									{link.name}
-								</Link>
-							);
-						})}
-					</div>
-
-					<div className="mt-auto border-neutral-200 border-t pt-6">
-						<div className="mb-4 flex items-center gap-3">
-							<div className="flex size-10 items-center justify-center rounded-default bg-secondary-600 font-normal text-sm text-white">
-								{userInitials}
-							</div>
-							<span className="font-medium">{session?.user.name}</span>
-						</div>
-						<Button
-							variant="destructive"
-							className="w-full justify-start"
-							onClick={() => {
-								setMobileMenuOpen(false);
-								setOpen(true);
-							}}
+			<AnimatePresence>
+				{mobileMenuOpen && (
+					<div className="fixed inset-0 z-50 md:hidden">
+						<m.div
+							className="absolute inset-0 bg-black/50"
+							initial={{ opacity: 0 }}
+							animate={{ opacity: 1 }}
+							exit={{ opacity: 0 }}
+							transition={{ duration: 0.2 }}
+							onClick={() => setMobileMenuOpen(false)}
+						/>
+						<m.div
+							className="absolute inset-y-0 right-0 flex w-full max-w-sm flex-col bg-background p-6 shadow-2xl"
+							initial={{ x: "100%" }}
+							animate={{ x: 0 }}
+							exit={{ x: "100%" }}
+							transition={{ type: "spring", damping: 30, stiffness: 300 }}
 						>
-							<SignOutIcon className="mr-2 size-4" />
-							Log Out
-						</Button>
+							<div className="flex items-center justify-between">
+								<Link to="/" className="font-bold text-2xl leading-none" onClick={() => setMobileMenuOpen(false)}>
+									<span className="text-secondary-900">Bimbel</span>
+									<span className="text-tertiary-1000">Beta</span>
+								</Link>
+								<Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
+									<XIcon className="size-6" />
+								</Button>
+							</div>
+
+							<m.div
+								className="mt-8 flex flex-col gap-4"
+								initial={{ opacity: 0, y: 8 }}
+								animate={{ opacity: 1, y: 0 }}
+								transition={{ delay: 0.1, duration: 0.3 }}
+							>
+								{links.map((link) => {
+									const isActive = !link.external && location.pathname.startsWith(link.to);
+
+									if (link.external) {
+										return (
+											<a
+												key={link.to}
+												href={link.to}
+												target="_blank"
+												rel="noopener noreferrer"
+												className="rounded-md px-4 py-3 font-medium text-lg text-secondary-900 hover:bg-accent"
+												onClick={() => setMobileMenuOpen(false)}
+											>
+												{link.name}
+											</a>
+										);
+									}
+
+									return (
+										<Link
+											key={link.to}
+											to={link.to}
+											className={`rounded-md px-4 py-3 text-lg hover:bg-accent ${
+												isActive ? "bg-secondary-100/50 font-bold text-secondary-700" : "font-medium text-secondary-900"
+											}`}
+											onClick={() => setMobileMenuOpen(false)}
+										>
+											{link.name}
+										</Link>
+									);
+								})}
+							</m.div>
+
+							<div className="mt-auto border-neutral-200 border-t pt-6">
+								<div className="mb-4 flex items-center gap-3">
+									<div className="flex size-10 items-center justify-center rounded-default bg-secondary-600 font-normal text-sm text-white">
+										{userInitials}
+									</div>
+									<span className="font-medium">{session?.user.name}</span>
+								</div>
+								<Button
+									variant="destructive"
+									className="w-full justify-start"
+									onClick={() => {
+										setMobileMenuOpen(false);
+										setOpen(true);
+									}}
+								>
+									<SignOutIcon className="mr-2 size-4" />
+									Log Out
+								</Button>
+							</div>
+						</m.div>
 					</div>
-				</div>
-			)}
+				)}
+			</AnimatePresence>
 
 			<LogoutDialog open={open} onOpenChange={setOpen} />
 		</header>
