@@ -5,26 +5,26 @@ import { nitro } from "nitro/vite";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  server: {
-    port: Number(process.env.PORT || 3000),
-  },
-  plugins: [
-    tanstackStart({
-      prerender: {
-        enabled: true,
-      },
-    }),
-    viteReact(),
-    tailwindcss(),
-    nitro({
-      vercel: {
-        functions: {
-          runtime: "bun1.x",
-        },
-      },
-    }),
-  ],
-  resolve: {
-    tsconfigPaths: true,
-  },
+	server: {
+		port: Number(process.env.PORT || 3000),
+	},
+	plugins: [
+		tanstackStart({
+			prerender: {
+				enabled: true,
+			},
+		}),
+		viteReact(),
+		tailwindcss(),
+		nitro({
+			vercel: {
+				functions: {
+					runtime: "bun1.x",
+				},
+			},
+		}),
+	],
+	resolve: {
+		tsconfigPaths: true,
+	},
 });
