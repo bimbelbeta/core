@@ -20,6 +20,7 @@ const ListOutput = type({
 
 const ListStudyProgramsOutputItem = type({
 	id: "number",
+	studyProgramId: "number",
 	name: "string",
 	slug: "string",
 	logo: "string | null",

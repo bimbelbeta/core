@@ -1,11 +1,16 @@
 import Highlight from "@tiptap/extension-highlight";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
+import { TaskItem, TaskList } from "@tiptap/extension-list";
+import { Subscript } from "@tiptap/extension-subscript";
+import { Superscript } from "@tiptap/extension-superscript";
 import TextAlign from "@tiptap/extension-text-align";
+import { Typography } from "@tiptap/extension-typography";
 import Underline from "@tiptap/extension-underline";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useEffect } from "react";
+import { HorizontalRule } from "@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node-extension";
 import "./tiptap-styles.css";
 
 interface TiptapRendererProps {
@@ -16,7 +21,10 @@ interface TiptapRendererProps {
 export function TiptapRenderer({ content, className }: TiptapRendererProps) {
 	const editor = useEditor({
 		extensions: [
-			StarterKit,
+			StarterKit.configure({
+				horizontalRule: false,
+			}),
+			HorizontalRule,
 			Highlight,
 			Underline,
 			TextAlign.configure({
@@ -33,6 +41,11 @@ export function TiptapRenderer({ content, className }: TiptapRendererProps) {
 					class: "max-w-full h-auto rounded-lg",
 				},
 			}),
+			TaskList,
+			TaskItem.configure({ nested: true }),
+			Superscript,
+			Subscript,
+			Typography,
 		],
 		editable: false,
 		content: content as object,

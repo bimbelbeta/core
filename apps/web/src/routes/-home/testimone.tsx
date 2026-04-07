@@ -1,8 +1,9 @@
 // import Carousel from "@/components/shared/carousel";
+
+import { Image } from "@unpic/react";
 import { Container } from "@/components/ui/container";
 import { Heading } from "./-components/heading";
 import { DATA } from "./data";
-import { Image } from "@unpic/react";
 
 export default function Testimone() {
 	return (
@@ -44,23 +45,26 @@ function TestimoneCard({ data }: { data: typeof DATA.testimone }) {
 	return (
 		<div className="grid gap-6 sm:grid-cols-2">
 			{data.map((t) => (
-				<div key={t.id} className="flex flex-col md:flex-row items-start gap-4 p-4 bg-white border border-0.5 rounded-lg md:h-60">
+				<div
+					key={t.id}
+					className="flex flex-col items-start gap-4 rounded-lg border border-0.5 bg-white p-4 md:h-60 md:flex-row"
+				>
 					<Image
 						src={t.avatar ?? placeholder}
-            alt={`${t.name} avatar`}
+						alt={`${t.name} avatar`}
 						width={1000}
-            height={1000}
-						className="md:w-40 h-60 md:h-full rounded-lg object-top object-cover aspect-3/4"
+						height={1000}
+						className="aspect-3/4 h-60 rounded-lg object-cover object-top md:h-full md:w-40"
 					/>
 
-					<div className="h-full flex flex-col justify-between">
-						<div className="mb-3 pr-2 overflow-y-scroll max-h-30 lg:max-h-40">
+					<div className="flex h-full flex-col justify-between">
+						<div className="mb-3 max-h-30 overflow-y-scroll pr-2 lg:max-h-40">
 							<p className="text-gray-500 text-sm">{t.desc}</p>
 						</div>
 
-						<div className="mb-0 mt-auto">
-							<p className="text-base md:text-lg font-medium">{t.name}</p>
-							<p className="text-xs md:text-sm text-gray-400">{t.title}</p>
+						<div className="mt-auto mb-0">
+							<p className="font-medium text-base md:text-lg">{t.name}</p>
+							<p className="text-gray-400 text-xs md:text-sm">{t.title}</p>
 						</div>
 					</div>
 				</div>

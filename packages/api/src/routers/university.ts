@@ -15,7 +15,8 @@ const listPrograms = authed.university.listPrograms.handler(async ({ input }) =>
 
 	const data = await db
 		.select({
-			id: university.id,
+			id: universityStudyProgram.id,
+			studyProgramId: studyProgram.id,
 			name: university.name,
 			slug: university.slug,
 			logo: university.logo,
@@ -27,7 +28,6 @@ const listPrograms = authed.university.listPrograms.handler(async ({ input }) =>
 		.from(university)
 		.innerJoin(universityStudyProgram, eq(university.id, universityStudyProgram.universityId))
 		.innerJoin(studyProgram, eq(universityStudyProgram.studyProgramId, studyProgram.id))
-		.leftJoin(programYearlyData, eq(universityStudyProgram.id, programYearlyData.universityStudyProgramId))
 		.where(
 			and(
 				cursorId !== undefined

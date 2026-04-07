@@ -87,7 +87,7 @@ const list = admin.admin.tryout.questions.list.handler(async ({ input }) => {
 		.from(question)
 		.where(
 			and(
-				cursorId !== undefined ? (isBackward ? lt(question.id, cursorId) : gt(question.id, cursorId)) : undefined,
+				cursorId !== undefined ? (isBackward ? gt(question.id, cursorId) : lt(question.id, cursorId)) : undefined,
 				input.search ? like(question.content, `%${input.search}%`) : undefined,
 				input.type ? eq(question.type, input.type) : undefined,
 				input.tag
@@ -106,7 +106,7 @@ const list = admin.admin.tryout.questions.list.handler(async ({ input }) => {
 					: undefined,
 			),
 		)
-		.orderBy(isBackward ? desc(question.id) : asc(question.id))
+		.orderBy(isBackward ? asc(question.id) : desc(question.id))
 		.limit(limit + 1);
 
 	const { items, pageInfo } = buildIdCursorPage(rows, limit, isBackward, !!cursorStr);
