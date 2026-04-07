@@ -1,13 +1,14 @@
-import { ArrowLeftIcon, GoogleLogoIcon } from "@phosphor-icons/react";
+import { ArrowLeftIcon, GoogleLogoIcon, WarningCircleIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { type } from "arktype";
-import { toast } from "sonner";
+import { useState } from "react";
 import Loader from "@/components/shared/loader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Item, ItemContent, ItemDescription, ItemMedia } from "@/components/ui/item";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { authClient } from "@/lib/auth-client";
@@ -43,6 +44,7 @@ function SignInForm() {
 	});
 	const queryClient = useQueryClient();
 	const { isPending } = authClient.useSession();
+	const [error, setError] = useState<string | null>(null);
 
 	const form = useForm({
 		defaultValues: {
@@ -50,6 +52,7 @@ function SignInForm() {
 			password: "",
 		},
 		onSubmit: async ({ value }) => {
+			setError(null);
 			queryClient.removeQueries();
 			await authClient.signIn.email(
 				{
@@ -68,8 +71,8 @@ function SignInForm() {
 							navigate({ to: "/dashboard" });
 						}
 					},
-					onError: (error) => {
-						toast.error(error.error.message || error.error.statusText);
+					onError: (ctx) => {
+						setError(ctx.error.message || ctx.error.statusText);
 					},
 				},
 			);
@@ -101,6 +104,7 @@ function SignInForm() {
 				</div>
 
 				<form
+					onChange={() => setError(null)}
 					onSubmit={(e) => {
 						e.preventDefault();
 						e.stopPropagation();
@@ -187,6 +191,17 @@ function SignInForm() {
 					Masuk dengan Google
 				</Button>
 			</div>
+
+			{error && (
+				<Item variant="destructive" size="sm" className="mt-3">
+					<ItemMedia variant="destructive">
+						<WarningCircleIcon className="text-destructive" />
+					</ItemMedia>
+					<ItemContent>
+						<ItemDescription className="text-destructive">{error}</ItemDescription>
+					</ItemContent>
+				</Item>
+			)}
 
 			<p className="mt-4 text-center text-sm">
 				Belum punya akun?{" "}

@@ -20,7 +20,7 @@ const listPrograms = authed.university.listPrograms.handler(async ({ input }) =>
 			slug: university.slug,
 			logo: university.logo,
 			studyProgram: studyProgram.name,
-			score: programYearlyData.passingGrade,
+			score: universityStudyProgram.averageScore,
 			location: university.location,
 			rank: university.rank,
 		})
@@ -30,13 +30,13 @@ const listPrograms = authed.university.listPrograms.handler(async ({ input }) =>
 		.leftJoin(programYearlyData, eq(universityStudyProgram.id, programYearlyData.universityStudyProgramId))
 		.where(
 			and(
-				cursorId !== undefined ? (isBackward ? lt(university.id, cursorId) : gt(university.id, cursorId)) : undefined,
+				cursorId !== undefined ? (isBackward ? lt(universityStudyProgram.id, cursorId) : gt(universityStudyProgram.id, cursorId)) : undefined,
 				input.search && input.search.length > 0
 					? or(ilike(university.name, `%${input.search}%`), ilike(studyProgram.name, `%${input.search}%`))
 					: undefined,
 			),
 		)
-		.orderBy(isBackward ? desc(university.id) : asc(university.id))
+		.orderBy(isBackward ? desc(universityStudyProgram.id) : asc(universityStudyProgram.id))
 		.limit(limit + 1);
 
 	const { items, pageInfo } = buildIdCursorPage(data, limit, isBackward, !!cursorStr);
