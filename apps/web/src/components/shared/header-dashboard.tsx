@@ -52,7 +52,9 @@ export function HeaderDashboard() {
 		: "U";
 
 	return (
-		<header className="fixed inset-x-0 top-0 z-50 bg-transparent backdrop-blur-md">
+		<header
+			className={`fixed inset-x-0 top-0 z-50 backdrop-blur-md transition-colors ${mobileMenuOpen ? "bg-white" : "bg-transparent"}`}
+		>
 			<div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 md:px-8">
 				<Link to="/" className="font-bold leading-none">
 					<span className="text-secondary-900">Bimbel</span>
@@ -120,10 +122,10 @@ export function HeaderDashboard() {
 							onClick={() => setMobileMenuOpen(false)}
 						/>
 						<m.div
-							className="absolute inset-y-0 right-0 flex w-full max-w-sm flex-col bg-background p-6 shadow-2xl"
-							initial={{ x: "100%" }}
-							animate={{ x: 0 }}
-							exit={{ x: "100%" }}
+							className="absolute inset-x-0 top-0 flex min-h-screen w-full flex-col bg-white p-6 shadow-2xl"
+							initial={{ y: "-100%" }}
+							animate={{ y: 0 }}
+							exit={{ y: "-100%" }}
 							transition={{ type: "spring", damping: 30, stiffness: 300 }}
 						>
 							<div className="flex items-center justify-between">

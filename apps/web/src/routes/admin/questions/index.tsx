@@ -13,6 +13,20 @@ import {
 	AdminPageRoot,
 	AdminPageTitle,
 } from "@/components/admin/admin-page";
+import {
+	AdminTable,
+	AdminTableBody,
+	AdminTableCell,
+	AdminTableHead,
+	AdminTableHeader,
+	AdminTableRoot,
+	AdminTableRow,
+} from "@/components/admin/admin-table";
+import {
+	AdminTableBulkActions,
+	AdminTablePaginationWrapper,
+	AdminTableToolbar,
+} from "@/components/admin/admin-table-toolbar";
 import { PaginationButtons } from "@/components/admin/pagination-buttons";
 import {
 	AlertDialog,
@@ -28,10 +42,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { SearchInput } from "@/components/ui/search-input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { extractTextFromTiptap, truncateText } from "@/lib/content-text";
 import { orpc } from "@/utils/orpc";
 import { useQuestionsSearch } from "./-hooks/use-questions-search";
@@ -157,46 +168,37 @@ function QuestionsListPage() {
 			</AdminPageHeader>
 
 			<AdminPageContent>
-				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-					<SearchInput
-						value={searchInput}
-						onChange={onSearch}
-						placeholder="Cari soal..."
-						className="w-full sm:max-w-sm md:max-w-md"
-					/>
-					<div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-						<Select value={questionType ?? "all"} onValueChange={handleTypeChange}>
-							<SelectTrigger className="w-full sm:w-40">
-								<SelectValue placeholder="Semua Tipe" />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="all">Semua Tipe</SelectItem>
-								<SelectItem value="multiple_choice">Pilihan Ganda</SelectItem>
-								<SelectItem value="multiple_choice_complex">Pilihan Ganda Kompleks</SelectItem>
-								<SelectItem value="essay">Esai</SelectItem>
-							</SelectContent>
-						</Select>
-						<Select value={category ?? "all"} onValueChange={handleCategoryChange}>
-							<SelectTrigger className="w-full sm:w-40">
-								<SelectValue placeholder="Semua Kategori" />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="all">Semua Kategori</SelectItem>
-								<SelectItem value="sd">SD</SelectItem>
-								<SelectItem value="smp">SMP</SelectItem>
-								<SelectItem value="sma">SMA</SelectItem>
-								<SelectItem value="utbk">UTBK</SelectItem>
-							</SelectContent>
-						</Select>
-					</div>
-				</div>
+				<AdminTableToolbar searchValue={searchInput} onSearchChange={onSearch} searchPlaceholder="Cari soal...">
+					<Select value={questionType ?? "all"} onValueChange={handleTypeChange}>
+						<SelectTrigger className="w-full sm:w-40">
+							<SelectValue placeholder="Semua Tipe" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="all">Semua Tipe</SelectItem>
+							<SelectItem value="multiple_choice">Pilihan Ganda</SelectItem>
+							<SelectItem value="multiple_choice_complex">Pilihan Ganda Kompleks</SelectItem>
+							<SelectItem value="essay">Esai</SelectItem>
+						</SelectContent>
+					</Select>
+					<Select value={category ?? "all"} onValueChange={handleCategoryChange}>
+						<SelectTrigger className="w-full sm:w-40">
+							<SelectValue placeholder="Semua Kategori" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="all">Semua Kategori</SelectItem>
+							<SelectItem value="sd">SD</SelectItem>
+							<SelectItem value="smp">SMP</SelectItem>
+							<SelectItem value="sma">SMA</SelectItem>
+							<SelectItem value="utbk">UTBK</SelectItem>
+						</SelectContent>
+					</Select>
+				</AdminTableToolbar>
 
 				{selectedIds.length > 0 && (
-					<div className="flex items-center gap-2 rounded-md border border-primary-navy-200 bg-primary-navy-50 p-2">
-						<span className="text-primary-navy-700 text-sm">{selectedIds.length} soal dipilih</span>
+					<AdminTableBulkActions selectedCount={selectedIds.length}>
 						<AlertDialog open={bulkDeleteDialogOpen} onOpenChange={setBulkDeleteDialogOpen}>
 							<AlertDialogTrigger asChild>
-								<Button variant="destructive" size="sm" className="ml-auto">
+								<Button variant="destructive" size="sm">
 									<TrashIcon className="mr-2 size-4" />
 									Hapus Terpilih
 								</Button>
@@ -217,133 +219,124 @@ function QuestionsListPage() {
 								</AlertDialogFooter>
 							</AlertDialogContent>
 						</AlertDialog>
-					</div>
+					</AdminTableBulkActions>
 				)}
 
-				<div className="rounded-lg border bg-white shadow-sm">
-					<div className="overflow-x-auto">
-						<Table>
-							<TableHeader>
-								<TableRow>
-									<TableHead className="w-12">
-										<Checkbox
-											checked={someSelected ? "indeterminate" : allSelected}
-											onCheckedChange={toggleSelectAll}
-											aria-label="Select all"
-										/>
-									</TableHead>
-									<TableHead className="w-16 text-center">ID</TableHead>
-									<TableHead>Konten Soal</TableHead>
-									<TableHead className="w-32">Tipe</TableHead>
-									<TableHead>Tags</TableHead>
-									<TableHead className="w-24 text-right">Aksi</TableHead>
-								</TableRow>
-							</TableHeader>
-							<TableBody>
-								{isLoading ? (
-									<TableSkeleton columns={6} />
-								) : data?.items.length === 0 ? (
-									<TableRow>
-										<TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
-											Tidak ada soal ditemukan.
-											<br />
-											<span className="text-sm">Coba ubah filter atau buat soal baru.</span>
-										</TableCell>
-									</TableRow>
-								) : (
-									data?.items.map((q) => {
-										const contentPreview = truncateText(extractTextFromTiptap(q.content));
-										return (
-											<TableRow key={q.id} className="group hover:bg-muted/30">
-												<TableCell>
-													<Checkbox
-														checked={selectedIds.includes(q.id)}
-														onCheckedChange={() => toggleSelectOne(q.id)}
-														aria-label={`Select question ${q.id}`}
-													/>
-												</TableCell>
-												<TableCell className="text-center font-mono text-muted-foreground text-sm">#{q.id}</TableCell>
-												<TableCell>
-													<div className="max-w-md">
-														<Link
-															to="/admin/questions/$questionId"
-															params={{ questionId: q.id.toString() }}
-															className="text-sm leading-relaxed hover:underline"
-														>
-															{contentPreview || "(Konten kosong)"}
-														</Link>
-													</div>
-												</TableCell>
-												<TableCell>
-													<Badge variant={QUESTION_TYPE_BADGE_VARIANTS[q.type] ?? "outline"}>
-														{QUESTION_TYPE_LABELS[q.type] ?? q.type}
+				<AdminTableRoot className="mt-3">
+					<AdminTable>
+						<AdminTableHeader>
+							<AdminTableHead className="w-12">
+								<Checkbox
+									checked={someSelected ? "indeterminate" : allSelected}
+									onCheckedChange={toggleSelectAll}
+									aria-label="Select all"
+								/>
+							</AdminTableHead>
+							<AdminTableHead className="w-16 text-center">ID</AdminTableHead>
+							<AdminTableHead>Konten Soal</AdminTableHead>
+							<AdminTableHead className="w-32">Tipe</AdminTableHead>
+							<AdminTableHead>Tags</AdminTableHead>
+							<AdminTableHead className="w-24 text-right">Aksi</AdminTableHead>
+						</AdminTableHeader>
+						<AdminTableBody
+							isLoading={isLoading}
+							isEmpty={!isLoading && data?.items.length === 0}
+							emptyMessage="Tidak ada soal ditemukan. Coba ubah filter atau buat soal baru."
+							columns={6}
+						>
+							{data?.items.map((q) => {
+								const contentPreview = truncateText(extractTextFromTiptap(q.content));
+								return (
+									<AdminTableRow key={q.id}>
+										<AdminTableCell>
+											<Checkbox
+												checked={selectedIds.includes(q.id)}
+												onCheckedChange={() => toggleSelectOne(q.id)}
+												aria-label={`Select question ${q.id}`}
+											/>
+										</AdminTableCell>
+										<AdminTableCell className="text-center font-mono text-muted-foreground text-sm">
+											#{q.id}
+										</AdminTableCell>
+										<AdminTableCell>
+											<div className="max-w-md">
+												<Link
+													to="/admin/questions/$questionId"
+													params={{ questionId: q.id.toString() }}
+													className="text-sm leading-relaxed hover:underline"
+												>
+													{contentPreview || "(Konten kosong)"}
+												</Link>
+											</div>
+										</AdminTableCell>
+										<AdminTableCell>
+											<Badge variant={QUESTION_TYPE_BADGE_VARIANTS[q.type] ?? "outline"}>
+												{QUESTION_TYPE_LABELS[q.type] ?? q.type}
+											</Badge>
+										</AdminTableCell>
+										<AdminTableCell>
+											<div className="flex max-w-32 flex-wrap gap-1">
+												{q.tags?.slice(0, 3).map((t) => (
+													<Badge key={t} variant="outline" className="text-xs">
+														{t}
 													</Badge>
-												</TableCell>
-												<TableCell>
-													<div className="flex max-w-32 flex-wrap gap-1">
-														{q.tags?.slice(0, 3).map((t) => (
-															<Badge key={t} variant="outline" className="text-xs">
-																{t}
-															</Badge>
-														))}
-														{q.tags && q.tags.length > 3 && (
-															<Badge variant="outline" className="text-xs">
-																+{q.tags.length - 3}
-															</Badge>
-														)}
-														{!q.tags?.length && <span className="text-muted-foreground text-xs">-</span>}
-													</div>
-												</TableCell>
-												<TableCell className="text-right">
-													<div className="flex items-center justify-end gap-2">
-														<AlertDialog
-															open={deleteDialogOpen === q.id}
-															onOpenChange={(open) => setDeleteDialogOpen(open ? q.id : null)}
-														>
-															<AlertDialogTrigger asChild>
-																<Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}>
-																	<TrashIcon className="size-4 text-red-600" />
-																</Button>
-															</AlertDialogTrigger>
-															<AlertDialogContent onClick={(e) => e.stopPropagation()}>
-																<AlertDialogHeader>
-																	<AlertDialogTitle>Hapus Soal</AlertDialogTitle>
-																	<AlertDialogDescription>
-																		Apakah Anda yakin ingin menghapus soal #{q.id}? Tindakan ini tidak dapat dibatalkan.
-																	</AlertDialogDescription>
-																</AlertDialogHeader>
-																<AlertDialogFooter>
-																	<AlertDialogCancel>Batal</AlertDialogCancel>
-																	<AlertDialogAction
-																		onClick={() => handleDelete(q.id)}
-																		className="bg-red-600 hover:bg-red-700"
-																	>
-																		Hapus
-																	</AlertDialogAction>
-																</AlertDialogFooter>
-															</AlertDialogContent>
-														</AlertDialog>
-													</div>
-												</TableCell>
-											</TableRow>
-										);
-									})
-								)}
-							</TableBody>
-						</Table>
-					</div>
+												))}
+												{q.tags && q.tags.length > 3 && (
+													<Badge variant="outline" className="text-xs">
+														+{q.tags.length - 3}
+													</Badge>
+												)}
+												{!q.tags?.length && <span className="text-muted-foreground text-xs">-</span>}
+											</div>
+										</AdminTableCell>
+										<AdminTableCell className="text-right">
+											<div className="flex items-center justify-end gap-2">
+												<AlertDialog
+													open={deleteDialogOpen === q.id}
+													onOpenChange={(open) => setDeleteDialogOpen(open ? q.id : null)}
+												>
+													<AlertDialogTrigger asChild>
+														<Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}>
+															<TrashIcon className="size-4 text-red-600" />
+														</Button>
+													</AlertDialogTrigger>
+													<AlertDialogContent onClick={(e) => e.stopPropagation()}>
+														<AlertDialogHeader>
+															<AlertDialogTitle>Hapus Soal</AlertDialogTitle>
+															<AlertDialogDescription>
+																Apakah Anda yakin ingin menghapus soal #{q.id}? Tindakan ini tidak dapat dibatalkan.
+															</AlertDialogDescription>
+														</AlertDialogHeader>
+														<AlertDialogFooter>
+															<AlertDialogCancel>Batal</AlertDialogCancel>
+															<AlertDialogAction
+																onClick={() => handleDelete(q.id)}
+																className="bg-red-600 hover:bg-red-700"
+															>
+																Hapus
+															</AlertDialogAction>
+														</AlertDialogFooter>
+													</AlertDialogContent>
+												</AlertDialog>
+											</div>
+										</AdminTableCell>
+									</AdminTableRow>
+								);
+							})}
+						</AdminTableBody>
+					</AdminTable>
 
 					{data && data.items.length > 0 && (
-						<div className="border-t p-4">
+						<AdminTablePaginationWrapper>
 							<PaginationButtons
 								onPrevious={() => pageInfo?.startCursor && handlePrevious(pageInfo.startCursor)}
 								onNext={() => pageInfo?.endCursor && handleNext(pageInfo.endCursor)}
 								hasPrevious={!!pageInfo?.hasPreviousPage}
 								hasNext={!!pageInfo?.hasNextPage}
 							/>
-						</div>
+						</AdminTablePaginationWrapper>
 					)}
-				</div>
+				</AdminTableRoot>
 			</AdminPageContent>
 		</AdminPageRoot>
 	);
