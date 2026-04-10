@@ -1,7 +1,6 @@
 import { createRouter as createTanStackRouter } from "@tanstack/react-router";
 import { configure } from "arktype/config";
 import Loader from "./components/shared/loader";
-import "./index.css";
 import { QueryClientProvider } from "@tanstack/react-query";
 
 configure({
