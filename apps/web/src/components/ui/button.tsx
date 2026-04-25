@@ -17,6 +17,8 @@ const buttonVariants = cva(
 				"warning-outline": "border-2 border-yellow-300 bg-white text-foreground shadow-xs hover:bg-yellow-300/20",
 				destructive: "bg-destructive text-white shadow-xs hover:bg-destructive/80",
 				outline: "border border-secondary-700 bg-white shadow-xs hover:bg-white/80",
+				input:
+					"h-9 w-full min-w-0 justify-start rounded-md border border-input bg-white px-3 py-1 text-left font-normal shadow-xs hover:bg-white focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40",
 				ghost: "bg-secondary-700/0 hover:bg-secondary-700/20",
 				link: "text-primary underline-offset-4 hover:underline",
 				// Legacy variants kept for compatibility if needed, or mapped to new ones

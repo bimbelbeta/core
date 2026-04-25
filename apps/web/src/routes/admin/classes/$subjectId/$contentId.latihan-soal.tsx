@@ -33,29 +33,29 @@ function RouteComponent() {
 
 	// Fetch content for title
 	const content = useQuery(
-		orpc.subject.getContentById.queryOptions({
+		orpc.subject.findContent.queryOptions({
 			input: { contentId },
 		}),
 	);
 
 	// Fetch linked practice questions
 	const practiceQuestions = useQuery(
-		orpc.admin.subject.getContentPracticeQuestions.queryOptions({
+		orpc.admin.content.listPracticeQuestions.queryOptions({
 			input: { id: contentId },
 		}),
 	);
 
 	const unlinkAllMutation = useMutation(
-		orpc.admin.subject.unlinkPracticeQuestions.mutationOptions({
+		orpc.admin.content.clearPracticeQuestions.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
 				queryClient.invalidateQueries({
-					queryKey: orpc.admin.subject.getContentPracticeQuestions.queryKey({
+					queryKey: orpc.admin.content.listPracticeQuestions.queryKey({
 						input: { id: contentId },
 					}),
 				});
 				queryClient.invalidateQueries({
-					queryKey: orpc.subject.getContentById.queryKey({
+					queryKey: orpc.subject.findContent.queryKey({
 						input: { contentId },
 					}),
 				});

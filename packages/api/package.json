@@ -8,6 +8,10 @@
 		"./*": {
 			"types": "./dist/*.d.mts",
 			"default": "./dist/*.mjs"
+		},
+		"./*/*": {
+			"types": "./dist/*/*.d.mts",
+			"default": "./dist/*/*.mjs"
 		}
 	},
 	"type": "module",
@@ -17,7 +21,6 @@
 	},
 	"devDependencies": {
 		"@bimbelbeta/config": "workspace:*",
-		"@types/midtrans-client": "^1.4.0",
 		"tsdown": "catalog:"
 	},
 	"peerDependencies": {
@@ -25,10 +28,10 @@
 	},
 	"dependencies": {
 		"@bimbelbeta/auth": "workspace:*",
+		"@bimbelbeta/contract": "workspace:*",
 		"@bimbelbeta/db": "workspace:*",
 		"@orpc/arktype": "catalog:",
-		"@orpc/client": "catalog:",
-		"@orpc/experimental-ratelimit": "^1.13.4",
+		"@orpc/experimental-ratelimit": "catalog:",
 		"@orpc/openapi": "catalog:",
 		"@orpc/server": "catalog:",
 		"arktype": "catalog:",

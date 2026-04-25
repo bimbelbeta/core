@@ -1,131 +1,91 @@
 import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { creditTransaction } from "@bimbelbeta/db/schema/credit";
-import { type } from "arktype";
-import { and, desc, eq, gt, like, or } from "drizzle-orm";
-import { superadmin } from "../..";
+import { and, asc, desc, eq, gt, like, lt, or } from "drizzle-orm";
+import { buildStringIdCursorPage, parseStringIdCursor } from "../../lib/pagination/cursor";
+import { baseImplementer } from "../../lib/router-definition";
+import { rateLimit, requireAuth, requireSuperAdmin } from "../../lib/router-definition/middleware";
 
-const list = superadmin
-	.route({
-		path: "/admin/users",
-		method: "GET",
-		tags: ["Admin - Users"],
-	})
-	.input(
-		type({
-			cursor: "string?",
-			limit: "number = 10",
-			search: "string?",
-			role: type("'user' | 'admin' | 'superadmin'")?.optional(),
-			isPremium: "boolean?",
-		}),
-	)
-	.handler(async ({ input }) => {
-		const rows = await db
-			.select()
-			.from(user)
-			.where(
-				and(
-					input.cursor ? gt(user.createdAt, new Date(input.cursor)) : undefined,
-					input.search ? or(like(user.name, `%${input.search}%`), like(user.email, `%${input.search}%`)) : undefined,
-					input.role ? eq(user.role, input.role) : undefined,
-					input.isPremium !== undefined ? eq(user.isPremium, input.isPremium) : undefined,
-				),
-			)
-			.orderBy(user.createdAt)
-			.limit(input.limit + 1);
+const superadmin = baseImplementer.use(requireAuth).use(rateLimit).use(requireSuperAdmin);
 
-		const hasMore = rows.length > input.limit;
-		const users = hasMore ? rows.slice(0, input.limit) : rows;
-		const lastUser = users.at(-1);
+const list = superadmin.admin.users.list.handler(async ({ input }) => {
+	const limit = Math.min(input.limit ?? 20, 100);
+	const isBackward = !!input.before;
+	const cursor = input.before || input.after;
+	const cursorId = cursor ? parseStringIdCursor(cursor) : undefined;
 
-		return {
-			users,
-			nextCursor: hasMore && lastUser?.createdAt ? lastUser.createdAt.toISOString() : undefined,
-		};
-	});
+	const rows = await db
+		.select()
+		.from(user)
+		.where(
+			and(
+				cursorId !== undefined ? (isBackward ? lt(user.id, cursorId) : gt(user.id, cursorId)) : undefined,
+				input.search ? or(like(user.name, `%${input.search}%`), like(user.email, `%${input.search}%`)) : undefined,
+				input.role ? eq(user.role, input.role) : undefined,
+				input.isPremium !== undefined ? eq(user.isPremium, input.isPremium) : undefined,
+			),
+		)
+		.orderBy(isBackward ? desc(user.id) : asc(user.id))
+		.limit(limit + 1);
 
-const get = superadmin
-	.route({
-		path: "/admin/users/{userId}",
-		method: "GET",
-		tags: ["Admin - Users"],
-	})
-	.input(type({ userId: "string" }))
-	.handler(async ({ input, errors }) => {
-		const [userData] = await db.select().from(user).where(eq(user.id, input.userId)).limit(1);
+	const { items, pageInfo } = buildStringIdCursorPage(rows, limit, isBackward, !!cursor);
 
-		if (!userData) {
-			throw errors.NOT_FOUND({
-				message: "User tidak ditemukan",
-			});
-		}
+	return { items, pageInfo };
+});
 
-		const history = await db
-			.select()
-			.from(creditTransaction)
-			.where(eq(creditTransaction.userId, input.userId))
-			.orderBy(desc(creditTransaction.createdAt))
-			.limit(10);
+const find = superadmin.admin.users.find.handler(async ({ input, errors }) => {
+	const [userData] = await db.select().from(user).where(eq(user.id, input.userId)).limit(1);
 
-		return {
-			user: userData,
-			creditHistory: history,
-		};
-	});
+	if (!userData) {
+		throw errors.NOT_FOUND({ message: "User tidak ditemukan" });
+	}
 
-const update = superadmin
-	.route({
-		path: "/admin/users/{userId}",
-		method: "PATCH",
-		tags: ["Admin - Users"],
-	})
-	.input(
-		type({
-			userId: "string",
-			role: type("'user' | 'admin' | 'superadmin'")?.optional(),
-			isPremium: "boolean?",
-			premiumExpiresAt: "string?",
-		}),
-	)
-	.output(type({ message: "string" }))
-	.handler(async ({ input, errors }) => {
-		const [existingUser] = await db.select().from(user).where(eq(user.id, input.userId)).limit(1);
+	const history = await db
+		.select()
+		.from(creditTransaction)
+		.where(eq(creditTransaction.userId, input.userId))
+		.orderBy(desc(creditTransaction.createdAt))
+		.limit(10);
 
-		if (!existingUser) {
-			throw errors.NOT_FOUND({
-				message: "User tidak ditemukan",
-			});
-		}
+	return {
+		user: userData,
+		creditHistory: history,
+	};
+});
 
-		const updateData: {
-			role?: "user" | "admin" | "superadmin";
-			isPremium?: boolean;
-			premiumExpiresAt?: Date | null;
-			updatedAt: Date;
-		} = {
-			updatedAt: new Date(),
-		};
+const update = superadmin.admin.users.update.handler(async ({ input, errors }) => {
+	const [existingUser] = await db.select().from(user).where(eq(user.id, input.userId)).limit(1);
 
-		if (input.role !== undefined) updateData.role = input.role;
-		if (input.isPremium !== undefined) updateData.isPremium = input.isPremium;
-		if (input.premiumExpiresAt !== undefined) {
-			updateData.premiumExpiresAt = input.premiumExpiresAt ? new Date(input.premiumExpiresAt) : null;
-		}
+	if (!existingUser) {
+		throw errors.NOT_FOUND({ message: "User tidak ditemukan" });
+	}
 
-		const [updated] = await db.update(user).set(updateData).where(eq(user.id, input.userId)).returning();
+	const updateData: {
+		role?: "user" | "admin" | "superadmin";
+		isPremium?: boolean;
+		premiumExpiresAt?: Date | null;
+		updatedAt: Date;
+	} = {
+		updatedAt: new Date(),
+	};
 
-		if (!updated) {
-			throw errors.INTERNAL_SERVER_ERROR({
-				message: "Gagal memperbarui user",
-			});
-		}
+	if (input.role !== undefined) updateData.role = input.role;
+	if (input.isPremium !== undefined) updateData.isPremium = input.isPremium;
+	if (input.premiumExpiresAt !== undefined) {
+		updateData.premiumExpiresAt = input.premiumExpiresAt ? new Date(input.premiumExpiresAt) : null;
+	}
 
-		return { message: "User berhasil diperbarui" };
-	});
+	const [updated] = await db.update(user).set(updateData).where(eq(user.id, input.userId)).returning();
+
+	if (!updated) {
+		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memperbarui user" });
+	}
+
+	return { message: "User berhasil diperbarui" };
+});
 
 export const usersRouter = {
 	list,
-	get,
+	find,
 	update,
 };

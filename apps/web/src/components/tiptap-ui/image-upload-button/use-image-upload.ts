@@ -1,13 +1,11 @@
-"use client";
-
 import type { Editor } from "@tiptap/react";
 import { useCallback, useEffect, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
+// --- Hooks ---
+import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
 // --- Icons ---
 import { ImagePlusIcon } from "@/components/tiptap-icons/image-plus-icon";
 import { useIsBreakpoint } from "@/hooks/use-is-breakpoint";
-// --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
 // --- Lib ---
 import { isExtensionAvailable } from "@/lib/tiptap-utils";
 
@@ -36,7 +34,7 @@ export interface UseImageUploadConfig {
  * Checks if image can be inserted in the current editor state
  */
 export function canInsertImage(editor: Editor | null): boolean {
-	if (!editor || !editor.isEditable) return false;
+	if (!editor?.isEditable) return false;
 	if (!isExtensionAvailable(editor, "imageUpload")) return false;
 
 	return editor.can().insertContent({ type: "imageUpload" });
@@ -46,7 +44,7 @@ export function canInsertImage(editor: Editor | null): boolean {
  * Checks if image is currently active
  */
 export function isImageActive(editor: Editor | null): boolean {
-	if (!editor || !editor.isEditable) return false;
+	if (!editor?.isEditable) return false;
 	return editor.isActive("imageUpload");
 }
 
@@ -54,7 +52,7 @@ export function isImageActive(editor: Editor | null): boolean {
  * Inserts an image in the editor
  */
 export function insertImage(editor: Editor | null): boolean {
-	if (!editor || !editor.isEditable) return false;
+	if (!editor?.isEditable) return false;
 	if (!canInsertImage(editor)) return false;
 
 	try {
@@ -76,7 +74,7 @@ export function insertImage(editor: Editor | null): boolean {
 export function shouldShowButton(props: { editor: Editor | null; hideWhenUnavailable: boolean }): boolean {
 	const { editor, hideWhenUnavailable } = props;
 
-	if (!editor || !editor.isEditable) return false;
+	if (!editor?.isEditable) return false;
 	if (!isExtensionAvailable(editor, "imageUpload")) return false;
 
 	if (hideWhenUnavailable && !editor.isActive("code")) {

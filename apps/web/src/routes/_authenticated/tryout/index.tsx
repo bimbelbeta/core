@@ -4,6 +4,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { type } from "arktype";
 import { Activity } from "react";
+import ErrorComponent from "@/components/shared/error";
 import { Button } from "@/components/ui/button";
 import { orpc } from "@/utils/orpc";
 import { GuidelineActivity } from "./-components/guideline-activity";
@@ -38,7 +39,7 @@ function TryoutHeader({ creditBalance }: { creditBalance: number }) {
 	return (
 		<div className="relative overflow-hidden rounded-default bg-linear-to-r from-primary-500 to-secondary-400">
 			<div className="grid grid-cols-1 gap-6 px-6 pt-8 pb-0 sm:grid-cols-3 sm:items-center sm:px-10 sm:py-10">
-				<div className="relative order-last -mx-6 h-27.5 overflow-hidden sm:order-first sm:mx-0 sm:h-auto sm:overflow-visible">
+				<div className="relative order-last -mx-6 h-27.5 overflow-hidden sm:order-first sm:mr-0 sm:-ml-10 sm:h-auto sm:overflow-visible">
 					<Image
 						src="/stock/tryout.webp"
 						alt="Tryout Header Avatar"
@@ -83,6 +84,10 @@ function RouteComponent() {
 	// Fetch credit balance
 	const creditBalanceQuery = useQuery(orpc.credit.balance.queryOptions());
 	const creditBalance = creditBalanceQuery.data?.balance ?? 0;
+
+	if (creditBalanceQuery.isError) {
+		return <ErrorComponent error={creditBalanceQuery.error} />;
+	}
 
 	const setActiveTab = (newTab: "guideline" | "passing_grade" | "results") => {
 		navigate({ to: "/tryout", search: { tab: newTab } });

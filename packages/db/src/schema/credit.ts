@@ -1,4 +1,4 @@
-import { relations } from "drizzle-orm";
+import { defineRelationsPart } from "drizzle-orm";
 import { index, integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { user } from "./auth";
 import { transaction } from "./transaction";
@@ -28,17 +28,22 @@ export const creditTransaction = pgTable(
 	(t) => [index("idx_credit_transaction_user_id").on(t.userId)],
 );
 
-export const creditTransactionRelations = relations(creditTransaction, ({ one }) => ({
-	user: one(user, {
-		fields: [creditTransaction.userId],
-		references: [user.id],
+export const creditTransactionRelations = defineRelationsPart(
+	{ creditTransaction, user, transaction, tryoutAttempt },
+	(r) => ({
+		creditTransaction: {
+			user: r.one.user({
+				from: r.creditTransaction.userId,
+				to: r.user.id,
+			}),
+			transaction: r.one.transaction({
+				from: r.creditTransaction.transactionId,
+				to: r.transaction.id,
+			}),
+			tryoutAttempt: r.one.tryoutAttempt({
+				from: r.creditTransaction.tryoutAttemptId,
+				to: r.tryoutAttempt.id,
+			}),
+		},
 	}),
-	transaction: one(transaction, {
-		fields: [creditTransaction.transactionId],
-		references: [transaction.id],
-	}),
-	tryoutAttempt: one(tryoutAttempt, {
-		fields: [creditTransaction.tryoutAttemptId],
-		references: [tryoutAttempt.id],
-	}),
-}));
+);

@@ -1,3 +1,5 @@
+import { useUploadFile } from "@better-upload/client";
+import { CoinsIcon, UploadSimpleIcon, XIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouteContext, useRouter } from "@tanstack/react-router";
 import * as m from "motion/react-m";
@@ -13,10 +15,8 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
-import { orpc } from "@/utils/orpc";
-import { AccessCodeInput } from "./access-code-input";
-import { CreditOption } from "./credit-option";
-import { UploadPaymentProof } from "./upload-payment-proof";
+import { cn } from "@/lib/utils";
+import { getApiUrl, orpc } from "@/utils/orpc";
 
 interface TryoutStartConfirmationProps {
 	children: React.ReactNode;
@@ -30,24 +30,45 @@ export function TryoutStartConfirmation({ children, disabled = false }: TryoutSt
 	const isPremium = session?.user.isPremium;
 
 	const { data } = useQuery(orpc.tryout.featured.queryOptions());
-	const creditBalanceQuery = useQuery(orpc.credit.balance.queryOptions());
 
-	const hasCredits = (creditBalanceQuery.data?.balance ?? 0) > 0;
+	// Fetch credit balance
+	const creditBalanceQuery = useQuery(orpc.credit.balance.queryOptions());
+	const creditBalance = creditBalanceQuery.data?.balance ?? 0;
+	const hasCredits = creditBalance > 0;
 
 	const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
+	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 	const [errors, setErrors] = useState<string | null>(null);
 	const [isOpen, setIsOpen] = useState(false);
 	const [step, setStep] = useState<DialogStep>(isPremium ? "premium" : "notice");
 	const router = useRouter();
 
+	const {
+		upload,
+		progress,
+		isPending: isUploading,
+		reset: resetUpload,
+	} = useUploadFile({
+		route: "tryout",
+		api: `${getApiUrl()}/upload`,
+		credentials: "include",
+		onUploadComplete: ({ file }) => {
+			setUploadedUrl(file.objectInfo.key);
+			setErrors(null);
+		},
+		onError: (error) => {
+			setErrors(error.message);
+			setPreviewUrl(null);
+		},
+	});
+
 	const startTryoutMutation = useMutation(
 		orpc.tryout.start.mutationOptions({
 			onSuccess: () => {
 				setIsOpen(false);
+				// Invalidate credit balance after using a credit
 				creditBalanceQuery.refetch();
-				if (data) {
-					if (data.id) router.navigate({ to: "/tryout/$tryoutId", params: { tryoutId: data.id.toString() } });
-				}
+				if (data) router.navigate({ to: "/tryout/$tryoutId", params: { tryoutId: data?.id.toString() } });
 			},
 		}),
 	);
@@ -71,17 +92,14 @@ export function TryoutStartConfirmation({ children, disabled = false }: TryoutSt
 		startTryoutMutation.mutate({ id: data.id, useCredit: true });
 	};
 
-	const handleStartWithAccessCode = (code: string) => {
-		setErrors(null);
-		startTryoutMutation.mutate({ id: data.id, accessCode: code });
-	};
-
 	const handleOpenChange = (open: boolean) => {
 		setIsOpen(open);
 		if (!open) {
 			setStep(isPremium ? "premium" : "notice");
 			setUploadedUrl(null);
+			setPreviewUrl(null);
 			setErrors(null);
+			resetUpload();
 		}
 	};
 
@@ -94,16 +112,27 @@ export function TryoutStartConfirmation({ children, disabled = false }: TryoutSt
 		router.navigate({ to: "/premium" });
 	};
 
-	const handleUploadComplete = (url: string) => {
-		setUploadedUrl(url);
-		setErrors(null);
+	const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (file) {
+			// Create preview URL
+			const objectUrl = URL.createObjectURL(file);
+			setPreviewUrl(objectUrl);
+			setErrors(null);
+			// Start upload
+			upload(file);
+		}
+		e.target.value = "";
 	};
 
-	const handleUploadError = () => {
+	const handleRemoveFile = () => {
 		setUploadedUrl(null);
+		if (previewUrl) {
+			URL.revokeObjectURL(previewUrl);
+			setPreviewUrl(null);
+		}
+		resetUpload();
 	};
-
-	const startErrorMessage = startTryoutMutation.error?.message;
 
 	return (
 		<Dialog open={isOpen} onOpenChange={handleOpenChange}>
@@ -129,9 +158,40 @@ export function TryoutStartConfirmation({ children, disabled = false }: TryoutSt
 							<DialogDescription>Pilih cara untuk memulai tryout ini.</DialogDescription>
 						</DialogHeader>
 						<div className="space-y-4 pt-4">
-							<CreditOption onUseCredit={handleStartWithCredit} isLoading={startTryoutMutation.isPending} />
+							{/* Credit option - show prominently if user has credits */}
+							{hasCredits && (
+								<div className="rounded-lg border-2 border-amber-200 bg-amber-50 p-4">
+									<div className="flex items-center gap-3">
+										<div className="rounded-full bg-amber-100 p-2">
+											<CoinsIcon size={20} weight="fill" className="text-amber-600" />
+										</div>
+										<div className="flex-1">
+											<p className="font-medium text-amber-900">Gunakan Kredit Tryout</p>
+											<p className="text-amber-700 text-sm">
+												Kamu punya <strong>{creditBalance}</strong> kredit
+											</p>
+										</div>
+									</div>
+									<Button
+										onClick={handleStartWithCredit}
+										disabled={startTryoutMutation.isPending}
+										className="mt-3 w-full bg-amber-600 hover:bg-amber-700"
+									>
+										{startTryoutMutation.isPending ? (
+											<>
+												<Spinner /> Memulai...
+											</>
+										) : (
+											<>
+												<CoinsIcon size={18} weight="fill" className="mr-1" />
+												Gunakan 1 Kredit
+											</>
+										)}
+									</Button>
+								</div>
+							)}
+
 							<DialogFooter className="flex flex-col gap-3 sm:flex-col">
-								<AccessCodeInput onSubmit={handleStartWithAccessCode} isLoading={startTryoutMutation.isPending} />
 								<Button onClick={handleTryoutGratis} variant={hasCredits ? "outline" : "default"} className="w-full">
 									{hasCredits ? "Upload Bukti Pembayaran" : "Tryout Gratis"}
 								</Button>
@@ -152,23 +212,75 @@ export function TryoutStartConfirmation({ children, disabled = false }: TryoutSt
 						<DialogHeader>
 							<DialogTitle>Upload Bukti Pembayaran</DialogTitle>
 							<DialogDescription>
-								Untuk melanjutkan, silakan upload bukti pembayaran Anda (maksimal 2MB).
+								Untuk melanjutkan, silakan upload bukti pembayaran Anda (maksimal 5MB).
 							</DialogDescription>
 						</DialogHeader>
 						<div className="space-y-4 pt-4">
-							<UploadPaymentProof
-								onUploadComplete={handleUploadComplete}
-								onError={handleUploadError}
-								onRemove={handleUploadError}
-								disabled={startTryoutMutation.isPending}
-							/>
-							{(errors || startErrorMessage) && (
-								<p className="text-destructive text-sm">{errors ?? startErrorMessage}</p>
+							{/* Upload area */}
+							{!previewUrl ? (
+								<label
+									className={cn(
+										"flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-6 transition-colors",
+										"hover:border-primary hover:bg-muted/50",
+										isUploading && "pointer-events-none opacity-50",
+									)}
+								>
+									<UploadSimpleIcon className="size-8 text-muted-foreground" />
+									<span className="text-muted-foreground text-sm">Klik untuk memilih gambar atau drag & drop</span>
+									<span className="text-muted-foreground text-xs">PNG, JPG, GIF (maks 5MB)</span>
+									<input
+										type="file"
+										accept="image/*"
+										className="hidden"
+										onChange={handleFileSelect}
+										disabled={isUploading}
+									/>
+								</label>
+							) : (
+								<div className="relative">
+									{/* Image preview */}
+									<div className="relative overflow-hidden rounded-lg border">
+										<img src={previewUrl} alt="Preview bukti pembayaran" className="h-48 w-full object-cover" />
+										{/* Remove button */}
+										{!isUploading && (
+											<button
+												type="button"
+												onClick={handleRemoveFile}
+												className="absolute top-2 right-2 rounded-full bg-background/80 p-1 hover:bg-background"
+											>
+												<XIcon className="size-4" />
+											</button>
+										)}
+										{/* Progress overlay */}
+										{isUploading && (
+											<div className="absolute inset-0 flex items-center justify-center bg-background/60">
+												<div className="flex flex-col items-center gap-2">
+													<Spinner />
+													<span className="font-medium text-sm">{Math.round(progress * 100)}%</span>
+												</div>
+											</div>
+										)}
+									</div>
+									{/* Progress bar */}
+									{isUploading && (
+										<div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
+											<div
+												className="h-full bg-primary transition-all duration-300"
+												style={{ width: `${progress * 100}%` }}
+											/>
+										</div>
+									)}
+									{/* Success indicator */}
+									{uploadedUrl && !isUploading && (
+										<p className="mt-2 text-center text-green-600 text-sm">Upload berhasil!</p>
+									)}
+								</div>
 							)}
+							{errors && <p className="text-destructive text-sm">{errors}</p>}
 							<DialogFooter>
 								<Button
 									onClick={handleStart}
-									disabled={startTryoutMutation.isPending || !uploadedUrl}
+									disabled={startTryoutMutation.isPending || isUploading || !uploadedUrl}
 									className="w-full"
 								>
 									{startTryoutMutation.isPending ? "Memproses..." : "Mulai Tryout"}
@@ -189,9 +301,6 @@ export function TryoutStartConfirmation({ children, disabled = false }: TryoutSt
 							)}
 						</Button>
 					</DialogFooter>
-				)}
-				{step === "notice" && (errors || startErrorMessage) && (
-					<p className="text-destructive text-sm">{errors ?? startErrorMessage}</p>
 				)}
 			</DialogContent>
 		</Dialog>

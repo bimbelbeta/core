@@ -13,6 +13,7 @@ WORKDIR /usr/src/app
 COPY package.json bun.lock turbo.json ./
 COPY apps/server/package.json ./apps/server/
 COPY packages/api/package.json ./packages/api/
+COPY packages/contract/package.json ./packages/contract/
 COPY packages/auth/package.json ./packages/auth/
 COPY packages/config/package.json ./packages/config/
 COPY packages/db/package.json ./packages/db/

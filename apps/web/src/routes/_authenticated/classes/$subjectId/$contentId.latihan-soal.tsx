@@ -1,11 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { BackButton } from "@/components/back-button";
 import { EmptyContentState } from "@/components/classes/empty-content-state";
 import { PracticeQuestion } from "@/components/classes/practice-question";
 import { PracticeQuestionHeader } from "@/components/classes/practice-question-header";
-import { TiptapRenderer } from "@/components/tiptap-renderer";
+import { BackButton } from "@/components/shared/back-button";
+import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 
@@ -20,7 +20,7 @@ function RouteComponent() {
 	const queryClient = useQueryClient();
 
 	const content = useQuery(
-		orpc.subject.getContentById.queryOptions({
+		orpc.subject.findContent.queryOptions({
 			input: { contentId },
 		}),
 	);
@@ -29,7 +29,7 @@ function RouteComponent() {
 		orpc.subject.updateProgress.mutationOptions({
 			onSuccess: () => {
 				queryClient.invalidateQueries({
-					queryKey: orpc.subject.getProgressStats.key(),
+					queryKey: orpc.subject.stats.key(),
 				});
 			},
 		}),
@@ -39,7 +39,7 @@ function RouteComponent() {
 	useEffect(() => {
 		if (content.data?.practiceQuestions) {
 			updateProgressMutation.mutate({
-				id: contentId,
+				contentId,
 				practiceQuestionsCompleted: true,
 			});
 		}
@@ -112,7 +112,7 @@ function RouteComponent() {
 										Kunci jawaban: <span className="font-semibold">{q.essayCorrectAnswer}</span>
 									</p>
 								)}
-								{q.discussion && (
+								{Boolean(q.discussion) && (
 									<div className="mt-3 border-neutral-200 border-t pt-3">
 										<p className="mb-1 font-medium text-sm">Pembahasan:</p>
 										<TiptapRenderer content={q.discussion} />

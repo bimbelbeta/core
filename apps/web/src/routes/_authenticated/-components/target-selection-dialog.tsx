@@ -28,18 +28,18 @@ export function TargetSelectionDialog() {
 	const queryClient = useQueryClient();
 	const { session } = useRouteContext({ from: "/_authenticated" });
 	const userKey = session?.user?.email || session?.user?.id || "guest";
-	const { data } = useQuery(orpc.userSettings.get.queryOptions());
+	const { data } = useQuery(orpc.userSettings.getTarget.queryOptions());
 
 	const [open, setOpen] = useState<boolean>(false);
 	useEffect(() => {
-		if (data && !data.studyProgramData) setOpen(true);
+		if (data && !data.studyProgram) setOpen(true);
 	}, [data]);
 
-	const setMutation = useMutation(
-		orpc.userSettings.set.mutationOptions({
+	const updateMutation = useMutation(
+		orpc.userSettings.update.mutationOptions({
 			onSuccess: () => {
 				setOpen(false);
-				queryClient.invalidateQueries({ queryKey: orpc.userSettings.get.queryKey() });
+				queryClient.invalidateQueries({ queryKey: orpc.userSettings.getTarget.queryKey() });
 			},
 			onError: (error: Error) => {
 				toast.error(error.message || "Gagal menyimpan target");
@@ -57,7 +57,7 @@ export function TargetSelectionDialog() {
 				toast.error("Mohon pilih universitas dan program studi");
 				return;
 			}
-			setMutation.mutate({
+			updateMutation.mutate({
 				universityId: value.universityId,
 				studyProgramId: value.studyProgramId,
 			});
@@ -117,26 +117,26 @@ export function TargetSelectionDialog() {
 										form.setFieldValue("studyProgramId", null);
 										if (prevUniversityId) {
 											queryClient.removeQueries({
-												queryKey: orpc.university.listStudyProgramsByUniversity.queryKey({
+												queryKey: orpc.university.listProgramsByUniversity.queryKey({
 													input: { universityId: prevUniversityId },
 												}),
 											});
 										}
 									}}
-									disabled={isPending || (universities?.data && universities.data.length < 1)}
+									disabled={isPending || (universities?.items && universities.items.length < 1)}
 								>
 									<SelectTrigger>
 										<SelectValue placeholder="Pilih universitas" />
 									</SelectTrigger>
 									<SelectContent>
-										{universities?.data?.map((uni) => (
+										{universities?.items?.map((uni) => (
 											<SelectItem key={uni.id} value={uni.id.toString()}>
 												{uni.name}
 											</SelectItem>
 										))}
 									</SelectContent>
 								</Select>
-								{universities?.data && universities.data.length < 1 && (
+								{universities?.items && universities.items.length < 1 && (
 									<p className="text-destructive text-xs">Belum ada data Universitas. Silahkan coba lagi nanti</p>
 								)}
 							</div>
@@ -147,7 +147,7 @@ export function TargetSelectionDialog() {
 						{(universityId) => {
 							// biome-ignore lint/correctness/useHookAtTopLevel: form.Subscribe creates a new component context where hooks are valid
 							const { data: studyPrograms, isFetching } = useQuery(
-								orpc.university.listStudyProgramsByUniversity.queryOptions({
+								orpc.university.listProgramsByUniversity.queryOptions({
 									input: { universityId: universityId ?? 0 },
 									enabled: universityId !== null,
 								}),
@@ -169,22 +169,22 @@ export function TargetSelectionDialog() {
 											<Select
 												value={field.state.value?.toString() ?? ""}
 												onValueChange={(value) => field.handleChange(Number.parseInt(value, 10))}
-												disabled={isFetching || !studyPrograms?.data}
+												disabled={isFetching || !studyPrograms?.items}
 											>
 												<SelectTrigger>
 													<SelectValue
-														placeholder={!studyPrograms?.data ? "Pilih universitas dulu" : "Pilih program studi"}
+														placeholder={!studyPrograms?.items ? "Pilih universitas dulu" : "Pilih program studi"}
 													/>
 												</SelectTrigger>
 												<SelectContent>
-													{studyPrograms?.data?.map((program) => (
+													{studyPrograms?.items?.map((program) => (
 														<SelectItem key={program.id} value={program.id.toString()}>
 															{program.name}
 														</SelectItem>
 													))}
 												</SelectContent>
 											</Select>
-											{studyPrograms?.data && studyPrograms.data.length < 1 && (
+											{studyPrograms?.items && studyPrograms.items.length < 1 && (
 												<p className="text-destructive text-xs">
 													Belum ada data Program Studi untuk Universitas ini. Silahkan coba lagi nanti
 												</p>
@@ -204,10 +204,10 @@ export function TargetSelectionDialog() {
 							{(state) => (
 								<Button
 									type="submit"
-									className={cn("sm:w-auto", setMutation.isPending && "cursor-not-allowed")}
+									className={cn("sm:w-auto", updateMutation.isPending && "cursor-not-allowed")}
 									disabled={!state.canSubmit}
 								>
-									{setMutation.isPending ? (
+									{updateMutation.isPending ? (
 										<>
 											<Spinner />
 											Menyimpan...

@@ -12,7 +12,7 @@ import {
 	AdminPageRoot,
 	AdminPageTitle,
 } from "@/components/admin/admin-page";
-import TiptapSimpleEditor from "@/components/tiptap-simple-editor";
+import TiptapSimpleEditor from "@/components/tiptap/tiptap-simple-editor";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -21,9 +21,9 @@ import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TagInput } from "@/components/ui/tag-input";
 import { orpc } from "@/utils/orpc";
-import type { Choice } from "./edit-question-form";
 import { MultipleChoiceComplexQuestionForm } from "./multiple-choice-complex-question-form";
 import { MultipleChoiceQuestionForm } from "./multiple-choice-question-form";
+import type { Choice } from "./types";
 
 interface CreateQuestionFormProps {
 	questionType: "multiple_choice" | "multiple_choice_complex" | "essay";

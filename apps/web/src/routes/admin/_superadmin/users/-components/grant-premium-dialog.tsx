@@ -108,7 +108,7 @@ export function GrantPremiumDialog({
 							updateMutation.mutate({
 								userId,
 								isPremium: true,
-								premiumExpiresAt: date?.toISOString(),
+								premiumExpiresAt: date ?? null,
 							})
 						}
 						disabled={updateMutation.isPending || !date}

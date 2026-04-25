@@ -25,7 +25,7 @@ export const queryClient = new QueryClient({
 					action: {
 						label: "Retry",
 						onClick: () => {
-							queryClient.invalidateQueries();
+							queryClient.invalidateQueries({ queryKey: query.queryKey });
 						},
 					},
 				});
@@ -37,8 +37,7 @@ export const queryClient = new QueryClient({
 	}),
 	defaultOptions: {
 		queries: {
-			retry: 3,
-			retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+			retry: false,
 			queryKeyHashFn(queryKey) {
 				const [json, meta] = serializer.serialize(queryKey);
 				return JSON.stringify({ json, meta });

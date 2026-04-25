@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { orpc } from "@/utils/orpc";
 
 export const LastClasses = () => {
-	const { data, isPending } = useQuery(orpc.subject.getRecentViews.queryOptions());
+	const { data, isPending } = useQuery(orpc.subject.listRecentViews.queryOptions());
 
 	if (isPending) {
 		return (
@@ -54,7 +54,7 @@ export const LastClasses = () => {
 							hasPracticeQuestions: Boolean(view.hasPracticeQuestions),
 						}}
 						index={idx}
-						shortName={view.subtestShortName}
+						shortName={view.subjectShortName}
 					/>
 				))}
 			</div>

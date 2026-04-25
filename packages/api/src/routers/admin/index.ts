@@ -1,3 +1,4 @@
+import { adminContentRouter } from "./content";
 import { adminCreditRouter } from "./credit";
 import { adminDashboardRouter } from "./dashboard";
 import { adminProductRouter } from "./product";
@@ -12,6 +13,7 @@ import { usersRouter } from "./users";
 export const adminRouter = {
 	dashboard: adminDashboardRouter,
 	subject: adminSubjectRouter,
+	content: adminContentRouter,
 	tryout: {
 		...tryoutRouter,
 		subtest: subtestRouter,
@@ -24,6 +26,7 @@ export const adminRouter = {
 	products: adminProductRouter,
 };
 
+export type { adminContentRouter } from "./content";
 export type { adminDashboardRouter } from "./dashboard";
 export type { adminSubjectRouter } from "./subject";
 export type { adminUniversityRouter } from "./university";

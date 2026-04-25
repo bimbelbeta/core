@@ -26,7 +26,7 @@ export function DeleteSubjectDialog({ open, onOpenChange, subject }: DeleteSubje
 	const [pending, setPending] = useState(false);
 
 	const deleteMutation = useMutation(
-		orpc.admin.subject.deleteSubject.mutationOptions({
+		orpc.admin.subject.remove.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
 				queryClient.invalidateQueries();

@@ -16,35 +16,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { orpc } from "@/utils/orpc";
-import type { SubjectListItem } from "./classes-types";
-
-type SubjectCategory = SubjectListItem["category"];
+import { categoryLabel, type SubjectCategory, validateGradeLevel } from "./classes-constants";
 
 type CreateSubjectDialogProps = {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	defaultCategory?: SubjectCategory | "all";
-};
-
-// type FormValues = {
-// 	name: string;
-// 	shortName: string;
-// 	description: string;
-// 	category: SubjectCategory | "";
-// 	gradeLevel: string;
-// };
-
-const categoryLabel: Record<SubjectCategory, string> = {
-	sd: "SD",
-	smp: "SMP",
-	sma: "SMA",
-	utbk: "UTBK",
-};
-
-const gradeRanges: Record<Exclude<SubjectCategory, "utbk">, [number, number]> = {
-	sd: [1, 6],
-	smp: [7, 9],
-	sma: [10, 12],
 };
 
 export function CreateSubjectDialog({ open, onOpenChange, defaultCategory }: CreateSubjectDialogProps) {
@@ -72,9 +49,9 @@ export function CreateSubjectDialog({ open, onOpenChange, defaultCategory }: Cre
 			}
 
 			if (category && category !== "utbk" && gradeLevel !== undefined) {
-				const [min, max] = gradeRanges[category];
-				if (gradeLevel < min || gradeLevel > max) {
-					toast.error(`Grade level harus antara ${min} dan ${max} untuk kategori ${category.toUpperCase()}`);
+				const gradeLevelError = validateGradeLevel(category, gradeLevel);
+				if (gradeLevelError) {
+					toast.error(gradeLevelError);
 					return;
 				}
 			}
@@ -115,7 +92,7 @@ export function CreateSubjectDialog({ open, onOpenChange, defaultCategory }: Cre
 	}, [open, defaultCategory, form]);
 
 	const createMutation = useMutation(
-		orpc.admin.subject.createSubject.mutationOptions({
+		orpc.admin.subject.create.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
 				queryClient.invalidateQueries();

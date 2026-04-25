@@ -1,6 +1,5 @@
 /** biome-ignore-all lint/a11y/useSemanticElements: shadcn defaults */
 /** biome-ignore-all lint/a11y/useKeyWithClickEvents: shadcn defaults */
-"use client";
 
 import { cva, type VariantProps } from "class-variance-authority";
 import type * as React from "react";
@@ -148,4 +147,4 @@ function InputGroupTextarea({ className, ...props }: React.ComponentProps<"texta
 	);
 }
 
-export { InputGroup, InputGroupAddon, InputGroupButton, InputGroupText, InputGroupInput, InputGroupTextarea };
+export { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, InputGroupText, InputGroupTextarea };

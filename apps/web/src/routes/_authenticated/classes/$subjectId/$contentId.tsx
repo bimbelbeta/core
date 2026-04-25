@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { BackButton } from "@/components/back-button";
-import { NextButton } from "@/components/next-button";
 import { PremiumGateModal } from "@/components/premium/premium-gate-modal";
+import { BackButton } from "@/components/shared/back-button";
+import { NextButton } from "@/components/shared/next-button";
 import { Container } from "@/components/ui/container";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
@@ -23,7 +23,7 @@ function RouteComponent() {
 	const [showPremiumModal, setShowPremiumModal] = useState(false);
 
 	const content = useQuery({
-		...orpc.subject.getContentById.queryOptions({
+		...orpc.subject.findContent.queryOptions({
 			input: { contentId },
 		}),
 		// Don't retry on 403 FORBIDDEN - user doesn't have access
@@ -62,13 +62,13 @@ function RouteComponent() {
 
 		if (!lastTracked || now - Number(lastTracked) > DEBOUNCE_MS) {
 			trackViewMutation.mutate(
-				{ id: contentId },
+				{ contentId },
 				{
 					onSuccess: () => {
 						// Update last tracked timestamp
 						sessionStorage.setItem(storageKey, now.toString());
 						queryClient.invalidateQueries({
-							queryKey: orpc.subject.getRecentViews.key(),
+							queryKey: orpc.subject.listRecentViews.key(),
 						});
 					},
 				},

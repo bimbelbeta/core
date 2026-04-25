@@ -1,15 +1,18 @@
 import type { Editor } from "@tiptap/react";
-import { forwardRef, useMemo, useRef, useState } from "react";
+import { forwardRef, useMemo, useRef } from "react";
+// --- Hooks ---
+import { useMenuNavigation } from "@/components/tiptap/use-menu-navigation";
 // --- Icons ---
 import { BanIcon } from "@/components/tiptap-icons/ban-icon";
 import { HighlighterIcon } from "@/components/tiptap-icons/highlighter-icon";
-// --- Tiptap UI ---
-import type { HighlightColor, UseColorHighlightConfig } from "@/components/tiptap-ui/color-highlight-button";
+import type { HighlightColor } from "@/components/tiptap-ui/color-highlight-button";
 import {
 	ColorHighlightButton,
 	pickHighlightColorsByValue,
 	useColorHighlight,
 } from "@/components/tiptap-ui/color-highlight-button";
+import type { UseColorHighlightPopoverConfig } from "@/components/tiptap-ui/color-highlight-popover/use-color-highlight-popover";
+import { useColorHighlightPopover } from "@/components/tiptap-ui/color-highlight-popover/use-color-highlight-popover";
 // --- UI Primitives ---
 import type { ButtonProps } from "@/components/tiptap-ui-primitive/button";
 import { Button, ButtonGroup } from "@/components/tiptap-ui-primitive/button";
@@ -17,9 +20,6 @@ import { Card, CardBody, CardItemGroup } from "@/components/tiptap-ui-primitive/
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/tiptap-ui-primitive/popover";
 import { Separator } from "@/components/tiptap-ui-primitive/separator";
 import { useIsBreakpoint } from "@/hooks/use-is-breakpoint";
-// --- Hooks ---
-import { useMenuNavigation } from "@/hooks/use-menu-navigation";
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
 
 export interface ColorHighlightPopoverContentProps {
 	/**
@@ -33,9 +33,7 @@ export interface ColorHighlightPopoverContentProps {
 	colors?: HighlightColor[];
 }
 
-export interface ColorHighlightPopoverProps
-	extends Omit<ButtonProps, "type">,
-		Pick<UseColorHighlightConfig, "editor" | "hideWhenUnavailable" | "onApplied"> {
+export interface ColorHighlightPopoverProps extends Omit<ButtonProps, "type">, UseColorHighlightPopoverConfig {
 	/**
 	 * Optional colors to use in the highlight popover.
 	 * If not provided, defaults to a predefined set of colors.
@@ -145,10 +143,8 @@ export function ColorHighlightPopover({
 	onApplied,
 	...props
 }: ColorHighlightPopoverProps) {
-	const { editor } = useTiptapEditor(providedEditor);
-	const [isOpen, setIsOpen] = useState(false);
-	const { isVisible, canColorHighlight, isActive, label, Icon } = useColorHighlight({
-		editor,
+	const { editor, isOpen, setIsOpen, isVisible, canColorHighlight, isActive, label, Icon } = useColorHighlightPopover({
+		editor: providedEditor,
 		hideWhenUnavailable,
 		onApplied,
 	});

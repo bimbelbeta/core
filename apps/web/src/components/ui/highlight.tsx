@@ -1,6 +1,6 @@
-import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as m from "motion/react-m";
+import { Slot as SlotPrimitive } from "radix-ui";
 import type * as React from "react";
 
 import { cn } from "@/lib/utils";
@@ -61,7 +61,7 @@ function Highlight({
 		);
 	}
 
-	const Comp = asChild ? Slot : "span";
+	const Comp = asChild ? SlotPrimitive.Slot : "span";
 
 	return (
 		<Comp className={baseClassName} {...props}>
@@ -70,5 +70,5 @@ function Highlight({
 	);
 }
 
-export { Highlight, highlightVariants };
 export type { HighlightProps };
+export { Highlight, highlightVariants };

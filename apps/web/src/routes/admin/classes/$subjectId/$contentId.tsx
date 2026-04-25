@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
-import { BackButton } from "@/components/back-button";
+import { createFileRoute, notFound, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
+import { BackButton } from "@/components/shared/back-button";
 import { Container } from "@/components/ui/container";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -19,7 +19,7 @@ function RouteComponent() {
 	const location = useLocation();
 
 	const content = useQuery(
-		orpc.subject.getContentById.queryOptions({
+		orpc.subject.findContent.queryOptions({
 			input: { contentId },
 		}),
 	);
@@ -44,6 +44,8 @@ function RouteComponent() {
 	};
 
 	const displayTitle = content.data?.title || contentId;
+
+	if (!content.isPending && !content.data) return notFound();
 
 	return (
 		<Container className="gap-3 px-0 py-4">

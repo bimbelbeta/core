@@ -16,27 +16,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { orpc } from "@/utils/orpc";
+import { categoryLabel, type SubjectCategory, validateGradeLevel } from "./classes-constants";
 import type { SubjectListItem } from "./classes-types";
-
-type SubjectCategory = SubjectListItem["category"];
 
 type EditSubjectDialogProps = {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	subject: SubjectListItem;
-};
-
-const categoryLabel: Record<SubjectCategory, string> = {
-	sd: "SD",
-	smp: "SMP",
-	sma: "SMA",
-	utbk: "UTBK",
-};
-
-const gradeRanges: Record<Exclude<SubjectCategory, "utbk">, [number, number]> = {
-	sd: [1, 6],
-	smp: [7, 9],
-	sma: [10, 12],
 };
 
 export function EditSubjectDialog({ open, onOpenChange, subject }: EditSubjectDialogProps) {
@@ -64,9 +50,9 @@ export function EditSubjectDialog({ open, onOpenChange, subject }: EditSubjectDi
 			}
 
 			if (category && category !== "utbk" && gradeLevel !== undefined) {
-				const [min, max] = gradeRanges[category];
-				if (gradeLevel < min || gradeLevel > max) {
-					toast.error(`Grade level harus antara ${min} dan ${max} untuk kategori ${category.toUpperCase()}`);
+				const gradeLevelError = validateGradeLevel(category, gradeLevel);
+				if (gradeLevelError) {
+					toast.error(gradeLevelError);
 					return;
 				}
 			}
@@ -108,7 +94,7 @@ export function EditSubjectDialog({ open, onOpenChange, subject }: EditSubjectDi
 	}, [open, subject, form]);
 
 	const updateMutation = useMutation(
-		orpc.admin.subject.updateSubject.mutationOptions({
+		orpc.admin.subject.update.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
 				queryClient.invalidateQueries();

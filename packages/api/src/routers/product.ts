@@ -1,34 +1,29 @@
 import { db } from "@bimbelbeta/db";
 import { product } from "@bimbelbeta/db/schema/transaction";
 import { desc } from "drizzle-orm";
-import { pub } from "../index";
+import { baseImplementer } from "../lib/router-definition";
+import { rateLimit, requireAuth } from "../lib/router-definition/middleware";
 
-const list = pub
-	.route({
-		path: "/products",
-		method: "GET",
-		tags: ["Products"],
-	})
-	.handler(async () => {
-		const products = await db
-			.select({
-				id: product.id,
-				name: product.name,
-				slug: product.slug,
-				description: product.description,
-				price: product.price,
-				type: product.type,
-				variant: product.variant,
-				fixedExpiryMonth: product.fixedExpiryMonth,
-				fixedExpiryDay: product.fixedExpiryDay,
-				durationDays: product.durationDays,
-				credits: product.credits,
-			})
-			.from(product)
-			.orderBy(desc(product.createdAt));
+const authed = baseImplementer.use(requireAuth).use(rateLimit);
 
-		return products;
-	});
+const list = authed.product.list.handler(async () => {
+	return db
+		.select({
+			id: product.id,
+			name: product.name,
+			slug: product.slug,
+			description: product.description,
+			price: product.price,
+			type: product.type,
+			variant: product.variant,
+			fixedExpiryMonth: product.fixedExpiryMonth,
+			fixedExpiryDay: product.fixedExpiryDay,
+			durationDays: product.durationDays,
+			credits: product.credits,
+		})
+		.from(product)
+		.orderBy(desc(product.createdAt));
+});
 
 export const productRouter = {
 	list,

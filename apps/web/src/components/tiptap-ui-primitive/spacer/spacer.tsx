@@ -1,5 +1,3 @@
-"use client";
-
 export type SpacerOrientation = "horizontal" | "vertical";
 
 export interface SpacerProps extends React.HTMLAttributes<HTMLDivElement> {

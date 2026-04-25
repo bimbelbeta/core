@@ -36,7 +36,7 @@ export type UserAnswer = {
  */
 export type BaseQuestion = {
 	id: number;
-	content: unknown;
+	content: Record<string, unknown>;
 	type: "multiple_choice" | "multiple_choice_complex" | "essay";
 };
 
@@ -56,7 +56,7 @@ export type TryoutQuestion = BaseQuestion & {
 export type ReviewQuestion = BaseQuestion & {
 	choices: ChoiceWithAnswer[];
 	userAnswer: UserAnswer;
-	discussion: unknown;
+	discussion: Record<string, unknown> | null;
 };
 
 /**
@@ -66,8 +66,8 @@ export type ReviewQuestion = BaseQuestion & {
 export type PracticeQuestion = {
 	id: number;
 	order: number;
-	content: unknown;
-	discussion: unknown;
+	content: Record<string, unknown>;
+	discussion: Record<string, unknown> | null;
 	choices: ChoiceWithAnswer[];
 	selectedChoiceId: number | null;
 };

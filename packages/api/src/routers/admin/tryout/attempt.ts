@@ -1,69 +1,84 @@
 import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
-import { tryoutAttempt } from "@bimbelbeta/db/schema/tryout";
-import { type } from "arktype";
-import { and, eq, gt } from "drizzle-orm";
-import { admin } from "../../..";
+import { tryoutAttempt, tryoutSubtestAttempt } from "@bimbelbeta/db/schema/tryout";
+import { and, asc, desc, eq, gt, inArray, lt } from "drizzle-orm";
+import { buildIdCursorPage, parseIdCursor } from "../../../lib/pagination/cursor";
+import { baseImplementer } from "../../../lib/router-definition";
+import { rateLimit, requireAdmin, requireAuth } from "../../../lib/router-definition/middleware";
+import { parseNullableInt } from "../../../lib/utils";
 
-const getByTryout = admin
-	.route({
-		path: "/admin/tryouts/{id}/attempts",
-		method: "GET",
-	})
-	.input(
-		type({
-			id: "number",
-			after: "number?",
-			limit: "number = 10",
-		}),
-	)
-	.handler(async ({ input }) => {
-		const rows = await db
+const admin = baseImplementer.use(requireAuth).use(rateLimit).use(requireAdmin);
+
+const list = admin.admin.tryout.attempts.list.handler(async ({ input }) => {
+	const limit = input.limit ?? 10;
+	const isBackward = !!input.before;
+	const cursorStr = input.before || input.after;
+	const cursorId = cursorStr ? parseIdCursor(cursorStr) : undefined;
+
+	const rows = await db
+		.select({
+			attempt: tryoutAttempt,
+			user: {
+				id: user.id,
+				name: user.name,
+				email: user.email,
+				image: user.image,
+			},
+		})
+		.from(tryoutAttempt)
+		.innerJoin(user, eq(user.id, tryoutAttempt.userId))
+		.where(
+			and(
+				eq(tryoutAttempt.tryoutId, input.id),
+				cursorId !== undefined
+					? isBackward
+						? lt(tryoutAttempt.id, cursorId)
+						: gt(tryoutAttempt.id, cursorId)
+					: undefined,
+			),
+		)
+		.orderBy(isBackward ? desc(tryoutAttempt.id) : asc(tryoutAttempt.id))
+		.limit(limit + 1);
+
+	const mappedRows = rows.map((row) => ({
+		id: row.attempt.id,
+		attempt: { ...row.attempt, score: parseNullableInt(row.attempt.score) },
+		user: row.user,
+	}));
+
+	const { items: pagedItems, pageInfo } = buildIdCursorPage(mappedRows, limit, isBackward, !!cursorStr);
+	const attemptIds = pagedItems.map((row) => row.id);
+	const subtestAttemptsByAttemptId = new Map<number, { subtestId: number; score: number | null }[]>();
+
+	if (attemptIds.length > 0) {
+		const subtestAttempts = await db
 			.select({
-				attempt: {
-					id: tryoutAttempt.id,
-					userId: tryoutAttempt.userId,
-					tryoutId: tryoutAttempt.tryoutId,
-					startedAt: tryoutAttempt.startedAt,
-					deadline: tryoutAttempt.deadline,
-					completedAt: tryoutAttempt.completedAt,
-					status: tryoutAttempt.status,
-					score: tryoutAttempt.score,
-					submittedImageUrl: tryoutAttempt.submittedImageUrl,
-					isRevoked: tryoutAttempt.isRevoked,
-					usedCredit: tryoutAttempt.usedCredit,
-					usedAccessCode: tryoutAttempt.usedAccessCode,
-				},
-				user: {
-					id: user.id,
-					name: user.name,
-					email: user.email,
-					image: user.image,
-					isPremium: user.isPremium,
-				},
+				tryoutAttemptId: tryoutSubtestAttempt.tryoutAttemptId,
+				subtestId: tryoutSubtestAttempt.subtestId,
+				score: tryoutSubtestAttempt.score,
 			})
-			.from(tryoutAttempt)
-			.innerJoin(user, eq(user.id, tryoutAttempt.userId))
-			.where(and(eq(tryoutAttempt.tryoutId, input.id), input.after ? gt(tryoutAttempt.id, input.after) : undefined))
-			.orderBy(tryoutAttempt.id)
-			.limit(input.limit + 1);
+			.from(tryoutSubtestAttempt)
+			.where(inArray(tryoutSubtestAttempt.tryoutAttemptId, attemptIds))
+			.orderBy(asc(tryoutSubtestAttempt.subtestId));
 
-		if (rows.length === 0 || !rows)
-			return {
-				attempts: [],
-				nextCursor: null,
-			};
+		for (const subtestAttempt of subtestAttempts) {
+			const attempts = subtestAttemptsByAttemptId.get(subtestAttempt.tryoutAttemptId) ?? [];
+			attempts.push({
+				subtestId: subtestAttempt.subtestId,
+				score: parseNullableInt(subtestAttempt.score),
+			});
+			subtestAttemptsByAttemptId.set(subtestAttempt.tryoutAttemptId, attempts);
+		}
+	}
 
-		const hasMore = rows.length > input.limit;
-		const data = hasMore ? rows.slice(0, input.limit) : rows;
-		const lastAttempt = data.at(-1);
+	const items = pagedItems.map((row) => ({
+		...row,
+		subtestAttempts: subtestAttemptsByAttemptId.get(row.id) ?? [],
+	}));
 
-		return {
-			attempts: data,
-			nextCursor: hasMore && lastAttempt ? lastAttempt.attempt.id : undefined,
-		};
-	});
+	return { items, pageInfo };
+});
 
 export const tryoutAttemptRouter = {
-	getByTryout,
+	list,
 };

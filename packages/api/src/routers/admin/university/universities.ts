@@ -1,203 +1,127 @@
 import { db } from "@bimbelbeta/db";
 import { university } from "@bimbelbeta/db/schema/university";
-import { type } from "arktype";
-import { and, eq, gt, sql } from "drizzle-orm";
-import { admin } from "../../../index";
+import { and, asc, desc, eq, gt, lt, sql } from "drizzle-orm";
+import { buildIdCursorPage, parseIdCursor } from "../../../lib/pagination/cursor";
+import { baseImplementer } from "../../../lib/router-definition";
+import { rateLimit, requireAdmin, requireAuth } from "../../../lib/router-definition/middleware";
 
-const list = admin
-	.route({
-		path: "/admin/universities",
-		method: "GET",
-		tags: ["Admin - Universities"],
-	})
-	.input(
-		type({
-			cursor: "number?",
-			limit: "number?",
-			search: "string?",
-		}),
-	)
-	.handler(async ({ input }) => {
-		const limit = Math.min(input.limit ?? 20, 100);
+const admin = baseImplementer.use(requireAuth).use(rateLimit).use(requireAdmin);
 
-		const results = await db
-			.select({
-				id: university.id,
-				name: university.name,
-				slug: university.slug,
-				logo: university.logo,
-				location: university.location,
-				rank: university.rank,
-				isActive: university.isActive,
-			})
-			.from(university)
-			.where(
-				and(
-					input.cursor ? gt(university.id, input.cursor) : undefined,
-					input.search ? sql`(${university.name} ILIKE ${`%${input.search}%`})` : undefined,
-				),
-			)
-			.orderBy(university.id)
-			.limit(limit + 1);
+const list = admin.admin.university.universities.list.handler(async ({ input }) => {
+	const limit = Math.min(input.limit ?? 20, 100);
+	const isBackward = !!input.before;
+	const cursor = input.before || input.after;
+	const cursorId = cursor ? parseIdCursor(cursor) : undefined;
 
-		const hasMore = results.length > limit;
-		const data = hasMore ? results.slice(0, limit) : results;
-		const nextCursor = hasMore ? data[data.length - 1]!.id : null;
+	const rows = await db
+		.select({
+			id: university.id,
+			name: university.name,
+			slug: university.slug,
+			logo: university.logo,
+			description: university.description,
+			location: university.location,
+			website: university.website,
+			rank: university.rank,
+			isActive: university.isActive,
+		})
+		.from(university)
+		.where(
+			and(
+				cursorId !== undefined ? (isBackward ? lt(university.id, cursorId) : gt(university.id, cursorId)) : undefined,
+				input.search ? sql`(${university.name} ILIKE ${`%${input.search}%`})` : undefined,
+			),
+		)
+		.orderBy(isBackward ? desc(university.id) : asc(university.id))
+		.limit(limit + 1);
 
-		return { data, nextCursor };
-	});
+	const { items, pageInfo } = buildIdCursorPage(rows, limit, isBackward, !!cursor);
 
-const find = admin
-	.route({
-		path: "/admin/universities/{id}",
-		method: "GET",
-		tags: ["Admin - Universities"],
-	})
-	.input(type({ id: "number" }))
-	.handler(async ({ input, errors }) => {
-		const [uni] = await db
-			.select({
-				id: university.id,
-				name: university.name,
-				slug: university.slug,
-				logo: university.logo,
-				description: university.description,
-				location: university.location,
-				website: university.website,
-				rank: university.rank,
-				isActive: university.isActive,
-			})
-			.from(university)
-			.where(eq(university.id, input.id))
-			.limit(1);
+	return { items, pageInfo };
+});
 
-		if (!uni) {
-			throw errors.NOT_FOUND({
-				message: "Universitas tidak ditemukan",
-			});
-		}
+const find = admin.admin.university.universities.find.handler(async ({ input, errors }) => {
+	const [uni] = await db
+		.select({
+			id: university.id,
+			name: university.name,
+			slug: university.slug,
+			logo: university.logo,
+			description: university.description,
+			location: university.location,
+			website: university.website,
+			rank: university.rank,
+			isActive: university.isActive,
+		})
+		.from(university)
+		.where(eq(university.id, input.id))
+		.limit(1);
 
-		return uni;
-	});
+	if (!uni) {
+		throw errors.NOT_FOUND({
+			message: "Universitas tidak ditemukan",
+		});
+	}
 
-const create = admin
-	.route({
-		path: "/admin/universities",
-		method: "POST",
-		tags: ["Admin - Universities"],
-	})
-	.input(
-		type({
-			name: "string",
-			slug: "string",
-			logo: "string?",
-			description: "string?",
-			location: "string?",
-			website: "string?",
-			rank: "number?",
-		}),
-	)
-	.output(type({ message: "string", id: "number" }))
-	.handler(async ({ input, errors }) => {
-		const [created] = await db
-			.insert(university)
-			.values({
-				name: input.name,
-				slug: input.slug,
-				logo: input.logo ?? null,
-				description: input.description ?? null,
-				location: input.location ?? null,
-				website: input.website ?? null,
-				rank: input.rank ?? null,
-			})
-			.returning();
+	return uni;
+});
 
-		if (!created) {
-			throw errors.INTERNAL_SERVER_ERROR({
-				message: "Gagal membuat universitas",
-			});
-		}
+const create = admin.admin.university.universities.create.handler(async ({ input, errors }) => {
+	const [created] = await db
+		.insert(university)
+		.values({
+			name: input.name,
+			slug: input.slug,
+			logo: input.logo ?? null,
+			description: input.description ?? null,
+			location: input.location ?? null,
+			website: input.website ?? null,
+			rank: input.rank ?? null,
+		})
+		.returning();
 
-		return {
-			message: "Universitas berhasil dibuat",
-			id: created.id,
-		};
-	});
+	if (!created) {
+		throw errors.INTERNAL_SERVER_ERROR({
+			message: "Gagal membuat universitas",
+		});
+	}
 
-const update = admin
-	.route({
-		path: "/admin/universities/{id}",
-		method: "PATCH",
-		tags: ["Admin - Universities"],
-	})
-	.input(
-		type({
-			id: "number",
-			name: "string?",
-			slug: "string?",
-			logo: "string?",
-			description: "string?",
-			location: "string?",
-			website: "string?",
-			rank: "number?",
-			isActive: "boolean?",
-		}),
-	)
-	.output(type({ message: "string" }))
-	.handler(async ({ input, errors }) => {
-		const updateData: {
-			name?: string;
-			slug?: string;
-			logo?: string | null;
-			description?: string | null;
-			location?: string | null;
-			website?: string | null;
-			rank?: number | null;
-			isActive?: boolean;
-			updatedAt: Date;
-		} = {
-			updatedAt: new Date(),
-		};
+	return {
+		message: "Universitas berhasil dibuat",
+		id: created.id,
+	};
+});
 
-		if (input.name !== undefined) updateData.name = input.name;
-		if (input.slug !== undefined) updateData.slug = input.slug;
-		if (input.logo !== undefined) updateData.logo = input.logo;
-		if (input.description !== undefined) updateData.description = input.description;
-		if (input.location !== undefined) updateData.location = input.location;
-		if (input.website !== undefined) updateData.website = input.website;
-		if (input.rank !== undefined) updateData.rank = input.rank;
-		if (input.isActive !== undefined) updateData.isActive = input.isActive;
+const update = admin.admin.university.universities.update.handler(async ({ input, errors }) => {
+	const { id, ...fields } = input;
+	const patch = Object.fromEntries(Object.entries(fields).filter(([, v]) => v !== undefined));
 
-		const [updated] = await db.update(university).set(updateData).where(eq(university.id, input.id)).returning();
+	const [updated] = await db
+		.update(university)
+		.set({ ...patch, updatedAt: new Date() })
+		.where(eq(university.id, id))
+		.returning();
 
-		if (!updated) {
-			throw errors.NOT_FOUND({
-				message: "Universitas tidak ditemukan",
-			});
-		}
+	if (!updated) {
+		throw errors.NOT_FOUND({
+			message: "Universitas tidak ditemukan",
+		});
+	}
 
-		return { message: "Universitas berhasil diperbarui" };
-	});
+	return { message: "Universitas berhasil diperbarui" };
+});
 
-const remove = admin
-	.route({
-		path: "/admin/universities/{id}",
-		method: "DELETE",
-		tags: ["Admin - Universities"],
-	})
-	.input(type({ id: "number" }))
-	.output(type({ message: "string" }))
-	.handler(async ({ input, errors }) => {
-		const [deleted] = await db.delete(university).where(eq(university.id, input.id)).returning();
+const remove = admin.admin.university.universities.remove.handler(async ({ input, errors }) => {
+	const [deleted] = await db.delete(university).where(eq(university.id, input.id)).returning();
 
-		if (!deleted) {
-			throw errors.NOT_FOUND({
-				message: "Universitas tidak ditemukan",
-			});
-		}
+	if (!deleted) {
+		throw errors.NOT_FOUND({
+			message: "Universitas tidak ditemukan",
+		});
+	}
 
-		return { message: "Universitas berhasil dihapus" };
-	});
+	return { message: "Universitas berhasil dihapus" };
+});
 
 export const adminUniversityRouter = {
 	list,

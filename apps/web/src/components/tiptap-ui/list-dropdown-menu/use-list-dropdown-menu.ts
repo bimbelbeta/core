@@ -1,15 +1,13 @@
-"use client";
-
 import type { Editor } from "@tiptap/react";
 import { useEffect, useMemo, useState } from "react";
+// --- Hooks ---
+import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
 // --- Icons ---
 import { ListIcon } from "@/components/tiptap-icons/list-icon";
 import { ListOrderedIcon } from "@/components/tiptap-icons/list-ordered-icon";
 import { ListTodoIcon } from "@/components/tiptap-icons/list-todo-icon";
 // --- Tiptap UI ---
 import { canToggleList, isListActive, type ListType, listIcons } from "@/components/tiptap-ui/list-button";
-// --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
 // --- Lib ---
 import { isNodeInSchema } from "@/lib/tiptap-utils";
 
@@ -58,12 +56,12 @@ export const listOptions: ListOption[] = [
 ];
 
 export function canToggleAnyList(editor: Editor | null, listTypes: ListType[]): boolean {
-	if (!editor || !editor.isEditable) return false;
+	if (!editor?.isEditable) return false;
 	return listTypes.some((type) => canToggleList(editor, type));
 }
 
 export function isAnyListActive(editor: Editor | null, listTypes: ListType[]): boolean {
-	if (!editor || !editor.isEditable) return false;
+	if (!editor?.isEditable) return false;
 	return listTypes.some((type) => isListActive(editor, type));
 }
 
@@ -95,7 +93,7 @@ export function shouldShowListDropdown(params: {
  * Gets the currently active list type from the available types
  */
 export function getActiveListType(editor: Editor | null, availableTypes: ListType[]): ListType | undefined {
-	if (!editor || !editor.isEditable) return undefined;
+	if (!editor?.isEditable) return undefined;
 	return availableTypes.find((type) => isListActive(editor, type));
 }
 

@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet, redirect, useLocation, useRouterState } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
-import { HeaderDashboard } from "@/components/header-dashboard";
+import { HeaderDashboard } from "@/components/shared/header-dashboard";
 import { Container } from "@/components/ui/container";
 import { $getSession } from "@/lib/get-user";
 import { createMeta } from "@/lib/seo-utils";

@@ -1,349 +1,126 @@
-import { createHash, randomBytes } from "node:crypto";
 import { db } from "@bimbelbeta/db";
-import { tryout, tryoutAccessCode } from "@bimbelbeta/db/schema/tryout";
-import { type } from "arktype";
-import { and, eq, gt, ilike } from "drizzle-orm";
-import { admin } from "../../..";
+import { tryout } from "@bimbelbeta/db/schema/tryout";
+import { and, asc, desc, eq, gt, ilike, lt } from "drizzle-orm";
+import { buildIdCursorPage, parseIdCursor } from "../../../lib/pagination/cursor";
+import { baseImplementer } from "../../../lib/router-definition";
+import { rateLimit, requireAdmin, requireAuth } from "../../../lib/router-definition/middleware";
+import { pickDefined } from "../../../lib/utils";
+
 import { tryoutAttemptRouter } from "./attempt";
 
-const maskCode = (code: string) => {
-	if (code.length <= 4) {
-		return `${code}${"*".repeat(4)}`;
+const admin = baseImplementer.use(requireAuth).use(rateLimit).use(requireAdmin);
+
+const createTryout = admin.admin.tryout.createTryout.handler(async ({ input, errors }) => {
+	const [created] = await db
+		.insert(tryout)
+		.values({
+			title: input.title,
+			description: input.description ?? null,
+			category: input.category,
+			status: input.status ?? "draft",
+			startsAt: input.startsAt ? new Date(input.startsAt) : null,
+			endsAt: input.endsAt ? new Date(input.endsAt) : null,
+		})
+		.returning();
+
+	if (!created)
+		throw errors.INTERNAL_SERVER_ERROR({
+			message: "Gagal membuat tryout",
+		});
+
+	return {
+		message: "Tryout berhasil dibuat",
+		id: created.id,
+	};
+});
+
+const list = admin.admin.tryout.list.handler(async ({ input }) => {
+	const limit = input.limit ?? 10;
+	const isBackward = !!input.before;
+	const cursorStr = input.before || input.after;
+	const cursorId = cursorStr ? parseIdCursor(cursorStr) : undefined;
+
+	const rows = await db
+		.select()
+		.from(tryout)
+		.where(
+			and(
+				input.search ? ilike(tryout.title, `%${input.search}%`) : undefined,
+				input.category ? eq(tryout.category, input.category) : undefined,
+				input.status ? eq(tryout.status, input.status) : undefined,
+				cursorId !== undefined ? (isBackward ? lt(tryout.id, cursorId) : gt(tryout.id, cursorId)) : undefined,
+			),
+		)
+		.orderBy(isBackward ? desc(tryout.id) : asc(tryout.id))
+		.limit(limit + 1);
+
+	const { items, pageInfo } = buildIdCursorPage(rows, limit, isBackward, !!cursorStr);
+
+	return { items, pageInfo };
+});
+
+const find = admin.admin.tryout.find.handler(async ({ input, errors }) => {
+	const [tryoutData] = await db.select().from(tryout).where(eq(tryout.id, input.id)).limit(1);
+
+	if (!tryoutData)
+		throw errors.NOT_FOUND({
+			message: "Tryout tidak ditemukan",
+		});
+
+	const { tryoutSubtest } = await import("@bimbelbeta/db/schema/tryout");
+
+	const subtestsData = await db
+		.select()
+		.from(tryoutSubtest)
+		.where(eq(tryoutSubtest.tryoutId, input.id))
+		.orderBy(tryoutSubtest.order);
+
+	return {
+		tryout: tryoutData,
+		subtests: subtestsData,
+	};
+});
+
+const updateTryout = admin.admin.tryout.updateTryout.handler(async ({ input, errors }) => {
+	const updateData = {
+		...pickDefined({
+			title: input.title,
+			description: input.description !== undefined ? (input.description ?? null) : undefined,
+			category: input.category,
+			status: input.status,
+			startsAt: input.startsAt !== undefined ? (input.startsAt ? new Date(input.startsAt) : null) : undefined,
+			endsAt: input.endsAt !== undefined ? (input.endsAt ? new Date(input.endsAt) : null) : undefined,
+		}),
+		updatedAt: new Date(),
+	};
+
+	const [updated] = await db.update(tryout).set(updateData).where(eq(tryout.id, input.id)).returning();
+
+	if (!updated)
+		throw errors.NOT_FOUND({
+			message: "Tryout tidak ditemukan",
+		});
+
+	return { message: "Tryout berhasil diperbarui" };
+});
+
+const remove = admin.admin.tryout.remove.handler(async ({ input, errors }) => {
+	const [deleted] = await db.delete(tryout).where(eq(tryout.id, input.id)).returning();
+
+	if (!deleted) {
+		throw errors.NOT_FOUND({
+			message: "Tryout tidak ditemukan",
+		});
 	}
 
-	return `${code.slice(0, 4)}${"*".repeat(Math.max(code.length - 4, 4))}`;
-};
-
-const generateAccessCode = () => {
-	return randomBytes(6).toString("base64url").toUpperCase();
-};
-
-const createTryout = admin
-	.route({
-		path: "/admin/tryouts",
-		method: "POST",
-		tags: ["Admin - Tryouts"],
-	})
-	.input(
-		type({
-			title: "string",
-			description: "string?",
-			category: type("'sd' | 'smp' | 'sma' | 'utbk'"),
-			status: type("'draft' | 'published' | 'archived'")?.optional(),
-			startsAt: "string?",
-			endsAt: "string?",
-		}),
-	)
-	.handler(async ({ input, errors }) => {
-		const [created] = await db
-			.insert(tryout)
-			.values({
-				title: input.title,
-				description: input.description ?? null,
-				category: input.category,
-				status: input.status ?? "draft",
-				startsAt: input.startsAt ? new Date(input.startsAt) : null,
-				endsAt: input.endsAt ? new Date(input.endsAt) : null,
-			})
-			.returning();
-
-		if (!created)
-			throw errors.INTERNAL_SERVER_ERROR({
-				message: "Gagal membuat tryout",
-			});
-
-		return {
-			message: "Tryout berhasil dibuat",
-			id: created.id,
-		};
-	});
-
-const listTryouts = admin
-	.route({
-		path: "/admin/tryouts",
-		method: "GET",
-		tags: ["Admin - Tryouts"],
-	})
-	.input(
-		type({
-			cursor: "number?",
-			limit: "number = 10",
-			search: "string?",
-			category: type("'sd' | 'smp' | 'sma' | 'utbk'")?.optional(),
-			status: type("'draft' | 'published' | 'archived'")?.optional(),
-		}),
-	)
-	.handler(async ({ input }) => {
-		const rows = await db
-			.select()
-			.from(tryout)
-			.where(
-				and(
-					input.cursor ? gt(tryout.id, input.cursor) : undefined,
-					input.search ? ilike(tryout.title, `%${input.search}%`) : undefined,
-					input.category ? eq(tryout.category, input.category) : undefined,
-					input.status ? eq(tryout.status, input.status) : undefined,
-				),
-			)
-			.limit(input.limit + 1)
-			.orderBy(tryout.id);
-
-		const hasMore = rows.length > input.limit;
-		const tryoutsList = hasMore ? rows.slice(0, input.limit) : rows;
-		const lastTryout = tryoutsList.at(-1);
-
-		return {
-			tryouts: tryoutsList,
-			nextCursor: hasMore && lastTryout ? lastTryout.id : undefined,
-		};
-	});
-
-const getTryout = admin
-	.route({
-		path: "/admin/tryouts/{id}",
-		method: "GET",
-		tags: ["Admin - Tryouts"],
-	})
-	.input(type({ id: "number" }))
-	.handler(async ({ input, errors }) => {
-		const [tryoutData] = await db.select().from(tryout).where(eq(tryout.id, input.id)).limit(1);
-
-		if (!tryoutData)
-			throw errors.NOT_FOUND({
-				message: "Tryout tidak ditemukan",
-			});
-
-		const { tryoutSubtest } = await import("@bimbelbeta/db/schema/tryout");
-
-		const subtestsData = await db
-			.select()
-			.from(tryoutSubtest)
-			.where(eq(tryoutSubtest.tryoutId, input.id))
-			.orderBy(tryoutSubtest.order);
-
-		return {
-			tryout: tryoutData,
-			subtests: subtestsData,
-		};
-	});
-
-const updateTryout = admin
-	.route({
-		path: "/admin/tryouts/{id}",
-		method: "PATCH",
-		tags: ["Admin - Tryouts"],
-	})
-	.input(
-		type({
-			id: "number",
-			title: "string?",
-			description: "string?",
-			category: type("'sd' | 'smp' | 'sma' | 'utbk'")?.optional(),
-			status: type("'draft' | 'published' | 'archived'")?.optional(),
-			startsAt: "string?",
-			endsAt: "string?",
-		}),
-	)
-	.output(type({ message: "string" }))
-	.handler(async ({ input, errors }) => {
-		const updateData: {
-			title?: string;
-			description?: string | null;
-			category?: "sd" | "smp" | "sma" | "utbk";
-			duration?: number;
-			status?: "draft" | "published" | "archived";
-			startsAt?: Date | null;
-			endsAt?: Date | null;
-			updatedAt: Date;
-		} = {
-			updatedAt: new Date(),
-		};
-
-		if (input.title !== undefined) updateData.title = input.title;
-		if (input.description !== undefined) updateData.description = input.description ?? null;
-		if (input.category !== undefined) updateData.category = input.category;
-		if (input.status !== undefined) updateData.status = input.status;
-		if (input.startsAt !== undefined) updateData.startsAt = input.startsAt ? new Date(input.startsAt) : null;
-		if (input.endsAt !== undefined) updateData.endsAt = input.endsAt ? new Date(input.endsAt) : null;
-
-		const [updated] = await db.update(tryout).set(updateData).where(eq(tryout.id, input.id)).returning();
-
-		if (!updated)
-			throw errors.NOT_FOUND({
-				message: "Tryout tidak ditemukan",
-			});
-
-		return { message: "Tryout berhasil diperbarui" };
-	});
-
-const deleteTryout = admin
-	.route({
-		path: "/admin/tryouts/{id}",
-		method: "DELETE",
-		tags: ["Admin - Tryouts"],
-	})
-	.input(type({ id: "number" }))
-	.output(type({ message: "string" }))
-	.handler(async ({ input, errors }) => {
-		const [deleted] = await db.delete(tryout).where(eq(tryout.id, input.id)).returning();
-
-		if (!deleted) {
-			throw errors.NOT_FOUND({
-				message: "Tryout tidak ditemukan",
-			});
-		}
-
-		return { message: "Tryout berhasil dihapus" };
-	});
-
-const listAccessCodes = admin
-	.route({
-		path: "/admin/tryouts/{id}/access-codes",
-		method: "GET",
-		tags: ["Admin - Tryouts"],
-	})
-	.input(type({ id: "number" }))
-	.handler(async ({ input }) => {
-		const rows = await db.query.tryoutAccessCode.findMany({
-			where: eq(tryoutAccessCode.tryoutId, input.id),
-			columns: {
-				id: true,
-				codePreview: true,
-				label: true,
-				isActive: true,
-				expiresAt: true,
-				maxUses: true,
-				usedCount: true,
-				createdAt: true,
-				updatedAt: true,
-			},
-			orderBy: (accessCodes, { desc }) => [desc(accessCodes.createdAt)],
-		});
-
-		return rows.map((row) => ({
-			id: row.id,
-			label: row.label,
-			isActive: row.isActive,
-			expiresAt: row.expiresAt,
-			maxUses: row.maxUses,
-			usedCount: row.usedCount,
-			createdAt: row.createdAt,
-			updatedAt: row.updatedAt,
-			codePreview: row.codePreview,
-		}));
-	});
-
-const createAccessCode = admin
-	.route({
-		path: "/admin/tryouts/{id}/access-codes",
-		method: "POST",
-		tags: ["Admin - Tryouts"],
-	})
-	.input(
-		type({
-			id: "number",
-			label: "string?",
-			code: "string?",
-			expiresAt: "string?",
-			maxUses: "number?",
-		}),
-	)
-	.handler(async ({ input, errors }) => {
-		const existingTryout = await db.query.tryout.findFirst({
-			where: eq(tryout.id, input.id),
-			columns: { id: true },
-		});
-
-		if (!existingTryout) {
-			throw errors.NOT_FOUND({ message: "Tryout tidak ditemukan" });
-		}
-
-		if (input.maxUses !== undefined && input.maxUses <= 0) {
-			throw errors.BAD_REQUEST({ message: "Maksimal penggunaan harus lebih dari 0" });
-		}
-
-		const plainCode = (input.code?.trim() || generateAccessCode()).toUpperCase();
-		const codeHash = createHash("sha256").update(plainCode).digest("hex");
-
-		try {
-			const [created] = await db
-				.insert(tryoutAccessCode)
-				.values({
-					tryoutId: input.id,
-					codeHash,
-					codePreview: maskCode(plainCode),
-					label: input.label?.trim() || null,
-					expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
-					maxUses: input.maxUses ?? null,
-				})
-				.returning({
-					id: tryoutAccessCode.id,
-					label: tryoutAccessCode.label,
-					isActive: tryoutAccessCode.isActive,
-					expiresAt: tryoutAccessCode.expiresAt,
-					maxUses: tryoutAccessCode.maxUses,
-					usedCount: tryoutAccessCode.usedCount,
-					createdAt: tryoutAccessCode.createdAt,
-				});
-
-			if (!created) {
-				throw errors.INTERNAL_SERVER_ERROR({
-					message: "Gagal membuat kode akses",
-				});
-			}
-
-			return {
-				...created,
-				code: plainCode,
-			};
-		} catch {
-			throw errors.BAD_REQUEST({
-				message: "Kode akses sudah ada untuk tryout ini",
-			});
-		}
-	});
-
-const updateAccessCodeStatus = admin
-	.route({
-		path: "/admin/tryouts/{id}/access-codes/{accessCodeId}",
-		method: "PATCH",
-		tags: ["Admin - Tryouts"],
-	})
-	.input(
-		type({
-			id: "number",
-			accessCodeId: "number",
-			isActive: "boolean",
-		}),
-	)
-	.handler(async ({ input, errors }) => {
-		const [updated] = await db
-			.update(tryoutAccessCode)
-			.set({
-				isActive: input.isActive,
-				updatedAt: new Date(),
-			})
-			.where(and(eq(tryoutAccessCode.id, input.accessCodeId), eq(tryoutAccessCode.tryoutId, input.id)))
-			.returning({
-				id: tryoutAccessCode.id,
-				isActive: tryoutAccessCode.isActive,
-			});
-
-		if (!updated) {
-			throw errors.NOT_FOUND({ message: "Kode akses tidak ditemukan" });
-		}
-
-		return updated;
-	});
+	return { message: "Tryout berhasil dihapus" };
+});
 
 export const tryoutRouter = {
 	createTryout,
-	listTryouts,
-	getTryout,
+	list,
+	find,
 	updateTryout,
-	deleteTryout,
-	listAccessCodes,
-	createAccessCode,
-	updateAccessCodeStatus,
+	remove,
 	attempts: tryoutAttemptRouter,
 };

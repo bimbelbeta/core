@@ -1,18 +1,15 @@
-"use client";
-
 import { NodeSelection, TextSelection } from "@tiptap/pm/state";
 import type { Editor } from "@tiptap/react";
 import { useCallback, useEffect, useState } from "react";
+// --- Hooks ---
+import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
 import { HeadingFiveIcon } from "@/components/tiptap-icons/heading-five-icon";
 import { HeadingFourIcon } from "@/components/tiptap-icons/heading-four-icon";
-
 // --- Icons ---
 import { HeadingOneIcon } from "@/components/tiptap-icons/heading-one-icon";
 import { HeadingSixIcon } from "@/components/tiptap-icons/heading-six-icon";
 import { HeadingThreeIcon } from "@/components/tiptap-icons/heading-three-icon";
 import { HeadingTwoIcon } from "@/components/tiptap-icons/heading-two-icon";
-// --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
 // --- Lib ---
 import {
 	findNodePosition,
@@ -69,7 +66,7 @@ export const HEADING_SHORTCUT_KEYS: Record<Level, string> = {
  * Checks if heading can be toggled in the current editor state
  */
 export function canToggle(editor: Editor | null, level?: Level, turnInto = true): boolean {
-	if (!editor || !editor.isEditable) return false;
+	if (!editor?.isEditable) return false;
 	if (!isNodeInSchema("heading", editor) || isNodeTypeSelected(editor, ["image"])) return false;
 
 	if (!turnInto) {
@@ -101,7 +98,7 @@ export function canToggle(editor: Editor | null, level?: Level, turnInto = true)
  * Checks if heading is currently active
  */
 export function isHeadingActive(editor: Editor | null, level?: Level | Level[]): boolean {
-	if (!editor || !editor.isEditable) return false;
+	if (!editor?.isEditable) return false;
 
 	if (Array.isArray(level)) {
 		return level.some((l) => editor.isActive("heading", { level: l }));
@@ -114,7 +111,7 @@ export function isHeadingActive(editor: Editor | null, level?: Level | Level[]):
  * Toggles heading in the editor
  */
 export function toggleHeading(editor: Editor | null, level: Level | Level[]): boolean {
-	if (!editor || !editor.isEditable) return false;
+	if (!editor?.isEditable) return false;
 
 	const levels = Array.isArray(level) ? level : [level];
 	const toggleLevel = levels.find((l) => canToggle(editor, l));
@@ -181,7 +178,7 @@ export function shouldShowButton(props: {
 }): boolean {
 	const { editor, level, hideWhenUnavailable } = props;
 
-	if (!editor || !editor.isEditable) return false;
+	if (!editor?.isEditable) return false;
 	if (!isNodeInSchema("heading", editor)) return false;
 
 	if (hideWhenUnavailable && !editor.isActive("code")) {
@@ -194,52 +191,7 @@ export function shouldShowButton(props: {
 	return true;
 }
 
-/**
- * Custom hook that provides heading functionality for Tiptap editor
- *
- * @example
- * ```tsx
- * // Simple usage
- * function MySimpleHeadingButton() {
- *   const { isVisible, isActive, handleToggle, Icon } = useHeading({ level: 1 })
- *
- *   if (!isVisible) return null
- *
- *   return (
- *     <button
- *       onClick={handleToggle}
- *       aria-pressed={isActive}
- *     >
- *       <Icon />
- *       Heading 1
- *     </button>
- *   )
- * }
- *
- * // Advanced usage with configuration
- * function MyAdvancedHeadingButton() {
- *   const { isVisible, isActive, handleToggle, label, Icon } = useHeading({
- *     level: 2,
- *     editor: myEditor,
- *     hideWhenUnavailable: true,
- *     onToggled: (isActive) => console.log('Heading toggled:', isActive)
- *   })
- *
- *   if (!isVisible) return null
- *
- *   return (
- *     <MyButton
- *       onClick={handleToggle}
- *       aria-label={label}
- *       aria-pressed={isActive}
- *     >
- *       <Icon />
- *       Toggle Heading 2
- *     </MyButton>
- *   )
- * }
- * ```
- */
+/** Custom hook that provides heading functionality for Tiptap editor */
 export function useHeading(config: UseHeadingConfig) {
 	const { editor: providedEditor, level, hideWhenUnavailable = false, onToggled } = config;
 

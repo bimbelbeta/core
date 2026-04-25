@@ -30,13 +30,13 @@ function SubtestDetailPage() {
 	const subtestId = parseRouteParamToNumber(rawSubtestId);
 
 	const { data, isPending, refetch } = useQuery(
-		orpc.admin.tryout.questionsBulk.listSubtestQuestions.queryOptions({
+		orpc.admin.tryout.questionsBulk.list.queryOptions({
 			input: { subtestId },
 		}),
 	);
 
 	const { data: subtestData, refetch: refetchSubtest } = useQuery(
-		orpc.admin.tryout.subtest.getSubtest.queryOptions({
+		orpc.admin.tryout.subtest.find.queryOptions({
 			input: { id: subtestId },
 		}),
 	);

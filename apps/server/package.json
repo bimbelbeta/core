@@ -14,19 +14,17 @@
 		"@bimbelbeta/api": "workspace:*",
 		"@bimbelbeta/auth": "workspace:*",
 		"@orpc/arktype": "catalog:",
-		"@orpc/experimental-ratelimit": "^1.13.4",
 		"@orpc/openapi": "catalog:",
 		"@orpc/server": "catalog:",
+		"@orpc/experimental-ratelimit": "catalog:",
 		"arktype": "catalog:",
 		"better-auth": "catalog:",
 		"dotenv": "catalog:",
-		"hono": "catalog:",
-		"midtrans-client": "catalog:"
+		"hono": "catalog:"
 	},
 	"devDependencies": {
 		"typescript": "catalog:",
 		"tsdown": "catalog:",
-		"@bimbelbeta/config": "workspace:*",
-		"@types/node": "^24.10.9"
+		"@bimbelbeta/config": "workspace:*"
 	}
 }

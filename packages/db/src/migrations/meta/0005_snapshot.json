@@ -1,5 +1,5 @@
 {
-  "id": "9b5fe5a1-2df7-4f2c-8fc9-2755efc0f410",
+  "id": "32a388b0-5997-4664-839d-7e4278ac0a84",
   "prevId": "ed52b411-008a-4d5f-9d97-01394eeed73d",
   "version": "7",
   "dialect": "postgresql",
@@ -1799,139 +1799,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.tryout_access_code": {
-      "name": "tryout_access_code",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "tryout_access_code_id_seq",
-            "schema": "public",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
-        },
-        "tryout_id": {
-          "name": "tryout_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "code_hash": {
-          "name": "code_hash",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "code_preview": {
-          "name": "code_preview",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "label": {
-          "name": "label",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "is_active": {
-          "name": "is_active",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": true
-        },
-        "expires_at": {
-          "name": "expires_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "max_uses": {
-          "name": "max_uses",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "used_count": {
-          "name": "used_count",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "idx_tryout_access_code_tryout_id": {
-          "name": "idx_tryout_access_code_tryout_id",
-          "columns": [
-            {
-              "expression": "tryout_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "tryout_access_code_tryout_id_tryout_id_fk": {
-          "name": "tryout_access_code_tryout_id_tryout_id_fk",
-          "tableFrom": "tryout_access_code",
-          "tableTo": "tryout",
-          "columnsFrom": [
-            "tryout_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "uq_tryout_access_code_hash": {
-          "name": "uq_tryout_access_code_hash",
-          "nullsNotDistinct": false,
-          "columns": [
-            "tryout_id",
-            "code_hash"
-          ]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.tryout_attempt": {
       "name": "tryout_attempt",
       "schema": "",
@@ -1994,7 +1861,7 @@
         },
         "score": {
           "name": "score",
-          "type": "integer",
+          "type": "numeric(10, 2)",
           "primaryKey": false,
           "notNull": false
         },
@@ -2017,19 +1884,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": false
-        },
-        "used_access_code": {
-          "name": "used_access_code",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "access_code_id": {
-          "name": "access_code_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {
@@ -2074,19 +1928,6 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "tryout_attempt_access_code_id_tryout_access_code_id_fk": {
-          "name": "tryout_attempt_access_code_id_tryout_access_code_id_fk",
-          "tableFrom": "tryout_attempt",
-          "tableTo": "tryout_access_code",
-          "columnsFrom": [
-            "access_code_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
           "onUpdate": "no action"
         }
       },
@@ -2264,7 +2105,7 @@
         },
         "score": {
           "name": "score",
-          "type": "integer",
+          "type": "numeric(10, 2)",
           "primaryKey": false,
           "notNull": false
         }

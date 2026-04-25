@@ -1,3 +1,4 @@
+import { ROLES } from "@bimbelbeta/contract/common/roles";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { $getSession } from "@/lib/get-user";
 
@@ -16,7 +17,7 @@ export const Route = createFileRoute("/admin/_superadmin")({
 					redirect: location.href,
 				},
 			});
-		if (context.session.user.role !== "superadmin")
+		if (context.session.user.role !== ROLES.SUPER_ADMIN)
 			throw redirect({
 				to: "/admin/dashboard",
 			});

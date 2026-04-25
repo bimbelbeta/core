@@ -1,6 +1,5 @@
 import type { RouterClient } from "@orpc/server";
-import { type } from "arktype";
-import { pub } from "../index";
+import { baseImplementer } from "../lib/router-definition";
 import { adminRouter } from "./admin";
 import { creditRouter } from "./credit";
 import { productRouter } from "./product";
@@ -10,17 +9,12 @@ import { tryoutRouter } from "./tryout";
 import { universityRouter } from "./university";
 import { userSettingsRouter } from "./user-settings";
 
-export const appRouter = {
-	healthCheck: pub
-		.route({
-			path: "/healthcheck",
-			method: "GET",
-			tags: ["Uncategorized"],
-		})
-		.output(type({ message: "string" }))
-		.handler(() => {
-			return { message: "OK" };
-		}),
+const pub = baseImplementer;
+
+export const appRouter = baseImplementer.router({
+	healthCheck: pub.healthCheck.handler(() => {
+		return { message: "OK" };
+	}),
 	subject: subjectRouter,
 	tryout: tryoutRouter,
 	university: universityRouter,
@@ -29,7 +23,7 @@ export const appRouter = {
 	credit: creditRouter,
 	product: productRouter,
 	userSettings: userSettingsRouter,
-};
+});
 
 export type AppRouter = typeof appRouter;
 export type AppRouterClient = RouterClient<typeof appRouter>;

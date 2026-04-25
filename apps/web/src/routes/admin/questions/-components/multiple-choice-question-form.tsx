@@ -2,7 +2,7 @@ import { PlusIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ChoiceEditItem } from "./choice-edit-item";
-import type { Choice } from "./edit-question-form";
+import type { Choice } from "./types";
 
 interface MultipleChoiceQuestionFormProps {
 	choices: Choice[];

@@ -54,6 +54,8 @@ bimbelbeta/
 ├── packages/
 │   ├── api/         # API layer / business logic
 │   ├── auth/        # Authentication configuration & logic
+│   ├── config/      # Shared TypeScript base configuration (tsconfig)
+│   ├── contract/    # Shared API contract definitions, Arktype schemas, error codes
 │   └── db/          # Database schema & queries
 ```
 

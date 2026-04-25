@@ -33,7 +33,7 @@ export function useMidtrans() {
 			window.snap.pay(token, {
 				onSuccess: () => {
 					toast.success("Pembayaran berhasil!");
-					queryClient.invalidateQueries();
+					queryClient.invalidateQueries({ queryKey: orpc.transaction.status.key() });
 				},
 				onPending: () => {
 					toast.info("Menunggu pembayaran...");

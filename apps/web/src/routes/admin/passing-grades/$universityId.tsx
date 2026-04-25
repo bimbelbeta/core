@@ -121,14 +121,14 @@ function RouteComponent() {
 						<TableBody>
 							{isProgramsLoading ? (
 								<TableSkeleton columns={9} />
-							) : !programs?.data || programs.data.length === 0 ? (
+							) : !programs?.items || programs.items.length === 0 ? (
 								<TableRow>
 									<TableCell colSpan={9} className="h-24 text-center text-muted-foreground">
 										Belum ada program studi yang ditautkan.
 									</TableCell>
 								</TableRow>
 							) : (
-								programs.data.map((prog, index) => (
+								programs.items.map((prog, index) => (
 									<TableRow key={prog.id}>
 										<TableCell>{index + 1}</TableCell>
 										<TableCell className="font-medium">

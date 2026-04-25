@@ -1,4 +1,3 @@
-import throttle from "lodash.throttle";
 import { useMemo } from "react";
 import { useUnmount } from "@/hooks/use-unmount";
 
@@ -11,6 +10,87 @@ const defaultOptions: ThrottleSettings = {
 	leading: false,
 	trailing: true,
 };
+
+// biome-ignore lint/suspicious/noExplicitAny: any is used to allow any function to be throttled
+function createThrottle<T extends (...args: any[]) => any>(
+	fn: T,
+	wait: number,
+	options: ThrottleSettings,
+): {
+	(this: ThisParameterType<T>, ...args: Parameters<T>): ReturnType<T>;
+	cancel: () => void;
+	flush: () => void;
+} {
+	const { leading = false, trailing = true } = options;
+	let timeoutId: ReturnType<typeof setTimeout> | null = null;
+	let lastArgs: Parameters<T> | null = null;
+	let lastThis: ThisParameterType<T> | null = null;
+	let lastCallTime: number | null = null;
+	let lastResult: ReturnType<T>;
+
+	function invokeFunc(args: Parameters<T>, ctx: ThisParameterType<T>): ReturnType<T> {
+		lastArgs = null;
+		lastThis = null;
+		lastCallTime = Date.now();
+		lastResult = fn.apply(ctx, args);
+		return lastResult;
+	}
+
+	function trailingEdge() {
+		timeoutId = null;
+		if (trailing && lastArgs) {
+			return invokeFunc(lastArgs, lastThis as ThisParameterType<T>);
+		}
+		lastArgs = null;
+		lastThis = null;
+		return lastResult;
+	}
+
+	function throttled(this: ThisParameterType<T>, ...args: Parameters<T>): ReturnType<T> {
+		const now = Date.now();
+		const remaining = lastCallTime === null ? (leading ? 0 : wait) : wait - (now - lastCallTime);
+
+		lastArgs = args;
+		lastThis = this;
+
+		if (remaining <= 0) {
+			if (timeoutId) {
+				clearTimeout(timeoutId);
+				timeoutId = null;
+			}
+			return invokeFunc(args, this);
+		}
+
+		if (!timeoutId && trailing) {
+			timeoutId = setTimeout(trailingEdge, remaining);
+		}
+
+		return lastResult;
+	}
+
+	throttled.cancel = () => {
+		if (timeoutId) {
+			clearTimeout(timeoutId);
+			timeoutId = null;
+		}
+		lastArgs = null;
+		lastThis = null;
+		lastCallTime = null;
+	};
+
+	throttled.flush = () => {
+		if (timeoutId) {
+			clearTimeout(timeoutId);
+			timeoutId = null;
+		}
+		if (lastArgs) {
+			return invokeFunc(lastArgs, lastThis as ThisParameterType<T>);
+		}
+		return lastResult;
+	};
+
+	return throttled;
+}
 
 /**
  * A hook that returns a throttled callback function.
@@ -33,7 +113,7 @@ export function useThrottledCallback<T extends (...args: any[]) => any>(
 	flush: () => void;
 } {
 	const handler = useMemo(
-		() => throttle<T>(fn, wait, options),
+		() => createThrottle<T>(fn, wait, options),
 		// biome-ignore lint/correctness/useExhaustiveDependencies: dependencies array intentionally managed by caller for custom control
 		dependencies,
 	);
