@@ -1,11 +1,11 @@
 import { db } from "@bimbelbeta/db";
-import { tryout } from "@bimbelbeta/db/schema/tryout";
+import { tryout, tryoutAccessCode } from "@bimbelbeta/db/schema/tryout";
 import { and, asc, desc, eq, gt, ilike, lt } from "drizzle-orm";
 import { buildIdCursorPage, parseIdCursor } from "../../../lib/pagination/cursor";
 import { baseImplementer } from "../../../lib/router-definition";
 import { rateLimit, requireAdmin, requireAuth } from "../../../lib/router-definition/middleware";
 import { pickDefined } from "../../../lib/utils";
-
+import { generateAccessCode, hashAccessCode, maskCode } from "./access-code-utils";
 import { tryoutAttemptRouter } from "./attempt";
 
 const admin = baseImplementer.use(requireAuth).use(rateLimit).use(requireAdmin);
@@ -116,11 +116,125 @@ const remove = admin.admin.tryout.remove.handler(async ({ input, errors }) => {
 	return { message: "Tryout berhasil dihapus" };
 });
 
+const listAccessCodes = admin.admin.tryout.listAccessCodes.handler(async ({ input }) => {
+	const rows = await db.query.tryoutAccessCode.findMany({
+		where: {
+			tryoutId: { eq: input.id },
+		},
+		columns: {
+			id: true,
+			codePreview: true,
+			label: true,
+			isActive: true,
+			expiresAt: true,
+			maxUses: true,
+			usedCount: true,
+			createdAt: true,
+			updatedAt: true,
+		},
+		orderBy: (accessCodes, { desc }) => [desc(accessCodes.createdAt)],
+	});
+
+	return rows.map((row) => ({
+		id: row.id,
+		label: row.label,
+		isActive: row.isActive,
+		expiresAt: row.expiresAt,
+		maxUses: row.maxUses,
+		usedCount: row.usedCount,
+		createdAt: row.createdAt,
+		updatedAt: row.updatedAt,
+		codePreview: row.codePreview,
+	}));
+});
+
+const createAccessCode = admin.admin.tryout.createAccessCode.handler(async ({ input, errors }) => {
+	const existingTryout = await db.query.tryout.findFirst({
+		where: {
+			id: { eq: input.id },
+		},
+		columns: { id: true },
+	});
+
+	if (!existingTryout) {
+		throw errors.NOT_FOUND({ message: "Tryout tidak ditemukan" });
+	}
+
+	if (input.maxUses !== undefined && input.maxUses <= 0) {
+		throw errors.BAD_REQUEST({ message: "Maksimal penggunaan harus lebih dari 0" });
+	}
+
+	const plainCode = (input.code?.trim() || generateAccessCode()).toUpperCase();
+	const codeHash = hashAccessCode(plainCode);
+
+	try {
+		const [created] = await db
+			.insert(tryoutAccessCode)
+			.values({
+				tryoutId: input.id,
+				codeHash,
+				codePreview: maskCode(plainCode),
+				label: input.label?.trim() || null,
+				expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
+				maxUses: input.maxUses ?? null,
+			})
+			.returning({
+				id: tryoutAccessCode.id,
+				codePreview: tryoutAccessCode.codePreview,
+				label: tryoutAccessCode.label,
+				isActive: tryoutAccessCode.isActive,
+				expiresAt: tryoutAccessCode.expiresAt,
+				maxUses: tryoutAccessCode.maxUses,
+				usedCount: tryoutAccessCode.usedCount,
+				createdAt: tryoutAccessCode.createdAt,
+				updatedAt: tryoutAccessCode.updatedAt,
+			});
+
+		if (!created) {
+			throw errors.INTERNAL_SERVER_ERROR({
+				message: "Gagal membuat kode akses",
+			});
+		}
+
+		return {
+			...created,
+			code: plainCode,
+		};
+	} catch {
+		throw errors.BAD_REQUEST({
+			message: "Kode akses sudah ada untuk tryout ini",
+		});
+	}
+});
+
+const updateAccessCodeStatus = admin.admin.tryout.updateAccessCodeStatus.handler(async ({ input, errors }) => {
+	const [updated] = await db
+		.update(tryoutAccessCode)
+		.set({
+			isActive: input.isActive,
+			updatedAt: new Date(),
+		})
+		.where(and(eq(tryoutAccessCode.id, input.accessCodeId), eq(tryoutAccessCode.tryoutId, input.id)))
+		.returning({
+			id: tryoutAccessCode.id,
+			isActive: tryoutAccessCode.isActive,
+		});
+
+	if (!updated) {
+		throw errors.NOT_FOUND({ message: "Kode akses tidak ditemukan" });
+	}
+
+	return updated;
+});
+
 export const tryoutRouter = {
 	createTryout,
 	list,
 	find,
 	updateTryout,
 	remove,
+	listAccessCodes,
+	createAccessCode,
+	updateAccessCodeStatus,
 	attempts: tryoutAttemptRouter,
 };

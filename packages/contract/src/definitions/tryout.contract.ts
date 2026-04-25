@@ -73,6 +73,7 @@ const TryoutAttemptSchema = createSelectSchema(tryoutAttempt)
 		"submittedImageUrl",
 		"isRevoked",
 		"usedCredit",
+		"usedAccessCode",
 	)
 	.merge({ id: "number", startedAt: "Date", deadline: "Date", completedAt: "Date | null", score: "number | null" });
 
@@ -138,7 +139,7 @@ export const tryoutContract = {
 		),
 	start: oc
 		.route({ path: "/tryouts/{id}/start", method: "POST", tags: ["Tryouts"] })
-		.input(type({ id: "number", imageUrl: "string?", useCredit: "boolean?" }))
+		.input(type({ id: "number", imageUrl: "string?", useCredit: "boolean?", accessCode: "string?" }))
 		.output(
 			type({
 				id: "number",
@@ -152,6 +153,7 @@ export const tryoutContract = {
 				submittedImageUrl: "string | null",
 				isRevoked: "boolean",
 				usedCredit: "boolean",
+				usedAccessCode: "boolean",
 				"overallDeadline?": "Date",
 			}),
 		),
@@ -207,6 +209,7 @@ export const tryoutContract = {
 				completedAt: "Date | null",
 				status: TryoutAttemptStatus,
 				usedCredit: "boolean",
+				usedAccessCode: "boolean",
 				tryout: {
 					id: "number",
 					title: "string",

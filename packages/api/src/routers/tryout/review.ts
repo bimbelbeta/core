@@ -16,6 +16,7 @@ export const review = authed.tryout.review.handler(async ({ input, context, erro
 		columns: {
 			id: true,
 			usedCredit: true,
+			usedAccessCode: true,
 		},
 		with: {
 			subtestAttempts: true,
@@ -24,7 +25,7 @@ export const review = authed.tryout.review.handler(async ({ input, context, erro
 
 	if (!attempt) throw errors.NOT_FOUND({ message: "Gagal menemukan pengerjaan tryout." });
 
-	const canSeeDiscussion = context.session.user.isPremium || attempt.usedCredit;
+	const canSeeDiscussion = context.session.user.isPremium || attempt.usedCredit || attempt.usedAccessCode;
 
 	const subtestAttempt = attempt.subtestAttempts.find((sa) => sa.subtestId === input.subtestId);
 
