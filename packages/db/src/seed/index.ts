@@ -2,10 +2,10 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { config } from "dotenv";
 import { drizzle } from "drizzle-orm/node-postgres";
-import { clearProducts, seedProducts } from "./product.seed";
-import { clearContent, clearSubtest, seedContent, seedSubtest } from "./subject.seed";
-import { clearTryout, seedTryout } from "./tryout.seed";
-import { clearUniversities, seedUniversities } from "./university.seed";
+import { clearProducts, seedProducts } from "@/seed/product.seed";
+import { clearContent, clearSubtest, seedContent, seedSubtest } from "@/seed/subject.seed";
+import { clearTryout, seedTryout } from "@/seed/tryout.seed";
+import { clearUniversities, seedUniversities } from "@/seed/university.seed";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 config({

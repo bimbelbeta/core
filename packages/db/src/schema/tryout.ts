@@ -12,8 +12,8 @@ import {
 	timestamp,
 	unique,
 } from "drizzle-orm/pg-core";
-import { user } from "./auth";
-import { question, questionChoice } from "./question";
+import { user } from "@/schema/auth";
+import { question, questionChoice } from "@/schema/question";
 
 /*
   Tryout & Subtests

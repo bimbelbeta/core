@@ -2,9 +2,9 @@ import { db } from "@bimbelbeta/db";
 import { question } from "@bimbelbeta/db/schema/question";
 import { tryoutSubtestQuestion } from "@bimbelbeta/db/schema/tryout";
 import { and, eq, inArray, sql } from "drizzle-orm";
-import { readTiptapContent } from "../../lib/content-utils";
-import { baseImplementer } from "../../lib/router-definition";
-import { rateLimit, requireAdmin, requireAuth } from "../../lib/router-definition/middleware";
+import { readTiptapContent } from "@/lib/content-utils";
+import { baseImplementer } from "@/lib/router-definition";
+import { rateLimit, requireAdmin, requireAuth } from "@/lib/router-definition/middleware";
 
 const admin = baseImplementer.use(requireAuth).use(rateLimit).use(requireAdmin);
 

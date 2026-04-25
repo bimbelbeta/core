@@ -1,12 +1,12 @@
 import { db } from "@bimbelbeta/db";
 import { tryout, tryoutAccessCode } from "@bimbelbeta/db/schema/tryout";
 import { and, asc, desc, eq, gt, ilike, lt } from "drizzle-orm";
-import { buildIdCursorPage, parseIdCursor } from "../../../lib/pagination/cursor";
-import { baseImplementer } from "../../../lib/router-definition";
-import { rateLimit, requireAdmin, requireAuth } from "../../../lib/router-definition/middleware";
-import { pickDefined } from "../../../lib/utils";
-import { generateAccessCode, hashAccessCode, maskCode } from "./access-code-utils";
-import { tryoutAttemptRouter } from "./attempt";
+import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
+import { baseImplementer } from "@/lib/router-definition";
+import { rateLimit, requireAdmin, requireAuth } from "@/lib/router-definition/middleware";
+import { pickDefined } from "@/lib/utils";
+import { generateAccessCode, hashAccessCode, maskCode } from "@/routers/admin/tryout/access-code-utils";
+import { tryoutAttemptRouter } from "@/routers/admin/tryout/attempt";
 
 const admin = baseImplementer.use(requireAuth).use(rateLimit).use(requireAdmin);
 

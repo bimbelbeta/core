@@ -1,7 +1,7 @@
 import { studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
 import { type } from "arktype";
 import { createSelectSchema } from "drizzle-arktype";
-import { oc } from "../lib/contract-definition";
+import { oc } from "@/lib/contract-definition";
 
 const GetTargetOutputSchema = type({
 	university: createSelectSchema(university).pick("name", "slug", "logo").merge({ id: "number" }),

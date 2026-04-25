@@ -1,5 +1,5 @@
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
-import { question, questionChoice } from "../schema/question";
+import { question, questionChoice } from "@/schema/question";
 import {
 	tryout,
 	tryoutAttempt,
@@ -7,7 +7,7 @@ import {
 	tryoutSubtestAttempt,
 	tryoutSubtestQuestion,
 	tryoutUserAnswer,
-} from "../schema/tryout";
+} from "@/schema/tryout";
 
 const TRYOUT_DATA = {
 	title: "Tryout UTBK SNBT 2025",

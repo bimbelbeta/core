@@ -1,10 +1,10 @@
 import { db } from "@bimbelbeta/db";
 import { programYearlyData, studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
 import { and, asc, desc, eq, gt, lt } from "drizzle-orm";
-import { buildIdCursorPage, parseIdCursor } from "../../../lib/pagination/cursor";
-import { baseImplementer } from "../../../lib/router-definition";
-import { rateLimit, requireAdmin, requireAuth } from "../../../lib/router-definition/middleware";
-import { pickDefined } from "../../../lib/utils";
+import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
+import { baseImplementer } from "@/lib/router-definition";
+import { rateLimit, requireAdmin, requireAuth } from "@/lib/router-definition/middleware";
+import { pickDefined } from "@/lib/utils";
 
 const admin = baseImplementer.use(requireAuth).use(rateLimit).use(requireAdmin);
 

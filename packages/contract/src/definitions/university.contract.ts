@@ -1,8 +1,8 @@
 import { programYearlyData, studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
 import { type } from "arktype";
 import { createSelectSchema } from "drizzle-arktype";
-import { PageInfoSchema, PaginationInputSchema } from "../common/pagination";
-import { oc } from "../lib/contract-definition";
+import { PageInfoSchema, PaginationInputSchema } from "@/common/pagination";
+import { oc } from "@/lib/contract-definition";
 
 const ListInput = type({
 	"...": PaginationInputSchema,

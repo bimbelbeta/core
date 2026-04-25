@@ -7,7 +7,7 @@ import {
 	subject,
 	userProgress,
 	videoMaterial,
-} from "../schema/subject";
+} from "@/schema/subject";
 
 const UTBK_DATA = [
 	{

@@ -1,5 +1,5 @@
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
-import { product } from "../schema/transaction";
+import { product } from "@/schema/transaction";
 
 export async function clearProducts(db: NodePgDatabase) {
 	console.log("Clearing products...");

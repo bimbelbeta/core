@@ -4,7 +4,7 @@ import { type } from "arktype";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { Resend } from "resend";
-import { generateResetPasswordEmail } from "./lib/templates/reset-password";
+import { generateResetPasswordEmail } from "@/lib/templates/reset-password";
 
 export const resend = new Resend(process.env.RESEND_API_KEY);
 

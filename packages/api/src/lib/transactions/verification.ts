@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import type { MidtransStatus } from "./types";
+import type { MidtransStatus } from "@/lib/transactions/types";
 
 /**
  * Pure, testable signature verification. Accepts an explicit serverKey so

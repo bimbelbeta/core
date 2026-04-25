@@ -2,8 +2,8 @@ import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
 import { and, eq } from "drizzle-orm";
-import { baseImplementer } from "../lib/router-definition";
-import { rateLimit, requireAuth } from "../lib/router-definition/middleware";
+import { baseImplementer } from "@/lib/router-definition";
+import { rateLimit, requireAuth } from "@/lib/router-definition/middleware";
 
 const authed = baseImplementer.use(requireAuth).use(rateLimit);
 

@@ -2,7 +2,7 @@ import { user } from "@bimbelbeta/db/schema/auth";
 import { creditTransaction } from "@bimbelbeta/db/schema/credit";
 import { type } from "arktype";
 import { createSelectSchema } from "drizzle-arktype";
-import { oc } from "../../lib/contract-definition";
+import { oc } from "@/lib/contract-definition";
 
 const CreditAdjustmentInputSchema = type({
 	userId: "string",

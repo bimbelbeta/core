@@ -1,8 +1,8 @@
 import { defineRelationsPart } from "drizzle-orm";
 import { index, integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
-import { user } from "./auth";
-import { transaction } from "./transaction";
-import { tryoutAttempt } from "./tryout";
+import { user } from "@/schema/auth";
+import { transaction } from "@/schema/transaction";
+import { tryoutAttempt } from "@/schema/tryout";
 
 /**
  * Credit Transaction Table - Audit trail for tryout credit purchases and usage

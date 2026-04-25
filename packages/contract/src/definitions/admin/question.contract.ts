@@ -1,8 +1,8 @@
 import { question, questionChoice } from "@bimbelbeta/db/schema/question";
 import { type } from "arktype";
 import { createSelectSchema } from "drizzle-arktype";
-import { PageInfoSchema, PaginationInputSchema } from "../../common/pagination";
-import { oc } from "../../lib/contract-definition";
+import { PageInfoSchema, PaginationInputSchema } from "@/common/pagination";
+import { oc } from "@/lib/contract-definition";
 
 const ChoiceSchema = createSelectSchema(questionChoice)
 	.pick("questionId", "code", "content", "isCorrect", "createdAt", "updatedAt")

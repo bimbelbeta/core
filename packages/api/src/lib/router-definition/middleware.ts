@@ -2,9 +2,9 @@ import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { createRatelimitMiddleware } from "@orpc/experimental-ratelimit";
 import { eq } from "drizzle-orm";
-import { ROLES } from "../roles";
-import { baseImplementer } from ".";
-import { getFreeRatelimiter, getNoOpRatelimiter, getPremiumRatelimiter } from "./rate-limiter";
+import { ROLES } from "@/lib/roles";
+import { baseImplementer } from "@/lib/router-definition";
+import { getFreeRatelimiter, getNoOpRatelimiter, getPremiumRatelimiter } from "@/lib/router-definition/rate-limiter";
 
 export const rateLimit = createRatelimitMiddleware({
 	limiter: ({ context }) => {

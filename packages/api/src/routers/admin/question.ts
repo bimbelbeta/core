@@ -1,10 +1,10 @@
 import { db } from "@bimbelbeta/db";
 import { question, questionChoice } from "@bimbelbeta/db/schema/question";
 import { and, asc, desc, eq, gt, inArray, like, lt, sql } from "drizzle-orm";
-import { normalizeQuestionContent, readTiptapContent } from "../../lib/content-utils";
-import { buildIdCursorPage, parseIdCursor } from "../../lib/pagination/cursor";
-import { baseImplementer } from "../../lib/router-definition";
-import { rateLimit, requireAdmin, requireAuth } from "../../lib/router-definition/middleware";
+import { normalizeQuestionContent, readTiptapContent } from "@/lib/content-utils";
+import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
+import { baseImplementer } from "@/lib/router-definition";
+import { rateLimit, requireAdmin, requireAuth } from "@/lib/router-definition/middleware";
 
 const admin = baseImplementer.use(requireAuth).use(rateLimit).use(requireAdmin);
 

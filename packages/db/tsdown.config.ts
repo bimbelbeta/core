@@ -5,4 +5,8 @@ export default defineConfig({
 	format: ["esm"],
 	sourcemap: true,
 	dts: true,
+	clean: true,
+	alias: {
+		"@/": "./src/",
+	},
 });

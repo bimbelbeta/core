@@ -1,8 +1,8 @@
 import { product } from "@bimbelbeta/db/schema/transaction";
 import { type } from "arktype";
 import { createSelectSchema } from "drizzle-arktype";
-import { PageInfoSchema, PaginationInputSchema } from "../../common/pagination";
-import { oc } from "../../lib/contract-definition";
+import { PageInfoSchema, PaginationInputSchema } from "@/common/pagination";
+import { oc } from "@/lib/contract-definition";
 
 const ProductSchema = createSelectSchema(product);
 

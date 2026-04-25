@@ -1,13 +1,13 @@
 import type { RouterClient } from "@orpc/server";
-import { baseImplementer } from "../lib/router-definition";
-import { adminRouter } from "./admin";
-import { creditRouter } from "./credit";
-import { productRouter } from "./product";
-import { subjectRouter } from "./subject";
-import { transactionRouter } from "./transaction";
-import { tryoutRouter } from "./tryout";
-import { universityRouter } from "./university";
-import { userSettingsRouter } from "./user-settings";
+import { baseImplementer } from "@/lib/router-definition";
+import { adminRouter } from "@/routers/admin";
+import { creditRouter } from "@/routers/credit";
+import { productRouter } from "@/routers/product";
+import { subjectRouter } from "@/routers/subject";
+import { transactionRouter } from "@/routers/transaction";
+import { tryoutRouter } from "@/routers/tryout";
+import { universityRouter } from "@/routers/university";
+import { userSettingsRouter } from "@/routers/user-settings";
 
 const pub = baseImplementer;
 

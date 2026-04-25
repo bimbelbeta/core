@@ -10,10 +10,10 @@
 		"emitDeclarationOnly": true,
 		"tsBuildInfoFile": "dist/.tsbuildinfo",
 		"skipLibCheck": true,
-		"noErrorTruncation": false
-	},
-	"paths": {
-		"@/*": ["./src/*"],
-		"*": ["./src/*"]
+		"noErrorTruncation": false,
+		"paths": {
+			"@/*": ["./src/*"],
+			"*": ["./src/*"]
+		}
 	}
 }

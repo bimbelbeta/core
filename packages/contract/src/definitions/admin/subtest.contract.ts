@@ -1,7 +1,7 @@
 import { tryoutSubtest } from "@bimbelbeta/db/schema/tryout";
 import { type } from "arktype";
 import { createSelectSchema } from "drizzle-arktype";
-import { oc } from "../../lib/contract-definition";
+import { oc } from "@/lib/contract-definition";
 
 const SubtestSchema = createSelectSchema(tryoutSubtest)
 	.pick("tryoutId", "name", "description", "duration", "questionOrder", "order", "scoringMap")

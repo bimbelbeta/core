@@ -13,15 +13,15 @@ import {
 	videoMaterial,
 } from "@bimbelbeta/db/schema/subject";
 import { and, desc, eq, gt, ilike, inArray, lt, sql } from "drizzle-orm";
-import { readTiptapContent } from "../lib/content-utils";
-import { buildIdCursorPage, parseIdCursor } from "../lib/pagination/cursor";
-import { ROLES, type Role } from "../lib/roles";
-import { baseImplementer } from "../lib/router-definition";
-import { rateLimit, requireAuth } from "../lib/router-definition/middleware";
+import { readTiptapContent } from "@/lib/content-utils";
+import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
+import { ROLES, type Role } from "@/lib/roles";
+import { baseImplementer } from "@/lib/router-definition";
+import { rateLimit, requireAuth } from "@/lib/router-definition/middleware";
 
 const authed = baseImplementer.use(requireAuth).use(rateLimit);
 
-import type { ChoiceWithAnswer } from "../types/question";
+import type { ChoiceWithAnswer } from "@/types/question";
 
 function escapeLikePattern(value: string): string {
 	return value.replace(/[%_\\]/g, (char) => `\\${char}`);

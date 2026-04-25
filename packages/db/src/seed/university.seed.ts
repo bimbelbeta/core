@@ -1,5 +1,5 @@
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
-import { programYearlyData, studyProgram, university, universityStudyProgram } from "../schema/university";
+import { programYearlyData, studyProgram, university, universityStudyProgram } from "@/schema/university";
 
 export async function clearUniversities(db: NodePgDatabase) {
 	console.log("Clearing universities and related data...");

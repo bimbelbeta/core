@@ -1,9 +1,9 @@
 import { db } from "@bimbelbeta/db";
 import { programYearlyData, studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
 import { and, asc, desc, eq, gt, ilike, lt, or } from "drizzle-orm";
-import { buildIdCursorPage, parseIdCursor } from "../lib/pagination/cursor";
-import { baseImplementer } from "../lib/router-definition";
-import { rateLimit, requireAuth } from "../lib/router-definition/middleware";
+import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
+import { baseImplementer } from "@/lib/router-definition";
+import { rateLimit, requireAuth } from "@/lib/router-definition/middleware";
 
 const authed = baseImplementer.use(requireAuth).use(rateLimit);
 

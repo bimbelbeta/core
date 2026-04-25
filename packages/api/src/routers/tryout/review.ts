@@ -1,9 +1,9 @@
 import { db } from "@bimbelbeta/db";
-import { readTiptapContent } from "../../lib/content-utils";
-import { baseImplementer } from "../../lib/router-definition";
-import { rateLimit, requireAuth } from "../../lib/router-definition/middleware";
-import type { ReviewQuestion } from "../../types/question";
-import { fetchSubtestQuestionRows } from "./attempt";
+import { readTiptapContent } from "@/lib/content-utils";
+import { baseImplementer } from "@/lib/router-definition";
+import { rateLimit, requireAuth } from "@/lib/router-definition/middleware";
+import { fetchSubtestQuestionRows } from "@/routers/tryout/attempt";
+import type { ReviewQuestion } from "@/types/question";
 
 const authed = baseImplementer.use(requireAuth).use(rateLimit);
 

@@ -1,8 +1,8 @@
 import { tryout, tryoutAccessCode, tryoutAttempt, tryoutSubtest } from "@bimbelbeta/db/schema/tryout";
 import { type } from "arktype";
 import { createSelectSchema } from "drizzle-arktype";
-import { PageInfoSchema, PaginationInputSchema } from "../../common/pagination";
-import { oc } from "../../lib/contract-definition";
+import { PageInfoSchema, PaginationInputSchema } from "@/common/pagination";
+import { oc } from "@/lib/contract-definition";
 
 const TryoutSchema = createSelectSchema(tryout)
 	.pick("title", "description", "passingGrade", "category", "status", "startsAt", "endsAt", "createdAt", "updatedAt")

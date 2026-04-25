@@ -8,7 +8,7 @@ import {
 } from "@bimbelbeta/db/schema/tryout";
 import { type } from "arktype";
 import { createSelectSchema } from "drizzle-arktype";
-import { oc } from "../lib/contract-definition";
+import { oc } from "@/lib/contract-definition";
 
 const TryoutAttemptStatus = "'not_started' | 'ongoing' | 'finished'";
 

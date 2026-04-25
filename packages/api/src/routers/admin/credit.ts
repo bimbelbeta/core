@@ -2,8 +2,8 @@ import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { creditTransaction } from "@bimbelbeta/db/schema/credit";
 import { desc, eq, sql } from "drizzle-orm";
-import { baseImplementer } from "../../lib/router-definition";
-import { rateLimit, requireAuth, requireSuperAdmin } from "../../lib/router-definition/middleware";
+import { baseImplementer } from "@/lib/router-definition";
+import { rateLimit, requireAuth, requireSuperAdmin } from "@/lib/router-definition/middleware";
 
 const superadmin = baseImplementer.use(requireAuth).use(rateLimit).use(requireSuperAdmin);
 

@@ -1,5 +1,5 @@
 import { type } from "arktype";
-import { oc } from "../../lib/contract-definition";
+import { oc } from "@/lib/contract-definition";
 
 const DashboardStatsSchema = type({
 	totalUsers: "number",

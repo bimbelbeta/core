@@ -10,14 +10,14 @@ import {
 	tryoutUserAnswer,
 } from "@bimbelbeta/db/schema/tryout";
 import { and, eq, isNull, or, sql } from "drizzle-orm";
-import { calculateTryoutScores, saveScoresToDatabase } from "../../lib/calculate-score";
-import { readTiptapContent } from "../../lib/content-utils";
-import { baseImplementer } from "../../lib/router-definition";
-import { rateLimit, requireAuth } from "../../lib/router-definition/middleware";
-import { parseNullableInt } from "../../lib/utils";
-import { hashAccessCode } from "../admin/tryout/access-code-utils";
+import { calculateTryoutScores, saveScoresToDatabase } from "@/lib/calculate-score";
+import { readTiptapContent } from "@/lib/content-utils";
+import { baseImplementer } from "@/lib/router-definition";
+import { rateLimit, requireAuth } from "@/lib/router-definition/middleware";
+import { parseNullableInt } from "@/lib/utils";
+import { hashAccessCode } from "@/routers/admin/tryout/access-code-utils";
 
-import type { TryoutQuestion } from "../../types/question";
+import type { TryoutQuestion } from "@/types/question";
 
 const authed = baseImplementer.use(requireAuth).use(rateLimit);
 

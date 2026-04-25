@@ -1,11 +1,11 @@
 import { db } from "@bimbelbeta/db";
 import { tryout, tryoutAttempt } from "@bimbelbeta/db/schema/tryout";
 import { and, desc, eq } from "drizzle-orm";
-import { baseImplementer } from "../../lib/router-definition";
-import { rateLimit, requireAuth } from "../../lib/router-definition/middleware";
-import { attemptResult, find, history, start } from "./attempt";
-import { review } from "./review";
-import { saveAnswer, startSubtest, submitSubtest, submitTryout, toggleRaguRagu } from "./session";
+import { baseImplementer } from "@/lib/router-definition";
+import { rateLimit, requireAuth } from "@/lib/router-definition/middleware";
+import { attemptResult, find, history, start } from "@/routers/tryout/attempt";
+import { review } from "@/routers/tryout/review";
+import { saveAnswer, startSubtest, submitSubtest, submitTryout, toggleRaguRagu } from "@/routers/tryout/session";
 
 const authed = baseImplementer.use(requireAuth).use(rateLimit);
 

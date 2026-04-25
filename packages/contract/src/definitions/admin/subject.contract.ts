@@ -1,7 +1,7 @@
 import { questionChoice } from "@bimbelbeta/db/schema/question";
 import { type } from "arktype";
 import { createSelectSchema } from "drizzle-arktype";
-import { oc } from "../../lib/contract-definition";
+import { oc } from "@/lib/contract-definition";
 
 const MessageResponseSchema = type({ message: "string" });
 const ContentMaterialCountSchema = type({ "video?": "number", "note?": "number", "practiceQuestions?": "number" });

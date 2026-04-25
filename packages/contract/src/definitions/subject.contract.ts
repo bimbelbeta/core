@@ -2,8 +2,8 @@ import { questionChoice } from "@bimbelbeta/db/schema/question";
 import { contentItem, noteMaterial, subject, videoMaterial } from "@bimbelbeta/db/schema/subject";
 import { type } from "arktype";
 import { createSelectSchema } from "drizzle-arktype";
-import { PageInfoSchema } from "../common/pagination";
-import { oc } from "../lib/contract-definition";
+import { PageInfoSchema } from "@/common/pagination";
+import { oc } from "@/lib/contract-definition";
 
 const SubjectSchema = createSelectSchema(subject)
 	.pick("name", "shortName", "description", "order", "category", "gradeLevel")

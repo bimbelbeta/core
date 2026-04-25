@@ -2,9 +2,9 @@ import { generateSlug } from "@bimbelbeta/contract/utils";
 import { db } from "@bimbelbeta/db";
 import { product } from "@bimbelbeta/db/schema/transaction";
 import { and, asc, desc, eq, gt, ilike, isNotNull, isNull, lt } from "drizzle-orm";
-import { decodeCursor, encodeCursor } from "../../lib/pagination/cursor";
-import { baseImplementer } from "../../lib/router-definition";
-import { rateLimit, requireAuth, requireSuperAdmin } from "../../lib/router-definition/middleware";
+import { decodeCursor, encodeCursor } from "@/lib/pagination/cursor";
+import { baseImplementer } from "@/lib/router-definition";
+import { rateLimit, requireAuth, requireSuperAdmin } from "@/lib/router-definition/middleware";
 
 const superadmin = baseImplementer.use(requireAuth).use(rateLimit).use(requireSuperAdmin);
 

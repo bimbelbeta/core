@@ -1,7 +1,7 @@
 import { product } from "@bimbelbeta/db/schema/transaction";
 import { type } from "arktype";
 import { createSelectSchema } from "drizzle-arktype";
-import { oc } from "../lib/contract-definition";
+import { oc } from "@/lib/contract-definition";
 
 const CreditPackageSchema = createSelectSchema(product).pick("id", "name", "slug", "price", "credits");
 const BalanceSchema = type({
