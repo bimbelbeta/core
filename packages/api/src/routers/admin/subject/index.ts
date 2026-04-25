@@ -1,9 +1,9 @@
 import { db } from "@bimbelbeta/db";
 import { subject } from "@bimbelbeta/db/schema/subject";
 import { eq } from "drizzle-orm";
-import { baseImplementer } from "../../lib/router-definition";
-import { rateLimit, requireAdmin, requireAuth } from "../../lib/router-definition/middleware";
-import { pickDefined } from "../../lib/utils";
+import { baseImplementer } from "../../../lib/router-definition";
+import { rateLimit, requireAdmin, requireAuth } from "../../../lib/router-definition/middleware";
+import { pickDefined } from "../../../lib/utils";
 
 const admin = baseImplementer.use(requireAuth).use(rateLimit).use(requireAdmin);
 
