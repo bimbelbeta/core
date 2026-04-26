@@ -22,6 +22,7 @@ import { BulkQuestionsTable } from "../../-components/bulk-questions-table";
 import { ScoringMapEditor } from "../../-components/scoring-map-editor";
 
 export const Route = createFileRoute("/admin/tryouts/$tryoutId/subtests/$subtestId/")({
+	staticData: { breadcrumb: "Subtest" },
 	component: SubtestDetailPage,
 });
 

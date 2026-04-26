@@ -12,6 +12,7 @@ import { GrantCreditsDialog } from "./-components/grant-credits-dialog";
 import { GrantPremiumDialog } from "./-components/grant-premium-dialog";
 
 export const Route = createFileRoute("/admin/_superadmin/users/$userId")({
+	staticData: { breadcrumb: "Detail User" },
 	component: UserDetailPage,
 });
 

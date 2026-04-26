@@ -14,6 +14,7 @@ import { orpc } from "@/utils/orpc";
 import { EditQuestionForm } from "./-components/edit-question-form";
 
 export const Route = createFileRoute("/admin/questions/$questionId")({
+	staticData: { breadcrumb: "Detail Soal" },
 	component: QuestionDetailPage,
 });
 

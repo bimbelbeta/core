@@ -3,6 +3,7 @@ import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { $getSession } from "@/lib/get-user";
 
 export const Route = createFileRoute("/admin/_superadmin")({
+	staticData: { breadcrumb: "Superadmin" },
 	beforeLoad: async ({ context, preload }) => {
 		if (preload) return;
 		const { session } = await $getSession(context.queryClient);

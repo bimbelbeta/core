@@ -56,6 +56,7 @@ const searchSchema = type({
 });
 
 export const Route = createFileRoute("/admin/questions/")({
+	staticData: { breadcrumb: "Soal" },
 	component: QuestionsListPage,
 	validateSearch: searchSchema,
 });

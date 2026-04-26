@@ -10,6 +10,7 @@ import { QuickLinks } from "@/components/admin/quick-links";
 import { SectionCards } from "@/components/admin/section-cards";
 
 export const Route = createFileRoute("/admin/dashboard/")({
+	staticData: { breadcrumb: "Dashboard" },
 	component: function AdminDashboard() {
 		return (
 			<AdminPageRoot>

@@ -20,6 +20,7 @@ import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/admin/classes/$subjectId/$contentId/notes")({
+	staticData: { breadcrumb: "Catatan" },
 	component: RouteComponent,
 });
 

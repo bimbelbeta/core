@@ -8,6 +8,7 @@ import { $getSession } from "@/lib/get-user";
 import { createMeta } from "@/lib/seo-utils";
 
 export const Route = createFileRoute("/admin")({
+	staticData: { breadcrumb: "Admin" },
 	head: () => ({
 		meta: createMeta({
 			title: "Admin",

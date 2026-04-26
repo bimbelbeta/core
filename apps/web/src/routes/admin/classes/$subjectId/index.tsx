@@ -40,6 +40,7 @@ const searchSchema = type({
 });
 
 export const Route = createFileRoute("/admin/classes/$subjectId/")({
+	staticData: { breadcrumb: "Subject" },
 	component: RouteComponent,
 	validateSearch: searchSchema,
 });

@@ -34,6 +34,7 @@ const searchSchema = type({
 });
 
 export const Route = createFileRoute("/admin/_superadmin/products/")({
+	staticData: { breadcrumb: "Products" },
 	component: ProductsListPage,
 	validateSearch: searchSchema,
 });

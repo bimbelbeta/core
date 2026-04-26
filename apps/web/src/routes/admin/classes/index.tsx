@@ -13,6 +13,7 @@ import { createMeta } from "@/lib/seo-utils";
 import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/admin/classes/")({
+	staticData: { breadcrumb: "Kelas" },
 	head: () => ({
 		meta: createMeta({
 			title: "Kelas",

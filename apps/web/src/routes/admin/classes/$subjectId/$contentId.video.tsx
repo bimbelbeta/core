@@ -28,6 +28,7 @@ import { orpc } from "@/utils/orpc";
 import { extractYouTubeId } from "@/utils/youtube";
 
 export const Route = createFileRoute("/admin/classes/$subjectId/$contentId/video")({
+	staticData: { breadcrumb: "Video" },
 	component: RouteComponent,
 });
 

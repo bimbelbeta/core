@@ -22,6 +22,7 @@ import { LinkedQuestionsList } from "../-components/linked-questions-list";
 import { QuestionPickerDialog } from "../-components/question-picker-dialog";
 
 export const Route = createFileRoute("/admin/classes/$subjectId/$contentId/latihan-soal")({
+	staticData: { breadcrumb: "Latihan Soal" },
 	component: RouteComponent,
 });
 

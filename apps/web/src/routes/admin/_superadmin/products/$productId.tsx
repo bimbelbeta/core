@@ -16,6 +16,7 @@ import { ProductForm } from "./-components/product-form";
 import { ProductFormHelpAccordion } from "./-components/product-form-help-accordion";
 
 export const Route = createFileRoute("/admin/_superadmin/products/$productId")({
+	staticData: { breadcrumb: "Edit Product" },
 	component: ProductDetailPage,
 });
 

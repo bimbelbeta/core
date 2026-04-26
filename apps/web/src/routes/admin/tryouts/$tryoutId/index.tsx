@@ -26,6 +26,7 @@ import { TryoutSubtestsTab } from "./-components/tryout-subtests-tab";
 import { CATEGORY_LABELS } from "./-constants";
 
 export const Route = createFileRoute("/admin/tryouts/$tryoutId/")({
+	staticData: { breadcrumb: "Detail Tryout" },
 	component: TryoutDetailPage,
 });
 
