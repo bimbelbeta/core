@@ -145,7 +145,7 @@ export function EditProgramDialog({ universityProgram, onSuccess, onOpenChange }
 									Akreditasi
 								</Label>
 								<Select value={field.state.value} onValueChange={(val) => field.handleChange(val)}>
-									<SelectTrigger>
+									<SelectTrigger className="w-full">
 										<SelectValue placeholder="Pilih..." />
 									</SelectTrigger>
 									<SelectContent>
