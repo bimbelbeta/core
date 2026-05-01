@@ -27,7 +27,7 @@ export function SearchProgramTab({ onProgramSelect }: SearchProgramTabProps) {
 			<SearchInput value={searchProgram} onChange={setSearchProgram} placeholder="Cari program studi..." autoFocus />
 			<div className="flex max-h-[280px] flex-col gap-1.5 overflow-y-auto">
 				{isSearchLoading ? (
-					Array.from({ length: 3 }).map((_, i) => (
+					Array.from({ length: 5 }).map((_, i) => (
 						// biome-ignore lint/suspicious/noArrayIndexKey: skeleton items
 						<div key={i} className="flex items-center gap-3 rounded-lg border px-4 py-3">
 							<Skeleton className="size-8 shrink-0 rounded-md" />

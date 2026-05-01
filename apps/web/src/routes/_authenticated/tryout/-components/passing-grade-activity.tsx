@@ -2,8 +2,8 @@ import { SmileySadIcon } from "@phosphor-icons/react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useCallback, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { useDebounceValue } from "@/hooks/use-debounce-value";
 import { orpc } from "@/utils/orpc";
 
@@ -60,11 +60,7 @@ export function PassingGradeActivity() {
 					</TableHeader>
 					<TableBody>
 						{isPending ? (
-							<TableRow>
-								<TableCell colSpan={4} className="text-center text-muted-foreground">
-									<Skeleton className="h-8 w-full" />
-								</TableCell>
-							</TableRow>
+							<TableSkeleton columns={4} />
 						) : universities.length === 0 ? (
 							<TableRow>
 								<TableCell colSpan={4} className="h-20 text-center text-muted-foreground">
@@ -81,13 +77,7 @@ export function PassingGradeActivity() {
 										<TableCell>{university.studyProgram}</TableCell>
 									</TableRow>
 								))}
-								{isFetchingNextPage && (
-									<TableRow>
-										<TableCell colSpan={4} className="text-center text-muted-foreground">
-											<Skeleton className="mx-auto h-4 w-32" />
-										</TableCell>
-									</TableRow>
-								)}
+								{isFetchingNextPage && <TableSkeleton columns={4} rows={2} />}
 							</>
 						)}
 					</TableBody>

@@ -29,7 +29,8 @@ const packages = authed.credit.packages.handler(async () => {
 			credits: product.credits,
 		})
 		.from(product)
-		.where(and(eq(product.type, "product"), isNotNull(product.credits)));
+		.where(and(eq(product.type, "product"), isNotNull(product.credits)))
+		.limit(100);
 });
 
 export const creditRouter = {

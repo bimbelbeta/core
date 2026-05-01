@@ -87,7 +87,8 @@ const listProgramsByUniversity = authed.university.listProgramsByUniversity.hand
 		.from(universityStudyProgram)
 		.innerJoin(studyProgram, eq(universityStudyProgram.studyProgramId, studyProgram.id))
 		.where(eq(universityStudyProgram.universityId, input.universityId))
-		.orderBy(studyProgram.name);
+		.orderBy(studyProgram.name)
+		.limit(100);
 
 	return { items: studyPrograms };
 });

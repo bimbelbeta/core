@@ -57,17 +57,6 @@ function computeSubtestDeadline(durationMinutes: number, overallDeadline: Date, 
 	return new Date(Math.min(proposed.getTime(), overallDeadline.getTime()));
 }
 
-async function fetchTryoutWithSubtests(tryoutId: number) {
-	return db.query.tryout.findFirst({
-		where: { id: { eq: tryoutId } },
-		with: {
-			subtests: {
-				orderBy: (subtests, { asc }) => [asc(subtests.order)],
-			},
-		},
-	});
-}
-
 export const startSubtest = authed.tryout.startSubtest.handler(async ({ input, context, errors }) => {
 	const attempt = await db.query.tryoutAttempt.findFirst({
 		where: {
@@ -76,6 +65,13 @@ export const startSubtest = authed.tryout.startSubtest.handler(async ({ input, c
 		},
 		with: {
 			subtestAttempts: true,
+			tryout: {
+				with: {
+					subtests: {
+						orderBy: (subtests, { asc }) => [asc(subtests.order)],
+					},
+				},
+			},
 		},
 	});
 
@@ -86,7 +82,7 @@ export const startSubtest = authed.tryout.startSubtest.handler(async ({ input, c
 		return { ...existingSubtestAttempt, score: parseNullableInt(existingSubtestAttempt.score) };
 	}
 
-	const tryoutData = await fetchTryoutWithSubtests(input.tryoutId);
+	const tryoutData = attempt.tryout;
 
 	if (!tryoutData) throw errors.NOT_FOUND({ message: "Tryout tidak ditemukan" });
 
@@ -195,6 +191,13 @@ export const submitSubtest = authed.tryout.submitSubtest.handler(async ({ input,
 		},
 		with: {
 			subtestAttempts: true,
+			tryout: {
+				with: {
+					subtests: {
+						orderBy: (subtests, { asc }) => [asc(subtests.order)],
+					},
+				},
+			},
 		},
 	});
 
@@ -206,7 +209,7 @@ export const submitSubtest = authed.tryout.submitSubtest.handler(async ({ input,
 
 	if (!currentSubtestAttempt) throw errors.BAD_REQUEST({ message: "Subtest tidak aktif" });
 
-	const tryoutData = await fetchTryoutWithSubtests(input.tryoutId);
+	const tryoutData = attempt.tryout;
 
 	if (!tryoutData) throw errors.NOT_FOUND({ message: "Tryout tidak ditemukan" });
 

@@ -22,7 +22,8 @@ const list = authed.product.list.handler(async () => {
 			credits: product.credits,
 		})
 		.from(product)
-		.orderBy(desc(product.createdAt));
+		.orderBy(desc(product.createdAt))
+		.limit(100);
 });
 
 export const productRouter = {
