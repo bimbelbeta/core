@@ -1,3 +1,4 @@
+import { RoleSchema } from "@bimbelbeta/contract/common/roles";
 import { db } from "@bimbelbeta/db";
 import * as schema from "@bimbelbeta/db/schema/auth";
 import { type } from "arktype";
@@ -18,7 +19,7 @@ export const auth = betterAuth({
 			role: {
 				type: "string",
 				validator: {
-					input: type('"user" | "admin" | "superadmin"'),
+					input: RoleSchema,
 				},
 				defaultValue: "user",
 				input: false,

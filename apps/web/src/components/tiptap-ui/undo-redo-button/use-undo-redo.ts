@@ -1,11 +1,8 @@
 import type { Editor } from "@tiptap/react";
 import { useCallback, useEffect, useState } from "react";
-// --- Hooks ---
 import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
-// --- Icons ---
 import { Redo2Icon } from "@/components/tiptap-icons/redo2-icon";
 import { Undo2Icon } from "@/components/tiptap-icons/undo2-icon";
-// --- Lib ---
 import { isNodeTypeSelected } from "@/lib/tiptap-utils";
 
 export type UndoRedoAction = "undo" | "redo";
@@ -14,22 +11,10 @@ export type UndoRedoAction = "undo" | "redo";
  * Configuration for the history functionality
  */
 export interface UseUndoRedoConfig {
-	/**
-	 * The Tiptap editor instance.
-	 */
 	editor?: Editor | null;
-	/**
-	 * The history action to perform (undo or redo).
-	 */
 	action: UndoRedoAction;
-	/**
-	 * Whether the button should hide when action is not available.
-	 * @default false
-	 */
+	/** @default false */
 	hideWhenUnavailable?: boolean;
-	/**
-	 * Callback function called after a successful action execution.
-	 */
 	onExecuted?: () => void;
 }
 
@@ -112,7 +97,7 @@ export function useUndoRedo(config: UseUndoRedoConfig) {
 		};
 	}, [editor, hideWhenUnavailable, action]);
 
-	const handleAction = useCallback(() => {
+	const executeAction = useCallback(() => {
 		if (!editor) return false;
 
 		const success = executeUndoRedoAction(editor, action);
@@ -124,7 +109,7 @@ export function useUndoRedo(config: UseUndoRedoConfig) {
 
 	return {
 		isVisible,
-		handleAction,
+		handleAction: executeAction,
 		canExecute,
 		label: historyActionLabels[action],
 		shortcutKeys: UNDO_REDO_SHORTCUT_KEYS[action],

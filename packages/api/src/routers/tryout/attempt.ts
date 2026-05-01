@@ -10,12 +10,12 @@ import {
 	tryoutUserAnswer,
 } from "@bimbelbeta/db/schema/tryout";
 import { and, eq, isNull, or, sql } from "drizzle-orm";
+import { hashAccessCode } from "@/lib/access-code";
 import { calculateTryoutScores, saveScoresToDatabase } from "@/lib/calculate-score";
 import { readTiptapContent } from "@/lib/content-utils";
 import { baseImplementer } from "@/lib/router-definition";
 import { rateLimit, requireAuth } from "@/lib/router-definition/middleware";
 import { parseNullableInt } from "@/lib/utils";
-import { hashAccessCode } from "@/routers/admin/tryout/access-code-utils";
 
 import type { TryoutQuestion } from "@/types/question";
 
@@ -354,13 +354,14 @@ export const start = authed.tryout.start.handler(async ({ input, context, errors
 				deadline: overallDeadline,
 				usedCredit: usesCredit,
 				usedAccessCode: usesAccessCode,
-				accessCodeId: usesAccessCode ? validAccessCode?.id : null,
+				accessCodeId: validAccessCode?.id ?? null,
 			})
 			.returning();
 
 		if (!newAttempt) throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal membuat pengerjaan" });
 
-		if (usesAccessCode && validAccessCode) {
+		if (validAccessCode) {
+			const code = validAccessCode;
 			const [updatedCode] = await trx
 				.update(tryoutAccessCode)
 				.set({
@@ -368,7 +369,7 @@ export const start = authed.tryout.start.handler(async ({ input, context, errors
 				})
 				.where(
 					and(
-						eq(tryoutAccessCode.id, validAccessCode.id),
+						eq(tryoutAccessCode.id, code.id),
 						or(isNull(tryoutAccessCode.maxUses), sql`${tryoutAccessCode.usedCount} < ${tryoutAccessCode.maxUses}`),
 					),
 				)

@@ -1,6 +1,5 @@
 import { CalendarDotsIcon, StarIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
-import { format } from "date-fns";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { formatDateLong } from "@/lib/format-date";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 
@@ -87,7 +87,7 @@ export function GrantPremiumDialog({
 									className={cn("w-full justify-start text-left font-normal", !date && "text-muted-foreground")}
 								>
 									<CalendarDotsIcon className="size-4" />
-									{date ? format(date, "dd MMMM yyyy") : "Pilih tanggal"}
+									{date ? formatDateLong(date) : "Pilih tanggal"}
 								</Button>
 							</PopoverTrigger>
 							<PopoverContent className="w-auto p-0" align="start">

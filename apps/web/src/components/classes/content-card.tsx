@@ -12,9 +12,9 @@ import { Link, useLocation } from "@tanstack/react-router";
 import type { useDragControls } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useIsAdmin } from "@/hooks/use-is-admin";
 import { canAccessContent } from "@/lib/premium-config";
 import { cn } from "@/lib/utils";
-import { useIsAdmin } from "@/utils/use-is-admin";
 import type { ContentActionItem, ContentListItem } from "./classes-types";
 
 const CONTENT_ACTIONS = [

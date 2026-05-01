@@ -2,7 +2,7 @@ import { PlusIcon } from "@phosphor-icons/react";
 import { Reorder } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useIsAdmin } from "@/utils/use-is-admin";
+import { useIsAdmin } from "@/hooks/use-is-admin";
 import type { ContentFilter, ContentListItem } from "./classes-types";
 import { ContentCard } from "./content-card";
 import { EmptyContentState } from "./empty-content-state";

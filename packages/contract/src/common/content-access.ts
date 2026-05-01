@@ -1,4 +1,4 @@
-const BYPASS_ROLES = ["admin", "superadmin"] as const;
+export const BYPASS_ROLES = ["admin", "superadmin"] as const;
 type BypassRole = (typeof BYPASS_ROLES)[number];
 
 export function canAccessContent(

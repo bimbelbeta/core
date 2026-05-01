@@ -2,7 +2,6 @@ import { ArchiveIcon, CalendarIcon, EyeIcon, FileIcon, PlusIcon } from "@phospho
 import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { type } from "arktype";
-import { format } from "date-fns";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -21,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { formatDateMedium } from "@/lib/format-date";
 import { orpc } from "@/utils/orpc";
 
 export function AddTryoutDialog({
@@ -227,10 +227,10 @@ export function AddTryoutDialog({
 												{dateRange.from ? (
 													dateRange.to ? (
 														<>
-															{format(dateRange.from, "PPP")} - {format(dateRange.to, "PPP")}
+															{formatDateMedium(dateRange.from)} - {formatDateMedium(dateRange.to)}
 														</>
 													) : (
-														format(dateRange.from, "PPP")
+														formatDateMedium(dateRange.from)
 													)
 												) : (
 													<span>Pilih rentang tanggal</span>

@@ -2,6 +2,7 @@ import { question, questionChoice } from "@bimbelbeta/db/schema/question";
 import { type } from "arktype";
 import { createSelectSchema } from "drizzle-arktype";
 import { PageInfoSchema, PaginationInputSchema } from "@/common/pagination";
+import { MessageResponseSchema } from "@/common/response";
 import { oc } from "@/lib/contract-definition";
 
 const ChoiceSchema = createSelectSchema(questionChoice)
@@ -37,8 +38,6 @@ const QuestionDetailSchema = type({
 	content: "unknown",
 	discussion: "unknown",
 });
-
-const MessageResponseSchema = type({ message: "string" });
 
 export const adminQuestionContract = {
 	createQuestion: oc

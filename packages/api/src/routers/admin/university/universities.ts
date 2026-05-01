@@ -1,6 +1,7 @@
 import { db } from "@bimbelbeta/db";
 import { university } from "@bimbelbeta/db/schema/university";
 import { and, asc, desc, eq, gt, lt, sql } from "drizzle-orm";
+import { requireCreated, requireFound } from "@/lib/crud-helpers";
 import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
 import { baseImplementer } from "@/lib/router-definition";
 import { rateLimit, requireAdmin, requireAuth } from "@/lib/router-definition/middleware";
@@ -67,24 +68,22 @@ const find = admin.admin.university.universities.find.handler(async ({ input, er
 });
 
 const create = admin.admin.university.universities.create.handler(async ({ input, errors }) => {
-	const [created] = await db
-		.insert(university)
-		.values({
-			name: input.name,
-			slug: input.slug,
-			logo: input.logo ?? null,
-			description: input.description ?? null,
-			location: input.location ?? null,
-			website: input.website ?? null,
-			rank: input.rank ?? null,
-		})
-		.returning();
-
-	if (!created) {
-		throw errors.INTERNAL_SERVER_ERROR({
-			message: "Gagal membuat universitas",
-		});
-	}
+	const created = requireCreated(
+		await db
+			.insert(university)
+			.values({
+				name: input.name,
+				slug: input.slug,
+				logo: input.logo ?? null,
+				description: input.description ?? null,
+				location: input.location ?? null,
+				website: input.website ?? null,
+				rank: input.rank ?? null,
+			})
+			.returning(),
+		"universitas",
+		errors,
+	);
 
 	return {
 		message: "Universitas berhasil dibuat",
@@ -96,29 +95,21 @@ const update = admin.admin.university.universities.update.handler(async ({ input
 	const { id, ...fields } = input;
 	const patch = Object.fromEntries(Object.entries(fields).filter(([, v]) => v !== undefined));
 
-	const [updated] = await db
-		.update(university)
-		.set({ ...patch, updatedAt: new Date() })
-		.where(eq(university.id, id))
-		.returning();
-
-	if (!updated) {
-		throw errors.NOT_FOUND({
-			message: "Universitas tidak ditemukan",
-		});
-	}
+	await requireFound(
+		await db
+			.update(university)
+			.set({ ...patch, updatedAt: new Date() })
+			.where(eq(university.id, id))
+			.returning(),
+		"Universitas",
+		errors,
+	);
 
 	return { message: "Universitas berhasil diperbarui" };
 });
 
 const remove = admin.admin.university.universities.remove.handler(async ({ input, errors }) => {
-	const [deleted] = await db.delete(university).where(eq(university.id, input.id)).returning();
-
-	if (!deleted) {
-		throw errors.NOT_FOUND({
-			message: "Universitas tidak ditemukan",
-		});
-	}
+	await requireFound(await db.delete(university).where(eq(university.id, input.id)).returning(), "Universitas", errors);
 
 	return { message: "Universitas berhasil dihapus" };
 });

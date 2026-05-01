@@ -1,6 +1,7 @@
 import { db } from "@bimbelbeta/db";
 import { tryout, tryoutSubtest } from "@bimbelbeta/db/schema/tryout";
 import { eq, sql } from "drizzle-orm";
+import { requireCreated, requireFound } from "@/lib/crud-helpers";
 import { baseImplementer } from "@/lib/router-definition";
 import { rateLimit, requireAdmin, requireAuth } from "@/lib/router-definition/middleware";
 import { pickDefined } from "@/lib/utils";
@@ -34,22 +35,21 @@ const createSubtest = admin.admin.tryout.subtest.createSubtest.handler(async ({ 
 
 	const nextOrder = (maxOrderResult?.maxOrder ?? 0) + 1;
 
-	const [created] = await db
-		.insert(tryoutSubtest)
-		.values({
-			tryoutId: input.tryoutId,
-			name: input.name,
-			description: input.description ?? null,
-			duration: input.duration ?? 0,
-			questionOrder: input.questionOrder ?? "sequential",
-			order: nextOrder,
-		})
-		.returning();
-
-	if (!created)
-		throw errors.INTERNAL_SERVER_ERROR({
-			message: "Gagal membuat subtest",
-		});
+	const created = requireCreated(
+		await db
+			.insert(tryoutSubtest)
+			.values({
+				tryoutId: input.tryoutId,
+				name: input.name,
+				description: input.description ?? null,
+				duration: input.duration ?? 0,
+				questionOrder: input.questionOrder ?? "sequential",
+				order: nextOrder,
+			})
+			.returning(),
+		"subtest",
+		errors,
+	);
 
 	return {
 		message: "Subtest berhasil dibuat",
@@ -69,24 +69,21 @@ const updateSubtest = admin.admin.tryout.subtest.updateSubtest.handler(async ({ 
 		updatedAt: new Date(),
 	};
 
-	const [updated] = await db.update(tryoutSubtest).set(updateData).where(eq(tryoutSubtest.id, input.id)).returning();
-
-	if (!updated)
-		throw errors.NOT_FOUND({
-			message: "Subtest tidak ditemukan",
-		});
+	await requireFound(
+		await db.update(tryoutSubtest).set(updateData).where(eq(tryoutSubtest.id, input.id)).returning(),
+		"Subtest",
+		errors,
+	);
 
 	return { message: "Subtest berhasil diperbarui" };
 });
 
 const remove = admin.admin.tryout.subtest.remove.handler(async ({ input, errors }) => {
-	const [deleted] = await db.delete(tryoutSubtest).where(eq(tryoutSubtest.id, input.id)).returning();
-
-	if (!deleted) {
-		throw errors.NOT_FOUND({
-			message: "Subtest tidak ditemukan",
-		});
-	}
+	await requireFound(
+		await db.delete(tryoutSubtest).where(eq(tryoutSubtest.id, input.id)).returning(),
+		"Subtest",
+		errors,
+	);
 
 	return { message: "Subtest berhasil dihapus" };
 });

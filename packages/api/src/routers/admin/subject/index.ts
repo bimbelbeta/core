@@ -1,66 +1,36 @@
 import { db } from "@bimbelbeta/db";
 import { subject } from "@bimbelbeta/db/schema/subject";
 import { eq } from "drizzle-orm";
+import { requireCreated, requireFound } from "@/lib/crud-helpers";
 import { baseImplementer } from "@/lib/router-definition";
 import { rateLimit, requireAdmin, requireAuth } from "@/lib/router-definition/middleware";
 import { pickDefined } from "@/lib/utils";
+import { validateGradeLevel } from "./utils";
 
 const admin = baseImplementer.use(requireAuth).use(rateLimit).use(requireAdmin);
-
-const VALID_GRADE_RANGE: Record<string, [number, number]> = {
-	sd: [1, 6],
-	smp: [7, 9],
-	sma: [10, 12],
-};
-
-function validateGradeLevel(
-	gradeLevel: number,
-	category: string,
-	errors: { BAD_REQUEST: (opts: { message: string }) => Error },
-): void {
-	if (category === "utbk") {
-		throw errors.BAD_REQUEST({
-			message: "UTBK tidak boleh memiliki gradeLevel",
-		});
-	}
-
-	const range = VALID_GRADE_RANGE[category];
-	if (!range) {
-		throw errors.BAD_REQUEST({
-			message: `Kategori ${category} tidak valid`,
-		});
-	}
-
-	const [min, max] = range;
-	if (gradeLevel < min || gradeLevel > max) {
-		throw errors.BAD_REQUEST({
-			message: `GradeLevel harus antara ${min} dan ${max} untuk kategori ${category.toUpperCase()}`,
-		});
-	}
-}
 
 const createSubject = admin.admin.subject.create.handler(async ({ input, errors }) => {
 	if (input.gradeLevel !== undefined && input.gradeLevel !== null) {
 		const category = input.category ?? "utbk";
-		validateGradeLevel(input.gradeLevel, category, errors);
+		const result = validateGradeLevel(category, input.gradeLevel);
+		if (!result.valid) throw errors.BAD_REQUEST({ message: result.message! });
 	}
 
-	const [created] = await db
-		.insert(subject)
-		.values({
-			name: input.name,
-			shortName: input.shortName,
-			description: input.description ?? null,
-			order: input.order ?? 1,
-			category: input.category ?? "utbk",
-			gradeLevel: input.gradeLevel ?? null,
-		})
-		.returning();
-
-	if (!created)
-		throw errors.INTERNAL_SERVER_ERROR({
-			message: "Gagal membuat kelas",
-		});
+	const created = requireCreated(
+		await db
+			.insert(subject)
+			.values({
+				name: input.name,
+				shortName: input.shortName,
+				description: input.description ?? null,
+				order: input.order ?? 1,
+				category: input.category ?? "utbk",
+				gradeLevel: input.gradeLevel ?? null,
+			})
+			.returning(),
+		"kelas",
+		errors,
+	);
 
 	return {
 		message: "Kelas berhasil dibuat",
@@ -82,7 +52,8 @@ const updateSubject = admin.admin.subject.update.handler(async ({ input, errors 
 		}
 
 		if (input.gradeLevel !== null && category) {
-			validateGradeLevel(input.gradeLevel, category, errors);
+			const result = validateGradeLevel(category, input.gradeLevel);
+			if (!result.valid) throw errors.BAD_REQUEST({ message: result.message! });
 		}
 	}
 
@@ -98,23 +69,17 @@ const updateSubject = admin.admin.subject.update.handler(async ({ input, errors 
 		updatedAt: new Date(),
 	};
 
-	const [updatedRow] = await db.update(subject).set(updateData).where(eq(subject.id, input.id)).returning();
-
-	if (!updatedRow)
-		throw errors.NOT_FOUND({
-			message: "Kelas tidak ditemukan",
-		});
+	await requireFound(
+		await db.update(subject).set(updateData).where(eq(subject.id, input.id)).returning(),
+		"Kelas",
+		errors,
+	);
 
 	return { message: "Kelas berhasil diperbarui" };
 });
 
 const removeSubject = admin.admin.subject.remove.handler(async ({ input, errors }) => {
-	const [deletedRow] = await db.delete(subject).where(eq(subject.id, input.id)).returning();
-
-	if (!deletedRow)
-		throw errors.NOT_FOUND({
-			message: "Kelas tidak ditemukan",
-		});
+	await requireFound(await db.delete(subject).where(eq(subject.id, input.id)).returning(), "Kelas", errors);
 
 	return { message: "Kelas berhasil dihapus" };
 });

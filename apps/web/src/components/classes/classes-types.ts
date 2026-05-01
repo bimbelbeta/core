@@ -18,5 +18,6 @@ export type LastContentViewedItem = ContentActionItem & {
 	title: string;
 };
 
-export type SubjectFilter = "all" | "sd" | "smp" | "sma" | "utbk";
+export type SubjectCategory = SubjectListItem["category"];
+export type SubjectFilter = "all" | SubjectCategory;
 export type ContentFilter = "all" | "video" | "notes" | "quiz";

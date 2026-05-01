@@ -1,11 +1,9 @@
-// import Carousel from "@/components/shared/carousel";
-
 import { Image } from "@unpic/react";
 import { Container } from "@/components/ui/container";
 import { Heading } from "./-components/heading";
-import { DATA } from "./data";
+import { HOME_PAGE_CONTENT } from "./data";
 
-export default function Testimone() {
+export default function Testimonial() {
 	return (
 		<Container className="max-w-7xl overflow-x-clip">
 			<div className="mb-4 text-center">
@@ -15,7 +13,7 @@ export default function Testimone() {
 			</div>
 
 			<div className="mx-auto mt-3 mb-5 grid w-fit grid-cols-1 gap-x-12 gap-y-4 sm:mt-5 sm:mb-8 sm:grid-cols-2 lg:grid-cols-3 xl:mt-10 xl:gap-x-30">
-				{DATA.stats.map((stat) => (
+				{HOME_PAGE_CONTENT.stats.map((stat) => (
 					<div key={stat.id} className="flex flex-col items-center sm:last:col-span-2 lg:last:col-span-1">
 						<p className="text-center font-semibold text-2xl text-secondary-700 leading-9 sm:text-4xl md:leading-11.5 2xl:text-5xl">
 							{stat.value}
@@ -25,21 +23,12 @@ export default function Testimone() {
 				))}
 			</div>
 
-			{/*<Carousel
-				items={[...DATA.testimone]}
-				showNavigation={true}
-				showDots={true}
-				autoPlay={false}
-				gap={35}
-				responsiveGap={true}
-				className=""
-			/>*/}
-			<TestimoneCard data={DATA.testimone} />
+			<TestimonialCard data={HOME_PAGE_CONTENT.testimonials} />
 		</Container>
 	);
 }
 
-function TestimoneCard({ data }: { data: typeof DATA.testimone }) {
+function TestimonialCard({ data }: { data: typeof HOME_PAGE_CONTENT.testimonials }) {
 	const placeholder = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=400";
 
 	return (

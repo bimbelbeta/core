@@ -1,3 +1,4 @@
+import { ROLES, type Role } from "@bimbelbeta/contract/common/roles";
 import { PencilSimpleIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
@@ -27,9 +28,7 @@ interface EditRoleDialogProps {
 }
 
 export function EditRoleDialog({ userId, userName, currentRole, open, onOpenChange, onSuccess }: EditRoleDialogProps) {
-	const [role, setRole] = useState<"user" | "admin" | "superadmin">(
-		(currentRole as "user" | "admin" | "superadmin") ?? "user",
-	);
+	const [role, setRole] = useState<Role>((currentRole as Role) ?? ROLES.USER);
 
 	const updateMutation = useMutation(
 		orpc.admin.users.update.mutationOptions({
@@ -48,7 +47,7 @@ export function EditRoleDialog({ userId, userName, currentRole, open, onOpenChan
 		<Dialog
 			open={open}
 			onOpenChange={(value) => {
-				if (!value) setRole((currentRole as "user" | "admin" | "superadmin") ?? "user");
+				if (!value) setRole((currentRole as Role) ?? ROLES.USER);
 				onOpenChange(value);
 			}}
 		>
@@ -74,9 +73,9 @@ export function EditRoleDialog({ userId, userName, currentRole, open, onOpenChan
 								<SelectValue placeholder="Pilih role" />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="user">User</SelectItem>
-								<SelectItem value="admin">Admin</SelectItem>
-								<SelectItem value="superadmin">Superadmin</SelectItem>
+								<SelectItem value={ROLES.USER}>User</SelectItem>
+								<SelectItem value={ROLES.ADMIN}>Admin</SelectItem>
+								<SelectItem value={ROLES.SUPER_ADMIN}>Superadmin</SelectItem>
 							</SelectContent>
 						</Select>
 					</div>

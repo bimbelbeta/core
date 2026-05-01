@@ -1,4 +1,5 @@
 import { PaginationInputSchema } from "@bimbelbeta/contract/common/pagination";
+import { ROLES, type Role, RoleSchema } from "@bimbelbeta/contract/common/roles";
 import { CalendarDotsIcon, ClockIcon, CreditCardIcon, CrownIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -38,7 +39,7 @@ import { formatPremiumExpiry, formatRelativeDate, getInitials, roleConfig } from
 const searchSchema = type({
 	"...": PaginationInputSchema,
 	"search?": "string",
-	"role?": "'user' | 'admin' | 'superadmin'",
+	"role?": RoleSchema,
 	"isPremium?": "boolean",
 });
 
@@ -111,7 +112,7 @@ function UsersListPage() {
 			search:
 				value !== "all"
 					? {
-							role: value as "user" | "admin" | "superadmin",
+							role: value as Role,
 							...(search && { search }),
 							...(isPremium !== undefined && { isPremium }),
 							limit,
@@ -165,9 +166,9 @@ function UsersListPage() {
 						</SelectTrigger>
 						<SelectContent>
 							<SelectItem value="all">Semua Role</SelectItem>
-							<SelectItem value="user">User</SelectItem>
-							<SelectItem value="admin">Admin</SelectItem>
-							<SelectItem value="superadmin">Superadmin</SelectItem>
+							<SelectItem value={ROLES.USER}>User</SelectItem>
+							<SelectItem value={ROLES.ADMIN}>Admin</SelectItem>
+							<SelectItem value={ROLES.SUPER_ADMIN}>Superadmin</SelectItem>
 						</SelectContent>
 					</Select>
 					<Select

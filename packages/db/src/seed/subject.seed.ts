@@ -1,4 +1,5 @@
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+import type { PgTable } from "drizzle-orm/pg-core";
 import {
 	contentItem,
 	contentPracticeQuestions,
@@ -224,42 +225,21 @@ const SMA_DATA = [
 
 const SUBJECT_DATA = [...UTBK_DATA, ...SD_DATA, ...SMP_DATA, ...SMA_DATA];
 
+async function clearTable(db: NodePgDatabase, table: PgTable, name: string) {
+	try {
+		await db.delete(table);
+	} catch {
+		console.log(`${name} table not found, skipping clear`);
+	}
+}
+
 export async function clearSubtest(db: NodePgDatabase) {
-	try {
-		await db.delete(userProgress);
-	} catch {
-		console.log("user_progress table not found, skipping clear");
-	}
-
-	try {
-		await db.delete(recentContentView);
-	} catch {
-		console.log("recent_content_view table not found, skipping clear");
-	}
-
-	try {
-		await db.delete(videoMaterial);
-	} catch {
-		console.log("video_material table not found, skipping clear");
-	}
-
-	try {
-		await db.delete(noteMaterial);
-	} catch {
-		console.log("note_material table not found, skipping clear");
-	}
-
-	try {
-		await db.delete(contentItem);
-	} catch {
-		console.log("content_item table not found, skipping clear");
-	}
-
-	try {
-		await db.delete(subject);
-	} catch {
-		console.log("subject table not found, skipping clear");
-	}
+	await clearTable(db, userProgress, "user_progress");
+	await clearTable(db, recentContentView, "recent_content_view");
+	await clearTable(db, videoMaterial, "video_material");
+	await clearTable(db, noteMaterial, "note_material");
+	await clearTable(db, contentItem, "content_item");
+	await clearTable(db, subject, "subject");
 }
 
 export async function seedSubtest(db: NodePgDatabase) {
@@ -1479,41 +1459,12 @@ const CONTENT_DATA = [
 ];
 
 export async function clearContent(db: NodePgDatabase) {
-	try {
-		await db.delete(userProgress);
-	} catch {
-		console.log("user_progress table not found, skipping clear");
-	}
-
-	try {
-		await db.delete(recentContentView);
-	} catch {
-		console.log("recent_content_view table not found, skipping clear");
-	}
-
-	try {
-		await db.delete(contentPracticeQuestions);
-	} catch {
-		console.log("content_practice_questions table not found, skipping clear");
-	}
-
-	try {
-		await db.delete(videoMaterial);
-	} catch {
-		console.log("video_material table not found, skipping clear");
-	}
-
-	try {
-		await db.delete(noteMaterial);
-	} catch {
-		console.log("note_material table not found, skipping clear");
-	}
-
-	try {
-		await db.delete(contentItem);
-	} catch {
-		console.log("content_item table not found, skipping clear");
-	}
+	await clearTable(db, userProgress, "user_progress");
+	await clearTable(db, recentContentView, "recent_content_view");
+	await clearTable(db, contentPracticeQuestions, "content_practice_questions");
+	await clearTable(db, videoMaterial, "video_material");
+	await clearTable(db, noteMaterial, "note_material");
+	await clearTable(db, contentItem, "content_item");
 }
 
 export async function seedContent(db: NodePgDatabase) {

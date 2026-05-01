@@ -1,12 +1,15 @@
 import { describe, expect, test } from "bun:test";
 import {
 	buildIdCursorPage,
+	buildStringIdCursorPage,
 	createDateCursor,
 	createIdCursor,
+	createStringIdCursor,
 	decodeCursor,
 	encodeCursor,
 	parseDateCursor,
 	parseIdCursor,
+	parseStringIdCursor,
 } from "./cursor";
 
 describe("encodeCursor / decodeCursor", () => {
@@ -108,5 +111,53 @@ describe("buildIdCursorPage", () => {
 		expect(pageInfo.endCursor).toBeNull();
 		expect(pageInfo.hasNextPage).toBe(false);
 		expect(pageInfo.hasPreviousPage).toBe(false);
+	});
+});
+
+describe("createStringIdCursor / parseStringIdCursor", () => {
+	test("round-trips a string id", () => {
+		expect(parseStringIdCursor(createStringIdCursor("abc123"))).toBe("abc123");
+	});
+
+	test("round-trips a UUID", () => {
+		const uuid = "550e8400-e29b-41d4-a716-446655440000";
+		expect(parseStringIdCursor(createStringIdCursor(uuid))).toBe(uuid);
+	});
+});
+
+describe("buildStringIdCursorPage", () => {
+	const makeItems = (count: number) => Array.from({ length: count }, (_, i) => ({ id: `id-${i + 1}` }));
+
+	test("forward: returns limit items when extra sentinel present", () => {
+		const rows = makeItems(6);
+		const { items, pageInfo } = buildStringIdCursorPage(rows, 5, false, false);
+		expect(items).toHaveLength(5);
+		expect(pageInfo.hasNextPage).toBe(true);
+		expect(pageInfo.hasPreviousPage).toBe(false);
+	});
+
+	test("forward: hasNextPage=false when fewer rows than limit", () => {
+		const rows = makeItems(3);
+		const { pageInfo } = buildStringIdCursorPage(rows, 5, false, false);
+		expect(pageInfo.hasNextPage).toBe(false);
+	});
+
+	test("backward: items are reversed", () => {
+		const rows = makeItems(3);
+		const { items } = buildStringIdCursorPage(rows, 5, true, false);
+		expect(items.map((i) => i.id)).toEqual(["id-3", "id-2", "id-1"]);
+	});
+
+	test("startCursor and endCursor use string id encoding", () => {
+		const rows = makeItems(3);
+		const { pageInfo } = buildStringIdCursorPage(rows, 5, false, false);
+		expect(pageInfo.startCursor).toBe(createStringIdCursor("id-1"));
+		expect(pageInfo.endCursor).toBe(createStringIdCursor("id-3"));
+	});
+
+	test("empty page: cursors are null", () => {
+		const { pageInfo } = buildStringIdCursorPage([], 5, false, false);
+		expect(pageInfo.startCursor).toBeNull();
+		expect(pageInfo.endCursor).toBeNull();
 	});
 });

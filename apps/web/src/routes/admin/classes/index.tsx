@@ -1,3 +1,4 @@
+import { ROLES } from "@bimbelbeta/contract/common/roles";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
@@ -33,7 +34,7 @@ function RouteComponent() {
 	const [createOpen, setCreateOpen] = useState(false);
 	const { session } = Route.useRouteContext();
 	const userRole = session?.user?.role;
-	const isAdmin = userRole === "admin" || userRole === "superadmin";
+	const isAdmin = userRole === ROLES.ADMIN || userRole === ROLES.SUPER_ADMIN;
 
 	const searchParams = Route.useSearch();
 	const searchQuery = (searchParams as Search).q ?? "";

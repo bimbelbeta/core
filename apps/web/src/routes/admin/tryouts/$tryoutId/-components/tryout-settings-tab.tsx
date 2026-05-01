@@ -2,7 +2,6 @@ import { CalendarIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { type } from "arktype";
-import { format } from "date-fns";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { formatDateMedium } from "@/lib/format-date";
 import { cn } from "@/lib/utils";
 import { orpc } from "@/utils/orpc";
 
@@ -487,10 +487,10 @@ export function TryoutSettingsTab({ tryout, onUpdate, onFormStateChange }: Tryou
 										{dateRange.from ? (
 											dateRange.to ? (
 												<>
-													{format(dateRange.from, "PPP")} - {format(dateRange.to, "PPP")}
+													{formatDateMedium(dateRange.from)} - {formatDateMedium(dateRange.to)}
 												</>
 											) : (
-												format(dateRange.from, "PPP")
+												formatDateMedium(dateRange.from)
 											)
 										) : (
 											<span>Pilih rentang tanggal</span>

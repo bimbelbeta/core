@@ -1,3 +1,4 @@
+import { ROLES } from "@bimbelbeta/contract/common/roles";
 import {
 	ArchiveIcon,
 	BooksIcon,
@@ -56,7 +57,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const location = useLocation();
 	const { session } = useRouteContext({ from: "/admin" });
 
-	const adminNavLinks = allAdminNavLinks.filter((link) => !link.superadminOnly || session?.user?.role === "superadmin");
+	const adminNavLinks = allAdminNavLinks.filter(
+		(link) => !link.superadminOnly || session?.user?.role === ROLES.SUPER_ADMIN,
+	);
 
 	const navLinksWithActive = adminNavLinks.map((link) => ({
 		...link,

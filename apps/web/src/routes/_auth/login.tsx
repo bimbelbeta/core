@@ -1,3 +1,4 @@
+import { ROLES } from "@bimbelbeta/contract/common/roles";
 import { ArrowLeftIcon, GoogleLogoIcon, WarningCircleIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
@@ -65,7 +66,7 @@ function SignInForm() {
 						const session = await authClient.getSession();
 						const user = session.data?.user;
 
-						if (user?.role === "admin" || user?.role === "superadmin") {
+						if (user?.role === ROLES.ADMIN || user?.role === ROLES.SUPER_ADMIN) {
 							navigate({ to: "/admin/dashboard" });
 						} else {
 							navigate({ to: "/dashboard" });

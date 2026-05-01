@@ -1,4 +1,4 @@
-import { useIsAdmin } from "@/utils/use-is-admin";
+import { useIsAdmin } from "@/hooks/use-is-admin";
 
 export function SubjectHeader() {
 	const isAdmin = useIsAdmin();

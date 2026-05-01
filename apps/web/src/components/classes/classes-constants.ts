@@ -1,4 +1,6 @@
-export type SubjectCategory = "sd" | "smp" | "sma" | "utbk";
+import type { SubjectCategory } from "./classes-types";
+
+export type { SubjectCategory };
 
 export const categoryLabel: Record<SubjectCategory, string> = {
 	sd: "SD",

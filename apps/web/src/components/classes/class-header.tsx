@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
+import { useIsAdmin } from "@/hooks/use-is-admin";
 import { cn } from "@/lib/utils";
-import { useIsAdmin } from "@/utils/use-is-admin";
 import { BackButton } from "../shared/back-button";
 import { Badge } from "../ui/badge";
 

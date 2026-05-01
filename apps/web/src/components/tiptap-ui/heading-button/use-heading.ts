@@ -1,16 +1,13 @@
 import { NodeSelection, TextSelection } from "@tiptap/pm/state";
 import type { Editor } from "@tiptap/react";
 import { useCallback, useEffect, useState } from "react";
-// --- Hooks ---
 import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
 import { HeadingFiveIcon } from "@/components/tiptap-icons/heading-five-icon";
 import { HeadingFourIcon } from "@/components/tiptap-icons/heading-four-icon";
-// --- Icons ---
 import { HeadingOneIcon } from "@/components/tiptap-icons/heading-one-icon";
 import { HeadingSixIcon } from "@/components/tiptap-icons/heading-six-icon";
 import { HeadingThreeIcon } from "@/components/tiptap-icons/heading-three-icon";
 import { HeadingTwoIcon } from "@/components/tiptap-icons/heading-two-icon";
-// --- Lib ---
 import {
 	findNodePosition,
 	isNodeInSchema,
@@ -25,22 +22,10 @@ export type Level = 1 | 2 | 3 | 4 | 5 | 6;
  * Configuration for the heading functionality
  */
 export interface UseHeadingConfig {
-	/**
-	 * The Tiptap editor instance.
-	 */
 	editor?: Editor | null;
-	/**
-	 * The heading level.
-	 */
 	level: Level;
-	/**
-	 * Whether the button should hide when heading is not available.
-	 * @default false
-	 */
+	/** @default false */
 	hideWhenUnavailable?: boolean;
-	/**
-	 * Callback function called after a successful heading toggle.
-	 */
 	onToggled?: () => void;
 }
 

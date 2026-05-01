@@ -1,6 +1,5 @@
 import { canAccessContent } from "@bimbelbeta/contract/common/content-access";
 import { db } from "@bimbelbeta/db";
-import { user } from "@bimbelbeta/db/schema/auth";
 import { question, questionChoice } from "@bimbelbeta/db/schema/question";
 import {
 	contentItem,
@@ -17,9 +16,9 @@ import { readTiptapContent } from "@/lib/content-utils";
 import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
 import { ROLES, type Role } from "@/lib/roles";
 import { baseImplementer } from "@/lib/router-definition";
-import { rateLimit, requireAuth } from "@/lib/router-definition/middleware";
+import { rateLimit, requireAuth, revokeExpiredPremium } from "@/lib/router-definition/middleware";
 
-const authed = baseImplementer.use(requireAuth).use(rateLimit);
+const authed = baseImplementer.use(requireAuth).use(revokeExpiredPremium).use(rateLimit);
 
 import type { ChoiceWithAnswer } from "@/types/question";
 
@@ -166,17 +165,7 @@ const findContent = authed.subject.findContent.handler(async ({ input, context, 
 	const rawRole = context.session.user.role;
 	const role: Role = Object.values(ROLES).includes(rawRole as Role) ? (rawRole as Role) : ROLES.USER;
 
-	let { isPremium } = context.session.user;
-	if (
-		isPremium &&
-		context.session.user.premiumExpiresAt &&
-		context.session.user.premiumExpiresAt.getTime() < Date.now()
-	) {
-		await db.update(user).set({ isPremium: false }).where(eq(user.id, context.session.user.id));
-		isPremium = false;
-	}
-
-	const hasAccess = canAccessContent(isPremium, role, row.subtestOrder, row.order);
+	const hasAccess = canAccessContent(context.session.user.isPremium, role, row.subtestOrder, row.order);
 
 	if (!hasAccess) {
 		throw errors.FORBIDDEN({ message: "Konten ini memerlukan akun premium" });

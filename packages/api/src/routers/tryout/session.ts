@@ -1,6 +1,5 @@
 import { db } from "@bimbelbeta/db";
 import { tryoutAttempt, tryoutSubtestAttempt, tryoutUserAnswer } from "@bimbelbeta/db/schema/tryout";
-import type { ORPCError } from "@orpc/server";
 import { eq, sql } from "drizzle-orm";
 import { calculateTryoutScores, saveScoresToDatabase } from "@/lib/calculate-score";
 import { baseImplementer } from "@/lib/router-definition";
@@ -9,25 +8,23 @@ import { parseNullableInt } from "@/lib/utils";
 
 const authed = baseImplementer.use(requireAuth).use(rateLimit);
 
-type HandlerErrors = {
-	BAD_REQUEST: (opts: { message: string }) => ORPCError<"BAD_REQUEST", unknown>;
-	NOT_FOUND: (opts: { message: string }) => ORPCError<"NOT_FOUND", unknown>;
-	INTERNAL_SERVER_ERROR: (opts: { message: string }) => ORPCError<"INTERNAL_SERVER_ERROR", unknown>;
-	UNAUTHORIZED: (opts?: { message?: string }) => ORPCError<"UNAUTHORIZED", unknown>;
-	FORBIDDEN: (opts?: { message?: string }) => ORPCError<"FORBIDDEN", unknown>;
+type SessionErrors = {
+	BAD_REQUEST: (opts: { message: string }) => Error;
+	NOT_FOUND: (opts: { message: string }) => Error;
+	INTERNAL_SERVER_ERROR: (opts: { message: string }) => Error;
 };
 
 type ActiveSubtestResult = {
 	attempt: Awaited<ReturnType<typeof db.query.tryoutAttempt.findFirst>> & {
-		subtestAttempts: { id: number; subtestId: number; status: string; deadline: Date | null; score: unknown }[];
+		subtestAttempts: { id: number; subtestId: number; status: string; deadline: Date | null; score: number | null }[];
 	};
-	currentSubtestAttempt: { id: number; subtestId: number; status: string; deadline: Date | null; score: unknown };
+	currentSubtestAttempt: { id: number; subtestId: number; status: string; deadline: Date | null; score: number | null };
 };
 
 async function requireActiveSubtestAttempt(
 	tryoutId: number,
 	userId: string,
-	errors: HandlerErrors,
+	errors: SessionErrors,
 ): Promise<ActiveSubtestResult> {
 	const attempt = await db.query.tryoutAttempt.findFirst({
 		where: {
@@ -149,7 +146,8 @@ export const saveAnswer = authed.tryout.saveAnswer.handler(async ({ input, conte
 			target: [tryoutUserAnswer.attemptId, tryoutUserAnswer.questionId],
 			set: answerFields,
 		})
-		.catch(() => {
+		.catch((e) => {
+			console.error(e);
 			throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal menyimpan jawaban." });
 		});
 
@@ -175,7 +173,8 @@ export const toggleRaguRagu = authed.tryout.toggleRaguRagu.handler(async ({ inpu
 			target: [tryoutUserAnswer.attemptId, tryoutUserAnswer.questionId],
 			set: { isDoubtful: sql`NOT ${tryoutUserAnswer.isDoubtful}` },
 		})
-		.catch(() => {
+		.catch((e) => {
+			console.error(e);
 			throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal menyimpan status ragu-ragu." });
 		});
 
@@ -238,7 +237,8 @@ export const submitSubtest = authed.tryout.submitSubtest.handler(async ({ input,
 					deadline: nextDeadline,
 				});
 			})
-			.catch(() => {
+			.catch((e) => {
+				console.error(e);
 				throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal menyimpan progres subtest." });
 			});
 		return { success: true as const, tryoutCompleted: false as const, nextSubtestId: nextSubtest.id };
@@ -260,7 +260,8 @@ export const submitSubtest = authed.tryout.submitSubtest.handler(async ({ input,
 
 			await saveScoresToDatabase(attempt.id, scores, tx);
 		})
-		.catch(() => {
+		.catch((e) => {
+			console.error(e);
 			throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal menyimpan skor tryout." });
 		});
 
@@ -292,7 +293,8 @@ export const submitTryout = authed.tryout.submitTryout.handler(async ({ input, c
 
 			await saveScoresToDatabase(attempt.id, scores, tx);
 		})
-		.catch(() => {
+		.catch((e) => {
+			console.error(e);
 			throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal menyimpan skor tryout." });
 		});
 

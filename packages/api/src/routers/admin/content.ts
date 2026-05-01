@@ -3,6 +3,7 @@ import { question, questionChoice } from "@bimbelbeta/db/schema/question";
 import { contentItem, contentPracticeQuestions, noteMaterial, videoMaterial } from "@bimbelbeta/db/schema/subject";
 import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import { readTiptapContent } from "@/lib/content-utils";
+import { requireCreated, requireFound } from "@/lib/crud-helpers";
 import { baseImplementer } from "@/lib/router-definition";
 import { rateLimit, requireAdmin, requireAuth } from "@/lib/router-definition/middleware";
 
@@ -20,19 +21,18 @@ const createContent = admin.admin.content.createContent.handler(async ({ input, 
 	}
 
 	const result = await db.transaction(async (tx) => {
-		const [newContent] = await tx
-			.insert(contentItem)
-			.values({
-				subjectId: input.subjectId,
-				title: input.title,
-				order: input.order,
-			})
-			.returning();
-
-		if (!newContent)
-			throw errors.INTERNAL_SERVER_ERROR({
-				message: "Gagal membuat konten",
-			});
+		const newContent = requireCreated(
+			await tx
+				.insert(contentItem)
+				.values({
+					subjectId: input.subjectId,
+					title: input.title,
+					order: input.order,
+				})
+				.returning(),
+			"konten",
+			errors,
+		);
 
 		const createdMaterials: {
 			video?: number;
@@ -97,23 +97,17 @@ const updateContent = admin.admin.content.updateContent.handler(async ({ input, 
 		updatedAt: new Date(),
 	};
 
-	const [updated] = await db.update(contentItem).set(updateData).where(eq(contentItem.id, input.id)).returning();
-
-	if (!updated)
-		throw errors.NOT_FOUND({
-			message: "Konten tidak ditemukan",
-		});
+	await requireFound(
+		await db.update(contentItem).set(updateData).where(eq(contentItem.id, input.id)).returning(),
+		"Konten",
+		errors,
+	);
 
 	return { message: "Konten berhasil diperbarui" };
 });
 
 const removeContent = admin.admin.content.removeContent.handler(async ({ input, errors }) => {
-	const [deleted] = await db.delete(contentItem).where(eq(contentItem.id, input.id)).returning();
-
-	if (!deleted)
-		throw errors.NOT_FOUND({
-			message: "Konten tidak ditemukan",
-		});
+	await requireFound(await db.delete(contentItem).where(eq(contentItem.id, input.id)).returning(), "Konten", errors);
 
 	return { message: "Konten berhasil dihapus" };
 });
@@ -156,38 +150,36 @@ const upsertVideo = admin.admin.content.upsertVideo.handler(async ({ input, erro
 			message: "Konten tidak ditemukan",
 		});
 
-	const [video] = await db
-		.insert(videoMaterial)
-		.values({
-			contentItemId: input.id,
-			videoUrl: input.videoUrl,
-			content: input.content,
-		})
-		.onConflictDoUpdate({
-			target: videoMaterial.contentItemId,
-			set: {
+	const video = requireCreated(
+		await db
+			.insert(videoMaterial)
+			.values({
+				contentItemId: input.id,
 				videoUrl: input.videoUrl,
 				content: input.content,
-				updatedAt: new Date(),
-			},
-		})
-		.returning();
-
-	if (!video)
-		throw errors.INTERNAL_SERVER_ERROR({
-			message: "Gagal menyimpan video material",
-		});
+			})
+			.onConflictDoUpdate({
+				target: videoMaterial.contentItemId,
+				set: {
+					videoUrl: input.videoUrl,
+					content: input.content,
+					updatedAt: new Date(),
+				},
+			})
+			.returning(),
+		"video material",
+		errors,
+	);
 
 	return { message: "Video material berhasil disimpan", videoId: video.id };
 });
 
 const removeVideo = admin.admin.content.removeVideo.handler(async ({ input, errors }) => {
-	const [deleted] = await db.delete(videoMaterial).where(eq(videoMaterial.contentItemId, input.id)).returning();
-
-	if (!deleted)
-		throw errors.NOT_FOUND({
-			message: "Video material tidak ditemukan",
-		});
+	await requireFound(
+		await db.delete(videoMaterial).where(eq(videoMaterial.contentItemId, input.id)).returning(),
+		"Video material",
+		errors,
+	);
 
 	return { message: "Video material berhasil dihapus" };
 });
@@ -204,25 +196,24 @@ const upsertNote = admin.admin.content.upsertNote.handler(async ({ input, errors
 			message: "Konten tidak ditemukan",
 		});
 
-	const [note] = await db
-		.insert(noteMaterial)
-		.values({
-			contentItemId: input.id,
-			content: input.content,
-		})
-		.onConflictDoUpdate({
-			target: noteMaterial.contentItemId,
-			set: {
+	const note = requireCreated(
+		await db
+			.insert(noteMaterial)
+			.values({
+				contentItemId: input.id,
 				content: input.content,
-				updatedAt: new Date(),
-			},
-		})
-		.returning();
-
-	if (!note)
-		throw errors.INTERNAL_SERVER_ERROR({
-			message: "Gagal menyimpan catatan material",
-		});
+			})
+			.onConflictDoUpdate({
+				target: noteMaterial.contentItemId,
+				set: {
+					content: input.content,
+					updatedAt: new Date(),
+				},
+			})
+			.returning(),
+		"catatan material",
+		errors,
+	);
 
 	return {
 		message: "Catatan material berhasil disimpan",
@@ -231,12 +222,11 @@ const upsertNote = admin.admin.content.upsertNote.handler(async ({ input, errors
 });
 
 const removeNote = admin.admin.content.removeNote.handler(async ({ input, errors }) => {
-	const [deleted] = await db.delete(noteMaterial).where(eq(noteMaterial.contentItemId, input.id)).returning();
-
-	if (!deleted)
-		throw errors.NOT_FOUND({
-			message: "Catatan material tidak ditemukan",
-		});
+	await requireFound(
+		await db.delete(noteMaterial).where(eq(noteMaterial.contentItemId, input.id)).returning(),
+		"Catatan material",
+		errors,
+	);
 
 	return { message: "Catatan material berhasil dihapus" };
 });
@@ -328,21 +318,19 @@ const listPracticeQuestions = admin.admin.content.listPracticeQuestions.handler(
 
 const removePracticeQuestion = admin.admin.content.removePracticeQuestion.handler(async ({ input, errors }) => {
 	await db.transaction(async (tx) => {
-		const [deleted] = await tx
-			.delete(contentPracticeQuestions)
-			.where(
-				and(
-					eq(contentPracticeQuestions.contentItemId, input.id),
-					eq(contentPracticeQuestions.questionId, input.questionId),
-				),
-			)
-			.returning();
-
-		if (!deleted) {
-			throw errors.NOT_FOUND({
-				message: "Soal tidak ditemukan di konten ini",
-			});
-		}
+		await requireFound(
+			await tx
+				.delete(contentPracticeQuestions)
+				.where(
+					and(
+						eq(contentPracticeQuestions.contentItemId, input.id),
+						eq(contentPracticeQuestions.questionId, input.questionId),
+					),
+				)
+				.returning(),
+			"Soal di konten ini",
+			errors,
+		);
 
 		const remaining = await tx
 			.select({ questionId: contentPracticeQuestions.questionId })

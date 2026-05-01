@@ -2,6 +2,7 @@ import { db } from "@bimbelbeta/db";
 import { question, questionChoice } from "@bimbelbeta/db/schema/question";
 import { and, asc, desc, eq, gt, inArray, like, lt, sql } from "drizzle-orm";
 import { normalizeQuestionContent, readTiptapContent } from "@/lib/content-utils";
+import { requireCreated, requireFound } from "@/lib/crud-helpers";
 import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
 import { baseImplementer } from "@/lib/router-definition";
 import { rateLimit, requireAdmin, requireAuth } from "@/lib/router-definition/middleware";
@@ -37,23 +38,22 @@ const createQuestion = admin.admin.tryout.questions.createQuestion.handler(async
 	}
 
 	const result = await db.transaction(async (tx) => {
-		const [newQuestion] = await tx
-			.insert(question)
-			.values({
-				type: input.type,
-				content: contentText,
-				discussion: discussionText,
-				contentJson,
-				discussionJson,
-				tags: input.tags ?? [],
-				essayCorrectAnswer: input.essayCorrectAnswer,
-			})
-			.returning();
-
-		if (!newQuestion)
-			throw errors.INTERNAL_SERVER_ERROR({
-				message: "Gagal membuat question",
-			});
+		const newQuestion = requireCreated(
+			await tx
+				.insert(question)
+				.values({
+					type: input.type,
+					content: contentText,
+					discussion: discussionText,
+					contentJson,
+					discussionJson,
+					tags: input.tags ?? [],
+					essayCorrectAnswer: input.essayCorrectAnswer,
+				})
+				.returning(),
+			"question",
+			errors,
+		);
 
 		if ((input.type === "multiple_choice" || input.type === "multiple_choice_complex") && choices) {
 			const choiceCodes = ["A", "B", "C", "D", "E", "F", "G"] as const;
@@ -152,23 +152,22 @@ const updateQuestion = admin.admin.tryout.questions.updateQuestion.handler(async
 	const { contentJson, discussionJson, contentText, discussionText } = normalizeQuestionContent(input);
 
 	await db.transaction(async (tx) => {
-		const [q] = await tx
-			.update(question)
-			.set({
-				content: contentText,
-				discussion: discussionText,
-				contentJson,
-				discussionJson,
-				essayCorrectAnswer: input.essayCorrectAnswer,
-				tags: input.tags ?? [],
-			})
-			.where(eq(question.id, input.id))
-			.returning();
-
-		if (!q)
-			throw errors.NOT_FOUND({
-				message: "Question tidak ditemukan",
-			});
+		await requireFound(
+			await tx
+				.update(question)
+				.set({
+					content: contentText,
+					discussion: discussionText,
+					contentJson,
+					discussionJson,
+					essayCorrectAnswer: input.essayCorrectAnswer,
+					tags: input.tags ?? [],
+				})
+				.where(eq(question.id, input.id))
+				.returning(),
+			"Question",
+			errors,
+		);
 
 		if (input.choices) {
 			const existingChoices = await tx.select().from(questionChoice).where(eq(questionChoice.questionId, input.id));
@@ -219,13 +218,7 @@ const updateQuestion = admin.admin.tryout.questions.updateQuestion.handler(async
 });
 
 const removeQuestion = admin.admin.tryout.questions.remove.handler(async ({ input, errors }) => {
-	const [deleted] = await db.delete(question).where(eq(question.id, input.id)).returning();
-
-	if (!deleted) {
-		throw errors.NOT_FOUND({
-			message: "Question tidak ditemukan",
-		});
-	}
+	await requireFound(await db.delete(question).where(eq(question.id, input.id)).returning(), "Question", errors);
 
 	return { message: "Question berhasil dihapus" };
 });
@@ -246,20 +239,19 @@ const createChoice = admin.admin.tryout.questions.createChoice.handler(async ({ 
 		});
 	}
 
-	const [created] = await db
-		.insert(questionChoice)
-		.values({
-			questionId: input.questionId,
-			code: nextCode,
-			content: input.content,
-			isCorrect: input.isCorrect,
-		})
-		.returning();
-
-	if (!created)
-		throw errors.INTERNAL_SERVER_ERROR({
-			message: "Gagal membuat choice",
-		});
+	const created = requireCreated(
+		await db
+			.insert(questionChoice)
+			.values({
+				questionId: input.questionId,
+				code: nextCode,
+				content: input.content,
+				isCorrect: input.isCorrect,
+			})
+			.returning(),
+		"choice",
+		errors,
+	);
 
 	return {
 		message: "Choice berhasil dibuat",
@@ -273,24 +265,21 @@ const updateChoice = admin.admin.tryout.questions.updateChoice.handler(async ({ 
 	if (input.content !== undefined) updateData.content = input.content;
 	if (input.isCorrect !== undefined) updateData.isCorrect = input.isCorrect;
 
-	const [updated] = await db.update(questionChoice).set(updateData).where(eq(questionChoice.id, input.id)).returning();
-
-	if (!updated)
-		throw errors.NOT_FOUND({
-			message: "Choice tidak ditemukan",
-		});
+	await requireFound(
+		await db.update(questionChoice).set(updateData).where(eq(questionChoice.id, input.id)).returning(),
+		"Choice",
+		errors,
+	);
 
 	return { message: "Choice berhasil diperbarui" };
 });
 
 const removeChoice = admin.admin.tryout.questions.removeChoice.handler(async ({ input, errors }) => {
-	const [deleted] = await db.delete(questionChoice).where(eq(questionChoice.id, input.id)).returning();
-
-	if (!deleted) {
-		throw errors.NOT_FOUND({
-			message: "Choice tidak ditemukan",
-		});
-	}
+	await requireFound(
+		await db.delete(questionChoice).where(eq(questionChoice.id, input.id)).returning(),
+		"Choice",
+		errors,
+	);
 
 	return { message: "Choice berhasil dihapus" };
 });

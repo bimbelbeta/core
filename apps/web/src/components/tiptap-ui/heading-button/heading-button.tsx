@@ -1,13 +1,10 @@
 import { forwardRef, useCallback } from "react";
 import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
-// --- Tiptap UI ---
 import type { Level, UseHeadingConfig } from "@/components/tiptap-ui/heading-button";
 import { HEADING_SHORTCUT_KEYS, useHeading } from "@/components/tiptap-ui/heading-button";
 import { Badge } from "@/components/tiptap-ui-primitive/badge";
-// --- UI Primitives ---
 import type { ButtonProps } from "@/components/tiptap-ui-primitive/button";
 import { Button } from "@/components/tiptap-ui-primitive/button";
-// --- Lib ---
 import { parseShortcutKeys } from "@/lib/tiptap-utils";
 
 export interface HeadingButtonProps extends Omit<ButtonProps, "type">, UseHeadingConfig {

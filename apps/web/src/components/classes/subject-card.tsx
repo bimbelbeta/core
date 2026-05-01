@@ -2,9 +2,9 @@ import { ArrowRightIcon, LockIcon, LockKeyIcon, PencilSimpleIcon, TrashIcon } fr
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
+import { useIsAdmin } from "@/hooks/use-is-admin";
 import { isSubjectPremium } from "@/lib/premium-config";
 import { cn } from "@/lib/utils";
-import { useIsAdmin } from "@/utils/use-is-admin";
 import { Badge } from "../ui/badge";
 import { Button, buttonVariants } from "../ui/button";
 import type { SubjectListItem } from "./classes-types";

@@ -1,9 +1,9 @@
 import { question } from "@bimbelbeta/db/schema/question";
 import { type } from "arktype";
 import { createSelectSchema } from "drizzle-arktype";
+import { MessageResponseSchema } from "@/common/response";
 import { oc } from "@/lib/contract-definition";
 
-const MessageResponseSchema = type({ message: "string" });
 const QuestionSummarySchema = type({
 	"...": createSelectSchema(question).pick("type", "contentJson").merge({ id: "number" }),
 	content: "unknown",

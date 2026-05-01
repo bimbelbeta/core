@@ -3,6 +3,7 @@ import { question } from "@bimbelbeta/db/schema/question";
 import { tryoutSubtestQuestion } from "@bimbelbeta/db/schema/tryout";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { readTiptapContent } from "@/lib/content-utils";
+import { requireFound } from "@/lib/crud-helpers";
 import { baseImplementer } from "@/lib/router-definition";
 import { rateLimit, requireAdmin, requireAuth } from "@/lib/router-definition/middleware";
 
@@ -141,16 +142,15 @@ const bulkRemoveQuestionsFromSubtest = admin.admin.tryout.questionsBulk.bulkRemo
 
 const updateSubtestQuestionOrder = admin.admin.tryout.questionsBulk.updateSubtestQuestionOrder.handler(
 	async ({ input, errors }) => {
-		const [updated] = await db
-			.update(tryoutSubtestQuestion)
-			.set({ order: input.order })
-			.where(eq(tryoutSubtestQuestion.questionId, input.id))
-			.returning();
-
-		if (!updated)
-			throw errors.NOT_FOUND({
-				message: "Question tidak ditemukan di subtest",
-			});
+		await requireFound(
+			await db
+				.update(tryoutSubtestQuestion)
+				.set({ order: input.order })
+				.where(eq(tryoutSubtestQuestion.questionId, input.id))
+				.returning(),
+			"Question di subtest",
+			errors,
+		);
 
 		return { message: "Urutan question berhasil diperbarui" };
 	},
@@ -158,21 +158,19 @@ const updateSubtestQuestionOrder = admin.admin.tryout.questionsBulk.updateSubtes
 
 const removeQuestionFromSubtest = admin.admin.tryout.questionsBulk.removeQuestionFromSubtest.handler(
 	async ({ input, errors }) => {
-		const [deleted] = await db
-			.delete(tryoutSubtestQuestion)
-			.where(
-				and(
-					eq(tryoutSubtestQuestion.questionId, input.questionId),
-					eq(tryoutSubtestQuestion.subtestId, input.subtestId),
-				),
-			)
-			.returning();
-
-		if (!deleted) {
-			throw errors.NOT_FOUND({
-				message: "Question tidak ditemukan di subtest",
-			});
-		}
+		await requireFound(
+			await db
+				.delete(tryoutSubtestQuestion)
+				.where(
+					and(
+						eq(tryoutSubtestQuestion.questionId, input.questionId),
+						eq(tryoutSubtestQuestion.subtestId, input.subtestId),
+					),
+				)
+				.returning(),
+			"Question di subtest",
+			errors,
+		);
 
 		return { message: "Question berhasil dihapus dari subtest" };
 	},

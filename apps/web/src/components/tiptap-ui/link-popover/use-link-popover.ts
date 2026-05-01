@@ -1,29 +1,17 @@
 import type { Editor } from "@tiptap/react";
 import { useCallback, useEffect, useState } from "react";
-// --- Hooks ---
 import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
-// --- Icons ---
 import { LinkIcon } from "@/components/tiptap-icons/link-icon";
 
-// --- Lib ---
 import { isMarkInSchema, isNodeTypeSelected, sanitizeUrl } from "@/lib/tiptap-utils";
 
 /**
  * Configuration for the link popover functionality
  */
 export interface UseLinkPopoverConfig {
-	/**
-	 * The Tiptap editor instance.
-	 */
 	editor?: Editor | null;
-	/**
-	 * Whether to hide the link popover when not available.
-	 * @default false
-	 */
+	/** @default false */
 	hideWhenUnavailable?: boolean;
-	/**
-	 * Callback function called when the link is set.
-	 */
 	onSetLink?: () => void;
 }
 
@@ -31,13 +19,7 @@ export interface UseLinkPopoverConfig {
  * Configuration for the link handler functionality
  */
 export interface LinkHandlerProps {
-	/**
-	 * The Tiptap editor instance.
-	 */
 	editor: Editor | null;
-	/**
-	 * Callback function called when the link is set.
-	 */
 	onSetLink?: () => void;
 }
 
@@ -199,43 +181,7 @@ export function useLinkState(props: { editor: Editor | null; hideWhenUnavailable
 	};
 }
 
-/**
- * Main hook that provides link popover functionality for Tiptap editor
- *
- * @example
- * ```tsx
- * // Simple usage
- * function MyLinkButton() {
- *   const { isVisible, canSet, isActive, Icon, label } = useLinkPopover()
- *
- *   if (!isVisible) return null
- *
- *   return <button disabled={!canSet}>Link</button>
- * }
- *
- * // Advanced usage with configuration
- * function MyAdvancedLinkButton() {
- *   const { isVisible, canSet, isActive, Icon, label } = useLinkPopover({
- *     editor: myEditor,
- *     hideWhenUnavailable: true,
- *     onSetLink: () => console.log('Link set!')
- *   })
- *
- *   if (!isVisible) return null
- *
- *   return (
- *     <MyButton
- *       disabled={!canSet}
- *       aria-label={label}
- *       aria-pressed={isActive}
- *     >
- *       <Icon />
- *       {label}
- *     </MyButton>
- *   )
- * }
- * ```
- */
+/** Main hook that provides link popover functionality for Tiptap editor */
 export function useLinkPopover(config?: UseLinkPopoverConfig) {
 	const { editor: providedEditor, hideWhenUnavailable = false, onSetLink } = config || {};
 

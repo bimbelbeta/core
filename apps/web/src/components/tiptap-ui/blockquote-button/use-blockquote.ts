@@ -1,12 +1,9 @@
 import { NodeSelection, TextSelection } from "@tiptap/pm/state";
 import type { Editor } from "@tiptap/react";
 import { useCallback, useEffect, useState } from "react";
-// --- Hooks ---
 import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
-// --- Icons ---
 import { BlockquoteIcon } from "@/components/tiptap-icons/blockquote-icon";
 
-// --- UI Utils ---
 import {
 	findNodePosition,
 	isNodeInSchema,
@@ -21,18 +18,9 @@ export const BLOCKQUOTE_SHORTCUT_KEY = "mod+shift+b";
  * Configuration for the blockquote functionality
  */
 export interface UseBlockquoteConfig {
-	/**
-	 * The Tiptap editor instance.
-	 */
 	editor?: Editor | null;
-	/**
-	 * Whether the button should hide when blockquote is not available.
-	 * @default false
-	 */
+	/** @default false */
 	hideWhenUnavailable?: boolean;
-	/**
-	 * Callback function called after a successful toggle.
-	 */
 	onToggled?: () => void;
 }
 

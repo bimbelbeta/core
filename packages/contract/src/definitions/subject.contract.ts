@@ -3,6 +3,7 @@ import { contentItem, noteMaterial, subject, videoMaterial } from "@bimbelbeta/d
 import { type } from "arktype";
 import { createSelectSchema } from "drizzle-arktype";
 import { PageInfoSchema } from "@/common/pagination";
+import { MessageResponseSchema } from "@/common/response";
 import { oc } from "@/lib/contract-definition";
 
 const SubjectSchema = createSelectSchema(subject)
@@ -66,10 +67,6 @@ const SubjectContentDetailSchema = type({
 	video: VideoMaterialSchema.or("null"),
 	note: NoteMaterialSchema.or("null"),
 	practiceQuestions: PracticeQuestionsSchema.or("null"),
-});
-
-const MessageResponseSchema = type({
-	message: "string",
 });
 
 const RecentViewItemSchema = type({
