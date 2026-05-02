@@ -1,4 +1,4 @@
-import { question, questionChoice } from "@bimbelbeta/db/schema/question";
+import { question } from "@bimbelbeta/db/schema/question";
 import {
 	tryout,
 	tryoutAttempt,
@@ -8,16 +8,13 @@ import {
 } from "@bimbelbeta/db/schema/tryout";
 import { type } from "arktype";
 import { createSelectSchema } from "drizzle-arktype";
+import { ChoiceSchema, ChoiceWithAnswerSchema } from "@/common/choices";
 import { PageInfoSchema } from "@/common/pagination";
 import { oc } from "@/lib/contract-definition";
 
 const TryoutAttemptStatus = "'not_started' | 'ongoing' | 'finished'";
 
-const ChoiceSchema = createSelectSchema(questionChoice).pick("code").merge({ id: "number", content: "string" });
-
-const ChoiceWithAnswerSchema = createSelectSchema(questionChoice)
-	.pick("code", "isCorrect")
-	.merge({ id: "number", content: "string" });
+// ChoiceSchema and ChoiceWithAnswerSchema imported from common/choices
 
 const UserAnswerSchema = createSelectSchema(tryoutUserAnswer)
 	.pick("selectedChoiceId", "selectedChoiceIds", "essayAnswer", "isDoubtful")

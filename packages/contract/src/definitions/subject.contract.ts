@@ -1,7 +1,7 @@
-import { questionChoice } from "@bimbelbeta/db/schema/question";
 import { contentItem, noteMaterial, subject, videoMaterial } from "@bimbelbeta/db/schema/subject";
 import { type } from "arktype";
 import { createSelectSchema } from "drizzle-arktype";
+import { ChoiceWithAnswerSchema } from "@/common/choices";
 import { PageInfoSchema } from "@/common/pagination";
 import { MessageResponseSchema } from "@/common/response";
 import { oc } from "@/lib/contract-definition";
@@ -44,9 +44,7 @@ const SubjectContentSchema = type({
 	pageInfo: PageInfoSchema,
 });
 
-const ChoiceWithAnswerSchema = createSelectSchema(questionChoice)
-	.pick("code", "content", "isCorrect")
-	.merge({ id: "number" });
+// ChoiceWithAnswerSchema imported from common/choices
 
 const PracticeQuestionSchema = type({
 	questionId: "number",
