@@ -98,7 +98,7 @@ function RouteComponent() {
 
 				{subjectsQuery.data && (
 					<SubjectList
-						items={subjectsQuery.data as SubjectListItem[]}
+						items={subjectsQuery.data.items as SubjectListItem[]}
 						isLoading={subjectsQuery.isPending}
 						error={subjectsQuery.isError ? subjectsQuery.error.message : undefined}
 						searchQuery={searchQuery}

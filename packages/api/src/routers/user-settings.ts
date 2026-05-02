@@ -67,18 +67,24 @@ const update = authed.userSettings.update.handler(async ({ input, context, error
 		});
 	}
 
-	await db
+	const [updated] = await db
 		.update(user)
 		.set({
 			targetUniversityId: universityId,
 			targetStudyProgramId: studyProgramId,
 		})
-		.where(eq(user.id, userId));
+		.where(eq(user.id, userId))
+		.returning({
+			id: user.id,
+			targetUniversityId: user.targetUniversityId,
+			targetStudyProgramId: user.targetStudyProgramId,
+		});
 
-	return {
-		success: true,
-		message: "Target universitas dan program studi berhasil disimpan",
-	};
+	if (!updated) {
+		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal menyimpan target" });
+	}
+
+	return updated;
 });
 
 export const userSettingsRouter = {

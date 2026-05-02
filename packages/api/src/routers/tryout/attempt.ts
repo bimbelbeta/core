@@ -1,68 +1,17 @@
 import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { creditTransaction } from "@bimbelbeta/db/schema/credit";
-import { question, questionChoice } from "@bimbelbeta/db/schema/question";
-import {
-	tryoutAccessCode,
-	tryoutAttempt,
-	tryoutSubtestAttempt,
-	tryoutSubtestQuestion,
-	tryoutUserAnswer,
-} from "@bimbelbeta/db/schema/tryout";
+import { tryoutAccessCode, tryoutAttempt, tryoutSubtestAttempt } from "@bimbelbeta/db/schema/tryout";
 import { and, eq, isNull, or, sql } from "drizzle-orm";
 import { hashAccessCode } from "@/lib/access-code";
 import { calculateTryoutScores, saveScoresToDatabase } from "@/lib/calculate-score";
-import { readTiptapContent } from "@/lib/content-utils";
+import { fetchSubtestQuestionRows, flattenTryoutQuestions } from "@/lib/question-utils";
 import { baseImplementer } from "@/lib/router-definition";
-import { rateLimit, requireAuth } from "@/lib/router-definition/middleware";
+import { rateLimit, requireAuth, revokeExpiredPremium } from "@/lib/router-definition/middleware";
 import { parseNullableInt } from "@/lib/utils";
 
-import type { TryoutQuestion } from "@/types/question";
+const authed = baseImplementer.use(requireAuth).use(revokeExpiredPremium).use(rateLimit);
 
-const authed = baseImplementer.use(requireAuth).use(rateLimit);
-
-/**
- * Fetches the raw joined rows for all questions in a subtest attempt.
- * Includes all fields needed by both attempt (questions) and review handlers.
- */
-export async function fetchSubtestQuestionRows(subtestId: number, attemptId: number) {
-	return db
-		.select({
-			questionId: question.id,
-			questionContent: question.content,
-			questionContentJson: question.contentJson,
-			questionType: question.type,
-			discussion: question.discussion,
-			discussionJson: question.discussionJson,
-			choiceId: questionChoice.id,
-			choiceContent: questionChoice.content,
-			choiceCode: questionChoice.code,
-			isCorrectChoice: questionChoice.isCorrect,
-			userSelectedChoiceId: tryoutUserAnswer.selectedChoiceId,
-			userSelectedChoiceIds: tryoutUserAnswer.selectedChoiceIds,
-			userEssayAnswer: tryoutUserAnswer.essayAnswer,
-			userIsDoubtful: tryoutUserAnswer.isDoubtful,
-		})
-		.from(tryoutSubtestQuestion)
-		.innerJoin(question, eq(question.id, tryoutSubtestQuestion.questionId))
-		.leftJoin(questionChoice, eq(questionChoice.questionId, question.id))
-		.leftJoin(
-			tryoutUserAnswer,
-			and(eq(tryoutUserAnswer.questionId, question.id), eq(tryoutUserAnswer.attemptId, attemptId)),
-		)
-		.where(eq(tryoutSubtestQuestion.subtestId, subtestId))
-		.orderBy(tryoutSubtestQuestion.order);
-}
-
-/**
- * Lazily finalizes an attempt whose overall deadline has passed.
- * This is called during the `find` read handler as a deliberate design choice:
- * the attempt is finalized on the next read after expiry rather than via a
- * background job, keeping infrastructure simple at the cost of a write-on-read.
- *
- * Calculates scores and persists everything atomically so a finalized attempt
- * always has a score — no partial-write window.
- */
 async function finalizeExpiredAttempt(attemptId: number): Promise<void> {
 	const scores = await calculateTryoutScores(attemptId);
 
@@ -175,41 +124,14 @@ export const find = authed.tryout.find.handler(async ({ input, context, errors }
 	}
 
 	const rows = await fetchSubtestQuestionRows(currentSubtest.id, attempt.id);
-
-	const questionsMap = new Map<number, TryoutQuestion>();
-	for (const row of rows) {
-		if (!questionsMap.has(row.questionId)) {
-			questionsMap.set(row.questionId, {
-				id: row.questionId,
-				content: readTiptapContent(row.questionContentJson, row.questionContent),
-				type: row.questionType,
-				choices: [],
-				userAnswer: {
-					selectedChoiceId: row.userSelectedChoiceId,
-					selectedChoiceIds: row.userSelectedChoiceIds,
-					essayAnswer: row.userEssayAnswer,
-					isDoubtful: row.userIsDoubtful ?? false,
-				},
-			});
-		}
-		if (row.choiceId) {
-			const q = questionsMap.get(row.questionId);
-			if (q) {
-				q.choices.push({
-					id: row.choiceId,
-					content: row.choiceContent!,
-					code: row.choiceCode!,
-				});
-			}
-		}
-	}
+	const questions = flattenTryoutQuestions(rows);
 
 	return {
 		...tryoutData,
 		attempt: normalizedAttempt,
 		currentSubtest: {
 			...currentSubtest,
-			questions: Array.from(questionsMap.values()),
+			questions,
 			deadline: currentSubtestAttempt.deadline,
 			status: currentSubtestAttempt.status,
 		},

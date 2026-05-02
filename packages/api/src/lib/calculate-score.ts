@@ -5,7 +5,7 @@ import {
 	tryoutSubtestAttempt,
 	tryoutSubtestQuestion,
 } from "@bimbelbeta/db/schema/tryout";
-import { eq, inArray } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 
 export interface SubtestScoreResult {
 	subtestAttemptId: number;
@@ -223,11 +223,19 @@ type DbTx = Parameters<Parameters<typeof db.transaction>[0]>[0];
  */
 export async function saveScoresToDatabase(attemptId: number, scores: TryoutScoreResult, tx?: DbTx): Promise<void> {
 	const persist = async (t: DbTx) => {
-		for (const subtestScore of scores.subtests) {
+		if (scores.subtests.length > 0) {
+			const caseExpr = sql.join(
+				scores.subtests.map(
+					(s) => sql`WHEN ${tryoutSubtestAttempt.id} = ${s.subtestAttemptId} THEN ${s.score.toString()}`,
+				),
+				sql` `,
+			);
+			const ids = scores.subtests.map((s) => s.subtestAttemptId);
+
 			await t
 				.update(tryoutSubtestAttempt)
-				.set({ score: subtestScore.score.toString() })
-				.where(eq(tryoutSubtestAttempt.id, subtestScore.subtestAttemptId));
+				.set({ score: sql`CASE ${caseExpr} END` })
+				.where(inArray(tryoutSubtestAttempt.id, ids));
 		}
 		await t.update(tryoutAttempt).set({ score: scores.totalScore.toString() }).where(eq(tryoutAttempt.id, attemptId));
 	};

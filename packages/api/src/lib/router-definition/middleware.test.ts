@@ -1,6 +1,8 @@
 import { describe, expect, mock, test } from "bun:test";
 
-const mockMiddleware = (fn: Function) => fn;
+type MiddlewareFn = (input: Record<string, unknown>) => Promise<unknown>;
+
+const mockMiddleware = (fn: MiddlewareFn) => fn;
 
 mock.module("@/lib/router-definition", () => ({
 	baseImplementer: { middleware: mockMiddleware },
@@ -39,7 +41,7 @@ describe("requireAdmin", () => {
 
 	test("passes through for admin role", async () => {
 		const next = mock(() => "ok");
-		await (requireAdmin as Function)({
+		await (requireAdmin as MiddlewareFn)({
 			context: { session: { user: { role: "admin" } } },
 			next,
 			errors: makeErrors(),
@@ -49,7 +51,7 @@ describe("requireAdmin", () => {
 
 	test("passes through for superadmin role", async () => {
 		const next = mock(() => "ok");
-		await (requireAdmin as Function)({
+		await (requireAdmin as MiddlewareFn)({
 			context: { session: { user: { role: "superadmin" } } },
 			next,
 			errors: makeErrors(),
@@ -60,7 +62,7 @@ describe("requireAdmin", () => {
 	test("throws UNAUTHORIZED for non-admin role", async () => {
 		const next = mock(() => "ok");
 		expect(
-			(requireAdmin as Function)({
+			(requireAdmin as MiddlewareFn)({
 				context: { session: { user: { role: "user" } } },
 				next,
 				errors: makeErrors(),
@@ -77,7 +79,7 @@ describe("requireSuperAdmin", () => {
 
 	test("passes through for superadmin role", async () => {
 		const next = mock(() => "ok");
-		await (requireSuperAdmin as Function)({
+		await (requireSuperAdmin as MiddlewareFn)({
 			context: { session: { user: { role: "superadmin" } } },
 			next,
 			errors: makeErrors(),
@@ -88,7 +90,7 @@ describe("requireSuperAdmin", () => {
 	test("throws UNAUTHORIZED for admin role", async () => {
 		const next = mock(() => "ok");
 		expect(
-			(requireSuperAdmin as Function)({
+			(requireSuperAdmin as MiddlewareFn)({
 				context: { session: { user: { role: "admin" } } },
 				next,
 				errors: makeErrors(),
@@ -104,7 +106,7 @@ describe("requireAuth", () => {
 
 	test("passes through when user is authenticated", async () => {
 		const next = mock(() => "ok");
-		await (requireAuth as Function)({
+		await (requireAuth as MiddlewareFn)({
 			context: { session: { user: { id: "1" } } },
 			next,
 			errors: makeErrors(),
@@ -115,7 +117,7 @@ describe("requireAuth", () => {
 	test("throws UNAUTHORIZED when no user", async () => {
 		const next = mock(() => "ok");
 		expect(
-			(requireAuth as Function)({
+			(requireAuth as MiddlewareFn)({
 				context: { session: { user: null } },
 				next,
 				errors: makeErrors(),
@@ -131,7 +133,7 @@ describe("requirePremium", () => {
 
 	test("passes through for premium user", async () => {
 		const next = mock(() => "ok");
-		await (requirePremium as Function)({
+		await (requirePremium as MiddlewareFn)({
 			context: { session: { user: { isPremium: true, role: "user" } } },
 			next,
 			errors: makeErrors(),
@@ -141,7 +143,7 @@ describe("requirePremium", () => {
 
 	test("passes through for admin", async () => {
 		const next = mock(() => "ok");
-		await (requirePremium as Function)({
+		await (requirePremium as MiddlewareFn)({
 			context: { session: { user: { isPremium: false, role: "admin" } } },
 			next,
 			errors: makeErrors(),
@@ -152,7 +154,7 @@ describe("requirePremium", () => {
 	test("throws FORBIDDEN for non-premium non-admin", async () => {
 		const next = mock(() => "ok");
 		expect(
-			(requirePremium as Function)({
+			(requirePremium as MiddlewareFn)({
 				context: { session: { user: { isPremium: false, role: "user" } } },
 				next,
 				errors: makeErrors(),
@@ -164,7 +166,7 @@ describe("requirePremium", () => {
 describe("revokeExpiredPremium", () => {
 	test("calls next without modification when user is not premium", async () => {
 		const next = mock(() => undefined);
-		await (revokeExpiredPremium as Function)({
+		await (revokeExpiredPremium as MiddlewareFn)({
 			context: { session: { user: { isPremium: false, id: "1" } } },
 			next,
 		});
@@ -172,9 +174,9 @@ describe("revokeExpiredPremium", () => {
 	});
 
 	test("calls next without modification when premium has not expired", async () => {
-		const next = mock((args?: any) => args?.context ?? {});
+		const next = mock((args?: { context?: unknown }) => args?.context ?? {});
 		const futureDate = new Date(Date.now() + 100000);
-		await (revokeExpiredPremium as Function)({
+		await (revokeExpiredPremium as MiddlewareFn)({
 			context: { session: { user: { isPremium: true, premiumExpiresAt: futureDate, id: "1" } } },
 			next,
 		});
@@ -182,9 +184,9 @@ describe("revokeExpiredPremium", () => {
 	});
 
 	test("sets isPremium to false when premium has expired", async () => {
-		const next = mock((args?: any) => args?.context ?? {});
+		const next = mock((args?: { context?: unknown }) => args?.context ?? {});
 		const pastDate = new Date(Date.now() - 100000);
-		const result = await (revokeExpiredPremium as Function)({
+		const result = await (revokeExpiredPremium as MiddlewareFn)({
 			context: { session: { user: { isPremium: true, premiumExpiresAt: pastDate, id: "1" } } },
 			next,
 		});

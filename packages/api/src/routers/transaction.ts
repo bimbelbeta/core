@@ -117,7 +117,7 @@ const status = authed.transaction.status.handler(async ({ input, context, errors
 
 	if (!tx.length) {
 		throw errors.NOT_FOUND({
-			message: "Transaction not found",
+			message: "Transaksi tidak ditemukan",
 		});
 	}
 

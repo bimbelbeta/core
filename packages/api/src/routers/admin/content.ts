@@ -113,21 +113,16 @@ const removeContent = admin.admin.content.removeContent.handler(async ({ input, 
 });
 
 const reorderContent = admin.admin.content.reorderContent.handler(async ({ input }) => {
-	await db.transaction(async (tx) => {
-		for (const [i, item] of input.items.entries()) {
-			await tx
-				.update(contentItem)
-				.set({ order: -(i + 1000), updatedAt: new Date() })
-				.where(and(eq(contentItem.id, item.id), eq(contentItem.subjectId, input.subjectId)));
-		}
+	const ids = input.items.map((item) => item.id);
+	const caseExpr = sql.join(
+		input.items.map((item) => sql`WHEN ${contentItem.id} = ${item.id} THEN ${item.order}`),
+		sql` `,
+	);
 
-		for (const item of input.items) {
-			await tx
-				.update(contentItem)
-				.set({ order: item.order, updatedAt: new Date() })
-				.where(and(eq(contentItem.id, item.id), eq(contentItem.subjectId, input.subjectId)));
-		}
-	});
+	await db
+		.update(contentItem)
+		.set({ order: sql`CASE ${caseExpr} END`, updatedAt: new Date() })
+		.where(and(eq(contentItem.subjectId, input.subjectId), inArray(contentItem.id, ids)));
 
 	return { message: "Urutan konten berhasil diperbarui" };
 });
@@ -373,33 +368,22 @@ const reorderPracticeQuestions = admin.admin.content.reorderPracticeQuestions.ha
 			message: "Konten tidak ditemukan",
 		});
 
-	await db.transaction(async (tx) => {
-		for (let i = 0; i < input.questionIds.length; i++) {
-			const questionId = input.questionIds[i]!;
-			await tx
-				.update(contentPracticeQuestions)
-				.set({ order: -(i + 1000) })
-				.where(
-					and(
-						eq(contentPracticeQuestions.contentItemId, input.id),
-						eq(contentPracticeQuestions.questionId, questionId),
-					),
-				);
-		}
+	const caseExpr = sql.join(
+		input.questionIds.map(
+			(questionId, i) => sql`WHEN ${contentPracticeQuestions.questionId} = ${questionId} THEN ${i + 1}`,
+		),
+		sql` `,
+	);
 
-		for (let i = 0; i < input.questionIds.length; i++) {
-			const questionId = input.questionIds[i]!;
-			await tx
-				.update(contentPracticeQuestions)
-				.set({ order: i + 1 })
-				.where(
-					and(
-						eq(contentPracticeQuestions.contentItemId, input.id),
-						eq(contentPracticeQuestions.questionId, questionId),
-					),
-				);
-		}
-	});
+	await db
+		.update(contentPracticeQuestions)
+		.set({ order: sql`CASE ${caseExpr} END` })
+		.where(
+			and(
+				eq(contentPracticeQuestions.contentItemId, input.id),
+				inArray(contentPracticeQuestions.questionId, input.questionIds),
+			),
+		);
 
 	return { message: "Urutan latihan soal berhasil diperbarui" };
 });

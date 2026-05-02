@@ -19,9 +19,10 @@ const UpdateTargetInputSchema = type({
 	studyProgramId: "number",
 });
 
-const SetTargetOutputSchema = type({
-	success: "boolean",
-	message: "string",
+const UpdateTargetOutputSchema = type({
+	id: "string",
+	targetUniversityId: "number | null",
+	targetStudyProgramId: "number | null",
 });
 
 export const userSettingsContract = {
@@ -40,5 +41,5 @@ export const userSettingsContract = {
 			tags: ["User"],
 		})
 		.input(UpdateTargetInputSchema)
-		.output(SetTargetOutputSchema),
+		.output(UpdateTargetOutputSchema),
 };

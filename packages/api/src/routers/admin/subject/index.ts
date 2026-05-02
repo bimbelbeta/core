@@ -1,6 +1,6 @@
 import { db } from "@bimbelbeta/db";
 import { subject } from "@bimbelbeta/db/schema/subject";
-import { eq } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 import { requireCreated, requireFound } from "@/lib/crud-helpers";
 import { baseImplementer } from "@/lib/router-definition";
 import { rateLimit, requireAdmin, requireAuth } from "@/lib/router-definition/middleware";
@@ -85,11 +85,16 @@ const removeSubject = admin.admin.subject.remove.handler(async ({ input, errors 
 });
 
 const reorderSubjects = admin.admin.subject.reorder.handler(async ({ input }) => {
-	await db.transaction(async (tx) => {
-		for (const item of input.items) {
-			await tx.update(subject).set({ order: item.order, updatedAt: new Date() }).where(eq(subject.id, item.id));
-		}
-	});
+	const ids = input.items.map((item) => item.id);
+	const caseExpr = sql.join(
+		input.items.map((item) => sql`WHEN ${subject.id} = ${item.id} THEN ${item.order}`),
+		sql` `,
+	);
+
+	await db
+		.update(subject)
+		.set({ order: sql`CASE ${caseExpr} END`, updatedAt: new Date() })
+		.where(inArray(subject.id, ids));
 
 	return { message: "Urutan kelas berhasil diperbarui" };
 });

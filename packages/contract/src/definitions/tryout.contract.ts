@@ -8,6 +8,7 @@ import {
 } from "@bimbelbeta/db/schema/tryout";
 import { type } from "arktype";
 import { createSelectSchema } from "drizzle-arktype";
+import { PageInfoSchema } from "@/common/pagination";
 import { oc } from "@/lib/contract-definition";
 
 const TryoutAttemptStatus = "'not_started' | 'ongoing' | 'finished'";
@@ -97,17 +98,29 @@ export type TryoutQuestion = typeof TryoutQuestionSchema.infer;
 export type ReviewQuestion = typeof ReviewQuestionSchema.infer;
 
 export const tryoutContract = {
-	list: oc.route({ path: "/tryouts", method: "GET", tags: ["Tryouts"] }).output(
-		type(
-			{
-				"...": TryoutListItemSchema,
-				attemptId: "number | null",
-				attemptStatus: `${TryoutAttemptStatus} | null`,
-				isOpen: "boolean",
-			},
-			"[]",
+	list: oc
+		.route({ path: "/tryouts", method: "GET", tags: ["Tryouts"] })
+		.input(
+			type({
+				"limit?": "number >= 1",
+				"after?": "string",
+				"before?": "string",
+			}),
+		)
+		.output(
+			type({
+				items: type(
+					{
+						"...": TryoutListItemSchema,
+						attemptId: "number | null",
+						attemptStatus: `${TryoutAttemptStatus} | null`,
+						isOpen: "boolean",
+					},
+					"[]",
+				),
+				pageInfo: PageInfoSchema,
+			}),
 		),
-	),
 	featured: oc.route({ path: "/tryouts/featured", method: "GET", tags: ["Tryouts"] }).output(
 		type({
 			"...": TryoutListItemSchema,

@@ -17,17 +17,19 @@ import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
 import { ROLES, type Role } from "@/lib/roles";
 import { baseImplementer } from "@/lib/router-definition";
 import { rateLimit, requireAuth, revokeExpiredPremium } from "@/lib/router-definition/middleware";
+import { escapeLikePattern } from "@/lib/utils";
 
 const authed = baseImplementer.use(requireAuth).use(revokeExpiredPremium).use(rateLimit);
 
 import type { ChoiceWithAnswer } from "@/types/question";
 
-function escapeLikePattern(value: string): string {
-	return value.replace(/[%_\\]/g, (char) => `\\${char}`);
-}
-
 const list = authed.subject.list.handler(async ({ input, context }) => {
-	const subjects = await db
+	const limit = input?.limit ?? 20;
+	const isBackward = !!input?.before;
+	const cursorStr = input?.after ?? input?.before;
+	const cursorId = cursorStr ? parseIdCursor(cursorStr) : null;
+
+	const rows = await db
 		.select({
 			id: subject.id,
 			name: subject.name,
@@ -49,6 +51,7 @@ const list = authed.subject.list.handler(async ({ input, context }) => {
 			and(
 				input?.category ? eq(subject.category, input.category) : undefined,
 				input?.search ? ilike(subject.name, `%${escapeLikePattern(input.search)}%`) : undefined,
+				cursorId !== null ? (isBackward ? lt(subject.id, cursorId) : gt(subject.id, cursorId)) : undefined,
 			),
 		)
 		.groupBy(
@@ -60,9 +63,12 @@ const list = authed.subject.list.handler(async ({ input, context }) => {
 			subject.category,
 			subject.gradeLevel,
 		)
-		.orderBy(subject.order);
+		.orderBy(isBackward ? desc(subject.id) : subject.order)
+		.limit(limit + 1);
 
-	return subjects;
+	const { items, pageInfo } = buildIdCursorPage(rows, limit, isBackward, !!cursorStr);
+
+	return { items, pageInfo };
 });
 
 const listContent = authed.subject.listContent.handler(async ({ input, context, errors }) => {
@@ -132,10 +138,6 @@ const listContent = authed.subject.listContent.handler(async ({ input, context, 
 });
 
 const findContent = authed.subject.findContent.handler(async ({ input, context, errors }) => {
-	if (!Number.isFinite(input.contentId) || input.contentId <= 0) {
-		throw errors.BAD_REQUEST({ message: "Invalid content ID" });
-	}
-
 	const [row] = await db
 		.select({
 			id: contentItem.id,
@@ -410,7 +412,7 @@ const updateProgress = authed.subject.updateProgress.handler(async ({ input, con
 const stats = authed.subject.stats.handler(async ({ context }) => {
 	const [stats] = await db
 		.select({
-			materialsCompleted: sql<number>`COUNT(DISTINCT CASE WHEN ${userProgress.videoCompleted} = true OR ${userProgress.noteCompleted} = true OR ${userProgress.practiceQuestionsCompleted} = true THEN ${userProgress.contentItemId} END)`,
+			materialsCompleted: sql<number>`COUNT(DISTINCT CASE WHEN ${userProgress.videoCompleted} = true AND ${userProgress.noteCompleted} = true AND ${userProgress.practiceQuestionsCompleted} = true THEN ${userProgress.contentItemId} END)`,
 		})
 		.from(userProgress)
 		.where(eq(userProgress.userId, context.session.user.id));

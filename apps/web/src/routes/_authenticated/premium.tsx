@@ -26,13 +26,13 @@ function RouteComponent() {
 	const { session } = Route.useRouteContext();
 	const { handlePurchase, isPending } = useMidtrans();
 	const creditBalanceQuery = useQuery(orpc.credit.balance.queryOptions());
-	const productsQuery = useQuery(orpc.product.list.queryOptions());
+	const productsQuery = useQuery(orpc.product.list.queryOptions({ input: { limit: 100 } }));
 	const isPremium = session?.user.isPremium;
 	const creditBalance = creditBalanceQuery.data?.balance ?? 0;
 
 	// Grouping is based on variant so it works even if API doesn't return `type` yet.
 	const sortedProducts = productsQuery.data
-		? [...productsQuery.data].sort((a, b) => {
+		? [...productsQuery.data.items].sort((a, b) => {
 				const aIsSubscription = a.variant === "fixed_date" || a.variant === "monthly";
 				const bIsSubscription = b.variant === "fixed_date" || b.variant === "monthly";
 				if (aIsSubscription && !bIsSubscription) return -1;

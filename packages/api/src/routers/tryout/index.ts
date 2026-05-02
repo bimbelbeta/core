@@ -1,17 +1,23 @@
 import { db } from "@bimbelbeta/db";
 import { tryout, tryoutAttempt } from "@bimbelbeta/db/schema/tryout";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, gt, lt } from "drizzle-orm";
+import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
 import { baseImplementer } from "@/lib/router-definition";
-import { rateLimit, requireAuth } from "@/lib/router-definition/middleware";
+import { rateLimit, requireAuth, revokeExpiredPremium } from "@/lib/router-definition/middleware";
 import { attemptResult, find, history, start } from "@/routers/tryout/attempt";
 import { review } from "@/routers/tryout/review";
 import { saveAnswer, startSubtest, submitSubtest, submitTryout, toggleRaguRagu } from "@/routers/tryout/session";
 
-const authed = baseImplementer.use(requireAuth).use(rateLimit);
+const authed = baseImplementer.use(requireAuth).use(revokeExpiredPremium).use(rateLimit);
 
-const list = authed.tryout.list.handler(async ({ context }) => {
+const list = authed.tryout.list.handler(async ({ input, context }) => {
 	const now = new Date();
-	const tryouts = await db
+	const limit = input?.limit ?? 20;
+	const isBackward = !!input?.before;
+	const cursorStr = input?.after ?? input?.before;
+	const cursorId = cursorStr ? parseIdCursor(cursorStr) : null;
+
+	const rows = await db
 		.select({
 			id: tryout.id,
 			title: tryout.title,
@@ -26,13 +32,24 @@ const list = authed.tryout.list.handler(async ({ context }) => {
 			tryoutAttempt,
 			and(eq(tryoutAttempt.tryoutId, tryout.id), eq(tryoutAttempt.userId, context.session.user.id)),
 		)
-		.where(eq(tryout.status, "published"))
-		.orderBy(desc(tryout.startsAt));
+		.where(
+			and(
+				eq(tryout.status, "published"),
+				cursorId !== null ? (isBackward ? lt(tryout.id, cursorId) : gt(tryout.id, cursorId)) : undefined,
+			),
+		)
+		.orderBy(isBackward ? desc(tryout.id) : desc(tryout.startsAt))
+		.limit(limit + 1);
 
-	return tryouts.map((t) => ({
-		...t,
-		isOpen: (!t.startsAt || t.startsAt <= now) && (!t.endsAt || t.endsAt >= now),
-	}));
+	const { items, pageInfo } = buildIdCursorPage(rows, limit, isBackward, !!cursorStr);
+
+	return {
+		items: items.map((t) => ({
+			...t,
+			isOpen: (!t.startsAt || t.startsAt <= now) && (!t.endsAt || t.endsAt >= now),
+		})),
+		pageInfo,
+	};
 });
 
 const featured = authed.tryout.featured.handler(async ({ context, errors }) => {

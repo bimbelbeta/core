@@ -95,16 +95,16 @@ function RouteComponent() {
 
 				{subjectsQuery.isError && <p className="text-red-500">Error: {subjectsQuery.error.message}</p>}
 
-				{subjectsQuery.data && subjectsQuery.data.length === 0 && (
+				{subjectsQuery.data && subjectsQuery.data.items.length === 0 && (
 					<NotFoundContentState
 						title="Tidak ada kelas yang ditemukan"
 						desc="Coba cari dengan kata kunci lain atau hubungi admin."
 					/>
 				)}
 
-				{subjectsQuery.data && subjectsQuery.data.length > 0 && (
+				{subjectsQuery.data && subjectsQuery.data.items.length > 0 && (
 					<SubjectList
-						items={subjectsQuery.data as SubjectListItem[]}
+						items={subjectsQuery.data.items as SubjectListItem[]}
 						isLoading={subjectsQuery.isPending}
 						error={subjectsQuery.isError ? subjectsQuery.error.message : undefined}
 						searchQuery={searchQuery}

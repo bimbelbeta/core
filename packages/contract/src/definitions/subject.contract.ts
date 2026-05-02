@@ -103,9 +103,17 @@ export const subjectContract = {
 			type({
 				"category?": "'sd' | 'smp' | 'sma' | 'utbk'",
 				"search?": "string",
+				"limit?": "number >= 1",
+				"after?": "string",
+				"before?": "string",
 			}),
 		)
-		.output(SubjectWithContentSchema.array()),
+		.output(
+			type({
+				items: SubjectWithContentSchema.array(),
+				pageInfo: PageInfoSchema,
+			}),
+		),
 	listContent: oc
 		.route({
 			path: "/subjects/{subjectId}/content",
@@ -130,7 +138,7 @@ export const subjectContract = {
 		})
 		.input(
 			type({
-				contentId: type("number"),
+				contentId: "number > 0",
 			}),
 		)
 		.output(SubjectContentDetailSchema),

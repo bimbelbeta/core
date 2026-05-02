@@ -1,11 +1,9 @@
 import { db } from "@bimbelbeta/db";
-import { readTiptapContent } from "@/lib/content-utils";
+import { fetchSubtestQuestionRows, flattenReviewQuestions } from "@/lib/question-utils";
 import { baseImplementer } from "@/lib/router-definition";
-import { rateLimit, requireAuth } from "@/lib/router-definition/middleware";
-import { fetchSubtestQuestionRows } from "@/routers/tryout/attempt";
-import type { ReviewQuestion } from "@/types/question";
+import { rateLimit, requireAuth, revokeExpiredPremium } from "@/lib/router-definition/middleware";
 
-const authed = baseImplementer.use(requireAuth).use(rateLimit);
+const authed = baseImplementer.use(requireAuth).use(revokeExpiredPremium).use(rateLimit);
 
 export const review = authed.tryout.review.handler(async ({ input, context, errors }) => {
 	const attempt = await db.query.tryoutAttempt.findFirst({
@@ -34,36 +32,7 @@ export const review = authed.tryout.review.handler(async ({ input, context, erro
 	}
 
 	const rows = await fetchSubtestQuestionRows(input.subtestId, attempt.id);
-
-	const questionsMap = new Map<number, ReviewQuestion>();
-	for (const row of rows) {
-		if (!questionsMap.has(row.questionId)) {
-			questionsMap.set(row.questionId, {
-				id: row.questionId,
-				content: readTiptapContent(row.questionContentJson, row.questionContent),
-				type: row.questionType,
-				discussion: canSeeDiscussion ? readTiptapContent(row.discussionJson, row.discussion) : null,
-				choices: [],
-				userAnswer: {
-					selectedChoiceId: row.userSelectedChoiceId,
-					selectedChoiceIds: row.userSelectedChoiceIds,
-					essayAnswer: row.userEssayAnswer,
-					isDoubtful: row.userIsDoubtful ?? false,
-				},
-			});
-		}
-		if (row.choiceId) {
-			const q = questionsMap.get(row.questionId);
-			if (q) {
-				q.choices.push({
-					id: row.choiceId,
-					content: row.choiceContent!,
-					code: row.choiceCode!,
-					isCorrect: row.isCorrectChoice ?? false,
-				});
-			}
-		}
-	}
+	const questions = flattenReviewQuestions(rows, canSeeDiscussion);
 
 	const subtestData = await db.query.tryoutSubtest.findFirst({
 		where: {
@@ -80,6 +49,6 @@ export const review = authed.tryout.review.handler(async ({ input, context, erro
 
 	return {
 		subtest: subtestData,
-		questions: Array.from(questionsMap.values()),
+		questions,
 	};
 });

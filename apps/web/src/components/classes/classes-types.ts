@@ -1,6 +1,6 @@
 import type { BodyOutputs } from "@/utils/orpc";
 
-export type SubjectListItem = BodyOutputs["subject"]["list"][number];
+export type SubjectListItem = BodyOutputs["subject"]["list"]["items"][number];
 
 export type ContentListItem = NonNullable<BodyOutputs["subject"]["listContent"]>["items"][number];
 

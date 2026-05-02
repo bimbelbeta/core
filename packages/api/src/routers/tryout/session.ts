@@ -3,10 +3,10 @@ import { tryoutAttempt, tryoutSubtestAttempt, tryoutUserAnswer } from "@bimbelbe
 import { eq, sql } from "drizzle-orm";
 import { calculateTryoutScores, saveScoresToDatabase } from "@/lib/calculate-score";
 import { baseImplementer } from "@/lib/router-definition";
-import { rateLimit, requireAuth } from "@/lib/router-definition/middleware";
+import { rateLimit, requireAuth, revokeExpiredPremium } from "@/lib/router-definition/middleware";
 import { parseNullableInt } from "@/lib/utils";
 
-const authed = baseImplementer.use(requireAuth).use(rateLimit);
+const authed = baseImplementer.use(requireAuth).use(revokeExpiredPremium).use(rateLimit);
 
 type SessionErrors = {
 	BAD_REQUEST: (opts: { message: string }) => Error;

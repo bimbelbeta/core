@@ -4,6 +4,7 @@ import { and, asc, desc, eq, gt, ilike, lt, or } from "drizzle-orm";
 import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
 import { baseImplementer } from "@/lib/router-definition";
 import { rateLimit, requireAuth } from "@/lib/router-definition/middleware";
+import { escapeLikePattern } from "@/lib/utils";
 
 const authed = baseImplementer.use(requireAuth).use(rateLimit);
 
@@ -36,7 +37,10 @@ const listPrograms = authed.university.listPrograms.handler(async ({ input }) =>
 						: gt(universityStudyProgram.id, cursorId)
 					: undefined,
 				input.search && input.search.length > 0
-					? or(ilike(university.name, `%${input.search}%`), ilike(studyProgram.name, `%${input.search}%`))
+					? or(
+							ilike(university.name, `%${escapeLikePattern(input.search)}%`),
+							ilike(studyProgram.name, `%${escapeLikePattern(input.search)}%`),
+						)
 					: undefined,
 			),
 		)
@@ -67,7 +71,9 @@ const list = authed.university.list.handler(async ({ input }) => {
 		.where(
 			and(
 				cursorId !== undefined ? (isBackward ? lt(university.id, cursorId) : gt(university.id, cursorId)) : undefined,
-				input.search && input.search.length > 0 ? ilike(university.name, `%${input.search}%`) : undefined,
+				input.search && input.search.length > 0
+					? ilike(university.name, `%${escapeLikePattern(input.search)}%`)
+					: undefined,
 			),
 		)
 		.orderBy(isBackward ? desc(university.id) : asc(university.id))

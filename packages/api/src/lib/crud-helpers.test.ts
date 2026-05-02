@@ -21,7 +21,7 @@ describe("requireCreated", () => {
 	});
 
 	test("throws INTERNAL_SERVER_ERROR when first element is falsy", () => {
-		expect(() => requireCreated([null as any], "entity", errors)).toThrow("Gagal membuat entity");
+		expect(() => requireCreated([null], "entity", errors)).toThrow("Gagal membuat entity");
 	});
 });
 
@@ -45,6 +45,6 @@ describe("requireFound", () => {
 	});
 
 	test("throws NOT_FOUND when first element is falsy", () => {
-		expect(() => requireFound([null as any], "entity", errors)).toThrow("entity tidak ditemukan");
+		expect(() => requireFound([null], "entity", errors)).toThrow("entity tidak ditemukan");
 	});
 });
