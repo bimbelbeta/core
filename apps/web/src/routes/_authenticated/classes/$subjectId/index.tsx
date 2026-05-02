@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { type } from "arktype";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { ClassHeader } from "@/components/classes/class-header";
 import { ContentList } from "@/components/classes/content-list";
 import {
@@ -65,12 +65,15 @@ function RouteComponent() {
 
 	const trackSubjectViewMutation = useMutation(orpc.subject.trackSubjectView.mutationOptions());
 
+	const mutateRef = useRef(trackSubjectViewMutation.mutate);
+	mutateRef.current = trackSubjectViewMutation.mutate;
+
 	// Track subject view when content loads successfully
 	useEffect(() => {
 		if (contents.data?.subject?.id) {
-			trackSubjectViewMutation.mutate({ subjectId: contents.data.subject.id });
+			mutateRef.current({ subjectId: contents.data.subject.id });
 		}
-	}, [contents.data?.subject?.id, trackSubjectViewMutation.mutate]);
+	}, [contents.data?.subject?.id]);
 
 	if (contents.isPending) {
 		return (

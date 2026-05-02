@@ -12,12 +12,13 @@ export function extractTextFromTiptap(content: unknown): string {
 			if (typeof node === "string") {
 				text.push(node);
 			} else if (typeof node === "object" && node !== null) {
-				const obj = node as Record<string, unknown>;
-				if (obj.text && typeof obj.text === "string") {
-					text.push(obj.text);
+				if ("text" in node && typeof node.text === "string") {
+					text.push(node.text);
 				}
-				if (Array.isArray(obj.content)) {
-					obj.content.forEach(extract);
+				if ("content" in node && Array.isArray(node.content)) {
+					for (const child of node.content) {
+						extract(child);
+					}
 				}
 			}
 		};

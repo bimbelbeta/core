@@ -1,100 +1,65 @@
-# Agent Guidelines for bimbelbeta
+# Agent Guidelines — bimbelbeta
 
-## Token Efficiency (IMPORTANT!)
-
-If you need to explore the codebase, avoid using the @explore tool and/or subagents at all times. Instead, spawn a new terminal session and run a Gemini CLI instance instead.
-
-Example usage:
-
-```zsh
-gemini --prompt "Find all instances of prop drilling in this codebase."
-```
-
-Only **ever** use subagents to handover complex tasks. 
+Use caveman for token efficiency. Active on all prompts.
 
 ### Workflow
-- Keep functions focused and under 50 lines when possible
-- Use custom hooks for reusable logic in `hooks/` directories
-- Do not clear `.turbo` or other cache directories
-- Avoid prop drilling - use context (Tanstack Query/Router) or state management (zustand)
-    - NEVER prop drill results from a useQuery hook. Just call the useQuery hook in the child component again, it automatically caches so it won't make duplicate network requests.
-- NEVER add comments - code should be self-documenting
-- **CRITICAL**: Run `bun build:packages` after any changes to API routes (packages/api/src/routers/*) - this regenerates type definitions used by web/server apps
-- Run `bun lint:fix` and `bun check-types` after finishing your work
+- Functions <50 lines when possible
+- Custom hooks for reusable logic in `hooks/`
+- Don't clear `.turbo` or cache dirs
+- No prop drilling — use context (Tanstack Query/Router) or zustand
+  - NEVER prop drill useQuery results. Call useQuery in child again — auto-cached, no duplicate requests
+- NEVER add comments — code self-documenting
+- **CRITICAL**: Run `bun build:packages` after API route changes (packages/api/src/routers/*) — regenerates type defs for web/server apps
+- Run `bun lint:fix` and `bun check-types` when done
 
-## Architecture Overview
-
-- **Backend**: Drizzle ORM, Arktype validation, ORPC for type-safe API routing and contract-first approach
-- **Frontend**: TanStack ecosystem (Router, Query, Form), shadcn
+## Architecture
+- **Backend**: Drizzle ORM, Arktype validation, ORPC (type-safe API, contract-first)
+- **Frontend**: TanStack (Router, Query, Form), shadcn
 
 ## Build Commands
 
 ```bash
-# Linting and formatting
-bun lint              # Check code with Biome
-bun lint:fix --unsafe # Auto-fix with unsafe fixes
-
-# Type checking
-bun check-types       # Type check all packages (requires building packages first)
-
-# Building
-bun build             # Build all packages and apps
-bun build:packages    # Build only packages (not apps)
-
-# Database operations
-bun db:push           # Push schema changes to DB
-bun db:reset          # Reset database and seed
-bun db:seed           # Seed database
-
-# Testing
+bun lint              # Check (Biome)
+bun lint:fix --unsafe # Auto-fix incl unsafe
+bun check-types       # Type check all (build packages first)
+bun build             # Build all packages + apps
+bun build:packages    # Build packages only
+bun db:push           # Push schema to DB
+bun db:reset          # Reset DB + seed
+bun db:seed           # Seed DB
 bun test              # Run all tests
 ```
 
-## Code Style Guidelines
-
-- **Formatting tool**: Biome (run `bun lint:fix` before committing)
-
 ### TypeScript
-- **Type inference**: No explicit types when inferrable (enforced by biome). Never use `as something` annotation, this is for codebase health and maintainability.
-- **As const**: Use `as const` assertions for literal types where needed
-- **Imports**: Use `type` keyword for type-only imports when beneficial
+- No explicit types when inferrable (biome enforced). Never `as something` annotation
+- `as const` for literal types where needed
 
-### Naming Conventions
-- Components: PascalCase (`UserCard`)
-- Functions/variables: camelCase (`getUserProgress`)
-- Types/interfaces: PascalCase (`UserProgress`)
-- Constants: UPPER_SNAKE_CASE (`SESSION_DURATION`)
-- Files: kebab-case for folders (`user-card/`), `index.ts` for exports
+### Query Conventions
+- `db.select()` for complex joins, aggregations, multi-table queries
+- `db.query` (relational API) for simple nested-relation fetches (tree of related data)
+- Batch updates: SQL `CASE` expressions for reorder/batch-update, not loops with individual UPDATEs
+- Shared DB logic → `packages/api/src/lib/`, not router files. Only route handlers in `routers/`
 
-#### Pagination
-- **Use cursor-based pagination** (not offset) for better performance
-- Cursor uses indexed columns with `gt()`/`lt()` operators: `WHERE id > cursor ORDER BY id LIMIT N`
-- Cursor type: nullable number for ID-based, nullable string (ISO date) for date-based
-- Pattern: Fetch `limit + 1` items, check if has more, return `limit` items with `nextCursor`
-- Bidirectional: Use `direction: "next" | "previous"` for date-based cursors
-- **IMPORTANT**: Change `cursor` input from `"number = 0"` to `"number?"` when implementing cursor pagination
+### Error Messages
+- **Indonesian** for all user-facing errors, consistent across routers
+- Arktype handles input validation at contract level; no ad-hoc `if` checks in handlers
 
-### Error Handling
-- Client errors: Use toast from sonner (`toast.error("message")`)
-- Server errors: Use ORPCError helpers in routes
-- Validation: Arktype types in route definitions catch schema errors early
-- Never log secrets or sensitive data
+### Pagination
+- **All list endpoints: cursor-based pagination**, `{ items, pageInfo }` response
+- Use `buildIdCursorPage` / `parseIdCursor` from `@/lib/pagination/cursor`
+- Fetch `limit + 1`, extra item → `hasNextPage`/`hasPreviousPage`
 
 ### File Structure
 ```
 packages/api/src/routers/
-  feature-name.ts    # Individual router
-  index.ts           # Exports appRouter with all routes
+  feature-name.ts    # Router
+  index.ts           # appRouter exports
 packages/db/src/schema/
-  feature-name.ts    # Schema definitions
+  feature-name.ts    # Schema defs
 apps/web/src/components/ui/
-  component-name.tsx # shadcn UI component
+  component-name.tsx # shadcn component
 apps/web/src/routes/
-  _auth/             # Auth layout routes
+  _auth/             # Auth layout
   _authenticated/    # Protected routes
   -components/       # Shared route components
 ```
-
-### Git Workflow
-- Feature branches: `feature/description` or `fix/description`
-- Commit messages: Conventional Commits (feat, fix, refactor, etc.)

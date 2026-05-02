@@ -160,10 +160,7 @@ function RouteComponent() {
 				<form.Field name="content">
 					{(field) => (
 						<div className="space-y-2">
-							<TiptapSimpleEditor
-								content={field.state.value}
-								onChange={(c) => field.handleChange(c as Record<string, unknown>)}
-							/>
+							<TiptapSimpleEditor content={field.state.value} onChange={(c) => field.handleChange(c)} />
 							{field.state.meta.errors.map((error) => (
 								<p key={error?.message} className="text-red-500 text-sm">
 									{error?.message}

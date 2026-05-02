@@ -27,8 +27,11 @@ interface EditRoleDialogProps {
 	onSuccess: () => void;
 }
 
+const isValidRole = (v: string | null): v is Role =>
+	v !== null && (Object.values(ROLES) as readonly string[]).includes(v);
+
 export function EditRoleDialog({ userId, userName, currentRole, open, onOpenChange, onSuccess }: EditRoleDialogProps) {
-	const [role, setRole] = useState<Role>((currentRole as Role) ?? ROLES.USER);
+	const [role, setRole] = useState<Role>(isValidRole(currentRole) ? currentRole : ROLES.USER);
 
 	const updateMutation = useMutation(
 		orpc.admin.users.update.mutationOptions({
@@ -47,7 +50,7 @@ export function EditRoleDialog({ userId, userName, currentRole, open, onOpenChan
 		<Dialog
 			open={open}
 			onOpenChange={(value) => {
-				if (!value) setRole((currentRole as Role) ?? ROLES.USER);
+				if (!value) setRole(isValidRole(currentRole) ? currentRole : ROLES.USER);
 				onOpenChange(value);
 			}}
 		>
@@ -68,7 +71,12 @@ export function EditRoleDialog({ userId, userName, currentRole, open, onOpenChan
 					</div>
 					<div className="flex flex-col gap-2">
 						<Label>Role baru</Label>
-						<Select value={role} onValueChange={(val) => setRole(val as typeof role)}>
+						<Select
+							value={role}
+							onValueChange={(val) => {
+								if (isValidRole(val)) setRole(val);
+							}}
+						>
 							<SelectTrigger>
 								<SelectValue placeholder="Pilih role" />
 							</SelectTrigger>

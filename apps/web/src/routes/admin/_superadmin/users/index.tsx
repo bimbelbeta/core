@@ -36,6 +36,8 @@ import { GrantCreditsDialog } from "./-components/grant-credits-dialog";
 import { GrantPremiumDialog } from "./-components/grant-premium-dialog";
 import { formatPremiumExpiry, formatRelativeDate, getInitials, roleConfig } from "./-utils";
 
+const isValidRole = (v: string): v is Role => (Object.values(ROLES) as readonly string[]).includes(v);
+
 const searchSchema = type({
 	"...": PaginationInputSchema,
 	"search?": "string",
@@ -110,9 +112,9 @@ function UsersListPage() {
 	const handleRoleChange = (value: string) => {
 		navigate({
 			search:
-				value !== "all"
+				value !== "all" && isValidRole(value)
 					? {
-							role: value as Role,
+							role: value,
 							...(search && { search }),
 							...(isPremium !== undefined && { isPremium }),
 							limit,

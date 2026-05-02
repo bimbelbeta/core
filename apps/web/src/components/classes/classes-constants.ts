@@ -15,6 +15,10 @@ export const gradeRanges: Record<Exclude<SubjectCategory, "utbk">, [number, numb
 	sma: [10, 12],
 };
 
+export function isValidCategory(v: string): v is SubjectCategory {
+	return v in categoryLabel;
+}
+
 /** Returns a validation error message if gradeLevel is out of range, or null if valid. */
 export function validateGradeLevel(category: Exclude<SubjectCategory, "utbk">, gradeLevel: number): string | null {
 	const [min, max] = gradeRanges[category];

@@ -52,8 +52,8 @@ import "@/components/tiptap-templates/simple/simple-editor.scss";
 import { ImageLinkPopover } from "@/components/tiptap-ui/image-link-popover";
 
 interface SimpleEditorProps {
-	content?: object;
-	onChange?: (content: object) => void;
+	content?: Record<string, unknown>;
+	onChange?: (content: Record<string, unknown>) => void;
 }
 
 const MainToolbarContent = ({

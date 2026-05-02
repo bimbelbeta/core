@@ -59,13 +59,7 @@ export function QuestionFooter() {
 		orpc.tryout.toggleRaguRagu.mutationOptions({
 			onSuccess: () => {
 				if (currentQuestion?.id) {
-					const { raguRaguIds } = useTryoutStore.getState();
-					if (raguRaguIds.has(currentQuestion.id)) {
-						raguRaguIds.delete(currentQuestion.id);
-					} else {
-						raguRaguIds.add(currentQuestion.id);
-					}
-					useTryoutStore.setState({ raguRaguIds: new Set(raguRaguIds) });
+					useTryoutStore.getState().toggleRaguRagu(currentQuestion.id);
 				}
 				queryClient.invalidateQueries({ queryKey: orpc.tryout.find.key({ input: { id: tryoutId } }) });
 			},

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { EmptyContentState } from "@/components/classes/empty-content-state";
 import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
@@ -31,16 +31,18 @@ function RouteComponent() {
 		}),
 	);
 
+	const mutateRef = useRef(updateProgressMutation.mutate);
+	mutateRef.current = updateProgressMutation.mutate;
+
 	// Update progress when notes are viewed
 	useEffect(() => {
 		if (content.data?.note) {
-			updateProgressMutation.mutate({
+			mutateRef.current({
 				contentId,
 				noteCompleted: true,
 			});
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [content.data?.note, contentId, updateProgressMutation.mutate]);
+	}, [content.data?.note, contentId]);
 
 	if (content.isPending) {
 		return <p className="animate-pulse text-sm">Memuat catatan...</p>;

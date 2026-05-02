@@ -109,7 +109,7 @@ function RouteComponent() {
 		}
 	}
 
-	const debouncedVideoUrl = useDebounceValue(form.state.values.videoUrl as string, 500);
+	const debouncedVideoUrl = useDebounceValue(form.state.values.videoUrl, 500);
 	const videoId = extractYouTubeId(debouncedVideoUrl);
 	const isValidUrl = !!videoId;
 
@@ -194,7 +194,7 @@ function RouteComponent() {
 								id={field.name}
 								name={field.name}
 								type="url"
-								value={field.state.value as string}
+								value={field.state.value}
 								onBlur={field.handleBlur}
 								onChange={(e) => field.handleChange(e.target.value)}
 								placeholder="https://www.youtube.com/watch?v=..."
@@ -229,10 +229,7 @@ function RouteComponent() {
 					{(field) => (
 						<div className="space-y-2">
 							<Label>Konten Video (Deskripsi)</Label>
-							<TiptapSimpleEditor
-								content={field.state.value}
-								onChange={(c) => field.handleChange(c as Record<string, unknown>)}
-							/>
+							<TiptapSimpleEditor content={field.state.value} onChange={(c) => field.handleChange(c)} />
 							{field.state.meta.errors.map((error) => (
 								<p key={error?.message} className="text-red-500 text-sm">
 									{error?.message}

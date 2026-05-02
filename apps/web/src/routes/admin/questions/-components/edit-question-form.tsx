@@ -20,8 +20,8 @@ interface EditQuestionFormProps {
 	question: {
 		id: number;
 		type: "multiple_choice" | "multiple_choice_complex" | "essay";
-		content: object;
-		discussion: object;
+		content: Record<string, unknown>;
+		discussion: Record<string, unknown>;
 		essayCorrectAnswer?: string;
 		tags?: string[];
 	};
@@ -131,7 +131,7 @@ export function EditQuestionForm({ question, initialChoices, onSuccess, onCancel
 									<Label htmlFor={field.name}>Konten Soal *</Label>
 									<TiptapSimpleEditor
 										content={field.state.value ?? undefined}
-										onChange={(content) => field.handleChange(content as object)}
+										onChange={(content) => field.handleChange(content)}
 									/>
 								</div>
 							)}
@@ -164,7 +164,7 @@ export function EditQuestionForm({ question, initialChoices, onSuccess, onCancel
 									<Label htmlFor={field.name}>Pembahasan</Label>
 									<TiptapSimpleEditor
 										content={field.state.value ?? undefined}
-										onChange={(content) => field.handleChange(content as object)}
+										onChange={(content) => field.handleChange(content)}
 									/>
 								</div>
 							)}

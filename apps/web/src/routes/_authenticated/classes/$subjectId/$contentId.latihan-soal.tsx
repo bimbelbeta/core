@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { EmptyContentState } from "@/components/classes/empty-content-state";
 import { PracticeQuestion } from "@/components/classes/practice-question";
 import { PracticeQuestionHeader } from "@/components/classes/practice-question-header";
@@ -35,16 +35,18 @@ function RouteComponent() {
 		}),
 	);
 
+	const mutateRef = useRef(updateProgressMutation.mutate);
+	mutateRef.current = updateProgressMutation.mutate;
+
 	// Update progress when practice questions are viewed
 	useEffect(() => {
 		if (content.data?.practiceQuestions) {
-			updateProgressMutation.mutate({
+			mutateRef.current({
 				contentId,
 				practiceQuestionsCompleted: true,
 			});
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [content.data?.practiceQuestions, contentId, updateProgressMutation.mutate]);
+	}, [content.data?.practiceQuestions, contentId]);
 
 	if (content.isPending) {
 		return <p className="animate-pulse text-sm">Memuat latihan soal...</p>;

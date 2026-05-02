@@ -3,6 +3,13 @@ import { useNavigate, useSearch } from "@tanstack/react-router";
 type QuestionType = "multiple_choice" | "multiple_choice_complex" | "essay";
 type QuestionCategory = "sd" | "smp" | "sma" | "utbk";
 
+function isQuestionType(v: string): v is QuestionType {
+	return v === "multiple_choice" || v === "multiple_choice_complex" || v === "essay";
+}
+function isQuestionCategory(v: string): v is QuestionCategory {
+	return v === "sd" || v === "smp" || v === "sma" || v === "utbk";
+}
+
 export function useQuestionsSearch() {
 	const navigate = useNavigate({ from: "/admin/questions/" });
 	const {
@@ -39,7 +46,7 @@ export function useQuestionsSearch() {
 		navigate({
 			search: {
 				...(search && { search }),
-				...(value !== "all" && { type: value as QuestionType }),
+				...(value !== "all" && isQuestionType(value) && { type: value }),
 				...(category && { category }),
 				...(tag && { tag }),
 				limit,
@@ -52,7 +59,7 @@ export function useQuestionsSearch() {
 			search: {
 				...(search && { search }),
 				...(questionType && { type: questionType }),
-				...(value !== "all" && { category: value as QuestionCategory }),
+				...(value !== "all" && isQuestionCategory(value) && { category: value }),
 				...(tag && { tag }),
 				limit,
 			},

@@ -1,8 +1,15 @@
 import { describe, expect, mock, test } from "bun:test";
 
-type MiddlewareFn = (input: Record<string, unknown>) => Promise<unknown>;
+type MockedMiddlewareFn = (input: {
+	context: Record<string, unknown>;
+	next: AnyFn;
+	errors?: Record<string, () => Error>;
+}) => Promise<unknown>;
 
-const mockMiddleware = (fn: MiddlewareFn) => fn;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyFn = (...args: any[]) => any;
+
+const mockMiddleware = (fn: MockedMiddlewareFn) => fn;
 
 mock.module("@/lib/router-definition", () => ({
 	baseImplementer: { middleware: mockMiddleware },
@@ -12,9 +19,10 @@ mock.module("@bimbelbeta/db", () => ({
 	db: { update: () => ({ set: () => ({ where: () => Promise.resolve() }) }) },
 }));
 
-mock.module("@bimbelbeta/db/schema/auth", () => ({
-	user: { id: "id" },
-}));
+// NOTE: Do NOT mock @bimbelbeta/db/schema/auth — the stub { user: { id: "id" } }
+// strips the Drizzle Symbol.for("drizzle:Name") property from the `user` table,
+// which leaks to other test files and breaks any test that relies on the real
+// table object. The db mock below is sufficient to isolate this module.
 
 mock.module("@orpc/experimental-ratelimit", () => ({
 	createRatelimitMiddleware: () => "rateLimit",
@@ -41,7 +49,7 @@ describe("requireAdmin", () => {
 
 	test("passes through for admin role", async () => {
 		const next = mock(() => "ok");
-		await (requireAdmin as MiddlewareFn)({
+		await (requireAdmin as unknown as MockedMiddlewareFn)({
 			context: { session: { user: { role: "admin" } } },
 			next,
 			errors: makeErrors(),
@@ -51,7 +59,7 @@ describe("requireAdmin", () => {
 
 	test("passes through for superadmin role", async () => {
 		const next = mock(() => "ok");
-		await (requireAdmin as MiddlewareFn)({
+		await (requireAdmin as unknown as MockedMiddlewareFn)({
 			context: { session: { user: { role: "superadmin" } } },
 			next,
 			errors: makeErrors(),
@@ -62,7 +70,7 @@ describe("requireAdmin", () => {
 	test("throws UNAUTHORIZED for non-admin role", async () => {
 		const next = mock(() => "ok");
 		expect(
-			(requireAdmin as MiddlewareFn)({
+			(requireAdmin as unknown as MockedMiddlewareFn)({
 				context: { session: { user: { role: "user" } } },
 				next,
 				errors: makeErrors(),
@@ -79,7 +87,7 @@ describe("requireSuperAdmin", () => {
 
 	test("passes through for superadmin role", async () => {
 		const next = mock(() => "ok");
-		await (requireSuperAdmin as MiddlewareFn)({
+		await (requireSuperAdmin as unknown as MockedMiddlewareFn)({
 			context: { session: { user: { role: "superadmin" } } },
 			next,
 			errors: makeErrors(),
@@ -90,7 +98,7 @@ describe("requireSuperAdmin", () => {
 	test("throws UNAUTHORIZED for admin role", async () => {
 		const next = mock(() => "ok");
 		expect(
-			(requireSuperAdmin as MiddlewareFn)({
+			(requireSuperAdmin as unknown as MockedMiddlewareFn)({
 				context: { session: { user: { role: "admin" } } },
 				next,
 				errors: makeErrors(),
@@ -106,7 +114,7 @@ describe("requireAuth", () => {
 
 	test("passes through when user is authenticated", async () => {
 		const next = mock(() => "ok");
-		await (requireAuth as MiddlewareFn)({
+		await (requireAuth as unknown as MockedMiddlewareFn)({
 			context: { session: { user: { id: "1" } } },
 			next,
 			errors: makeErrors(),
@@ -117,7 +125,7 @@ describe("requireAuth", () => {
 	test("throws UNAUTHORIZED when no user", async () => {
 		const next = mock(() => "ok");
 		expect(
-			(requireAuth as MiddlewareFn)({
+			(requireAuth as unknown as MockedMiddlewareFn)({
 				context: { session: { user: null } },
 				next,
 				errors: makeErrors(),
@@ -133,7 +141,7 @@ describe("requirePremium", () => {
 
 	test("passes through for premium user", async () => {
 		const next = mock(() => "ok");
-		await (requirePremium as MiddlewareFn)({
+		await (requirePremium as unknown as MockedMiddlewareFn)({
 			context: { session: { user: { isPremium: true, role: "user" } } },
 			next,
 			errors: makeErrors(),
@@ -143,7 +151,7 @@ describe("requirePremium", () => {
 
 	test("passes through for admin", async () => {
 		const next = mock(() => "ok");
-		await (requirePremium as MiddlewareFn)({
+		await (requirePremium as unknown as MockedMiddlewareFn)({
 			context: { session: { user: { isPremium: false, role: "admin" } } },
 			next,
 			errors: makeErrors(),
@@ -154,7 +162,7 @@ describe("requirePremium", () => {
 	test("throws FORBIDDEN for non-premium non-admin", async () => {
 		const next = mock(() => "ok");
 		expect(
-			(requirePremium as MiddlewareFn)({
+			(requirePremium as unknown as MockedMiddlewareFn)({
 				context: { session: { user: { isPremium: false, role: "user" } } },
 				next,
 				errors: makeErrors(),
@@ -166,7 +174,7 @@ describe("requirePremium", () => {
 describe("revokeExpiredPremium", () => {
 	test("calls next without modification when user is not premium", async () => {
 		const next = mock(() => undefined);
-		await (revokeExpiredPremium as MiddlewareFn)({
+		await (revokeExpiredPremium as unknown as MockedMiddlewareFn)({
 			context: { session: { user: { isPremium: false, id: "1" } } },
 			next,
 		});
@@ -176,7 +184,7 @@ describe("revokeExpiredPremium", () => {
 	test("calls next without modification when premium has not expired", async () => {
 		const next = mock((args?: { context?: unknown }) => args?.context ?? {});
 		const futureDate = new Date(Date.now() + 100000);
-		await (revokeExpiredPremium as MiddlewareFn)({
+		await (revokeExpiredPremium as unknown as MockedMiddlewareFn)({
 			context: { session: { user: { isPremium: true, premiumExpiresAt: futureDate, id: "1" } } },
 			next,
 		});
@@ -186,10 +194,10 @@ describe("revokeExpiredPremium", () => {
 	test("sets isPremium to false when premium has expired", async () => {
 		const next = mock((args?: { context?: unknown }) => args?.context ?? {});
 		const pastDate = new Date(Date.now() - 100000);
-		const result = await (revokeExpiredPremium as MiddlewareFn)({
+		const result = (await (revokeExpiredPremium as unknown as MockedMiddlewareFn)({
 			context: { session: { user: { isPremium: true, premiumExpiresAt: pastDate, id: "1" } } },
 			next,
-		});
+		})) as { session: { user: { isPremium: boolean } } };
 		expect(result.session.user.isPremium).toBe(false);
 	});
 });

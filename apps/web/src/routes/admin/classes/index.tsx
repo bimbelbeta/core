@@ -1,8 +1,9 @@
 import { ROLES } from "@bimbelbeta/contract/common/roles";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { type } from "arktype";
 import { useState } from "react";
-import type { SubjectListItem } from "@/components/classes/classes-types";
+import type { SubjectCategory, SubjectFilter } from "@/components/classes/classes-types";
 import { CreateSubjectDialog } from "@/components/classes/create-subject-dialog";
 import { SubjectFilters } from "@/components/classes/subject-filters";
 import { SubjectHeader } from "@/components/classes/subject-header";
@@ -12,6 +13,11 @@ import { SearchInput } from "@/components/ui/search-input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createMeta } from "@/lib/seo-utils";
 import { orpc } from "@/utils/orpc";
+
+const searchSchema = type({
+	"q?": "string",
+	"category?": "'sd' | 'smp' | 'sma' | 'utbk'",
+});
 
 export const Route = createFileRoute("/admin/classes/")({
 	staticData: { breadcrumb: "Kelas" },
@@ -23,12 +29,8 @@ export const Route = createFileRoute("/admin/classes/")({
 		}),
 	}),
 	component: RouteComponent,
+	validateSearch: searchSchema,
 });
-
-type Search = {
-	q?: string;
-	category?: "sd" | "smp" | "sma" | "utbk" | undefined;
-};
 
 function RouteComponent() {
 	const [createOpen, setCreateOpen] = useState(false);
@@ -36,24 +38,13 @@ function RouteComponent() {
 	const userRole = session?.user?.role;
 	const isAdmin = userRole === ROLES.ADMIN || userRole === ROLES.SUPER_ADMIN;
 
-	const searchParams = Route.useSearch();
-	const searchQuery = (searchParams as Search).q ?? "";
-	const activeFilter: "all" | "sd" | "smp" | "sma" | "utbk" = (searchParams as Search).category ?? "all";
+	const { q = "", category } = Route.useSearch();
+	const searchQuery = q;
+	const activeFilter: SubjectFilter = category ?? "all";
 
 	const navigate = Route.useNavigate();
-	const updateSearch = (updates: Partial<Search>) => {
-		const newSearch: Partial<Search> = {};
-
-		if (updates.q !== undefined) {
-			newSearch.q = updates.q || undefined;
-		}
-		if (updates.category !== undefined) {
-			newSearch.category = updates.category || undefined;
-		}
-
-		const cleanSearch = Object.fromEntries(Object.entries(newSearch).filter(([, value]) => value !== undefined));
-
-		navigate({ search: cleanSearch });
+	const updateSearch = (updates: { q?: string; category?: SubjectCategory }) => {
+		navigate({ search: { q: updates.q ?? undefined, category: updates.category ?? undefined } });
 	};
 
 	const subjectsQuery = useQuery({
@@ -98,7 +89,7 @@ function RouteComponent() {
 
 				{subjectsQuery.data && (
 					<SubjectList
-						items={subjectsQuery.data.items as SubjectListItem[]}
+						items={subjectsQuery.data.items}
 						isLoading={subjectsQuery.isPending}
 						error={subjectsQuery.isError ? subjectsQuery.error.message : undefined}
 						searchQuery={searchQuery}

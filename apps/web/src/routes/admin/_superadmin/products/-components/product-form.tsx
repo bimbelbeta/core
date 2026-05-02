@@ -15,6 +15,16 @@ import { months } from "../-utils";
 type ProductVariant = "fixed_date" | "monthly" | "credits";
 type ProductType = "subscription" | "product";
 
+const PRODUCT_TYPES = ["subscription", "product"] as const;
+const PRODUCT_VARIANTS = ["fixed_date", "monthly", "credits"] as const;
+
+function isProductType(v: string): v is ProductType {
+	return (PRODUCT_TYPES as readonly string[]).includes(v);
+}
+function isProductVariant(v: string): v is ProductVariant {
+	return (PRODUCT_VARIANTS as readonly string[]).includes(v);
+}
+
 interface ProductFormProps {
 	initialData?: {
 		id: string;
@@ -151,9 +161,7 @@ export function ProductForm({ initialData, onSuccess, onCancel }: ProductFormPro
 			}}
 			className="flex flex-col gap-6"
 		>
-			<form.Subscribe
-				selector={(state) => [state.values.type as ProductType, state.values.variant as ProductVariant] as const}
-			>
+			<form.Subscribe selector={(state) => [state.values.type, state.values.variant] as const}>
 				{([productType, variant]) => <VariantEffect productType={productType} variant={variant} />}
 			</form.Subscribe>
 
@@ -240,10 +248,10 @@ export function ProductForm({ initialData, onSuccess, onCancel }: ProductFormPro
 								<Select
 									value={field.state.value}
 									onValueChange={(v) => {
-										const nextType = v as ProductType;
-										field.handleChange(nextType);
+										if (!isProductType(v)) return;
+										field.handleChange(v);
 
-										if (nextType === "product") {
+										if (v === "product") {
 											form.setFieldValue("variant", "credits");
 										} else {
 											const currentVariant = form.getFieldValue("variant");
@@ -278,7 +286,9 @@ export function ProductForm({ initialData, onSuccess, onCancel }: ProductFormPro
 											<Select
 												disabled={isLockedToCredits}
 												value={field.state.value}
-												onValueChange={(v) => field.handleChange(v as ProductVariant)}
+												onValueChange={(v) => {
+													if (isProductVariant(v)) field.handleChange(v);
+												}}
 											>
 												<SelectTrigger className="w-full">
 													<SelectValue />

@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { orpc } from "@/utils/orpc";
-import { categoryLabel, type SubjectCategory, validateGradeLevel } from "./classes-constants";
+import { categoryLabel, isValidCategory, validateGradeLevel } from "./classes-constants";
 import type { SubjectListItem } from "./classes-types";
 
 type EditSubjectDialogProps = {
@@ -33,11 +33,11 @@ export function EditSubjectDialog({ open, onOpenChange, subject }: EditSubjectDi
 			name: subject.name,
 			shortName: subject.shortName,
 			description: subject.description ?? "",
-			category: subject.category as SubjectCategory | "",
+			category: isValidCategory(subject.category) ? subject.category : "",
 			gradeLevel: subject.gradeLevel?.toString() ?? "",
 		},
 		onSubmit: async ({ value }) => {
-			const category = (value.category || undefined) as SubjectCategory | undefined;
+			const category = value.category && isValidCategory(value.category) ? value.category : undefined;
 
 			let gradeLevel: number | undefined;
 			if (value.gradeLevel.trim()) {
@@ -87,7 +87,7 @@ export function EditSubjectDialog({ open, onOpenChange, subject }: EditSubjectDi
 				name: subject.name,
 				shortName: subject.shortName,
 				description: subject.description ?? "",
-				category: subject.category as SubjectCategory | "",
+				category: isValidCategory(subject.category) ? subject.category : "",
 				gradeLevel: subject.gradeLevel?.toString() ?? "",
 			});
 		}
@@ -186,7 +186,9 @@ export function EditSubjectDialog({ open, onOpenChange, subject }: EditSubjectDi
 									<Select
 										value={field.state.value || ""}
 										onValueChange={(value) => {
-											field.handleChange(value as SubjectCategory | "");
+											if (isValidCategory(value) || value === "") {
+												field.handleChange(value);
+											}
 											if (value === "utbk") {
 												form.setFieldValue("gradeLevel", "");
 											}

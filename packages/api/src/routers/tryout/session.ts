@@ -16,9 +16,9 @@ type SessionErrors = {
 
 type ActiveSubtestResult = {
 	attempt: Awaited<ReturnType<typeof db.query.tryoutAttempt.findFirst>> & {
-		subtestAttempts: { id: number; subtestId: number; status: string; deadline: Date | null; score: number | null }[];
+		subtestAttempts: { id: number; subtestId: number; status: string; deadline: Date | null; score: string | null }[];
 	};
-	currentSubtestAttempt: { id: number; subtestId: number; status: string; deadline: Date | null; score: number | null };
+	currentSubtestAttempt: { id: number; subtestId: number; status: string; deadline: Date | null; score: string | null };
 };
 
 async function requireActiveSubtestAttempt(
@@ -46,7 +46,8 @@ async function requireActiveSubtestAttempt(
 		throw errors.BAD_REQUEST({ message: "Batas waktu subtest telah habis" });
 	}
 
-	return { attempt, currentSubtestAttempt } as ActiveSubtestResult;
+	const result: ActiveSubtestResult = { attempt, currentSubtestAttempt };
+	return result;
 }
 
 function computeSubtestDeadline(durationMinutes: number, overallDeadline: Date, startFrom: Date = new Date()): Date {

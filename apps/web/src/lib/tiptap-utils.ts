@@ -413,7 +413,8 @@ export function updateNodesAttr<A extends string = string, V = unknown>(
 		const currentNode = tr.doc.nodeAt(pos);
 		if (!currentNode) continue;
 
-		const prevValue = (currentNode.attrs as Record<string, unknown>)[attrName] as V | undefined;
+		const attrs: Record<string, unknown> = currentNode.attrs;
+		const prevValue = attrs[attrName] as V | undefined;
 		const resolvedNext = typeof next === "function" ? (next as (p: V | undefined) => V | undefined)(prevValue) : next;
 
 		if (prevValue === resolvedNext) continue;

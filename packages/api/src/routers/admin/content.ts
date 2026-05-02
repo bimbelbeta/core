@@ -286,17 +286,14 @@ const listPracticeQuestions = admin.admin.content.listPracticeQuestions.handler(
 					.orderBy(questionChoice.code)
 			: [];
 
-	const choicesByQuestionId = allChoices.reduce(
-		(acc, choice) => {
-			const qId = choice.questionId;
-			if (!acc[qId]) {
-				acc[qId] = [];
-			}
-			acc[qId].push(choice);
-			return acc;
-		},
-		{} as Record<number, typeof allChoices>,
-	);
+	const choicesByQuestionId: Record<number, (typeof allChoices)[number][]> = {};
+	for (const choice of allChoices) {
+		const qId = choice.questionId;
+		if (!choicesByQuestionId[qId]) {
+			choicesByQuestionId[qId] = [];
+		}
+		choicesByQuestionId[qId].push(choice);
+	}
 
 	return {
 		questions: linkedQuestions.map((q) => ({

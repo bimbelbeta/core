@@ -165,7 +165,8 @@ const findContent = authed.subject.findContent.handler(async ({ input, context, 
 	}
 
 	const rawRole = context.session.user.role;
-	const role: Role = Object.values(ROLES).includes(rawRole as Role) ? (rawRole as Role) : ROLES.USER;
+	const isValidRole = (v: string): v is Role => (Object.values(ROLES) as readonly string[]).includes(v);
+	const role: Role = isValidRole(rawRole) ? rawRole : ROLES.USER;
 
 	const hasAccess = canAccessContent(context.session.user.isPremium, role, row.subtestOrder, row.order);
 
