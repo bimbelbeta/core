@@ -2,10 +2,9 @@ import { db } from "@bimbelbeta/db";
 import { product } from "@bimbelbeta/db/schema/transaction";
 import { asc, desc, gt, lt } from "drizzle-orm";
 import { buildStringIdCursorPage, parseStringIdCursor } from "@/lib/pagination/cursor";
-import { baseImplementer } from "@/lib/router-definition";
-import { rateLimit, requireAuth } from "@/lib/router-definition/middleware";
+import { authedNoPremiumImplementer } from "@/lib/router-definition";
 
-const authed = baseImplementer.use(requireAuth).use(rateLimit);
+const authed = authedNoPremiumImplementer;
 
 const list = authed.product.list.handler(async ({ input }) => {
 	const limit = Math.min(input?.limit ?? 20, 100);

@@ -6,11 +6,10 @@ import { and, eq, isNull, or, sql } from "drizzle-orm";
 import { hashAccessCode } from "@/lib/access-code";
 import { calculateTryoutScores, saveScoresToDatabase } from "@/lib/calculate-score";
 import { fetchSubtestQuestionRows, flattenTryoutQuestions } from "@/lib/question-utils";
-import { baseImplementer } from "@/lib/router-definition";
-import { rateLimit, requireAuth, revokeExpiredPremium } from "@/lib/router-definition/middleware";
+import { authedImplementer } from "@/lib/router-definition";
 import { parseNullableInt } from "@/lib/utils";
 
-const authed = baseImplementer.use(requireAuth).use(revokeExpiredPremium).use(rateLimit);
+const authed = authedImplementer;
 
 async function finalizeExpiredAttempt(attemptId: number): Promise<void> {
 	const scores = await calculateTryoutScores(attemptId);

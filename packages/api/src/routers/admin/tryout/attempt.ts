@@ -3,11 +3,10 @@ import { user } from "@bimbelbeta/db/schema/auth";
 import { tryoutAttempt, tryoutSubtestAttempt } from "@bimbelbeta/db/schema/tryout";
 import { and, asc, desc, eq, gt, inArray, lt } from "drizzle-orm";
 import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
-import { baseImplementer } from "@/lib/router-definition";
-import { rateLimit, requireAdmin, requireAuth } from "@/lib/router-definition/middleware";
+import { adminImplementer } from "@/lib/router-definition";
 import { parseNullableInt } from "@/lib/utils";
 
-const admin = baseImplementer.use(requireAuth).use(rateLimit).use(requireAdmin);
+const admin = adminImplementer;
 
 const list = admin.admin.tryout.attempts.list.handler(async ({ input }) => {
 	const limit = input.limit ?? 10;

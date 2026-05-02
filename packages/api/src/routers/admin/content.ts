@@ -4,10 +4,9 @@ import { contentItem, contentPracticeQuestions, noteMaterial, videoMaterial } fr
 import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import { readTiptapContent } from "@/lib/content-utils";
 import { requireCreated, requireFound } from "@/lib/crud-helpers";
-import { baseImplementer } from "@/lib/router-definition";
-import { rateLimit, requireAdmin, requireAuth } from "@/lib/router-definition/middleware";
+import { adminImplementer } from "@/lib/router-definition";
 
-const admin = baseImplementer.use(requireAuth).use(rateLimit).use(requireAdmin);
+const admin = adminImplementer;
 
 const createContent = admin.admin.content.createContent.handler(async ({ input, errors }) => {
 	const hasVideo = input.video !== undefined;

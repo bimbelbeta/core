@@ -4,10 +4,9 @@ import { product } from "@bimbelbeta/db/schema/transaction";
 import { and, asc, desc, eq, gt, ilike, isNotNull, isNull, lt } from "drizzle-orm";
 import { requireCreated, requireFound } from "@/lib/crud-helpers";
 import { buildStringIdCursorPage, parseStringIdCursor } from "@/lib/pagination/cursor";
-import { baseImplementer } from "@/lib/router-definition";
-import { rateLimit, requireAuth, requireSuperAdmin } from "@/lib/router-definition/middleware";
+import { superAdminImplementer } from "@/lib/router-definition";
 
-const superadmin = baseImplementer.use(requireAuth).use(rateLimit).use(requireSuperAdmin);
+const superadmin = superAdminImplementer;
 
 const list = superadmin.admin.products.list.handler(async ({ input }) => {
 	const limit = input.limit ?? 10;

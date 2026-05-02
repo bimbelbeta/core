@@ -3,10 +3,9 @@ import { user } from "@bimbelbeta/db/schema/auth";
 import { product } from "@bimbelbeta/db/schema/transaction";
 import { and, asc, desc, eq, gt, isNotNull, lt } from "drizzle-orm";
 import { buildStringIdCursorPage, parseStringIdCursor } from "@/lib/pagination/cursor";
-import { baseImplementer } from "@/lib/router-definition";
-import { rateLimit, requireAuth } from "@/lib/router-definition/middleware";
+import { authedNoPremiumImplementer } from "@/lib/router-definition";
 
-const authed = baseImplementer.use(requireAuth).use(rateLimit);
+const authed = authedNoPremiumImplementer;
 
 const balance = authed.credit.balance.handler(async ({ context }) => {
 	const [userData] = await db

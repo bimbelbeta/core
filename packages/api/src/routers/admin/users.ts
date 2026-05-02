@@ -5,10 +5,9 @@ import { creditTransaction } from "@bimbelbeta/db/schema/credit";
 import { and, asc, desc, eq, gt, like, lt, or } from "drizzle-orm";
 import { requireFound } from "@/lib/crud-helpers";
 import { buildStringIdCursorPage, parseStringIdCursor } from "@/lib/pagination/cursor";
-import { baseImplementer } from "@/lib/router-definition";
-import { rateLimit, requireAuth, requireSuperAdmin } from "@/lib/router-definition/middleware";
+import { superAdminImplementer } from "@/lib/router-definition";
 
-const superadmin = baseImplementer.use(requireAuth).use(rateLimit).use(requireSuperAdmin);
+const superadmin = superAdminImplementer;
 
 const list = superadmin.admin.users.list.handler(async ({ input }) => {
 	const limit = Math.min(input.limit ?? 20, 100);

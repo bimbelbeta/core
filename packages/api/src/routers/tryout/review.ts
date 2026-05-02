@@ -1,9 +1,8 @@
 import { db } from "@bimbelbeta/db";
 import { fetchSubtestQuestionRows, flattenReviewQuestions } from "@/lib/question-utils";
-import { baseImplementer } from "@/lib/router-definition";
-import { rateLimit, requireAuth, revokeExpiredPremium } from "@/lib/router-definition/middleware";
+import { authedImplementer } from "@/lib/router-definition";
 
-const authed = baseImplementer.use(requireAuth).use(revokeExpiredPremium).use(rateLimit);
+const authed = authedImplementer;
 
 export const review = authed.tryout.review.handler(async ({ input, context, errors }) => {
 	const attempt = await db.query.tryoutAttempt.findFirst({

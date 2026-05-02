@@ -2,11 +2,10 @@ import { db } from "@bimbelbeta/db";
 import { programYearlyData, studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
 import { and, asc, desc, eq, gt, ilike, lt, or } from "drizzle-orm";
 import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
-import { baseImplementer } from "@/lib/router-definition";
-import { rateLimit, requireAuth } from "@/lib/router-definition/middleware";
+import { authedNoPremiumImplementer } from "@/lib/router-definition";
 import { escapeLikePattern } from "@/lib/utils";
 
-const authed = baseImplementer.use(requireAuth).use(rateLimit);
+const authed = authedNoPremiumImplementer;
 
 const listPrograms = authed.university.listPrograms.handler(async ({ input }) => {
 	const limit = Math.min(input.limit ?? 20, 100);

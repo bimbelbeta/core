@@ -4,10 +4,9 @@ import { tryoutSubtestQuestion } from "@bimbelbeta/db/schema/tryout";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { readTiptapContent } from "@/lib/content-utils";
 import { requireFound } from "@/lib/crud-helpers";
-import { baseImplementer } from "@/lib/router-definition";
-import { rateLimit, requireAdmin, requireAuth } from "@/lib/router-definition/middleware";
+import { adminImplementer } from "@/lib/router-definition";
 
-const admin = baseImplementer.use(requireAuth).use(rateLimit).use(requireAdmin);
+const admin = adminImplementer;
 
 const list = admin.admin.tryout.questionsBulk.list.handler(async ({ input }) => {
 	const questionsData = await db

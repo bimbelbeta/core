@@ -4,10 +4,9 @@ import { and, asc, desc, eq, gt, inArray, like, lt, sql } from "drizzle-orm";
 import { normalizeQuestionContent, readTiptapContent } from "@/lib/content-utils";
 import { requireCreated, requireFound } from "@/lib/crud-helpers";
 import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
-import { baseImplementer } from "@/lib/router-definition";
-import { rateLimit, requireAdmin, requireAuth } from "@/lib/router-definition/middleware";
+import { adminImplementer } from "@/lib/router-definition";
 
-const admin = baseImplementer.use(requireAuth).use(rateLimit).use(requireAdmin);
+const admin = adminImplementer;
 
 const createQuestion = admin.admin.tryout.questions.createQuestion.handler(async ({ input, errors }) => {
 	const choices = input.choices;

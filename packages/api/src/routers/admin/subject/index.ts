@@ -2,12 +2,11 @@ import { db } from "@bimbelbeta/db";
 import { subject } from "@bimbelbeta/db/schema/subject";
 import { eq, inArray, sql } from "drizzle-orm";
 import { requireCreated, requireFound } from "@/lib/crud-helpers";
-import { baseImplementer } from "@/lib/router-definition";
-import { rateLimit, requireAdmin, requireAuth } from "@/lib/router-definition/middleware";
+import { adminImplementer } from "@/lib/router-definition";
 import { pickDefined } from "@/lib/utils";
 import { validateGradeLevel } from "./utils";
 
-const admin = baseImplementer.use(requireAuth).use(rateLimit).use(requireAdmin);
+const admin = adminImplementer;
 
 const createSubject = admin.admin.subject.create.handler(async ({ input, errors }) => {
 	if (input.gradeLevel !== undefined && input.gradeLevel !== null) {

@@ -3,10 +3,9 @@ import { studyProgram } from "@bimbelbeta/db/schema/university";
 import { and, asc, desc, eq, gt, lt, sql } from "drizzle-orm";
 import { requireCreated, requireFound } from "@/lib/crud-helpers";
 import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
-import { baseImplementer } from "@/lib/router-definition";
-import { rateLimit, requireAdmin, requireAuth } from "@/lib/router-definition/middleware";
+import { adminImplementer } from "@/lib/router-definition";
 
-const admin = baseImplementer.use(requireAuth).use(rateLimit).use(requireAdmin);
+const admin = adminImplementer;
 
 const list = admin.admin.university.studyPrograms.list.handler(async ({ input }) => {
 	const limit = Math.min(input.limit ?? 20, 100);

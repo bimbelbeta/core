@@ -15,11 +15,10 @@ import { and, desc, eq, gt, ilike, inArray, lt, sql } from "drizzle-orm";
 import { readTiptapContent } from "@/lib/content-utils";
 import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
 import { ROLES, type Role } from "@/lib/roles";
-import { baseImplementer } from "@/lib/router-definition";
-import { rateLimit, requireAuth, revokeExpiredPremium } from "@/lib/router-definition/middleware";
+import { authedImplementer } from "@/lib/router-definition";
 import { escapeLikePattern } from "@/lib/utils";
 
-const authed = baseImplementer.use(requireAuth).use(revokeExpiredPremium).use(rateLimit);
+const authed = authedImplementer;
 
 import type { ChoiceWithAnswer } from "@/types/question";
 

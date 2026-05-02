@@ -3,13 +3,12 @@ import { tryout, tryoutAccessCode } from "@bimbelbeta/db/schema/tryout";
 import { and, asc, desc, eq, gt, ilike, lt } from "drizzle-orm";
 import { requireCreated, requireFound } from "@/lib/crud-helpers";
 import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
-import { baseImplementer } from "@/lib/router-definition";
-import { rateLimit, requireAdmin, requireAuth } from "@/lib/router-definition/middleware";
+import { adminImplementer } from "@/lib/router-definition";
 import { pickDefined } from "@/lib/utils";
 import { generateAccessCode, hashAccessCode, maskCode } from "@/routers/admin/tryout/access-code-utils";
 import { tryoutAttemptRouter } from "@/routers/admin/tryout/attempt";
 
-const admin = baseImplementer.use(requireAuth).use(rateLimit).use(requireAdmin);
+const admin = adminImplementer;
 
 const createTryout = admin.admin.tryout.createTryout.handler(async ({ input, errors }) => {
 	const created = requireCreated(
