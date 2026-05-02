@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 import { useTryoutStore } from "../-hooks/use-tryout-store";
 
 export function QuestionFooter() {

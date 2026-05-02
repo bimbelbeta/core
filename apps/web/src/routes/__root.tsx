@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import type { Session } from "@/lib/auth-client";
 import { MotionProvider } from "@/lib/motion";
 import { createMeta } from "@/lib/seo-utils";
-import type { orpc } from "@/utils/orpc";
+import type { orpc } from "@/lib/orpc";
 import appCss from "../index.css?url";
 
 export interface RouterAppContext {

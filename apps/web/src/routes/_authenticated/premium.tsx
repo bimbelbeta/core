@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { Highlight } from "@/components/ui/highlight";
 import { createMeta } from "@/lib/seo-utils";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 import { PackageCard } from "./premium/-components/package-card";
 import { PremiumSkeleton } from "./premium/-components/premium-skeleton";
 import { useMidtrans } from "./premium/-hooks/use-midtrans";

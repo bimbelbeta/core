@@ -39,7 +39,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { usePaginationNavigation } from "@/hooks/use-pagination-navigation";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 import { AddTryoutDialog } from "./-components/add-tryout-dialog";
 
 const searchSchema = type({

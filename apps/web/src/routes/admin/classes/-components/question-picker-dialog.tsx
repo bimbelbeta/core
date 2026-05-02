@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 
 type CategoryFilter = "all" | "sd" | "smp" | "sma" | "utbk";
 type TypeFilter = "all" | "multiple_choice" | "essay";

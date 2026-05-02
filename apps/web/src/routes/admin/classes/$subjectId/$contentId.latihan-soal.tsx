@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 import { LinkedQuestionsList } from "../-components/linked-questions-list";
 import { QuestionPickerDialog } from "../-components/question-picker-dialog";
 

@@ -1,4 +1,4 @@
-import type { BodyOutputs } from "@/utils/orpc";
+import type { BodyOutputs } from "@/lib/orpc";
 
 export type SubjectListItem = BodyOutputs["subject"]["list"]["items"][number];
 

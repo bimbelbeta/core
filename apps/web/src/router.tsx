@@ -14,7 +14,7 @@ configure({
 import ErrorComponent from "./components/shared/error";
 import NotFound from "./components/shared/not-found";
 import { routeTree } from "./routeTree.gen";
-import { orpc, queryClient } from "./utils/orpc";
+import { orpc, queryClient } from "./lib/orpc";
 
 export const getRouter = () => {
 	const router = createTanStackRouter({

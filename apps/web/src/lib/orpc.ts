@@ -16,6 +16,15 @@ export function getApiUrl() {
 }
 
 const serializer = new StandardRPCJsonSerializer();
+
+/**
+ * Central QueryClient instance.
+ *
+ * Note: This is initialized at module scope, which creates init coupling
+ * (see initialization_coupling review finding). A lazy-initialization
+ * factory pattern would improve testability, but is deferred to avoid
+ * breaking changes across 75+ importers.
+ */
 export const queryClient = new QueryClient({
 	queryCache: new QueryCache({
 		onError: (error, query) => {

@@ -15,7 +15,7 @@ import { Container } from "@/components/ui/container";
 import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth-client";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 
 const searchSchema = type({
 	"q?": "string",

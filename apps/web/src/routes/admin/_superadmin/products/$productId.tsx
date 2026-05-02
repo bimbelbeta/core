@@ -11,7 +11,7 @@ import {
 } from "@/components/admin/admin-page";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 import { ProductForm } from "./-components/product-form";
 import { ProductFormHelpAccordion } from "./-components/product-form-help-accordion";
 

@@ -3,7 +3,7 @@ import { UploadSimpleIcon, XIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
-import { getApiUrl } from "@/utils/orpc";
+import { getApiUrl } from "@/lib/orpc";
 
 interface UploadPaymentProofProps {
 	onUploadComplete?: (url: string) => void;

@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 import { categoryLabel, isValidCategory, validateGradeLevel } from "./classes-constants";
 import type { SubjectListItem } from "./classes-types";
 

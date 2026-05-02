@@ -44,7 +44,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { extractTextFromTiptap, truncateText } from "@/lib/content-text";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 import { useQuestionsSearch } from "./-hooks/use-questions-search";
 
 const searchSchema = type({

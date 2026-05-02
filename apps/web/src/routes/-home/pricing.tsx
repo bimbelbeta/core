@@ -4,7 +4,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { Highlight } from "@/components/ui/highlight";
 import { cn } from "@/lib/utils";
-import { formatRupiah } from "@/utils/formatter";
+import { formatRupiah } from "@/lib/formatter";
 import { Heading } from "./-components/heading";
 import { Subheading } from "./-components/subheading";
 import { HOME_PAGE_CONTENT } from "./data";

@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 
 interface EditProgramDialogProps {
 	universityProgram: {

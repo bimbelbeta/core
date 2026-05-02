@@ -17,7 +17,7 @@ import { SearchInput } from "@/components/ui/search-input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { usePaginationNavigation } from "@/hooks/use-pagination-navigation";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 import { AddUniversityDialog } from "./-components/add-university-dialog";
 
 const searchSchema = type({

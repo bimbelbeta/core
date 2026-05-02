@@ -6,7 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { cn } from "@/lib/utils";
-import type { BodyOutputs } from "@/utils/orpc";
+import type { BodyOutputs } from "@/lib/orpc";
 
 interface BulkQuestionsTableProps {
 	questions: BodyOutputs["admin"]["tryout"]["questionsBulk"]["list"]["questions"];

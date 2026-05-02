@@ -1,4 +1,4 @@
-import type { BodyOutputs } from "@/utils/orpc";
+import type { BodyOutputs } from "@/lib/orpc";
 
 type ApiChoice = BodyOutputs["admin"]["tryout"]["questions"]["find"]["choices"][number];
 

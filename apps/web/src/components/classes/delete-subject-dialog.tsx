@@ -12,7 +12,7 @@ import {
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 import type { SubjectListItem } from "./classes-types";
 
 type DeleteSubjectDialogProps = {

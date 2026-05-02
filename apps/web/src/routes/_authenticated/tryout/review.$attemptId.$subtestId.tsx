@@ -6,7 +6,7 @@ import ErrorComponent from "@/components/shared/error";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 
 import { QuestionReviewItem } from "./-components/question-review-item";
 

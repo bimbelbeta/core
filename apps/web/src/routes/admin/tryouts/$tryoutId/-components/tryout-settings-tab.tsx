@@ -17,7 +17,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { formatDateMedium } from "@/lib/format-date";
 import { cn } from "@/lib/utils";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 
 function AccessCodeSection({ tryoutId }: { tryoutId: number }) {
 	const queryClient = useQueryClient();

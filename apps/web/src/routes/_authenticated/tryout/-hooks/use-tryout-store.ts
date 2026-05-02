@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { BodyOutputs } from "@/utils/orpc";
+import type { BodyOutputs } from "@/lib/orpc";
 
 type TryoutQuestion = NonNullable<NonNullable<BodyOutputs["tryout"]["find"]>["currentSubtest"]>["questions"][number];
 

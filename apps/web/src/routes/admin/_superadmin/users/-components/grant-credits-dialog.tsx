@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 
 interface GrantCreditsDialogProps {
 	userId: string;

@@ -19,7 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { cn } from "@/lib/utils";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 import { TryoutAttemptsTab } from "./-components/tryout-attempts-tab";
 import { type TryoutSettingsFormState, TryoutSettingsTab } from "./-components/tryout-settings-tab";
 import { TryoutSubtestsTab } from "./-components/tryout-subtests-tab";

@@ -30,7 +30,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { usePaginationNavigation } from "@/hooks/use-pagination-navigation";
 import { cn } from "@/lib/utils";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 import { EditRoleDialog } from "./-components/edit-role-dialog";
 import { GrantCreditsDialog } from "./-components/grant-credits-dialog";
 import { GrantPremiumDialog } from "./-components/grant-premium-dialog";

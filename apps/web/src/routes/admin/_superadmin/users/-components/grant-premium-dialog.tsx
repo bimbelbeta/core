@@ -18,7 +18,7 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { formatDateLong } from "@/lib/format-date";
 import { cn } from "@/lib/utils";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 
 interface GrantPremiumDialogProps {
 	userId: string;

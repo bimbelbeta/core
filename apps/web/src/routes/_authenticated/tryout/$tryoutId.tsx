@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { cn } from "@/lib/utils";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 import { TryoutGreeting } from "./-components/tryout-greeting";
 import { TryoutQuestions } from "./-components/tryout-questions";
 import useCountdown from "./-hooks/use-countdown";

@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { useDebounceValue } from "@/hooks/use-debounce-value";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 
 export function PassingGradeActivity() {
 	const [searchQuery, setSearchQuery] = useState("");

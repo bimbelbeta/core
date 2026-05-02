@@ -12,7 +12,7 @@ import { Container } from "@/components/ui/container";
 import { SearchInput } from "@/components/ui/search-input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createMeta } from "@/lib/seo-utils";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 
 const searchSchema = type({
 	"q?": "string",

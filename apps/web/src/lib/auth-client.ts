@@ -1,7 +1,7 @@
 import type { auth } from "@bimbelbeta/auth";
 import { inferAdditionalFields } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
-import { getApiUrl } from "@/utils/orpc";
+import { getApiUrl } from "@/lib/orpc";
 
 export const authClient = createAuthClient({
 	baseURL: getApiUrl(),

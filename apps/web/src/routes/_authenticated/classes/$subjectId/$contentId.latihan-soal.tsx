@@ -7,7 +7,7 @@ import { PracticeQuestionHeader } from "@/components/classes/practice-question-h
 import { BackButton } from "@/components/shared/back-button";
 import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 
 export const Route = createFileRoute("/_authenticated/classes/$subjectId/$contentId/latihan-soal")({
 	component: RouteComponent,

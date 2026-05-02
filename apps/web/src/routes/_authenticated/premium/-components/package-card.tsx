@@ -2,7 +2,7 @@ import { CheckIcon, SpinnerIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { PAYMENTS_COMING_SOON_LABEL, PAYMENTS_ENABLED } from "@/lib/billing-config";
 import { cn } from "@/lib/utils";
-import { formatRupiah } from "@/utils/formatter";
+import { formatRupiah } from "@/lib/formatter";
 
 interface PackageCardProps {
 	name: string;

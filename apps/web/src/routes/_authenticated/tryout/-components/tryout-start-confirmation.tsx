@@ -13,7 +13,7 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 import { AccessCodeInput } from "./access-code-input";
 import { CreditOption } from "./credit-option";
 import { UploadPaymentProof } from "./upload-payment-proof";

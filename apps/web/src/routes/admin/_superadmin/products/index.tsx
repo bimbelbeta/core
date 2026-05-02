@@ -21,7 +21,7 @@ import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { usePaginationNavigation } from "@/hooks/use-pagination-navigation";
 import { cn } from "@/lib/utils";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 import { DeleteProductDialog } from "./-components/delete-product-dialog";
 import { RestoreProductDialog } from "./-components/restore-product-dialog";
 import { formatCurrency, formatRelativeDate, variantConfig } from "./-utils";

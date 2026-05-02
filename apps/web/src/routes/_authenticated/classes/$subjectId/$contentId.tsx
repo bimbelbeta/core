@@ -7,7 +7,7 @@ import { NextButton } from "@/components/shared/next-button";
 import { Container } from "@/components/ui/container";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 
 export const Route = createFileRoute("/_authenticated/classes/$subjectId/$contentId")({
 	component: RouteComponent,
