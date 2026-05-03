@@ -55,7 +55,30 @@ describe("saveScoresToDatabase", () => {
 
 		const subtestUpdate = capture.updates.find((u) => u.table === "tryout_subtest_attempt");
 		expect(subtestUpdate).toBeDefined();
-		expect(subtestUpdate?.set.score).toBeDefined();
+
+		// Extract parameter values from the SQL CASE expression to verify each
+		// subtestAttemptId maps to the correct score value.
+		const sqlScore = subtestUpdate!.set.score as { queryChunks: unknown[] };
+		const params: unknown[] = [];
+		function collectParams(chunks: unknown[]): void {
+				for (const chunk of chunks) {
+						if (typeof chunk === "number" || typeof chunk === "string") {
+								params.push(chunk);
+						} else if (
+								chunk &&
+								typeof chunk === "object" &&
+								"queryChunks" in chunk &&
+								Array.isArray((chunk as { queryChunks: unknown[] }).queryChunks)
+						) {
+								collectParams((chunk as { queryChunks: unknown[] }).queryChunks);
+						}
+					}
+		}
+		collectParams(sqlScore.queryChunks);
+
+		// Params are the CASE WHEN bindings: id, score, id, score, ...
+		// Each WHEN clause contributes: subtestAttemptId, score.toString()
+		expect(params).toEqual([10, "800", 11, "600"]);
 	});
 
 	test("updates tryout attempt with total score as string", async () => {

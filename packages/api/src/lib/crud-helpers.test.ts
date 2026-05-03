@@ -20,8 +20,10 @@ describe("requireCreated", () => {
 		expect(() => requireCreated(undefined, "entity", errors)).toThrow("Gagal membuat entity");
 	});
 
-	test("throws INTERNAL_SERVER_ERROR when first element is falsy", () => {
-		expect(() => requireCreated([null], "entity", errors)).toThrow("Gagal membuat entity");
+	test("returns first element even when falsy (0, false, empty string)", () => {
+		expect(requireCreated([0], "entity", errors)).toBe(0);
+		expect(requireCreated([false], "entity", errors)).toBe(false);
+		expect(requireCreated([""], "entity", errors)).toBe("");
 	});
 });
 
@@ -44,7 +46,9 @@ describe("requireFound", () => {
 		expect(() => requireFound(undefined, "entity", errors)).toThrow("entity tidak ditemukan");
 	});
 
-	test("throws NOT_FOUND when first element is falsy", () => {
-		expect(() => requireFound([null], "entity", errors)).toThrow("entity tidak ditemukan");
+	test("returns first element even when falsy (0, false, empty string)", () => {
+		expect(requireFound([0], "entity", errors)).toBe(0);
+		expect(requireFound([false], "entity", errors)).toBe(false);
+		expect(requireFound([""], "entity", errors)).toBe("");
 	});
 });

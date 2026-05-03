@@ -3,7 +3,7 @@ export function requireCreated<T>(
 	entityName: string,
 	errors: { INTERNAL_SERVER_ERROR: (opts: { message: string }) => Error },
 ): T {
-	if (!result?.[0]) throw errors.INTERNAL_SERVER_ERROR({ message: `Gagal membuat ${entityName}` });
+	if (!result || result.length === 0) throw errors.INTERNAL_SERVER_ERROR({ message: `Gagal membuat ${entityName}` });
 	return result[0];
 }
 
@@ -12,6 +12,6 @@ export function requireFound<T>(
 	entityName: string,
 	errors: { NOT_FOUND: (opts: { message: string }) => Error },
 ): T {
-	if (!result?.[0]) throw errors.NOT_FOUND({ message: `${entityName} tidak ditemukan` });
+	if (!result || result.length === 0) throw errors.NOT_FOUND({ message: `${entityName} tidak ditemukan` });
 	return result[0];
 }
