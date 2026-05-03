@@ -412,7 +412,7 @@ const updateProgress = authed.subject.updateProgress.handler(async ({ input, con
 const stats = authed.subject.stats.handler(async ({ context }) => {
 	const [stats] = await db
 		.select({
-			materialsCompleted: sql<number>`COUNT(DISTINCT CASE WHEN ${userProgress.videoCompleted} = true AND ${userProgress.noteCompleted} = true AND ${userProgress.practiceQuestionsCompleted} = true THEN ${userProgress.contentItemId} END)`,
+			materialsCompleted: sql<number>`COUNT(DISTINCT CASE WHEN ${userProgress.videoCompleted} = true OR ${userProgress.noteCompleted} = true OR ${userProgress.practiceQuestionsCompleted} = true THEN ${userProgress.contentItemId} END)`,
 		})
 		.from(userProgress)
 		.where(eq(userProgress.userId, context.session.user.id));
