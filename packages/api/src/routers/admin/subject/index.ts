@@ -8,7 +8,7 @@ import { validateGradeLevel } from "./utils";
 
 const admin = adminImplementer;
 
-const createSubject = admin.admin.subject.create.handler(async ({ input, errors }) => {
+const create = admin.admin.subject.create.handler(async ({ input, errors }) => {
 	if (input.gradeLevel !== undefined && input.gradeLevel !== null) {
 		const category = input.category ?? "utbk";
 		const result = validateGradeLevel(category, input.gradeLevel);
@@ -37,7 +37,7 @@ const createSubject = admin.admin.subject.create.handler(async ({ input, errors 
 	};
 });
 
-const updateSubject = admin.admin.subject.update.handler(async ({ input, errors }) => {
+const update = admin.admin.subject.update.handler(async ({ input, errors }) => {
 	if (input.gradeLevel !== undefined) {
 		let category = input.category;
 
@@ -77,13 +77,13 @@ const updateSubject = admin.admin.subject.update.handler(async ({ input, errors 
 	return { message: "Kelas berhasil diperbarui" };
 });
 
-const removeSubject = admin.admin.subject.remove.handler(async ({ input, errors }) => {
+const remove = admin.admin.subject.remove.handler(async ({ input, errors }) => {
 	await requireFound(await db.delete(subject).where(eq(subject.id, input.id)).returning(), "Kelas", errors);
 
 	return { message: "Kelas berhasil dihapus" };
 });
 
-const reorderSubjects = admin.admin.subject.reorder.handler(async ({ input }) => {
+const reorder = admin.admin.subject.reorder.handler(async ({ input }) => {
 	const ids = input.items.map((item) => item.id);
 	const caseExpr = sql.join(
 		input.items.map((item) => sql`WHEN ${subject.id} = ${item.id} THEN ${item.order}`),
@@ -99,8 +99,8 @@ const reorderSubjects = admin.admin.subject.reorder.handler(async ({ input }) =>
 });
 
 export const adminSubjectRouter = {
-	create: createSubject,
-	update: updateSubject,
-	remove: removeSubject,
-	reorder: reorderSubjects,
+	create,
+	update,
+	remove,
+	reorder,
 };

@@ -26,7 +26,7 @@ const UserCreditsOutputSchema = type({
 });
 
 export const adminCreditContract = {
-	adjustCredits: oc
+	adjust: oc
 		.route({
 			path: "/admin/users/{userId}/credits",
 			method: "POST",

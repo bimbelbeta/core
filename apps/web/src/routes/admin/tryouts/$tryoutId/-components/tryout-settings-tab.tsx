@@ -260,7 +260,7 @@ export function TryoutSettingsTab({ tryout, onUpdate, onFormStateChange }: Tryou
 	});
 
 	const updateMutation = useMutation(
-		orpc.admin.tryout.updateTryout.mutationOptions({
+		orpc.admin.tryout.update.mutationOptions({
 			onSuccess: () => {
 				toast.success("Tryout berhasil diperbarui");
 				onUpdate();

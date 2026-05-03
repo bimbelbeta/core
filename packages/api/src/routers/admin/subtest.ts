@@ -19,7 +19,7 @@ const find = admin.admin.tryout.subtest.find.handler(async ({ input, errors }) =
 	return subtest;
 });
 
-const createSubtest = admin.admin.tryout.subtest.createSubtest.handler(async ({ input, errors }) => {
+const create = admin.admin.tryout.subtest.create.handler(async ({ input, errors }) => {
 	const [tryoutExists] = await db.select({ id: tryout.id }).from(tryout).where(eq(tryout.id, input.tryoutId)).limit(1);
 
 	if (!tryoutExists)
@@ -56,7 +56,7 @@ const createSubtest = admin.admin.tryout.subtest.createSubtest.handler(async ({ 
 	};
 });
 
-const updateSubtest = admin.admin.tryout.subtest.updateSubtest.handler(async ({ input, errors }) => {
+const update = admin.admin.tryout.subtest.update.handler(async ({ input, errors }) => {
 	const updateData = {
 		...pickDefined({
 			name: input.name,
@@ -89,7 +89,7 @@ const remove = admin.admin.tryout.subtest.remove.handler(async ({ input, errors 
 
 export const subtestRouter = {
 	find,
-	createSubtest,
-	updateSubtest,
+	create,
+	update,
 	remove,
 };

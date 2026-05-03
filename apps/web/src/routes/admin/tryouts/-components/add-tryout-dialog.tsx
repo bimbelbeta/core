@@ -68,7 +68,7 @@ export function AddTryoutDialog({
 	});
 
 	const createMutation = useMutation(
-		orpc.admin.tryout.createTryout.mutationOptions({
+		orpc.admin.tryout.create.mutationOptions({
 			onSuccess: () => {
 				toast.success("Tryout berhasil dibuat");
 				form.reset();

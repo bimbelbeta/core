@@ -61,7 +61,7 @@ export const adminUniversityProgramsContract = {
 		.route({ path: "/admin/university-programs/{id}", method: "DELETE", tags: ["Admin - University Programs"] })
 		.input(type({ id: "number" }))
 		.output(type({ message: "string" })),
-	upsertYearlyData: oc
+	upsert: oc
 		.route({ path: "/admin/university-programs/{id}/yearly", method: "POST", tags: ["Admin - University Programs"] })
 		.input(
 			type({

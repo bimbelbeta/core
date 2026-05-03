@@ -36,7 +36,7 @@ export function GrantCreditsDialog({
 	const [amount, setAmount] = useState(1);
 
 	const adjustCreditsMutation = useMutation(
-		orpc.admin.credit.adjustCredits.mutationOptions({
+		orpc.admin.credit.adjust.mutationOptions({
 			onSuccess: () => {
 				toast.success("Kredit berhasil ditambahkan");
 				setAmount(1);

@@ -90,7 +90,7 @@ export function CreateQuestionForm({
 	});
 
 	const createMutation = useMutation(
-		orpc.admin.tryout.questions.createQuestion.mutationOptions({
+		orpc.admin.tryout.questions.create.mutationOptions({
 			onSuccess: async (result) => {
 				toast.success("Soal berhasil dibuat");
 

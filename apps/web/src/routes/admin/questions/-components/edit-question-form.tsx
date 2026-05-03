@@ -69,7 +69,7 @@ export function EditQuestionForm({ question, initialChoices, onSuccess, onCancel
 	});
 
 	const updateMutation = useMutation(
-		orpc.admin.tryout.questions.updateQuestion.mutationOptions({
+		orpc.admin.tryout.questions.update.mutationOptions({
 			onSuccess: () => {
 				queryClient.invalidateQueries({
 					queryKey: orpc.admin.tryout.questions.find.queryKey({ input: { id: question.id } }),

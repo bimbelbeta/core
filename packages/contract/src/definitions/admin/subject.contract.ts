@@ -48,7 +48,7 @@ export const adminSubjectContract = {
 };
 
 export const adminContentContract = {
-	createContent: oc
+	create: oc
 		.route({ path: "/admin/content", method: "POST", tags: ["Admin - Content"] })
 		.input(
 			type({
@@ -61,15 +61,15 @@ export const adminContentContract = {
 			}),
 		)
 		.output(type({ message: "string", contentId: "number", createdMaterials: ContentMaterialCountSchema })),
-	updateContent: oc
+	update: oc
 		.route({ path: "/admin/content/{id}", method: "PATCH", tags: ["Admin - Content"] })
 		.input(type({ id: "number", title: "string?", order: "number?" }))
 		.output(MessageResponseSchema),
-	removeContent: oc
+	remove: oc
 		.route({ path: "/admin/content/{id}", method: "DELETE", tags: ["Admin - Content"] })
 		.input(type({ id: "number" }))
 		.output(MessageResponseSchema),
-	reorderContent: oc
+	reorder: oc
 		.route({ path: "/admin/content/reorder", method: "PATCH", tags: ["Admin - Content"] })
 		.input(type({ subjectId: "number", items: type({ id: "number", order: "number" }).array() }))
 		.output(MessageResponseSchema),

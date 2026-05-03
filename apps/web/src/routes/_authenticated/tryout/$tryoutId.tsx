@@ -55,7 +55,7 @@ function RouteComponent() {
 			onSuccess: (responseData) => {
 				queryClient.invalidateQueries({ queryKey: orpc.tryout.find.key({ input: { id: tryoutId } }) });
 				queryClient.invalidateQueries({
-					queryKey: orpc.tryout.attemptResult.key({ input: { attemptId: data?.attempt.id } }),
+					queryKey: orpc.tryout.result.key({ input: { attemptId: data?.attempt.id } }),
 				});
 				if (responseData.tryoutCompleted) {
 					toast.success("Tryout selesai!");

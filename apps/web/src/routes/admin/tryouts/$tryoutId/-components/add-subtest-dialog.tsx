@@ -54,7 +54,7 @@ export function AddSubtestDialog({
 	});
 
 	const createMutation = useMutation(
-		orpc.admin.tryout.subtest.createSubtest.mutationOptions({
+		orpc.admin.tryout.subtest.create.mutationOptions({
 			onSuccess: () => {
 				toast.success("Subtest berhasil dibuat");
 				form.reset();

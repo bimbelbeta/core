@@ -8,7 +8,7 @@ import { adminImplementer } from "@/lib/router-definition";
 
 const admin = adminImplementer;
 
-const createQuestion = admin.admin.tryout.questions.createQuestion.handler(async ({ input, errors }) => {
+const create = admin.admin.tryout.questions.create.handler(async ({ input, errors }) => {
 	const choices = input.choices;
 	const { contentJson, discussionJson, contentText, discussionText } = normalizeQuestionContent(input);
 
@@ -147,7 +147,7 @@ const find = admin.admin.tryout.questions.find.handler(async ({ input, errors })
 	};
 });
 
-const updateQuestion = admin.admin.tryout.questions.updateQuestion.handler(async ({ input, errors }) => {
+const update = admin.admin.tryout.questions.update.handler(async ({ input, errors }) => {
 	const { contentJson, discussionJson, contentText, discussionText } = normalizeQuestionContent(input);
 
 	await db.transaction(async (tx) => {
@@ -216,7 +216,7 @@ const updateQuestion = admin.admin.tryout.questions.updateQuestion.handler(async
 	return { message: "Question berhasil diperbarui" };
 });
 
-const removeQuestion = admin.admin.tryout.questions.remove.handler(async ({ input, errors }) => {
+const remove = admin.admin.tryout.questions.remove.handler(async ({ input, errors }) => {
 	await requireFound(await db.delete(question).where(eq(question.id, input.id)).returning(), "Question", errors);
 
 	return { message: "Question berhasil dihapus" };
@@ -284,11 +284,11 @@ const removeChoice = admin.admin.tryout.questions.removeChoice.handler(async ({ 
 });
 
 export const questionRouter = {
-	createQuestion,
+	create,
 	list,
 	find,
-	updateQuestion,
-	remove: removeQuestion,
+	update,
+	remove,
 	createChoice,
 	updateChoice,
 	removeChoice,

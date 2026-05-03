@@ -207,7 +207,7 @@ export const tryoutContract = {
 	history: oc
 		.route({ path: "/tryouts/history", method: "GET", tags: ["Tryouts"] })
 		.output(TryoutHistoryItemSchema.array()),
-	attemptResult: oc
+	result: oc
 		.route({ path: "/tryouts/attempts/{attemptId}", method: "GET", tags: ["Tryouts"] })
 		.input(type({ attemptId: "number" }))
 		.output(

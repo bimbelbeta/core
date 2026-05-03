@@ -28,7 +28,7 @@ export function TargetSelectionDialog() {
 	const queryClient = useQueryClient();
 	const { session } = useRouteContext({ from: "/_authenticated" });
 	const userKey = session?.user?.email || session?.user?.id || "guest";
-	const { data } = useQuery(orpc.userSettings.getTarget.queryOptions());
+	const { data } = useQuery(orpc.userSettings.findTarget.queryOptions());
 
 	const [open, setOpen] = useState<boolean>(false);
 	useEffect(() => {
@@ -39,7 +39,7 @@ export function TargetSelectionDialog() {
 		orpc.userSettings.update.mutationOptions({
 			onSuccess: () => {
 				setOpen(false);
-				queryClient.invalidateQueries({ queryKey: orpc.userSettings.getTarget.queryKey() });
+				queryClient.invalidateQueries({ queryKey: orpc.userSettings.findTarget.queryKey() });
 			},
 			onError: (error: Error) => {
 				toast.error(error.message || "Gagal menyimpan target");

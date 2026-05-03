@@ -8,7 +8,7 @@ import { adminImplementer } from "@/lib/router-definition";
 
 const admin = adminImplementer;
 
-const createContent = admin.admin.content.createContent.handler(async ({ input, errors }) => {
+const create = admin.admin.content.create.handler(async ({ input, errors }) => {
 	const hasVideo = input.video !== undefined;
 	const hasNote = input.note !== undefined;
 	const hasPracticeQuestions = (input.practiceQuestionIds?.length ?? 0) > 0;
@@ -89,7 +89,7 @@ const createContent = admin.admin.content.createContent.handler(async ({ input, 
 	};
 });
 
-const updateContent = admin.admin.content.updateContent.handler(async ({ input, errors }) => {
+const update = admin.admin.content.update.handler(async ({ input, errors }) => {
 	const updateData = {
 		title: input.title,
 		order: input.order,
@@ -105,13 +105,13 @@ const updateContent = admin.admin.content.updateContent.handler(async ({ input, 
 	return { message: "Konten berhasil diperbarui" };
 });
 
-const removeContent = admin.admin.content.removeContent.handler(async ({ input, errors }) => {
+const remove = admin.admin.content.remove.handler(async ({ input, errors }) => {
 	await requireFound(await db.delete(contentItem).where(eq(contentItem.id, input.id)).returning(), "Konten", errors);
 
 	return { message: "Konten berhasil dihapus" };
 });
 
-const reorderContent = admin.admin.content.reorderContent.handler(async ({ input }) => {
+const reorder = admin.admin.content.reorder.handler(async ({ input }) => {
 	const ids = input.items.map((item) => item.id);
 	const caseExpr = sql.join(
 		input.items.map((item) => sql`WHEN ${contentItem.id} = ${item.id} THEN ${item.order}`),
@@ -428,10 +428,10 @@ const addPracticeQuestions = admin.admin.content.addPracticeQuestions.handler(as
 });
 
 export const adminContentRouter = {
-	createContent,
-	updateContent,
-	removeContent,
-	reorderContent,
+	create,
+	update,
+	remove,
+	reorder,
 	upsertVideo,
 	removeVideo,
 	upsertNote,

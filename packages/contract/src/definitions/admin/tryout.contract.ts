@@ -69,7 +69,7 @@ export const adminTryoutAttemptContract = {
 };
 
 export const adminTryoutContract = {
-	createTryout: oc
+	create: oc
 		.route({ path: "/admin/tryouts", method: "POST", tags: ["Admin - Tryouts"] })
 		.input(
 			type({
@@ -97,7 +97,7 @@ export const adminTryoutContract = {
 		.route({ path: "/admin/tryouts/{id}", method: "GET", tags: ["Admin - Tryouts"] })
 		.input(type({ id: "number" }))
 		.output(type({ tryout: TryoutSchema, subtests: TryoutSubtestSchema.array() })),
-	updateTryout: oc
+	update: oc
 		.route({ path: "/admin/tryouts/{id}", method: "PATCH", tags: ["Admin - Tryouts"] })
 		.input(
 			type({

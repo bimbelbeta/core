@@ -51,7 +51,7 @@ function TryoutDetailPage() {
 	}, []);
 
 	const publishMutation = useMutation(
-		orpc.admin.tryout.updateTryout.mutationOptions({
+		orpc.admin.tryout.update.mutationOptions({
 			onSuccess: () => {
 				toast.success("Status tryout berhasil diperbarui");
 				refetch();

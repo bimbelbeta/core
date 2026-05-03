@@ -190,7 +190,7 @@ const remove = admin.admin.university.universityPrograms.remove.handler(async ({
 	return { message: "Program universitas berhasil dihapus" };
 });
 
-const upsertYearlyData = admin.admin.university.universityPrograms.upsertYearlyData.handler(
+const upsert = admin.admin.university.universityPrograms.upsert.handler(
 	async ({ input, errors }) => {
 		const result = requireCreated(
 			await db
@@ -248,6 +248,6 @@ export const adminUniversityProgramRouter = {
 	create,
 	update,
 	remove,
-	upsertYearlyData,
+	upsert,
 	removeYearlyData,
 };

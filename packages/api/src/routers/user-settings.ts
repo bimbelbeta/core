@@ -6,7 +6,7 @@ import { authedNoPremiumImplementer } from "@/lib/router-definition";
 
 const authed = authedNoPremiumImplementer;
 
-const getTarget = authed.userSettings.getTarget.handler(async ({ context, errors }) => {
+const findTarget = authed.userSettings.findTarget.handler(async ({ context, errors }) => {
 	if (!context.session.user.targetUniversityId || !context.session.user.targetStudyProgramId)
 		return {
 			university: null,
@@ -87,6 +87,6 @@ const update = authed.userSettings.update.handler(async ({ input, context, error
 });
 
 export const userSettingsRouter = {
-	getTarget,
+	findTarget,
 	update,
 };

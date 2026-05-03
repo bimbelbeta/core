@@ -12,7 +12,7 @@ export const adminSubtestContract = {
 		.route({ path: "/admin/tryouts/subtests/{id}", method: "GET", tags: ["Admin - Tryouts"] })
 		.input(type({ id: "number" }))
 		.output(SubtestSchema),
-	createSubtest: oc
+	create: oc
 		.route({ path: "/admin/tryouts/{tryoutId}/subtests", method: "POST", tags: ["Admin - Tryouts"] })
 		.input(
 			type({
@@ -24,7 +24,7 @@ export const adminSubtestContract = {
 			}),
 		)
 		.output(type({ message: "string", id: "number" })),
-	updateSubtest: oc
+	update: oc
 		.route({ path: "/admin/tryouts/subtests/{id}", method: "PATCH", tags: ["Admin - Tryouts"] })
 		.input(
 			type({

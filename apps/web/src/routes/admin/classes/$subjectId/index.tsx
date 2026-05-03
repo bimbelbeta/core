@@ -82,7 +82,7 @@ function RouteComponent() {
 	const invalidateContent = () => queryClient.invalidateQueries({ queryKey: orpc.subject.listContent.key() });
 
 	const createMutation = useMutation(
-		orpc.admin.content.createContent.mutationOptions({
+		orpc.admin.content.create.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
 				invalidateContent();
@@ -95,7 +95,7 @@ function RouteComponent() {
 	);
 
 	const updateMutation = useMutation(
-		orpc.admin.content.updateContent.mutationOptions({
+		orpc.admin.content.update.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
 				invalidateContent();
@@ -109,7 +109,7 @@ function RouteComponent() {
 	);
 
 	const deleteMutation = useMutation(
-		orpc.admin.content.removeContent.mutationOptions({
+		orpc.admin.content.remove.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
 				invalidateContent();
@@ -123,7 +123,7 @@ function RouteComponent() {
 	);
 
 	const reorderMutation = useMutation(
-		orpc.admin.content.reorderContent.mutationOptions({
+		orpc.admin.content.reorder.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
 				invalidateContent();

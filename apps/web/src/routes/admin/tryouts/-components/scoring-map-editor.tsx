@@ -33,7 +33,7 @@ export function ScoringMapEditor({
 	const [isPasteDialogOpen, setIsPasteDialogOpen] = useState(false);
 
 	const updateMutation = useMutation(
-		orpc.admin.tryout.subtest.updateSubtest.mutationOptions({
+		orpc.admin.tryout.subtest.update.mutationOptions({
 			onSuccess: () => {
 				toast.success("Skoring manual berhasil disimpan");
 				onSaveSuccess?.();

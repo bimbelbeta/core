@@ -33,12 +33,12 @@ function RouteComponent() {
 	const [showPremiumDialog, setShowPremiumDialog] = useState(false);
 
 	const { data, isPending, error } = useQuery(
-		orpc.tryout.attemptResult.queryOptions({
+		orpc.tryout.result.queryOptions({
 			input: { attemptId: attemptId },
 		}),
 	);
 
-	const target = useQuery(orpc.userSettings.getTarget.queryOptions());
+	const target = useQuery(orpc.userSettings.findTarget.queryOptions());
 
 	if (isPending) {
 		return (

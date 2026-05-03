@@ -369,7 +369,7 @@ export const history = authed.tryout.history.handler(async ({ context }) => {
 	}));
 });
 
-export const attemptResult = authed.tryout.attemptResult.handler(async ({ input, context, errors }) => {
+export const result = authed.tryout.result.handler(async ({ input, context, errors }) => {
 	const attempt = await db.query.tryoutAttempt.findFirst({
 		where: {
 			id: { eq: input.attemptId },

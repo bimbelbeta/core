@@ -40,7 +40,7 @@ const QuestionDetailSchema = type({
 });
 
 export const adminQuestionContract = {
-	createQuestion: oc
+	create: oc
 		.route({ path: "/admin/questions", method: "POST", tags: ["Admin - Questions"] })
 		.input(
 			type({
@@ -70,7 +70,7 @@ export const adminQuestionContract = {
 		.route({ path: "/admin/questions/{id}", method: "GET", tags: ["Admin - Questions"] })
 		.input(type({ id: "number" }))
 		.output(type({ question: QuestionDetailSchema, choices: ChoiceSchema.array() })),
-	updateQuestion: oc
+	update: oc
 		.route({ path: "/admin/questions/{id}", method: "PATCH", tags: ["Admin - Questions"] })
 		.input(
 			type({

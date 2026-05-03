@@ -10,7 +10,7 @@ import { tryoutAttemptRouter } from "@/routers/admin/tryout/attempt";
 
 const admin = adminImplementer;
 
-const createTryout = admin.admin.tryout.createTryout.handler(async ({ input, errors }) => {
+const create = admin.admin.tryout.create.handler(async ({ input, errors }) => {
 	const created = requireCreated(
 		await db
 			.insert(tryout)
@@ -80,7 +80,7 @@ const find = admin.admin.tryout.find.handler(async ({ input, errors }) => {
 	};
 });
 
-const updateTryout = admin.admin.tryout.updateTryout.handler(async ({ input, errors }) => {
+const update = admin.admin.tryout.update.handler(async ({ input, errors }) => {
 	const updateData = {
 		...pickDefined({
 			title: input.title,
@@ -218,10 +218,10 @@ const updateAccessCodeStatus = admin.admin.tryout.updateAccessCodeStatus.handler
 });
 
 export const tryoutRouter = {
-	createTryout,
+	create,
 	list,
 	find,
-	updateTryout,
+	update,
 	remove,
 	listAccessCodes,
 	createAccessCode,
