@@ -5,8 +5,8 @@ import { toast } from "sonner";
 import { EmptyContentState } from "@/components/classes/empty-content-state";
 import YouTubePlayer from "@/components/shared/youtube-player";
 import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
-import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/lib/orpc";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { extractYouTubeId } from "@/lib/youtube";
 
 export const Route = createFileRoute("/_authenticated/classes/$subjectId/$contentId/video")({

@@ -1,6 +1,6 @@
 import { university } from "@bimbelbeta/db/schema/university";
 import { type } from "arktype";
-import { createSelectSchema } from "drizzle-arktype";
+import { createSelectSchema } from "drizzle-orm/arktype";
 import { PageInfoSchema, PaginationInputSchema } from "@/common/pagination";
 import { oc } from "@/lib/contract-definition";
 

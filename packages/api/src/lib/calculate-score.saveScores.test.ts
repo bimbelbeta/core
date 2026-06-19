@@ -61,18 +61,18 @@ describe("saveScoresToDatabase", () => {
 		const sqlScore = subtestUpdate!.set.score as { queryChunks: unknown[] };
 		const params: unknown[] = [];
 		function collectParams(chunks: unknown[]): void {
-				for (const chunk of chunks) {
-						if (typeof chunk === "number" || typeof chunk === "string") {
-								params.push(chunk);
-						} else if (
-								chunk &&
-								typeof chunk === "object" &&
-								"queryChunks" in chunk &&
-								Array.isArray((chunk as { queryChunks: unknown[] }).queryChunks)
-						) {
-								collectParams((chunk as { queryChunks: unknown[] }).queryChunks);
-						}
-					}
+			for (const chunk of chunks) {
+				if (typeof chunk === "number" || typeof chunk === "string") {
+					params.push(chunk);
+				} else if (
+					chunk &&
+					typeof chunk === "object" &&
+					"queryChunks" in chunk &&
+					Array.isArray((chunk as { queryChunks: unknown[] }).queryChunks)
+				) {
+					collectParams((chunk as { queryChunks: unknown[] }).queryChunks);
+				}
+			}
 		}
 		collectParams(sqlScore.queryChunks);
 

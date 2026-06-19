@@ -3,8 +3,8 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { EmptyContentState } from "@/components/classes/empty-content-state";
 import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
-import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/lib/orpc";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 
 export const Route = createFileRoute("/_authenticated/classes/$subjectId/$contentId/notes")({
 	component: RouteComponent,

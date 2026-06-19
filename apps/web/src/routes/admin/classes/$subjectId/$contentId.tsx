@@ -4,8 +4,8 @@ import { BackButton } from "@/components/shared/back-button";
 import { Container } from "@/components/ui/container";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/lib/orpc";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 
 export const Route = createFileRoute("/admin/classes/$subjectId/$contentId")({
 	staticData: { breadcrumb: "Content" },

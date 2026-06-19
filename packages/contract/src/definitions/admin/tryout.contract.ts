@@ -1,6 +1,6 @@
 import { tryout, tryoutAccessCode, tryoutAttempt, tryoutSubtest } from "@bimbelbeta/db/schema/tryout";
 import { type } from "arktype";
-import { createSelectSchema } from "drizzle-arktype";
+import { createSelectSchema } from "drizzle-orm/arktype";
 import { PageInfoSchema, PaginationInputSchema } from "@/common/pagination";
 import { oc } from "@/lib/contract-definition";
 

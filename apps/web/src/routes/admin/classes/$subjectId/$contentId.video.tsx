@@ -23,8 +23,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useDebounceValue } from "@/hooks/use-debounce-value";
-import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/lib/orpc";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { extractYouTubeId } from "@/lib/youtube";
 
 export const Route = createFileRoute("/admin/classes/$subjectId/$contentId/video")({

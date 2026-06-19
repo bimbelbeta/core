@@ -1,7 +1,13 @@
 import { contract } from "@bimbelbeta/contract";
 import { implement } from "@orpc/server";
 import type { Context } from "@/context";
-import { rateLimit, requireAdmin, requireAuth, requireSuperAdmin, revokeExpiredPremium } from "@/lib/router-definition/middleware";
+import {
+	rateLimit,
+	requireAdmin,
+	requireAuth,
+	requireSuperAdmin,
+	revokeExpiredPremium,
+} from "@/lib/router-definition/middleware";
 
 export const baseImplementer = implement(contract).$context<Context>();
 
@@ -26,4 +32,3 @@ export const adminImplementer = baseImplementer.use(requireAuth).use(rateLimit).
  * Convenience factory for superadmin routes: auth + rate limit + superadmin role check.
  */
 export const superAdminImplementer = baseImplementer.use(requireAuth).use(rateLimit).use(requireSuperAdmin);
-

@@ -25,7 +25,6 @@
 	"dependencies": {
 		"@bimbelbeta/db": "workspace:*",
 		"@orpc/contract": "catalog:",
-		"arktype": "catalog:",
-		"drizzle-arktype": "catalog:"
+		"arktype": "catalog:"
 	}
 }

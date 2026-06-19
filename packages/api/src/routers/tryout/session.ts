@@ -91,7 +91,7 @@ export const startSubtest = authed.tryout.startSubtest.handler(async ({ input, c
 	if (currentIndex > 0) {
 		const prevSubtest = tryoutData.subtests[currentIndex - 1]!;
 		const prevAttempt = attempt.subtestAttempts.find((sa) => sa.subtestId === prevSubtest.id);
-		if (!prevAttempt || prevAttempt.status !== "finished") {
+		if (prevAttempt?.status !== "finished") {
 			throw errors.BAD_REQUEST({
 				message: "Selesaikan subtest sebelumnya terlebih dahulu",
 			});

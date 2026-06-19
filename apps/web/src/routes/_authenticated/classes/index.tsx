@@ -11,8 +11,8 @@ import { SubjectHeader } from "@/components/classes/subject-header";
 import { SubjectList } from "@/components/classes/subject-list";
 import { SearchInput } from "@/components/ui/search-input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { createMeta } from "@/lib/seo-utils";
 import { orpc } from "@/lib/orpc";
+import { createMeta } from "@/lib/seo-utils";
 
 const searchSchema = type({
 	"q?": "string",

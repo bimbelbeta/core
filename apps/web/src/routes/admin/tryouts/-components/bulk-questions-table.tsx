@@ -5,8 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
-import { cn } from "@/lib/utils";
 import type { BodyOutputs } from "@/lib/orpc";
+import { cn } from "@/lib/utils";
 
 interface BulkQuestionsTableProps {
 	questions: BodyOutputs["admin"]["tryout"]["questionsBulk"]["list"]["questions"];

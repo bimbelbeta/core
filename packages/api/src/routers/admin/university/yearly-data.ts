@@ -190,42 +190,40 @@ const remove = admin.admin.university.universityPrograms.remove.handler(async ({
 	return { message: "Program universitas berhasil dihapus" };
 });
 
-const upsert = admin.admin.university.universityPrograms.upsert.handler(
-	async ({ input, errors }) => {
-		const result = requireCreated(
-			await db
-				.insert(programYearlyData)
-				.values({
-					universityStudyProgramId: input.id,
-					year: input.year,
+const upsert = admin.admin.university.universityPrograms.upsert.handler(async ({ input, errors }) => {
+	const result = requireCreated(
+		await db
+			.insert(programYearlyData)
+			.values({
+				universityStudyProgramId: input.id,
+				year: input.year,
+				averageGrade: input.averageGrade ?? null,
+				passingGrade: input.passingGrade ?? null,
+				applicantCount: input.applicantCount ?? null,
+				passedCount: input.passedCount ?? null,
+			})
+			.onConflictDoUpdate({
+				target: [programYearlyData.universityStudyProgramId, programYearlyData.year],
+				set: {
 					averageGrade: input.averageGrade ?? null,
 					passingGrade: input.passingGrade ?? null,
 					applicantCount: input.applicantCount ?? null,
 					passedCount: input.passedCount ?? null,
-				})
-				.onConflictDoUpdate({
-					target: [programYearlyData.universityStudyProgramId, programYearlyData.year],
-					set: {
-						averageGrade: input.averageGrade ?? null,
-						passingGrade: input.passingGrade ?? null,
-						applicantCount: input.applicantCount ?? null,
-						passedCount: input.passedCount ?? null,
-						updatedAt: new Date(),
-					},
-				})
-				.returning({
-					id: programYearlyData.id,
-				}),
-			"data tahunan",
-			errors,
-		);
+					updatedAt: new Date(),
+				},
+			})
+			.returning({
+				id: programYearlyData.id,
+			}),
+		"data tahunan",
+		errors,
+	);
 
-		return {
-			message: "Data tahunan berhasil disimpan",
-			id: result.id,
-		};
-	},
-);
+	return {
+		message: "Data tahunan berhasil disimpan",
+		id: result.id,
+	};
+});
 
 const removeYearlyData = admin.admin.university.universityPrograms.removeYearlyData.handler(
 	async ({ input, errors }) => {

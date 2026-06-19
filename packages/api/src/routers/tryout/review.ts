@@ -26,7 +26,7 @@ export const review = authed.tryout.review.handler(async ({ input, context, erro
 
 	const subtestAttempt = attempt.subtestAttempts.find((sa) => sa.subtestId === input.subtestId);
 
-	if (!subtestAttempt || subtestAttempt.status !== "finished") {
+	if (subtestAttempt?.status !== "finished") {
 		throw errors.BAD_REQUEST({ message: "Subtest belum selesai atau tidak ditemukan." });
 	}
 

@@ -1,6 +1,6 @@
 import { contentItem, noteMaterial, subject, videoMaterial } from "@bimbelbeta/db/schema/subject";
 import { type } from "arktype";
-import { createSelectSchema } from "drizzle-arktype";
+import { createSelectSchema } from "drizzle-orm/arktype";
 import { ChoiceWithAnswerSchema } from "@/common/choices";
 import { PageInfoSchema } from "@/common/pagination";
 import { MessageResponseSchema } from "@/common/response";
@@ -16,9 +16,11 @@ const ContentItemDetailSchema = createSelectSchema(contentItem)
 	.pick("subjectId", "title", "order")
 	.merge({ id: "number" });
 
-const VideoMaterialSchema = createSelectSchema(videoMaterial).pick("videoUrl", "content").merge({ id: "number" });
+const VideoMaterialSchema = createSelectSchema(videoMaterial)
+	.pick("videoUrl", "content")
+	.merge({ id: "number", content: "unknown" });
 
-const NoteMaterialSchema = createSelectSchema(noteMaterial).pick("content").merge({ id: "number" });
+const NoteMaterialSchema = createSelectSchema(noteMaterial).pick("content").merge({ id: "number", content: "unknown" });
 
 // Extended/computed schemas with additional fields
 const SubjectWithContentSchema = type({

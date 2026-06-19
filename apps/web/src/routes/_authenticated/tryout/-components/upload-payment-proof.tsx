@@ -2,8 +2,8 @@ import { useUploadFile } from "@better-upload/client";
 import { UploadSimpleIcon, XIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import { Spinner } from "@/components/ui/spinner";
-import { cn } from "@/lib/utils";
 import { getApiUrl } from "@/lib/orpc";
+import { cn } from "@/lib/utils";
 
 interface UploadPaymentProofProps {
 	onUploadComplete?: (url: string) => void;

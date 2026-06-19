@@ -1,6 +1,6 @@
 import { questionChoice } from "@bimbelbeta/db/schema/question";
 import { type } from "arktype";
-import { createSelectSchema } from "drizzle-arktype";
+import { createSelectSchema } from "drizzle-orm/arktype";
 import { MessageResponseSchema } from "@/common/response";
 import { oc } from "@/lib/contract-definition";
 

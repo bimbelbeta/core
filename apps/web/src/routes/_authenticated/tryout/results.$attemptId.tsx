@@ -17,9 +17,9 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { authClient } from "@/lib/auth-client";
+import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { cn } from "@/lib/utils";
-import { orpc } from "@/lib/orpc";
 
 export const Route = createFileRoute("/_authenticated/tryout/results/$attemptId")({
 	component: RouteComponent,

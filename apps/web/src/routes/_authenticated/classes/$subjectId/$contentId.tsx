@@ -6,8 +6,8 @@ import { BackButton } from "@/components/shared/back-button";
 import { NextButton } from "@/components/shared/next-button";
 import { Container } from "@/components/ui/container";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { orpc } from "@/lib/orpc";
+import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 
 export const Route = createFileRoute("/_authenticated/classes/$subjectId/$contentId")({
 	component: RouteComponent,

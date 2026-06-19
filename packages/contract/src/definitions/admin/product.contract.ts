@@ -1,6 +1,6 @@
 import { product } from "@bimbelbeta/db/schema/transaction";
 import { type } from "arktype";
-import { createSelectSchema } from "drizzle-arktype";
+import { createSelectSchema } from "drizzle-orm/arktype";
 import { PageInfoSchema, PaginationInputSchema } from "@/common/pagination";
 import { MessageResponseSchema } from "@/common/response";
 import { oc } from "@/lib/contract-definition";

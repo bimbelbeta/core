@@ -5,8 +5,8 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { Toaster } from "@/components/ui/sonner";
 import type { Session } from "@/lib/auth-client";
 import { MotionProvider } from "@/lib/motion";
-import { createMeta } from "@/lib/seo-utils";
 import type { orpc } from "@/lib/orpc";
+import { createMeta } from "@/lib/seo-utils";
 import appCss from "../index.css?url";
 
 export interface RouterAppContext {

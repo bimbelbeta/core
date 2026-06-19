@@ -6,7 +6,7 @@ type MockedMiddlewareFn = (input: {
 	errors?: Record<string, () => Error>;
 }) => Promise<unknown>;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// biome-ignore lint/suspicious/noExplicitAny: test helper needing flexible typing
 type AnyFn = (...args: any[]) => any;
 
 const mockMiddleware = (fn: MockedMiddlewareFn) => fn;

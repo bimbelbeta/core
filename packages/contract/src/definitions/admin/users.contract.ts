@@ -1,7 +1,7 @@
 import { user } from "@bimbelbeta/db/schema/auth";
 import { creditTransaction } from "@bimbelbeta/db/schema/credit";
 import { type } from "arktype";
-import { createSelectSchema } from "drizzle-arktype";
+import { createSelectSchema } from "drizzle-orm/arktype";
 import { PageInfoSchema, PaginationInputSchema } from "@/common/pagination";
 import { MessageResponseSchema } from "@/common/response";
 import { RoleSchema } from "@/common/roles";

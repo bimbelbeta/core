@@ -7,7 +7,7 @@ import {
 	tryoutUserAnswer,
 } from "@bimbelbeta/db/schema/tryout";
 import { type } from "arktype";
-import { createSelectSchema } from "drizzle-arktype";
+import { createSelectSchema } from "drizzle-orm/arktype";
 import { ChoiceSchema, ChoiceWithAnswerSchema } from "@/common/choices";
 import { PageInfoSchema } from "@/common/pagination";
 import { oc } from "@/lib/contract-definition";

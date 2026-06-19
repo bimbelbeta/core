@@ -56,7 +56,6 @@ const connection: PoolConfig = {
 
 export const db = drizzle({
 	connection,
-	schema,
 	relations: {
 		...relations,
 		...auth.authRelations,

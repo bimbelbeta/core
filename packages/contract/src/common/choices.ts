@@ -1,5 +1,5 @@
 import { questionChoice } from "@bimbelbeta/db/schema/question";
-import { createSelectSchema } from "drizzle-arktype";
+import { createSelectSchema } from "drizzle-orm/arktype";
 
 /**
  * Shared choice schemas for use across contracts.
@@ -10,9 +10,7 @@ import { createSelectSchema } from "drizzle-arktype";
  */
 
 /** Choice schema without correct answer — used for displaying choices to students. */
-export const ChoiceSchema = createSelectSchema(questionChoice)
-	.pick("code")
-	.merge({ id: "number", content: "string" });
+export const ChoiceSchema = createSelectSchema(questionChoice).pick("code").merge({ id: "number", content: "string" });
 
 /** Choice schema with correct answer — used for review and scoring. */
 export const ChoiceWithAnswerSchema = createSelectSchema(questionChoice)
