@@ -6,7 +6,8 @@ import { type } from "arktype";
 import { Activity } from "react";
 import ErrorComponent from "@/components/shared/error";
 import { Button } from "@/components/ui/button";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
+import { TargetSelectionDialog } from "@/routes/_authenticated/-components/target-selection-dialog";
 import { GuidelineActivity } from "./-components/guideline-activity";
 import { PassingGradeActivity } from "./-components/passing-grade-activity";
 import { ResultsActivity } from "./-components/results-activity";
@@ -95,6 +96,7 @@ function RouteComponent() {
 
 	return (
 		<>
+			<TargetSelectionDialog />
 			<TryoutHeader creditBalance={creditBalance} />
 			<section className="mt-4 flex items-center gap-2">
 				{TABS.map((t) => (

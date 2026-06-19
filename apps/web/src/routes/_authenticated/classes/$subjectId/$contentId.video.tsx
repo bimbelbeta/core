@@ -1,12 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
+import { toast } from "sonner";
 import { EmptyContentState } from "@/components/classes/empty-content-state";
 import YouTubePlayer from "@/components/shared/youtube-player";
 import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
+import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
-import { orpc } from "@/utils/orpc";
-import { extractYouTubeId } from "@/utils/youtube";
+import { extractYouTubeId } from "@/lib/youtube";
 
 export const Route = createFileRoute("/_authenticated/classes/$subjectId/$contentId/video")({
 	component: RouteComponent,
@@ -35,9 +36,8 @@ function RouteComponent() {
 					queryKey: orpc.subject.listContent.key(),
 				});
 			},
-			onError: (error) => {
-				console.error("Failed to update progress:", error);
-				// Reset flag so it can retry
+			onError: () => {
+				toast.error("Gagal memperbarui progress video");
 				hasUpdatedProgress.current = false;
 			},
 		}),

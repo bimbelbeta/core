@@ -1,11 +1,8 @@
 import { NodeSelection, TextSelection } from "@tiptap/pm/state";
 import type { Editor } from "@tiptap/react";
 import { useCallback, useEffect, useState } from "react";
-// --- Hooks ---
 import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
-// --- Icons ---
 import { CodeBlockIcon } from "@/components/tiptap-icons/code-block-icon";
-// --- Lib ---
 import {
 	findNodePosition,
 	isNodeInSchema,
@@ -20,18 +17,9 @@ export const CODE_BLOCK_SHORTCUT_KEY = "mod+alt+c";
  * Configuration for the code block functionality
  */
 export interface UseCodeBlockConfig {
-	/**
-	 * The Tiptap editor instance.
-	 */
 	editor?: Editor | null;
-	/**
-	 * Whether the button should hide when code block is not available.
-	 * @default false
-	 */
+	/** @default false */
 	hideWhenUnavailable?: boolean;
-	/**
-	 * Callback function called after a successful code block toggle.
-	 */
 	onToggled?: () => void;
 }
 

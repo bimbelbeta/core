@@ -1,3 +1,4 @@
+import { ROLES } from "@bimbelbeta/contract/common/roles";
 import { Link } from "@tanstack/react-router";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "../ui/button";
@@ -14,7 +15,7 @@ export default function Header() {
 			<div className="flex items-center gap-2">
 				{session.data?.user ? (
 					<>
-						{(session.data?.user.role === "admin" || session.data?.user.role === "superadmin") && (
+						{(session.data?.user.role === ROLES.ADMIN || session.data?.user.role === ROLES.SUPER_ADMIN) && (
 							<Button variant={"default"} asChild>
 								<Link to="/admin">Sini, min!</Link>
 							</Button>

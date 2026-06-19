@@ -1,6 +1,6 @@
 import { InstagramLogoIcon, WhatsappLogoIcon } from "@phosphor-icons/react";
 
-export const DATA = {
+export const HOME_PAGE_CONTENT = {
 	stats: [
 		{
 			id: 1,
@@ -18,7 +18,7 @@ export const DATA = {
 			desc: "Latihan soal telah dikerjakan",
 		},
 	],
-	testimone: [
+	testimonials: [
 		{
 			id: 1,
 			name: "M. Ihsan Musyaffa",

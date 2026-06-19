@@ -1,7 +1,7 @@
 import { studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
 import { type } from "arktype";
-import { createSelectSchema } from "drizzle-arktype";
-import { oc } from "../lib/contract-definition";
+import { createSelectSchema } from "drizzle-orm/arktype";
+import { oc } from "@/lib/contract-definition";
 
 const GetTargetOutputSchema = type({
 	university: createSelectSchema(university).pick("name", "slug", "logo").merge({ id: "number" }),
@@ -19,13 +19,14 @@ const UpdateTargetInputSchema = type({
 	studyProgramId: "number",
 });
 
-const SetTargetOutputSchema = type({
-	success: "boolean",
-	message: "string",
+const UpdateTargetOutputSchema = type({
+	id: "string",
+	targetUniversityId: "number | null",
+	targetStudyProgramId: "number | null",
 });
 
 export const userSettingsContract = {
-	getTarget: oc
+	findTarget: oc
 		.route({
 			path: "/user/target",
 			method: "GET",
@@ -40,5 +41,5 @@ export const userSettingsContract = {
 			tags: ["User"],
 		})
 		.input(UpdateTargetInputSchema)
-		.output(SetTargetOutputSchema),
+		.output(UpdateTargetOutputSchema),
 };

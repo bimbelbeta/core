@@ -1,14 +1,10 @@
 import { forwardRef, useCallback } from "react";
-// --- Hooks ---
 import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
-// --- Tiptap UI ---
 import type { UseImageUploadConfig } from "@/components/tiptap-ui/image-upload-button";
 import { IMAGE_UPLOAD_SHORTCUT_KEY, useImageUpload } from "@/components/tiptap-ui/image-upload-button";
 import { Badge } from "@/components/tiptap-ui-primitive/badge";
-// --- UI Primitives ---
 import type { ButtonProps } from "@/components/tiptap-ui-primitive/button";
 import { Button } from "@/components/tiptap-ui-primitive/button";
-// --- Lib ---
 import { parseShortcutKeys } from "@/lib/tiptap-utils";
 
 type IconProps = React.SVGProps<SVGSVGElement>;

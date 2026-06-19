@@ -33,9 +33,6 @@ export const $getSession = createIsomorphicFn()
 	})
 	.server(async (_: RouterAppContext["queryClient"]) => {
 		const headers = getRequestHeaders();
-		if (!headers) {
-			return { session: null };
-		}
 
 		const headersToForward = {
 			cookie: headers.get("cookie") || "",

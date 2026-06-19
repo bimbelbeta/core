@@ -20,8 +20,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { usePaginationNavigation } from "@/hooks/use-pagination-navigation";
+import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
-import { orpc } from "@/utils/orpc";
 import { DeleteProductDialog } from "./-components/delete-product-dialog";
 import { RestoreProductDialog } from "./-components/restore-product-dialog";
 import { formatCurrency, formatRelativeDate, variantConfig } from "./-utils";
@@ -34,6 +34,7 @@ const searchSchema = type({
 });
 
 export const Route = createFileRoute("/admin/_superadmin/products/")({
+	staticData: { breadcrumb: "Products" },
 	component: ProductsListPage,
 	validateSearch: searchSchema,
 });

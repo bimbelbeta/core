@@ -38,8 +38,8 @@ function createThrottle<T extends (...args: any[]) => any>(
 
 	function trailingEdge() {
 		timeoutId = null;
-		if (trailing && lastArgs) {
-			return invokeFunc(lastArgs, lastThis as ThisParameterType<T>);
+		if (trailing && lastArgs && lastThis !== null) {
+			return invokeFunc(lastArgs, lastThis);
 		}
 		lastArgs = null;
 		lastThis = null;
@@ -83,8 +83,8 @@ function createThrottle<T extends (...args: any[]) => any>(
 			clearTimeout(timeoutId);
 			timeoutId = null;
 		}
-		if (lastArgs) {
-			return invokeFunc(lastArgs, lastThis as ThisParameterType<T>);
+		if (lastArgs && lastThis !== null) {
+			return invokeFunc(lastArgs, lastThis);
 		}
 		return lastResult;
 	};

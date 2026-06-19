@@ -1,10 +1,11 @@
+import { RoleSchema } from "@bimbelbeta/contract/common/roles";
 import { db } from "@bimbelbeta/db";
 import * as schema from "@bimbelbeta/db/schema/auth";
 import { type } from "arktype";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { Resend } from "resend";
-import { generateResetPasswordEmail } from "./lib/templates/reset-password";
+import { generateResetPasswordEmail } from "@/lib/templates/reset-password";
 
 export const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -18,7 +19,7 @@ export const auth = betterAuth({
 			role: {
 				type: "string",
 				validator: {
-					input: type('"user" | "admin" | "superadmin"'),
+					input: RoleSchema,
 				},
 				defaultValue: "user",
 				input: false,

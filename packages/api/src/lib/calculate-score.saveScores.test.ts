@@ -1,8 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { saveScoresToDatabase, type TryoutScoreResult } from "./calculate-score";
 
-// ─── Mock Drizzle transaction (same pattern as verification.test.ts) ──────────
-
 const DRIZZLE_NAME = Symbol.for("drizzle:Name");
 type DrizzleTable = { [DRIZZLE_NAME]: string };
 
@@ -32,7 +30,6 @@ function makeMockTrx(): MockTrx {
 	return mock;
 }
 
-// ─── saveScoresToDatabase orchestration ───────────────────────────────────────
 describe("saveScoresToDatabase", () => {
 	const ATTEMPT_ID = 42;
 
@@ -44,20 +41,44 @@ describe("saveScoresToDatabase", () => {
 		totalScore: 700,
 	};
 
-	test("updates each subtest attempt with its score", async () => {
-		const capture = makeMockTrx();
-		await saveScoresToDatabase(ATTEMPT_ID, scores, capture as unknown as Parameters<typeof saveScoresToDatabase>[2]);
-
-		expect(capture.updates.filter((u) => u.table === "tryout_subtest_attempt")).toHaveLength(2);
-	});
-
-	test("sets subtest score as stringified number", async () => {
+	test("issues a single batched UPDATE for all subtest scores", async () => {
 		const capture = makeMockTrx();
 		await saveScoresToDatabase(ATTEMPT_ID, scores, capture as unknown as Parameters<typeof saveScoresToDatabase>[2]);
 
 		const subtestUpdates = capture.updates.filter((u) => u.table === "tryout_subtest_attempt");
-		expect(subtestUpdates[0]?.set.score).toBe("800");
-		expect(subtestUpdates[1]?.set.score).toBe("600");
+		expect(subtestUpdates).toHaveLength(1);
+	});
+
+	test("subtest batched UPDATE contains CASE expression for scores", async () => {
+		const capture = makeMockTrx();
+		await saveScoresToDatabase(ATTEMPT_ID, scores, capture as unknown as Parameters<typeof saveScoresToDatabase>[2]);
+
+		const subtestUpdate = capture.updates.find((u) => u.table === "tryout_subtest_attempt");
+		expect(subtestUpdate).toBeDefined();
+
+		// Extract parameter values from the SQL CASE expression to verify each
+		// subtestAttemptId maps to the correct score value.
+		const sqlScore = subtestUpdate!.set.score as { queryChunks: unknown[] };
+		const params: unknown[] = [];
+		function collectParams(chunks: unknown[]): void {
+			for (const chunk of chunks) {
+				if (typeof chunk === "number" || typeof chunk === "string") {
+					params.push(chunk);
+				} else if (
+					chunk &&
+					typeof chunk === "object" &&
+					"queryChunks" in chunk &&
+					Array.isArray((chunk as { queryChunks: unknown[] }).queryChunks)
+				) {
+					collectParams((chunk as { queryChunks: unknown[] }).queryChunks);
+				}
+			}
+		}
+		collectParams(sqlScore.queryChunks);
+
+		// Params are the CASE WHEN bindings: id, score, id, score, ...
+		// Each WHEN clause contributes: subtestAttemptId, score.toString()
+		expect(params).toEqual([10, "800", 11, "600"]);
 	});
 
 	test("updates tryout attempt with total score as string", async () => {

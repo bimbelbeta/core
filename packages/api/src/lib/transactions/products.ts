@@ -1,7 +1,7 @@
 import { db } from "@bimbelbeta/db";
 import { product, transaction } from "@bimbelbeta/db/schema/transaction";
 import { eq } from "drizzle-orm";
-import type { TransactionWithProduct } from "./types";
+import type { TransactionWithProduct } from "@/lib/transactions/types";
 
 export async function fetchTransactionWithProduct(orderId: string): Promise<TransactionWithProduct | null> {
 	const [result] = await db

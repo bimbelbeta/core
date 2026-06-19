@@ -1,8 +1,8 @@
-import { tryout, tryoutAttempt, tryoutSubtest } from "@bimbelbeta/db/schema/tryout";
+import { tryout, tryoutAccessCode, tryoutAttempt, tryoutSubtest } from "@bimbelbeta/db/schema/tryout";
 import { type } from "arktype";
-import { createSelectSchema } from "drizzle-arktype";
-import { PageInfoSchema, PaginationInputSchema } from "../../common/pagination";
-import { oc } from "../../lib/contract-definition";
+import { createSelectSchema } from "drizzle-orm/arktype";
+import { PageInfoSchema, PaginationInputSchema } from "@/common/pagination";
+import { oc } from "@/lib/contract-definition";
 
 const TryoutSchema = createSelectSchema(tryout)
 	.pick("title", "description", "passingGrade", "category", "status", "startsAt", "endsAt", "createdAt", "updatedAt")
@@ -33,6 +33,16 @@ const TryoutAttemptSchema = createSelectSchema(tryoutAttempt)
 	)
 	.merge({ id: "number", startedAt: "Date", deadline: "Date", completedAt: "Date | null", score: "number | null" });
 
+const AccessCodeSchema = createSelectSchema(tryoutAccessCode)
+	.pick("codePreview", "label", "isActive", "expiresAt", "maxUses", "usedCount", "createdAt", "updatedAt")
+	.merge({
+		id: "number",
+		expiresAt: "Date | null",
+		maxUses: "number | null",
+		createdAt: "Date | null",
+		updatedAt: "Date | null",
+	});
+
 export const adminTryoutAttemptContract = {
 	list: oc
 		.route({ path: "/admin/tryouts/{id}/attempts", method: "GET", tags: ["Admin - Tryouts"] })
@@ -59,7 +69,7 @@ export const adminTryoutAttemptContract = {
 };
 
 export const adminTryoutContract = {
-	createTryout: oc
+	create: oc
 		.route({ path: "/admin/tryouts", method: "POST", tags: ["Admin - Tryouts"] })
 		.input(
 			type({
@@ -87,7 +97,7 @@ export const adminTryoutContract = {
 		.route({ path: "/admin/tryouts/{id}", method: "GET", tags: ["Admin - Tryouts"] })
 		.input(type({ id: "number" }))
 		.output(type({ tryout: TryoutSchema, subtests: TryoutSubtestSchema.array() })),
-	updateTryout: oc
+	update: oc
 		.route({ path: "/admin/tryouts/{id}", method: "PATCH", tags: ["Admin - Tryouts"] })
 		.input(
 			type({
@@ -106,4 +116,30 @@ export const adminTryoutContract = {
 		.input(type({ id: "number" }))
 		.output(type({ message: "string" })),
 	attempts: adminTryoutAttemptContract,
+	listAccessCodes: oc
+		.route({ path: "/admin/tryouts/{id}/access-codes", method: "GET", tags: ["Admin - Tryouts"] })
+		.input(type({ id: "number" }))
+		.output(AccessCodeSchema.array()),
+	createAccessCode: oc
+		.route({ path: "/admin/tryouts/{id}/access-codes", method: "POST", tags: ["Admin - Tryouts"] })
+		.input(
+			type({
+				id: "number",
+				label: "string?",
+				code: "string?",
+				expiresAt: "string?",
+				maxUses: "number?",
+			}),
+		)
+		.output(type({ "...": AccessCodeSchema, code: "string" })),
+	updateAccessCodeStatus: oc
+		.route({ path: "/admin/tryouts/{id}/access-codes/{accessCodeId}", method: "PATCH", tags: ["Admin - Tryouts"] })
+		.input(
+			type({
+				id: "number",
+				accessCodeId: "number",
+				isActive: "boolean",
+			}),
+		)
+		.output(type({ id: "number", isActive: "boolean" })),
 };

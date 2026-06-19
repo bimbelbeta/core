@@ -1,9 +1,10 @@
-import { questionChoice } from "@bimbelbeta/db/schema/question";
 import { contentItem, noteMaterial, subject, videoMaterial } from "@bimbelbeta/db/schema/subject";
 import { type } from "arktype";
-import { createSelectSchema } from "drizzle-arktype";
-import { PageInfoSchema } from "../common/pagination";
-import { oc } from "../lib/contract-definition";
+import { createSelectSchema } from "drizzle-orm/arktype";
+import { ChoiceWithAnswerSchema } from "@/common/choices";
+import { PageInfoSchema } from "@/common/pagination";
+import { MessageResponseSchema } from "@/common/response";
+import { oc } from "@/lib/contract-definition";
 
 const SubjectSchema = createSelectSchema(subject)
 	.pick("name", "shortName", "description", "order", "category", "gradeLevel")
@@ -15,9 +16,11 @@ const ContentItemDetailSchema = createSelectSchema(contentItem)
 	.pick("subjectId", "title", "order")
 	.merge({ id: "number" });
 
-const VideoMaterialSchema = createSelectSchema(videoMaterial).pick("videoUrl", "content").merge({ id: "number" });
+const VideoMaterialSchema = createSelectSchema(videoMaterial)
+	.pick("videoUrl", "content")
+	.merge({ id: "number", content: "unknown" });
 
-const NoteMaterialSchema = createSelectSchema(noteMaterial).pick("content").merge({ id: "number" });
+const NoteMaterialSchema = createSelectSchema(noteMaterial).pick("content").merge({ id: "number", content: "unknown" });
 
 // Extended/computed schemas with additional fields
 const SubjectWithContentSchema = type({
@@ -43,9 +46,7 @@ const SubjectContentSchema = type({
 	pageInfo: PageInfoSchema,
 });
 
-const ChoiceWithAnswerSchema = createSelectSchema(questionChoice)
-	.pick("code", "content", "isCorrect")
-	.merge({ id: "number" });
+// ChoiceWithAnswerSchema imported from common/choices
 
 const PracticeQuestionSchema = type({
 	questionId: "number",
@@ -66,10 +67,6 @@ const SubjectContentDetailSchema = type({
 	video: VideoMaterialSchema.or("null"),
 	note: NoteMaterialSchema.or("null"),
 	practiceQuestions: PracticeQuestionsSchema.or("null"),
-});
-
-const MessageResponseSchema = type({
-	message: "string",
 });
 
 const RecentViewItemSchema = type({
@@ -106,9 +103,17 @@ export const subjectContract = {
 			type({
 				"category?": "'sd' | 'smp' | 'sma' | 'utbk'",
 				"search?": "string",
+				"limit?": "number >= 1",
+				"after?": "string",
+				"before?": "string",
 			}),
 		)
-		.output(SubjectWithContentSchema.array()),
+		.output(
+			type({
+				items: SubjectWithContentSchema.array(),
+				pageInfo: PageInfoSchema,
+			}),
+		),
 	listContent: oc
 		.route({
 			path: "/subjects/{subjectId}/content",
@@ -133,7 +138,7 @@ export const subjectContract = {
 		})
 		.input(
 			type({
-				contentId: type("number"),
+				contentId: "number > 0",
 			}),
 		)
 		.output(SubjectContentDetailSchema),

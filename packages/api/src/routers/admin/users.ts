@@ -1,12 +1,13 @@
+import type { Role } from "@bimbelbeta/contract/common/roles";
 import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { creditTransaction } from "@bimbelbeta/db/schema/credit";
 import { and, asc, desc, eq, gt, like, lt, or } from "drizzle-orm";
-import { buildStringIdCursorPage, parseStringIdCursor } from "../../lib/pagination/cursor";
-import { baseImplementer } from "../../lib/router-definition";
-import { rateLimit, requireAuth, requireSuperAdmin } from "../../lib/router-definition/middleware";
+import { requireFound } from "@/lib/crud-helpers";
+import { buildStringIdCursorPage, parseStringIdCursor } from "@/lib/pagination/cursor";
+import { superAdminImplementer } from "@/lib/router-definition";
 
-const superadmin = baseImplementer.use(requireAuth).use(rateLimit).use(requireSuperAdmin);
+const superadmin = superAdminImplementer;
 
 const list = superadmin.admin.users.list.handler(async ({ input }) => {
 	const limit = Math.min(input.limit ?? 20, 100);
@@ -61,7 +62,7 @@ const update = superadmin.admin.users.update.handler(async ({ input, errors }) =
 	}
 
 	const updateData: {
-		role?: "user" | "admin" | "superadmin";
+		role?: Role;
 		isPremium?: boolean;
 		premiumExpiresAt?: Date | null;
 		updatedAt: Date;
@@ -75,11 +76,11 @@ const update = superadmin.admin.users.update.handler(async ({ input, errors }) =
 		updateData.premiumExpiresAt = input.premiumExpiresAt ? new Date(input.premiumExpiresAt) : null;
 	}
 
-	const [updated] = await db.update(user).set(updateData).where(eq(user.id, input.userId)).returning();
-
-	if (!updated) {
-		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memperbarui user" });
-	}
+	await requireFound(
+		await db.update(user).set(updateData).where(eq(user.id, input.userId)).returning(),
+		"User",
+		errors,
+	);
 
 	return { message: "User berhasil diperbarui" };
 });

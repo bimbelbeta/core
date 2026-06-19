@@ -1,13 +1,10 @@
 import type { ChainedCommands, Editor } from "@tiptap/react";
 import { useCallback, useEffect, useState } from "react";
-// --- Hooks ---
 import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
-// --- Icons ---
 import { AlignCenterIcon } from "@/components/tiptap-icons/align-center-icon";
 import { AlignJustifyIcon } from "@/components/tiptap-icons/align-justify-icon";
 import { AlignLeftIcon } from "@/components/tiptap-icons/align-left-icon";
 import { AlignRightIcon } from "@/components/tiptap-icons/align-right-icon";
-// --- Lib ---
 import { isExtensionAvailable, isNodeTypeSelected } from "@/lib/tiptap-utils";
 
 export type TextAlign = "left" | "center" | "right" | "justify";
@@ -16,22 +13,10 @@ export type TextAlign = "left" | "center" | "right" | "justify";
  * Configuration for the text align functionality
  */
 export interface UseTextAlignConfig {
-	/**
-	 * The Tiptap editor instance.
-	 */
 	editor?: Editor | null;
-	/**
-	 * The text alignment to apply.
-	 */
 	align: TextAlign;
-	/**
-	 * Whether the button should hide when alignment is not available.
-	 * @default false
-	 */
+	/** @default false */
 	hideWhenUnavailable?: boolean;
-	/**
-	 * Callback function called after a successful alignment change.
-	 */
 	onAligned?: () => void;
 }
 

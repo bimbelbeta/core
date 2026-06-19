@@ -1,15 +1,14 @@
 import { defineRelations } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import type { PoolConfig } from "pg";
-import * as auth from "./schema/auth";
-import * as credit from "./schema/credit";
-import * as question from "./schema/question";
-import * as subject from "./schema/subject";
-import * as transaction from "./schema/transaction";
-import * as tryout from "./schema/tryout";
-import * as university from "./schema/university";
+import * as auth from "@/schema/auth";
+import * as credit from "@/schema/credit";
+import * as question from "@/schema/question";
+import * as subject from "@/schema/subject";
+import * as transaction from "@/schema/transaction";
+import * as tryout from "@/schema/tryout";
+import * as university from "@/schema/university";
 
-// Import all tables for schema definition
 const schema = {
 	// Auth
 	user: auth.user,
@@ -57,7 +56,6 @@ const connection: PoolConfig = {
 
 export const db = drizzle({
 	connection,
-	schema,
 	relations: {
 		...relations,
 		...auth.authRelations,

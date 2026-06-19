@@ -1,8 +1,6 @@
 import type { Editor } from "@tiptap/react";
 import { forwardRef, useMemo, useRef } from "react";
-// --- Hooks ---
 import { useMenuNavigation } from "@/components/tiptap/use-menu-navigation";
-// --- Icons ---
 import { BanIcon } from "@/components/tiptap-icons/ban-icon";
 import { HighlighterIcon } from "@/components/tiptap-icons/highlighter-icon";
 import type { HighlightColor } from "@/components/tiptap-ui/color-highlight-button";
@@ -13,7 +11,6 @@ import {
 } from "@/components/tiptap-ui/color-highlight-button";
 import type { UseColorHighlightPopoverConfig } from "@/components/tiptap-ui/color-highlight-popover/use-color-highlight-popover";
 import { useColorHighlightPopover } from "@/components/tiptap-ui/color-highlight-popover/use-color-highlight-popover";
-// --- UI Primitives ---
 import type { ButtonProps } from "@/components/tiptap-ui-primitive/button";
 import { Button, ButtonGroup } from "@/components/tiptap-ui-primitive/button";
 import { Card, CardBody, CardItemGroup } from "@/components/tiptap-ui-primitive/card";

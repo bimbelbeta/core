@@ -8,12 +8,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { cn } from "@/lib/utils";
-import { orpc } from "@/utils/orpc";
 import { EditQuestionForm } from "./-components/edit-question-form";
 
 export const Route = createFileRoute("/admin/questions/$questionId")({
+	staticData: { breadcrumb: "Detail Soal" },
 	component: QuestionDetailPage,
 });
 
@@ -45,8 +46,8 @@ function QuestionDetailPage() {
 				question={{
 					id: question.id,
 					type: question.type,
-					content: question.content as object,
-					discussion: question.discussion as object,
+					content: question.content as Record<string, unknown>,
+					discussion: question.discussion as Record<string, unknown>,
 					essayCorrectAnswer: question.essayCorrectAnswer ?? undefined,
 					tags: question.tags ?? undefined,
 				}}

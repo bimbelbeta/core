@@ -16,10 +16,11 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
-import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/admin/classes/$subjectId/$contentId/notes")({
+	staticData: { breadcrumb: "Catatan" },
 	component: RouteComponent,
 });
 
@@ -159,10 +160,7 @@ function RouteComponent() {
 				<form.Field name="content">
 					{(field) => (
 						<div className="space-y-2">
-							<TiptapSimpleEditor
-								content={field.state.value}
-								onChange={(c) => field.handleChange(c as Record<string, unknown>)}
-							/>
+							<TiptapSimpleEditor content={field.state.value} onChange={(c) => field.handleChange(c)} />
 							{field.state.meta.errors.map((error) => (
 								<p key={error?.message} className="text-red-500 text-sm">
 									{error?.message}

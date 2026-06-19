@@ -1,3 +1,5 @@
+import { type } from "arktype";
+
 export const ROLES = {
 	USER: "user",
 	ADMIN: "admin",
@@ -5,3 +7,5 @@ export const ROLES = {
 } as const;
 
 export type Role = (typeof ROLES)[keyof typeof ROLES];
+
+export const RoleSchema = type("'user' | 'admin' | 'superadmin'");

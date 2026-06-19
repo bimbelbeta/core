@@ -1,4 +1,4 @@
-import { convertToTiptap } from "./convert-to-tiptap";
+import { convertToTiptap } from "@/lib/convert-to-tiptap";
 
 type TiptapNode = {
 	type: string;
@@ -27,13 +27,19 @@ export function normalizeQuestionContent(input: { content: unknown; discussion: 
 }
 
 export function readTiptapContent(json: unknown, text: string): TiptapDocument {
-	if (
-		json != null &&
-		typeof json === "object" &&
-		(json as Record<string, unknown>).type === "doc" &&
-		Array.isArray((json as Record<string, unknown>).content)
-	) {
-		return json as TiptapDocument;
+	if (isTiptapDocument(json)) {
+		return json;
 	}
 	return convertToTiptap(text);
+}
+
+function isTiptapDocument(json: unknown): json is TiptapDocument {
+	return (
+		typeof json === "object" &&
+		json !== null &&
+		"type" in json &&
+		json.type === "doc" &&
+		"content" in json &&
+		Array.isArray(json.content)
+	);
 }

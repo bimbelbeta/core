@@ -1,4 +1,4 @@
-import type { PurchaseBenefits, TransactionWithProduct } from "./types";
+import type { PurchaseBenefits, TransactionWithProduct } from "@/lib/transactions/types";
 
 export function calculateFixedDateExpiry(purchaseDate: Date, month: number, day: number): Date {
 	const currentYear = purchaseDate.getFullYear();

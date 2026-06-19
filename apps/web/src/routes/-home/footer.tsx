@@ -4,7 +4,7 @@ import { Image } from "@unpic/react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { cn } from "@/lib/utils";
-import { DATA } from "./data";
+import { HOME_PAGE_CONTENT } from "./data";
 
 const BACKGROUND_IMAGE = "/footer.png";
 
@@ -64,7 +64,7 @@ export default function Footer() {
 					</div>
 					<div className="mt-6 flex flex-col items-center justify-end gap-5 sm:mt-0 sm:items-end">
 						<div className="flex items-center gap-4">
-							{DATA.footer.socials.map((social) => (
+							{HOME_PAGE_CONTENT.footer.socials.map((social) => (
 								<a
 									key={social.label}
 									href={social.url}

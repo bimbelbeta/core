@@ -2,6 +2,7 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { CreateQuestionForm } from "./-components/create-question-form";
 
 export const Route = createFileRoute("/admin/questions/create")({
+	staticData: { breadcrumb: "Buat Soal" },
 	component: CreateQuestionPage,
 });
 

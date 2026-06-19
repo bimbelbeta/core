@@ -48,12 +48,12 @@ export function TiptapRenderer({ content, className }: TiptapRendererProps) {
 			Typography,
 		],
 		editable: false,
-		content: content as object,
+		content: typeof content === "object" && content !== null ? content : undefined,
 	});
 
 	useEffect(() => {
 		if (editor && content) {
-			editor.commands.setContent(content as object, { emitUpdate: false });
+			editor.commands.setContent(content as Record<string, unknown>, { emitUpdate: false });
 		}
 	}, [editor, content]);
 

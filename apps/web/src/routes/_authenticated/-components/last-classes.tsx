@@ -4,7 +4,7 @@ import { Link } from "@tanstack/react-router";
 import { LastContentViewedCard } from "@/components/classes/last-content-viewed-card";
 // import { LastContentViewedCard } from "@/components/classes";
 import { Button } from "@/components/ui/button";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 
 export const LastClasses = () => {
 	const { data, isPending } = useQuery(orpc.subject.listRecentViews.queryOptions());

@@ -5,8 +5,8 @@ import { Image } from "@unpic/react";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { Highlight } from "@/components/ui/highlight";
+import { orpc } from "@/lib/orpc";
 import { createMeta } from "@/lib/seo-utils";
-import { orpc } from "@/utils/orpc";
 import { PackageCard } from "./premium/-components/package-card";
 import { PremiumSkeleton } from "./premium/-components/premium-skeleton";
 import { useMidtrans } from "./premium/-hooks/use-midtrans";
@@ -26,13 +26,13 @@ function RouteComponent() {
 	const { session } = Route.useRouteContext();
 	const { handlePurchase, isPending } = useMidtrans();
 	const creditBalanceQuery = useQuery(orpc.credit.balance.queryOptions());
-	const productsQuery = useQuery(orpc.product.list.queryOptions());
+	const productsQuery = useQuery(orpc.product.list.queryOptions({ input: { limit: 100 } }));
 	const isPremium = session?.user.isPremium;
 	const creditBalance = creditBalanceQuery.data?.balance ?? 0;
 
 	// Grouping is based on variant so it works even if API doesn't return `type` yet.
 	const sortedProducts = productsQuery.data
-		? [...productsQuery.data].sort((a, b) => {
+		? [...productsQuery.data.items].sort((a, b) => {
 				const aIsSubscription = a.variant === "fixed_date" || a.variant === "monthly";
 				const bIsSubscription = b.variant === "fixed_date" || b.variant === "monthly";
 				if (aIsSubscription && !bIsSubscription) return -1;

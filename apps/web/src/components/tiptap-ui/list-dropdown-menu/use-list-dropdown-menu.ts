@@ -1,33 +1,20 @@
 import type { Editor } from "@tiptap/react";
 import { useEffect, useMemo, useState } from "react";
-// --- Hooks ---
 import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
-// --- Icons ---
 import { ListIcon } from "@/components/tiptap-icons/list-icon";
 import { ListOrderedIcon } from "@/components/tiptap-icons/list-ordered-icon";
 import { ListTodoIcon } from "@/components/tiptap-icons/list-todo-icon";
-// --- Tiptap UI ---
 import { canToggleList, isListActive, type ListType, listIcons } from "@/components/tiptap-ui/list-button";
-// --- Lib ---
 import { isNodeInSchema } from "@/lib/tiptap-utils";
 
 /**
  * Configuration for the list dropdown menu functionality
  */
 export interface UseListDropdownMenuConfig {
-	/**
-	 * The Tiptap editor instance.
-	 */
 	editor?: Editor | null;
-	/**
-	 * The list types to display in the dropdown.
-	 * @default ["bulletList", "orderedList", "taskList"]
-	 */
+	/** @default ["bulletList", "orderedList", "taskList"] */
 	types?: ListType[];
-	/**
-	 * Whether the dropdown should be hidden when no list types are available
-	 * @default false
-	 */
+	/** @default false */
 	hideWhenUnavailable?: boolean;
 }
 
@@ -97,45 +84,7 @@ export function getActiveListType(editor: Editor | null, availableTypes: ListTyp
 	return availableTypes.find((type) => isListActive(editor, type));
 }
 
-/**
- * Custom hook that provides list dropdown menu functionality for Tiptap editor
- *
- * @example
- * ```tsx
- * // Simple usage
- * function MyListDropdown() {
- *   const {
- *     isVisible,
- *     activeType,
- *     isAnyActive,
- *     canToggleAny,
- *     filteredLists,
- *   } = useListDropdownMenu()
- *
- *   if (!isVisible) return null
- *
- *   return (
- *     <DropdownMenu>
- *       // dropdown content
- *     </DropdownMenu>
- *   )
- * }
- *
- * // Advanced usage with configuration
- * function MyAdvancedListDropdown() {
- *   const {
- *     isVisible,
- *     activeType,
- *   } = useListDropdownMenu({
- *     editor: myEditor,
- *     types: ["bulletList", "orderedList"],
- *     hideWhenUnavailable: true,
- *   })
- *
- *   // component implementation
- * }
- * ```
- */
+/** Custom hook that provides list dropdown menu functionality for Tiptap editor */
 export function useListDropdownMenu(config?: UseListDropdownMenuConfig) {
 	const {
 		editor: providedEditor,

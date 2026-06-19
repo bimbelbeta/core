@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import type { MidtransStatus } from "./types";
+import type { MidtransStatus } from "@/lib/transactions/types";
 
 /**
  * Pure, testable signature verification. Accepts an explicit serverKey so
@@ -48,5 +48,9 @@ export async function verifyMidtransTransaction(orderId: string): Promise<Midtra
 		throw new Error(`Failed to verify transaction status: ${statusResponse.status}`);
 	}
 
-	return statusResponse.json() as Promise<MidtransStatus>;
+	const data: unknown = await statusResponse.json();
+	if (typeof data === "object" && data !== null && "transaction_status" in data && "fraud_status" in data) {
+		return data as MidtransStatus;
+	}
+	throw new Error("Invalid Midtrans response format");
 }

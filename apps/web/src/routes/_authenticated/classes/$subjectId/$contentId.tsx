@@ -1,13 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PremiumGateModal } from "@/components/premium/premium-gate-modal";
 import { BackButton } from "@/components/shared/back-button";
 import { NextButton } from "@/components/shared/next-button";
 import { Container } from "@/components/ui/container";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
-import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_authenticated/classes/$subjectId/$contentId")({
 	component: RouteComponent,
@@ -39,6 +39,9 @@ function RouteComponent() {
 
 	const trackViewMutation = useMutation(orpc.subject.trackView.mutationOptions());
 
+	const mutateRef = useRef(trackViewMutation.mutate);
+	mutateRef.current = trackViewMutation.mutate;
+
 	// Check if error is FORBIDDEN (premium content)
 	const isForbiddenError = content.isError && content.error?.message?.includes("premium");
 
@@ -61,7 +64,7 @@ function RouteComponent() {
 		const DEBOUNCE_MS = 2000; // Track at most once per 2 seconds per content
 
 		if (!lastTracked || now - Number(lastTracked) > DEBOUNCE_MS) {
-			trackViewMutation.mutate(
+			mutateRef.current(
 				{ contentId },
 				{
 					onSuccess: () => {
@@ -74,8 +77,7 @@ function RouteComponent() {
 				},
 			);
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [content.data, contentId, queryClient.invalidateQueries, trackViewMutation.mutate]);
+	}, [content.data, contentId, queryClient.invalidateQueries]);
 
 	// Handle premium modal close - redirect back to class list
 	const handlePremiumModalClose = () => {

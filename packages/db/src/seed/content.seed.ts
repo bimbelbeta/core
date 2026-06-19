@@ -2,7 +2,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { config } from "dotenv";
 import { drizzle } from "drizzle-orm/node-postgres";
-import { clearContent, seedContent } from "./subject.seed";
+import { clearContent, seedContent } from "@/seed/subject.seed";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 config({

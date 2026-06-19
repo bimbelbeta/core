@@ -15,8 +15,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { orpc } from "@/utils/orpc";
-import { categoryLabel, type SubjectCategory, validateGradeLevel } from "./classes-constants";
+import { orpc } from "@/lib/orpc";
+import { categoryLabel, isValidCategory, type SubjectCategory, validateGradeLevel } from "./classes-constants";
 
 type CreateSubjectDialogProps = {
 	open: boolean;
@@ -32,11 +32,11 @@ export function CreateSubjectDialog({ open, onOpenChange, defaultCategory }: Cre
 			name: "",
 			shortName: "",
 			description: "",
-			category: (defaultCategory && defaultCategory !== "all" ? defaultCategory : "") as SubjectCategory | "",
+			category: defaultCategory && defaultCategory !== "all" && isValidCategory(defaultCategory) ? defaultCategory : "",
 			gradeLevel: "",
 		},
 		onSubmit: async ({ value }) => {
-			const category = (value.category || undefined) as SubjectCategory | undefined;
+			const category = value.category && isValidCategory(value.category) ? value.category : undefined;
 
 			let gradeLevel: number | undefined;
 			if (value.gradeLevel.trim()) {
@@ -85,7 +85,8 @@ export function CreateSubjectDialog({ open, onOpenChange, defaultCategory }: Cre
 				name: "",
 				shortName: "",
 				description: "",
-				category: (defaultCategory && defaultCategory !== "all" ? defaultCategory : "") as SubjectCategory | "",
+				category:
+					defaultCategory && defaultCategory !== "all" && isValidCategory(defaultCategory) ? defaultCategory : "",
 				gradeLevel: "",
 			});
 		}
@@ -184,7 +185,9 @@ export function CreateSubjectDialog({ open, onOpenChange, defaultCategory }: Cre
 									<Select
 										value={field.state.value || ""}
 										onValueChange={(value) => {
-											field.handleChange(value as SubjectCategory | "");
+											if (isValidCategory(value) || value === "") {
+												field.handleChange(value);
+											}
 											if (value === "utbk") {
 												form.setFieldValue("gradeLevel", "");
 											}

@@ -20,7 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TagInput } from "@/components/ui/tag-input";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 import { MultipleChoiceComplexQuestionForm } from "./multiple-choice-complex-question-form";
 import { MultipleChoiceQuestionForm } from "./multiple-choice-question-form";
 import type { Choice } from "./types";
@@ -30,6 +30,10 @@ interface CreateQuestionFormProps {
 	subtestId?: number;
 	onSuccess: () => void;
 	onCancel: () => void;
+}
+
+function isValidQuestionType(v: string): v is "multiple_choice" | "multiple_choice_complex" | "essay" {
+	return v === "multiple_choice" || v === "multiple_choice_complex" || v === "essay";
 }
 
 export function CreateQuestionForm({
@@ -53,13 +57,15 @@ export function CreateQuestionForm({
 		}),
 	);
 
+	const defaultChoices: Choice[] = [];
+
 	const form = useForm({
 		defaultValues: {
-			content: null as object | null,
-			discussion: null as object | null,
+			content: null as Record<string, unknown> | null,
+			discussion: null as Record<string, unknown> | null,
 			essayCorrectAnswer: "",
 			tags: [] as string[],
-			choices: [] as Choice[],
+			choices: defaultChoices,
 		},
 		onSubmit: async ({ value }) => {
 			createMutation.mutate({
@@ -84,7 +90,7 @@ export function CreateQuestionForm({
 	});
 
 	const createMutation = useMutation(
-		orpc.admin.tryout.questions.createQuestion.mutationOptions({
+		orpc.admin.tryout.questions.create.mutationOptions({
 			onSuccess: async (result) => {
 				toast.success("Soal berhasil dibuat");
 
@@ -141,7 +147,9 @@ export function CreateQuestionForm({
 						<Tabs
 							defaultValue={questionType}
 							value={questionType}
-							onValueChange={(val) => setQuestionType(val as "multiple_choice" | "multiple_choice_complex" | "essay")}
+							onValueChange={(val) => {
+								if (isValidQuestionType(val)) setQuestionType(val);
+							}}
 						>
 							<TabsList>
 								<TabsTrigger value="multiple_choice">Pilihan Ganda</TabsTrigger>
@@ -163,7 +171,7 @@ export function CreateQuestionForm({
 												<Label htmlFor={field.name}>Konten Soal *</Label>
 												<TiptapSimpleEditor
 													content={field.state.value ?? undefined}
-													onChange={(content) => field.handleChange(content as object)}
+													onChange={(content) => field.handleChange(content)}
 												/>
 											</div>
 										)}
@@ -184,7 +192,7 @@ export function CreateQuestionForm({
 												<Label htmlFor={field.name}>Pembahasan</Label>
 												<TiptapSimpleEditor
 													content={field.state.value ?? undefined}
-													onChange={(content) => field.handleChange(content as object)}
+													onChange={(content) => field.handleChange(content)}
 												/>
 											</div>
 										)}
@@ -220,7 +228,7 @@ export function CreateQuestionForm({
 												<Label htmlFor={field.name}>Konten Soal *</Label>
 												<TiptapSimpleEditor
 													content={field.state.value ?? undefined}
-													onChange={(content) => field.handleChange(content as object)}
+													onChange={(content) => field.handleChange(content)}
 												/>
 											</div>
 										)}
@@ -241,7 +249,7 @@ export function CreateQuestionForm({
 												<Label htmlFor={field.name}>Pembahasan</Label>
 												<TiptapSimpleEditor
 													content={field.state.value ?? undefined}
-													onChange={(content) => field.handleChange(content as object)}
+													onChange={(content) => field.handleChange(content)}
 												/>
 											</div>
 										)}
@@ -277,7 +285,7 @@ export function CreateQuestionForm({
 												<Label htmlFor={field.name}>Konten Soal *</Label>
 												<TiptapSimpleEditor
 													content={field.state.value ?? undefined}
-													onChange={(content) => field.handleChange(content as object)}
+													onChange={(content) => field.handleChange(content)}
 												/>
 											</div>
 										)}
@@ -319,7 +327,7 @@ export function CreateQuestionForm({
 												<Label htmlFor={field.name}>Pembahasan</Label>
 												<TiptapSimpleEditor
 													content={field.state.value ?? undefined}
-													onChange={(content) => field.handleChange(content as object)}
+													onChange={(content) => field.handleChange(content)}
 												/>
 											</div>
 										)}

@@ -1,12 +1,9 @@
 import type { Editor } from "@tiptap/react";
 import { useCallback, useEffect, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
-// --- Hooks ---
 import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
-// --- Icons ---
 import { HighlighterIcon } from "@/components/tiptap-icons/highlighter-icon";
 import { useIsBreakpoint } from "@/hooks/use-is-breakpoint";
-// --- Lib ---
 import { isExtensionAvailable, isMarkInSchema, isNodeTypeSelected } from "@/lib/tiptap-utils";
 
 export const COLOR_HIGHLIGHT_SHORTCUT_KEY = "mod+shift+h";
@@ -70,33 +67,13 @@ export type HighlightMode = "mark" | "node";
  * Configuration for the color highlight functionality
  */
 export interface UseColorHighlightConfig {
-	/**
-	 * The Tiptap editor instance.
-	 */
 	editor?: Editor | null;
-	/**
-	 * The color to apply when toggling the highlight.
-	 */
 	highlightColor?: string;
-	/**
-	 * Optional label to display alongside the icon.
-	 */
 	label?: string;
-	/**
-	 * Whether the button should hide when the mark is not available.
-	 * @default false
-	 */
+	/** @default false */
 	hideWhenUnavailable?: boolean;
-	/**
-	 * The highlighting mode to use.
-	 * - "mark": Uses the highlight mark extension (default)
-	 * - "node": Uses the node background extension
-	 * @default "mark"
-	 */
+	/** @default "mark" */
 	mode?: HighlightMode;
-	/**
-	 * Called when the highlight is applied.
-	 */
 	onApplied?: ({ color, label, mode }: { color: string; label: string; mode: HighlightMode }) => void;
 }
 

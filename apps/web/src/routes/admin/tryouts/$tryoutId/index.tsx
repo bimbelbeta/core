@@ -17,15 +17,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { cn } from "@/lib/utils";
-import { orpc } from "@/utils/orpc";
 import { TryoutAttemptsTab } from "./-components/tryout-attempts-tab";
 import { type TryoutSettingsFormState, TryoutSettingsTab } from "./-components/tryout-settings-tab";
 import { TryoutSubtestsTab } from "./-components/tryout-subtests-tab";
 import { CATEGORY_LABELS } from "./-constants";
 
 export const Route = createFileRoute("/admin/tryouts/$tryoutId/")({
+	staticData: { breadcrumb: "Detail Tryout" },
 	component: TryoutDetailPage,
 });
 
@@ -50,7 +51,7 @@ function TryoutDetailPage() {
 	}, []);
 
 	const publishMutation = useMutation(
-		orpc.admin.tryout.updateTryout.mutationOptions({
+		orpc.admin.tryout.update.mutationOptions({
 			onSuccess: () => {
 				toast.success("Status tryout berhasil diperbarui");
 				refetch();

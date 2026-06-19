@@ -1,4 +1,6 @@
-export type SubjectCategory = "sd" | "smp" | "sma" | "utbk";
+import type { SubjectCategory } from "./classes-types";
+
+export type { SubjectCategory };
 
 export const categoryLabel: Record<SubjectCategory, string> = {
 	sd: "SD",
@@ -12,6 +14,10 @@ export const gradeRanges: Record<Exclude<SubjectCategory, "utbk">, [number, numb
 	smp: [7, 9],
 	sma: [10, 12],
 };
+
+export function isValidCategory(v: string): v is SubjectCategory {
+	return v in categoryLabel;
+}
 
 /** Returns a validation error message if gradeLevel is out of range, or null if valid. */
 export function validateGradeLevel(category: Exclude<SubjectCategory, "utbk">, gradeLevel: number): string | null {

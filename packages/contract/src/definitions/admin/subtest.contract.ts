@@ -1,18 +1,21 @@
 import { tryoutSubtest } from "@bimbelbeta/db/schema/tryout";
 import { type } from "arktype";
-import { createSelectSchema } from "drizzle-arktype";
-import { oc } from "../../lib/contract-definition";
+import { createSelectSchema } from "drizzle-orm/arktype";
+import { oc } from "@/lib/contract-definition";
 
 const SubtestSchema = createSelectSchema(tryoutSubtest)
-	.pick("tryoutId", "name", "description", "duration", "questionOrder", "order", "scoringMap")
-	.merge({ id: "number" });
+	.pick("tryoutId", "name", "description", "duration", "questionOrder", "order")
+	.merge({
+		id: "number",
+		scoringMap: "Record<string, number> | null | undefined",
+	});
 
 export const adminSubtestContract = {
 	find: oc
 		.route({ path: "/admin/tryouts/subtests/{id}", method: "GET", tags: ["Admin - Tryouts"] })
 		.input(type({ id: "number" }))
 		.output(SubtestSchema),
-	createSubtest: oc
+	create: oc
 		.route({ path: "/admin/tryouts/{tryoutId}/subtests", method: "POST", tags: ["Admin - Tryouts"] })
 		.input(
 			type({
@@ -24,7 +27,7 @@ export const adminSubtestContract = {
 			}),
 		)
 		.output(type({ message: "string", id: "number" })),
-	updateSubtest: oc
+	update: oc
 		.route({ path: "/admin/tryouts/subtests/{id}", method: "PATCH", tags: ["Admin - Tryouts"] })
 		.input(
 			type({

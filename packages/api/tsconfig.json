@@ -8,10 +8,10 @@
 		"outDir": "dist",
 		"composite": true,
 		"emitDeclarationOnly": true,
-		"tsBuildInfoFile": "dist/.tsbuildinfo"
-	},
-	"paths": {
-		"@/*": ["./src/*"],
-		"*": ["./src/*"]
+		"tsBuildInfoFile": "dist/.tsbuildinfo",
+		"paths": {
+			"@/*": ["./src/*"],
+			"*": ["./src/*"]
+		}
 	}
 }

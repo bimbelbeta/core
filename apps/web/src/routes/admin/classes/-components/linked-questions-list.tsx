@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 
 interface LinkedQuestion {
 	questionId: number;

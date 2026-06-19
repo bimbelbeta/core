@@ -1,8 +1,8 @@
 import { CaretRightIcon, NoteIcon, PlayCircleIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import { Card } from "@/components/ui/card";
+import { useIsAdmin } from "@/hooks/use-is-admin";
 import { cn } from "@/lib/utils";
-import { useIsAdmin } from "@/utils/use-is-admin";
 import type { ContentActionItem, LastContentViewedItem } from "./classes-types";
 
 const DASHBOARD_CONTENT_ACTIONS = [

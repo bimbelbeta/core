@@ -10,6 +10,7 @@ import { ProductForm } from "./-components/product-form";
 import { ProductFormHelpAccordion } from "./-components/product-form-help-accordion";
 
 export const Route = createFileRoute("/admin/_superadmin/products/create")({
+	staticData: { breadcrumb: "Buat Product" },
 	component: CreateProductPage,
 });
 

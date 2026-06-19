@@ -2,12 +2,11 @@ import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { creditTransaction } from "@bimbelbeta/db/schema/credit";
 import { desc, eq, sql } from "drizzle-orm";
-import { baseImplementer } from "../../lib/router-definition";
-import { rateLimit, requireAuth, requireSuperAdmin } from "../../lib/router-definition/middleware";
+import { superAdminImplementer } from "@/lib/router-definition";
 
-const superadmin = baseImplementer.use(requireAuth).use(rateLimit).use(requireSuperAdmin);
+const superadmin = superAdminImplementer;
 
-const adjustCredits = superadmin.admin.credit.adjustCredits.handler(async ({ input, errors }) => {
+const adjust = superadmin.admin.credit.adjust.handler(async ({ input, errors }) => {
 	const [targetUser] = await db.select().from(user).where(eq(user.id, input.userId)).limit(1);
 
 	if (!targetUser) {
@@ -77,6 +76,6 @@ const find = superadmin.admin.credit.find.handler(async ({ input, errors }) => {
 });
 
 export const adminCreditRouter = {
-	adjustCredits,
+	adjust,
 	find,
 };

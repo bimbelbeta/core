@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { TagInput } from "@/components/ui/tag-input";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 import { MultipleChoiceComplexQuestionForm } from "./multiple-choice-complex-question-form";
 import { MultipleChoiceQuestionForm } from "./multiple-choice-question-form";
 import type { Choice } from "./types";
@@ -20,8 +20,8 @@ interface EditQuestionFormProps {
 	question: {
 		id: number;
 		type: "multiple_choice" | "multiple_choice_complex" | "essay";
-		content: object;
-		discussion: object;
+		content: Record<string, unknown>;
+		discussion: Record<string, unknown>;
 		essayCorrectAnswer?: string;
 		tags?: string[];
 	};
@@ -69,7 +69,7 @@ export function EditQuestionForm({ question, initialChoices, onSuccess, onCancel
 	});
 
 	const updateMutation = useMutation(
-		orpc.admin.tryout.questions.updateQuestion.mutationOptions({
+		orpc.admin.tryout.questions.update.mutationOptions({
 			onSuccess: () => {
 				queryClient.invalidateQueries({
 					queryKey: orpc.admin.tryout.questions.find.queryKey({ input: { id: question.id } }),
@@ -131,7 +131,7 @@ export function EditQuestionForm({ question, initialChoices, onSuccess, onCancel
 									<Label htmlFor={field.name}>Konten Soal *</Label>
 									<TiptapSimpleEditor
 										content={field.state.value ?? undefined}
-										onChange={(content) => field.handleChange(content as object)}
+										onChange={(content) => field.handleChange(content)}
 									/>
 								</div>
 							)}
@@ -164,7 +164,7 @@ export function EditQuestionForm({ question, initialChoices, onSuccess, onCancel
 									<Label htmlFor={field.name}>Pembahasan</Label>
 									<TiptapSimpleEditor
 										content={field.state.value ?? undefined}
-										onChange={(content) => field.handleChange(content as object)}
+										onChange={(content) => field.handleChange(content)}
 									/>
 								</div>
 							)}

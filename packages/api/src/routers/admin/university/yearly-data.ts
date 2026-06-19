@@ -1,12 +1,12 @@
 import { db } from "@bimbelbeta/db";
 import { programYearlyData, studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
 import { and, asc, desc, eq, gt, lt } from "drizzle-orm";
-import { buildIdCursorPage, parseIdCursor } from "../../../lib/pagination/cursor";
-import { baseImplementer } from "../../../lib/router-definition";
-import { rateLimit, requireAdmin, requireAuth } from "../../../lib/router-definition/middleware";
-import { pickDefined } from "../../../lib/utils";
+import { requireCreated, requireFound } from "@/lib/crud-helpers";
+import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
+import { adminImplementer } from "@/lib/router-definition";
+import { pickDefined } from "@/lib/utils";
 
-const admin = baseImplementer.use(requireAuth).use(rateLimit).use(requireAdmin);
+const admin = adminImplementer;
 
 const list = admin.admin.university.universityPrograms.list.handler(async ({ input }) => {
 	const limit = Math.min(input.limit ?? 20, 100);
@@ -135,23 +135,21 @@ const create = admin.admin.university.universityPrograms.create.handler(async ({
 		});
 	}
 
-	const [created] = await db
-		.insert(universityStudyProgram)
-		.values({
-			universityId: input.universityId,
-			studyProgramId: input.studyProgramId,
-			tuition: input.tuition ?? null,
-			capacity: input.capacity ?? null,
-			accreditation: input.accreditation ?? null,
-			averageScore: input.averageScore ?? 500,
-		})
-		.returning();
-
-	if (!created) {
-		throw errors.INTERNAL_SERVER_ERROR({
-			message: "Gagal membuat program universitas",
-		});
-	}
+	const created = requireCreated(
+		await db
+			.insert(universityStudyProgram)
+			.values({
+				universityId: input.universityId,
+				studyProgramId: input.studyProgramId,
+				tuition: input.tuition ?? null,
+				capacity: input.capacity ?? null,
+				accreditation: input.accreditation ?? null,
+				averageScore: input.averageScore ?? 500,
+			})
+			.returning(),
+		"program universitas",
+		errors,
+	);
 
 	return {
 		message: "Program universitas berhasil dibuat",
@@ -160,45 +158,41 @@ const create = admin.admin.university.universityPrograms.create.handler(async ({
 });
 
 const update = admin.admin.university.universityPrograms.update.handler(async ({ input, errors }) => {
-	const [updated] = await db
-		.update(universityStudyProgram)
-		.set({
-			...pickDefined({
-				tuition: input.tuition,
-				capacity: input.capacity,
-				accreditation: input.accreditation,
-				averageScore: input.averageScore,
-				isActive: input.isActive,
-			}),
-			updatedAt: new Date(),
-		})
-		.where(eq(universityStudyProgram.id, input.id))
-		.returning();
-
-	if (!updated) {
-		throw errors.NOT_FOUND({
-			message: "Program universitas tidak ditemukan",
-		});
-	}
+	await requireFound(
+		await db
+			.update(universityStudyProgram)
+			.set({
+				...pickDefined({
+					tuition: input.tuition,
+					capacity: input.capacity,
+					accreditation: input.accreditation,
+					averageScore: input.averageScore,
+					isActive: input.isActive,
+				}),
+				updatedAt: new Date(),
+			})
+			.where(eq(universityStudyProgram.id, input.id))
+			.returning(),
+		"Program universitas",
+		errors,
+	);
 
 	return { message: "Program universitas berhasil diperbarui" };
 });
 
 const remove = admin.admin.university.universityPrograms.remove.handler(async ({ input, errors }) => {
-	const [deleted] = await db.delete(universityStudyProgram).where(eq(universityStudyProgram.id, input.id)).returning();
-
-	if (!deleted) {
-		throw errors.NOT_FOUND({
-			message: "Program universitas tidak ditemukan",
-		});
-	}
+	await requireFound(
+		await db.delete(universityStudyProgram).where(eq(universityStudyProgram.id, input.id)).returning(),
+		"Program universitas",
+		errors,
+	);
 
 	return { message: "Program universitas berhasil dihapus" };
 });
 
-const upsertYearlyData = admin.admin.university.universityPrograms.upsertYearlyData.handler(
-	async ({ input, errors }) => {
-		const [result] = await db
+const upsert = admin.admin.university.universityPrograms.upsert.handler(async ({ input, errors }) => {
+	const result = requireCreated(
+		await db
 			.insert(programYearlyData)
 			.values({
 				universityStudyProgramId: input.id,
@@ -220,33 +214,27 @@ const upsertYearlyData = admin.admin.university.universityPrograms.upsertYearlyD
 			})
 			.returning({
 				id: programYearlyData.id,
-			});
+			}),
+		"data tahunan",
+		errors,
+	);
 
-		if (!result) {
-			throw errors.INTERNAL_SERVER_ERROR({
-				message: "Gagal menyimpan data tahunan",
-			});
-		}
-
-		return {
-			message: "Data tahunan berhasil disimpan",
-			id: result.id,
-		};
-	},
-);
+	return {
+		message: "Data tahunan berhasil disimpan",
+		id: result.id,
+	};
+});
 
 const removeYearlyData = admin.admin.university.universityPrograms.removeYearlyData.handler(
 	async ({ input, errors }) => {
-		const [deleted] = await db
-			.delete(programYearlyData)
-			.where(and(eq(programYearlyData.universityStudyProgramId, input.id), eq(programYearlyData.year, input.year)))
-			.returning();
-
-		if (!deleted) {
-			throw errors.NOT_FOUND({
-				message: "Data tahunan tidak ditemukan",
-			});
-		}
+		await requireFound(
+			await db
+				.delete(programYearlyData)
+				.where(and(eq(programYearlyData.universityStudyProgramId, input.id), eq(programYearlyData.year, input.year)))
+				.returning(),
+			"Data tahunan",
+			errors,
+		);
 
 		return { message: "Data tahunan berhasil dihapus" };
 	},
@@ -258,6 +246,6 @@ export const adminUniversityProgramRouter = {
 	create,
 	update,
 	remove,
-	upsertYearlyData,
+	upsert,
 	removeYearlyData,
 };

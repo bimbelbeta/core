@@ -1,5 +1,5 @@
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
-import { question, questionChoice } from "../schema/question";
+import { question, questionChoice } from "@/schema/question";
 import {
 	tryout,
 	tryoutAttempt,
@@ -7,7 +7,7 @@ import {
 	tryoutSubtestAttempt,
 	tryoutSubtestQuestion,
 	tryoutUserAnswer,
-} from "../schema/tryout";
+} from "@/schema/tryout";
 
 const TRYOUT_DATA = {
 	title: "Tryout UTBK SNBT 2025",
@@ -335,51 +335,21 @@ export async function seedTryout(db: NodePgDatabase) {
 }
 
 export async function clearTryout(db: NodePgDatabase) {
-	try {
-		await db.delete(tryoutUserAnswer);
-	} catch {
-		console.log("tryout_user_answer table not found, skipping clear");
-	}
-
-	try {
-		await db.delete(tryoutSubtestQuestion);
-	} catch {
-		console.log("tryout_subtest_question table not found, skipping clear");
-	}
-
-	try {
-		await db.delete(questionChoice);
-	} catch {
-		console.log("tryout_question_choice table not found, skipping clear");
-	}
-
-	try {
-		await db.delete(question);
-	} catch {
-		console.log("tryout_question table not found, skipping clear");
-	}
-
-	try {
-		await db.delete(tryoutSubtestAttempt);
-	} catch {
-		console.log("tryout_subtest_attempt table not found, skipping clear");
-	}
-
-	try {
-		await db.delete(tryoutAttempt);
-	} catch {
-		console.log("tryout_attempt table not found, skipping clear");
-	}
-
-	try {
-		await db.delete(tryoutSubtest);
-	} catch {
-		console.log("tryout_subtest table not found, skipping clear");
-	}
-
-	try {
-		await db.delete(tryout);
-	} catch {
-		console.log("tryout table not found, skipping clear");
+	const tables = [
+		[tryoutUserAnswer, "tryout_user_answer"],
+		[tryoutSubtestQuestion, "tryout_subtest_question"],
+		[questionChoice, "tryout_question_choice"],
+		[question, "tryout_question"],
+		[tryoutSubtestAttempt, "tryout_subtest_attempt"],
+		[tryoutAttempt, "tryout_attempt"],
+		[tryoutSubtest, "tryout_subtest"],
+		[tryout, "tryout"],
+	] as const;
+	for (const [table, name] of tables) {
+		try {
+			await db.delete(table);
+		} catch {
+			console.log(`${name} table not found, skipping clear`);
+		}
 	}
 }

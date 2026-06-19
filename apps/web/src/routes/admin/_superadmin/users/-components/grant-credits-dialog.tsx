@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 
 interface GrantCreditsDialogProps {
 	userId: string;
@@ -36,7 +36,7 @@ export function GrantCreditsDialog({
 	const [amount, setAmount] = useState(1);
 
 	const adjustCreditsMutation = useMutation(
-		orpc.admin.credit.adjustCredits.mutationOptions({
+		orpc.admin.credit.adjust.mutationOptions({
 			onSuccess: () => {
 				toast.success("Kredit berhasil ditambahkan");
 				setAmount(1);

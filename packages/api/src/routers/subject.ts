@@ -1,6 +1,5 @@
 import { canAccessContent } from "@bimbelbeta/contract/common/content-access";
 import { db } from "@bimbelbeta/db";
-import { user } from "@bimbelbeta/db/schema/auth";
 import { question, questionChoice } from "@bimbelbeta/db/schema/question";
 import {
 	contentItem,
@@ -13,22 +12,23 @@ import {
 	videoMaterial,
 } from "@bimbelbeta/db/schema/subject";
 import { and, desc, eq, gt, ilike, inArray, lt, sql } from "drizzle-orm";
-import { readTiptapContent } from "../lib/content-utils";
-import { buildIdCursorPage, parseIdCursor } from "../lib/pagination/cursor";
-import { ROLES, type Role } from "../lib/roles";
-import { baseImplementer } from "../lib/router-definition";
-import { rateLimit, requireAuth } from "../lib/router-definition/middleware";
+import { readTiptapContent } from "@/lib/content-utils";
+import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
+import { ROLES, type Role } from "@/lib/roles";
+import { authedImplementer } from "@/lib/router-definition";
+import { escapeLikePattern } from "@/lib/utils";
 
-const authed = baseImplementer.use(requireAuth).use(rateLimit);
+const authed = authedImplementer;
 
-import type { ChoiceWithAnswer } from "../types/question";
-
-function escapeLikePattern(value: string): string {
-	return value.replace(/[%_\\]/g, (char) => `\\${char}`);
-}
+import type { ChoiceWithAnswer } from "@/types/question";
 
 const list = authed.subject.list.handler(async ({ input, context }) => {
-	const subjects = await db
+	const limit = input?.limit ?? 20;
+	const isBackward = !!input?.before;
+	const cursorStr = input?.after ?? input?.before;
+	const cursorId = cursorStr ? parseIdCursor(cursorStr) : null;
+
+	const rows = await db
 		.select({
 			id: subject.id,
 			name: subject.name,
@@ -50,6 +50,7 @@ const list = authed.subject.list.handler(async ({ input, context }) => {
 			and(
 				input?.category ? eq(subject.category, input.category) : undefined,
 				input?.search ? ilike(subject.name, `%${escapeLikePattern(input.search)}%`) : undefined,
+				cursorId !== null ? (isBackward ? lt(subject.id, cursorId) : gt(subject.id, cursorId)) : undefined,
 			),
 		)
 		.groupBy(
@@ -61,9 +62,12 @@ const list = authed.subject.list.handler(async ({ input, context }) => {
 			subject.category,
 			subject.gradeLevel,
 		)
-		.orderBy(subject.order);
+		.orderBy(isBackward ? desc(subject.id) : subject.order)
+		.limit(limit + 1);
 
-	return subjects;
+	const { items, pageInfo } = buildIdCursorPage(rows, limit, isBackward, !!cursorStr);
+
+	return { items, pageInfo };
 });
 
 const listContent = authed.subject.listContent.handler(async ({ input, context, errors }) => {
@@ -133,10 +137,6 @@ const listContent = authed.subject.listContent.handler(async ({ input, context, 
 });
 
 const findContent = authed.subject.findContent.handler(async ({ input, context, errors }) => {
-	if (!Number.isFinite(input.contentId) || input.contentId <= 0) {
-		throw errors.BAD_REQUEST({ message: "Invalid content ID" });
-	}
-
 	const [row] = await db
 		.select({
 			id: contentItem.id,
@@ -164,19 +164,10 @@ const findContent = authed.subject.findContent.handler(async ({ input, context, 
 	}
 
 	const rawRole = context.session.user.role;
-	const role: Role = Object.values(ROLES).includes(rawRole as Role) ? (rawRole as Role) : ROLES.USER;
+	const isValidRole = (v: string): v is Role => (Object.values(ROLES) as readonly string[]).includes(v);
+	const role: Role = isValidRole(rawRole) ? rawRole : ROLES.USER;
 
-	let { isPremium } = context.session.user;
-	if (
-		isPremium &&
-		context.session.user.premiumExpiresAt &&
-		context.session.user.premiumExpiresAt.getTime() < Date.now()
-	) {
-		await db.update(user).set({ isPremium: false }).where(eq(user.id, context.session.user.id));
-		isPremium = false;
-	}
-
-	const hasAccess = canAccessContent(isPremium, role, row.subtestOrder, row.order);
+	const hasAccess = canAccessContent(context.session.user.isPremium, role, row.subtestOrder, row.order);
 
 	if (!hasAccess) {
 		throw errors.FORBIDDEN({ message: "Konten ini memerlukan akun premium" });

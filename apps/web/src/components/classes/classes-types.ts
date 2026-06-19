@@ -1,6 +1,6 @@
-import type { BodyOutputs } from "@/utils/orpc";
+import type { BodyOutputs } from "@/lib/orpc";
 
-export type SubjectListItem = BodyOutputs["subject"]["list"][number];
+export type SubjectListItem = BodyOutputs["subject"]["list"]["items"][number];
 
 export type ContentListItem = NonNullable<BodyOutputs["subject"]["listContent"]>["items"][number];
 
@@ -18,5 +18,6 @@ export type LastContentViewedItem = ContentActionItem & {
 	title: string;
 };
 
-export type SubjectFilter = "all" | "sd" | "smp" | "sma" | "utbk";
+export type SubjectCategory = SubjectListItem["category"];
+export type SubjectFilter = "all" | SubjectCategory;
 export type ContentFilter = "all" | "video" | "notes" | "quiz";

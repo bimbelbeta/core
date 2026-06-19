@@ -1,8 +1,8 @@
 import { user } from "@bimbelbeta/db/schema/auth";
 import { creditTransaction } from "@bimbelbeta/db/schema/credit";
 import { type } from "arktype";
-import { createSelectSchema } from "drizzle-arktype";
-import { oc } from "../../lib/contract-definition";
+import { createSelectSchema } from "drizzle-orm/arktype";
+import { oc } from "@/lib/contract-definition";
 
 const CreditAdjustmentInputSchema = type({
 	userId: "string",
@@ -26,7 +26,7 @@ const UserCreditsOutputSchema = type({
 });
 
 export const adminCreditContract = {
-	adjustCredits: oc
+	adjust: oc
 		.route({
 			path: "/admin/users/{userId}/credits",
 			method: "POST",

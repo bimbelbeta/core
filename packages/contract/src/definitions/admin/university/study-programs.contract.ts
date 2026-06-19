@@ -1,8 +1,8 @@
 import { studyProgram } from "@bimbelbeta/db/schema/university";
 import { type } from "arktype";
-import { createSelectSchema } from "drizzle-arktype";
-import { PageInfoSchema, PaginationInputSchema } from "../../../common/pagination";
-import { oc } from "../../../lib/contract-definition";
+import { createSelectSchema } from "drizzle-orm/arktype";
+import { PageInfoSchema, PaginationInputSchema } from "@/common/pagination";
+import { oc } from "@/lib/contract-definition";
 
 const StudyProgramSchema = createSelectSchema(studyProgram)
 	.pick("name", "slug", "description", "category")

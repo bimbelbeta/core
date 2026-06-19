@@ -11,8 +11,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
+import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
-import { orpc } from "@/utils/orpc";
 
 // const TIME_ELAPSED_BEFORE_SHOWING_AGAIN = 1000 * 60 * 60 * 24 * 1; // 1 days
 
@@ -28,7 +28,7 @@ export function TargetSelectionDialog() {
 	const queryClient = useQueryClient();
 	const { session } = useRouteContext({ from: "/_authenticated" });
 	const userKey = session?.user?.email || session?.user?.id || "guest";
-	const { data } = useQuery(orpc.userSettings.getTarget.queryOptions());
+	const { data } = useQuery(orpc.userSettings.findTarget.queryOptions());
 
 	const [open, setOpen] = useState<boolean>(false);
 	useEffect(() => {
@@ -39,7 +39,7 @@ export function TargetSelectionDialog() {
 		orpc.userSettings.update.mutationOptions({
 			onSuccess: () => {
 				setOpen(false);
-				queryClient.invalidateQueries({ queryKey: orpc.userSettings.getTarget.queryKey() });
+				queryClient.invalidateQueries({ queryKey: orpc.userSettings.findTarget.queryKey() });
 			},
 			onError: (error: Error) => {
 				toast.error(error.message || "Gagal menyimpan target");

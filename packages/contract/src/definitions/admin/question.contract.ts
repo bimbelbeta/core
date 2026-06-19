@@ -1,8 +1,9 @@
 import { question, questionChoice } from "@bimbelbeta/db/schema/question";
 import { type } from "arktype";
-import { createSelectSchema } from "drizzle-arktype";
-import { PageInfoSchema, PaginationInputSchema } from "../../common/pagination";
-import { oc } from "../../lib/contract-definition";
+import { createSelectSchema } from "drizzle-orm/arktype";
+import { PageInfoSchema, PaginationInputSchema } from "@/common/pagination";
+import { MessageResponseSchema } from "@/common/response";
+import { oc } from "@/lib/contract-definition";
 
 const ChoiceSchema = createSelectSchema(questionChoice)
 	.pick("questionId", "code", "content", "isCorrect", "createdAt", "updatedAt")
@@ -24,7 +25,12 @@ const QuestionBaseSchema = createSelectSchema(question)
 		"createdAt",
 		"updatedAt",
 	)
-	.merge({ id: "number", tags: "string[] | null" });
+	.merge({
+		id: "number",
+		tags: "string[] | null",
+		contentJson: "unknown",
+		discussionJson: "unknown",
+	});
 const QuestionListItemSchema = type({
 	"...": QuestionBaseSchema,
 	content: "unknown",
@@ -38,10 +44,8 @@ const QuestionDetailSchema = type({
 	discussion: "unknown",
 });
 
-const MessageResponseSchema = type({ message: "string" });
-
 export const adminQuestionContract = {
-	createQuestion: oc
+	create: oc
 		.route({ path: "/admin/questions", method: "POST", tags: ["Admin - Questions"] })
 		.input(
 			type({
@@ -71,7 +75,7 @@ export const adminQuestionContract = {
 		.route({ path: "/admin/questions/{id}", method: "GET", tags: ["Admin - Questions"] })
 		.input(type({ id: "number" }))
 		.output(type({ question: QuestionDetailSchema, choices: ChoiceSchema.array() })),
-	updateQuestion: oc
+	update: oc
 		.route({ path: "/admin/questions/{id}", method: "PATCH", tags: ["Admin - Questions"] })
 		.input(
 			type({

@@ -6,12 +6,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 import { EditRoleDialog } from "./-components/edit-role-dialog";
 import { GrantCreditsDialog } from "./-components/grant-credits-dialog";
 import { GrantPremiumDialog } from "./-components/grant-premium-dialog";
 
 export const Route = createFileRoute("/admin/_superadmin/users/$userId")({
+	staticData: { breadcrumb: "Detail User" },
 	component: UserDetailPage,
 });
 

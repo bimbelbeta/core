@@ -3,11 +3,11 @@ import { Link } from "@tanstack/react-router";
 import { buttonVariants } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { Highlight } from "@/components/ui/highlight";
+import { formatRupiah } from "@/lib/formatter";
 import { cn } from "@/lib/utils";
-import { formatRupiah } from "@/utils/formatter";
 import { Heading } from "./-components/heading";
 import { Subheading } from "./-components/subheading";
-import { DATA } from "./data";
+import { HOME_PAGE_CONTENT } from "./data";
 
 export function Pricing() {
 	return (
@@ -21,13 +21,13 @@ export function Pricing() {
 
 			<div className="space-y-6">
 				<div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-					{DATA.pricing.programs.map((item) => (
+					{HOME_PAGE_CONTENT.pricing.programs.map((item) => (
 						<ProgramPricingCard key={item.id} {...item} />
 					))}
 				</div>
 
 				<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-4">
-					{DATA.pricing.tryouts.map((item) => (
+					{HOME_PAGE_CONTENT.pricing.tryouts.map((item) => (
 						<TryoutPricingCard key={item.id} {...item} />
 					))}
 				</div>

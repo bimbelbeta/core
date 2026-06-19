@@ -12,11 +12,7 @@ export function useDebouncedMutation<TData = unknown, TError = DefaultError, TVa
 	const isMountedRef = useRef(true);
 	const mutation = useMutation(options);
 	const mutateRef = useRef(mutation.mutate);
-
-	// Keep the mutate ref up to date
-	useEffect(() => {
-		mutateRef.current = mutation.mutate;
-	}, [mutation.mutate]);
+	mutateRef.current = mutation.mutate;
 
 	// Cleanup timeout on unmount
 	useEffect(() => {

@@ -1,14 +1,11 @@
 import { NodeSelection, TextSelection } from "@tiptap/pm/state";
 import type { Editor } from "@tiptap/react";
 import { useCallback, useEffect, useState } from "react";
-// --- Hooks ---
 import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
-// --- Icons ---
 import { ListIcon } from "@/components/tiptap-icons/list-icon";
 import { ListOrderedIcon } from "@/components/tiptap-icons/list-ordered-icon";
 import { ListTodoIcon } from "@/components/tiptap-icons/list-todo-icon";
 
-// --- Lib ---
 import {
 	findNodePosition,
 	isNodeInSchema,
@@ -23,22 +20,10 @@ export type ListType = "bulletList" | "orderedList" | "taskList";
  * Configuration for the list functionality
  */
 export interface UseListConfig {
-	/**
-	 * The Tiptap editor instance.
-	 */
 	editor?: Editor | null;
-	/**
-	 * The type of list to toggle.
-	 */
 	type: ListType;
-	/**
-	 * Whether the button should hide when list is not available.
-	 * @default false
-	 */
+	/** @default false */
 	hideWhenUnavailable?: boolean;
-	/**
-	 * Callback function called after a successful toggle.
-	 */
 	onToggled?: () => void;
 }
 

@@ -2,19 +2,19 @@ import { generateSlug } from "@bimbelbeta/contract/utils";
 import { db } from "@bimbelbeta/db";
 import { product } from "@bimbelbeta/db/schema/transaction";
 import { and, asc, desc, eq, gt, ilike, isNotNull, isNull, lt } from "drizzle-orm";
-import { decodeCursor, encodeCursor } from "../../lib/pagination/cursor";
-import { baseImplementer } from "../../lib/router-definition";
-import { rateLimit, requireAuth, requireSuperAdmin } from "../../lib/router-definition/middleware";
+import { requireCreated, requireFound } from "@/lib/crud-helpers";
+import { buildStringIdCursorPage, parseStringIdCursor } from "@/lib/pagination/cursor";
+import { superAdminImplementer } from "@/lib/router-definition";
 
-const superadmin = baseImplementer.use(requireAuth).use(rateLimit).use(requireSuperAdmin);
+const superadmin = superAdminImplementer;
 
 const list = superadmin.admin.products.list.handler(async ({ input }) => {
 	const limit = input.limit ?? 10;
 	const isBackward = !!input.before;
-	const cursorStr = input.before || input.after;
-	const cursorId = cursorStr ? decodeCursor(cursorStr) : undefined;
+	const cursor = input.before || input.after;
+	const cursorId = cursor ? parseStringIdCursor(cursor) : undefined;
 
-	let rows = await db
+	const rows = await db
 		.select()
 		.from(product)
 		.where(
@@ -28,22 +28,9 @@ const list = superadmin.admin.products.list.handler(async ({ input }) => {
 		.orderBy(isBackward ? desc(product.id) : asc(product.id))
 		.limit(limit + 1);
 
-	const hasExtra = rows.length > limit;
-	if (hasExtra) rows = rows.slice(0, limit);
-	if (isBackward) rows.reverse();
+	const { items, pageInfo } = buildStringIdCursorPage(rows, limit, isBackward, !!cursor);
 
-	const firstItem = rows[0];
-	const lastItem = rows[rows.length - 1];
-
-	return {
-		items: rows,
-		pageInfo: {
-			hasNextPage: isBackward ? !!cursorStr : hasExtra,
-			hasPreviousPage: isBackward ? hasExtra : !!cursorStr,
-			startCursor: firstItem ? encodeCursor(firstItem.id) : null,
-			endCursor: lastItem ? encodeCursor(lastItem.id) : null,
-		},
-	};
+	return { items, pageInfo };
 });
 
 const find = superadmin.admin.products.find.handler(async ({ input, errors }) => {
@@ -90,25 +77,25 @@ const create = superadmin.admin.products.create.handler(async ({ input, errors }
 		throw errors.BAD_REQUEST({ message: `Slug "${slug}" sudah digunakan` });
 	}
 
-	const [created] = await db
-		.insert(product)
-		.values({
-			name: input.name,
-			slug,
-			description: input.description ?? null,
-			price: input.price,
-			type: input.type,
-			variant: input.variant,
-			fixedExpiryMonth: input.variant === "fixed_date" ? input.fixedExpiryMonth : null,
-			fixedExpiryDay: input.variant === "fixed_date" ? input.fixedExpiryDay : null,
-			durationDays: input.variant === "monthly" ? input.durationDays : null,
-			credits: input.variant === "credits" ? input.credits : null,
-		})
-		.returning();
-
-	if (!created) {
-		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal membuat product" });
-	}
+	const created = requireCreated(
+		await db
+			.insert(product)
+			.values({
+				name: input.name,
+				slug,
+				description: input.description ?? null,
+				price: input.price,
+				type: input.type,
+				variant: input.variant,
+				fixedExpiryMonth: input.variant === "fixed_date" ? input.fixedExpiryMonth : null,
+				fixedExpiryDay: input.variant === "fixed_date" ? input.fixedExpiryDay : null,
+				durationDays: input.variant === "monthly" ? input.durationDays : null,
+				credits: input.variant === "credits" ? input.credits : null,
+			})
+			.returning(),
+		"product",
+		errors,
+	);
 
 	return {
 		message: "Product berhasil dibuat",
@@ -210,11 +197,11 @@ const update = superadmin.admin.products.update.handler(async ({ input, errors }
 		if (input.credits !== undefined) updateData.credits = input.credits;
 	}
 
-	const [updated] = await db.update(product).set(updateData).where(eq(product.id, input.productId)).returning();
-
-	if (!updated) {
-		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memperbarui product" });
-	}
+	await requireFound(
+		await db.update(product).set(updateData).where(eq(product.id, input.productId)).returning(),
+		"Product",
+		errors,
+	);
 
 	return { message: "Product berhasil diperbarui" };
 });
@@ -230,15 +217,11 @@ const remove = superadmin.admin.products.remove.handler(async ({ input, errors }
 		throw errors.BAD_REQUEST({ message: "Product sudah dihapus" });
 	}
 
-	const [updated] = await db
-		.update(product)
-		.set({ deletedAt: new Date() })
-		.where(eq(product.id, input.productId))
-		.returning();
-
-	if (!updated) {
-		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal menghapus product" });
-	}
+	await requireFound(
+		await db.update(product).set({ deletedAt: new Date() }).where(eq(product.id, input.productId)).returning(),
+		"Product",
+		errors,
+	);
 
 	return { message: "Product berhasil dihapus" };
 });
@@ -254,15 +237,11 @@ const restore = superadmin.admin.products.restore.handler(async ({ input, errors
 		throw errors.NOT_FOUND({ message: "Product tidak ditemukan atau belum dihapus" });
 	}
 
-	const [updated] = await db
-		.update(product)
-		.set({ deletedAt: null })
-		.where(eq(product.id, input.productId))
-		.returning();
-
-	if (!updated) {
-		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memulihkan product" });
-	}
+	await requireFound(
+		await db.update(product).set({ deletedAt: null }).where(eq(product.id, input.productId)).returning(),
+		"Product",
+		errors,
+	);
 
 	return { message: "Product berhasil dipulihkan" };
 });

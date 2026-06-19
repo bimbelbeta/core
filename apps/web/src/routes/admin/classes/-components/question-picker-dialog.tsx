@@ -10,10 +10,18 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 
 type CategoryFilter = "all" | "sd" | "smp" | "sma" | "utbk";
 type TypeFilter = "all" | "multiple_choice" | "essay";
+
+function isCategoryFilter(v: string): v is CategoryFilter {
+	return ["all", "sd", "smp", "sma", "utbk"].includes(v);
+}
+
+function isTypeFilter(v: string): v is TypeFilter {
+	return ["all", "multiple_choice", "essay"].includes(v);
+}
 
 interface QuestionPickerDialogProps {
 	open: boolean;
@@ -147,7 +155,12 @@ export function QuestionPickerDialog({
 								/>
 							</InputGroup>
 						</div>
-						<Select value={categoryFilter} onValueChange={(v) => setCategoryFilter(v as CategoryFilter)}>
+						<Select
+							value={categoryFilter}
+							onValueChange={(v) => {
+								if (isCategoryFilter(v)) setCategoryFilter(v);
+							}}
+						>
 							<SelectTrigger className="w-28">
 								<SelectValue placeholder="Kategori" />
 							</SelectTrigger>
@@ -159,7 +172,12 @@ export function QuestionPickerDialog({
 								<SelectItem value="utbk">UTBK</SelectItem>
 							</SelectContent>
 						</Select>
-						<Select value={typeFilter} onValueChange={(v) => setTypeFilter(v as TypeFilter)}>
+						<Select
+							value={typeFilter}
+							onValueChange={(v) => {
+								if (isTypeFilter(v)) setTypeFilter(v);
+							}}
+						>
 							<SelectTrigger className="w-36">
 								<SelectValue placeholder="Tipe" />
 							</SelectTrigger>

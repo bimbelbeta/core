@@ -2,12 +2,11 @@ import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
 import { and, eq } from "drizzle-orm";
-import { baseImplementer } from "../lib/router-definition";
-import { rateLimit, requireAuth } from "../lib/router-definition/middleware";
+import { authedNoPremiumImplementer } from "@/lib/router-definition";
 
-const authed = baseImplementer.use(requireAuth).use(rateLimit);
+const authed = authedNoPremiumImplementer;
 
-const getTarget = authed.userSettings.getTarget.handler(async ({ context, errors }) => {
+const findTarget = authed.userSettings.findTarget.handler(async ({ context, errors }) => {
 	if (!context.session.user.targetUniversityId || !context.session.user.targetStudyProgramId)
 		return {
 			university: null,
@@ -67,21 +66,27 @@ const update = authed.userSettings.update.handler(async ({ input, context, error
 		});
 	}
 
-	await db
+	const [updated] = await db
 		.update(user)
 		.set({
 			targetUniversityId: universityId,
 			targetStudyProgramId: studyProgramId,
 		})
-		.where(eq(user.id, userId));
+		.where(eq(user.id, userId))
+		.returning({
+			id: user.id,
+			targetUniversityId: user.targetUniversityId,
+			targetStudyProgramId: user.targetStudyProgramId,
+		});
 
-	return {
-		success: true,
-		message: "Target universitas dan program studi berhasil disimpan",
-	};
+	if (!updated) {
+		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal menyimpan target" });
+	}
+
+	return updated;
 });
 
 export const userSettingsRouter = {
-	getTarget,
+	findTarget,
 	update,
 };

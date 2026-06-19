@@ -17,9 +17,9 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { authClient } from "@/lib/auth-client";
+import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { cn } from "@/lib/utils";
-import { orpc } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_authenticated/tryout/results/$attemptId")({
 	component: RouteComponent,
@@ -33,12 +33,12 @@ function RouteComponent() {
 	const [showPremiumDialog, setShowPremiumDialog] = useState(false);
 
 	const { data, isPending, error } = useQuery(
-		orpc.tryout.attemptResult.queryOptions({
+		orpc.tryout.result.queryOptions({
 			input: { attemptId: attemptId },
 		}),
 	);
 
-	const target = useQuery(orpc.userSettings.getTarget.queryOptions());
+	const target = useQuery(orpc.userSettings.findTarget.queryOptions());
 
 	if (isPending) {
 		return (
@@ -162,7 +162,7 @@ function RouteComponent() {
 												size="icon"
 												className="h-8 w-8 rounded-md bg-[#009CA6] hover:cursor-pointer hover:bg-[#008a93]"
 												onClick={() => {
-													if (session.data?.user.isPremium || data.usedCredit) {
+													if (session.data?.user.isPremium || data.usedCredit || data.usedAccessCode) {
 														navigate({
 															to: "/tryout/review/$attemptId/$subtestId",
 															params: {

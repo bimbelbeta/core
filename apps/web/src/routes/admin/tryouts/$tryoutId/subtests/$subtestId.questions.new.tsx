@@ -3,6 +3,7 @@ import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { CreateQuestionForm } from "@/routes/admin/questions/-components/create-question-form";
 
 export const Route = createFileRoute("/admin/tryouts/$tryoutId/subtests/$subtestId/questions/new")({
+	staticData: { breadcrumb: "Buat Soal" },
 	component: CreateQuestionPage,
 });
 

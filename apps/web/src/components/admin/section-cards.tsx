@@ -2,7 +2,7 @@ import { ArrowUpIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 
 export function SectionCards() {
 	const { data: stats, isLoading } = useQuery(orpc.admin.dashboard.stats.queryOptions());

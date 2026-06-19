@@ -1,4 +1,5 @@
 import { PaginationInputSchema } from "@bimbelbeta/contract/common/pagination";
+import { ROLES, type Role, RoleSchema } from "@bimbelbeta/contract/common/roles";
 import { CalendarDotsIcon, ClockIcon, CreditCardIcon, CrownIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -28,21 +29,24 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { usePaginationNavigation } from "@/hooks/use-pagination-navigation";
+import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
-import { orpc } from "@/utils/orpc";
 import { EditRoleDialog } from "./-components/edit-role-dialog";
 import { GrantCreditsDialog } from "./-components/grant-credits-dialog";
 import { GrantPremiumDialog } from "./-components/grant-premium-dialog";
 import { formatPremiumExpiry, formatRelativeDate, getInitials, roleConfig } from "./-utils";
 
+const isValidRole = (v: string): v is Role => (Object.values(ROLES) as readonly string[]).includes(v);
+
 const searchSchema = type({
 	"...": PaginationInputSchema,
 	"search?": "string",
-	"role?": "'user' | 'admin' | 'superadmin'",
+	"role?": RoleSchema,
 	"isPremium?": "boolean",
 });
 
 export const Route = createFileRoute("/admin/_superadmin/users/")({
+	staticData: { breadcrumb: "Users" },
 	component: UsersListPage,
 	validateSearch: searchSchema,
 });
@@ -108,9 +112,9 @@ function UsersListPage() {
 	const handleRoleChange = (value: string) => {
 		navigate({
 			search:
-				value !== "all"
+				value !== "all" && isValidRole(value)
 					? {
-							role: value as "user" | "admin" | "superadmin",
+							role: value,
 							...(search && { search }),
 							...(isPremium !== undefined && { isPremium }),
 							limit,
@@ -164,9 +168,9 @@ function UsersListPage() {
 						</SelectTrigger>
 						<SelectContent>
 							<SelectItem value="all">Semua Role</SelectItem>
-							<SelectItem value="user">User</SelectItem>
-							<SelectItem value="admin">Admin</SelectItem>
-							<SelectItem value="superadmin">Superadmin</SelectItem>
+							<SelectItem value={ROLES.USER}>User</SelectItem>
+							<SelectItem value={ROLES.ADMIN}>Admin</SelectItem>
+							<SelectItem value={ROLES.SUPER_ADMIN}>Superadmin</SelectItem>
 						</SelectContent>
 					</Select>
 					<Select

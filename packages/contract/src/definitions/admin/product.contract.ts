@@ -1,8 +1,9 @@
 import { product } from "@bimbelbeta/db/schema/transaction";
 import { type } from "arktype";
-import { createSelectSchema } from "drizzle-arktype";
-import { PageInfoSchema, PaginationInputSchema } from "../../common/pagination";
-import { oc } from "../../lib/contract-definition";
+import { createSelectSchema } from "drizzle-orm/arktype";
+import { PageInfoSchema, PaginationInputSchema } from "@/common/pagination";
+import { MessageResponseSchema } from "@/common/response";
+import { oc } from "@/lib/contract-definition";
 
 const ProductSchema = createSelectSchema(product);
 
@@ -20,10 +21,6 @@ const ProductListOutputSchema = type({
 
 const ProductDetailOutputSchema = type({
 	product: ProductSchema,
-});
-
-const MessageResponseSchema = type({
-	message: "string",
 });
 
 const ProductCreateOutputSchema = type({

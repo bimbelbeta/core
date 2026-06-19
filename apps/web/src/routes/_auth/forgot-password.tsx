@@ -45,7 +45,6 @@ function RouteComponent() {
 			});
 
 			if (error) {
-				console.error(error);
 				toast.error(error.message || "Terjadi kesalahan. Silakan coba lagi.");
 			} else {
 				setHasSubmitted(true);

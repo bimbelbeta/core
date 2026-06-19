@@ -1,7 +1,8 @@
 import { product } from "@bimbelbeta/db/schema/transaction";
 import { type } from "arktype";
-import { createSelectSchema } from "drizzle-arktype";
-import { oc } from "../lib/contract-definition";
+import { createSelectSchema } from "drizzle-orm/arktype";
+import { PageInfoSchema } from "@/common/pagination";
+import { oc } from "@/lib/contract-definition";
 
 const CreditPackageSchema = createSelectSchema(product).pick("id", "name", "slug", "price", "credits");
 const BalanceSchema = type({
@@ -22,5 +23,17 @@ export const creditContract = {
 			method: "GET",
 			tags: ["Credits"],
 		})
-		.output(CreditPackageSchema.array()),
+		.input(
+			type({
+				"limit?": "number >= 1",
+				"after?": "string",
+				"before?": "string",
+			}),
+		)
+		.output(
+			type({
+				items: CreditPackageSchema.array(),
+				pageInfo: PageInfoSchema,
+			}),
+		),
 };

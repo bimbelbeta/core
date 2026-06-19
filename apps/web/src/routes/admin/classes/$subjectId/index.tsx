@@ -31,8 +31,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SearchInput } from "@/components/ui/search-input";
+import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
-import { orpc } from "@/utils/orpc";
 
 const searchSchema = type({
 	"q?": "string",
@@ -40,6 +40,7 @@ const searchSchema = type({
 });
 
 export const Route = createFileRoute("/admin/classes/$subjectId/")({
+	staticData: { breadcrumb: "Subject" },
 	component: RouteComponent,
 	validateSearch: searchSchema,
 });
@@ -81,7 +82,7 @@ function RouteComponent() {
 	const invalidateContent = () => queryClient.invalidateQueries({ queryKey: orpc.subject.listContent.key() });
 
 	const createMutation = useMutation(
-		orpc.admin.content.createContent.mutationOptions({
+		orpc.admin.content.create.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
 				invalidateContent();
@@ -94,7 +95,7 @@ function RouteComponent() {
 	);
 
 	const updateMutation = useMutation(
-		orpc.admin.content.updateContent.mutationOptions({
+		orpc.admin.content.update.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
 				invalidateContent();
@@ -108,7 +109,7 @@ function RouteComponent() {
 	);
 
 	const deleteMutation = useMutation(
-		orpc.admin.content.removeContent.mutationOptions({
+		orpc.admin.content.remove.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
 				invalidateContent();
@@ -122,7 +123,7 @@ function RouteComponent() {
 	);
 
 	const reorderMutation = useMutation(
-		orpc.admin.content.reorderContent.mutationOptions({
+		orpc.admin.content.reorder.mutationOptions({
 			onSuccess: (data) => {
 				toast.success(data.message);
 				invalidateContent();

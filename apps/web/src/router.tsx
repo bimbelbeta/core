@@ -1,7 +1,7 @@
+import { QueryClientProvider } from "@tanstack/react-query";
 import { createRouter as createTanStackRouter } from "@tanstack/react-router";
 import { configure } from "arktype/config";
 import Loader from "./components/shared/loader";
-import { QueryClientProvider } from "@tanstack/react-query";
 
 configure({
 	keywords: {
@@ -13,8 +13,8 @@ configure({
 
 import ErrorComponent from "./components/shared/error";
 import NotFound from "./components/shared/not-found";
+import { orpc, queryClient } from "./lib/orpc";
 import { routeTree } from "./routeTree.gen";
-import { orpc, queryClient } from "./utils/orpc";
 
 export const getRouter = () => {
 	const router = createTanStackRouter({
@@ -33,5 +33,8 @@ export const getRouter = () => {
 declare module "@tanstack/react-router" {
 	interface Register {
 		router: ReturnType<typeof getRouter>;
+	}
+	interface StaticDataRouteOption {
+		breadcrumb?: string;
 	}
 }

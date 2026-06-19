@@ -16,12 +16,13 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
-import { orpc } from "@/utils/orpc";
 import { LinkedQuestionsList } from "../-components/linked-questions-list";
 import { QuestionPickerDialog } from "../-components/question-picker-dialog";
 
 export const Route = createFileRoute("/admin/classes/$subjectId/$contentId/latihan-soal")({
+	staticData: { breadcrumb: "Latihan Soal" },
 	component: RouteComponent,
 });
 

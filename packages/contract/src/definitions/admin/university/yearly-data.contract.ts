@@ -1,8 +1,8 @@
 import { programYearlyData, studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
 import { type } from "arktype";
-import { createSelectSchema } from "drizzle-arktype";
-import { PageInfoSchema, PaginationInputSchema } from "../../../common/pagination";
-import { oc } from "../../../lib/contract-definition";
+import { createSelectSchema } from "drizzle-orm/arktype";
+import { PageInfoSchema, PaginationInputSchema } from "@/common/pagination";
+import { oc } from "@/lib/contract-definition";
 
 const UniversityProgramSummarySchema = createSelectSchema(university).pick("name", "slug").merge({ id: "number" });
 const StudyProgramSummarySchema = createSelectSchema(studyProgram).pick("name", "category").merge({ id: "number" });
@@ -61,7 +61,7 @@ export const adminUniversityProgramsContract = {
 		.route({ path: "/admin/university-programs/{id}", method: "DELETE", tags: ["Admin - University Programs"] })
 		.input(type({ id: "number" }))
 		.output(type({ message: "string" })),
-	upsertYearlyData: oc
+	upsert: oc
 		.route({ path: "/admin/university-programs/{id}/yearly", method: "POST", tags: ["Admin - University Programs"] })
 		.input(
 			type({

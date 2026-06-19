@@ -1,9 +1,9 @@
 import { questionChoice } from "@bimbelbeta/db/schema/question";
 import { type } from "arktype";
-import { createSelectSchema } from "drizzle-arktype";
-import { oc } from "../../lib/contract-definition";
+import { createSelectSchema } from "drizzle-orm/arktype";
+import { MessageResponseSchema } from "@/common/response";
+import { oc } from "@/lib/contract-definition";
 
-const MessageResponseSchema = type({ message: "string" });
 const ContentMaterialCountSchema = type({ "video?": "number", "note?": "number", "practiceQuestions?": "number" });
 const QuestionChoiceSchema = createSelectSchema(questionChoice)
 	.pick("questionId", "code", "content", "isCorrect", "createdAt", "updatedAt")
@@ -48,7 +48,7 @@ export const adminSubjectContract = {
 };
 
 export const adminContentContract = {
-	createContent: oc
+	create: oc
 		.route({ path: "/admin/content", method: "POST", tags: ["Admin - Content"] })
 		.input(
 			type({
@@ -61,15 +61,15 @@ export const adminContentContract = {
 			}),
 		)
 		.output(type({ message: "string", contentId: "number", createdMaterials: ContentMaterialCountSchema })),
-	updateContent: oc
+	update: oc
 		.route({ path: "/admin/content/{id}", method: "PATCH", tags: ["Admin - Content"] })
 		.input(type({ id: "number", title: "string?", order: "number?" }))
 		.output(MessageResponseSchema),
-	removeContent: oc
+	remove: oc
 		.route({ path: "/admin/content/{id}", method: "DELETE", tags: ["Admin - Content"] })
 		.input(type({ id: "number" }))
 		.output(MessageResponseSchema),
-	reorderContent: oc
+	reorder: oc
 		.route({ path: "/admin/content/reorder", method: "PATCH", tags: ["Admin - Content"] })
 		.input(type({ subjectId: "number", items: type({ id: "number", order: "number" }).array() }))
 		.output(MessageResponseSchema),

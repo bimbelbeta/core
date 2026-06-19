@@ -1,4 +1,9 @@
-import type { MidtransFraudStatus, MidtransTransactionStatus, PurchaseBenefits, TransactionWithProduct } from "./types";
+import type {
+	MidtransFraudStatus,
+	MidtransTransactionStatus,
+	PurchaseBenefits,
+	TransactionWithProduct,
+} from "@/lib/transactions/types";
 
 export type NotificationOutcome =
 	| { action: "already_processed" }

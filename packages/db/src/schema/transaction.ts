@@ -1,5 +1,5 @@
 import { decimal, index, integer, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
-import { user } from "./auth";
+import { user } from "@/schema/auth";
 
 /**
  * PRODUCT VARIANT ARCHITECTURE

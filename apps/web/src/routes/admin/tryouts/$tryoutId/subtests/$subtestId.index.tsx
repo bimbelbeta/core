@@ -15,13 +15,14 @@ import {
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
-import { orpc } from "@/utils/orpc";
 import { BulkAddQuestionsDialog } from "../../-components/bulk-add-questions-dialog";
 import { BulkQuestionsTable } from "../../-components/bulk-questions-table";
 import { ScoringMapEditor } from "../../-components/scoring-map-editor";
 
 export const Route = createFileRoute("/admin/tryouts/$tryoutId/subtests/$subtestId/")({
+	staticData: { breadcrumb: "Subtest" },
 	component: SubtestDetailPage,
 });
 

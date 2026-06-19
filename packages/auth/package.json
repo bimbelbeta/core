@@ -24,6 +24,7 @@
 		"typescript": "^5"
 	},
 	"dependencies": {
+		"@bimbelbeta/contract": "workspace:*",
 		"@bimbelbeta/db": "workspace:*",
 		"arktype": "catalog:",
 		"better-auth": "catalog:",

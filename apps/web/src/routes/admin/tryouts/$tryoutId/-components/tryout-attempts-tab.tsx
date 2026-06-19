@@ -10,8 +10,8 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
-import { orpc } from "@/utils/orpc";
 
 function getInitials(name: string) {
 	return name

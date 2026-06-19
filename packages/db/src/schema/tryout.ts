@@ -12,8 +12,8 @@ import {
 	timestamp,
 	unique,
 } from "drizzle-orm/pg-core";
-import { user } from "./auth";
-import { question, questionChoice } from "./question";
+import { user } from "@/schema/auth";
+import { question, questionChoice } from "@/schema/question";
 
 /*
   Tryout & Subtests
@@ -35,6 +35,31 @@ export const tryout = pgTable("tryout", {
 		.defaultNow()
 		.$onUpdate(() => new Date()),
 });
+
+export const tryoutAccessCode = pgTable(
+	"tryout_access_code",
+	{
+		id: integer().primaryKey().generatedAlwaysAsIdentity(),
+		tryoutId: integer("tryout_id")
+			.notNull()
+			.references(() => tryout.id, { onDelete: "cascade" }),
+		codeHash: text("code_hash").notNull(),
+		codePreview: text("code_preview").notNull(),
+		label: text(),
+		isActive: boolean("is_active").notNull().default(true),
+		expiresAt: timestamp("expires_at"),
+		maxUses: integer("max_uses"),
+		usedCount: integer("used_count").notNull().default(0),
+		createdAt: timestamp("created_at").defaultNow(),
+		updatedAt: timestamp("updated_at")
+			.defaultNow()
+			.$onUpdate(() => new Date()),
+	},
+	(t) => [
+		index("idx_tryout_access_code_tryout_id").on(t.tryoutId),
+		unique("uq_tryout_access_code_hash").on(t.tryoutId, t.codeHash),
+	],
+);
 
 export const tryoutSubtest = pgTable(
 	"tryout_subtest",
@@ -95,6 +120,8 @@ export const tryoutAttempt = pgTable(
 		submittedImageUrl: text("submitted_image_url"),
 		isRevoked: boolean("is_revoked").notNull().default(false),
 		usedCredit: boolean("used_credit").notNull().default(false),
+		usedAccessCode: boolean("used_access_code").notNull().default(false),
+		accessCodeId: integer("access_code_id").references(() => tryoutAccessCode.id, { onDelete: "set null" }),
 	},
 	(t) => [unique("user_tryout_attempt").on(t.userId, t.tryoutId), index("idx_tryout_attempt_tryout_id").on(t.tryoutId)],
 );
@@ -143,6 +170,7 @@ export const tryoutUserAnswer = pgTable(
 export const tryoutRelations = defineRelationsPart(
 	{
 		tryout,
+		tryoutAccessCode,
 		tryoutSubtest,
 		tryoutSubtestQuestion,
 		tryoutAttempt,
@@ -161,6 +189,20 @@ export const tryoutRelations = defineRelationsPart(
 			attempts: r.many.tryoutAttempt({
 				from: r.tryout.id,
 				to: r.tryoutAttempt.tryoutId,
+			}),
+			accessCodes: r.many.tryoutAccessCode({
+				from: r.tryout.id,
+				to: r.tryoutAccessCode.tryoutId,
+			}),
+		},
+		tryoutAccessCode: {
+			tryout: r.one.tryout({
+				from: r.tryoutAccessCode.tryoutId,
+				to: r.tryout.id,
+			}),
+			attempts: r.many.tryoutAttempt({
+				from: r.tryoutAccessCode.id,
+				to: r.tryoutAttempt.accessCodeId,
 			}),
 		},
 		tryoutSubtest: {
@@ -191,6 +233,10 @@ export const tryoutRelations = defineRelationsPart(
 			user: r.one.user({
 				from: r.tryoutAttempt.userId,
 				to: r.user.id,
+			}),
+			accessCode: r.one.tryoutAccessCode({
+				from: r.tryoutAttempt.accessCodeId,
+				to: r.tryoutAccessCode.id,
 			}),
 			subtestAttempts: r.many.tryoutSubtestAttempt({
 				from: r.tryoutAttempt.id,

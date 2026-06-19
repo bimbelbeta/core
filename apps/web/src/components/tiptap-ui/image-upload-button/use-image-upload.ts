@@ -1,12 +1,9 @@
 import type { Editor } from "@tiptap/react";
 import { useCallback, useEffect, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
-// --- Hooks ---
 import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
-// --- Icons ---
 import { ImagePlusIcon } from "@/components/tiptap-icons/image-plus-icon";
 import { useIsBreakpoint } from "@/hooks/use-is-breakpoint";
-// --- Lib ---
 import { isExtensionAvailable } from "@/lib/tiptap-utils";
 
 export const IMAGE_UPLOAD_SHORTCUT_KEY = "mod+shift+i";
@@ -15,18 +12,9 @@ export const IMAGE_UPLOAD_SHORTCUT_KEY = "mod+shift+i";
  * Configuration for the image upload functionality
  */
 export interface UseImageUploadConfig {
-	/**
-	 * The Tiptap editor instance.
-	 */
 	editor?: Editor | null;
-	/**
-	 * Whether the button should hide when insertion is not available.
-	 * @default false
-	 */
+	/** @default false */
 	hideWhenUnavailable?: boolean;
-	/**
-	 * Callback function called after a successful image insertion.
-	 */
 	onInserted?: () => void;
 }
 
@@ -84,42 +72,7 @@ export function shouldShowButton(props: { editor: Editor | null; hideWhenUnavail
 	return true;
 }
 
-/**
- * Custom hook that provides image functionality for Tiptap editor
- *
- * @example
- * ```tsx
- * // Simple usage - no params needed
- * function MySimpleImageButton() {
- *   const { isVisible, handleImage } = useImage()
- *
- *   if (!isVisible) return null
- *
- *   return <button onClick={handleImage}>Add Image</button>
- * }
- *
- * // Advanced usage with configuration
- * function MyAdvancedImageButton() {
- *   const { isVisible, handleImage, label, isActive } = useImage({
- *     editor: myEditor,
- *     hideWhenUnavailable: true,
- *     onInserted: () => console.log('Image inserted!')
- *   })
- *
- *   if (!isVisible) return null
- *
- *   return (
- *     <MyButton
- *       onClick={handleImage}
- *       aria-pressed={isActive}
- *       aria-label={label}
- *     >
- *       Add Image
- *     </MyButton>
- *   )
- * }
- * ```
- */
+/** Custom hook that provides image functionality for Tiptap editor */
 export function useImageUpload(config?: UseImageUploadConfig) {
 	const { editor: providedEditor, hideWhenUnavailable = false, onInserted } = config || {};
 

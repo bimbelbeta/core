@@ -1,4 +1,4 @@
-import { question, questionChoice } from "@bimbelbeta/db/schema/question";
+import { question } from "@bimbelbeta/db/schema/question";
 import {
 	tryout,
 	tryoutAttempt,
@@ -7,16 +7,14 @@ import {
 	tryoutUserAnswer,
 } from "@bimbelbeta/db/schema/tryout";
 import { type } from "arktype";
-import { createSelectSchema } from "drizzle-arktype";
-import { oc } from "../lib/contract-definition";
+import { createSelectSchema } from "drizzle-orm/arktype";
+import { ChoiceSchema, ChoiceWithAnswerSchema } from "@/common/choices";
+import { PageInfoSchema } from "@/common/pagination";
+import { oc } from "@/lib/contract-definition";
 
 const TryoutAttemptStatus = "'not_started' | 'ongoing' | 'finished'";
 
-const ChoiceSchema = createSelectSchema(questionChoice).pick("code").merge({ id: "number", content: "string" });
-
-const ChoiceWithAnswerSchema = createSelectSchema(questionChoice)
-	.pick("code", "isCorrect")
-	.merge({ id: "number", content: "string" });
+// ChoiceSchema and ChoiceWithAnswerSchema imported from common/choices
 
 const UserAnswerSchema = createSelectSchema(tryoutUserAnswer)
 	.pick("selectedChoiceId", "selectedChoiceIds", "essayAnswer", "isDoubtful")
@@ -73,6 +71,7 @@ const TryoutAttemptSchema = createSelectSchema(tryoutAttempt)
 		"submittedImageUrl",
 		"isRevoked",
 		"usedCredit",
+		"usedAccessCode",
 	)
 	.merge({ id: "number", startedAt: "Date", deadline: "Date", completedAt: "Date | null", score: "number | null" });
 
@@ -96,17 +95,29 @@ export type TryoutQuestion = typeof TryoutQuestionSchema.infer;
 export type ReviewQuestion = typeof ReviewQuestionSchema.infer;
 
 export const tryoutContract = {
-	list: oc.route({ path: "/tryouts", method: "GET", tags: ["Tryouts"] }).output(
-		type(
-			{
-				"...": TryoutListItemSchema,
-				attemptId: "number | null",
-				attemptStatus: `${TryoutAttemptStatus} | null`,
-				isOpen: "boolean",
-			},
-			"[]",
+	list: oc
+		.route({ path: "/tryouts", method: "GET", tags: ["Tryouts"] })
+		.input(
+			type({
+				"limit?": "number >= 1",
+				"after?": "string",
+				"before?": "string",
+			}),
+		)
+		.output(
+			type({
+				items: type(
+					{
+						"...": TryoutListItemSchema,
+						attemptId: "number | null",
+						attemptStatus: `${TryoutAttemptStatus} | null`,
+						isOpen: "boolean",
+					},
+					"[]",
+				),
+				pageInfo: PageInfoSchema,
+			}),
 		),
-	),
 	featured: oc.route({ path: "/tryouts/featured", method: "GET", tags: ["Tryouts"] }).output(
 		type({
 			"...": TryoutListItemSchema,
@@ -138,7 +149,7 @@ export const tryoutContract = {
 		),
 	start: oc
 		.route({ path: "/tryouts/{id}/start", method: "POST", tags: ["Tryouts"] })
-		.input(type({ id: "number", imageUrl: "string?", useCredit: "boolean?" }))
+		.input(type({ id: "number", imageUrl: "string?", useCredit: "boolean?", accessCode: "string?" }))
 		.output(
 			type({
 				id: "number",
@@ -152,6 +163,7 @@ export const tryoutContract = {
 				submittedImageUrl: "string | null",
 				isRevoked: "boolean",
 				usedCredit: "boolean",
+				usedAccessCode: "boolean",
 				"overallDeadline?": "Date",
 			}),
 		),
@@ -195,7 +207,7 @@ export const tryoutContract = {
 	history: oc
 		.route({ path: "/tryouts/history", method: "GET", tags: ["Tryouts"] })
 		.output(TryoutHistoryItemSchema.array()),
-	attemptResult: oc
+	result: oc
 		.route({ path: "/tryouts/attempts/{attemptId}", method: "GET", tags: ["Tryouts"] })
 		.input(type({ attemptId: "number" }))
 		.output(
@@ -207,6 +219,7 @@ export const tryoutContract = {
 				completedAt: "Date | null",
 				status: TryoutAttemptStatus,
 				usedCredit: "boolean",
+				usedAccessCode: "boolean",
 				tryout: {
 					id: "number",
 					title: "string",

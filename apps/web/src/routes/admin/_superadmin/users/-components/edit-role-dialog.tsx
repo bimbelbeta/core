@@ -1,3 +1,4 @@
+import { ROLES, type Role } from "@bimbelbeta/contract/common/roles";
 import { PencilSimpleIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
@@ -15,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { orpc } from "@/utils/orpc";
+import { orpc } from "@/lib/orpc";
 
 interface EditRoleDialogProps {
 	userId: string;
@@ -26,10 +27,11 @@ interface EditRoleDialogProps {
 	onSuccess: () => void;
 }
 
+const isValidRole = (v: string | null): v is Role =>
+	v !== null && (Object.values(ROLES) as readonly string[]).includes(v);
+
 export function EditRoleDialog({ userId, userName, currentRole, open, onOpenChange, onSuccess }: EditRoleDialogProps) {
-	const [role, setRole] = useState<"user" | "admin" | "superadmin">(
-		(currentRole as "user" | "admin" | "superadmin") ?? "user",
-	);
+	const [role, setRole] = useState<Role>(isValidRole(currentRole) ? currentRole : ROLES.USER);
 
 	const updateMutation = useMutation(
 		orpc.admin.users.update.mutationOptions({
@@ -48,7 +50,7 @@ export function EditRoleDialog({ userId, userName, currentRole, open, onOpenChan
 		<Dialog
 			open={open}
 			onOpenChange={(value) => {
-				if (!value) setRole((currentRole as "user" | "admin" | "superadmin") ?? "user");
+				if (!value) setRole(isValidRole(currentRole) ? currentRole : ROLES.USER);
 				onOpenChange(value);
 			}}
 		>
@@ -69,14 +71,19 @@ export function EditRoleDialog({ userId, userName, currentRole, open, onOpenChan
 					</div>
 					<div className="flex flex-col gap-2">
 						<Label>Role baru</Label>
-						<Select value={role} onValueChange={(val) => setRole(val as typeof role)}>
+						<Select
+							value={role}
+							onValueChange={(val) => {
+								if (isValidRole(val)) setRole(val);
+							}}
+						>
 							<SelectTrigger>
 								<SelectValue placeholder="Pilih role" />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="user">User</SelectItem>
-								<SelectItem value="admin">Admin</SelectItem>
-								<SelectItem value="superadmin">Superadmin</SelectItem>
+								<SelectItem value={ROLES.USER}>User</SelectItem>
+								<SelectItem value={ROLES.ADMIN}>Admin</SelectItem>
+								<SelectItem value={ROLES.SUPER_ADMIN}>Superadmin</SelectItem>
 							</SelectContent>
 						</Select>
 					</div>

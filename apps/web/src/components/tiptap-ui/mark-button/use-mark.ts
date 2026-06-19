@@ -1,8 +1,6 @@
 import type { Editor } from "@tiptap/react";
 import { useCallback, useEffect, useState } from "react";
-// --- Hooks ---
 import { useTiptapEditor } from "@/components/tiptap/use-tiptap-editor";
-// --- Icons ---
 import { BoldIcon } from "@/components/tiptap-icons/bold-icon";
 import { Code2Icon } from "@/components/tiptap-icons/code2-icon";
 import { ItalicIcon } from "@/components/tiptap-icons/italic-icon";
@@ -10,7 +8,6 @@ import { StrikeIcon } from "@/components/tiptap-icons/strike-icon";
 import { SubscriptIcon } from "@/components/tiptap-icons/subscript-icon";
 import { SuperscriptIcon } from "@/components/tiptap-icons/superscript-icon";
 import { UnderlineIcon } from "@/components/tiptap-icons/underline-icon";
-// --- Lib ---
 import { isMarkInSchema, isNodeTypeSelected } from "@/lib/tiptap-utils";
 
 export type Mark = "bold" | "italic" | "strike" | "code" | "underline" | "superscript" | "subscript";
@@ -19,22 +16,10 @@ export type Mark = "bold" | "italic" | "strike" | "code" | "underline" | "supers
  * Configuration for the mark functionality
  */
 export interface UseMarkConfig {
-	/**
-	 * The Tiptap editor instance.
-	 */
 	editor?: Editor | null;
-	/**
-	 * The type of mark to toggle
-	 */
 	type: Mark;
-	/**
-	 * Whether the button should hide when mark is not available.
-	 * @default false
-	 */
+	/** @default false */
 	hideWhenUnavailable?: boolean;
-	/**
-	 * Callback function called after a successful mark toggle.
-	 */
 	onToggled?: () => void;
 }
 

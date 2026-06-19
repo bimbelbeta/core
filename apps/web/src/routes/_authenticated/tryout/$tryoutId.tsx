@@ -6,9 +6,9 @@ import { toast } from "sonner";
 import ErrorComponent from "@/components/shared/error";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { cn } from "@/lib/utils";
-import { orpc } from "@/utils/orpc";
 import { TryoutGreeting } from "./-components/tryout-greeting";
 import { TryoutQuestions } from "./-components/tryout-questions";
 import useCountdown from "./-hooks/use-countdown";
@@ -55,7 +55,7 @@ function RouteComponent() {
 			onSuccess: (responseData) => {
 				queryClient.invalidateQueries({ queryKey: orpc.tryout.find.key({ input: { id: tryoutId } }) });
 				queryClient.invalidateQueries({
-					queryKey: orpc.tryout.attemptResult.key({ input: { attemptId: data?.attempt.id } }),
+					queryKey: orpc.tryout.result.key({ input: { attemptId: data?.attempt.id } }),
 				});
 				if (responseData.tryoutCompleted) {
 					toast.success("Tryout selesai!");
