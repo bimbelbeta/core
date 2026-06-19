@@ -157,6 +157,7 @@
         "@bimbelbeta/db": "workspace:*",
         "@orpc/contract": "catalog:",
         "arktype": "catalog:",
+        "drizzle-orm": "catalog:",
       },
       "devDependencies": {
         "@bimbelbeta/config": "workspace:*",
