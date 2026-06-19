@@ -1,7 +1,8 @@
 import { db } from "@bimbelbeta/db";
 import { product, transaction } from "@bimbelbeta/db/schema/transaction";
 import { and, eq } from "drizzle-orm";
-import { authedNoPremiumImplementer, baseImplementer } from "@/lib/router-definition";
+import { authedNoPremiumImplementer } from "@/lib/router-definition";
+import { baseImplementer } from "@/lib/router-definition/base";
 import { calculatePurchaseBenefits } from "@/lib/transactions/benefits";
 import { createSubscriptionTransaction } from "@/lib/transactions/client";
 import { resolveNotificationOutcome } from "@/lib/transactions/notification-routing";

@@ -11,7 +11,7 @@ type AnyFn = (...args: any[]) => any;
 
 const mockMiddleware = (fn: MockedMiddlewareFn) => fn;
 
-mock.module("@/lib/router-definition", () => ({
+mock.module("@/lib/router-definition/base", () => ({
 	baseImplementer: { middleware: mockMiddleware },
 }));
 

@@ -3,7 +3,7 @@ import { user } from "@bimbelbeta/db/schema/auth";
 import { createRatelimitMiddleware } from "@orpc/experimental-ratelimit";
 import { eq } from "drizzle-orm";
 import { ROLES } from "@/lib/roles";
-import { baseImplementer } from "@/lib/router-definition";
+import { baseImplementer } from "@/lib/router-definition/base";
 import { getFreeRatelimiter, getNoOpRatelimiter, getPremiumRatelimiter } from "@/lib/router-definition/rate-limiter";
 
 export const rateLimit = createRatelimitMiddleware({

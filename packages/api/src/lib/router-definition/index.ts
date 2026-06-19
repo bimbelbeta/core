@@ -1,6 +1,4 @@
-import { contract } from "@bimbelbeta/contract";
-import { implement } from "@orpc/server";
-import type { Context } from "@/context";
+import { baseImplementer } from "@/lib/router-definition/base";
 import {
 	rateLimit,
 	requireAdmin,
@@ -8,8 +6,6 @@ import {
 	requireSuperAdmin,
 	revokeExpiredPremium,
 } from "@/lib/router-definition/middleware";
-
-export const baseImplementer = implement(contract).$context<Context>();
 
 /**
  * Convenience factory for authenticated routes that require auth + premium check + rate limiting.
