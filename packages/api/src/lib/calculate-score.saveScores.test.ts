@@ -87,7 +87,7 @@ describe("saveScoresToDatabase", () => {
 
 		const attemptUpdate = capture.updates.find((u) => u.table === "tryout_attempt");
 		expect(attemptUpdate).toBeDefined();
-		expect(attemptUpdate?.set.score).toBe(700);
+		expect(attemptUpdate?.set.score).toBe("700");
 	});
 
 	test("handles zero subtests — only updates the tryout attempt", async () => {
@@ -101,6 +101,6 @@ describe("saveScoresToDatabase", () => {
 
 		expect(capture.updates.filter((u) => u.table === "tryout_subtest_attempt")).toHaveLength(0);
 		const attemptUpdate = capture.updates.find((u) => u.table === "tryout_attempt");
-		expect(attemptUpdate?.set.score).toBe(0);
+		expect(attemptUpdate?.set.score).toBe("0");
 	});
 });
