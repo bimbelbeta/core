@@ -226,7 +226,7 @@ export async function saveScoresToDatabase(attemptId: number, scores: TryoutScor
 		if (scores.subtests.length > 0) {
 			const caseExpr = sql.join(
 				scores.subtests.map(
-					(s) => sql`WHEN ${tryoutSubtestAttempt.id} = ${s.subtestAttemptId} THEN ${s.score.toString()}`,
+					(s) => sql`WHEN ${tryoutSubtestAttempt.id} = ${s.subtestAttemptId} THEN ${s.score}`,
 				),
 				sql` `,
 			);
@@ -237,7 +237,7 @@ export async function saveScoresToDatabase(attemptId: number, scores: TryoutScor
 				.set({ score: sql`CASE ${caseExpr} END` })
 				.where(inArray(tryoutSubtestAttempt.id, ids));
 		}
-		await t.update(tryoutAttempt).set({ score: scores.totalScore.toString() }).where(eq(tryoutAttempt.id, attemptId));
+		await t.update(tryoutAttempt).set({ score: scores.totalScore }).where(eq(tryoutAttempt.id, attemptId));
 	};
 
 	if (tx) {

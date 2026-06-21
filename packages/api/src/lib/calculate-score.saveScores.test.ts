@@ -77,17 +77,17 @@ describe("saveScoresToDatabase", () => {
 		collectParams(sqlScore.queryChunks);
 
 		// Params are the CASE WHEN bindings: id, score, id, score, ...
-		// Each WHEN clause contributes: subtestAttemptId, score.toString()
-		expect(params).toEqual([10, "800", 11, "600"]);
+		// Each WHEN clause contributes: subtestAttemptId, score (as number)
+		expect(params).toEqual([10, 800, 11, 600]);
 	});
 
-	test("updates tryout attempt with total score as string", async () => {
+	test("updates tryout attempt with total score", async () => {
 		const capture = makeMockTrx();
 		await saveScoresToDatabase(ATTEMPT_ID, scores, capture as unknown as Parameters<typeof saveScoresToDatabase>[2]);
 
 		const attemptUpdate = capture.updates.find((u) => u.table === "tryout_attempt");
 		expect(attemptUpdate).toBeDefined();
-		expect(attemptUpdate?.set.score).toBe("700");
+		expect(attemptUpdate?.set.score).toBe(700);
 	});
 
 	test("handles zero subtests — only updates the tryout attempt", async () => {
@@ -101,6 +101,6 @@ describe("saveScoresToDatabase", () => {
 
 		expect(capture.updates.filter((u) => u.table === "tryout_subtest_attempt")).toHaveLength(0);
 		const attemptUpdate = capture.updates.find((u) => u.table === "tryout_attempt");
-		expect(attemptUpdate?.set.score).toBe("0");
+		expect(attemptUpdate?.set.score).toBe(0);
 	});
 });
