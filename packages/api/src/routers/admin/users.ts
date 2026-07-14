@@ -2,7 +2,7 @@ import type { Role } from "@bimbelbeta/contract/common/roles";
 import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { creditTransaction } from "@bimbelbeta/db/schema/credit";
-import { and, asc, desc, eq, gt, like, lt, or } from "drizzle-orm";
+import { and, asc, desc, eq, gt, inArray, like, lt, or } from "drizzle-orm";
 import { requireFound } from "@/lib/crud-helpers";
 import { buildStringIdCursorPage, parseStringIdCursor } from "@/lib/pagination/cursor";
 import { superAdminImplementer } from "@/lib/router-definition";
@@ -85,8 +85,17 @@ const update = superadmin.admin.users.update.handler(async ({ input, errors }) =
 	return { message: "User berhasil diperbarui" };
 });
 
+const deleteBatch = superadmin.admin.users.deleteBatch.handler(async ({ input, errors }) => {
+	if (input.userIds.length === 0) {
+		throw errors.UNPROCESSABLE_CONTENT({ message: "Tidak ada user yang dipilih" });
+	}
+	await db.delete(user).where(inArray(user.id, input.userIds));
+	return { message: `${input.userIds.length} user berhasil dihapus` };
+});
+
 export const usersRouter = {
 	list,
 	find,
 	update,
+	deleteBatch,
 };

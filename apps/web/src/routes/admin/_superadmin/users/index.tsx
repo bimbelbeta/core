@@ -1,10 +1,11 @@
 import { PaginationInputSchema } from "@bimbelbeta/contract/common/pagination";
 import { ROLES, type Role, RoleSchema } from "@bimbelbeta/contract/common/roles";
-import { CalendarDotsIcon, ClockIcon, CreditCardIcon, CrownIcon } from "@phosphor-icons/react";
-import { useQuery } from "@tanstack/react-query";
+import { CalendarDotsIcon, ClockIcon, CreditCardIcon, CrownIcon, TrashIcon } from "@phosphor-icons/react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { type } from "arktype";
 import { useState } from "react";
+import { toast } from "sonner";
 import {
 	AdminPageContent,
 	AdminPageHeader,
@@ -22,10 +23,27 @@ import {
 	AdminTableRoot,
 	AdminTableRow,
 } from "@/components/admin/admin-table";
-import { AdminTablePaginationWrapper, AdminTableToolbar } from "@/components/admin/admin-table-toolbar";
+import {
+	AdminTableBulkActions,
+	AdminTablePaginationWrapper,
+	AdminTableToolbar,
+} from "@/components/admin/admin-table-toolbar";
 import { PaginationButtons } from "@/components/admin/pagination-buttons";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { usePaginationNavigation } from "@/hooks/use-pagination-navigation";
@@ -56,6 +74,8 @@ function UsersListPage() {
 	const { after, before, limit = 10, search, role, isPremium } = Route.useSearch();
 
 	const [searchInput, setSearchInput] = useState(search ?? "");
+	const [selectedIds, setSelectedIds] = useState<string[]>([]);
+	const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
 
 	const { data, isLoading, refetch } = useQuery(
 		orpc.admin.users.list.queryOptions({
@@ -71,6 +91,39 @@ function UsersListPage() {
 	);
 
 	const pageInfo = data?.pageInfo;
+
+	const deleteBatchMutation = useMutation(
+		orpc.admin.users.deleteBatch.mutationOptions({
+			onSuccess: (res) => {
+				toast.success(res.message);
+				setSelectedIds([]);
+				setBulkDeleteDialogOpen(false);
+				refetch();
+			},
+			onError: (err) => {
+				toast.error(err.message);
+			},
+		}),
+	);
+
+	const toggleSelectAll = () => {
+		if (selectedIds.length === (data?.items.length ?? 0)) {
+			setSelectedIds([]);
+		} else {
+			setSelectedIds(data?.items.map((u) => u.id) ?? []);
+		}
+	};
+
+	const toggleSelectOne = (id: string) => {
+		setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
+	};
+
+	const allSelected = selectedIds.length === (data?.items.length ?? 0) && (data?.items.length ?? 0) > 0;
+	const someSelected = selectedIds.length > 0 && selectedIds.length < (data?.items.length ?? 0);
+
+	const handleBulkDelete = () => {
+		deleteBatchMutation.mutate({ userIds: selectedIds });
+	};
 
 	const [editRoleUser, setEditRoleUser] = useState<{
 		userId: string;
@@ -188,10 +241,48 @@ function UsersListPage() {
 					</Select>
 				</AdminTableToolbar>
 
+				{selectedIds.length > 0 && (
+					<AdminTableBulkActions selectedCount={selectedIds.length}>
+						<AlertDialog open={bulkDeleteDialogOpen} onOpenChange={setBulkDeleteDialogOpen}>
+							<AlertDialogTrigger asChild>
+								<Button variant="destructive" size="sm">
+									<TrashIcon className="mr-2 size-4" />
+									Hapus Terpilih
+								</Button>
+							</AlertDialogTrigger>
+							<AlertDialogContent>
+								<AlertDialogHeader>
+									<AlertDialogTitle>Hapus Multiple User</AlertDialogTitle>
+									<AlertDialogDescription>
+										Apakah Anda yakin ingin menghapus {selectedIds.length} user yang dipilih? Tindakan ini tidak dapat
+										dibatalkan.
+									</AlertDialogDescription>
+								</AlertDialogHeader>
+								<AlertDialogFooter>
+									<AlertDialogCancel>Batal</AlertDialogCancel>
+									<AlertDialogAction
+										onClick={handleBulkDelete}
+										className="bg-red-600 hover:bg-red-700"
+									>
+										Hapus
+									</AlertDialogAction>
+								</AlertDialogFooter>
+							</AlertDialogContent>
+						</AlertDialog>
+					</AdminTableBulkActions>
+				)}
+
 				<AdminTableRoot className="mt-3">
 					<AdminTable>
 						<AdminTableHeader>
-							<AdminTableHead className="pl-4">Nama</AdminTableHead>
+							<AdminTableHead className="w-12 pl-4">
+								<Checkbox
+									checked={someSelected ? "indeterminate" : allSelected}
+									onCheckedChange={toggleSelectAll}
+									aria-label="Select all"
+								/>
+							</AdminTableHead>
+							<AdminTableHead>Nama</AdminTableHead>
 							<AdminTableHead>Role</AdminTableHead>
 							<AdminTableHead>Credits</AdminTableHead>
 							<AdminTableHead className="min-w-45">Premium</AdminTableHead>
@@ -202,7 +293,7 @@ function UsersListPage() {
 							isLoading={isLoading}
 							isEmpty={!isLoading && data?.items.length === 0}
 							emptyMessage="Tidak ada user ditemukan."
-							columns={6}
+							columns={7}
 						>
 							<TooltipProvider delayDuration={200}>
 								{data?.items.map((user) => {
@@ -215,6 +306,13 @@ function UsersListPage() {
 									return (
 										<AdminTableRow key={user.id}>
 											<AdminTableCell className="pl-4">
+												<Checkbox
+													checked={selectedIds.includes(user.id)}
+													onCheckedChange={() => toggleSelectOne(user.id)}
+													aria-label={`Select user ${user.id}`}
+												/>
+											</AdminTableCell>
+											<AdminTableCell>
 												<div className="flex items-center gap-3">
 													<Avatar className="size-9 rounded-full ring-2 ring-border">
 														<AvatarImage src={user.image ?? undefined} alt={user.name} />
