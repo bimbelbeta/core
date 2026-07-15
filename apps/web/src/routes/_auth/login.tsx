@@ -49,12 +49,13 @@ function SignInForm() {
 
 	const form = useForm({
 		defaultValues: {
-			email: "",
+			name: "",
 			password: "",
 		},
 		onSubmit: async ({ value }) => {
 			setError(null);
 			queryClient.removeQueries();
+			/*
 			await authClient.signIn.email(
 				{
 					email: value.email,
@@ -77,10 +78,33 @@ function SignInForm() {
 					},
 				},
 			);
+			*/
+			await authClient.signIn.username(
+				{
+					username: value.name,
+					password: value.password,
+					rememberMe: true,
+				},
+				{
+					onSuccess: async () => {
+						const session = await authClient.getSession();
+						const user = session.data?.user;
+
+						if (user?.role === ROLES.ADMIN || user?.role === ROLES.SUPER_ADMIN) {
+							navigate({ to: "/admin/dashboard" });
+						} else {
+							navigate({ to: "/dashboard" });
+						}
+					},
+					onError: (ctx) => {
+						setError(ctx.error.message || ctx.error.statusText);
+					},
+				},
+			);
 		},
 		validators: {
 			onSubmit: type({
-				email: "string.email",
+				name: "string",
 				password: "string",
 			}),
 		},
@@ -114,6 +138,7 @@ function SignInForm() {
 					className="mt-8 space-y-4"
 				>
 					<div>
+						{/*
 						<form.Field name="email">
 							{(field) => (
 								<div className="space-y-2">
@@ -122,6 +147,28 @@ function SignInForm() {
 										id={field.name}
 										name={field.name}
 										type="email"
+										autoFocus
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+									/>
+									{field.state.meta.errors.map((error) => (
+										<p key={error?.message} className="text-red-500 text-xs">
+											{error?.message}
+										</p>
+									))}
+								</div>
+							)}
+						</form.Field>
+						*/}
+						<form.Field name="name">
+							{(field) => (
+								<div className="space-y-2">
+									<Label htmlFor={field.name}>Nama</Label>
+									<Input
+										id={field.name}
+										name={field.name}
+										type="text"
 										autoFocus
 										value={field.state.value}
 										onBlur={field.handleBlur}
