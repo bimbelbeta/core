@@ -51,3 +51,27 @@ Enforce login using purely the `name` column as a username (no email required fo
   - Adjusted form state and validation schemas to target `name` instead of `email`.
   - Configured form submission to call `authClient.signIn.username` using the `name` field value.
   - Commented out the old email input field and its sign-in method for safety and easy rollback.
+
+---
+
+## Bulk Delete User Management
+
+### Goal
+Allow super admins to select multiple users in the dashboard and delete them at once, similar to the functionality available on the questions page.
+
+### Code Changes & Logic
+
+#### 1. Backend API (oRPC Contract & Router)
+- **Files**: 
+  - `core/packages/contract/src/definitions/admin/users.contract.ts` 
+  - `core/packages/api/src/routers/admin/users.ts`
+- **Change**: Added the `deleteBatch` endpoint that accepts an array of `userIds`.
+- **Logic**: Utilizes a Drizzle query with `inArray(user.id, input.userIds)` to execute a bulk delete operation on the `user` table. 
+
+#### 2. Frontend Admin UI
+- **File**: `core/apps/web/src/routes/admin/_superadmin/users/index.tsx`
+- **Change**: 
+  - Implemented a checkbox column within the TanStack-based data table, enabling "Select All" and individual row selection.
+  - Added the `AdminTableBulkActions` bar that conditionally renders when one or more users are selected.
+  - Integrated an `AlertDialog` for deletion confirmation to prevent accidental removals.
+  - Hooked up the `deleteBatch` mutation to the UI to execute the API call and immediately trigger a refetch of the users list on success.
