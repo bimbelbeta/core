@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { useIsAdmin } from "@/hooks/use-is-admin";
+import { authClient } from "@/lib/auth-client";
 import { isSubjectPremium } from "@/lib/premium-config";
 import { cn } from "@/lib/utils";
 import { Badge } from "../ui/badge";
@@ -15,8 +16,10 @@ export function SubjectCard({ subject }: { subject: SubjectListItem }) {
 	const [editOpen, setEditOpen] = useState(false);
 	const [deleteOpen, setDeleteOpen] = useState(false);
 	const isAdmin = useIsAdmin();
+	const session = authClient.useSession();
+	const userIsPremium = session.data?.user?.isPremium ?? false;
 	const role = isAdmin ? "admin" : "user";
-	const isPremiumSubject = isSubjectPremium(subject?.order ?? 1, role, false);
+	const isPremiumSubject = isSubjectPremium(subject?.order ?? 1, role, userIsPremium);
 	const isLocked = !isAdmin && isPremiumSubject;
 
 	return (

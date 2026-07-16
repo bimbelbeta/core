@@ -3,6 +3,7 @@ import { baseImplementer } from "@/lib/router-definition/base";
 import { adminRouter } from "@/routers/admin";
 import { creditRouter } from "@/routers/credit";
 import { productRouter } from "@/routers/product";
+import { referralRouter } from "@/routers/referral";
 import { subjectRouter } from "@/routers/subject";
 import { transactionRouter } from "@/routers/transaction";
 import { tryoutRouter } from "@/routers/tryout";
@@ -23,6 +24,7 @@ export const appRouter = baseImplementer.router({
 	credit: creditRouter,
 	product: productRouter,
 	userSettings: userSettingsRouter,
+	referral: referralRouter,
 });
 
 export type AppRouter = typeof appRouter;
