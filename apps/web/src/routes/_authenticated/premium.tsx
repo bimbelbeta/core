@@ -10,6 +10,7 @@ import { Container } from "@/components/ui/container";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Highlight } from "@/components/ui/highlight";
 import { Input } from "@/components/ui/input";
+import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/lib/orpc";
 import { createMeta } from "@/lib/seo-utils";
 import { PackageCard } from "./premium/-components/package-card";
@@ -195,6 +196,11 @@ function ReferralSection() {
 			onSuccess: (res) => {
 				setSuccessData(res);
 				setCode("");
+				// Better Auth uses its own internal signal store — not React Query.
+				// Calling getSession with cache: "no-cache" forces a fresh fetch
+				// and writes the updated isPremium value back into the store,
+				// immediately re-rendering all useSession() consumers.
+				authClient.getSession({ fetchOptions: { cache: "no-cache" } });
 			},
 			onError: (err) => {
 				toast.error(err.message);

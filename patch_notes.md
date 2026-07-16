@@ -161,3 +161,7 @@ Implement a complete Referral Code system that allows superadmins to create and 
   - Inline client-side validation rejects non-alphanumeric codes before hitting the API.
   - Server error messages surface via `sonner` toast (all in Indonesian: "Kode tidak ditemukan / salah", "Kode sudah kedaluwarsa", "Kuota kode sudah habis", "Anda sudah pernah menggunakan kode ini").
   - On success: opens a success `Dialog` showing the new premium expiry date in Indonesian locale.
+
+### Known Limitations
+> [!WARNING]
+> Due to the current session caching mechanism, after a user successfully redeems a referral code, the frontend state might not immediately unlock premium content on the current page. The user must **reload the page** for the new premium status to be reflected in the UI. This should be communicated to the user or handled gracefully in a future patch.
