@@ -165,3 +165,15 @@ Implement a complete Referral Code system that allows superadmins to create and 
 ### Known Limitations
 > [!WARNING]
 > Due to the current session caching mechanism, after a user successfully redeems a referral code, the frontend state might not immediately unlock premium content on the current page. The user must **reload the page** for the new premium status to be reflected in the UI. This should be communicated to the user or handled gracefully in a future patch.
+
+---
+
+## Tryout Timer UI Glitch Fix
+
+### Goal
+Fix a visual bug where the Tryout subtest timer would flash `00:00:00` and display the "Lanjut" button for 1 second upon loading before displaying the correct remaining time and the "Mulai" button.
+
+### Code Changes & Logic
+- **File**: `core/apps/web/src/routes/_authenticated/tryout/-hooks/use-countdown.ts`
+- **Change**: Added an immediate `setCountDown(Math.max(countDownDate - Date.now(), 0));` call inside the `useEffect` hook.
+- **Logic**: The previous implementation relied solely on `setInterval`, causing the React state to hold a stale initialization value (24 hours placeholder) for 1 full second before the first tick. The exact 24-hour placeholder caused modulo arithmetic to yield `"00:00:00"`, tricking the UI into an expired state. The immediate state update perfectly syncs the UI with the fetched deadline on mount.
