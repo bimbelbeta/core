@@ -4,6 +4,7 @@ import * as schema from "@bimbelbeta/db/schema/auth";
 import { type } from "arktype";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { username } from "better-auth/plugins";
 import { Resend } from "resend";
 import { generateResetPasswordEmail } from "@/lib/templates/reset-password";
 
@@ -78,6 +79,18 @@ export const auth = betterAuth({
 			});
 		},
 	},
+	plugins: [
+		username({
+			schema: {
+				user: {
+					fields: {
+						username: "name",
+						displayUsername: "name",
+					},
+				},
+			},
+		}),
+	],
 	socialProviders: {
 		google: {
 			clientId: process.env.GOOGLE_CLIENT_ID ?? "",
@@ -88,8 +101,7 @@ export const auth = betterAuth({
 	},
 	session: {
 		cookieCache: {
-			enabled: true,
-			maxAge: 5 * 60,
+			enabled: false,
 		},
 	},
 	secret: process.env.BETTER_AUTH_SECRET,

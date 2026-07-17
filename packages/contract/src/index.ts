@@ -2,6 +2,7 @@ import { adminContract } from "@/definitions/admin";
 import { creditContract } from "@/definitions/credit.contract";
 import { healthCheckContract } from "@/definitions/health.contract";
 import { productContract } from "@/definitions/product.contract";
+import { referralContract } from "@/definitions/referral.contract";
 import { subjectContract } from "@/definitions/subject.contract";
 import { transactionContract } from "@/definitions/transaction.contract";
 import { tryoutContract } from "@/definitions/tryout.contract";
@@ -18,4 +19,5 @@ export const contract = {
 	tryout: tryoutContract,
 	university: universityContract,
 	userSettings: userSettingsContract,
+	referral: referralContract,
 };

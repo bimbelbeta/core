@@ -6,6 +6,7 @@ import {
 	HouseIcon,
 	PackageIcon,
 	RankingIcon,
+	TicketIcon,
 	UserIcon,
 } from "@phosphor-icons/react";
 import { Link, useLocation, useRouteContext } from "@tanstack/react-router";
@@ -49,6 +50,12 @@ const allAdminNavLinks = [
 		title: "Products",
 		url: "/admin/products",
 		icon: PackageIcon,
+		superadminOnly: true,
+	},
+	{
+		title: "Referral Codes",
+		url: "/admin/referrals",
+		icon: TicketIcon,
 		superadminOnly: true,
 	},
 ];

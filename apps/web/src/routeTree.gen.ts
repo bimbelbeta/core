@@ -35,10 +35,12 @@ import { Route as AuthenticatedTryoutTryoutIdRouteImport } from './routes/_authe
 import { Route as AdminTryoutsTryoutIdIndexRouteImport } from './routes/admin/tryouts/$tryoutId/index'
 import { Route as AdminClassesSubjectIdIndexRouteImport } from './routes/admin/classes/$subjectId/index'
 import { Route as AdminSuperadminUsersIndexRouteImport } from './routes/admin/_superadmin/users/index'
+import { Route as AdminSuperadminReferralsIndexRouteImport } from './routes/admin/_superadmin/referrals/index'
 import { Route as AdminSuperadminProductsIndexRouteImport } from './routes/admin/_superadmin/products/index'
 import { Route as AuthenticatedClassesSubjectIdIndexRouteImport } from './routes/_authenticated/classes/$subjectId/index'
 import { Route as AdminClassesSubjectIdContentIdRouteImport } from './routes/admin/classes/$subjectId/$contentId'
 import { Route as AdminSuperadminUsersUserIdRouteImport } from './routes/admin/_superadmin/users/$userId'
+import { Route as AdminSuperadminReferralsCodeIdRouteImport } from './routes/admin/_superadmin/referrals/$codeId'
 import { Route as AdminSuperadminProductsCreateRouteImport } from './routes/admin/_superadmin/products/create'
 import { Route as AdminSuperadminProductsProductIdRouteImport } from './routes/admin/_superadmin/products/$productId'
 import { Route as AuthenticatedTryoutResultsAttemptIdRouteImport } from './routes/_authenticated/tryout/results.$attemptId'
@@ -189,6 +191,12 @@ const AdminSuperadminUsersIndexRoute =
     path: '/users/',
     getParentRoute: () => AdminSuperadminRoute,
   } as any)
+const AdminSuperadminReferralsIndexRoute =
+  AdminSuperadminReferralsIndexRouteImport.update({
+    id: '/referrals/',
+    path: '/referrals/',
+    getParentRoute: () => AdminSuperadminRoute,
+  } as any)
 const AdminSuperadminProductsIndexRoute =
   AdminSuperadminProductsIndexRouteImport.update({
     id: '/products/',
@@ -211,6 +219,12 @@ const AdminSuperadminUsersUserIdRoute =
   AdminSuperadminUsersUserIdRouteImport.update({
     id: '/users/$userId',
     path: '/users/$userId',
+    getParentRoute: () => AdminSuperadminRoute,
+  } as any)
+const AdminSuperadminReferralsCodeIdRoute =
+  AdminSuperadminReferralsCodeIdRouteImport.update({
+    id: '/referrals/$codeId',
+    path: '/referrals/$codeId',
     getParentRoute: () => AdminSuperadminRoute,
   } as any)
 const AdminSuperadminProductsCreateRoute =
@@ -317,10 +331,12 @@ export interface FileRoutesByFullPath {
   '/tryout/results/$attemptId': typeof AuthenticatedTryoutResultsAttemptIdRoute
   '/admin/products/$productId': typeof AdminSuperadminProductsProductIdRoute
   '/admin/products/create': typeof AdminSuperadminProductsCreateRoute
+  '/admin/referrals/$codeId': typeof AdminSuperadminReferralsCodeIdRoute
   '/admin/users/$userId': typeof AdminSuperadminUsersUserIdRoute
   '/admin/classes/$subjectId/$contentId': typeof AdminClassesSubjectIdContentIdRouteWithChildren
   '/classes/$subjectId/': typeof AuthenticatedClassesSubjectIdIndexRoute
   '/admin/products/': typeof AdminSuperadminProductsIndexRoute
+  '/admin/referrals/': typeof AdminSuperadminReferralsIndexRoute
   '/admin/users/': typeof AdminSuperadminUsersIndexRoute
   '/admin/classes/$subjectId/': typeof AdminClassesSubjectIdIndexRoute
   '/admin/tryouts/$tryoutId/': typeof AdminTryoutsTryoutIdIndexRoute
@@ -358,10 +374,12 @@ export interface FileRoutesByTo {
   '/tryout/results/$attemptId': typeof AuthenticatedTryoutResultsAttemptIdRoute
   '/admin/products/$productId': typeof AdminSuperadminProductsProductIdRoute
   '/admin/products/create': typeof AdminSuperadminProductsCreateRoute
+  '/admin/referrals/$codeId': typeof AdminSuperadminReferralsCodeIdRoute
   '/admin/users/$userId': typeof AdminSuperadminUsersUserIdRoute
   '/admin/classes/$subjectId/$contentId': typeof AdminClassesSubjectIdContentIdRouteWithChildren
   '/classes/$subjectId': typeof AuthenticatedClassesSubjectIdIndexRoute
   '/admin/products': typeof AdminSuperadminProductsIndexRoute
+  '/admin/referrals': typeof AdminSuperadminReferralsIndexRoute
   '/admin/users': typeof AdminSuperadminUsersIndexRoute
   '/admin/classes/$subjectId': typeof AdminClassesSubjectIdIndexRoute
   '/admin/tryouts/$tryoutId': typeof AdminTryoutsTryoutIdIndexRoute
@@ -404,10 +422,12 @@ export interface FileRoutesById {
   '/_authenticated/tryout/results/$attemptId': typeof AuthenticatedTryoutResultsAttemptIdRoute
   '/admin/_superadmin/products/$productId': typeof AdminSuperadminProductsProductIdRoute
   '/admin/_superadmin/products/create': typeof AdminSuperadminProductsCreateRoute
+  '/admin/_superadmin/referrals/$codeId': typeof AdminSuperadminReferralsCodeIdRoute
   '/admin/_superadmin/users/$userId': typeof AdminSuperadminUsersUserIdRoute
   '/admin/classes/$subjectId/$contentId': typeof AdminClassesSubjectIdContentIdRouteWithChildren
   '/_authenticated/classes/$subjectId/': typeof AuthenticatedClassesSubjectIdIndexRoute
   '/admin/_superadmin/products/': typeof AdminSuperadminProductsIndexRoute
+  '/admin/_superadmin/referrals/': typeof AdminSuperadminReferralsIndexRoute
   '/admin/_superadmin/users/': typeof AdminSuperadminUsersIndexRoute
   '/admin/classes/$subjectId/': typeof AdminClassesSubjectIdIndexRoute
   '/admin/tryouts/$tryoutId/': typeof AdminTryoutsTryoutIdIndexRoute
@@ -448,10 +468,12 @@ export interface FileRouteTypes {
     | '/tryout/results/$attemptId'
     | '/admin/products/$productId'
     | '/admin/products/create'
+    | '/admin/referrals/$codeId'
     | '/admin/users/$userId'
     | '/admin/classes/$subjectId/$contentId'
     | '/classes/$subjectId/'
     | '/admin/products/'
+    | '/admin/referrals/'
     | '/admin/users/'
     | '/admin/classes/$subjectId/'
     | '/admin/tryouts/$tryoutId/'
@@ -489,10 +511,12 @@ export interface FileRouteTypes {
     | '/tryout/results/$attemptId'
     | '/admin/products/$productId'
     | '/admin/products/create'
+    | '/admin/referrals/$codeId'
     | '/admin/users/$userId'
     | '/admin/classes/$subjectId/$contentId'
     | '/classes/$subjectId'
     | '/admin/products'
+    | '/admin/referrals'
     | '/admin/users'
     | '/admin/classes/$subjectId'
     | '/admin/tryouts/$tryoutId'
@@ -534,10 +558,12 @@ export interface FileRouteTypes {
     | '/_authenticated/tryout/results/$attemptId'
     | '/admin/_superadmin/products/$productId'
     | '/admin/_superadmin/products/create'
+    | '/admin/_superadmin/referrals/$codeId'
     | '/admin/_superadmin/users/$userId'
     | '/admin/classes/$subjectId/$contentId'
     | '/_authenticated/classes/$subjectId/'
     | '/admin/_superadmin/products/'
+    | '/admin/_superadmin/referrals/'
     | '/admin/_superadmin/users/'
     | '/admin/classes/$subjectId/'
     | '/admin/tryouts/$tryoutId/'
@@ -743,6 +769,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSuperadminUsersIndexRouteImport
       parentRoute: typeof AdminSuperadminRoute
     }
+    '/admin/_superadmin/referrals/': {
+      id: '/admin/_superadmin/referrals/'
+      path: '/referrals'
+      fullPath: '/admin/referrals/'
+      preLoaderRoute: typeof AdminSuperadminReferralsIndexRouteImport
+      parentRoute: typeof AdminSuperadminRoute
+    }
     '/admin/_superadmin/products/': {
       id: '/admin/_superadmin/products/'
       path: '/products'
@@ -769,6 +802,13 @@ declare module '@tanstack/react-router' {
       path: '/users/$userId'
       fullPath: '/admin/users/$userId'
       preLoaderRoute: typeof AdminSuperadminUsersUserIdRouteImport
+      parentRoute: typeof AdminSuperadminRoute
+    }
+    '/admin/_superadmin/referrals/$codeId': {
+      id: '/admin/_superadmin/referrals/$codeId'
+      path: '/referrals/$codeId'
+      fullPath: '/admin/referrals/$codeId'
+      preLoaderRoute: typeof AdminSuperadminReferralsCodeIdRouteImport
       parentRoute: typeof AdminSuperadminRoute
     }
     '/admin/_superadmin/products/create': {
@@ -937,16 +977,20 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 interface AdminSuperadminRouteChildren {
   AdminSuperadminProductsProductIdRoute: typeof AdminSuperadminProductsProductIdRoute
   AdminSuperadminProductsCreateRoute: typeof AdminSuperadminProductsCreateRoute
+  AdminSuperadminReferralsCodeIdRoute: typeof AdminSuperadminReferralsCodeIdRoute
   AdminSuperadminUsersUserIdRoute: typeof AdminSuperadminUsersUserIdRoute
   AdminSuperadminProductsIndexRoute: typeof AdminSuperadminProductsIndexRoute
+  AdminSuperadminReferralsIndexRoute: typeof AdminSuperadminReferralsIndexRoute
   AdminSuperadminUsersIndexRoute: typeof AdminSuperadminUsersIndexRoute
 }
 
 const AdminSuperadminRouteChildren: AdminSuperadminRouteChildren = {
   AdminSuperadminProductsProductIdRoute: AdminSuperadminProductsProductIdRoute,
   AdminSuperadminProductsCreateRoute: AdminSuperadminProductsCreateRoute,
+  AdminSuperadminReferralsCodeIdRoute: AdminSuperadminReferralsCodeIdRoute,
   AdminSuperadminUsersUserIdRoute: AdminSuperadminUsersUserIdRoute,
   AdminSuperadminProductsIndexRoute: AdminSuperadminProductsIndexRoute,
+  AdminSuperadminReferralsIndexRoute: AdminSuperadminReferralsIndexRoute,
   AdminSuperadminUsersIndexRoute: AdminSuperadminUsersIndexRoute,
 }
 

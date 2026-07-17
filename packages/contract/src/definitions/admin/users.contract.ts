@@ -59,4 +59,12 @@ export const adminUsersContract = {
 			}),
 		)
 		.output(MessageResponseSchema),
+	deleteBatch: oc
+		.route({
+			path: "/admin/users/batch",
+			method: "DELETE",
+			tags: ["Admin - Users"],
+		})
+		.input(type({ userIds: "string[]" }))
+		.output(MessageResponseSchema),
 };

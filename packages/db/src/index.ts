@@ -4,6 +4,7 @@ import type { PoolConfig } from "pg";
 import * as auth from "@/schema/auth";
 import * as credit from "@/schema/credit";
 import * as question from "@/schema/question";
+import * as referral from "@/schema/referral";
 import * as subject from "@/schema/subject";
 import * as transaction from "@/schema/transaction";
 import * as tryout from "@/schema/tryout";
@@ -29,6 +30,9 @@ const schema = {
 	userProgress: subject.userProgress,
 	recentContentView: subject.recentContentView,
 	userSubjectView: subject.userSubjectView,
+	// Referral
+	referralCode: referral.referralCode,
+	referralUsage: referral.referralUsage,
 	// Transaction
 	transaction: transaction.transaction,
 	product: transaction.product,

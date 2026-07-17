@@ -1,10 +1,16 @@
-import { Coins } from "@phosphor-icons/react";
-import { useQuery } from "@tanstack/react-query";
+import { Coins, SpinnerGapIcon, TicketIcon } from "@phosphor-icons/react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Highlight } from "@/components/ui/highlight";
+import { Input } from "@/components/ui/input";
+import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/lib/orpc";
 import { createMeta } from "@/lib/seo-utils";
 import { PackageCard } from "./premium/-components/package-card";
@@ -140,6 +146,8 @@ function RouteComponent() {
 					</div>
 				</Card>
 			)}
+
+			<ReferralSection />
 		</Container>
 	);
 }
@@ -176,5 +184,114 @@ function PremiumHeader({ creditBalance }: { creditBalance: number }) {
 				</div>
 			</div>
 		</div>
+	);
+}
+
+function ReferralSection() {
+	const [code, setCode] = useState("");
+	const [successData, setSuccessData] = useState<{ message: string; premiumExpiresAt: Date } | null>(null);
+
+	const redeemMutation = useMutation(
+		orpc.referral.redeem.mutationOptions({
+			onSuccess: (res) => {
+				setSuccessData(res);
+				setCode("");
+				// Better Auth uses its own internal signal store — not React Query.
+				// Calling getSession with cache: "no-cache" forces a fresh fetch
+				// and writes the updated isPremium value back into the store,
+				// immediately re-rendering all useSession() consumers.
+				authClient.getSession({ fetchOptions: { cache: "no-cache" } });
+			},
+			onError: (err) => {
+				toast.error(err.message);
+			},
+		}),
+	);
+
+	const handleSubmit = (e: React.FormEvent) => {
+		e.preventDefault();
+		const trimmed = code.trim();
+		if (!trimmed) return;
+		if (!/^[A-Za-z0-9]+$/.test(trimmed)) {
+			toast.error("Kode tidak valid — hanya huruf dan angka yang diperbolehkan.");
+			return;
+		}
+		redeemMutation.mutate({ code: trimmed });
+	};
+
+	return (
+		<>
+			<Card className="border-primary-100 bg-gradient-to-br from-primary-50 to-white p-6">
+				<div className="flex items-start gap-4">
+					<div className="hidden rounded-xl bg-primary-100 p-3 sm:block">
+						<TicketIcon size={28} weight="duotone" className="text-primary" />
+					</div>
+					<div className="flex-1">
+						<h3 className="font-semibold text-base text-foreground">Punya kode referal?</h3>
+						<p className="mt-0.5 text-muted-foreground text-sm">
+							Masukkan kode referal untuk mendapatkan akses Premium secara gratis.
+						</p>
+						<form onSubmit={handleSubmit} className="mt-4 flex gap-2">
+							<Input
+								id="referral-code-input"
+								className="max-w-xs font-mono uppercase tracking-widest"
+								placeholder="PREM30DAYS"
+								value={code}
+								onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""))}
+								maxLength={20}
+								autoComplete="off"
+								disabled={redeemMutation.isPending}
+							/>
+							<Button id="referral-submit-btn" type="submit" disabled={redeemMutation.isPending || !code.trim()}>
+								{redeemMutation.isPending ? (
+									<>
+										<SpinnerGapIcon className="mr-2 size-4 animate-spin" />
+										Mengecek...
+									</>
+								) : (
+									"Tukarkan"
+								)}
+							</Button>
+						</form>
+					</div>
+				</div>
+			</Card>
+
+			<Dialog
+				open={!!successData}
+				onOpenChange={(open) => {
+					if (!open) setSuccessData(null);
+				}}
+			>
+				<DialogContent className="max-w-sm text-center">
+					<div className="mx-auto mb-2 flex size-16 items-center justify-center rounded-full bg-amber-100">
+						<span className="text-3xl" role="img" aria-label="trophy">
+							🏆
+						</span>
+					</div>
+					<DialogHeader className="text-center">
+						<DialogTitle className="text-xl">Selamat! Kamu Sekarang Premium 🎉</DialogTitle>
+						<DialogDescription className="mt-2">
+							{successData && (
+								<>
+									Akun Premium kamu aktif hingga{" "}
+									<strong>
+										{new Date(successData.premiumExpiresAt).toLocaleDateString("id-ID", {
+											day: "numeric",
+											month: "long",
+											year: "numeric",
+										})}
+									</strong>
+									. Nikmati akses penuh ke semua fitur!
+								</>
+							)}
+						</DialogDescription>
+					</DialogHeader>
+					<Button className="mt-2 w-full" onClick={() => setSuccessData(null)} id="referral-success-close-btn">
+						Mantap, terima kasih!
+					</Button>
+				</DialogContent>
+			</Dialog>
+		</>
 	);
 }

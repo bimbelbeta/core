@@ -2,6 +2,7 @@ import { adminCreditContract } from "@/definitions/admin/credit.contract";
 import { adminDashboardContract } from "@/definitions/admin/dashboard.contract";
 import { adminProductContract } from "@/definitions/admin/product.contract";
 import { adminQuestionContract } from "@/definitions/admin/question.contract";
+import { adminReferralContract } from "@/definitions/admin/referral.contract";
 import { adminContentContract, adminSubjectContract } from "@/definitions/admin/subject.contract";
 import { adminSubtestContract } from "@/definitions/admin/subtest.contract";
 import { adminSubtestQuestionContract } from "@/definitions/admin/subtest-question.contract";
@@ -23,4 +24,5 @@ export const adminContract = {
 		questionsBulk: adminSubtestQuestionContract,
 	},
 	university: adminUniversityContract,
+	referral: adminReferralContract,
 };
