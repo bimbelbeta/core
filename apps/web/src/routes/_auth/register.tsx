@@ -37,6 +37,18 @@ function RouteComponent() {
 	);
 }
 
+const REGISTER_ERROR_MAP: Record<string, string> = {
+	"User already exists": "Pengguna sudah terdaftar. Gunakan email/nama yang lain.",
+	"Failed to create user": "Pengguna sudah terdaftar. Gunakan email/nama yang lain.",
+};
+
+function translateRegisterError(msg: string): string {
+	for (const [key, value] of Object.entries(REGISTER_ERROR_MAP)) {
+		if (msg.includes(key)) return value;
+	}
+	return msg;
+}
+
 function SignUpForm() {
 	const navigate = useNavigate({
 		from: "/",
@@ -66,7 +78,7 @@ function SignUpForm() {
 						});
 					},
 					onError: (ctx) => {
-						setError(ctx.error.message || ctx.error.statusText);
+						setError(translateRegisterError(ctx.error.message || ctx.error.statusText));
 					},
 				},
 			);

@@ -218,7 +218,7 @@ function SignInForm() {
 						<WarningCircleIcon className="text-destructive" />
 					</ItemMedia>
 					<ItemContent>
-						<ItemDescription className="text-destructive text-pretty line-clamp-none">{error}</ItemDescription>
+						<ItemDescription className="text-destructive">{error}</ItemDescription>
 					</ItemContent>
 				</Item>
 			)}
