@@ -16,7 +16,6 @@ import { createMeta } from "@/lib/seo-utils";
 import { PackageCard } from "./premium/-components/package-card";
 import { PremiumSkeleton } from "./premium/-components/premium-skeleton";
 import { useMidtrans } from "./premium/-hooks/use-midtrans";
-
 export const Route = createFileRoute("/_authenticated/premium")({
 	head: () => ({
 		meta: createMeta({

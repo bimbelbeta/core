@@ -47,64 +47,58 @@ function SignInForm() {
 	const { isPending } = authClient.useSession();
 	const [error, setError] = useState<string | null>(null);
 
+	const onSignInSuccess = async () => {
+		const session = await authClient.getSession();
+		const user = session.data?.user;
+		if (user?.role === ROLES.ADMIN || user?.role === ROLES.SUPER_ADMIN) {
+			navigate({ to: "/admin/dashboard" });
+		} else {
+			navigate({ to: "/dashboard" });
+		}
+	};
+
 	const form = useForm({
 		defaultValues: {
-			name: "",
+			identifier: "",
 			password: "",
 		},
 		onSubmit: async ({ value }) => {
 			setError(null);
 			queryClient.removeQueries();
-			/*
-			await authClient.signIn.email(
-				{
-					email: value.email,
-					password: value.password,
-					rememberMe: true,
-				},
-				{
-					onSuccess: async () => {
-						const session = await authClient.getSession();
-						const user = session.data?.user;
-
-						if (user?.role === ROLES.ADMIN || user?.role === ROLES.SUPER_ADMIN) {
-							navigate({ to: "/admin/dashboard" });
-						} else {
-							navigate({ to: "/dashboard" });
-						}
+			const isEmail = value.identifier.includes("@");
+			if (isEmail) {
+				await authClient.signIn.email(
+					{
+						email: value.identifier,
+						password: value.password,
+						rememberMe: true,
 					},
-					onError: (ctx) => {
-						setError(ctx.error.message || ctx.error.statusText);
+					{
+						onSuccess: onSignInSuccess,
+						onError: (ctx) => {
+							setError(ctx.error.message || ctx.error.statusText);
+						},
 					},
-				},
-			);
-			*/
-			await authClient.signIn.username(
-				{
-					username: value.name,
-					password: value.password,
-					rememberMe: true,
-				},
-				{
-					onSuccess: async () => {
-						const session = await authClient.getSession();
-						const user = session.data?.user;
-
-						if (user?.role === ROLES.ADMIN || user?.role === ROLES.SUPER_ADMIN) {
-							navigate({ to: "/admin/dashboard" });
-						} else {
-							navigate({ to: "/dashboard" });
-						}
+				);
+			} else {
+				await authClient.signIn.username(
+					{
+						username: value.identifier,
+						password: value.password,
+						rememberMe: true,
 					},
-					onError: (ctx) => {
-						setError(ctx.error.message || ctx.error.statusText);
+					{
+						onSuccess: onSignInSuccess,
+						onError: (ctx) => {
+							setError(ctx.error.message || ctx.error.statusText);
+						},
 					},
-				},
-			);
+				);
+			}
 		},
 		validators: {
 			onSubmit: type({
-				name: "string",
+				identifier: "string",
 				password: "string",
 			}),
 		},
@@ -138,38 +132,16 @@ function SignInForm() {
 					className="mt-8 space-y-4"
 				>
 					<div>
-						{/*
-						<form.Field name="email">
+						<form.Field name="identifier">
 							{(field) => (
 								<div className="space-y-2">
-									<Label htmlFor={field.name}>Email</Label>
-									<Input
-										id={field.name}
-										name={field.name}
-										type="email"
-										autoFocus
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(e) => field.handleChange(e.target.value)}
-									/>
-									{field.state.meta.errors.map((error) => (
-										<p key={error?.message} className="text-red-500 text-xs">
-											{error?.message}
-										</p>
-									))}
-								</div>
-							)}
-						</form.Field>
-						*/}
-						<form.Field name="name">
-							{(field) => (
-								<div className="space-y-2">
-									<Label htmlFor={field.name}>Nama</Label>
+									<Label htmlFor={field.name}>Username/Email</Label>
 									<Input
 										id={field.name}
 										name={field.name}
 										type="text"
 										autoFocus
+										autoComplete="username"
 										value={field.state.value}
 										onBlur={field.handleBlur}
 										onChange={(e) => field.handleChange(e.target.value)}
@@ -246,7 +218,7 @@ function SignInForm() {
 						<WarningCircleIcon className="text-destructive" />
 					</ItemMedia>
 					<ItemContent>
-						<ItemDescription className="text-destructive">{error}</ItemDescription>
+						<ItemDescription className="text-destructive text-pretty line-clamp-none">{error}</ItemDescription>
 					</ItemContent>
 				</Item>
 			)}

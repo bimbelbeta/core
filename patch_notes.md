@@ -4,6 +4,32 @@ This document contains incremental updates, patch logs, and developer instructio
 
 ---
 
+## Direct Login with Username or Email
+
+### Goal
+Allow users to log in using either their **Username** or **Email** address alongside their password. The login field now accepts both, and the appropriate Better-Auth sign-in method is dispatched based on the input.
+
+### Code Changes & Logic
+
+#### 1. Login UI Form
+- **File**: `core/apps/web/src/routes/_auth/login.tsx`
+- **Changes**:
+  - Renamed form field from `name` to `identifier`; label updated to `"Username/Email"`.
+  - Added `autoComplete="username"` to the input for browser autocomplete compatibility.
+  - Extracted the shared post-login navigation logic into a local `onSignInSuccess` helper (DRY — was duplicated in both sign-in paths).
+  - `onSubmit` now checks if `value.identifier` contains `"@"`:
+    - **Contains `@`** → calls `authClient.signIn.email` (email-based sign-in).
+    - **Does not contain `@`** → calls `authClient.signIn.username` (username/`name`-based sign-in).
+  - The old commented-out email-only block has been removed and replaced with this clean dual-path implementation.
+  - All other UI, error handling, Google sign-in, and register link logic are **unchanged**.
+
+#### 2. Backend / Auth Client
+- **No changes required.**
+  - `packages/auth/src/index.ts` already had both `emailAndPassword` and `username` (mapped to `name` column) plugins enabled.
+  - `apps/web/src/lib/auth-client.ts` already had `usernameClient()` registered on the client.
+
+---
+
 ## Direct Login with Name and Password (No Email)
 
 ### Goal
