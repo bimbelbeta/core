@@ -203,3 +203,29 @@ Fix a visual bug where the Tryout subtest timer would flash `00:00:00` and displ
 - **File**: `core/apps/web/src/routes/_authenticated/tryout/-hooks/use-countdown.ts`
 - **Change**: Added an immediate `setCountDown(Math.max(countDownDate - Date.now(), 0));` call inside the `useEffect` hook.
 - **Logic**: The previous implementation relied solely on `setInterval`, causing the React state to hold a stale initialization value (24 hours placeholder) for 1 full second before the first tick. The exact 24-hour placeholder caused modulo arithmetic to yield `"00:00:00"`, tricking the UI into an expired state. The immediate state update perfectly syncs the UI with the fetched deadline on mount.
+
+---
+
+## Fixed Default Password on Registration
+
+### Goal
+Simplify the registration UX by automatically assigning a fixed password (`"BimbelBeta"`) to every new account. Users no longer need to input or remember a password during sign-up — they always log in with `"BimbelBeta"`.
+
+### Code Changes & Logic
+
+#### 1. Registration Form — Submit Handler
+- **File**: `core/apps/web/src/routes/_auth/register.tsx`
+- **Change**: In the `onSubmit` handler, the `password` field passed to `authClient.signUp.email` is now hardcoded to `"BimbelBeta"` instead of reading from `value.password`.
+
+#### 2. Registration Form — Validation Schema
+- **File**: `core/apps/web/src/routes/_auth/register.tsx`
+- **Change**: The `password` validator rule (`type("string >= 8")`) in the Arktype `onSubmit` schema is commented out. This prevents the form from blocking submission due to an empty hidden field.
+
+#### 3. Registration Form — UI Fields Hidden
+- **File**: `core/apps/web/src/routes/_auth/register.tsx`
+- **Change**: The `<form.Field name="password">` and `<form.Field name="confirm_password">` JSX blocks are **commented out** (not deleted) so they can be restored easily. The `defaultValues` for `password` and `confirm_password` remain in the form state as-is.
+
+### No Backend Changes Required
+> [!NOTE]
+> Better-Auth's `signUp.email` still receives a valid password (`"BimbelBeta"`). No changes to `packages/auth`, contracts, or any API router were needed. The login flow (Section 3.2) is untouched — users log in with their Username/Email and the fixed password `"BimbelBeta"`.
+

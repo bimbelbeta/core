@@ -68,7 +68,7 @@ function SignUpForm() {
 			await authClient.signUp.email(
 				{
 					email: value.email,
-					password: value.password,
+					password: "BimbelBeta",
 					name: value.name,
 				},
 				{
@@ -91,9 +91,10 @@ function SignUpForm() {
 				email: type("string.email").configure({
 					message: "Email tidak valid",
 				}),
-				password: type("string >= 8").configure({
-					message: "Password harus memiliki minimal 8 karakter",
-				}),
+				// [3.7] password field hidden — fixed password "BimbelBeta" used on submit
+				// password: type("string >= 8").configure({
+				// 	message: "Password harus memiliki minimal 8 karakter",
+				// }),
 			}),
 		},
 	});
@@ -170,7 +171,8 @@ function SignUpForm() {
 						</form.Field>
 					</div>
 
-					<div>
+					{/* [3.7] password fields hidden — fixed password "BimbelBeta" used on submit */}
+					{/* <div>
 						<form.Field name="password">
 							{(field) => (
 								<div className="space-y-2">
@@ -224,7 +226,7 @@ function SignUpForm() {
 								</div>
 							)}
 						</form.Field>
-					</div>
+					</div> */}
 
 					<form.Subscribe>
 						{(state) => (
