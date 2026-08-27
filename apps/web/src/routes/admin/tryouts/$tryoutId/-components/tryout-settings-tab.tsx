@@ -1,4 +1,4 @@
-import { CalendarIcon } from "@phosphor-icons/react";
+import { CalendarIcon, CopyIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { type } from "arktype";
@@ -154,7 +154,19 @@ function AccessCodeSection({ tryoutId }: { tryoutId: number }) {
 												{accessCodeItem.isActive ? "Aktif" : "Nonaktif"}
 											</Badge>
 										</div>
-										<p className="text-muted-foreground text-xs">{accessCodeItem.codePreview}</p>
+										<div className="flex items-center gap-1">
+											<p className="font-mono text-xs">{accessCodeItem.codePreview}</p>
+											<button
+												type="button"
+												className="text-muted-foreground hover:text-foreground"
+												onClick={() => {
+													navigator.clipboard.writeText(accessCodeItem.codePreview);
+													toast.success("Kode disalin!");
+												}}
+											>
+												<CopyIcon size={12} />
+											</button>
+										</div>
 										<p className="text-muted-foreground text-xs">
 											Digunakan {accessCodeItem.usedCount}
 											{accessCodeItem.maxUses ? ` / ${accessCodeItem.maxUses}` : " kali"}

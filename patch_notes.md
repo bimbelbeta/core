@@ -227,5 +227,89 @@ Simplify the registration UX by automatically assigning a fixed password (`"Bimb
 
 ### No Backend Changes Required
 > [!NOTE]
-> Better-Auth's `signUp.email` still receives a valid password (`"BimbelBeta"`). No changes to `packages/auth`, contracts, or any API router were needed. The login flow (Section 3.2) is untouched — users log in with their Username/Email and the fixed password `"BimbelBeta"`.
+>> Better-Auth's `signUp.email` still receives a valid password (`"BimbelBeta"`). No changes to `packages/auth`, contracts, or any API router were needed. The login flow (Section 3.2) is untouched — users log in with their Username/Email and the fixed password `"BimbelBeta"`.
+
+---
+
+## Tryout Title Display in Frontend (3.8)
+
+### Goal
+Display the tryout name (as set by the admin) in the header area of the tryout page, above the subtest card. Fills the blank space that was previously empty.
+
+### Code Changes & Logic
+
+#### 1. Tryout Page Layout
+- **File**: `core/apps/web/src/routes/_authenticated/tryout/$tryoutId.tsx`
+- **Change**: The back button container in `view === "greeting"` was changed from a `flex items-center` row into a `flex flex-col gap-1` column. A `<h1>` tag rendering `data.title` was added below the back button.
+- **Why no API change needed**: The `orpc.tryout.find` endpoint already spreads `...tryoutData` which includes `title` from the `tryout` table. The `title` field was already present in `TryoutSchema` used by the contract output — it simply wasn't being rendered.
+
+### No Backend Changes Required
+> [!NOTE]
+> The `title` field was already returned by the existing `orpc.tryout.find` query. No changes to API, contracts, or database were needed.
+
+---
+
+## Uncensor Tryout Access Code in Admin Panel (3.9)
+
+### Goal
+Make access codes fully readable in the admin Tryout settings page (instead of showing masked codes like `TEST*****`), and add a copy button for convenience.
+
+### Code Changes & Logic
+
+#### 1. Backend — Stop Masking on Creation
+- **File**: `core/packages/api/src/routers/admin/tryout/index.ts`
+- **Change**: In the `createAccessCode` handler, changed `codePreview: maskCode(plainCode)` to `codePreview: plainCode`. The full plain code is now stored in the `codePreview` column at creation time.
+- **Why**: The DB schema only stores `codeHash` (for lookup) and `codePreview` (display-only). There is no separate plain-code column. The cleanest solution without a DB migration is to store the full code in `codePreview` directly.
+
+#### 2. Frontend — Monospace Display + Copy Button
+- **File**: `core/apps/web/src/routes/admin/tryouts/$tryoutId/-components/tryout-settings-tab.tsx`
+- **Change**:
+  - Changed the code display from `<p className="text-muted-foreground text-xs">` to a `<div className="flex items-center gap-1">` containing a `<p className="font-mono text-xs">` for the code and a `<button>` with `CopyIcon` that calls `navigator.clipboard.writeText()` and shows a toast on success.
+  - Added `CopyIcon` to the `@phosphor-icons/react` import.
+
+### Important Note for Existing Codes
+> [!WARNING]
+> Codes created **before** this patch will still display their old masked value (e.g., `TEST*****`) since the masking happened at insert time. Only **newly created** codes will show the full plain code. Old codes can be deactivated and recreated to show the full code.
+
+---
+
+## Allow Space in Username for Login (3.10)
+
+### Goal
+Fix the `422 Unprocessable Content` error that occurred when users with spaces in their name (e.g., "Pelangi Jingga") tried to log in via username. Better-Auth's username plugin blocked spaces by default.
+
+### Code Changes & Logic
+
+#### 1. Auth Configuration — Custom Username Validator
+- **File**: `core/packages/auth/src/index.ts`
+- **Change**: Added `usernameValidator: (value) => /^[a-zA-Z0-9 ]+$/.test(value.trim())` to the `username()` plugin options.
+- **Logic**: This regex permits letters, numbers, and spaces (the most common character in Indonesian names). `.trim()` is applied before testing to handle any leading/trailing spaces cleanly, without rejecting the username.
+
+### No Frontend Changes Required
+> [!NOTE]
+> The login form's sign-in flow (`authClient.signIn.username`) was already correct. The 422 was purely a server-side validation rejection from the username plugin. Fixing the validator on the auth config resolves the issue end-to-end.
+
+---
+
+## Split Tryout Landing Page by Level (TKA / UTBK)
+
+### Goal
+Split the public tryout landing page into two level variants so users can switch between **TKA** and **UTBK** from the same screen. UTBK keeps the current behavior and layout, while TKA uses the same page structure without the Passing Grade tab.
+
+### Code Changes & Logic
+
+#### 1. Tryout Landing Page
+- **File**: `core/apps/web/src/routes/_authenticated/tryout/index.tsx`
+- **Change**:
+  - Added a top-level level selector above the hero banner with two buttons: `TKA` and `UTBK`.
+  - Added a `level` search param so the chosen variant persists through refresh and navigation.
+  - Extracted the hero text into a level config so the banner can change copy per variant.
+  - Kept UTBK's three tabs unchanged: `Guideline`, `Passing Grade`, and `Hasil TryOut`.
+  - Hid the `Passing Grade` tab and component entirely when `level=tka`.
+  - Reset level switching to the default tab for the chosen level so TKA cannot inherit an invalid UTBK tab state.
+
+### Behavior Notes
+- UTBK remains visually and functionally the same as before.
+- TKA reuses the same landing-page structure and CTA area, but only shows `Guideline` and `Hasil TryOut`.
+- No backend, contract, or database changes were needed for this update.
 

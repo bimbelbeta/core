@@ -89,6 +89,7 @@ export const auth = betterAuth({
 					},
 				},
 			},
+			usernameValidator: (value) => /^[a-zA-Z0-9 ]+$/.test(value.trim()),
 		}),
 	],
 	socialProviders: {

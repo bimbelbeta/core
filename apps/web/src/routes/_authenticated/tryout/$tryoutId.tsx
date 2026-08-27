@@ -114,14 +114,14 @@ function RouteComponent() {
 	if (isPending) {
 		return (
 			<div className="flex flex-col gap-4">
-				<div className="flex items-center gap-2">
+				<div className="flex flex-col gap-1">
 					<Button variant="ghost" size="sm" asChild>
 						<Link to="/tryout">
 							<ArrowLeftIcon />
 							Kembali
 						</Link>
 					</Button>
-					<Skeleton className="h-6 w-32" />
+					<Skeleton className="h-8 w-56" />
 				</div>
 				<Skeleton className="h-96 w-full" />
 			</div>
@@ -134,16 +134,15 @@ function RouteComponent() {
 
 	return (
 		<div className={cn("flex flex-col gap-4", view === "questions" && "h-[calc(100vh-2rem)]")}>
-			{view === "greeting" && (
-				<div className="flex items-center gap-2">
-					<Button variant="ghost" size="sm" asChild>
-						<Link to="/tryout">
-							<ArrowLeftIcon />
-							Kembali
-						</Link>
-					</Button>
-				</div>
-			)}
+			<div className="flex flex-col gap-1">
+				<Button variant="ghost" size="sm" asChild className="self-start">
+					<Link to="/tryout">
+						<ArrowLeftIcon />
+						Kembali
+					</Link>
+				</Button>
+				<h1 className="font-bold text-2xl">{data.title}</h1>
+			</div>
 
 			{view === "greeting" ? (
 				<TryoutGreeting

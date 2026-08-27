@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { type } from "arktype";
-import { Activity } from "react";
+import { Activity, useEffect } from "react";
 import ErrorComponent from "@/components/shared/error";
 import { Button } from "@/components/ui/button";
 import { orpc } from "@/lib/orpc";
@@ -13,6 +13,7 @@ import { PassingGradeActivity } from "./-components/passing-grade-activity";
 import { ResultsActivity } from "./-components/results-activity";
 
 const tabSchema = type({
+	"level?": '"tka" | "utbk"',
 	"tab?": '"guideline" | "passing_grade" | "results"',
 });
 
@@ -21,22 +22,36 @@ export const Route = createFileRoute("/_authenticated/tryout/")({
 	validateSearch: (search) => tabSchema.assert(search),
 });
 
-const TABS = [
-	{
-		name: "Guideline",
-		slug: "guideline",
+const TRYOUT_LEVELS = {
+	tka: {
+		label: "TKA",
+		title: "Tryout TKA",
+		description: "Uji kemampuanmu dengan simulasi tryout TKA yang disesuaikan untuk jenjangmu!",
+		tabs: [
+			{ name: "Guideline", slug: "guideline" },
+			{ name: "Hasil TryOut", slug: "results" },
+		],
+		defaultTab: "guideline",
 	},
-	{
-		name: "Passing Grade",
-		slug: "passing_grade",
+	utbk: {
+		label: "UTBK",
+		title: "Tryout UTBK",
+		description: "Uji kemampuanmu dengan simulasi tryout yang mirip dengan UTBK asli!",
+		tabs: [
+			{ name: "Guideline", slug: "guideline" },
+			{ name: "Passing Grade", slug: "passing_grade" },
+			{ name: "Hasil TryOut", slug: "results" },
+		],
+		defaultTab: "guideline",
 	},
-	{
-		name: "Hasil TryOut",
-		slug: "results",
-	},
-] as const;
+} as const;
 
-function TryoutHeader({ creditBalance }: { creditBalance: number }) {
+type TryoutLevel = keyof typeof TRYOUT_LEVELS;
+type TryoutTab = "guideline" | "passing_grade" | "results";
+
+function TryoutHeader({ creditBalance, level }: { creditBalance: number; level: TryoutLevel }) {
+	const currentLevel = TRYOUT_LEVELS[level];
+
 	return (
 		<div className="relative overflow-hidden rounded-default bg-linear-to-r from-primary-500 to-secondary-400">
 			<div className="grid grid-cols-1 gap-6 px-6 pt-8 pb-0 sm:grid-cols-3 sm:items-center sm:px-10 sm:py-10">
@@ -51,10 +66,9 @@ function TryoutHeader({ creditBalance }: { creditBalance: number }) {
 				</div>
 
 				<div className="z-10 max-w-xl space-y-1 sm:col-span-2">
-					<h1 className="font-bold text-2xl text-white leading-tight">Tryout UTBK</h1>
-					<p className="text-black leading-5">Uji kemampuanmu dengan simulasi tryout yang mirip dengan UTBK asli!</p>
+					<h1 className="font-bold text-2xl text-white leading-tight">{currentLevel.title}</h1>
+					<p className="text-black leading-5">{currentLevel.description}</p>
 
-					{/* Credit balance display */}
 					{creditBalance > 0 ? (
 						<div className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-2">
 							<CoinsIcon size={20} weight="fill" className="text-yellow-300" />
@@ -78,11 +92,29 @@ function TryoutHeader({ creditBalance }: { creditBalance: number }) {
 }
 
 function RouteComponent() {
-	const { tab } = Route.useSearch();
+	const { level, tab } = Route.useSearch();
 	const navigate = useNavigate();
-	const activeTab = tab ?? "guideline";
+	const activeLevel = level ?? "utbk";
+	const currentLevel = TRYOUT_LEVELS[activeLevel];
+	const activeTab = currentLevel.tabs.some((item) => item.slug === tab) ? tab : currentLevel.defaultTab;
 
-	// Fetch credit balance
+	useEffect(() => {
+		if (activeLevel === "tka" && tab === "passing_grade") {
+			navigate({
+				to: "/tryout",
+				search: { level: activeLevel, tab: currentLevel.defaultTab },
+				replace: true,
+			});
+		}
+	}, [activeLevel, currentLevel.defaultTab, navigate, tab]);
+
+	const setLevel = (nextLevel: TryoutLevel) => {
+		navigate({
+			to: "/tryout",
+			search: { level: nextLevel, tab: TRYOUT_LEVELS[nextLevel].defaultTab },
+		});
+	};
+
 	const creditBalanceQuery = useQuery(orpc.credit.balance.queryOptions());
 	const creditBalance = creditBalanceQuery.data?.balance ?? 0;
 
@@ -90,20 +122,34 @@ function RouteComponent() {
 		return <ErrorComponent error={creditBalanceQuery.error} />;
 	}
 
-	const setActiveTab = (newTab: "guideline" | "passing_grade" | "results") => {
-		navigate({ to: "/tryout", search: { tab: newTab } });
+	const setActiveTab = (newTab: TryoutTab) => {
+		navigate({
+			to: "/tryout",
+			search: { level: activeLevel, tab: newTab },
+		});
 	};
 
 	return (
 		<>
 			<TargetSelectionDialog />
-			<TryoutHeader creditBalance={creditBalance} />
-			<section className="mt-4 flex items-center gap-2">
-				{TABS.map((t) => (
+			<section className="flex flex-wrap gap-2">
+				{Object.entries(TRYOUT_LEVELS).map(([levelKey, config]) => (
+					<Button
+						key={levelKey}
+						variant={activeLevel === levelKey ? "default" : "outline"}
+						onClick={() => setLevel(levelKey as TryoutLevel)}
+					>
+						{config.label}
+					</Button>
+				))}
+			</section>
+			<TryoutHeader creditBalance={creditBalance} level={activeLevel} />
+			<section className="mt-4 flex flex-wrap items-center gap-2">
+				{currentLevel.tabs.map((t) => (
 					<Button
 						key={t.slug}
 						variant={activeTab === t.slug ? "default" : "outline"}
-						onClick={() => setActiveTab(t.slug)}
+						onClick={() => setActiveTab(t.slug as TryoutTab)}
 					>
 						{t.name}
 					</Button>
@@ -113,9 +159,11 @@ function RouteComponent() {
 				<Activity mode={activeTab === "guideline" ? "visible" : "hidden"}>
 					<GuidelineActivity />
 				</Activity>
-				<Activity mode={activeTab === "passing_grade" ? "visible" : "hidden"}>
-					<PassingGradeActivity />
-				</Activity>
+				{activeLevel === "utbk" && (
+					<Activity mode={activeTab === "passing_grade" ? "visible" : "hidden"}>
+						<PassingGradeActivity />
+					</Activity>
+				)}
 				<Activity mode={activeTab === "results" ? "visible" : "hidden"}>
 					<ResultsActivity />
 				</Activity>

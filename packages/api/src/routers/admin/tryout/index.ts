@@ -166,7 +166,7 @@ const createAccessCode = admin.admin.tryout.createAccessCode.handler(async ({ in
 				.values({
 					tryoutId: input.id,
 					codeHash,
-					codePreview: maskCode(plainCode),
+				codePreview: plainCode,
 					label: input.label?.trim() || null,
 					expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
 					maxUses: input.maxUses ?? null,
