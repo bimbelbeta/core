@@ -26,6 +26,12 @@ const LEVEL_CATEGORIES: Record<"tka" | "utbk", readonly TryoutCategory[]> = {
 
 type TryoutLevel = keyof typeof LEVEL_CATEGORIES;
 
+function normalizeTryoutCategory(category: string | null | undefined): TryoutCategory | null {
+	if (!category) return null;
+	const normalized = category.trim().toLowerCase();
+	return normalized in CATEGORY_LABELS ? (normalized as TryoutCategory) : null;
+}
+
 interface GuidelineActivityProps {
 	level: TryoutLevel;
 }
@@ -107,11 +113,10 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 				{(() => {
 					const allowedCategories = LEVEL_CATEGORIES[level];
 					const allPublishedTryouts = publishedTryouts.data?.items ?? [];
-					const visibleTryouts = allPublishedTryouts.filter((tryout) =>
-						allowedCategories.includes(tryout.category as TryoutCategory),
-					);
-					const fallbackTryouts =
-						visibleTryouts.length > 0 ? visibleTryouts : allPublishedTryouts;
+					const visibleTryouts = allPublishedTryouts.filter((tryout) => {
+						const category = normalizeTryoutCategory(tryout.category);
+						return category !== null && allowedCategories.includes(category);
+					});
 
 					if (publishedTryouts.isPending) {
 						return (
@@ -123,7 +128,7 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 						);
 					}
 
-					if (fallbackTryouts.length === 0) {
+					if (visibleTryouts.length === 0) {
 						return (
 							<Card className="flex items-center justify-between gap-3 p-4">
 								<div>
@@ -138,30 +143,33 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 
 					return (
 						<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-							{fallbackTryouts.map((tryout) => (
-								<Card key={tryout.id} className="flex flex-col gap-4 p-4">
-									<div className="space-y-2">
-										<div className="flex items-start justify-between gap-3">
-											<div className="space-y-1">
-												<h3 className="font-semibold text-base leading-tight">{tryout.title}</h3>
-												<p className="text-muted-foreground text-sm">{CATEGORY_LABELS[tryout.category]}</p>
+							{visibleTryouts.map((tryout) => {
+								const category = normalizeTryoutCategory(tryout.category) ?? "utbk";
+								return (
+									<Card key={tryout.id} className="flex flex-col gap-4 p-4">
+										<div className="space-y-2">
+											<div className="flex items-start justify-between gap-3">
+												<div className="space-y-1">
+													<h3 className="font-semibold text-base leading-tight">{tryout.title}</h3>
+													<p className="text-muted-foreground text-sm">{CATEGORY_LABELS[category]}</p>
+												</div>
+												<Badge variant={tryout.isOpen ? "default" : "secondary"} className="shrink-0">
+													{tryout.isOpen ? "Published" : "Belum dibuka"}
+												</Badge>
 											</div>
-											<Badge variant={tryout.isOpen ? "default" : "secondary"} className="shrink-0">
-												{tryout.isOpen ? "Published" : "Belum dibuka"}
-											</Badge>
+											<Separator />
+											<p className="text-muted-foreground text-sm">
+												{tryout.isOpen ? "Siap dipilih dan dimulai dengan kode akses." : "Tryout ini sudah dipublikasikan, tetapi jadwalnya belum dibuka."}
+											</p>
 										</div>
-										<Separator />
-										<p className="text-muted-foreground text-sm">
-											{tryout.isOpen ? "Siap dipilih dan dimulai dengan kode akses." : "Tryout ini sudah dipublikasikan, tetapi jadwalnya belum dibuka."}
-										</p>
-									</div>
-									<TryoutStartConfirmation tryoutId={tryout.id} disabled={!tryout.isOpen}>
-										<Button className="w-full" disabled={!tryout.isOpen}>
-											Pilih Tryout
-										</Button>
-									</TryoutStartConfirmation>
-								</Card>
-							))}
+										<TryoutStartConfirmation tryoutId={tryout.id} disabled={!tryout.isOpen}>
+											<Button className="w-full" disabled={!tryout.isOpen}>
+												Pilih Tryout
+											</Button>
+										</TryoutStartConfirmation>
+									</Card>
+								);
+								})}
 						</div>
 					);
 				})()}
