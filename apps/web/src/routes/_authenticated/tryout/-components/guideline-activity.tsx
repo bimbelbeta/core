@@ -2,14 +2,40 @@ import { ArrowUpRightIcon } from "@phosphor-icons/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { orpc } from "@/lib/orpc";
 import { TryoutStartConfirmation } from "./tryout-start-confirmation";
 
-export function GuidelineActivity() {
+const CATEGORY_LABELS = {
+	sd: "SD",
+	smp: "SMP",
+	sma: "SMA",
+	utbk: "UTBK",
+} as const;
+
+const LEVEL_CATEGORIES = {
+	tka: ["sd", "smp", "sma"],
+	utbk: ["utbk"],
+} as const;
+
+type TryoutLevel = keyof typeof LEVEL_CATEGORIES;
+
+interface GuidelineActivityProps {
+	level: TryoutLevel;
+}
+
+export function GuidelineActivity({ level }: GuidelineActivityProps) {
 	const { data, isError, isPending } = useQuery({
 		...orpc.tryout.featured.queryOptions(),
+		retry: false,
+		meta: { skipErrorToast: true },
+	});
+	const publishedTryouts = useQuery({
+		...orpc.tryout.list.queryOptions({ input: { limit: 100 } }),
 		retry: false,
 		meta: { skipErrorToast: true },
 	});
@@ -71,6 +97,69 @@ export function GuidelineActivity() {
 				</CardHeader>
 			</Card>
 
+			<section className="space-y-4">
+				<div className="space-y-1">
+					<h2 className="font-semibold text-lg">Tryout yang tersedia</h2>
+					<p className="text-muted-foreground text-sm">Pilih TO publik lalu masukkan kode akses seperti biasa.</p>
+				</div>
+				{(() => {
+					const allowedCategories = LEVEL_CATEGORIES[level];
+					const visibleTryouts = publishedTryouts.data?.items.filter((tryout) => allowedCategories.includes(tryout.category));
+
+					if (publishedTryouts.isPending) {
+						return (
+							<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+								<PublishedTryoutSkeleton />
+								<PublishedTryoutSkeleton />
+								<PublishedTryoutSkeleton />
+							</div>
+						);
+					}
+
+					if (!visibleTryouts || visibleTryouts.length === 0) {
+						return (
+							<Card className="flex items-center justify-between gap-3 p-4">
+								<div>
+									<p className="font-medium">Belum ada Try Out publik</p>
+									<p className="text-muted-foreground text-sm">
+										Saat admin mempublikasikan TO baru, judul dan kategorinya akan muncul di sini.
+									</p>
+								</div>
+							</Card>
+						);
+					}
+
+					return (
+						<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+							{visibleTryouts.map((tryout) => (
+								<Card key={tryout.id} className="flex flex-col gap-4 p-4">
+									<div className="space-y-2">
+										<div className="flex items-start justify-between gap-3">
+											<div className="space-y-1">
+												<h3 className="font-semibold text-base leading-tight">{tryout.title}</h3>
+												<p className="text-muted-foreground text-sm">{CATEGORY_LABELS[tryout.category]}</p>
+											</div>
+											<Badge variant={tryout.isOpen ? "default" : "secondary"} className="shrink-0">
+												{tryout.isOpen ? "Published" : "Belum dibuka"}
+											</Badge>
+										</div>
+										<Separator />
+										<p className="text-muted-foreground text-sm">
+											{tryout.isOpen ? "Siap dipilih dan dimulai dengan kode akses." : "Tryout ini sudah dipublikasikan, tetapi jadwalnya belum dibuka."}
+										</p>
+									</div>
+									<TryoutStartConfirmation tryoutId={tryout.id} disabled={!tryout.isOpen}>
+										<Button className="w-full" disabled={!tryout.isOpen}>
+											Pilih Tryout
+										</Button>
+									</TryoutStartConfirmation>
+								</Card>
+							))}
+						</div>
+					);
+				})()}
+			</section>
+
 			<Card>
 				<CardContent className="space-y-4 text-sm">
 					<h2 className="mb-4 font-bold text-lg">Petunjuk Pengerjaan Try Out</h2>
@@ -124,5 +213,19 @@ export function GuidelineActivity() {
 				</CardHeader>
 			</Card>
 		</section>
+	);
+}
+
+function PublishedTryoutSkeleton() {
+	return (
+		<Card className="flex flex-col gap-4 p-4">
+			<div className="space-y-2">
+				<Skeleton className="h-5 w-3/4" />
+				<Skeleton className="h-4 w-20" />
+				<Skeleton className="h-px w-full" />
+				<Skeleton className="h-4 w-full" />
+			</div>
+			<Skeleton className="h-9 w-full" />
+		</Card>
 	);
 }

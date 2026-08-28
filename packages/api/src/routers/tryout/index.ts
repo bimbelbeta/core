@@ -24,6 +24,7 @@ const list = authed.tryout.list.handler(async ({ input, context }) => {
 			startsAt: tryout.startsAt,
 			endsAt: tryout.endsAt,
 			attemptId: tryoutAttempt.id,
+			category: tryout.category,
 			attemptStatus: tryoutAttempt.status,
 		})
 		.from(tryout)
@@ -57,6 +58,7 @@ const featured = authed.tryout.featured.handler(async ({ context, errors }) => {
 		.select({
 			id: tryout.id,
 			title: tryout.title,
+			category: tryout.category,
 			passingGrade: tryout.passingGrade,
 			startsAt: tryout.startsAt,
 			endsAt: tryout.endsAt,

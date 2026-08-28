@@ -157,7 +157,7 @@ function RouteComponent() {
 			</section>
 			<section className="min-h-[50vh]">
 				<Activity mode={activeTab === "guideline" ? "visible" : "hidden"}>
-					<GuidelineActivity />
+					<GuidelineActivity level={activeLevel} />
 				</Activity>
 				{activeLevel === "utbk" && (
 					<Activity mode={activeTab === "passing_grade" ? "visible" : "hidden"}>

@@ -21,16 +21,21 @@ import { UploadPaymentProof } from "./upload-payment-proof";
 interface TryoutStartConfirmationProps {
 	children: React.ReactNode;
 	disabled?: boolean;
+	tryoutId?: number;
 }
 
 type DialogStep = "notice" | "submit-url" | "premium";
 
-export function TryoutStartConfirmation({ children, disabled = false }: TryoutStartConfirmationProps) {
+export function TryoutStartConfirmation({ children, disabled = false, tryoutId }: TryoutStartConfirmationProps) {
 	const { session } = useRouteContext({ from: "/_authenticated" });
 	const isPremium = session?.user.isPremium;
 
-	const { data } = useQuery(orpc.tryout.featured.queryOptions());
+	const featuredTryoutQuery = useQuery({
+		...orpc.tryout.featured.queryOptions(),
+		enabled: tryoutId === undefined,
+	});
 	const creditBalanceQuery = useQuery(orpc.credit.balance.queryOptions());
+	const targetTryoutId = tryoutId ?? featuredTryoutQuery.data?.id;
 
 	const hasCredits = (creditBalanceQuery.data?.balance ?? 0) > 0;
 
@@ -45,35 +50,34 @@ export function TryoutStartConfirmation({ children, disabled = false }: TryoutSt
 			onSuccess: () => {
 				setIsOpen(false);
 				creditBalanceQuery.refetch();
-				if (data) {
-					if (data.id) router.navigate({ to: "/tryout/$tryoutId", params: { tryoutId: data.id.toString() } });
-				}
+				if (targetTryoutId) router.navigate({ to: "/tryout/$tryoutId", params: { tryoutId: targetTryoutId.toString() } });
 			},
 		}),
 	);
-	if (!data) return null;
+
+	if (!targetTryoutId) return null;
 
 	const handleStart = () => {
 		setErrors(null);
 		if (isPremium) {
-			startTryoutMutation.mutate({ id: data.id });
+			startTryoutMutation.mutate({ id: targetTryoutId });
 		} else {
 			if (!uploadedUrl) {
 				setErrors("Silakan upload bukti pembayaran terlebih dahulu");
 				return;
 			}
-			startTryoutMutation.mutate({ id: data.id, imageUrl: uploadedUrl });
+			startTryoutMutation.mutate({ id: targetTryoutId, imageUrl: uploadedUrl });
 		}
 	};
 
 	const handleStartWithCredit = () => {
 		setErrors(null);
-		startTryoutMutation.mutate({ id: data.id, useCredit: true });
+		startTryoutMutation.mutate({ id: targetTryoutId, useCredit: true });
 	};
 
 	const handleStartWithAccessCode = (code: string) => {
 		setErrors(null);
-		startTryoutMutation.mutate({ id: data.id, accessCode: code });
+		startTryoutMutation.mutate({ id: targetTryoutId, accessCode: code });
 	};
 
 	const handleOpenChange = (open: boolean) => {

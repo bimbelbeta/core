@@ -31,7 +31,7 @@ const TryoutSchema = createSelectSchema(tryout)
 	});
 
 const TryoutListItemSchema = createSelectSchema(tryout)
-	.pick("title", "passingGrade", "startsAt", "endsAt")
+	.pick("title", "passingGrade", "category", "startsAt", "endsAt")
 	.merge({ id: "number", startsAt: "Date | null", endsAt: "Date | null" });
 
 const QuestionBaseSchema = createSelectSchema(question)

@@ -12,28 +12,28 @@ export function ResultsActivity() {
 	const attempts = useQuery(orpc.tryout.history.queryOptions());
 
 	return (
-		<div className="col-span-full grid grid-cols-1 gap-4 sm:grid-cols-3">
-			{attempts.isPending ? (
-				<>
-					<ResultsActivitySkeleton />
-					<ResultsActivitySkeleton />
-					<ResultsActivitySkeleton />
-				</>
-			) : attempts.data?.length === 0 || attempts.isError ? (
-				<div className="col-span-full flex flex-col items-center justify-center space-y-3 py-8 text-center">
-					<WarningCircleIcon size={80} />
-					<p className="text-xl">Kamu belum mengikuti tryout apapun</p>
-					<Button asChild>
-						<Link to="/tryout">
-							Mulai Tryout <ArrowRightIcon className="" />
-						</Link>
-					</Button>
-				</div>
-			) : (
-				attempts.data?.map((result) => (
-					<ResultCard key={result.id} attemptId={result.id} title={result.tryout.title} score={result.score ?? 0} />
-				))
-			)}
+		<div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+				{attempts.isPending ? (
+					<>
+						<ResultsActivitySkeleton />
+						<ResultsActivitySkeleton />
+						<ResultsActivitySkeleton />
+					</>
+				) : attempts.data?.length === 0 || attempts.isError ? (
+					<div className="col-span-full flex flex-col items-center justify-center space-y-3 py-8 text-center">
+						<WarningCircleIcon size={80} />
+						<p className="text-xl">Kamu belum mengikuti tryout apapun</p>
+						<Button asChild>
+							<Link to="/tryout">
+								Mulai Tryout <ArrowRightIcon className="" />
+							</Link>
+						</Button>
+					</div>
+				) : (
+					attempts.data?.map((result) => (
+						<ResultCard key={result.id} attemptId={result.id} title={result.tryout.title} score={result.score ?? 0} />
+					))
+				)}
 		</div>
 	);
 }

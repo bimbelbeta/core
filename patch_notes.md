@@ -313,3 +313,58 @@ Split the public tryout landing page into two level variants so users can switch
 - TKA reuses the same landing-page structure and CTA area, but only shows `Guideline` and `Hasil TryOut`.
 - No backend, contract, or database changes were needed for this update.
 
+---
+
+## Published Tryout Visibility on Student Dashboard
+
+### Goal
+Make every Try Out with status `published` visible on the student dashboard so siswa can choose a specific TO by title and category before entering the code.
+
+### Code Changes & Logic
+
+#### 1. Tryout List Contract and API
+- **Files**:
+  - `core/packages/contract/src/definitions/tryout.contract.ts`
+  - `core/packages/api/src/routers/tryout/index.ts`
+- **Change**: The tryout list response now includes `category` in addition to the existing title and scheduling fields.
+- **Logic**: The student-facing `tryout.list` endpoint already filters by `status = published`; the response now carries enough metadata for the dashboard to render title + category cards.
+
+#### 2. Student Tryout Dashboard
+- **File**: `core/apps/web/src/routes/_authenticated/tryout/-components/results-activity.tsx`
+- **Change**:
+  - Added a published-tryout section below the existing result history block.
+  - Each card shows the Try Out title and category, plus a start button that reuses the existing access-code flow.
+  - Added a loading skeleton and an empty state for when no published TO is available.
+
+#### 3. Tryout Start Dialog
+- **File**: `core/apps/web/src/routes/_authenticated/tryout/-components/tryout-start-confirmation.tsx`
+- **Change**: The dialog now accepts an optional `tryoutId`, so the same access-code / premium / credit logic can be used for a specific selected TO instead of only the featured one.
+
+### Notes
+- The existing featured tryout flow is preserved.
+- No database schema changes were needed.
+
+---
+
+## Tryout Guideline Category Filter Fix
+
+### Goal
+Fix the 500/output validation issue on the Tryout dashboard after introducing level-based filtering, so published tryouts render correctly under the active level tab.
+
+### Code Changes & Logic
+
+#### 1. Featured Tryout API Output
+- **File**: `core/packages/api/src/routers/tryout/index.ts`
+- **Change**: Added `category` to the `featured` tryout query output so the response matches the contract and can be consumed safely by the guideline card and level-aware filtering.
+
+#### 2. Tryout List Contract
+- **File**: `core/packages/contract/src/definitions/tryout.contract.ts`
+- **Change**: The list item schema already includes `category`, keeping the published tryout response consistent for student-facing filtering.
+
+#### 3. Student Tryout Guideline Page
+- **File**: `core/apps/web/src/routes/_authenticated/tryout/-components/guideline-activity.tsx`
+- **Change**: Published tryouts are now filtered by active level:
+  - `TKA` shows only `SD`, `SMP`, and `SMA`
+  - `UTBK` shows only `UTBK`
+- **Logic**: The TO list is still pulled from the existing published tryout endpoint, but the page now narrows the visible cards based on the selected top-level tab.
+
