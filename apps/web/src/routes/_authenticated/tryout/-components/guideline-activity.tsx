@@ -106,9 +106,12 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 				</div>
 				{(() => {
 					const allowedCategories = LEVEL_CATEGORIES[level];
-					const visibleTryouts = publishedTryouts.data?.items.filter((tryout) =>
+					const allPublishedTryouts = publishedTryouts.data?.items ?? [];
+					const visibleTryouts = allPublishedTryouts.filter((tryout) =>
 						allowedCategories.includes(tryout.category as TryoutCategory),
 					);
+					const fallbackTryouts =
+						visibleTryouts.length > 0 ? visibleTryouts : allPublishedTryouts;
 
 					if (publishedTryouts.isPending) {
 						return (
@@ -120,7 +123,7 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 						);
 					}
 
-					if (!visibleTryouts || visibleTryouts.length === 0) {
+					if (fallbackTryouts.length === 0) {
 						return (
 							<Card className="flex items-center justify-between gap-3 p-4">
 								<div>
@@ -135,7 +138,7 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 
 					return (
 						<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-							{visibleTryouts.map((tryout) => (
+							{fallbackTryouts.map((tryout) => (
 								<Card key={tryout.id} className="flex flex-col gap-4 p-4">
 									<div className="space-y-2">
 										<div className="flex items-start justify-between gap-3">
