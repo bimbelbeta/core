@@ -17,10 +17,12 @@ const CATEGORY_LABELS = {
 	utbk: "UTBK",
 } as const;
 
-const LEVEL_CATEGORIES = {
+type TryoutCategory = keyof typeof CATEGORY_LABELS;
+
+const LEVEL_CATEGORIES: Record<"tka" | "utbk", readonly TryoutCategory[]> = {
 	tka: ["sd", "smp", "sma"],
 	utbk: ["utbk"],
-} as const;
+};
 
 type TryoutLevel = keyof typeof LEVEL_CATEGORIES;
 
@@ -104,7 +106,9 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 				</div>
 				{(() => {
 					const allowedCategories = LEVEL_CATEGORIES[level];
-					const visibleTryouts = publishedTryouts.data?.items.filter((tryout) => allowedCategories.includes(tryout.category));
+					const visibleTryouts = publishedTryouts.data?.items.filter((tryout) =>
+						allowedCategories.includes(tryout.category as TryoutCategory),
+					);
 
 					if (publishedTryouts.isPending) {
 						return (
