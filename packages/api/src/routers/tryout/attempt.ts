@@ -391,6 +391,7 @@ export const result = authed.tryout.result.handler(async ({ input, context, erro
 				columns: {
 					id: true,
 					title: true,
+					category: true,
 					passingGrade: true,
 				},
 				with: {
