@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Spinner } from "@/components/ui/spinner";
 import { orpc } from "@/lib/orpc";
+import { getQuestionBadgeVariant, getQuestionTypeLabel } from "@/lib/question-utils";
 
 export function BulkAddQuestionsDialog({
 	open,
@@ -138,8 +139,8 @@ export function BulkAddQuestionsDialog({
 													<CheckCircleIcon size={20} weight="fill" />
 												</div>
 											)}
-											<Badge variant={question.type === "multiple_choice" ? "default" : "outline"} className="w-fit">
-												{question.type === "multiple_choice" ? "Pilihan Ganda" : "Esai"}
+											<Badge variant={getQuestionBadgeVariant(question.type)} className="w-fit">
+												{getQuestionTypeLabel(question.type)}
 											</Badge>
 											<div className="pr-8">
 												<TiptapRenderer content={question.content} />

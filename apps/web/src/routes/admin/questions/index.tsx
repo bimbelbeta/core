@@ -45,6 +45,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { extractTextFromTiptap, truncateText } from "@/lib/content-text";
 import { orpc } from "@/lib/orpc";
+import { getQuestionBadgeVariant, getQuestionTypeLabel } from "@/lib/question-utils";
 import { useQuestionsSearch } from "./-hooks/use-questions-search";
 
 const searchSchema = type({
@@ -60,18 +61,6 @@ export const Route = createFileRoute("/admin/questions/")({
 	component: QuestionsListPage,
 	validateSearch: searchSchema,
 });
-
-const QUESTION_TYPE_LABELS: Record<string, string> = {
-	multiple_choice: "Pilihan Ganda",
-	multiple_choice_complex: "Pilihan Ganda Kompleks",
-	essay: "Esai",
-};
-
-const QUESTION_TYPE_BADGE_VARIANTS: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
-	multiple_choice: "default",
-	multiple_choice_complex: "secondary",
-	essay: "outline",
-};
 
 function QuestionsListPage() {
 	const { searchParams, handleSearch, handleTypeChange, handleCategoryChange, handleNext, handlePrevious } =
@@ -271,9 +260,7 @@ function QuestionsListPage() {
 											</div>
 										</AdminTableCell>
 										<AdminTableCell>
-											<Badge variant={QUESTION_TYPE_BADGE_VARIANTS[q.type] ?? "outline"}>
-												{QUESTION_TYPE_LABELS[q.type] ?? q.type}
-											</Badge>
+											<Badge variant={getQuestionBadgeVariant(q.type)}>{getQuestionTypeLabel(q.type)}</Badge>
 										</AdminTableCell>
 										<AdminTableCell>
 											<div className="flex max-w-32 flex-wrap gap-1">

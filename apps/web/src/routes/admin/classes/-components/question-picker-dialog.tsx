@@ -11,16 +11,17 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/in
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { orpc } from "@/lib/orpc";
+import { getQuestionBadgeVariant, getQuestionTypeLabel, isQuestionType, type QuestionType } from "@/lib/question-utils";
 
 type CategoryFilter = "all" | "sd" | "smp" | "sma" | "utbk";
-type TypeFilter = "all" | "multiple_choice" | "essay";
+type TypeFilter = "all" | QuestionType;
 
 function isCategoryFilter(v: string): v is CategoryFilter {
 	return ["all", "sd", "smp", "sma", "utbk"].includes(v);
 }
 
 function isTypeFilter(v: string): v is TypeFilter {
-	return ["all", "multiple_choice", "essay"].includes(v);
+	return v === "all" || isQuestionType(v);
 }
 
 interface QuestionPickerDialogProps {
@@ -123,7 +124,6 @@ export function QuestionPickerDialog({
 
 	const handleOpenChange = (newOpen: boolean) => {
 		if (!newOpen) {
-			// Reset state when closing
 			setSelectedQuestionIds(new Set());
 			setSearch("");
 			setCategoryFilter("all");
@@ -141,7 +141,6 @@ export function QuestionPickerDialog({
 				</DialogHeader>
 
 				<div className="flex flex-1 flex-col gap-4 overflow-hidden">
-					{/* Search and Filters */}
 					<div className="flex flex-wrap items-center gap-3">
 						<div className="flex-1">
 							<InputGroup className="w-full bg-white">
@@ -184,12 +183,12 @@ export function QuestionPickerDialog({
 							<SelectContent>
 								<SelectItem value="all">Semua Tipe</SelectItem>
 								<SelectItem value="multiple_choice">Pilihan Ganda</SelectItem>
+								<SelectItem value="multiple_choice_complex">Pilihan Ganda Kompleks</SelectItem>
 								<SelectItem value="essay">Esai</SelectItem>
 							</SelectContent>
 						</Select>
 					</div>
 
-					{/* Select All and Add Button */}
 					<div className="flex items-center justify-between border-b pb-2">
 						<div className="flex items-center gap-2">
 							<Checkbox
@@ -208,7 +207,6 @@ export function QuestionPickerDialog({
 						</Button>
 					</div>
 
-					{/* Question List */}
 					<div ref={scrollRef} onScroll={handleScroll} className="flex-1 overflow-y-auto">
 						{isPending ? (
 							<div className="flex animate-pulse items-center justify-center py-8 text-muted-foreground">
@@ -247,11 +245,8 @@ export function QuestionPickerDialog({
 												</div>
 											</div>
 											<div className="flex flex-wrap items-center gap-1.5">
-												<Badge
-													variant={question.type === "multiple_choice" ? "default" : "outline"}
-													className="text-xs"
-												>
-													{question.type === "multiple_choice" ? "PG" : "Esai"}
+												<Badge variant={getQuestionBadgeVariant(question.type)} className="text-xs">
+													{getQuestionTypeLabel(question.type, "short")}
 												</Badge>
 												{question.tags?.slice(0, 3).map((tag) => (
 													<Badge key={tag} variant="secondary" className="text-xs">

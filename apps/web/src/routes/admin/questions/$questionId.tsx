@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { orpc } from "@/lib/orpc";
+import { getQuestionBadgeVariant, getQuestionTypeLabel } from "@/lib/question-utils";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { cn } from "@/lib/utils";
 import { EditQuestionForm } from "./-components/edit-question-form";
@@ -78,19 +79,7 @@ function QuestionDetailPage() {
 					<CardHeader>
 						<div className="flex items-center justify-between">
 							<CardTitle>Informasi Soal #{question.id}</CardTitle>
-							<Badge
-								variant={
-									question.type === "multiple_choice" || question.type === "multiple_choice_complex"
-										? "default"
-										: "secondary"
-								}
-							>
-								{question.type === "multiple_choice"
-									? "Pilihan Ganda"
-									: question.type === "multiple_choice_complex"
-										? "Pilihan Ganda Kompleks"
-										: "Esai"}
-							</Badge>
+							<Badge variant={getQuestionBadgeVariant(question.type)}>{getQuestionTypeLabel(question.type)}</Badge>
 						</div>
 					</CardHeader>
 					<CardContent className="space-y-6">
