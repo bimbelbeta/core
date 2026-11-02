@@ -1,12 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
+import { useRef } from "react";
 import { toast } from "sonner";
 import { useDebouncedMutation } from "@/hooks/use-debounced-mutation";
 import type { BodyOutputs } from "@/lib/orpc";
 import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { cn } from "@/lib/utils";
-import { useTryoutStore } from "../-hooks/use-tryout-store";
+import { updateTryoutAnswerCache, useTryoutStore } from "../-hooks/use-tryout-store";
 import { EssayForm } from "./essay-form";
 
 type TryoutQuestion = NonNullable<NonNullable<BodyOutputs["tryout"]["find"]>["currentSubtest"]>["questions"][number];
@@ -17,30 +18,104 @@ export function AnswerPanel() {
 	const tryoutId = parseRouteParamToNumber(rawTryoutId);
 
 	const queryClient = useQueryClient();
-	const { answers, setAnswer, complexAnswers, setComplexAnswer, currentQuestion, setEssayAnswer } = useTryoutStore();
+	const {
+		answers,
+		setAnswer,
+		removeAnswer,
+		complexAnswers,
+		setComplexAnswer,
+		removeComplexAnswer,
+		currentQuestion,
+		setEssayAnswer,
+	} = useTryoutStore();
 	const questionId = currentQuestion?.id;
+	const requestSeqRef = useRef<Record<number, number>>({});
+	const confirmedSeqRef = useRef<Record<number, number>>({});
+	const confirmedAnswersRef = useRef<Record<number, number | null>>({});
+	const confirmedComplexAnswersRef = useRef<Record<number, number[] | null>>({});
 
 	const saveAnswerMutation = useMutation(
 		orpc.tryout.saveAnswer.mutationOptions({
-			onSuccess: (_data, variables) => {
-				if ("essayAnswer" in variables && typeof variables.essayAnswer === "string") {
-					setEssayAnswer(variables.questionId, variables.essayAnswer);
+			retry: 2,
+			retryDelay: 1000,
+			networkMode: "always",
+			onMutate: async (variables) => {
+				const qId = variables.questionId;
+				const seq = (requestSeqRef.current[qId] ?? 0) + 1;
+				requestSeqRef.current[qId] = seq;
+
+				if (!(qId in confirmedAnswersRef.current)) {
+					confirmedAnswersRef.current[qId] = currentQuestion?.userAnswer?.selectedChoiceId ?? null;
 				}
-				queryClient.invalidateQueries({ queryKey: orpc.tryout.find.key({ input: { id: tryoutId } }) });
+				if (!(qId in confirmedComplexAnswersRef.current)) {
+					confirmedComplexAnswersRef.current[qId] = currentQuestion?.userAnswer?.selectedChoiceIds ?? null;
+				}
+
+				const queryKey = orpc.tryout.find.queryKey({ input: { id: tryoutId } });
+				await queryClient.cancelQueries({ queryKey });
+
+				if (variables.answerType === "choice") {
+					setAnswer(qId, variables.selectedChoiceId);
+				} else if (variables.answerType === "complex") {
+					setComplexAnswer(qId, variables.selectedChoiceIds);
+				} else if (variables.answerType === "essay") {
+					setEssayAnswer(qId, variables.essayAnswer);
+				}
+
+				return { seq, queryKey };
 			},
-			onError: (error: Error) => {
-				toast.error(`Gagal menyimpan jawaban: ${error.message}`);
+			onSuccess: (_data, variables, context) => {
+				const qId = variables.questionId;
+				if (!context || context.seq < (confirmedSeqRef.current[qId] ?? 0)) {
+					return;
+				}
+				confirmedSeqRef.current[qId] = context.seq;
+
+				if (variables.answerType === "choice") {
+					confirmedAnswersRef.current[qId] = variables.selectedChoiceId;
+				} else if (variables.answerType === "complex") {
+					confirmedComplexAnswersRef.current[qId] = variables.selectedChoiceIds;
+				}
+
+				queryClient.setQueryData(context.queryKey, (old) => updateTryoutAnswerCache(old, variables));
+			},
+			onError: (_error, variables, context) => {
+				const qId = variables.questionId;
+				if (!context || context.seq !== requestSeqRef.current[qId]) {
+					return;
+				}
+
+				if (variables.answerType === "choice") {
+					const confirmed = confirmedAnswersRef.current[qId];
+					if (confirmed !== undefined && confirmed !== null) {
+						setAnswer(qId, confirmed);
+					} else {
+						removeAnswer(qId);
+					}
+				} else if (variables.answerType === "complex") {
+					const confirmed = confirmedComplexAnswersRef.current[qId];
+					if (confirmed !== undefined && confirmed !== null) {
+						setComplexAnswer(qId, confirmed);
+					} else {
+						removeComplexAnswer(qId);
+					}
+				}
+
+				toast.error("Gagal menyimpan jawaban. Periksa koneksi internetmu dan pilih ulang.");
 			},
 		}),
 	);
 
 	const debouncedSaveAnswerMutation = useDebouncedMutation(
 		orpc.tryout.saveAnswer.mutationOptions({
+			networkMode: "always",
 			onSuccess: (_data, variables) => {
 				if ("essayAnswer" in variables && typeof variables.essayAnswer === "string") {
 					setEssayAnswer(variables.questionId, variables.essayAnswer);
 				}
-				queryClient.invalidateQueries({ queryKey: orpc.tryout.find.key({ input: { id: tryoutId } }) });
+				queryClient.setQueryData(orpc.tryout.find.queryKey({ input: { id: tryoutId } }), (old) =>
+					updateTryoutAnswerCache(old, variables),
+				);
 			},
 			onError: (error: Error) => {
 				toast.error(`Gagal menyimpan jawaban: ${error.message}`);
@@ -55,7 +130,6 @@ export function AnswerPanel() {
 
 	const handleSelectAnswer = (choiceId: number) => {
 		if (!questionId) return;
-		setAnswer(questionId, choiceId);
 		saveAnswerMutation.mutate({
 			tryoutId,
 			questionId,
@@ -79,7 +153,6 @@ export function AnswerPanel() {
 		const isSelected = selectedComplexIds.includes(choiceId);
 		const updated = isSelected ? selectedComplexIds.filter((id) => id !== choiceId) : [...selectedComplexIds, choiceId];
 
-		setComplexAnswer(questionId, updated);
 		saveAnswerMutation.mutate({
 			tryoutId,
 			questionId,
@@ -104,7 +177,6 @@ export function AnswerPanel() {
 							content={choice.content}
 							selected={selectedAnswerId === choice.id}
 							onSelect={() => handleSelectAnswer(choice.id)}
-							disabled={saveAnswerMutation.isPending}
 						/>
 					))
 				) : currentQuestion?.type === "multiple_choice_complex" ? (
@@ -117,12 +189,10 @@ export function AnswerPanel() {
 									key={choice.id}
 									type="button"
 									aria-pressed={isSelected}
-									disabled={saveAnswerMutation.isPending}
 									onClick={() => handleToggleComplexCorrect(choice.id)}
 									className={cn(
-										"flex w-full items-start justify-between gap-3 rounded-lg border p-4 text-left transition-all",
+										"flex w-full touch-manipulation items-start justify-between gap-3 rounded-lg border p-4 text-left transition-all",
 										isSelected ? "border-primary bg-primary/5" : "border-border hover:bg-secondary/5",
-										saveAnswerMutation.isPending && "opacity-50",
 									)}
 								>
 									<span className="min-w-0 flex-1 whitespace-normal break-words">{choice.content}</span>
@@ -166,23 +236,19 @@ function AnswerOption({
 	content,
 	selected,
 	onSelect,
-	disabled,
 }: {
 	code: string;
 	content: string;
 	selected: boolean;
 	onSelect: () => void;
-	disabled: boolean;
 }) {
 	return (
 		<button
 			type="button"
-			disabled={disabled}
 			onClick={onSelect}
 			className={cn(
-				"flex items-center gap-3 rounded-md border p-4 text-start transition-all",
+				"flex touch-manipulation items-center gap-3 rounded-md border p-4 text-start transition-all",
 				selected ? "border-primary bg-primary/5" : "border-border hover:bg-secondary/5",
-				disabled && "opacity-50",
 			)}
 		>
 			<span
