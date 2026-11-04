@@ -2,6 +2,7 @@ import { EyeIcon, EyeSlashIcon } from "@phosphor-icons/react";
 import * as m from "motion/react-m";
 import { useState } from "react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Typography } from "@/components/ui/typography";
 
 export function AnswerCollapsible({
 	children,
@@ -17,7 +18,7 @@ export function AnswerCollapsible({
 	return (
 		<Collapsible open={isOpen} onOpenChange={setIsOpen}>
 			<CollapsibleTrigger className="group flex items-center gap-2 transition-opacity hover:opacity-80">
-				<p className="font-medium">{title}</p>
+				<Typography variant="body">{title}</Typography>
 				{isOpen ? <EyeIcon className="size-4" /> : <EyeSlashIcon className="size-4" />}
 			</CollapsibleTrigger>
 			<CollapsibleContent className="mt-2 overflow-hidden">

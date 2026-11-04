@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
+import { Typography } from "@/components/ui/typography";
 
 export default function NotFound() {
 	return (
@@ -14,8 +15,12 @@ export default function NotFound() {
 					height={250}
 					className="pointer-events-none select-none"
 				/>
-				<h1 className="text-neutral-1000 mt-4 text-3xl font-bold">Halaman Tidak Ditemukan</h1>
-				<p className="mt-2 text-neutral-600">Ups! Sepertinya halaman yang kamu cari sudah pindah atau tidak ada.</p>
+				<Typography variant="display" className="text-neutral-1000 mt-4">
+					Halaman Tidak Ditemukan
+				</Typography>
+				<Typography variant="body" tone="muted" className="mt-2">
+					Ups! Sepertinya halaman yang kamu cari sudah pindah atau tidak ada.
+				</Typography>
 				<Button className="mt-8" asChild>
 					<Link to="/">Kembali ke Beranda</Link>
 				</Button>

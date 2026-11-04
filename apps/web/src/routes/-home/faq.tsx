@@ -1,6 +1,6 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Container } from "@/components/ui/container";
-import { Heading } from "./-components/heading";
+import { Typography } from "@/components/ui/typography";
 import { HOME_PAGE_CONTENT } from "./data";
 
 export function FAQ() {
@@ -8,9 +8,9 @@ export function FAQ() {
 
 	return (
 		<Container className="max-w-6xl">
-			<Heading className="mb-2">
+			<Typography variant="display" as="h2" className="mb-2 text-center">
 				Paling <span className="text-secondary-700 font-semibold">Sering</span> Ditanyakan
-			</Heading>
+			</Typography>
 			<Accordion type="single" collapsible>
 				<div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:gap-6">
 					<div className="space-y-4 xl:space-y-6">

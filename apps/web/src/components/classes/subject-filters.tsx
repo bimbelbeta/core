@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { SubjectFilter } from "./classes-types";
 
 const FILTERS: { value: SubjectFilter; label: string }[] = [
@@ -17,23 +17,23 @@ export function SubjectFilters({
 	onChange: (filter: SubjectFilter) => void;
 }) {
 	return (
-		<div className="flex gap-2 overflow-x-auto pb-1 sm:overflow-visible sm:pb-0">
+		<ToggleGroup
+			type="single"
+			variant="filter"
+			size="none"
+			value={activeFilter}
+			onValueChange={(value) => {
+				const filter = FILTERS.find((filter) => filter.value === value);
+				if (filter) onChange(filter.value);
+			}}
+			aria-label="Kategori kelas"
+			className="justify-start overflow-x-auto pb-1 sm:overflow-visible sm:pb-0"
+		>
 			{FILTERS.map((filter) => (
-				<button
-					key={filter.value}
-					type="button"
-					onClick={() => onChange(filter.value)}
-					className={cn(
-						"rounded-lg border px-3 py-1.5 text-xs font-normal whitespace-nowrap transition-all",
-						"sm:h-10",
-						"border-primary-600 text-primary-600 bg-white",
-						"hover:bg-primary-50",
-						activeFilter === filter.value && "bg-primary-500 text-white",
-					)}
-				>
+				<ToggleGroupItem key={filter.value} value={filter.value}>
 					{filter.label}
-				</button>
+				</ToggleGroupItem>
 			))}
-		</div>
+		</ToggleGroup>
 	);
 }

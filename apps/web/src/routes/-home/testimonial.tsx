@@ -1,24 +1,27 @@
 import { Image } from "@unpic/react";
+import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
-import { Heading } from "./-components/heading";
+import { Typography } from "@/components/ui/typography";
 import { HOME_PAGE_CONTENT } from "./data";
 
 export default function Testimonial() {
 	return (
 		<Container className="max-w-7xl overflow-x-clip">
 			<div className="mb-4 text-center">
-				<Heading>
+				<Typography variant="display" as="h2">
 					Hasil Nyata dari Strategi Belajar <span className="text-secondary-700 font-semibold">Bimbel Beta</span>
-				</Heading>
+				</Typography>
 			</div>
 
 			<div className="mx-auto mt-3 mb-5 grid w-fit grid-cols-1 gap-x-12 gap-y-4 sm:mt-5 sm:mb-8 sm:grid-cols-2 lg:grid-cols-3 xl:mt-10 xl:gap-x-30">
 				{HOME_PAGE_CONTENT.stats.map((stat) => (
 					<div key={stat.id} className="flex flex-col items-center sm:last:col-span-2 lg:last:col-span-1">
-						<p className="text-secondary-700 text-center text-2xl leading-9 font-semibold sm:text-4xl md:leading-11.5 2xl:text-5xl">
+						<Typography variant="display" as="p" className="text-secondary-700 text-center">
 							{stat.value}
-						</p>
-						<p className="mt-3 max-w-50 text-center text-sm leading-5.25 md:text-sm lg:text-base">{stat.desc}</p>
+						</Typography>
+						<Typography variant="body" className="mt-3 max-w-50 text-center">
+							{stat.desc}
+						</Typography>
 					</div>
 				))}
 			</div>
@@ -34,10 +37,7 @@ function TestimonialCard({ data }: { data: typeof HOME_PAGE_CONTENT.testimonials
 	return (
 		<div className="grid gap-6 sm:grid-cols-2">
 			{data.map((t) => (
-				<div
-					key={t.id}
-					className="border-0.5 flex flex-col items-start gap-4 rounded-lg border bg-white p-4 md:h-60 md:flex-row"
-				>
+				<Card key={t.id} variant="flush" className="border-0.5 items-start gap-4 p-4 md:h-60 md:flex-row">
 					<Image
 						src={t.avatar ?? placeholder}
 						alt={`${t.name} avatar`}
@@ -48,15 +48,19 @@ function TestimonialCard({ data }: { data: typeof HOME_PAGE_CONTENT.testimonials
 
 					<div className="flex h-full flex-col justify-between">
 						<div className="mb-3 max-h-30 overflow-y-scroll pr-2 lg:max-h-40">
-							<p className="text-sm text-gray-500">{t.desc}</p>
+							<Typography variant="body" tone="muted">
+								{t.desc}
+							</Typography>
 						</div>
 
 						<div className="mt-auto mb-0">
-							<p className="text-base font-medium md:text-lg">{t.name}</p>
-							<p className="text-xs text-gray-400 md:text-sm">{t.title}</p>
+							<Typography variant="subtitle2" as="p">
+								{t.name}
+							</Typography>
+							<Typography variant="caption">{t.title}</Typography>
 						</div>
 					</div>
-				</div>
+				</Card>
 			))}
 		</div>
 	);

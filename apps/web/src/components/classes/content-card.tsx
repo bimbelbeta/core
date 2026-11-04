@@ -12,6 +12,7 @@ import { Link, useLocation } from "@tanstack/react-router";
 import type { useDragControls } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Typography } from "@/components/ui/typography";
 import { useIsAdmin } from "@/hooks/use-is-admin";
 import { canAccessContent } from "@/lib/premium-config";
 import { cn } from "@/lib/utils";
@@ -138,7 +139,9 @@ export function ContentCard({
 					</div>
 
 					<div className="flex h-full items-center pt-0.5">
-						<p className="text-neutral-1000 mr-7 text-sm font-bold sm:text-base lg:text-lg">{item.title}</p>
+						<Typography variant="subtitle2" as="p" className="text-neutral-1000 mr-7">
+							{item.title}
+						</Typography>
 					</div>
 				</div>
 
