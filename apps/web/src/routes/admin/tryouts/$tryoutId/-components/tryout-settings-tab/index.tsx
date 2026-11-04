@@ -1,2 +1,2 @@
 export type { TryoutSettingsFormState } from "./form-state";
-export { TryoutSettingsTab } from "./tryout-settings-tab";
+export { TryoutSettingsTab } from "./settings-form";

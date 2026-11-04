@@ -13,10 +13,6 @@ function AdminPageTitle(props: React.ComponentProps<"h1">) {
 	return <Typography variant="title" {...props} />;
 }
 
-function AdminPageDescription(props: React.ComponentProps<"p">) {
-	return <Typography variant="body" tone="muted" {...props} />;
-}
-
 const AdminPageContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
 	({ className, ...props }, ref) => (
 		<div ref={ref} className={cn("flex flex-1 flex-col gap-4", className)} {...props} />
@@ -53,7 +49,6 @@ AdminPageHeaderActions.displayName = "AdminPageHeaderActions";
 
 export {
 	AdminPageContent,
-	AdminPageDescription,
 	AdminPageHeader,
 	AdminPageHeaderActions,
 	AdminPageHeaderContent,

@@ -7,13 +7,20 @@ import {
 	AdminPageHeaderContent,
 	AdminPageRoot,
 } from "@/components/admin/admin-page";
+import {
+	AdminTable,
+	AdminTableBody,
+	AdminTableCell,
+	AdminTableHead,
+	AdminTableHeader,
+	AdminTableRoot,
+	AdminTableRow,
+} from "@/components/admin/admin-table";
+import { AdminTablePaginationWrapper } from "@/components/admin/admin-table-toolbar";
 import { PaginationButtons } from "@/components/admin/pagination-buttons";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { SearchInput } from "@/components/ui/search-input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Typography } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
@@ -90,28 +97,23 @@ export function ProductsListPage() {
 					</div>
 				</div>
 
-				<Card variant="flush">
-					<Table>
-						<TableHeader>
-							<TableRow className="bg-muted/30">
-								<TableHead className="pl-4">Nama</TableHead>
-								<TableHead>Variant</TableHead>
-								<TableHead>Harga</TableHead>
-								<TableHead>Type</TableHead>
-								<TableHead className="min-w-32.5">Dibuat</TableHead>
-								<TableHead className="pr-4 text-right">Aksi</TableHead>
-							</TableRow>
-						</TableHeader>
-						<TableBody>
-							{isLoading ? (
-								<TableSkeleton columns={6} />
-							) : data?.items.length === 0 ? (
-								<TableRow>
-									<TableCell colSpan={6} className="text-muted-foreground h-24 text-center">
-										Tidak ada product ditemukan.
-									</TableCell>
-								</TableRow>
-							) : (
+				<AdminTableRoot>
+					<AdminTable>
+						<AdminTableHeader>
+							<AdminTableHead className="pl-4">Nama</AdminTableHead>
+							<AdminTableHead>Variant</AdminTableHead>
+							<AdminTableHead>Harga</AdminTableHead>
+							<AdminTableHead>Type</AdminTableHead>
+							<AdminTableHead className="min-w-32.5">Dibuat</AdminTableHead>
+							<AdminTableHead className="pr-4 text-right">Aksi</AdminTableHead>
+						</AdminTableHeader>
+						<AdminTableBody
+							isLoading={isLoading}
+							isEmpty={!isLoading && data?.items.length === 0}
+							columns={6}
+							emptyMessage="Tidak ada product ditemukan."
+						>
+							{!isLoading && data?.items.length !== 0 && (
 								<TooltipProvider delayDuration={200}>
 									{data?.items.map((product) => {
 										const variantInfo = variantConfig[product.variant] ?? variantConfig.credits;
@@ -120,8 +122,8 @@ export function ProductsListPage() {
 										const isDeleted = !!product.deletedAt;
 
 										return (
-											<TableRow key={product.id} className={cn("group hover:bg-muted/30", isDeleted && "opacity-50")}>
-												<TableCell className="pl-4">
+											<AdminTableRow key={product.id} className={cn(isDeleted && "opacity-50")}>
+												<AdminTableCell className="pl-4">
 													<div className="flex flex-col">
 														<Link
 															to="/admin/products/$productId"
@@ -132,9 +134,9 @@ export function ProductsListPage() {
 														</Link>
 														<span className="text-muted-foreground text-xs leading-tight">{product.slug}</span>
 													</div>
-												</TableCell>
+												</AdminTableCell>
 
-												<TableCell>
+												<AdminTableCell>
 													<div className="flex items-center gap-1.5">
 														<div
 															className={cn("flex size-6 items-center justify-center rounded-md", variantInfo.bgColor)}
@@ -143,13 +145,13 @@ export function ProductsListPage() {
 														</div>
 														<span className="text-sm font-medium">{variantInfo.label}</span>
 													</div>
-												</TableCell>
+												</AdminTableCell>
 
-												<TableCell>
+												<AdminTableCell>
 													<span className="text-sm font-semibold">{formatCurrency(product.price)}</span>
-												</TableCell>
+												</AdminTableCell>
 
-												<TableCell>
+												<AdminTableCell>
 													<span
 														className={cn(
 															"rounded-full px-2 py-0.5 text-xs font-medium capitalize",
@@ -160,9 +162,9 @@ export function ProductsListPage() {
 													>
 														{product.type}
 													</span>
-												</TableCell>
+												</AdminTableCell>
 
-												<TableCell>
+												<AdminTableCell>
 													{createdDate ? (
 														<Tooltip>
 															<TooltipTrigger asChild>
@@ -182,9 +184,9 @@ export function ProductsListPage() {
 													) : (
 														<span className="text-muted-foreground text-xs">-</span>
 													)}
-												</TableCell>
+												</AdminTableCell>
 
-												<TableCell className="pr-4 text-right">
+												<AdminTableCell className="pr-4 text-right">
 													<div className="flex items-center justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
 														{isDeleted ? (
 															<Button variant="ghost" size="icon" onClick={() => setRestoreProductId(product.id)}>
@@ -196,26 +198,26 @@ export function ProductsListPage() {
 															</Button>
 														)}
 													</div>
-												</TableCell>
-											</TableRow>
+												</AdminTableCell>
+											</AdminTableRow>
 										);
 									})}
 								</TooltipProvider>
 							)}
-						</TableBody>
-					</Table>
+						</AdminTableBody>
+					</AdminTable>
 
 					{data && (
-						<div className="border-t p-4">
+						<AdminTablePaginationWrapper>
 							<PaginationButtons
 								onPrevious={handlePrevious}
 								onNext={handleNext}
 								hasPrevious={!!pageInfo?.hasPreviousPage}
 								hasNext={!!pageInfo?.hasNextPage}
 							/>
-						</div>
+						</AdminTablePaginationWrapper>
 					)}
-				</Card>
+				</AdminTableRoot>
 			</AdminPageContent>
 
 			<DeleteProductDialog
