@@ -233,9 +233,13 @@ export function QuestionPickerDialog({
 										variant="outline"
 										selected={selectedQuestionIds.has(question.id)}
 										key={question.id}
-										className="group hover:bg-muted/50 w-full cursor-pointer flex-nowrap items-start gap-3 rounded-lg p-3 text-left"
+										className="group w-full cursor-pointer flex-nowrap items-start gap-3 rounded-lg p-3 text-left"
 									>
-										<button type="button" onClick={() => handleQuestionToggle(question.id)}>
+										<button
+											type="button"
+											aria-pressed={selectedQuestionIds.has(question.id)}
+											onClick={() => handleQuestionToggle(question.id)}
+										>
 											<CheckboxIndicator checked={selectedQuestionIds.has(question.id)} className="mt-0.5" />
 											<div className="min-w-0 flex-1 space-y-1">
 												<div className="flex items-start gap-2">

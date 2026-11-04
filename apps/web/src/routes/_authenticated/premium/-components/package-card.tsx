@@ -67,16 +67,12 @@ export function PackageCard({
 			)}
 
 			<div className="mb-4">
-				<Typography variant={isPremiumPackage ? "subtitle1" : "subtitle2"} as="h3">
+				<Typography variant="subtitle1" as="h3">
 					{name}
 				</Typography>
 
 				<div className="flex flex-wrap items-center gap-x-2">
-					<Typography
-						variant={isPremiumPackage ? "title" : "subtitle1"}
-						as="p"
-						className={isPremiumPackage ? "text-primary-600" : "text-neutral-900"}
-					>
+					<Typography variant="title" as="p" className={isPremiumPackage ? "text-primary-600" : "text-neutral-900"}>
 						{formatRupiah(price)}
 					</Typography>
 					{isPremiumPackage && premiumSubtitle && <span className="text-sm text-neutral-500">{premiumSubtitle}</span>}

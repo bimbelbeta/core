@@ -18,7 +18,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { useUsersList } from "../-hooks/use-users-list";
-import { useUsersNavigation } from "../-hooks/use-users-navigation";
+import { useUsersPagination } from "../-hooks/use-users-pagination";
 import { useUsersSelection } from "../-hooks/use-users-selection";
 import { formatPremiumExpiry, formatRelativeDate, getInitials, isValidRole, roleConfig } from "../-utils";
 import { EditRoleDialog } from "./edit-role-dialog";
@@ -28,7 +28,7 @@ import { GrantPremiumDialog } from "./grant-premium-dialog";
 export function UsersTable() {
 	const { data, isLoading, refetch } = useUsersList();
 	const pageInfo = data?.pageInfo;
-	const { handleNext, handlePrevious } = useUsersNavigation();
+	const { handleNext, handlePrevious } = useUsersPagination();
 	const { selectedIds, allSelected, someSelected, toggleSelectAll, toggleSelectOne } = useUsersSelection();
 	const [editRoleUser, setEditRoleUser] = useState<{
 		userId: string;
