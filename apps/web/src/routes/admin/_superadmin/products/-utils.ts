@@ -21,36 +21,6 @@ export const variantConfig = {
 	},
 } as const;
 
-export function formatCurrency(value: string | number): string {
-	const num = typeof value === "string" ? Number.parseFloat(value) : value;
-	return new Intl.NumberFormat("id-ID", {
-		style: "currency",
-		currency: "IDR",
-		minimumFractionDigits: 0,
-		maximumFractionDigits: 0,
-	}).format(num);
-}
-
-export function formatRelativeDate(date: Date): string {
-	const now = new Date();
-	const diffInMs = now.getTime() - date.getTime();
-	const diffInSeconds = Math.floor(diffInMs / 1000);
-	const diffInMinutes = Math.floor(diffInSeconds / 60);
-	const diffInHours = Math.floor(diffInMinutes / 60);
-	const diffInDays = Math.floor(diffInHours / 24);
-	const diffInWeeks = Math.floor(diffInDays / 7);
-	const diffInMonths = Math.floor(diffInDays / 30);
-	const diffInYears = Math.floor(diffInDays / 365);
-
-	if (diffInSeconds < 60) return "Baru saja";
-	if (diffInMinutes < 60) return `${diffInMinutes} menit lalu`;
-	if (diffInHours < 24) return `${diffInHours} jam lalu`;
-	if (diffInDays < 7) return `${diffInDays} hari lalu`;
-	if (diffInWeeks < 4) return `${diffInWeeks} minggu lalu`;
-	if (diffInMonths < 12) return `${diffInMonths} bulan lalu`;
-	return `${diffInYears} tahun lalu`;
-}
-
 export const months = [
 	{ value: 1, label: "Januari" },
 	{ value: 2, label: "Februari" },

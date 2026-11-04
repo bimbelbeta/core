@@ -40,8 +40,9 @@ export function useProductsList() {
 	};
 
 	const handleSearch = (value: string) => {
+		const { search: _search, ...withoutSearch } = baseSearchParams;
 		setSearchInput(value);
-		navigate({ search: value ? { ...baseSearchParams, search: value } : baseSearchParams });
+		navigate({ search: value ? { ...baseSearchParams, search: value } : withoutSearch });
 	};
 
 	const handleVariantChange = (value: string) => {

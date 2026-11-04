@@ -9,8 +9,9 @@ export function useUsersNavigation() {
 	const baseSearchParams = buildUsersSearch({ search, role, isPremium, limit });
 
 	const handleSearch = (value: string) => {
+		const { search: _search, ...withoutSearch } = baseSearchParams;
 		setSearchInput(value);
-		navigate({ search: value ? { ...baseSearchParams, search: value } : baseSearchParams });
+		navigate({ search: value ? { ...baseSearchParams, search: value } : withoutSearch });
 	};
 
 	const handleRoleChange = (value: string) => {

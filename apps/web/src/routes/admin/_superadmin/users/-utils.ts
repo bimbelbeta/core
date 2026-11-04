@@ -12,19 +12,6 @@ export function getInitials(name: string) {
 		.toUpperCase();
 }
 
-export function formatRelativeDate(date: Date) {
-	const now = new Date();
-	const diffMs = now.getTime() - date.getTime();
-	const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-	if (diffDays === 0) return "Hari ini";
-	if (diffDays === 1) return "Kemarin";
-	if (diffDays < 7) return `${diffDays} hari lalu`;
-	if (diffDays < 30) return `${Math.floor(diffDays / 7)} minggu lalu`;
-	if (diffDays < 365) return `${Math.floor(diffDays / 30)} bulan lalu`;
-	return `${Math.floor(diffDays / 365)} tahun lalu`;
-}
-
 export function formatPremiumExpiry(date: Date) {
 	const now = new Date();
 	const diffMs = date.getTime() - now.getTime();

@@ -123,31 +123,34 @@ export function BulkAddQuestionsDialog({
 									const isSelected = selectedQuestionIds.has(question.id);
 									return (
 										<Item
-											asChild
 											key={question.id}
 											selected={isSelected}
 											variant="outline"
 											className="hover:bg-muted/50 focus-within:ring-primary relative cursor-pointer flex-col items-stretch gap-3 p-3 text-left focus-within:ring-2"
 										>
-											<label>
-												<input
-													type="checkbox"
-													className="sr-only"
-													checked={isSelected}
-													onChange={() => handleQuestionToggle(question.id)}
-												/>
-												{isSelected && (
-													<div className="text-primary absolute top-3 right-3">
-														<CheckCircleIcon size={20} weight="fill" />
-													</div>
-												)}
-												<Badge variant={question.type === "multiple_choice" ? "default" : "outline"} className="w-fit">
-													{question.type === "multiple_choice" ? "Pilihan Ganda" : "Esai"}
-												</Badge>
-												<div className="pr-8">
-													<TiptapRenderer content={question.content} />
+											<input
+												id={`pick-question-${question.id}`}
+												type="checkbox"
+												className="sr-only"
+												checked={isSelected}
+												onChange={() => handleQuestionToggle(question.id)}
+											/>
+											<label
+												htmlFor={`pick-question-${question.id}`}
+												aria-label={`Pilih soal #${question.id}`}
+												className="absolute inset-0 cursor-pointer"
+											/>
+											{isSelected && (
+												<div className="text-primary absolute top-3 right-3">
+													<CheckCircleIcon size={20} weight="fill" />
 												</div>
-											</label>
+											)}
+											<Badge variant={question.type === "multiple_choice" ? "default" : "outline"} className="w-fit">
+												{question.type === "multiple_choice" ? "Pilihan Ganda" : "Esai"}
+											</Badge>
+											<div className="pr-8">
+												<TiptapRenderer content={question.content} />
+											</div>
 										</Item>
 									);
 								})}

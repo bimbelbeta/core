@@ -23,9 +23,11 @@ import { SearchInput } from "@/components/ui/search-input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Typography } from "@/components/ui/typography";
+import { formatRelativeDate } from "@/lib/format-date";
+import { formatRupiah } from "@/lib/formatter";
 import { cn } from "@/lib/utils";
 import { useProductsList } from "../-hooks/use-products-list";
-import { formatCurrency, formatRelativeDate, variantConfig } from "../-utils";
+import { variantConfig } from "../-utils";
 import { DeleteProductDialog } from "./delete-product-dialog";
 import { RestoreProductDialog } from "./restore-product-dialog";
 
@@ -148,7 +150,7 @@ export function ProductsListPage() {
 												</AdminTableCell>
 
 												<AdminTableCell>
-													<span className="text-sm font-semibold">{formatCurrency(product.price)}</span>
+													<span className="text-sm font-semibold">{formatRupiah(product.price)}</span>
 												</AdminTableCell>
 
 												<AdminTableCell>

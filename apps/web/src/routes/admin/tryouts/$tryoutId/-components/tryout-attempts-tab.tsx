@@ -10,6 +10,7 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { formatRelativeDate } from "@/lib/format-date";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
 
@@ -20,24 +21,6 @@ function getInitials(name: string) {
 		.join("")
 		.toUpperCase()
 		.slice(0, 2);
-}
-
-function formatRelativeDate(date: Date) {
-	const now = new Date();
-	const diff = now.getTime() - date.getTime();
-	const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-
-	if (days === 0) {
-		const hours = Math.floor(diff / (1000 * 60 * 60));
-		if (hours === 0) {
-			const minutes = Math.floor(diff / (1000 * 60));
-			return minutes === 0 ? "Baru saja" : `${minutes} menit lalu`;
-		}
-		return `${hours} jam lalu`;
-	}
-	if (days === 1) return "Kemarin";
-	if (days < 7) return `${days} hari lalu`;
-	return date.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
 }
 
 interface TryoutAttemptsTabProps {
