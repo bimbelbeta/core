@@ -16,6 +16,26 @@ const dependencies = {
 };
 
 export const createNotificationService = (deps: typeof dependencies) => ({
+	/**
+	 * Handles one payment notification for an order.
+	 *
+	 * The gateway's claim is re-verified against the provider before anything is trusted, because a
+	 * webhook body can be forged. The verified status is then turned into a single outcome: ignore
+	 * unknown or already-paid orders, grant benefits, or record a non-success status.
+	 *
+	 * Granting benefits runs inside one transaction, so an order never ends up marked paid with only
+	 * some of its credits or premium time applied. Two notifications for the same order can race:
+	 * the processor claims the order atomically and only the winner grants benefits, so the loser
+	 * reports `already_processed` instead of paying out twice.
+	 *
+	 * Never throws. Failures are reported as a status so the procedure decides which oRPC error to
+	 * raise, and `verification_failed` keeps the payment error code in `reason` for logging.
+	 *
+	 * @param orderId Order id from the notification payload.
+	 * @param purchaseDate Timestamp used as the paid-at time and the basis for premium expiry.
+	 * @returns One of `ok`, `not_found`, `already_processed`, `user_deleted`, `verification_failed`
+	 * (with `reason`), `processing_failed`, or `update_failed`.
+	 */
 	async process(orderId: string, purchaseDate: Date) {
 		let status: PaymentStatus;
 		try {

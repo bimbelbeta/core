@@ -8,6 +8,28 @@ import { hashAccessCode } from "@/lib/access-code";
 import { tryoutErrors as errors } from "@/lib/tryout/tryout-error";
 import { parseNullableInt } from "@/lib/utils";
 
+/**
+ * Creates a user's first attempt at a published tryout, or returns the attempt that already exists.
+ *
+ * Access is granted through any one of four paths: an active premium account, a payment proof
+ * image, a tryout credit, or a valid access code. A credit is only deducted when the user asks
+ * for it and is not already premium, so paying members never lose credits.
+ *
+ * Deadlines are cumulative: each subtest's deadline is the running total of every duration up to
+ * and including that subtest, measured from the moment the tryout starts. Only the first subtest
+ * attempt is created here; later ones are created when a subtest is submitted.
+ *
+ * The attempt row, access-code counter, credit deduction, ledger entry, and first subtest attempt
+ * are written inside one transaction, so a failing quota check or credit update leaves no
+ * partially started attempt behind.
+ *
+ * Throws a `TryoutError` for every expected failure (missing tryout, rejected access, closed
+ * window, revoked attempt) so the procedure can map it to an oRPC error.
+ *
+ * @param input Requested tryout id plus the optional access proof the user supplied.
+ * @param userData The caller's identity, premium flag, and current credit balance.
+ * @returns The attempt with its score normalized to a number, plus the overall deadline.
+ */
 export async function startTryout(
 	input: { id: number; imageUrl?: string; useCredit?: boolean; accessCode?: string },
 	userData: Pick<typeof auth.$Infer.Session.user, "id" | "isPremium" | "tryoutCredits">,

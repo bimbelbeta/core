@@ -14,6 +14,22 @@ type Dependencies = {
 };
 
 export const createSubscriptionService = (deps: Dependencies) => ({
+	/**
+	 * Starts a purchase: records the pending transaction, then asks the gateway for a checkout.
+	 *
+	 * The order row is written first and deliberately kept when the gateway call fails, so a failed
+	 * payment still leaves an auditable trace instead of vanishing. That is why the caller receives
+	 * `payment_failed` rather than a rolled-back result.
+	 *
+	 * Premium and fixed-date plans are refused for members who already have premium access; credit
+	 * packs are purchasable at any time. Errors are returned as statuses, not thrown, so this stays
+	 * usable outside oRPC.
+	 *
+	 * @param slug Product slug identifying the plan being bought.
+	 * @param user Buyer identity and current premium state.
+	 * @returns `ok` with the checkout, `not_found`, `already_premium`, `creation_failed`, or
+	 * `payment_failed` with a `reason` describing what the gateway did.
+	 */
 	async subscribe(slug: string, user: Pick<typeof auth.$Infer.Session.user, "id" | "name" | "email" | "isPremium">) {
 		const plan = await deps.repository.findProduct(slug);
 		if (!plan) return { status: "not_found" } as const;

@@ -1,3 +1,10 @@
+/**
+ * An expected failure from a tryout workflow, carrying the oRPC error code to report.
+ *
+ * Services cannot use `errors.BAD_REQUEST()` and friends because those come from the oRPC
+ * context, which would tie business logic to the transport. Services throw this instead, and
+ * procedures translate `code` and `message` into the matching oRPC error.
+ */
 export class TryoutError extends Error {
 	constructor(
 		readonly code: "NOT_FOUND" | "FORBIDDEN" | "BAD_REQUEST" | "INTERNAL_SERVER_ERROR",

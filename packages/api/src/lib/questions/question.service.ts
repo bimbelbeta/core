@@ -49,6 +49,19 @@ async function saveQuestion(input: CreateQuestionInput, content: ReturnType<type
 	}
 }
 
+/**
+ * Validates a question and writes it with its answer choices.
+ *
+ * Rules depend on the question type. A single-answer multiple choice needs at least two choices
+ * and exactly one correct answer. A complex multiple choice also needs at least two choices but
+ * may have zero, one, or several correct answers. Essay questions need no choices at all.
+ *
+ * The question row and its choices are inserted in one transaction, so a failed choice insert
+ * cannot leave a question with missing options.
+ *
+ * @returns `created` with the new question id, or `too_few_choices`, `incorrect_choice_count`,
+ * `too_few_complex_choices`, or `creation_failed`.
+ */
 export const createQuestionService = (save: typeof saveQuestion) => ({
 	async create(input: CreateQuestionInput) {
 		const content = normalizeQuestionContent(input);

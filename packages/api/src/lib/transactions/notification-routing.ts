@@ -8,6 +8,15 @@ export type NotificationOutcome =
 	| { action: "update_status"; status: "failed" | "pending" }
 	| { action: "noop" };
 
+/**
+ * Decides what a payment notification should do, without touching the database.
+ *
+ * Pure so the decision table can be tested directly: unknown orders and already-paid orders are
+ * ignored, a paid status grants benefits once, failed and pending statuses only update the stored
+ * status, and anything else is a no-op.
+ *
+ * @returns The single action to take, including the benefits to grant when the payment is paid.
+ */
 export function resolveNotificationOutcome(
 	status: PaymentStatus,
 	existingTransaction: TransactionWithProduct | null,

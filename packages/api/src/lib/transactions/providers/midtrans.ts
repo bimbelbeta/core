@@ -18,6 +18,14 @@ type MidtransStatusPayload = {
 const paid = new Set(["settlement"]);
 const failed = new Set(["deny", "cancel", "expire"]);
 
+/**
+ * Translates a Midtrans transaction status into the provider-independent status.
+ *
+ * Midtrans signals success two ways: `settlement` for immediate payment, and `capture` for card
+ * payments that only count once fraud review accepts them. A challenged capture is therefore
+ * `unknown` rather than paid. Anything not recognised stays `unknown` so the caller can ignore
+ * it instead of guessing.
+ */
 export function toPaymentStatus(transactionStatus: string, fraudStatus?: string): PaymentStatus {
 	if (paid.has(transactionStatus)) return "paid";
 	if (transactionStatus === "capture") return fraudStatus === "accept" ? "paid" : "unknown";
@@ -26,6 +34,13 @@ export function toPaymentStatus(transactionStatus: string, fraudStatus?: string)
 	return "unknown";
 }
 
+/**
+ * Verifies that a notification was really sent by Midtrans.
+ *
+ * Midtrans signs each notification with SHA-512 over the order id, status code, gross amount, and
+ * the secret server key. Recomputing it here proves the payload was not forged or edited in
+ * transit; the server key never leaves the backend, so an attacker cannot produce a valid hash.
+ */
 export function signatureMatches({
 	orderId,
 	statusCode,
@@ -100,6 +115,14 @@ function verifyNotification(payload: MidtransNotification): boolean {
 	});
 }
 
+/**
+ * Asks Midtrans for the authoritative status of an order.
+ *
+ * Used instead of trusting a webhook body: the caller already verified the signature, but this
+ * confirms the payment with the provider before money-backed benefits are granted. Non-2xx
+ * responses, network failures, and unrecognised payloads all become `PaymentError`s so the caller
+ * can log a reason and refuse to grant anything.
+ */
 async function fetchStatus(orderId: string): Promise<PaymentStatus> {
 	const credentials = Buffer.from(`${getServerKey()}:`).toString("base64");
 	const host = isProduction() ? "api.midtrans.com" : "api.sandbox.midtrans.com";

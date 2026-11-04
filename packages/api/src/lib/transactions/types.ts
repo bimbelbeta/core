@@ -17,6 +17,7 @@ export type PurchaseBenefits = {
 	creditsToAdd: number | null;
 };
 
+/** Provider-independent payment state. `unknown` means "do not act on this" rather than "error". */
 export type PaymentStatus = "paid" | "pending" | "failed" | "unknown";
 
 export type CheckoutInput = {
@@ -32,6 +33,13 @@ export type Checkout = {
 	token?: string;
 };
 
+/**
+ * The port a payment gateway must satisfy.
+ *
+ * Swapping providers means writing one of these, not editing the subscription or notification
+ * services. `verifyNotification` may throw a configuration error, which the procedure treats as
+ * a server fault rather than a forged webhook.
+ */
 export type PaymentProvider<TNotification> = {
 	name: string;
 	createCheckout(input: CheckoutInput): Promise<Checkout>;

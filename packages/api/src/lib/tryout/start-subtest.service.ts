@@ -21,11 +21,30 @@ const dependencies = {
 	},
 };
 
+/**
+ * Computes when a subtest must end, honouring both limits at once.
+ *
+ * A subtest has its own duration but can never run past the overall tryout deadline, so the
+ * result is the earlier of the two. `startFrom` is the previous subtest's deadline, which chains
+ * subtests back to back without idle time; it defaults to now for the first subtest.
+ */
 export function computeSubtestDeadline(durationMinutes: number, overallDeadline: Date, startFrom: Date = new Date()) {
 	return new Date(Math.min(startFrom.getTime() + durationMinutes * 60 * 1000, overallDeadline.getTime()));
 }
 
 export const createStartSubtestService = (deps: typeof dependencies) => ({
+	/**
+	 * Opens the user's attempt at one subtest, or returns the attempt they already have.
+	 *
+	 * Subtests are sequential: a subtest can only start once the previous one is finished, which
+	 * is why the previous attempt is checked before anything is written. Returning the existing
+	 * attempt makes the endpoint safe to retry after a page reload.
+	 *
+	 * Never throws; the returned status tells the procedure which error to raise.
+	 *
+	 * @returns `started` with the subtest attempt and normalized score, or `no_attempt`,
+	 * `no_tryout`, `no_subtest`, `previous_unfinished`, `no_deadline`, or `creation_failed`.
+	 */
 	async start(tryoutId: number, subtestId: number, userId: string) {
 		const attempt = await deps.findAttempt(tryoutId, userId);
 		if (!attempt) return { status: "no_attempt" } as const;

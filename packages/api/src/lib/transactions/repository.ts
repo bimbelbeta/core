@@ -5,6 +5,13 @@ import type { TransactionWithProduct } from "@/lib/transactions/types";
 
 type Database = Pick<typeof db, "select" | "insert" | "update">;
 
+/**
+ * Builds the payment repository over the given database connection.
+ *
+ * Accepts the shared connection or an open transaction, so callers can group these reads and
+ * writes with other work in one atomic unit. The parameter is narrowed to the operations used
+ * here because that is what makes a transaction handle satisfy it.
+ */
 export const createPaymentRepository = (database: Database) => ({
 	async findProduct(slug: string) {
 		const [plan] = await database.select().from(product).where(eq(product.slug, slug)).limit(1);

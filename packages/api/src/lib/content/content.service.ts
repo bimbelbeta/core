@@ -54,6 +54,20 @@ async function saveContent(input: CreateContentInput) {
 	}
 }
 
+/**
+ * Creates a content item together with whichever materials it carries.
+ *
+ * A content item is only valid if it has at least one of video, note, or practice questions, so
+ * the empty case is rejected before touching the database. The item row and all of its materials
+ * are written in a single transaction; a later insert failing therefore leaves no half-built
+ * content item behind.
+ *
+ * Never throws for expected outcomes.
+ *
+ * @returns `created` with the new content item id and the ids of the materials that were written,
+ * `no_materials` when nothing was supplied, or `creation_failed` when the item row could not be
+ * inserted.
+ */
 export const createContentService = (save: typeof saveContent) => ({
 	async create(input: CreateContentInput) {
 		if (!input.video && !input.note && !input.practiceQuestionIds?.length) return { status: "no_materials" } as const;

@@ -15,6 +15,19 @@ async function findOngoingAttempt(tryoutId: number, userId: string) {
 }
 
 export const createActiveSubtestService = (findAttempt: typeof findOngoingAttempt) => ({
+	/**
+	 * Decides whether the user may answer questions right now.
+	 *
+	 * Answering requires three things at once: an ongoing attempt, a subtest that is currently
+	 * running, and a subtest deadline that has not passed. The deadline check compares against a
+	 * fresh clock reading rather than trusting the client or a cached payload.
+	 *
+	 * Shared by saving an answer and toggling the ragu-ragu flag so both reject the same ways.
+	 * Never throws; the status tells the procedure which message to use.
+	 *
+	 * @returns `active` with the attempt id to write answers against, or `no_attempt`,
+	 * `no_subtest`, or `expired`.
+	 */
 	async find(tryoutId: number, userId: string) {
 		const attempt = await findAttempt(tryoutId, userId);
 		if (!attempt) return { status: "no_attempt" } as const;
