@@ -9,20 +9,18 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 import { months } from "../-utils";
 
 type ProductVariant = "fixed_date" | "monthly" | "credits";
 type ProductType = "subscription" | "product";
 
-const PRODUCT_TYPES = ["subscription", "product"] as const;
-const PRODUCT_VARIANTS = ["fixed_date", "monthly", "credits"] as const;
-
 function isProductType(v: string): v is ProductType {
-	return (PRODUCT_TYPES as readonly string[]).includes(v);
+	return v === "subscription" || v === "product";
 }
 function isProductVariant(v: string): v is ProductVariant {
-	return (PRODUCT_VARIANTS as readonly string[]).includes(v);
+	return v === "fixed_date" || v === "monthly" || v === "credits";
 }
 
 interface ProductFormProps {
@@ -178,9 +176,9 @@ export function ProductForm({ initialData, onSuccess, onCancel }: ProductFormPro
 								placeholder="Contoh: Premium Package"
 							/>
 							{field.state.meta.errors.map((error) => (
-								<p key={error?.message} className="text-xs text-red-500">
+								<Typography key={error?.message} variant="caption" tone="destructive">
 									{error?.message}
-								</p>
+								</Typography>
 							))}
 						</div>
 					)}
@@ -230,9 +228,9 @@ export function ProductForm({ initialData, onSuccess, onCancel }: ProductFormPro
 								placeholder="Contoh: 100000"
 							/>
 							{field.state.meta.errors.map((error) => (
-								<p key={error?.message} className="text-xs text-red-500">
+								<Typography key={error?.message} variant="caption" tone="destructive">
 									{error?.message}
-								</p>
+								</Typography>
 							))}
 						</div>
 					)}

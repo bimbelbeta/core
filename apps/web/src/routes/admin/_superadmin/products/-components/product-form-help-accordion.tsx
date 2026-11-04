@@ -1,6 +1,7 @@
 import { Info, Warning } from "@phosphor-icons/react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Typography } from "@/components/ui/typography";
 
 export function ProductFormHelpAccordion() {
 	return (
@@ -15,19 +16,19 @@ export function ProductFormHelpAccordion() {
 				<AccordionContent>
 					<Alert className="border-0 bg-transparent p-0 shadow-none">
 						<AlertDescription className="space-y-3 text-sm">
-							<p>
+							<Typography>
 								<strong>Fixed Date:</strong> Berakhir pada tanggal kalender tetap setiap tahun (contoh: 31 Mei).
 								Memberikan akses premium sampai tanggal tersebut tiap tahun. Jika dibeli setelah tanggal tersebut, akan
 								berakhir tahun depan.
-							</p>
-							<p>
+							</Typography>
+							<Typography>
 								<strong>Monthly:</strong> Berbasis durasi dari tanggal pembelian (contoh: 30 hari). Memberikan akses
 								premium untuk durasi yang ditentukan dari tanggal pembelian.
-							</p>
-							<p>
+							</Typography>
+							<Typography>
 								<strong>Credits:</strong> Hanya menambah credits ke akun user. TIDAK memberikan akses premium. Credits
 								tidak pernah kadaluarsa.
-							</p>
+							</Typography>
 						</AlertDescription>
 					</Alert>
 				</AccordionContent>
@@ -43,7 +44,7 @@ export function ProductFormHelpAccordion() {
 				<AccordionContent>
 					<Alert variant="destructive" className="border-0 bg-transparent p-0 shadow-none">
 						<AlertDescription className="space-y-3 text-sm">
-							<p>Ketika transaksi berhasil, sistem memproses benefit berdasarkan varian produk:</p>
+							<Typography>Ketika transaksi berhasil, sistem memproses benefit berdasarkan varian produk:</Typography>
 							<ul className="list-disc space-y-1 pl-4">
 								<li>
 									<strong>Fixed Date &amp; Monthly:</strong> Men-set <code>isPremium = true</code> dan men-set
@@ -54,9 +55,9 @@ export function ProductFormHelpAccordion() {
 									status premium.
 								</li>
 							</ul>
-							<p className="text-xs">
+							<Typography variant="caption" tone="default">
 								Lihat <code>packages/api/src/lib/transaction-helpers.ts</code> untuk detail implementasi.
-							</p>
+							</Typography>
 						</AlertDescription>
 					</Alert>
 				</AccordionContent>
