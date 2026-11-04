@@ -11,6 +11,7 @@ import { SubjectHeader } from "@/components/classes/subject-header";
 import { SubjectList } from "@/components/classes/subject-list";
 import { SearchInput } from "@/components/ui/search-input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 import { createMeta } from "@/lib/seo-utils";
 
@@ -84,7 +85,9 @@ function RouteComponent() {
 					</div>
 				)}
 
-				{subjectsQuery.isError && <p className="text-red-500">Error: {subjectsQuery.error.message}</p>}
+				{subjectsQuery.isError && (
+					<Typography className="text-red-500">Error: {subjectsQuery.error.message}</Typography>
+				)}
 
 				{subjectsQuery.data && subjectsQuery.data.items.length === 0 && (
 					<NotFoundContentState
