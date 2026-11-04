@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
+import { Typography } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
 import { HOME_PAGE_CONTENT } from "./data";
 
@@ -26,16 +27,16 @@ export default function Footer() {
 			<div className="relative z-10 flex flex-col items-center gap-7 px-4 py-20">
 				<div className="flex flex-col items-center text-center">
 					{/* Heading */}
-					<h2 className="text-neutral-1000 text-3xl leading-tight md:text-4xl">
+					<Typography variant="display" as="h2" className="text-neutral-1000">
 						Satu <span className="text-secondary-700 font-bold">Langkah Kecil</span> Menuju
 						<br className="hidden sm:block" /> Kampus <span className="text-secondary-700 font-bold">Impianmu!</span>
-					</h2>
+					</Typography>
 
 					{/* Subheading */}
-					<p className="text-neutral-1000 mt-2 max-w-xs text-sm text-pretty md:max-w-md md:text-base">
+					<Typography variant="body" className="text-neutral-1000 mt-2 max-w-xs text-pretty md:max-w-md">
 						Ribuan pesaingmu sudah mulai belajar hari ini.
 						<br className="hidden sm:block" /> Jangan sampai kamu tertinggal.
-					</p>
+					</Typography>
 				</div>
 
 				{/* CTA Button */}
@@ -56,11 +57,13 @@ export default function Footer() {
 				<Container className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
 					<div className="flex flex-col gap-3">
 						<div className="flex items-center gap-2.5">
-							<h3 className="text-neutral-1000 w-full text-center text-2xl font-semibold sm:text-left">
+							<Typography variant="title" as="h3" className="text-neutral-1000 w-full text-center sm:text-left">
 								<span className="text-secondary-900">Bimbel</span> <span className="text-tertiary-1000">Beta</span>
-							</h3>
+							</Typography>
 						</div>
-						<p className="text-neutral-1000 text-center text-base leading-6 sm:text-left">PT Beta Solusi Edukasi</p>
+						<Typography variant="body" className="text-neutral-1000 text-center sm:text-left">
+							PT Beta Solusi Edukasi
+						</Typography>
 					</div>
 					<div className="mt-6 flex flex-col items-center justify-end gap-5 sm:mt-0 sm:items-end">
 						<div className="flex items-center gap-4">

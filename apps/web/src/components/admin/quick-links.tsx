@@ -1,6 +1,7 @@
 import { ArchiveIcon, BooksIcon, FileTextIcon, RankingIcon, UserIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import { Card, CardContent } from "@/components/ui/card";
+import { Typography } from "@/components/ui/typography";
 
 const links = [
 	{
@@ -38,7 +39,9 @@ const links = [
 export function QuickLinks() {
 	return (
 		<div className="space-y-3">
-			<h3 className="text-muted-foreground text-sm font-medium">Pintasan</h3>
+			<Typography variant="overline" as="h3">
+				Pintasan
+			</Typography>
 			<div className="grid auto-rows-fr gap-3 sm:grid-cols-2 lg:grid-cols-3">
 				{links.map((link) => (
 					<Link key={link.url} to={link.url} className="h-full">
@@ -48,8 +51,8 @@ export function QuickLinks() {
 									<link.icon className="text-primary size-5" weight="duotone" />
 								</div>
 								<div className="min-w-0">
-									<p className="text-sm font-medium">{link.title}</p>
-									<p className="text-muted-foreground text-xs">{link.description}</p>
+									<Typography variant="body">{link.title}</Typography>
+									<Typography variant="caption">{link.description}</Typography>
 								</div>
 							</CardContent>
 						</Card>

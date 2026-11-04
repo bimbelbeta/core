@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 import { categoryLabel, isValidCategory, type SubjectCategory, validateGradeLevel } from "./classes-constants";
 
@@ -134,9 +135,9 @@ export function CreateSubjectDialog({ open, onOpenChange, defaultCategory }: Cre
 									placeholder="Contoh: Matematika Wajib"
 								/>
 								{field.state.meta.errors.map((error) => (
-									<p key={error?.message ?? String(error)} className="text-destructive text-xs">
+									<Typography variant="caption" tone="destructive" key={error?.message ?? String(error)}>
 										{error?.message ?? String(error)}
-									</p>
+									</Typography>
 								))}
 							</div>
 						)}
@@ -154,9 +155,9 @@ export function CreateSubjectDialog({ open, onOpenChange, defaultCategory }: Cre
 									placeholder="Contoh: MAT W"
 								/>
 								{field.state.meta.errors.map((error) => (
-									<p key={error?.message ?? String(error)} className="text-destructive text-xs">
+									<Typography variant="caption" tone="destructive" key={error?.message ?? String(error)}>
 										{error?.message ?? String(error)}
-									</p>
+									</Typography>
 								))}
 							</div>
 						)}

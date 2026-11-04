@@ -1,3 +1,4 @@
+import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { cn } from "@/lib/utils";
@@ -8,7 +9,11 @@ interface AdminTableRootProps {
 }
 
 export function AdminTableRoot({ children, className }: AdminTableRootProps) {
-	return <div className={cn("overflow-clip rounded-lg border bg-white shadow-sm", className)}>{children}</div>;
+	return (
+		<Card variant="flush" className={className}>
+			{children}
+		</Card>
+	);
 }
 
 interface AdminTableProps {

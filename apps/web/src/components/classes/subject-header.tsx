@@ -1,3 +1,4 @@
+import { Typography } from "@/components/ui/typography";
 import { useIsAdmin } from "@/hooks/use-is-admin";
 
 export function SubjectHeader() {
@@ -13,8 +14,12 @@ export function SubjectHeader() {
 		<div className="rounded-default from-secondary-500 to-primary-600 relative flex items-center justify-start overflow-hidden bg-linear-to-l p-6 sm:p-8">
 			{/* TEXT — mobile top, desktop LEFT */}
 			<div className="relative z-10">
-				<h1 className="text-[24px] leading-tight font-bold text-neutral-100 sm:text-[30px]">{title}</h1>
-				<p className="mt-2 text-[14px] leading-5 text-neutral-100">{description}</p>
+				<Typography variant="title" className="text-neutral-100">
+					{title}
+				</Typography>
+				<Typography variant="body" className="mt-2 text-neutral-100">
+					{description}
+				</Typography>
 			</div>
 			{/*<div className="absolute right-0 bottom-0 size-45 translate-x-1/2 translate-y-1/2 rounded-full bg-neutral-100 lg:size-56" />*/}
 		</div>

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Typography } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
 
 const AdminPageRoot = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
@@ -8,17 +9,13 @@ const AdminPageRoot = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTML
 );
 AdminPageRoot.displayName = "AdminPageRoot";
 
-const AdminPageTitle = React.forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTMLHeadingElement>>(
-	({ className, ...props }, ref) => (
-		<h1 ref={ref} className={cn("text-primary-navy-900 text-2xl font-bold", className)} {...props} />
-	),
-);
-AdminPageTitle.displayName = "AdminPageTitle";
+function AdminPageTitle(props: React.ComponentProps<"h1">) {
+	return <Typography variant="title" {...props} />;
+}
 
-const AdminPageDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
-	({ className, ...props }, ref) => <p ref={ref} className={cn("text-muted-foreground", className)} {...props} />,
-);
-AdminPageDescription.displayName = "AdminPageDescription";
+function AdminPageDescription(props: React.ComponentProps<"p">) {
+	return <Typography variant="body" tone="muted" {...props} />;
+}
 
 const AdminPageContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
 	({ className, ...props }, ref) => (

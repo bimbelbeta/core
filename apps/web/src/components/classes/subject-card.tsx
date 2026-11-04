@@ -2,6 +2,7 @@ import { ArrowRightIcon, LockIcon, LockKeyIcon, PencilSimpleIcon, TrashIcon } fr
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
+import { Typography } from "@/components/ui/typography";
 import { useIsAdmin } from "@/hooks/use-is-admin";
 import { authClient } from "@/lib/auth-client";
 import { isSubjectPremium } from "@/lib/premium-config";
@@ -44,15 +45,16 @@ export function SubjectCard({ subject }: { subject: SubjectListItem }) {
 			)}
 			<div className="flex h-full justify-between">
 				<div className="my-auto w-1/2">
-					<h3 className="text-lg leading-tight font-semibold text-pretty xl:text-2xl">{subject?.name}</h3>
-					{/*<p className="font-light text-sm"> {subject?.totalContent} Konten</p>*/}
+					<Typography variant="subtitle1" as="h3" className="text-pretty">
+						{subject?.name}
+					</Typography>
 
 					{subject.category === "utbk" ? (
-						<p className="text-sm font-light">SMA Kelas 12</p>
+						<Typography variant="body">SMA Kelas 12</Typography>
 					) : (
-						<p className="text-sm font-light">
+						<Typography variant="body">
 							<span className="uppercase">{subject.category}</span> Kelas {subject.gradeLevel ?? "-"}
-						</p>
+						</Typography>
 					)}
 				</div>
 

@@ -1,6 +1,7 @@
 import { CaretRightIcon, NoteIcon, PlayCircleIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import { Card } from "@/components/ui/card";
+import { Typography } from "@/components/ui/typography";
 import { useIsAdmin } from "@/hooks/use-is-admin";
 import { cn } from "@/lib/utils";
 import type { ContentActionItem, LastContentViewedItem } from "./classes-types";
@@ -67,7 +68,9 @@ export function LastContentViewedCard({
 					</div>
 
 					<div className="flex h-full items-center pt-0.5">
-						<p className="text-neutral-1000 mr-7 text-sm font-bold sm:text-base lg:text-lg">{item.title}</p>
+						<Typography variant="subtitle2" as="p" className="text-neutral-1000 mr-7">
+							{item.title}
+						</Typography>
 					</div>
 				</div>
 
