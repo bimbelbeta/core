@@ -22,7 +22,10 @@ export function ChoiceEditItem({ choice, onUpdate, onDelete }: ChoiceEditItemPro
 	return (
 		<Item
 			variant="outline"
-			className={cn("flex-nowrap items-start gap-3 rounded-lg p-3", choice.isCorrect && "border-green-200 bg-green-50")}
+			className={cn(
+				"flex-nowrap items-start gap-3 rounded-lg p-3 text-base",
+				choice.isCorrect && "border-green-200 bg-green-50",
+			)}
 		>
 			<div className="bg-muted text-muted-foreground flex size-6 shrink-0 items-center justify-center rounded-full border text-xs font-bold">
 				{choice.code}

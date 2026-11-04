@@ -1,16 +1,14 @@
 const MAX_LINES = 500;
+const IGNORED = /(^|\/)(node_modules|\.output|\.turbo|dist|bin|\.nitro)\/|\.gen\.tsx$/;
 
-const roots = ["apps/web/src"];
 const glob = new Bun.Glob("**/*.tsx");
-
 const offenders: { file: string; lines: number }[] = [];
 
-for (const root of roots) {
-	for await (const path of glob.scan(root)) {
-		const file = `${root}/${path}`;
-		const lines = (await Bun.file(file).text()).split("\n").length;
-		if (lines > MAX_LINES) offenders.push({ file, lines });
-	}
+for await (const file of glob.scan({ cwd: ".", dot: false })) {
+	if (IGNORED.test(file)) continue;
+	const text = await Bun.file(file).text();
+	const lines = text.endsWith("\n") ? text.split("\n").length - 1 : text.split("\n").length;
+	if (lines > MAX_LINES) offenders.push({ file, lines });
 }
 
 if (offenders.length > 0) {

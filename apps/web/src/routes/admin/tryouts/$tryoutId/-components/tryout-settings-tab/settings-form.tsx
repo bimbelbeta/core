@@ -4,6 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { type } from "arktype";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,11 +16,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Typography } from "@/components/ui/typography";
 import { formatDateMedium } from "@/lib/format-date";
 import { orpc } from "@/lib/orpc";
-import { type SubjectCategory, subjectCategorySchema, type TryoutStatus, tryoutStatusSchema } from "@/lib/schemas";
-import { cn } from "@/lib/utils";
-
+import {
+	type SubjectCategory,
+	subjectCategorySchema,
+	TRYOUT_STATUS_BADGE,
+	type TryoutStatus,
+	tryoutStatusSchema,
+} from "@/lib/schemas";
 import { AccessCodeSection } from "./access-code-section";
-import { STATUS_CONFIG } from "./constants";
 import { FormStateNotifier, type TryoutSettingsFormState } from "./form-state";
 
 interface TryoutSettingsTabProps {
@@ -236,14 +240,9 @@ export function TryoutSettingsTab({ tryout, onUpdate, onFormStateChange }: Tryou
 										</SelectContent>
 									</Select>
 									<div className="flex items-center gap-2">
-										<div
-											className={cn(
-												"rounded border px-2 py-1 text-xs font-medium",
-												STATUS_CONFIG[field.state.value].className,
-											)}
-										>
-											{STATUS_CONFIG[field.state.value].label}
-										</div>
+										<Badge variant={TRYOUT_STATUS_BADGE[field.state.value].variant}>
+											{TRYOUT_STATUS_BADGE[field.state.value].label}
+										</Badge>
 										<span className="text-muted-foreground text-xs">
 											{field.state.value === "published"
 												? "Tryout terlihat oleh pengguna"

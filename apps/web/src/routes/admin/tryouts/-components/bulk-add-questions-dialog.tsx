@@ -124,34 +124,29 @@ export function BulkAddQuestionsDialog({
 									const isSelected = selectedQuestionIds.has(question.id);
 									return (
 										<Item
+											asChild
 											key={question.id}
 											selected={isSelected}
 											variant="outline"
-											role="checkbox"
-											tabIndex={0}
-											aria-checked={isSelected}
-											aria-labelledby={`question-label-${question.id}`}
-											className="hover:bg-muted/50 focus-visible:ring-ring/50 relative cursor-pointer flex-col items-stretch gap-3 p-3 text-left outline-none focus-visible:ring-[3px]"
-											onClick={() => handleQuestionToggle(question.id)}
-											onKeyDown={(e) => {
-												if (e.key === " " || e.key === "Enter") {
-													e.preventDefault();
-													handleQuestionToggle(question.id);
-												}
-											}}
+											className="hover:bg-muted/50 focus-within:ring-primary relative cursor-pointer flex-col items-stretch gap-3 p-3 text-left text-base focus-within:ring-2"
 										>
-											<span id={`question-label-${question.id}`} className="sr-only">
-												Soal #{question.id}
-											</span>
-											<div className="pointer-events-none absolute top-3 right-3">
-												<CheckboxIndicator checked={isSelected} />
-											</div>
-											<Badge variant={question.type === "multiple_choice" ? "default" : "outline"} className="w-fit">
-												{question.type === "multiple_choice" ? "Pilihan Ganda" : "Esai"}
-											</Badge>
-											<div className="pr-8">
-												<TiptapRenderer content={question.content} />
-											</div>
+											<label>
+												<input
+													type="checkbox"
+													className="sr-only"
+													checked={isSelected}
+													onChange={() => handleQuestionToggle(question.id)}
+												/>
+												<div className="pointer-events-none absolute top-3 right-3">
+													<CheckboxIndicator checked={isSelected} />
+												</div>
+												<Badge variant={question.type === "multiple_choice" ? "default" : "outline"} className="w-fit">
+													{question.type === "multiple_choice" ? "Pilihan Ganda" : "Esai"}
+												</Badge>
+												<div className="pr-8">
+													<TiptapRenderer content={question.content} />
+												</div>
+											</label>
 										</Item>
 									);
 								})}

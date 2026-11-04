@@ -18,12 +18,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
+import { SUBJECT_CATEGORY_LABELS } from "@/lib/schemas";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { cn } from "@/lib/utils";
 import { TryoutAttemptsTab } from "./-components/tryout-attempts-tab";
 import { type TryoutSettingsFormState, TryoutSettingsTab } from "./-components/tryout-settings-tab";
 import { TryoutSubtestsTab } from "./-components/tryout-subtests-tab";
-import { CATEGORY_LABELS } from "./-constants";
 
 export const Route = createFileRoute("/admin/tryouts/$tryoutId/")({
 	staticData: { breadcrumb: "Detail Tryout" },
@@ -106,7 +106,7 @@ function TryoutDetailPage() {
 							) : (
 								<div className="flex items-center gap-2">
 									<Typography variant="title">{tryout!.title}</Typography>
-									<Badge variant="outline">{CATEGORY_LABELS[tryout!.category]}</Badge>
+									<Badge variant="outline">{SUBJECT_CATEGORY_LABELS[tryout!.category]}</Badge>
 								</div>
 							)}
 						</div>
@@ -171,7 +171,7 @@ function TryoutDetailPage() {
 										<Typography variant="caption" tone="muted" className="tracking-wide uppercase">
 											Kategori
 										</Typography>
-										<Typography variant="overline">{CATEGORY_LABELS[tryout!.category]}</Typography>
+										<Typography variant="overline">{SUBJECT_CATEGORY_LABELS[tryout!.category]}</Typography>
 									</div>
 									<div className="space-y-1">
 										<Typography variant="caption" tone="muted" className="tracking-wide uppercase">

@@ -8,28 +8,20 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
+import { SUBJECT_CATEGORY_LABELS, type SubjectCategory, subjectCategorySchema } from "@/lib/schemas";
 import { TryoutStartConfirmation } from "./tryout-start-confirmation";
 
-const CATEGORY_LABELS = {
-	sd: "SD",
-	smp: "SMP",
-	sma: "SMA",
-	utbk: "UTBK",
-} as const;
-
-type TryoutCategory = keyof typeof CATEGORY_LABELS;
-
-const LEVEL_CATEGORIES: Record<"tka" | "utbk", readonly TryoutCategory[]> = {
+const LEVEL_CATEGORIES: Record<"tka" | "utbk", readonly SubjectCategory[]> = {
 	tka: ["sd", "smp", "sma"],
 	utbk: ["utbk"],
 };
 
 type TryoutLevel = keyof typeof LEVEL_CATEGORIES;
 
-function normalizeTryoutCategory(category: string | null | undefined): TryoutCategory | null {
+function normalizeTryoutCategory(category: string | null | undefined): SubjectCategory | null {
 	if (!category) return null;
 	const normalized = category.trim().toLowerCase();
-	return normalized in CATEGORY_LABELS ? (normalized as TryoutCategory) : null;
+	return subjectCategorySchema.allows(normalized) ? normalized : null;
 }
 
 interface GuidelineActivityProps {
@@ -101,7 +93,7 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 													<Typography variant="subtitle2" className="leading-tight">
 														{tryout.title}
 													</Typography>
-													<Typography tone="muted">{CATEGORY_LABELS[category]}</Typography>
+													<Typography tone="muted">{SUBJECT_CATEGORY_LABELS[category]}</Typography>
 												</div>
 												<Badge variant={tryout.isOpen ? "default" : "secondary"} className="shrink-0">
 													{tryout.isOpen ? "Published" : "Belum dibuka"}

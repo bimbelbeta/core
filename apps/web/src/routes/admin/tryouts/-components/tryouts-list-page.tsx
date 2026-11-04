@@ -33,6 +33,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Typography } from "@/components/ui/typography";
+import { TRYOUT_STATUS_BADGE } from "@/lib/schemas";
 import { useTryoutsList } from "../-hooks/use-tryouts-list";
 import { AddTryoutDialog } from "./add-tryout-dialog";
 
@@ -129,16 +130,8 @@ export function TryoutsListPage() {
 										<Badge variant="outline">{tryout.category.toUpperCase()}</Badge>
 									</AdminTableCell>
 									<AdminTableCell>
-										<Badge
-											variant={
-												tryout.status === "published"
-													? "default"
-													: tryout.status === "archived"
-														? "secondary"
-														: "outline"
-											}
-										>
-											{tryout.status.toUpperCase()}
+										<Badge variant={TRYOUT_STATUS_BADGE[tryout.status].variant}>
+											{TRYOUT_STATUS_BADGE[tryout.status].label}
 										</Badge>
 									</AdminTableCell>
 									<AdminTableCell>

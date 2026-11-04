@@ -1,13 +1,8 @@
-import type { SubjectCategory } from "./classes-types";
+import { SUBJECT_CATEGORY_LABELS, type SubjectCategory } from "@/lib/schemas";
 
 export type { SubjectCategory };
 
-export const categoryLabel: Record<SubjectCategory, string> = {
-	sd: "SD",
-	smp: "SMP",
-	sma: "SMA",
-	utbk: "UTBK",
-};
+export const categoryLabel = SUBJECT_CATEGORY_LABELS;
 
 export const gradeRanges: Record<Exclude<SubjectCategory, "utbk">, [number, number]> = {
 	sd: [1, 6],

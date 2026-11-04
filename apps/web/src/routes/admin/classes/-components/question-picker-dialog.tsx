@@ -234,7 +234,7 @@ export function QuestionPickerDialog({
 										variant="outline"
 										selected={selectedQuestionIds.has(question.id)}
 										key={question.id}
-										className="group hover:bg-muted/50 w-full cursor-pointer flex-nowrap items-start gap-3 rounded-lg p-3 text-left"
+										className="group hover:bg-muted/50 w-full cursor-pointer flex-nowrap items-start gap-3 rounded-lg p-3 text-left text-base"
 									>
 										<button
 											type="button"
