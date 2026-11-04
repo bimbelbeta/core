@@ -9,6 +9,7 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { Typography } from "@/components/ui/typography";
 
 interface PasteScoresDialogProps {
 	open: boolean;
@@ -78,7 +79,11 @@ export function PasteScoresDialog({ open, onOpenChange, expectedCount, onPaste }
 						rows={10}
 						className="font-mono"
 					/>
-					{error && <p className="text-sm text-red-500">{error}</p>}
+					{error && (
+						<Typography variant="body" className="text-red-500">
+							{error}
+						</Typography>
+					)}
 				</div>
 				<DialogFooter>
 					<Button type="button" variant="outline" onClick={() => handleClose(false)}>

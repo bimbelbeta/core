@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Typography } from "@/components/ui/typography";
 import { formatDateMedium } from "@/lib/format-date";
 import { orpc } from "@/lib/orpc";
 
@@ -119,9 +120,9 @@ export function AddTryoutDialog({
 												onChange={(e) => field.handleChange(e.target.value)}
 											/>
 											{field.state.meta.errors.map((error) => (
-												<p key={error?.message} className="text-xs text-red-500">
+												<Typography variant="caption" tone="default" key={error?.message} className="text-red-500">
 													{error?.message}
-												</p>
+												</Typography>
 											))}
 										</div>
 									</div>
