@@ -130,7 +130,7 @@ export function AccessCodeSection({ tryoutId }: { tryoutId: number }) {
 				<Separator />
 
 				<div className="space-y-3">
-					<Typography variant="overline" as="p" tone="default">
+					<Typography variant="overline" tone="default">
 						Daftar Kode
 					</Typography>
 					{accessCodesQuery.isPending ? (
@@ -146,7 +146,7 @@ export function AccessCodeSection({ tryoutId }: { tryoutId: number }) {
 								>
 									<div className="space-y-1">
 										<div className="flex items-center gap-2">
-											<Typography variant="overline" as="p" tone="default">
+											<Typography variant="overline" tone="default">
 												{accessCodeItem.label || "Tanpa Label"}
 											</Typography>
 											<Badge variant={accessCodeItem.isActive ? "default" : "outline"}>

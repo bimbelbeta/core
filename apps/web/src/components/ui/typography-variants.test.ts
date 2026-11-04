@@ -9,7 +9,7 @@ describe("typographyVariants", () => {
 		expect(typographyVariants.subtitle2.element).toBe("h3");
 		expect(typographyVariants.body.element).toBe("p");
 		expect(typographyVariants.caption.element).toBe("p");
-		expect(typographyVariants.overline.element).toBe("h2");
+		expect(typographyVariants.overline.element).toBe("p");
 	});
 
 	test("every variant has a non-empty class name", () => {

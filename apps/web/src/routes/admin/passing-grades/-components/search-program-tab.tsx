@@ -45,7 +45,7 @@ export function SearchProgramTab({ onProgramSelect }: SearchProgramTabProps) {
 							<MagnifyingGlassIcon className="text-muted-foreground size-5" />
 						</div>
 						<div>
-							<Typography variant="overline" as="p" tone="default">
+							<Typography variant="overline" tone="default">
 								Tidak ditemukan
 							</Typography>
 							<Typography variant="caption">Coba kata kunci lain atau buat program studi baru.</Typography>
@@ -65,7 +65,7 @@ export function SearchProgramTab({ onProgramSelect }: SearchProgramTabProps) {
 									<BookOpenIcon className="text-muted-foreground group-hover:text-primary size-4 transition-colors" />
 								</div>
 								<div className="min-w-0 flex-1">
-									<Typography variant="overline" as="p" tone="default" className="truncate">
+									<Typography variant="overline" tone="default" className="truncate">
 										{prog.name}
 									</Typography>
 									{prog.description && (
@@ -86,7 +86,7 @@ export function SearchProgramTab({ onProgramSelect }: SearchProgramTabProps) {
 							<BookOpenIcon className="text-muted-foreground size-5" />
 						</div>
 						<div>
-							<Typography variant="overline" as="p" tone="default">
+							<Typography variant="overline" tone="default">
 								Cari program studi
 							</Typography>
 							<Typography variant="caption">Ketik nama program untuk mencari.</Typography>

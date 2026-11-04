@@ -5,7 +5,7 @@ export const typographyVariants = {
 	subtitle2: { element: "h3", className: "text-base font-semibold", tone: "default" },
 	body: { element: "p", className: "text-sm", tone: "default" },
 	caption: { element: "p", className: "text-xs", tone: "muted" },
-	overline: { element: "h2", className: "text-sm font-medium", tone: "muted" },
+	overline: { element: "p", className: "text-sm font-medium", tone: "muted" },
 } as const;
 
 export type TypographyVariant = keyof typeof typographyVariants;

@@ -232,13 +232,15 @@ export function QuestionPickerDialog({
 										variant="outline"
 										selected={selectedQuestionIds.has(question.id)}
 										key={question.id}
-										className="group hover:bg-muted/50 w-full cursor-pointer flex-nowrap items-start gap-3 rounded-lg p-3 text-left"
+										className="group hover:bg-muted/50 focus-within:ring-primary w-full cursor-pointer flex-nowrap items-start gap-3 rounded-lg p-3 text-left focus-within:ring-2"
 										onClick={() => handleQuestionToggle(question.id)}
 									>
 										<Checkbox
 											checked={selectedQuestionIds.has(question.id)}
+											onCheckedChange={() => handleQuestionToggle(question.id)}
+											onClick={(e) => e.stopPropagation()}
 											aria-label={`Pilih soal #${question.id}`}
-											className="pointer-events-none mt-0.5"
+											className="mt-0.5"
 										/>
 										<div className="min-w-0 flex-1 space-y-1">
 											<div className="flex items-start gap-2">

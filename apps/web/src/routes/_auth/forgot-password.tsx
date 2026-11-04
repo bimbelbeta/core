@@ -64,7 +64,7 @@ function RouteComponent() {
 		<main className="flex min-h-screen w-full flex-col items-center pt-32">
 			<div className="w-full max-w-md">
 				<Image src="/avatar/study-avatar.webp" alt="Study Avatar" width={128} height={128} className="mx-auto" />
-				<Card variant="flush" className="border-primary/50 block w-full p-8">
+				<Card className="border-primary/50 w-full rounded-sm p-8 shadow-lg">
 					<div className="flex flex-col items-center gap-2 text-center">
 						{" "}
 						<Typography variant="display" className="text-primary">

@@ -127,10 +127,16 @@ export function BulkAddQuestionsDialog({
 											key={question.id}
 											selected={isSelected}
 											variant="outline"
-											className="relative cursor-pointer flex-col items-stretch gap-3 p-3"
+											className="focus-within:ring-primary relative cursor-pointer flex-col items-stretch gap-3 p-3 focus-within:ring-2"
 											onClick={() => handleQuestionToggle(question.id)}
 										>
-											<Checkbox checked={isSelected} aria-label={`Pilih soal #${question.id}`} className="sr-only" />
+											<Checkbox
+												checked={isSelected}
+												onCheckedChange={() => handleQuestionToggle(question.id)}
+												onClick={(e) => e.stopPropagation()}
+												aria-label={`Pilih soal #${question.id}`}
+												className="sr-only"
+											/>
 											{isSelected && (
 												<div className="text-primary absolute top-3 right-3">
 													<CheckCircleIcon size={20} weight="fill" />

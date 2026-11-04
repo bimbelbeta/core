@@ -52,7 +52,7 @@ function RouteComponent() {
 	return (
 		<div className="flex flex-col gap-8 p-4 md:p-8">
 			{/* Header */}
-			<Card variant="flush" className="block space-y-6 rounded-xl p-6">
+			<Card className="gap-0 space-y-6 rounded-xl p-6">
 				<Button variant="default" size="sm" className="bg-[#009CA6] hover:bg-[#008a93]" asChild>
 					<Link
 						to="/tryout/results/$attemptId"
@@ -67,9 +67,7 @@ function RouteComponent() {
 				</Button>
 
 				<div className="space-y-1">
-					<Typography variant="overline" as="p">
-						Review Hasil Subtes
-					</Typography>
+					<Typography variant="overline">Review Hasil Subtes</Typography>
 					<Typography variant="display">{data.subtest?.name}</Typography>
 				</div>
 			</Card>
