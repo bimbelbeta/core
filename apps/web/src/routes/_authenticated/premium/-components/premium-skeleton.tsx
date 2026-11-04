@@ -30,7 +30,7 @@ export function PremiumSkeleton() {
 				<div className="grid gap-4 md:grid-cols-2">
 					{[1, 2].map((i) => (
 						<Card
-							variant="flush"
+							variant="unpadded"
 							key={i}
 							className="rounded-default h-full border-neutral-200 bg-neutral-100 p-6 shadow-none"
 						>
@@ -47,7 +47,7 @@ export function PremiumSkeleton() {
 				<div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
 					{[1, 2, 3, 4].map((i) => (
 						<Card
-							variant="flush"
+							variant="unpadded"
 							key={i}
 							className="rounded-default h-full border-neutral-200 bg-neutral-100 p-5 shadow-none"
 						>

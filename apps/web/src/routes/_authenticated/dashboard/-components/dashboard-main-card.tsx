@@ -16,8 +16,8 @@ interface DashboardMainCardProps {
 export function DashboardMainCard({ title, description, to, href, src }: DashboardMainCardProps) {
 	return (
 		<Card
-			variant="flush"
-			className="block h-full space-y-6 overflow-visible rounded-sm border-neutral-200 p-4 shadow-none"
+			variant="unpadded"
+			className="h-full space-y-6 overflow-visible rounded-sm border-neutral-200 p-4 shadow-none"
 		>
 			<div className="bg-secondary-100 relative flex h-21.5 w-full justify-end overflow-visible rounded-sm p-1.5">
 				<Image

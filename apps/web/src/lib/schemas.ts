@@ -15,14 +15,8 @@ export const SUBJECT_CATEGORY_LABELS: Record<SubjectCategory, string> = {
 	utbk: "UTBK",
 };
 
-export const TRYOUT_STATUS_LABELS: Record<TryoutStatus, string> = {
-	draft: "Draft",
-	published: "Published",
-	archived: "Archived",
-};
-
 export const TRYOUT_STATUS_BADGE = {
 	draft: { label: "Draft", variant: "outline" },
-	published: { label: "Published", variant: "default" },
-	archived: { label: "Archived", variant: "secondary" },
-} as const satisfies Record<TryoutStatus, { label: string; variant: "default" | "secondary" | "outline" }>;
+	published: { label: "Published", variant: "success" },
+	archived: { label: "Archived", variant: "danger" },
+} as const satisfies Record<TryoutStatus, { label: string; variant: "outline" | "success" | "danger" }>;
