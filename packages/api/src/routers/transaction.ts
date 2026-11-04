@@ -3,9 +3,8 @@ import { transaction } from "@bimbelbeta/db/schema/transaction";
 import { and, eq } from "drizzle-orm";
 import { authedNoPremiumImplementer } from "@/lib/router-definition";
 import { baseImplementer } from "@/lib/router-definition/base";
-import { notificationService } from "@/lib/transactions/notification.service";
+import { notificationService, subscriptionService } from "@/lib/transactions/composition";
 import { midtransProvider } from "@/lib/transactions/providers/midtrans";
-import { subscriptionService } from "@/lib/transactions/subscription.service";
 
 const pub = baseImplementer;
 const authed = authedNoPremiumImplementer;

@@ -1,19 +1,14 @@
 import type { auth } from "@bimbelbeta/auth";
 import { toPaymentErrorCode } from "@/lib/transactions/errors";
-import { midtransProvider } from "@/lib/transactions/providers/midtrans";
-import { paymentRepository } from "@/lib/transactions/repository";
+import type { paymentRepository } from "@/lib/transactions/repository";
+import type { PaymentProvider } from "@/lib/transactions/types";
 
-const dependencies = {
-	repository: paymentRepository,
-	createCheckout: midtransProvider.createCheckout,
-};
-
-type Dependencies = {
+export type SubscriptionServiceDependencies = {
 	repository: Pick<typeof paymentRepository, "findProduct" | "createTransaction">;
-	createCheckout: typeof midtransProvider.createCheckout;
+	createCheckout: PaymentProvider<unknown>["createCheckout"];
 };
 
-export const createSubscriptionService = (deps: Dependencies) => ({
+export const createSubscriptionService = (deps: SubscriptionServiceDependencies) => ({
 	/**
 	 * Starts a purchase: records the pending transaction, then asks the gateway for a checkout.
 	 *
@@ -22,8 +17,8 @@ export const createSubscriptionService = (deps: Dependencies) => ({
 	 * `payment_failed` rather than a rolled-back result.
 	 *
 	 * Premium and fixed-date plans are refused for members who already have premium access; credit
-	 * packs are purchasable at any time. Errors are returned as statuses, not thrown, so this stays
-	 * usable outside oRPC.
+	 * packs are purchasable at any time. Gateway failures are returned as statuses, not thrown, so
+	 * this stays usable outside oRPC; a failing database call rejects instead.
 	 *
 	 * @param slug Product slug identifying the plan being bought.
 	 * @param user Buyer identity and current premium state.
@@ -60,5 +55,3 @@ export const createSubscriptionService = (deps: Dependencies) => ({
 		}
 	},
 });
-
-export const subscriptionService = createSubscriptionService(dependencies);

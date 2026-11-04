@@ -8,7 +8,7 @@ import {
 	submitSubtest as submitSubtestService,
 	submitTryout as submitTryoutService,
 } from "@/lib/tryout/submit.service";
-import { TryoutError } from "@/lib/tryout/tryout-error";
+import { toProcedureError } from "@/lib/tryout/tryout-error";
 
 const authed = authedImplementer;
 
@@ -91,26 +91,11 @@ export const toggleRaguRagu = authed.tryout.toggleRaguRagu.handler(async ({ inpu
 	return { success: true };
 });
 
-function translateTryoutError(
-	error: unknown,
-	errors: {
-		BAD_REQUEST: (opts: { message: string }) => Error;
-		NOT_FOUND: (opts: { message: string }) => Error;
-		INTERNAL_SERVER_ERROR: (opts: { message: string }) => Error;
-	},
-): never {
-	if (!(error instanceof TryoutError)) throw error;
-	if (error.code === "BAD_REQUEST") throw errors.BAD_REQUEST({ message: error.message });
-	if (error.code === "NOT_FOUND") throw errors.NOT_FOUND({ message: error.message });
-	if (error.code === "INTERNAL_SERVER_ERROR") throw errors.INTERNAL_SERVER_ERROR({ message: error.message });
-	throw error;
-}
-
 export const submitSubtest = authed.tryout.submitSubtest.handler(async ({ input, context, errors }) => {
 	try {
 		return await submitSubtestService(input, context.session.user.id);
 	} catch (error) {
-		return translateTryoutError(error, errors);
+		return toProcedureError(error, errors);
 	}
 });
 
@@ -118,6 +103,6 @@ export const submitTryout = authed.tryout.submitTryout.handler(async ({ input, c
 	try {
 		return await submitTryoutService(input, context.session.user.id);
 	} catch (error) {
-		return translateTryoutError(error, errors);
+		return toProcedureError(error, errors);
 	}
 });

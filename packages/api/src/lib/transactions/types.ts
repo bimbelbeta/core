@@ -41,7 +41,6 @@ export type Checkout = {
  * a server fault rather than a forged webhook.
  */
 export type PaymentProvider<TNotification> = {
-	name: string;
 	createCheckout(input: CheckoutInput): Promise<Checkout>;
 	verifyNotification(payload: TNotification): boolean;
 	fetchStatus(orderId: string): Promise<PaymentStatus>;

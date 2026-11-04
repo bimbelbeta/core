@@ -3,7 +3,7 @@ import { fetchSubtestQuestionRows, flattenTryoutQuestions } from "@/lib/question
 import { authedImplementer } from "@/lib/router-definition";
 import { startTryout } from "@/lib/tryout/start-tryout.service";
 import { finalizeExpiredAttempt } from "@/lib/tryout/submit.service";
-import { TryoutError } from "@/lib/tryout/tryout-error";
+import { toProcedureError } from "@/lib/tryout/tryout-error";
 import { parseNullableInt } from "@/lib/utils";
 
 const authed = authedImplementer;
@@ -125,17 +125,7 @@ export const start = authed.tryout.start.handler(async ({ input, context, errors
 	try {
 		return await startTryout(input, context.session.user);
 	} catch (error) {
-		if (!(error instanceof TryoutError)) throw error;
-		switch (error.code) {
-			case "NOT_FOUND":
-				throw errors.NOT_FOUND({ message: error.message });
-			case "FORBIDDEN":
-				throw errors.FORBIDDEN({ message: error.message });
-			case "BAD_REQUEST":
-				throw errors.BAD_REQUEST({ message: error.message });
-			case "INTERNAL_SERVER_ERROR":
-				throw errors.INTERNAL_SERVER_ERROR({ message: error.message });
-		}
+		return toProcedureError(error, errors);
 	}
 });
 

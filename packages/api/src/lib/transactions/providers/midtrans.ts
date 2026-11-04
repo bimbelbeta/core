@@ -151,7 +151,6 @@ async function fetchStatus(orderId: string): Promise<PaymentStatus> {
 }
 
 export const midtransProvider: PaymentProvider<MidtransNotification> = {
-	name: "midtrans",
 	createCheckout,
 	verifyNotification,
 	fetchStatus,

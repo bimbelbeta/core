@@ -1,21 +1,18 @@
-import { db } from "@bimbelbeta/db";
 import { calculatePurchaseBenefits } from "@/lib/transactions/benefits";
 import { toPaymentErrorCode } from "@/lib/transactions/errors";
 import { resolveNotificationOutcome } from "@/lib/transactions/notification-routing";
-import { processSuccessfulTransaction } from "@/lib/transactions/processor";
-import { midtransProvider } from "@/lib/transactions/providers/midtrans";
-import { paymentRepository } from "@/lib/transactions/repository";
-import type { PaymentStatus } from "@/lib/transactions/types";
+import type { processSuccessfulTransaction } from "@/lib/transactions/processor";
+import type { paymentRepository } from "@/lib/transactions/repository";
+import type { PaymentProvider, PaymentStatus } from "@/lib/transactions/types";
 
-const dependencies = {
-	fetchStatus: midtransProvider.fetchStatus,
-	find: paymentRepository.findTransactionWithProduct,
-	updateStatus: paymentRepository.updateStatus,
-	process: async (options: Omit<Parameters<typeof processSuccessfulTransaction>[0], "trx">) =>
-		db.transaction((trx) => processSuccessfulTransaction({ ...options, trx })),
+export type NotificationServiceDependencies = {
+	fetchStatus: PaymentProvider<unknown>["fetchStatus"];
+	find: typeof paymentRepository.findTransactionWithProduct;
+	updateStatus: typeof paymentRepository.updateStatus;
+	process: (options: Omit<Parameters<typeof processSuccessfulTransaction>[0], "trx">) => Promise<boolean>;
 };
 
-export const createNotificationService = (deps: typeof dependencies) => ({
+export const createNotificationService = (deps: NotificationServiceDependencies) => ({
 	/**
 	 * Handles one payment notification for an order.
 	 *
@@ -28,8 +25,9 @@ export const createNotificationService = (deps: typeof dependencies) => ({
 	 * the processor claims the order atomically and only the winner grants benefits, so the loser
 	 * reports `already_processed` instead of paying out twice.
 	 *
-	 * Never throws. Failures are reported as a status so the procedure decides which oRPC error to
-	 * raise, and `verification_failed` keeps the payment error code in `reason` for logging.
+	 * Provider failures are reported as a status so the procedure decides which oRPC error to raise,
+	 * and `verification_failed` keeps the payment error code in `reason` for logging. A failing
+	 * database call rejects, because there is no status that could represent it honestly.
 	 *
 	 * @param orderId Order id from the notification payload.
 	 * @param purchaseDate Timestamp used as the paid-at time and the basis for premium expiry.
@@ -71,5 +69,3 @@ export const createNotificationService = (deps: typeof dependencies) => ({
 		return { status: "ok" } as const;
 	},
 });
-
-export const notificationService = createNotificationService(dependencies);
