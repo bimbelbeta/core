@@ -6,10 +6,12 @@ import { type } from "arktype";
 import { useState } from "react";
 import Loader from "@/components/shared/loader";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Item, ItemContent, ItemDescription, ItemMedia } from "@/components/ui/item";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Typography } from "@/components/ui/typography";
 import { authClient } from "@/lib/auth-client";
 import { createMeta } from "@/lib/seo-utils";
 
@@ -108,12 +110,12 @@ function SignUpForm() {
 			<div className="absolute left-1/2 z-50 -translate-x-1/2 -translate-y-full">
 				<Image src="/images/main-card-kelas.webp" alt="Study Avatar" width={200} height={200} />
 			</div>
-			<div className="border-primary/50 relative z-10 w-full rounded-sm border bg-white p-8 shadow-lg">
+			<Card variant="flush" className="border-primary/50 relative z-10 block w-full p-8">
 				<div className="flex flex-col items-center gap-2 text-center">
-					<h1 className="text-primary text-3xl">
+					<Typography variant="display" className="text-primary">
 						Mari <span className="font-bold">Mulai Bersama!</span>
-					</h1>
-					<p className="text-sm">Bergabung bersama untuk memulai sukses</p>
+					</Typography>
+					<Typography>Bergabung bersama untuk memulai sukses</Typography>
 				</div>
 
 				<form
@@ -139,9 +141,9 @@ function SignUpForm() {
 										autoFocus
 									/>
 									{field.state.meta.errors.map((error) => (
-										<p key={error?.message} className="text-xs text-red-500">
+										<Typography key={error?.message} variant="caption" tone="destructive">
 											{error?.message}
-										</p>
+										</Typography>
 									))}
 								</div>
 							)}
@@ -162,9 +164,9 @@ function SignUpForm() {
 										onChange={(e) => field.handleChange(e.target.value)}
 									/>
 									{field.state.meta.errors.map((error) => (
-										<p key={error?.message} className="text-xs text-red-500">
+										<Typography key={error?.message} variant="caption" tone="destructive">
 											{error?.message}
-										</p>
+										</Typography>
 									))}
 								</div>
 							)}
@@ -186,9 +188,9 @@ function SignUpForm() {
 										onChange={(e) => field.handleChange(e.target.value)}
 									/>
 									{field.state.meta.errors.map((error) => (
-										<p key={error?.message} className="text-red-500 text-xs">
+										<Typography key={error?.message} variant="caption" tone="destructive">
 											{error?.message}
-										</p>
+										</Typography>
 									))}
 								</div>
 							)}
@@ -219,9 +221,9 @@ function SignUpForm() {
 										onChange={(e) => field.handleChange(e.target.value)}
 									/>
 									{field.state.meta.errors.map((error) => (
-										<p key={error} className="text-red-500 text-xs">
+										<Typography key={error} variant="caption" tone="destructive">
 											{error}
-										</p>
+										</Typography>
 									))}
 								</div>
 							)}
@@ -256,7 +258,7 @@ function SignUpForm() {
 					<GoogleLogoIcon weight="bold" />
 					Daftar dengan Google
 				</Button>
-			</div>
+			</Card>
 
 			{error && (
 				<Item variant="destructive" size="sm" className="mt-3">
@@ -269,12 +271,12 @@ function SignUpForm() {
 				</Item>
 			)}
 
-			<p className="mt-4 text-center text-sm">
+			<Typography className="mt-4 text-center">
 				Sudah punya akun?{" "}
 				<Link to="/login" className="text-primary font-bold">
 					Masuk Sekarang
 				</Link>
-			</p>
+			</Typography>
 		</div>
 	);
 }

@@ -8,6 +8,7 @@ import {
 } from "@/components/admin/admin-page";
 import { QuickLinks } from "@/components/admin/quick-links";
 import { SectionCards } from "@/components/admin/section-cards";
+import { Typography } from "@/components/ui/typography";
 
 export const Route = createFileRoute("/admin/dashboard/")({
 	staticData: { breadcrumb: "Dashboard" },
@@ -17,7 +18,7 @@ export const Route = createFileRoute("/admin/dashboard/")({
 				<AdminPageHeader>
 					<AdminPageHeaderContent>
 						<AdminPageTitle>Dashboard</AdminPageTitle>
-						<p className="text-muted-foreground text-sm">Ikhtisar performa dan aktivitas sistem</p>
+						<Typography tone="muted">Ikhtisar performa dan aktivitas sistem</Typography>
 					</AdminPageHeaderContent>
 				</AdminPageHeader>
 
