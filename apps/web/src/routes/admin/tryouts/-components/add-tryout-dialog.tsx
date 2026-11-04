@@ -23,6 +23,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Typography } from "@/components/ui/typography";
 import { formatDateMedium } from "@/lib/format-date";
 import { orpc } from "@/lib/orpc";
+import { type SubjectCategory, subjectCategorySchema, type TryoutStatus, tryoutStatusSchema } from "@/lib/schemas";
 
 export function AddTryoutDialog({
 	open,
@@ -38,16 +39,26 @@ export function AddTryoutDialog({
 		to: undefined,
 	});
 
+	const defaultValues: {
+		title: string;
+		description: string;
+		category: SubjectCategory;
+		duration: number;
+		status: TryoutStatus;
+		startsAt: string;
+		endsAt: string;
+	} = {
+		title: "",
+		description: "",
+		category: "utbk",
+		duration: 60,
+		status: "draft",
+		startsAt: "",
+		endsAt: "",
+	};
+
 	const form = useForm({
-		defaultValues: {
-			title: "",
-			description: "",
-			category: "utbk" as "sd" | "smp" | "sma" | "utbk",
-			duration: 60,
-			status: "draft" as "draft" | "published" | "archived",
-			startsAt: "",
-			endsAt: "",
-		},
+		defaultValues,
 		onSubmit: async ({ value }) => {
 			createMutation.mutate({
 				title: value.title,
@@ -61,9 +72,9 @@ export function AddTryoutDialog({
 		validators: {
 			onChange: type({
 				title: "string >= 1",
-				category: "'sd' | 'smp' | 'sma' | 'utbk'",
+				category: subjectCategorySchema,
 				duration: "1 <= number <= 500",
-				status: "'draft' | 'published' | 'archived'",
+				status: tryoutStatusSchema,
 			}),
 		},
 	});

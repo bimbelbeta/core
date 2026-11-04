@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
+import { subjectCategorySchema } from "@/lib/schemas";
 import { categoryLabel, isValidCategory, type SubjectCategory, validateGradeLevel } from "./classes-constants";
 
 type CreateSubjectDialogProps = {
@@ -74,7 +75,7 @@ export function CreateSubjectDialog({ open, onOpenChange, defaultCategory }: Cre
 				name: "string >= 1",
 				shortName: "string >= 1",
 				description: "string",
-				category: type("'sd' | 'smp' | 'sma' | 'utbk'").optional(),
+				category: subjectCategorySchema.optional(),
 				gradeLevel: "string",
 			}),
 		},

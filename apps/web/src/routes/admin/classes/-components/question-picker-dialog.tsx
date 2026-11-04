@@ -13,8 +13,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
+import type { SubjectCategory } from "@/lib/schemas";
 
-type CategoryFilter = "all" | "sd" | "smp" | "sma" | "utbk";
+type CategoryFilter = "all" | SubjectCategory;
 type TypeFilter = "all" | "multiple_choice" | "essay";
 
 function isCategoryFilter(v: string): v is CategoryFilter {

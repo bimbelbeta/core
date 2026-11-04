@@ -45,13 +45,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Typography } from "@/components/ui/typography";
 import { extractTextFromTiptap, truncateText } from "@/lib/content-text";
 import { orpc } from "@/lib/orpc";
+import { subjectCategorySchema } from "@/lib/schemas";
 import { useQuestionsSearch } from "./-hooks/use-questions-search";
 
 const searchSchema = type({
 	"...": PaginationInputSchema,
 	"search?": "string",
 	"type?": "'multiple_choice' | 'multiple_choice_complex' | 'essay'",
-	"category?": "'sd' | 'smp' | 'sma' | 'utbk'",
+	"category?": subjectCategorySchema,
 	"tag?": "string",
 });
 

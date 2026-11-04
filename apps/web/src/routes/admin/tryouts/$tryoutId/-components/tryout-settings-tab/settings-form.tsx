@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Typography } from "@/components/ui/typography";
 import { formatDateMedium } from "@/lib/format-date";
 import { orpc } from "@/lib/orpc";
-import { subjectCategorySchema, tryoutStatusSchema } from "@/lib/schemas";
+import { type SubjectCategory, subjectCategorySchema, type TryoutStatus, tryoutStatusSchema } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 
 import { AccessCodeSection } from "./access-code-section";
@@ -27,8 +27,8 @@ interface TryoutSettingsTabProps {
 		id: number;
 		title: string;
 		description: string | null;
-		category: "sd" | "smp" | "sma" | "utbk";
-		status: "draft" | "published" | "archived";
+		category: SubjectCategory;
+		status: TryoutStatus;
 		startsAt: Date | null;
 		endsAt: Date | null;
 	};

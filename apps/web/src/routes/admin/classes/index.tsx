@@ -13,11 +13,12 @@ import { SearchInput } from "@/components/ui/search-input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
+import { subjectCategorySchema } from "@/lib/schemas";
 import { createMeta } from "@/lib/seo-utils";
 
 const searchSchema = type({
 	"q?": "string",
-	"category?": "'sd' | 'smp' | 'sma' | 'utbk'",
+	"category?": subjectCategorySchema,
 });
 
 export const Route = createFileRoute("/admin/classes/")({

@@ -134,6 +134,7 @@ export function BulkAddQuestionsDialog({
 												className="sr-only"
 												aria-label={`Pilih soal #${question.id}`}
 												checked={isSelected}
+												onClick={(e) => e.stopPropagation()}
 												onChange={() => handleQuestionToggle(question.id)}
 											/>
 											{isSelected && (
