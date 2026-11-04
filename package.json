@@ -26,7 +26,7 @@
 		}
 	},
 	"scripts": {
-		"lint": "biome check .",
+		"lint": "biome check . && bun scripts/check-tsx-lines.ts",
 		"lint:fix": "biome check --write .",
 		"dev": "turbo dev",
 		"start": "turbo start",
@@ -47,7 +47,8 @@
 		"db:down": "turbo -F @bimbelbeta/db db:down",
 		"db:seed": "turbo -F @bimbelbeta/db db:seed",
 		"db:reset": "turbo -F @bimbelbeta/db db:reset",
-		"auth:generate": "turbo -F @bimbelbeta/auth auth:generate"
+		"auth:generate": "turbo -F @bimbelbeta/auth auth:generate",
+		"check:tsx-lines": "bun scripts/check-tsx-lines.ts"
 	},
 	"dependencies": {
 		"dotenv": "^17.4.2",

@@ -1,11 +1,11 @@
-import { CheckCircleIcon, MagnifyingGlassIcon, PlusCircleIcon } from "@phosphor-icons/react";
+import { MagnifyingGlassIcon, PlusCircleIcon } from "@phosphor-icons/react";
 import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
 import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { CheckboxIndicator } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Item } from "@/components/ui/item";
@@ -127,21 +127,25 @@ export function BulkAddQuestionsDialog({
 											key={question.id}
 											selected={isSelected}
 											variant="outline"
-											className="hover:bg-muted/50 focus-within:ring-primary relative cursor-pointer flex-col items-stretch gap-3 p-3 text-left focus-within:ring-2"
+											role="checkbox"
+											tabIndex={0}
+											aria-checked={isSelected}
+											aria-labelledby={`question-label-${question.id}`}
+											className="hover:bg-muted/50 focus-visible:ring-ring/50 relative cursor-pointer flex-col items-stretch gap-3 p-3 text-left outline-none focus-visible:ring-[3px]"
 											onClick={() => handleQuestionToggle(question.id)}
+											onKeyDown={(e) => {
+												if (e.key === " " || e.key === "Enter") {
+													e.preventDefault();
+													handleQuestionToggle(question.id);
+												}
+											}}
 										>
-											<Checkbox
-												className="sr-only"
-												aria-label={`Pilih soal #${question.id}`}
-												checked={isSelected}
-												onClick={(e) => e.stopPropagation()}
-												onCheckedChange={() => handleQuestionToggle(question.id)}
-											/>
-											{isSelected && (
-												<div className="text-primary pointer-events-none absolute top-3 right-3">
-													<CheckCircleIcon size={20} weight="fill" />
-												</div>
-											)}
+											<span id={`question-label-${question.id}`} className="sr-only">
+												Soal #{question.id}
+											</span>
+											<div className="pointer-events-none absolute top-3 right-3">
+												<CheckboxIndicator checked={isSelected} />
+											</div>
 											<Badge variant={question.type === "multiple_choice" ? "default" : "outline"} className="w-fit">
 												{question.type === "multiple_choice" ? "Pilihan Ganda" : "Esai"}
 											</Badge>
