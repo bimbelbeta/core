@@ -41,12 +41,7 @@ export function AdminTableBulkActions({ selectedCount, children, className }: Ad
 	if (selectedCount === 0) return null;
 
 	return (
-		<div
-			className={cn(
-				"border-primary-navy-200 bg-primary-navy-50 flex items-center gap-2 rounded-md border p-2",
-				className,
-			)}
-		>
+		<div className={cn("border-primary-200 bg-primary-100 flex items-center gap-2 rounded-md border p-2", className)}>
 			<span className="text-primary-navy-700 text-sm">{selectedCount} item dipilih</span>
 			<div className="ml-auto">{children}</div>
 		</div>

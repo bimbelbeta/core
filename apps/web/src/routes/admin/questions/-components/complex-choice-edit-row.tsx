@@ -3,6 +3,7 @@ import type { ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TableCell, TableRow } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
 interface ComplexChoiceEditRowProps {
 	choice: {
@@ -17,7 +18,7 @@ interface ComplexChoiceEditRowProps {
 
 export function ComplexChoiceEditRow({ choice, onUpdate, onDelete }: ComplexChoiceEditRowProps) {
 	return (
-		<TableRow data-state={choice.isCorrect ? "selected" : undefined}>
+		<TableRow className={cn(choice.isCorrect && "bg-green-50")}>
 			<TableCell>
 				<Input
 					value={choice.content}

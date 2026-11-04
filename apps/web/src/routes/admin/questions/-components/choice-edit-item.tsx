@@ -5,6 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Item } from "@/components/ui/item";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 interface ChoiceEditItemProps {
 	choice: {
@@ -19,7 +20,10 @@ interface ChoiceEditItemProps {
 
 export function ChoiceEditItem({ choice, onUpdate, onDelete }: ChoiceEditItemProps) {
 	return (
-		<Item variant="outline" selected={choice.isCorrect} className="flex-nowrap items-start gap-3 rounded-lg p-3">
+		<Item
+			variant="outline"
+			className={cn("flex-nowrap items-start gap-3 rounded-lg p-3", choice.isCorrect && "border-green-200 bg-green-50")}
+		>
 			<div className="bg-muted text-muted-foreground flex size-6 shrink-0 items-center justify-center rounded-full border text-xs font-bold">
 				{choice.code}
 			</div>
