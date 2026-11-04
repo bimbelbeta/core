@@ -2,6 +2,7 @@ import { ListMagnifyingGlassIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
@@ -36,7 +37,7 @@ export function BulkQuestionsTable({
 	};
 
 	return (
-		<div className="overflow-hidden rounded-lg border bg-white shadow-sm transition-all hover:shadow-md">
+		<Card variant="flush" className="overflow-hidden transition-all hover:shadow-md">
 			<div className="overflow-x-auto">
 				<Table>
 					<TableHeader>
@@ -115,6 +116,6 @@ export function BulkQuestionsTable({
 					</TableBody>
 				</Table>
 			</div>
-		</div>
+		</Card>
 	);
 }

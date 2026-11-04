@@ -108,7 +108,7 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 				<CardDescription>Riwayat pengerjaan tryout oleh user</CardDescription>
 			</CardHeader>
 			<CardContent>
-				<div className="overflow-clip rounded-lg border bg-white shadow-sm">
+				<Card variant="flush">
 					<Table>
 						<TableHeader>
 							<TableRow className="bg-muted/30">
@@ -268,7 +268,7 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 							)}
 						</TableBody>
 					</Table>
-				</div>
+				</Card>
 
 				{data && (
 					<div className="mt-4">

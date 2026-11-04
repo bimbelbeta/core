@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { cn } from "@/lib/utils";
@@ -41,10 +42,10 @@ export function QuestionHeader({ countdownProps }: QuestionHeaderProps) {
 		<>
 			<div className="flex justify-between gap-2 max-sm:flex-col lg:items-center">
 				<div className="flex flex-col">
-					<p className="text-lg font-medium">
+					<Typography variant="subtitle1" as="p">
 						Soal Nomor {currentQuestionIndex + 1} dari {totalQuestions}
-					</p>
-					<p className="text-muted-foreground text-sm">{data?.currentSubtest?.name}</p>
+					</Typography>
+					<Typography tone="muted">{data?.currentSubtest?.name}</Typography>
 				</div>
 
 				<div className="flex items-center gap-2">

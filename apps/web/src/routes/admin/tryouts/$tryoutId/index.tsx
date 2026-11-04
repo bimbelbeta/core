@@ -9,7 +9,6 @@ import {
 	AdminPageHeaderActions,
 	AdminPageHeaderContent,
 	AdminPageRoot,
-	AdminPageTitle,
 } from "@/components/admin/admin-page";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { cn } from "@/lib/utils";
@@ -105,7 +105,7 @@ function TryoutDetailPage() {
 								<Skeleton className="h-7 w-48" />
 							) : (
 								<div className="flex items-center gap-2">
-									<AdminPageTitle className="text-xl">{tryout!.title}</AdminPageTitle>
+									<Typography variant="title">{tryout!.title}</Typography>
 									<Badge variant="outline">{CATEGORY_LABELS[tryout!.category]}</Badge>
 								</div>
 							)}
@@ -153,7 +153,9 @@ function TryoutDetailPage() {
 							<>
 								<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
 									<div className="space-y-1">
-										<p className="text-muted-foreground text-xs tracking-wide uppercase">Status</p>
+										<Typography variant="caption" tone="muted" className="tracking-wide uppercase">
+											Status
+										</Typography>
 										<div className="flex items-center gap-2">
 											<div
 												className={cn("size-2 rounded-full", {
@@ -166,22 +168,36 @@ function TryoutDetailPage() {
 										</div>
 									</div>
 									<div className="space-y-1">
-										<p className="text-muted-foreground text-xs tracking-wide uppercase">Kategori</p>
-										<p className="font-medium">{CATEGORY_LABELS[tryout!.category]}</p>
+										<Typography variant="caption" tone="muted" className="tracking-wide uppercase">
+											Kategori
+										</Typography>
+										<Typography variant="overline" as="p" tone="default">
+											{CATEGORY_LABELS[tryout!.category]}
+										</Typography>
 									</div>
 									<div className="space-y-1">
-										<p className="text-muted-foreground text-xs tracking-wide uppercase">Jumlah Subtest</p>
-										<p className="font-medium">{subtests.length}</p>
+										<Typography variant="caption" tone="muted" className="tracking-wide uppercase">
+											Jumlah Subtest
+										</Typography>
+										<Typography variant="overline" as="p" tone="default">
+											{subtests.length}
+										</Typography>
 									</div>
 									<div className="space-y-1">
-										<p className="text-muted-foreground text-xs tracking-wide uppercase">Jadwal</p>
-										<p className="text-sm font-medium">{formatDateRange()}</p>
+										<Typography variant="caption" tone="muted" className="tracking-wide uppercase">
+											Jadwal
+										</Typography>
+										<Typography variant="overline" as="p" tone="default">
+											{formatDateRange()}
+										</Typography>
 									</div>
 								</div>
 								{tryout!.description && (
 									<>
 										<Separator className="my-4" />
-										<p className="text-muted-foreground text-sm">{tryout!.description}</p>
+										<Typography variant="body" tone="muted">
+											{tryout!.description}
+										</Typography>
 									</>
 								)}
 							</>

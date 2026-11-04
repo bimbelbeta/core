@@ -2,6 +2,7 @@ import { CaretUpIcon, CheckCircleIcon, CheckSquare, Square, XCircleIcon } from "
 import { useState } from "react";
 import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Typography } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
 
 type QuestionReviewItemProps = {
@@ -71,7 +72,9 @@ export function QuestionReviewItem({ index, question, isCorrect }: QuestionRevie
 
 					<div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
 						<div className="space-y-4">
-							<p className="text-muted-foreground text-sm font-medium">Jawaban Kamu</p>
+							<Typography variant="overline" as="p">
+								Jawaban Kamu
+							</Typography>
 							{question.choices.map((choice) => {
 								const isSelected =
 									question.userAnswer.selectedChoiceId === choice.id ||
@@ -118,7 +121,9 @@ export function QuestionReviewItem({ index, question, isCorrect }: QuestionRevie
 
 						{question.discussion != null && (
 							<div className="space-y-4">
-								<p className="text-muted-foreground text-sm font-medium">Kunci Jawaban & Pembahasan</p>
+								<Typography variant="overline" as="p">
+									Kunci Jawaban & Pembahasan
+								</Typography>
 								<div className="rounded-lg border bg-blue-50/30 p-4">
 									<div className="mb-4">
 										{question.choices
@@ -133,7 +138,9 @@ export function QuestionReviewItem({ index, question, isCorrect }: QuestionRevie
 											))}
 									</div>
 									<div className="prose-sm">
-										<p className="text-muted-foregroun mb-2 text-sm font-medium">Pembahasan:</p>
+										<Typography variant="overline" as="p" tone="default" className="mb-2">
+											Pembahasan:
+										</Typography>
 										<TiptapRenderer content={question.discussion} />
 									</div>
 								</div>

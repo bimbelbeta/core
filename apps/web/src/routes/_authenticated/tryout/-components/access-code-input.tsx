@@ -2,6 +2,7 @@ import { KeyIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Typography } from "@/components/ui/typography";
 
 interface AccessCodeInputProps {
 	onSubmit?: (code: string) => void;
@@ -21,7 +22,9 @@ export function AccessCodeInput({ onSubmit, isLoading = false }: AccessCodeInput
 		<div className="bg-muted/20 rounded-lg border p-4">
 			<div className="mb-2 flex items-center gap-2">
 				<KeyIcon size={18} className="text-muted-foreground" />
-				<p className="text-sm font-medium">Gunakan Kode Akses</p>
+				<Typography variant="overline" as="p" tone="default">
+					Gunakan Kode Akses
+				</Typography>
 			</div>
 			<div className="flex gap-2">
 				<Input
