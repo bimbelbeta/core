@@ -165,10 +165,7 @@ export function TryoutsListPage() {
 													</AlertDialogHeader>
 													<AlertDialogFooter>
 														<AlertDialogCancel>Batal</AlertDialogCancel>
-														<AlertDialogAction
-															onClick={() => handleDelete(tryout.id)}
-															className="bg-red-600 hover:bg-red-700"
-														>
+														<AlertDialogAction onClick={() => handleDelete(tryout.id)} variant="destructive">
 															Hapus
 														</AlertDialogAction>
 													</AlertDialogFooter>

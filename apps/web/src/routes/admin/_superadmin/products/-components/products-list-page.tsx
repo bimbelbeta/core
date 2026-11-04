@@ -1,4 +1,4 @@
-import { CalendarDotsIcon, PackageIcon, TrashIcon } from "@phosphor-icons/react";
+import { ArrowCounterClockwiseIcon, CalendarDotsIcon, PackageIcon, TrashIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import {
 	AdminPageContent,
@@ -191,8 +191,13 @@ export function ProductsListPage() {
 												<AdminTableCell className="pr-4 text-right">
 													<div className="flex items-center justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
 														{isDeleted ? (
-															<Button variant="ghost" size="icon" onClick={() => setRestoreProductId(product.id)}>
-																<TrashIcon className="size-4 text-green-500" />
+															<Button
+																variant="ghost"
+																size="icon"
+																aria-label="Pulihkan product"
+																onClick={() => setRestoreProductId(product.id)}
+															>
+																<ArrowCounterClockwiseIcon className="size-4" />
 															</Button>
 														) : (
 															<Button variant="ghost" size="icon" onClick={() => setDeleteProductId(product.id)}>

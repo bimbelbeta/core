@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
-import { formatDateTime } from "../-utils";
+import { formatDate } from "../-utils";
 
 export function ReferralDetailPage() {
 	const { codeId } = useParams({ from: "/admin/_superadmin/referrals/$codeId" });
@@ -87,11 +87,11 @@ export function ReferralDetailPage() {
 						</div>
 						<div className="flex justify-between">
 							<span className="text-muted-foreground">Berlaku Hingga</span>
-							<span>{formatDateTime(referralCode.validUntil)}</span>
+							<span>{formatDate(referralCode.validUntil)}</span>
 						</div>
 						<div className="flex justify-between">
 							<span className="text-muted-foreground">Dibuat</span>
-							<span>{formatDateTime(referralCode.createdAt)}</span>
+							<span>{formatDate(referralCode.createdAt)}</span>
 						</div>
 					</CardContent>
 				</Card>
@@ -163,11 +163,9 @@ export function ReferralDetailPage() {
 												)}
 											</TableCell>
 											<TableCell className="text-muted-foreground text-sm">
-												{formatDateTime(item.premiumExpiresAt)}
+												{formatDate(item.premiumExpiresAt)}
 											</TableCell>
-											<TableCell className="text-muted-foreground pr-6 text-sm">
-												{formatDateTime(item.claimedAt)}
-											</TableCell>
+											<TableCell className="text-muted-foreground pr-6 text-sm">{formatDate(item.claimedAt)}</TableCell>
 										</TableRow>
 									))}
 								</TableBody>

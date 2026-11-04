@@ -98,7 +98,7 @@ export function ReferralListPage() {
 								</AlertDialogHeader>
 								<AlertDialogFooter>
 									<AlertDialogCancel>Batal</AlertDialogCancel>
-									<AlertDialogAction onClick={handleBulkDeactivate} className="bg-red-600 hover:bg-red-700">
+									<AlertDialogAction onClick={handleBulkDeactivate} variant="destructive">
 										Nonaktifkan
 									</AlertDialogAction>
 								</AlertDialogFooter>

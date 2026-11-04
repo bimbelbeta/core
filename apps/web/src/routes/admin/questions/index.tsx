@@ -215,7 +215,7 @@ function QuestionsListPage() {
 								</AlertDialogHeader>
 								<AlertDialogFooter>
 									<AlertDialogCancel>Batal</AlertDialogCancel>
-									<AlertDialogAction onClick={handleBulkDelete} className="bg-red-600 hover:bg-red-700">
+									<AlertDialogAction onClick={handleBulkDelete} variant="destructive">
 										Hapus
 									</AlertDialogAction>
 								</AlertDialogFooter>
@@ -311,10 +311,7 @@ function QuestionsListPage() {
 														</AlertDialogHeader>
 														<AlertDialogFooter>
 															<AlertDialogCancel>Batal</AlertDialogCancel>
-															<AlertDialogAction
-																onClick={() => handleDelete(q.id)}
-																className="bg-red-600 hover:bg-red-700"
-															>
+															<AlertDialogAction onClick={() => handleDelete(q.id)} variant="destructive">
 																Hapus
 															</AlertDialogAction>
 														</AlertDialogFooter>

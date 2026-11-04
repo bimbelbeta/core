@@ -36,7 +36,7 @@ export function UsersBulkActions() {
 					</AlertDialogHeader>
 					<AlertDialogFooter>
 						<AlertDialogCancel>Batal</AlertDialogCancel>
-						<AlertDialogAction onClick={handleBulkDelete} className="bg-red-600 hover:bg-red-700">
+						<AlertDialogAction onClick={handleBulkDelete} variant="destructive">
 							Hapus
 						</AlertDialogAction>
 					</AlertDialogFooter>

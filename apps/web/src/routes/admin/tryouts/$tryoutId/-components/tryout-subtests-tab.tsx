@@ -179,10 +179,7 @@ export function TryoutSubtestsTab({ tryoutId, subtests, onUpdate }: TryoutSubtes
 														</AlertDialogHeader>
 														<AlertDialogFooter>
 															<AlertDialogCancel>Batal</AlertDialogCancel>
-															<AlertDialogAction
-																onClick={() => handleDelete(subtest.id)}
-																className="bg-red-600 hover:bg-red-700"
-															>
+															<AlertDialogAction onClick={() => handleDelete(subtest.id)} variant="destructive">
 																{deleteMutation.isPending ? "Menghapus..." : "Hapus"}
 															</AlertDialogAction>
 														</AlertDialogFooter>
