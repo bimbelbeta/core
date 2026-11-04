@@ -5,7 +5,6 @@
  * jobs. Procedures decide how each one surfaces to the caller.
  */
 export const paymentErrorCodes = [
-	"INVALID_SIGNATURE",
 	"INVALID_PAYLOAD",
 	"PROVIDER_UNAVAILABLE",
 	"PROVIDER_REJECTED",

@@ -54,7 +54,10 @@ export const createNotificationService = (deps: typeof dependencies) => ({
 		if (outcome.action === "process_success" && existingTransaction) {
 			const applied = await deps
 				.process({ orderId, userId: outcome.userId, existingTransaction, purchaseDate, benefits: outcome.benefits })
-				.catch(() => null);
+				.catch((error) => {
+					console.error("payment processing failed", error);
+					return null;
+				});
 			if (applied === null) return { status: "processing_failed" } as const;
 			if (!applied) return { status: "already_processed" } as const;
 		} else if (outcome.action === "update_status") {

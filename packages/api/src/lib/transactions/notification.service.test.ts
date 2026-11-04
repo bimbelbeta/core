@@ -1,4 +1,4 @@
-import { describe, expect, mock, test } from "bun:test";
+import { describe, expect, mock, spyOn, test } from "bun:test";
 import { PaymentError } from "./errors";
 import { createNotificationService } from "./notification.service";
 import type { PaymentStatus, TransactionWithProduct } from "./types";
@@ -55,11 +55,17 @@ describe("notification service", () => {
 		expect(await service.process("order-1", date)).toEqual({ status: "already_processed" });
 	});
 
-	test("reports a failed benefit write", async () => {
+	test("reports a failed benefit write and keeps a trace", async () => {
 		const { deps, service } = setup();
 		deps.fetchStatus.mockResolvedValue("paid");
 		deps.process.mockRejectedValue(new Error("processing failed"));
-		expect(await service.process("order-1", date)).toEqual({ status: "processing_failed" });
+		const log = spyOn(console, "error").mockImplementation(() => {});
+		try {
+			expect(await service.process("order-1", date)).toEqual({ status: "processing_failed" });
+			expect(log).toHaveBeenCalled();
+		} finally {
+			log.mockRestore();
+		}
 	});
 
 	test("returns not_found for unknown transactions", async () => {

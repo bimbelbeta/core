@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect, spyOn, test } from "bun:test";
+import { afterAll, beforeAll, beforeEach, describe, expect, spyOn, test } from "bun:test";
 import { createHash } from "node:crypto";
 import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
@@ -64,6 +64,12 @@ describe.skipIf(!enabled)("API persistence workflows", () => {
 		await db.insert(user).values({ id, name: id, email: session.user.email, role: "admin", tryoutCredits: 1 });
 		const [createdSubject] = await db.insert(subject).values({ name: id, shortName: id }).returning();
 		subjectId = createdSubject!.id;
+	});
+
+	beforeEach(async () => {
+		await db.delete(creditTransaction).where(eq(creditTransaction.userId, id));
+		await db.delete(transaction).where(eq(transaction.userId, id));
+		await db.update(user).set({ tryoutCredits: 1, isPremium: false }).where(eq(user.id, id));
 	});
 
 	afterAll(async () => {
@@ -313,6 +319,47 @@ describe.skipIf(!enabled)("API persistence workflows", () => {
 			).toHaveLength(0);
 		} finally {
 			snap.mockRestore();
+			fetchStatus.mockRestore();
+		}
+	});
+
+	test("grants benefits once when two notifications arrive together", async () => {
+		const [plan] = await db
+			.insert(product)
+			.values({
+				name: "Concurrent",
+				slug: `${id}-concurrent`,
+				price: "10000",
+				type: "product",
+				variant: "credits",
+				credits: 5,
+			})
+			.returning();
+		products.push(plan!.id);
+		const orderId = `${id}-concurrent-order`;
+		await db.insert(transaction).values({ id: orderId, userId: id, productId: plan!.id, grossAmount: "10000" });
+		await db.update(user).set({ tryoutCredits: 0 }).where(eq(user.id, id));
+
+		const response = () =>
+			new Response(JSON.stringify({ transaction_status: "settlement", fraud_status: "accept" }), { status: 200 });
+		const fetchStatus = spyOn(globalThis, "fetch").mockResolvedValueOnce(response()).mockResolvedValueOnce(response());
+		try {
+			const signature = createHash("sha512")
+				.update(`${orderId}20010000${process.env.MIDTRANS_SERVER_KEY}`)
+				.digest("hex");
+			const notify = () =>
+				call(
+					appRouter.transaction.notification,
+					{ order_id: orderId, status_code: "200", gross_amount: "10000", signature_key: signature },
+					{ context: { session: null } },
+				);
+			const results = await Promise.all([notify(), notify()]);
+			expect(results.map((result) => result.status).sort()).toEqual(["already_processed", "ok"]);
+			expect((await db.select().from(user).where(eq(user.id, id)))[0]!.tryoutCredits).toBe(5);
+			expect(
+				await db.select().from(creditTransaction).where(eq(creditTransaction.transactionId, orderId)),
+			).toHaveLength(1);
+		} finally {
 			fetchStatus.mockRestore();
 		}
 	});
