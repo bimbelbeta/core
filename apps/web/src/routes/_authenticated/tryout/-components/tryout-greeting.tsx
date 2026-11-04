@@ -5,6 +5,7 @@ import { useParams } from "@tanstack/react-router";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { useTryoutStore } from "../-hooks/use-tryout-store";
@@ -62,7 +63,9 @@ export function TryoutGreeting({ countdownProps }: TryoutGreetingProps) {
 	return (
 		<Card className="flex w-full flex-col gap-6 p-6">
 			<div className="flex items-center justify-between gap-4">
-				<p className="text-muted-foreground text-lg font-semibold">Subtest {data.currentSubtest.order}</p>
+				<Typography variant="subtitle1" as="p" tone="muted">
+					Subtest {data.currentSubtest.order}
+				</Typography>
 				{data.currentSubtest?.deadline && (
 					<div className={buttonVariants({ variant: "outline", size: "sm" })}>
 						Sisa Waktu:
@@ -76,14 +79,14 @@ export function TryoutGreeting({ countdownProps }: TryoutGreetingProps) {
 			<Separator />
 
 			<div className="space-y-2">
-				<h1 className="text-4xl font-bold">{data.currentSubtest?.name}</h1>
+				<Typography variant="display">{data.currentSubtest?.name}</Typography>
 				{data.currentSubtest.description && (
 					<div className="text-muted-foreground text-lg font-bold">{data.currentSubtest.description}</div>
 				)}
 				<div className="text-muted-foreground">
-					<p>
+					<Typography>
 						{data.currentSubtest.questions.length} Soal - {data.currentSubtest.duration} Menit
-					</p>
+					</Typography>
 				</div>
 			</div>
 
