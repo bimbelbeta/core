@@ -17,6 +17,7 @@ import {
 import { call } from "@orpc/server";
 import { eq } from "drizzle-orm";
 import { Snap } from "midtrans-client";
+import { createPaymentRepository, paymentRepository } from "@/lib/transactions/repository";
 import { appRouter } from "@/routers";
 
 const enabled = !!process.env.TEST_DATABASE_URL && process.env.DATABASE_URL === process.env.TEST_DATABASE_URL;
@@ -362,6 +363,38 @@ describe.skipIf(!enabled)("API persistence workflows", () => {
 		} finally {
 			fetchStatus.mockRestore();
 		}
+	});
+
+	test("keeps a claimed order paid and reads through a transaction handle", async () => {
+		const [plan] = await db
+			.insert(product)
+			.values({
+				name: "Guard",
+				slug: `${id}-guard`,
+				price: "10000",
+				type: "product",
+				variant: "credits",
+				credits: 5,
+			})
+			.returning();
+		products.push(plan!.id);
+		const claimed = `${id}-claimed`;
+		const unsettled = `${id}-unsettled`;
+		await db.insert(transaction).values([
+			{ id: claimed, userId: id, productId: plan!.id, grossAmount: "10000", status: "success", paidAt: new Date() },
+			{ id: unsettled, userId: id, productId: plan!.id, grossAmount: "10000" },
+		]);
+
+		await paymentRepository.updateStatus(claimed, "failed");
+		await paymentRepository.updateStatus(unsettled, "failed");
+
+		expect((await db.select().from(transaction).where(eq(transaction.id, claimed)))[0]!.status).toBe("success");
+		expect((await db.select().from(transaction).where(eq(transaction.id, unsettled)))[0]!.status).toBe("failed");
+
+		await db.transaction(async (trx) => {
+			const scoped = createPaymentRepository(trx);
+			expect(await scoped.findTransactionWithProduct(claimed)).not.toBeNull();
+		});
 	});
 
 	test("rejects unauthenticated and unauthorized callers", async () => {

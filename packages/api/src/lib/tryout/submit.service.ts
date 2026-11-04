@@ -5,6 +5,23 @@ import { calculateTryoutScores, saveScoresToDatabase } from "@/lib/calculate-sco
 import { computeSubtestDeadline } from "@/lib/tryout/start-subtest.service";
 import { tryoutErrors as errors } from "@/lib/tryout/tryout-error";
 
+const dependencies = {
+	findAttempt: async (tryoutId: number, userId: string) =>
+		db.query.tryoutAttempt.findFirst({
+			where: { tryoutId: { eq: tryoutId }, userId: { eq: userId }, status: { eq: "ongoing" } },
+			with: {
+				subtestAttempts: true,
+				tryout: { with: { subtests: { orderBy: (subtests, { asc }) => [asc(subtests.order)] } } },
+			},
+		}),
+	runInTransaction: <T>(fn: (trx: Parameters<Parameters<typeof db.transaction>[0]>[0]) => Promise<T>) =>
+		db.transaction(fn),
+	calculateScores: calculateTryoutScores,
+	saveScores: saveScoresToDatabase,
+};
+
+export type SubmitServiceDependencies = typeof dependencies;
+
 /**
  * Closes an attempt whose overall deadline has passed and records its score.
  *
@@ -15,15 +32,18 @@ import { tryoutErrors as errors } from "@/lib/tryout/tryout-error";
  *
  * @param attemptId Identifier of the expired attempt.
  */
-export async function finalizeExpiredAttempt(attemptId: number): Promise<void> {
-	const scores = await calculateTryoutScores(attemptId);
+export async function finalizeExpiredAttempt(
+	attemptId: number,
+	deps: SubmitServiceDependencies = dependencies,
+): Promise<void> {
+	const scores = await deps.calculateScores(attemptId);
 
-	await db.transaction(async (tx) => {
+	await deps.runInTransaction(async (tx) => {
 		await tx
 			.update(tryoutAttempt)
 			.set({ completedAt: new Date(), status: "finished" })
 			.where(eq(tryoutAttempt.id, attemptId));
-		await saveScoresToDatabase(attemptId, scores, tx);
+		await deps.saveScores(attemptId, scores, tx);
 	});
 }
 
@@ -40,24 +60,12 @@ export async function finalizeExpiredAttempt(attemptId: number): Promise<void> {
  *
  * @returns Either the next subtest id, or the final total score when the tryout is complete.
  */
-export async function submitSubtest(input: { tryoutId: number; subtestId: number }, userId: string) {
-	const attempt = await db.query.tryoutAttempt.findFirst({
-		where: {
-			tryoutId: { eq: input.tryoutId },
-			userId: { eq: userId },
-			status: { eq: "ongoing" },
-		},
-		with: {
-			subtestAttempts: true,
-			tryout: {
-				with: {
-					subtests: {
-						orderBy: (subtests, { asc }) => [asc(subtests.order)],
-					},
-				},
-			},
-		},
-	});
+export async function submitSubtest(
+	input: { tryoutId: number; subtestId: number },
+	userId: string,
+	deps: SubmitServiceDependencies = dependencies,
+) {
+	const attempt = await deps.findAttempt(input.tryoutId, userId);
 
 	if (!attempt) throw errors.BAD_REQUEST({ message: "Gagal menemukan pengerjaan tryout." });
 
@@ -103,7 +111,7 @@ export async function submitSubtest(input: { tryoutId: number; subtestId: number
 		return { success: true as const, tryoutCompleted: false as const, nextSubtestId: nextSubtest.id };
 	}
 
-	const scores = await calculateTryoutScores(attempt.id);
+	const scores = await deps.calculateScores(attempt.id);
 
 	await db
 		.transaction(async (tx) => {
@@ -117,7 +125,7 @@ export async function submitSubtest(input: { tryoutId: number; subtestId: number
 				.set({ status: "finished", completedAt: new Date() })
 				.where(eq(tryoutAttempt.id, attempt.id));
 
-			await saveScoresToDatabase(attempt.id, scores, tx);
+			await deps.saveScores(attempt.id, scores, tx);
 		})
 		.catch((e) => {
 			console.error(e);
@@ -136,18 +144,16 @@ export async function submitSubtest(input: { tryoutId: number; subtestId: number
  *
  * Throws a `TryoutError` when there is no ongoing attempt for this user and tryout.
  */
-export async function submitTryout(input: { tryoutId: number }, userId: string) {
-	const attempt = await db.query.tryoutAttempt.findFirst({
-		where: {
-			tryoutId: { eq: input.tryoutId },
-			userId: { eq: userId },
-			status: { eq: "ongoing" },
-		},
-	});
+export async function submitTryout(
+	input: { tryoutId: number },
+	userId: string,
+	deps: SubmitServiceDependencies = dependencies,
+) {
+	const attempt = await deps.findAttempt(input.tryoutId, userId);
 
 	if (!attempt) throw errors.BAD_REQUEST({ message: "Gagal menemukan pengerjaan tryout." });
 
-	const scores = await calculateTryoutScores(attempt.id);
+	const scores = await deps.calculateScores(attempt.id);
 
 	await db
 		.transaction(async (tx) => {
@@ -159,7 +165,7 @@ export async function submitTryout(input: { tryoutId: number }, userId: string) 
 				})
 				.where(eq(tryoutAttempt.id, attempt.id));
 
-			await saveScoresToDatabase(attempt.id, scores, tx);
+			await deps.saveScores(attempt.id, scores, tx);
 		})
 		.catch((e) => {
 			console.error(e);

@@ -8,6 +8,27 @@ import { hashAccessCode } from "@/lib/access-code";
 import { tryoutErrors as errors } from "@/lib/tryout/tryout-error";
 import { parseNullableInt } from "@/lib/utils";
 
+const dependencies = {
+	findTryout: async (id: number) =>
+		db.query.tryout.findFirst({
+			where: { id: { eq: id }, status: { eq: "published" } },
+			with: { subtests: { orderBy: (subtests, { asc }) => [asc(subtests.order)] } },
+		}),
+	findAccessCode: async (tryoutId: number, codeHash: string) =>
+		db.query.tryoutAccessCode.findFirst({
+			where: { tryoutId: { eq: tryoutId }, codeHash: { eq: codeHash } },
+			columns: { id: true, isActive: true, expiresAt: true, maxUses: true, usedCount: true },
+		}),
+	findAttempt: async (tryoutId: number, userId: string) =>
+		db.query.tryoutAttempt.findFirst({
+			where: { tryoutId: { eq: tryoutId }, userId: { eq: userId } },
+		}),
+	runInTransaction: <T>(fn: (trx: Parameters<Parameters<typeof db.transaction>[0]>[0]) => Promise<T>) =>
+		db.transaction(fn),
+};
+
+export type StartTryoutDependencies = typeof dependencies;
+
 /**
  * Creates a user's first attempt at a published tryout, or returns the attempt that already exists.
  *
@@ -33,18 +54,9 @@ import { parseNullableInt } from "@/lib/utils";
 export async function startTryout(
 	input: { id: number; imageUrl?: string; useCredit?: boolean; accessCode?: string },
 	userData: Pick<typeof auth.$Infer.Session.user, "id" | "isPremium" | "tryoutCredits">,
+	deps: StartTryoutDependencies = dependencies,
 ) {
-	const tryoutData = await db.query.tryout.findFirst({
-		where: {
-			id: { eq: input.id },
-			status: { eq: "published" },
-		},
-		with: {
-			subtests: {
-				orderBy: (subtests, { asc }) => [asc(subtests.order)],
-			},
-		},
-	});
+	const tryoutData = await deps.findTryout(input.id);
 
 	if (!tryoutData) throw errors.NOT_FOUND({ message: "Tryout tidak ditemukan" });
 
@@ -66,20 +78,7 @@ export async function startTryout(
 
 	if (accessCodeInput) {
 		const codeHash = hashAccessCode(accessCodeInput);
-		validAccessCode =
-			(await db.query.tryoutAccessCode.findFirst({
-				where: {
-					tryoutId: { eq: input.id },
-					codeHash: { eq: codeHash },
-				},
-				columns: {
-					id: true,
-					isActive: true,
-					expiresAt: true,
-					maxUses: true,
-					usedCount: true,
-				},
-			})) ?? null;
+		validAccessCode = (await deps.findAccessCode(input.id, codeHash)) ?? null;
 
 		if (!validAccessCode) {
 			throw errors.FORBIDDEN({ message: "Kode akses tidak valid" });
@@ -124,12 +123,7 @@ export async function startTryout(
 		});
 	}
 
-	const existingAttempt = await db.query.tryoutAttempt.findFirst({
-		where: {
-			tryoutId: { eq: input.id },
-			userId: { eq: userData.id },
-		},
-	});
+	const existingAttempt = await deps.findAttempt(input.id, userData.id);
 
 	if (existingAttempt) {
 		if (existingAttempt.isRevoked) {
@@ -157,7 +151,7 @@ export async function startTryout(
 	const overallDeadline = deadlineMap.get(tryoutData.subtests[tryoutData.subtests.length - 1]!.id)!;
 
 	// Use a transaction to atomically create attempt and deduct credits if needed
-	const attempt = await db.transaction(async (trx) => {
+	const attempt = await deps.runInTransaction(async (trx) => {
 		const [newAttempt] = await trx
 			.insert(tryoutAttempt)
 			.values({

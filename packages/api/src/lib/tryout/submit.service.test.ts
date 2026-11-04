@@ -1,8 +1,6 @@
-import { afterAll, afterEach, describe, expect, spyOn, test } from "bun:test";
-import { db } from "@bimbelbeta/db";
-import { submitSubtest, submitTryout } from "./submit.service";
+import { describe, expect, test } from "bun:test";
+import { type SubmitServiceDependencies, submitSubtest, submitTryout } from "./submit.service";
 
-const findAttempt = spyOn(db.query.tryoutAttempt, "findFirst");
 const attempt = {
 	id: 1,
 	userId: "user-1",
@@ -18,28 +16,34 @@ const attempt = {
 	usedAccessCode: false,
 	accessCodeId: null,
 	subtestAttempts: [],
+	tryout: null,
 };
 
-afterEach(() => findAttempt.mockReset());
-afterAll(() => findAttempt.mockRestore());
+function deps(overrides: Partial<SubmitServiceDependencies> = {}): SubmitServiceDependencies {
+	return {
+		findAttempt: async () => undefined,
+		runInTransaction: async (fn) => fn(null as never),
+		calculateScores: async () => ({ subtests: [], totalScore: 0 }),
+		saveScores: async () => {},
+		...overrides,
+	};
+}
 
 describe("tryout submission", () => {
 	test("requires an active attempt for both submission workflows", async () => {
-		findAttempt.mockResolvedValueOnce(undefined);
-		await expect(submitSubtest({ tryoutId: 2, subtestId: 3 }, "user-1")).rejects.toMatchObject({
+		await expect(submitSubtest({ tryoutId: 2, subtestId: 3 }, "user-1", deps())).rejects.toMatchObject({
 			code: "BAD_REQUEST",
 			message: "Gagal menemukan pengerjaan tryout.",
 		});
-		findAttempt.mockResolvedValueOnce(undefined);
-		await expect(submitTryout({ tryoutId: 2 }, "user-1")).rejects.toMatchObject({
+		await expect(submitTryout({ tryoutId: 2 }, "user-1", deps())).rejects.toMatchObject({
 			code: "BAD_REQUEST",
 			message: "Gagal menemukan pengerjaan tryout.",
 		});
 	});
 
 	test("rejects submission of an inactive subtest", async () => {
-		findAttempt.mockResolvedValueOnce(attempt);
-		await expect(submitSubtest({ tryoutId: 2, subtestId: 3 }, "user-1")).rejects.toMatchObject({
+		const withAttempt = deps({ findAttempt: async () => attempt });
+		await expect(submitSubtest({ tryoutId: 2, subtestId: 3 }, "user-1", withAttempt)).rejects.toMatchObject({
 			code: "BAD_REQUEST",
 			message: "Subtest tidak aktif",
 		});

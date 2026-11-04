@@ -3,8 +3,7 @@ import { transaction } from "@bimbelbeta/db/schema/transaction";
 import { and, eq } from "drizzle-orm";
 import { authedNoPremiumImplementer } from "@/lib/router-definition";
 import { baseImplementer } from "@/lib/router-definition/base";
-import { notificationService, subscriptionService } from "@/lib/transactions/composition";
-import { midtransProvider } from "@/lib/transactions/providers/midtrans";
+import { notificationService, subscriptionService, verifyNotification } from "@/lib/transactions/composition";
 
 const pub = baseImplementer;
 const authed = authedNoPremiumImplementer;
@@ -26,7 +25,7 @@ const subscribe = authed.transaction.subscribe.handler(async ({ input, context, 
 const notification = pub.transaction.notification.handler(async ({ input, errors }) => {
 	let verified: boolean;
 	try {
-		verified = midtransProvider.verifyNotification(input);
+		verified = verifyNotification(input);
 	} catch {
 		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memverifikasi pembayaran." });
 	}

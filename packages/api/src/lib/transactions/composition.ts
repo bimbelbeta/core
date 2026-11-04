@@ -5,6 +5,8 @@ import { midtransProvider } from "@/lib/transactions/providers/midtrans";
 import { paymentRepository } from "@/lib/transactions/repository";
 import { createSubscriptionService } from "@/lib/transactions/subscription.service";
 
+export const verifyNotification = midtransProvider.verifyNotification;
+
 export const subscriptionService = createSubscriptionService({
 	repository: paymentRepository,
 	createCheckout: midtransProvider.createCheckout,

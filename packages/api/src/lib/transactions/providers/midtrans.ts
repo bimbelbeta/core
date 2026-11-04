@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, timingSafeEqual } from "node:crypto";
 import { Snap } from "midtrans-client";
 import { PaymentError } from "@/lib/transactions/errors";
 import type { Checkout, CheckoutInput, PaymentProvider, PaymentStatus } from "@/lib/transactions/types";
@@ -54,8 +54,11 @@ export function signatureMatches({
 	signatureKey: string;
 	serverKey: string;
 }): boolean {
-	const expected = createHash("sha512").update(`${orderId}${statusCode}${grossAmount}${serverKey}`).digest("hex");
-	return expected === signatureKey;
+	const expected = Buffer.from(
+		createHash("sha512").update(`${orderId}${statusCode}${grossAmount}${serverKey}`).digest("hex"),
+	);
+	const provided = Buffer.from(signatureKey);
+	return expected.length === provided.length && timingSafeEqual(expected, provided);
 }
 
 function getServerKey(): string {

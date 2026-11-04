@@ -4,6 +4,32 @@ This document contains incremental updates, patch logs, and developer instructio
 
 ---
 
+## Payment Provider Layer
+
+### Goal
+
+Keep provider-specific payment behaviour in one adapter so adding a provider does not touch business rules.
+
+### Action Required for Developers / Admins
+
+**Update the Midtrans notification URL before deploying.** Nothing in the repository configures it; it lives in the Midtrans dashboard. The path gained a provider segment:
+
+- Old: `https://<server-host>/api-reference/transactions/notification`
+- New: `https://<server-host>/api-reference/transactions/notification/midtrans`
+
+If the dashboard keeps the old URL, every notification 404s, orders stay `pending`, and no premium time or credits are granted.
+
+`MIDTRANS_SERVER_KEY` is now required. Webhook verification fails instead of accepting signatures computed against an empty key.
+
+### Code Changes & Logic
+
+- **Providers**: `packages/api/src/lib/transactions/providers/midtrans.ts` owns checkout creation, signature verification, and status fetching. It maps Midtrans statuses to `paid`, `pending`, `failed`, or `unknown`, and maps provider failures to internal codes (`INVALID_PAYLOAD`, `PROVIDER_UNAVAILABLE`, `PROVIDER_REJECTED`, `CONFIGURATION_ERROR`).
+- **Composition**: `packages/api/src/lib/transactions/composition.ts` is the only module that names a provider.
+- **Replay**: the success transition claims the order with `paid_at IS NULL`, so a repeated or concurrent notification cannot grant benefits twice.
+- **Contracts**: `subscribe` returns `provider` and an optional `token`; clients fall back to `redirectUrl` when no token is returned.
+
+---
+
 ## Direct Login with Username or Email
 
 ### Goal

@@ -1,6 +1,6 @@
 import { db } from "@bimbelbeta/db";
 import { product, transaction } from "@bimbelbeta/db/schema/transaction";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import type { TransactionWithProduct } from "@/lib/transactions/types";
 
 type Database = Pick<typeof db, "select" | "insert" | "update">;
@@ -43,7 +43,10 @@ export const createPaymentRepository = (database: Database) => ({
 	},
 
 	async updateStatus(orderId: string, status: "failed" | "pending") {
-		await database.update(transaction).set({ status }).where(eq(transaction.id, orderId));
+		await database
+			.update(transaction)
+			.set({ status })
+			.where(and(eq(transaction.id, orderId), isNull(transaction.paidAt)));
 	},
 });
 
