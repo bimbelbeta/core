@@ -1,5 +1,7 @@
 import { CheckIcon, SpinnerIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Typography } from "@/components/ui/typography";
 import { PAYMENTS_COMING_SOON_LABEL, PAYMENTS_ENABLED } from "@/lib/billing-config";
 import { formatRupiah } from "@/lib/formatter";
 import { cn } from "@/lib/utils";
@@ -51,9 +53,10 @@ export function PackageCard({
 	})();
 
 	return (
-		<div
+		<Card
+			variant="flush"
 			className={cn(
-				"rounded-default flex h-full flex-col border border-neutral-200 bg-neutral-100 p-6",
+				"rounded-default h-full border-neutral-200 bg-neutral-100 p-6 shadow-none",
 				isPremiumPackage && "ring-primary-100 ring-2",
 			)}
 		>
@@ -64,17 +67,23 @@ export function PackageCard({
 			)}
 
 			<div className="mb-4">
-				<h3 className={cn("font-medium", isPremiumPackage ? "text-lg" : "text-base")}>{name}</h3>
+				<Typography variant={isPremiumPackage ? "subtitle1" : "subtitle2"} as="h3">
+					{name}
+				</Typography>
 
 				<div className="flex flex-wrap items-center gap-x-2">
-					<p className={cn("font-bold", isPremiumPackage ? "text-primary-600 text-2xl" : "text-xl text-neutral-900")}>
+					<Typography
+						variant={isPremiumPackage ? "title" : "subtitle1"}
+						as="p"
+						className={isPremiumPackage ? "text-primary-600" : "text-neutral-900"}
+					>
 						{formatRupiah(price)}
-					</p>
+					</Typography>
 					{isPremiumPackage && premiumSubtitle && <span className="text-sm text-neutral-500">{premiumSubtitle}</span>}
 				</div>
 			</div>
 
-			<p className="mb-4 text-sm text-neutral-600">
+			<Typography className="mb-4 text-neutral-600">
 				{isPremiumPackage ? (
 					"Akses penuh ke semua materi, tryout tanpa batas, dan fitur eksklusif."
 				) : (
@@ -83,7 +92,7 @@ export function PackageCard({
 						pilihanmu.
 					</>
 				)}
-			</p>
+			</Typography>
 
 			{credits && credits > 1 && isCreditsPackage && (
 				<div className="mb-4">
@@ -123,6 +132,6 @@ export function PackageCard({
 					"Beli Sekarang"
 				)}
 			</Button>
-		</div>
+		</Card>
 	);
 }

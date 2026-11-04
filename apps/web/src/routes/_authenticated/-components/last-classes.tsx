@@ -4,6 +4,7 @@ import { Link } from "@tanstack/react-router";
 import { LastContentViewedCard } from "@/components/classes/last-content-viewed-card";
 // import { LastContentViewedCard } from "@/components/classes";
 import { Button } from "@/components/ui/button";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 
 export const LastClasses = () => {
@@ -12,7 +13,9 @@ export const LastClasses = () => {
 	if (isPending) {
 		return (
 			<section>
-				<h2 className="mb-2 font-medium">Kelas terakhirmu</h2>
+				<Typography variant="subtitle1" className="mb-2">
+					Kelas terakhirmu
+				</Typography>
 				<div className="animate-pulse space-y-2">
 					<div className="h-32 rounded-md bg-neutral-200" />
 					<div className="h-32 rounded-md bg-neutral-200" />
@@ -24,10 +27,10 @@ export const LastClasses = () => {
 	if (!data || data.length === 0) {
 		return (
 			<section className="">
-				<h2 className="font-medium">Kelas terakhirmu</h2>
+				<Typography variant="subtitle1">Kelas terakhirmu</Typography>
 				<div className="flex flex-col items-center justify-center space-y-3 py-8 text-center">
 					<WarningCircleIcon size={80} />
-					<p className="text-xl text-black">Kamu belum melihat kelas apapun</p>
+					<Typography className="text-black">Kamu belum melihat kelas apapun</Typography>
 					<Button asChild>
 						<Link to="/classes">
 							Belajar Sekarang <ArrowRightIcon className="" />
@@ -40,7 +43,9 @@ export const LastClasses = () => {
 
 	return (
 		<section>
-			<h2 className="mb-4 text-xl font-medium">Kelas Terakhir</h2>
+			<Typography variant="subtitle1" className="mb-4">
+				Kelas Terakhir
+			</Typography>
 			<div className="space-y-6">
 				{data.map((view, idx) => (
 					<LastContentViewedCard

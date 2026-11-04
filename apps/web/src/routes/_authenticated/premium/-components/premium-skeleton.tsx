@@ -29,26 +29,34 @@ export function PremiumSkeleton() {
 				{/* Premium Cards Skeleton - 2 columns */}
 				<div className="grid gap-4 md:grid-cols-2">
 					{[1, 2].map((i) => (
-						<div key={i} className="rounded-default flex h-full flex-col border border-neutral-200 bg-neutral-100 p-6">
+						<Card
+							variant="flush"
+							key={i}
+							className="rounded-default h-full border-neutral-200 bg-neutral-100 p-6 shadow-none"
+						>
 							<Skeleton className="mb-4 h-6 w-24" />
 							<Skeleton className="mb-4 h-8 w-32" />
 							<Skeleton className="mb-4 h-4 w-full" />
 							<Skeleton className="mb-4 h-4 w-3/4" />
 							<Skeleton className="mt-auto h-10 w-full rounded-lg" />
-						</div>
+						</Card>
 					))}
 				</div>
 
 				{/* Credits Cards Skeleton - 4 columns */}
 				<div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
 					{[1, 2, 3, 4].map((i) => (
-						<div key={i} className="rounded-default flex h-full flex-col border border-neutral-200 bg-neutral-100 p-5">
+						<Card
+							variant="flush"
+							key={i}
+							className="rounded-default h-full border-neutral-200 bg-neutral-100 p-5 shadow-none"
+						>
 							<Skeleton className="mb-2 h-5 w-28" />
 							<Skeleton className="mb-4 h-6 w-24" />
 							<Skeleton className="mb-2 h-4 w-full" />
 							<Skeleton className="mb-4 h-4 w-3/4" />
 							<Skeleton className="mt-auto h-9 w-full rounded-lg" />
-						</div>
+						</Card>
 					))}
 				</div>
 			</div>
