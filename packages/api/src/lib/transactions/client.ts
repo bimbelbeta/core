@@ -18,12 +18,12 @@ export async function createSubscriptionTransaction({
 	id,
 	name,
 	price,
-	session,
+	user,
 }: {
 	id: string;
 	name: string;
 	price: string;
-	session: typeof auth.$Infer.Session;
+	user: Pick<typeof auth.$Infer.Session.user, "name" | "email">;
 }) {
 	const params = {
 		transaction_details: {
@@ -38,8 +38,8 @@ export async function createSubscriptionTransaction({
 			},
 		],
 		customer_details: {
-			first_name: session.user.name,
-			email: session.user.email,
+			first_name: user.name,
+			email: user.email,
 		},
 		credit_card: { secure: true },
 		callbacks: {

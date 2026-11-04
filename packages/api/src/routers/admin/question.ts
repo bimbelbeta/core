@@ -4,75 +4,21 @@ import { and, asc, desc, eq, gt, inArray, like, lt, sql } from "drizzle-orm";
 import { normalizeQuestionContent, readTiptapContent } from "@/lib/content-utils";
 import { requireCreated, requireFound } from "@/lib/crud-helpers";
 import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
+import { questionService } from "@/lib/questions/question.service";
 import { adminImplementer } from "@/lib/router-definition";
 
 const admin = adminImplementer;
 
 const create = admin.admin.tryout.questions.create.handler(async ({ input, errors }) => {
-	const choices = input.choices;
-	const { contentJson, discussionJson, contentText, discussionText } = normalizeQuestionContent(input);
-
-	if (input.type === "multiple_choice") {
-		if (!choices || choices.length < 2) {
-			throw errors.BAD_REQUEST({
-				message: "Multiple choice harus memiliki minimal 2 pilihan",
-			});
-		}
-
-		const correctCount = choices.filter((choice) => choice.isCorrect).length;
-		if (correctCount !== 1) {
-			throw errors.BAD_REQUEST({
-				message: "Multiple choice harus memiliki tepat 1 pilihan yang benar",
-			});
-		}
-	}
-
-	if (input.type === "multiple_choice_complex") {
-		if (!choices || choices.length < 2) {
-			throw errors.BAD_REQUEST({
-				message: "Pilihan majemuk kompleks harus memiliki minimal 2 pilihan",
-			});
-		}
-		// Flexible: allows 0, 1, or multiple correct answers
-	}
-
-	const result = await db.transaction(async (tx) => {
-		const newQuestion = requireCreated(
-			await tx
-				.insert(question)
-				.values({
-					type: input.type,
-					content: contentText,
-					discussion: discussionText,
-					contentJson,
-					discussionJson,
-					tags: input.tags ?? [],
-					essayCorrectAnswer: input.essayCorrectAnswer,
-				})
-				.returning(),
-			"question",
-			errors,
-		);
-
-		if ((input.type === "multiple_choice" || input.type === "multiple_choice_complex") && choices) {
-			const choiceCodes = ["A", "B", "C", "D", "E", "F", "G"] as const;
-			const choicesToInsert = choices.map((choice, index: number) => ({
-				questionId: newQuestion.id,
-				code: choiceCodes[index] || "A",
-				content: choice.content,
-				isCorrect: choice.isCorrect,
-			}));
-
-			await tx.insert(questionChoice).values(choicesToInsert);
-		}
-
-		return newQuestion.id;
-	});
-
-	return {
-		message: "Question berhasil dibuat",
-		id: result,
-	};
+	const result = await questionService.create(input);
+	if (result.status === "too_few_choices")
+		throw errors.BAD_REQUEST({ message: "Multiple choice harus memiliki minimal 2 pilihan" });
+	if (result.status === "incorrect_choice_count")
+		throw errors.BAD_REQUEST({ message: "Multiple choice harus memiliki tepat 1 pilihan yang benar" });
+	if (result.status === "too_few_complex_choices")
+		throw errors.BAD_REQUEST({ message: "Pilihan majemuk kompleks harus memiliki minimal 2 pilihan" });
+	if (result.status === "creation_failed") throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal membuat question" });
+	return { message: "Question berhasil dibuat", id: result.id };
 });
 
 const list = admin.admin.tryout.questions.list.handler(async ({ input }) => {
