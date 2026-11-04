@@ -6,6 +6,7 @@ import { type } from "arktype";
 import { Activity, useEffect } from "react";
 import ErrorComponent from "@/components/shared/error";
 import { Button } from "@/components/ui/button";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 import { TargetSelectionDialog } from "@/routes/_authenticated/-components/target-selection-dialog";
 import { GuidelineActivity } from "./-components/guideline-activity";
@@ -66,8 +67,10 @@ function TryoutHeader({ creditBalance, level }: { creditBalance: number; level: 
 				</div>
 
 				<div className="z-10 max-w-xl space-y-1 sm:col-span-2">
-					<h1 className="text-2xl leading-tight font-bold text-white">{currentLevel.title}</h1>
-					<p className="leading-5 text-black">{currentLevel.description}</p>
+					<Typography variant="title" className="leading-tight text-white">
+						{currentLevel.title}
+					</Typography>
+					<Typography className="leading-5 text-black">{currentLevel.description}</Typography>
 
 					{creditBalance > 0 ? (
 						<div className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-2">

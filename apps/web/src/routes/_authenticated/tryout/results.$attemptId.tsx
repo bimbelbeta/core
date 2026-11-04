@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Typography } from "@/components/ui/typography";
 import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
@@ -81,7 +82,7 @@ function RouteComponent() {
 					</Link>
 				</Button>
 
-				<h1 className="text-3xl font-semibold">Berikut Hasil Tryoutmu!</h1>
+				<Typography variant="display">Berikut Hasil Tryoutmu!</Typography>
 			</div>
 
 			{/* Score Cards */}
@@ -106,9 +107,9 @@ function RouteComponent() {
 							<CardTitle className="text-muted-foreground text-sm font-medium">
 								Passing Grade
 								{target.data?.studyProgram && (
-									<p className="text-xs">
+									<Typography variant="caption">
 										{target.data.studyProgram.name} {target.data.university.name}
-									</p>
+									</Typography>
 								)}
 							</CardTitle>
 							<Badge
@@ -135,11 +136,13 @@ function RouteComponent() {
 			{/* Details Section */}
 			<div className="space-y-6">
 				<div className="space-y-1">
-					<h2 className="text-2xl font-semibold">Lihat Lebih Detail</h2>
-					<p className="text-muted-foreground">Buka untuk melihat setiap jawabanmu</p>
+					<Typography variant="title" as="h2">
+						Lihat Lebih Detail
+					</Typography>
+					<Typography tone="muted">Buka untuk melihat setiap jawabanmu</Typography>
 				</div>
 
-				<div className="overflow-hidden rounded-lg border bg-white shadow-sm">
+				<Card variant="flush">
 					<Table>
 						<TableHeader className="bg-blue-50/50">
 							<TableRow className="hover:bg-blue-50/50">
@@ -186,7 +189,7 @@ function RouteComponent() {
 							})}
 						</TableBody>
 					</Table>
-				</div>
+				</Card>
 			</div>
 
 			<Dialog open={showPremiumDialog} onOpenChange={setShowPremiumDialog}>

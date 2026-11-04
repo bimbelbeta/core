@@ -1,4 +1,7 @@
+import { ROLES, type Role } from "@bimbelbeta/contract/common/roles";
 import { ShieldCheckIcon, ShieldPlusIcon, UserIcon } from "@phosphor-icons/react";
+
+export const isValidRole = (value: string | null): value is Role => Object.values(ROLES).some((role) => role === value);
 
 export function getInitials(name: string) {
 	return name

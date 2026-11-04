@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 
 export function ResultsActivity() {
@@ -22,7 +23,9 @@ export function ResultsActivity() {
 			) : attempts.data?.length === 0 || attempts.isError ? (
 				<div className="col-span-full flex flex-col items-center justify-center space-y-3 py-8 text-center">
 					<WarningCircleIcon size={80} />
-					<p className="text-xl">Kamu belum mengikuti tryout apapun</p>
+					<Typography variant="subtitle1" as="p">
+						Kamu belum mengikuti tryout apapun
+					</Typography>
 					<Button asChild>
 						<Link to="/tryout">
 							Mulai Tryout <ArrowRightIcon className="" />
@@ -61,7 +64,7 @@ type ResultCardProps = {
 const ResultCard = memo(function ResultCard({ attemptId, title, score }: ResultCardProps) {
 	return (
 		<Card className="flex flex-col gap-2 p-4">
-			<h3 className="text-base">{title}</h3>
+			<Typography variant="subtitle2">{title}</Typography>
 			<Separator className="my-0" />
 			<div className="text-muted-foreground translate-y-1 text-base">Total Score</div>
 			<div className="mt-auto flex items-center justify-between">

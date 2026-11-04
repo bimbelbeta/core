@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 import { AddSubtestDialog } from "./add-subtest-dialog";
 
@@ -93,11 +94,11 @@ export function TryoutSubtestsTab({ tryoutId, subtests, onUpdate }: TryoutSubtes
 							<div className="bg-muted mb-4 flex size-12 items-center justify-center rounded-full">
 								<FileTextIcon className="text-muted-foreground size-6" />
 							</div>
-							<h3 className="font-semibold">Belum ada subtest</h3>
-							<p className="text-muted-foreground mt-1 mb-6 max-w-sm text-sm">
+							<Typography variant="subtitle2">Belum ada subtest</Typography>
+							<Typography variant="body" tone="muted" className="mt-1 mb-6 max-w-sm">
 								Tryout ini belum memiliki subtest. Tambahkan subtest untuk mulai membuat soal dan mengatur durasi
 								pengerjaan.
-							</p>
+							</Typography>
 							<Button onClick={() => setIsAddDialogOpen(true)}>
 								<PlusIcon className="mr-2 size-4" />
 								Buat Subtest Pertama
@@ -134,7 +135,9 @@ export function TryoutSubtestsTab({ tryoutId, subtests, onUpdate }: TryoutSubtes
 												>
 													<span className="font-medium group-hover/link:underline">{subtest.name}</span>
 													{subtest.description && (
-														<p className="text-muted-foreground line-clamp-1 text-xs">{subtest.description}</p>
+														<Typography variant="caption" tone="muted" className="line-clamp-1">
+															{subtest.description}
+														</Typography>
 													)}
 												</Link>
 											</TableCell>

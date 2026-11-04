@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { toast } from "sonner";
+import { Item } from "@/components/ui/item";
 import { useDebouncedMutation } from "@/hooks/use-debounced-mutation";
 import type { BodyOutputs } from "@/lib/orpc";
 import { orpc } from "@/lib/orpc";
@@ -113,37 +114,45 @@ export function AnswerPanel() {
 							const isSelected = selectedComplexIds.includes(choice.id);
 
 							return (
-								<button
+								<Item
 									key={choice.id}
-									type="button"
-									aria-pressed={isSelected}
-									disabled={saveAnswerMutation.isPending}
-									onClick={() => handleToggleComplexCorrect(choice.id)}
+									variant="outline"
+									selected={isSelected}
+									asChild
 									className={cn(
-										"flex w-full items-start justify-between gap-3 rounded-lg border p-4 text-left transition-all",
-										isSelected ? "border-primary bg-primary/5" : "border-border hover:bg-secondary/5",
+										"w-full flex-nowrap items-start justify-between gap-3 rounded-lg text-left text-base",
+										!isSelected && "hover:bg-secondary/5",
 										saveAnswerMutation.isPending && "opacity-50",
 									)}
 								>
-									<span className="min-w-0 flex-1 break-words whitespace-normal">{choice.content}</span>
-									<span
-										className={cn(
-											"flex size-8 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
-											isSelected ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background",
-										)}
+									<button
+										type="button"
+										aria-pressed={isSelected}
+										disabled={saveAnswerMutation.isPending}
+										onClick={() => handleToggleComplexCorrect(choice.id)}
 									>
-										{isSelected && (
-											<svg className="size-4" fill="currentColor" viewBox="0 0 20 20">
-												<title>Selected</title>
-												<path
-													fillRule="evenodd"
-													d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-													clipRule="evenodd"
-												/>
-											</svg>
-										)}
-									</span>
-								</button>
+										<span className="min-w-0 flex-1 break-words whitespace-normal">{choice.content}</span>
+										<span
+											className={cn(
+												"flex size-8 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
+												isSelected
+													? "border-primary bg-primary text-primary-foreground"
+													: "border-border bg-background",
+											)}
+										>
+											{isSelected && (
+												<svg className="size-4" fill="currentColor" viewBox="0 0 20 20">
+													<title>Selected</title>
+													<path
+														fillRule="evenodd"
+														d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+														clipRule="evenodd"
+													/>
+												</svg>
+											)}
+										</span>
+									</button>
+								</Item>
 							);
 						})}
 					</div>
@@ -175,25 +184,27 @@ function AnswerOption({
 	disabled: boolean;
 }) {
 	return (
-		<button
-			type="button"
-			disabled={disabled}
-			onClick={onSelect}
+		<Item
+			variant="outline"
+			selected={selected}
+			asChild
 			className={cn(
-				"flex items-center gap-3 rounded-md border p-4 text-start transition-all",
-				selected ? "border-primary bg-primary/5" : "border-border hover:bg-secondary/5",
+				"flex-nowrap gap-3 text-start text-base",
+				!selected && "hover:bg-secondary/5",
 				disabled && "opacity-50",
 			)}
 		>
-			<span
-				className={cn(
-					"border-foreground/20 rounded-xs border px-2.5 py-0.5 text-sm font-medium",
-					selected && "bg-primary text-primary-foreground",
-				)}
-			>
-				{code}
-			</span>
-			{content}
-		</button>
+			<button type="button" aria-pressed={selected} disabled={disabled} onClick={onSelect}>
+				<span
+					className={cn(
+						"border-foreground/20 rounded-xs border px-2.5 py-0.5 text-sm font-medium",
+						selected && "bg-primary text-primary-foreground",
+					)}
+				>
+					{code}
+				</span>
+				{content}
+			</button>
+		</Item>
 	);
 }

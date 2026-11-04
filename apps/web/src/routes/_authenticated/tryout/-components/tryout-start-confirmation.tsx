@@ -13,6 +13,7 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 import { AccessCodeInput } from "./access-code-input";
 import { CreditOption } from "./credit-option";
@@ -168,7 +169,7 @@ export function TryoutStartConfirmation({ children, disabled = false, tryoutId }
 								disabled={startTryoutMutation.isPending}
 							/>
 							{(errors || startErrorMessage) && (
-								<p className="text-destructive text-sm">{errors ?? startErrorMessage}</p>
+								<Typography tone="destructive">{errors ?? startErrorMessage}</Typography>
 							)}
 							<DialogFooter>
 								<Button
@@ -196,7 +197,7 @@ export function TryoutStartConfirmation({ children, disabled = false, tryoutId }
 					</DialogFooter>
 				)}
 				{step === "notice" && (errors || startErrorMessage) && (
-					<p className="text-destructive text-sm">{errors ?? startErrorMessage}</p>
+					<Typography tone="destructive">{errors ?? startErrorMessage}</Typography>
 				)}
 			</DialogContent>
 		</Dialog>
