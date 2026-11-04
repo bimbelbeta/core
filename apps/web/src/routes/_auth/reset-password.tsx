@@ -79,10 +79,10 @@ function ResetPasswordForm() {
 	return (
 		<div className="w-full max-w-md">
 			<Image src="/avatar/study-avatar.webp" alt="Study Avatar" width={128} height={128} className="mx-auto" />
-			<div className="w-full rounded-sm border border-primary/50 bg-white p-8 shadow-lg">
+			<div className="border-primary/50 w-full rounded-sm border bg-white p-8 shadow-lg">
 				<div className="flex flex-col items-center gap-2 text-center">
 					{" "}
-					<h1 className="text-3xl text-primary">
+					<h1 className="text-primary text-3xl">
 						<span className="font-bold">Reset </span>
 						Password
 					</h1>
@@ -112,7 +112,7 @@ function ResetPasswordForm() {
 										onChange={(e) => field.handleChange(e.target.value)}
 									/>
 									{field.state.meta.errors.map((error) => (
-										<p key={error?.message} className="text-red-500 text-xs">
+										<p key={error?.message} className="text-xs text-red-500">
 											{error?.message}
 										</p>
 									))}
@@ -135,7 +135,7 @@ function ResetPasswordForm() {
 										onChange={(e) => field.handleChange(e.target.value)}
 									/>
 									{field.state.meta.errors.map((error) => (
-										<p key={error?.message} className="text-red-500 text-xs">
+										<p key={error?.message} className="text-xs text-red-500">
 											{error?.message}
 										</p>
 									))}
@@ -156,7 +156,7 @@ function ResetPasswordForm() {
 
 			<p className="mt-4 text-center text-sm">
 				Sudah punya akun?{" "}
-				<Link to="/login" className="font-bold text-primary">
+				<Link to="/login" className="text-primary font-bold">
 					Masuk
 				</Link>
 			</p>

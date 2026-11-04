@@ -53,13 +53,13 @@ export function PackageCard({
 	return (
 		<div
 			className={cn(
-				"flex h-full flex-col rounded-default border border-neutral-200 bg-neutral-100 p-6",
-				isPremiumPackage && "ring-2 ring-primary-100",
+				"rounded-default flex h-full flex-col border border-neutral-200 bg-neutral-100 p-6",
+				isPremiumPackage && "ring-primary-100 ring-2",
 			)}
 		>
 			{isPremiumPackage && (
-				<div className="mb-4 inline-flex items-center gap-1.5 self-start rounded-full bg-primary-100 px-3 py-1">
-					<span className="font-medium text-primary-700 text-xs">Premium</span>
+				<div className="bg-primary-100 mb-4 inline-flex items-center gap-1.5 self-start rounded-full px-3 py-1">
+					<span className="text-primary-700 text-xs font-medium">Premium</span>
 				</div>
 			)}
 
@@ -67,14 +67,14 @@ export function PackageCard({
 				<h3 className={cn("font-medium", isPremiumPackage ? "text-lg" : "text-base")}>{name}</h3>
 
 				<div className="flex flex-wrap items-center gap-x-2">
-					<p className={cn("font-bold", isPremiumPackage ? "text-2xl text-primary-600" : "text-neutral-900 text-xl")}>
+					<p className={cn("font-bold", isPremiumPackage ? "text-primary-600 text-2xl" : "text-xl text-neutral-900")}>
 						{formatRupiah(price)}
 					</p>
-					{isPremiumPackage && premiumSubtitle && <span className="text-neutral-500 text-sm">{premiumSubtitle}</span>}
+					{isPremiumPackage && premiumSubtitle && <span className="text-sm text-neutral-500">{premiumSubtitle}</span>}
 				</div>
 			</div>
 
-			<p className="mb-4 text-neutral-600 text-sm">
+			<p className="mb-4 text-sm text-neutral-600">
 				{isPremiumPackage ? (
 					"Akses penuh ke semua materi, tryout tanpa batas, dan fitur eksklusif."
 				) : (
@@ -87,7 +87,7 @@ export function PackageCard({
 
 			{credits && credits > 1 && isCreditsPackage && (
 				<div className="mb-4">
-					<div className="flex items-center gap-1 text-green-600 text-xs">
+					<div className="flex items-center gap-1 text-xs text-green-600">
 						<CheckIcon size={12} weight="bold" />
 						<span>Hemat {formatRupiah(Number.parseFloat(price) / credits)}/tryout</span>
 					</div>
@@ -96,7 +96,7 @@ export function PackageCard({
 
 			{isPremiumPackage && credits && credits > 0 && (
 				<div className="mb-4">
-					<div className="flex items-center gap-1 text-green-600 text-xs">
+					<div className="flex items-center gap-1 text-xs text-green-600">
 						<CheckIcon size={12} weight="bold" />
 						<span>Bonus: {credits} kredit tryout</span>
 					</div>

@@ -24,7 +24,7 @@ export function CreditOption({ onUseCredit, isLoading = false }: CreditOptionPro
 				</div>
 				<div className="flex-1">
 					<p className="font-medium text-amber-900">Gunakan Kredit Tryout</p>
-					<p className="text-amber-700 text-sm">
+					<p className="text-sm text-amber-700">
 						Kamu punya <strong>{balance}</strong> kredit
 					</p>
 				</div>

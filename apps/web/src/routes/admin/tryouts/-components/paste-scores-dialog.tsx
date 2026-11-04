@@ -78,7 +78,7 @@ export function PasteScoresDialog({ open, onOpenChange, expectedCount, onPaste }
 						rows={10}
 						className="font-mono"
 					/>
-					{error && <p className="text-red-500 text-sm">{error}</p>}
+					{error && <p className="text-sm text-red-500">{error}</p>}
 				</div>
 				<DialogFooter>
 					<Button type="button" variant="outline" onClick={() => handleClose(false)}>

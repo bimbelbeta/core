@@ -59,7 +59,7 @@ export function TagInput({
 							type="button"
 							variant="ghost"
 							size="icon"
-							className="size-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
+							className="hover:bg-destructive hover:text-destructive-foreground size-4 p-0"
 							onClick={() => handleRemoveTag(tag)}
 						>
 							<XIcon className="size-3" />

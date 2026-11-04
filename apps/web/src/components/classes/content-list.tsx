@@ -107,7 +107,7 @@ export function ContentList({
 	return (
 		<div className="">
 			<div className="flex items-center justify-between">
-				{title && <h3 className="font-semibold text-lg">{title}</h3>}
+				{title && <h3 className="text-lg font-semibold">{title}</h3>}
 				{isAdmin && onCreate && activeFilter !== "all" && (
 					<Button type="button" variant="destructive" size="sm" onClick={onCreate} className="mb-4">
 						<PlusIcon size={16} className="mr-2" weight="bold" />
@@ -118,12 +118,12 @@ export function ContentList({
 			</div>
 
 			{showCount && searchQuery && items && (
-				<p className="mb-4 text-muted-foreground text-sm">
+				<p className="text-muted-foreground mb-4 text-sm">
 					{items.length} hasil untuk "{searchQuery}"
 				</p>
 			)}
 
-			{error && <p className="text-red-500 text-sm">{error}</p>}
+			{error && <p className="text-sm text-red-500">{error}</p>}
 
 			{!isLoading && !error && (!localItems || localItems.length === 0) && <EmptyContentState />}
 

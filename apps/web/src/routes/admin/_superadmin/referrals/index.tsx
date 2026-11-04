@@ -342,7 +342,7 @@ function ReferralListPage() {
 											)}
 										</AdminTableCell>
 										<AdminTableCell>
-											<code className="rounded bg-muted px-2 py-0.5 font-mono font-semibold text-sm tracking-wide">
+											<code className="bg-muted rounded px-2 py-0.5 font-mono text-sm font-semibold tracking-wide">
 												{item.code}
 											</code>
 										</AdminTableCell>
@@ -361,7 +361,7 @@ function ReferralListPage() {
 											<span className="text-sm">{item.premiumDays} hari</span>
 										</AdminTableCell>
 										<AdminTableCell className="pr-4 text-right">
-											<div className="flex items-center justify-end gap-1 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
+											<div className="flex items-center justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
 												<Button
 													variant="ghost"
 													size="icon"
@@ -371,7 +371,7 @@ function ReferralListPage() {
 													id={`toggle-status-${item.id}`}
 												>
 													{item.status ? (
-														<ProhibitIcon className="size-4 text-destructive" />
+														<ProhibitIcon className="text-destructive size-4" />
 													) : (
 														<CheckCircleIcon className="size-4 text-green-600" />
 													)}

@@ -43,7 +43,7 @@ export function AdminTableBulkActions({ selectedCount, children, className }: Ad
 	return (
 		<div
 			className={cn(
-				"flex items-center gap-2 rounded-md border border-primary-navy-200 bg-primary-navy-50 p-2",
+				"border-primary-navy-200 bg-primary-navy-50 flex items-center gap-2 rounded-md border p-2",
 				className,
 			)}
 		>

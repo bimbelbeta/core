@@ -65,7 +65,7 @@ function QuestionDetailPage() {
 					<Button variant="ghost" size="icon" onClick={() => router.history.back()}>
 						<ArrowLeftIcon className="size-4" />
 					</Button>
-					<h1 className="font-bold text-2xl text-primary-navy-900">Detail Soal</h1>
+					<h1 className="text-primary-navy-900 text-2xl font-bold">Detail Soal</h1>
 				</div>
 				<Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
 					<PencilSimpleIcon className="mr-2 size-4" />
@@ -95,13 +95,13 @@ function QuestionDetailPage() {
 					</CardHeader>
 					<CardContent className="space-y-6">
 						<div>
-							<h3 className="mb-2 font-medium text-muted-foreground text-sm">Konten Soal</h3>
+							<h3 className="text-muted-foreground mb-2 text-sm font-medium">Konten Soal</h3>
 							<TiptapRenderer content={question.content} className="prose prose-sm max-w-none rounded-md border p-4" />
 						</div>
 
 						{question.type === "multiple_choice" && choices && (
 							<div>
-								<h3 className="mb-2 font-medium text-muted-foreground text-sm">Pilihan Jawaban</h3>
+								<h3 className="text-muted-foreground mb-2 text-sm font-medium">Pilihan Jawaban</h3>
 								<div className="flex flex-col gap-2">
 									{choices.map((choice) => (
 										<div
@@ -113,7 +113,7 @@ function QuestionDetailPage() {
 										>
 											<span
 												className={cn(
-													"rounded-xs border border-foreground/20 px-2.5 py-0.5 font-medium text-sm",
+													"border-foreground/20 rounded-xs border px-2.5 py-0.5 text-sm font-medium",
 													choice.isCorrect && "border-green-500 bg-green-500 text-white",
 												)}
 											>
@@ -133,7 +133,7 @@ function QuestionDetailPage() {
 
 						{question.type === "multiple_choice_complex" && choices && (
 							<div>
-								<h3 className="mb-2 font-medium text-muted-foreground text-sm">Pilihan Jawaban</h3>
+								<h3 className="text-muted-foreground mb-2 text-sm font-medium">Pilihan Jawaban</h3>
 								<div className="rounded-lg border">
 									<Table>
 										<TableHeader>
@@ -175,17 +175,17 @@ function QuestionDetailPage() {
 
 						{Boolean(question.discussion) && (
 							<div>
-								<h3 className="mb-2 font-medium text-muted-foreground text-sm">Pembahasan</h3>
+								<h3 className="text-muted-foreground mb-2 text-sm font-medium">Pembahasan</h3>
 								<TiptapRenderer
 									content={question.discussion}
-									className="prose prose-sm max-w-none rounded-md border bg-muted/30 p-4"
+									className="prose prose-sm bg-muted/30 max-w-none rounded-md border p-4"
 								/>
 							</div>
 						)}
 
 						{question.tags && question.tags.length > 0 && (
 							<div>
-								<h3 className="mb-2 font-medium text-muted-foreground text-sm">Tags</h3>
+								<h3 className="text-muted-foreground mb-2 text-sm font-medium">Tags</h3>
 								<div className="flex flex-wrap gap-2">
 									{question.tags.map((tag) => (
 										<Badge key={tag} variant="outline">

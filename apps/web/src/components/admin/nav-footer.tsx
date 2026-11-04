@@ -29,7 +29,7 @@ export function NavFooter() {
 						</Avatar>
 						<div className="grid flex-1 text-left text-sm leading-tight">
 							<span className="truncate font-medium">{session?.user?.name || "Admin User"}</span>
-							<span className="truncate text-muted-foreground text-xs">{session?.user?.email || ""}</span>
+							<span className="text-muted-foreground truncate text-xs">{session?.user?.email || ""}</span>
 						</div>
 					</div>
 				</SidebarMenuItem>

@@ -22,13 +22,13 @@ export function ClassHeader({ subject }: { subject: SubjectHeaderProps }) {
 				<div className="my-auto space-y-4">
 					<BackButton to={backPath} />
 					<div>
-						<h3 className="text-pretty font-semibold text-2xl leading-tight xl:text-2xl">{subject?.name}</h3>
+						<h3 className="text-2xl leading-tight font-semibold text-pretty xl:text-2xl">{subject?.name}</h3>
 						{/*<p className="font-light text-sm"> {subject?.totalContent} Konten</p>*/}
 
 						{subject.category === "utbk" ? (
-							<p className="font-light text-sm">SMA Kelas 12</p>
+							<p className="text-sm font-light">SMA Kelas 12</p>
 						) : (
-							<p className="font-medium text-sm">
+							<p className="text-sm font-medium">
 								<span className="uppercase">{subject.category}</span> Kelas {subject.gradeLevel ?? "-"}
 							</p>
 						)}

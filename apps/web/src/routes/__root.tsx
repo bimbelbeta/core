@@ -70,7 +70,7 @@ function RootDocument() {
 				<HeadContent />
 				<meta name="google-site-verification" content="ZkAuVBNm-RdzlikU-7NR9WHgzplwakbRHIhwqwySNXg" />
 			</head>
-			<body className="min-h-screen bg-radial from-neutral-100 via-66% via-primary-100 to-primary-300/80">
+			<body className="via-primary-100 to-primary-300/80 min-h-screen bg-radial from-neutral-100 via-66%">
 				<MotionProvider>
 					<Outlet />
 					<Toaster richColors />

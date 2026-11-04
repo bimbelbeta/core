@@ -256,7 +256,7 @@ function QuestionsListPage() {
 												aria-label={`Select question ${q.id}`}
 											/>
 										</AdminTableCell>
-										<AdminTableCell className="text-center font-mono text-muted-foreground text-sm">
+										<AdminTableCell className="text-muted-foreground text-center font-mono text-sm">
 											#{q.id}
 										</AdminTableCell>
 										<AdminTableCell>

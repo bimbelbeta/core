@@ -90,7 +90,7 @@ export function EditQuestionForm({ question, initialChoices, onSuccess, onCancel
 					<Button variant="ghost" size="icon" onClick={onCancel}>
 						<ArrowLeftIcon className="size-4" />
 					</Button>
-					<h1 className="font-bold text-2xl text-primary-navy-900">Edit Soal #{question.id}</h1>
+					<h1 className="text-primary-navy-900 text-2xl font-bold">Edit Soal #{question.id}</h1>
 				</div>
 				<div className="flex items-center gap-3">
 					<Button type="button" variant="outline" onClick={onCancel}>

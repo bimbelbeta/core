@@ -24,9 +24,9 @@ export function SubjectFilters({
 					type="button"
 					onClick={() => onChange(filter.value)}
 					className={cn(
-						"whitespace-nowrap rounded-lg border px-3 py-1.5 font-normal text-xs transition-all",
+						"rounded-lg border px-3 py-1.5 text-xs font-normal whitespace-nowrap transition-all",
 						"sm:h-10",
-						"border-primary-600 bg-white text-primary-600",
+						"border-primary-600 text-primary-600 bg-white",
 						"hover:bg-primary-50",
 						activeFilter === filter.value && "bg-primary-500 text-white",
 					)}

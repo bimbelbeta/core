@@ -313,7 +313,7 @@ export function CreateQuestionForm({
 													maxLength={15}
 												/>
 												{field.state.meta.errors.map((error, idx) => (
-													<p key={typeof error === "string" ? error : `error-${idx}`} className="text-red-500 text-xs">
+													<p key={typeof error === "string" ? error : `error-${idx}`} className="text-xs text-red-500">
 														{typeof error === "string" ? error : (error as { message: string })?.message}
 													</p>
 												))}

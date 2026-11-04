@@ -69,10 +69,10 @@ function RouteComponent() {
 
 			<div className="space-y-6">
 				<div className="text-center *:text-pretty">
-					<h2 className="font-bold text-2xl leading-9 md:text-3xl md:leading-11.5">
+					<h2 className="text-2xl leading-9 font-bold md:text-3xl md:leading-11.5">
 						Pilih Paket <Highlight variant="secondary">Premium</Highlight>
 					</h2>
-					<p className="mt-2 text-neutral-600 text-sm md:text-base">
+					<p className="mt-2 text-sm text-neutral-600 md:text-base">
 						Pilih paket yang sesuai dengan kebutuhanmu. Premium untuk akses penuh, atau beli kredit tryout satuan.
 					</p>
 				</div>
@@ -137,7 +137,7 @@ function RouteComponent() {
 						</div>
 						<div>
 							<h3 className="font-semibold text-amber-900">Kredit Tryout Kamu</h3>
-							<p className="text-amber-700 text-sm">
+							<p className="text-sm text-amber-700">
 								Kamu memiliki <strong>{creditBalance}</strong> kredit tryout. Gunakan untuk memulai tryout pilihanmu di
 								halaman Tryout.
 							</p>
@@ -153,18 +153,18 @@ function RouteComponent() {
 
 function PremiumHeader({ creditBalance }: { creditBalance: number }) {
 	return (
-		<div className="relative overflow-hidden rounded-default bg-primary-300 text-white">
+		<div className="rounded-default bg-primary-300 relative overflow-hidden text-white">
 			<div className="grid grid-cols-1 gap-6 px-6 pt-8 pb-0 sm:grid-cols-2 sm:items-center sm:px-10 sm:py-10">
 				<div className="relative z-10 max-w-xl">
-					<h1 className="font-bold text-[24px] leading-tight sm:text-[30px]">Premium & Paket Tryout</h1>
-					<p className="mt-2 text-[14px] text-white/90 leading-5.25">
+					<h1 className="text-[24px] leading-tight font-bold sm:text-[30px]">Premium & Paket Tryout</h1>
+					<p className="mt-2 text-[14px] leading-5.25 text-white/90">
 						Investasikan masa depanmu sekarang! Dapatkan akses penuh ke semua fitur atau beli paket tryout sesuai
 						kebutuhanmu.
 					</p>
 					{creditBalance > 0 && (
 						<div className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-2">
 							<Coins size={20} weight="fill" className="text-yellow-300" />
-							<span className="font-medium text-sm">
+							<span className="text-sm font-medium">
 								Kredit Tryout: <strong>{creditBalance}</strong>
 							</span>
 						</div>
@@ -172,13 +172,13 @@ function PremiumHeader({ creditBalance }: { creditBalance: number }) {
 				</div>
 
 				<div className="relative -mx-6 h-27.5 overflow-hidden sm:mx-0 sm:h-auto sm:overflow-visible">
-					<div className="absolute top-10 right-4 bottom-0 size-45 rounded-full bg-primary-400 sm:top-2" />
+					<div className="bg-primary-400 absolute top-10 right-4 bottom-0 size-45 rounded-full sm:top-2" />
 					<Image
 						src="/images/main-card-kelas.webp"
 						alt="Premium Avatar"
 						width={260}
 						height={260}
-						className="absolute right-0 size-52.5 -translate-y-10 select-none object-cover sm:bottom-0 sm:translate-y-1/2"
+						className="absolute right-0 size-52.5 -translate-y-10 object-cover select-none sm:bottom-0 sm:translate-y-1/2"
 					/>
 				</div>
 			</div>
@@ -220,20 +220,20 @@ function ReferralSection() {
 
 	return (
 		<>
-			<Card className="border-primary-100 bg-gradient-to-br from-primary-50 to-white p-6">
+			<Card className="border-primary-100 from-primary-50 bg-gradient-to-br to-white p-6">
 				<div className="flex items-start gap-4">
-					<div className="hidden rounded-xl bg-primary-100 p-3 sm:block">
+					<div className="bg-primary-100 hidden rounded-xl p-3 sm:block">
 						<TicketIcon size={28} weight="duotone" className="text-primary" />
 					</div>
 					<div className="flex-1">
-						<h3 className="font-semibold text-base text-foreground">Punya kode referal?</h3>
-						<p className="mt-0.5 text-muted-foreground text-sm">
+						<h3 className="text-foreground text-base font-semibold">Punya kode referal?</h3>
+						<p className="text-muted-foreground mt-0.5 text-sm">
 							Masukkan kode referal untuk mendapatkan akses Premium secara gratis.
 						</p>
 						<form onSubmit={handleSubmit} className="mt-4 flex gap-2">
 							<Input
 								id="referral-code-input"
-								className="max-w-xs font-mono uppercase tracking-widest"
+								className="max-w-xs font-mono tracking-widest uppercase"
 								placeholder="PREM30DAYS"
 								value={code}
 								onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""))}

@@ -79,7 +79,7 @@ export function CreateProgramTab({ onProgramCreate }: CreateProgramTabProps) {
 			>
 				{(field) => (
 					<div className="space-y-1.5">
-						<Label htmlFor={field.name} className="font-medium text-sm">
+						<Label htmlFor={field.name} className="text-sm font-medium">
 							Nama Program Studi <span className="text-destructive">*</span>
 						</Label>
 						<Input
@@ -100,7 +100,7 @@ export function CreateProgramTab({ onProgramCreate }: CreateProgramTabProps) {
 
 			<div className="space-y-1.5">
 				<div className="flex items-center justify-between">
-					<Label className="font-medium text-sm">Slug</Label>
+					<Label className="text-sm font-medium">Slug</Label>
 					<form.Field name="autoGenerateSlug">
 						{(field) => (
 							<label className="flex cursor-pointer items-center gap-1.5" htmlFor="autoSlug">
@@ -141,7 +141,7 @@ export function CreateProgramTab({ onProgramCreate }: CreateProgramTabProps) {
 			<form.Field name="category">
 				{(field) => (
 					<div className="space-y-1.5">
-						<Label htmlFor={field.name} className="font-medium text-sm">
+						<Label htmlFor={field.name} className="text-sm font-medium">
 							Kategori <span className="text-destructive">*</span>
 						</Label>
 						<Select value={field.state.value} onValueChange={(val) => field.handleChange(val as "SAINTEK" | "SOSHUM")}>
@@ -165,7 +165,7 @@ export function CreateProgramTab({ onProgramCreate }: CreateProgramTabProps) {
 			<form.Field name="description">
 				{(field) => (
 					<div className="space-y-1.5">
-						<Label htmlFor={field.name} className="font-medium text-sm">
+						<Label htmlFor={field.name} className="text-sm font-medium">
 							Deskripsi
 						</Label>
 						<Textarea

@@ -13,27 +13,27 @@ export function ResultsActivity() {
 
 	return (
 		<div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-				{attempts.isPending ? (
-					<>
-						<ResultsActivitySkeleton />
-						<ResultsActivitySkeleton />
-						<ResultsActivitySkeleton />
-					</>
-				) : attempts.data?.length === 0 || attempts.isError ? (
-					<div className="col-span-full flex flex-col items-center justify-center space-y-3 py-8 text-center">
-						<WarningCircleIcon size={80} />
-						<p className="text-xl">Kamu belum mengikuti tryout apapun</p>
-						<Button asChild>
-							<Link to="/tryout">
-								Mulai Tryout <ArrowRightIcon className="" />
-							</Link>
-						</Button>
-					</div>
-				) : (
-					attempts.data?.map((result) => (
-						<ResultCard key={result.id} attemptId={result.id} title={result.tryout.title} score={result.score ?? 0} />
-					))
-				)}
+			{attempts.isPending ? (
+				<>
+					<ResultsActivitySkeleton />
+					<ResultsActivitySkeleton />
+					<ResultsActivitySkeleton />
+				</>
+			) : attempts.data?.length === 0 || attempts.isError ? (
+				<div className="col-span-full flex flex-col items-center justify-center space-y-3 py-8 text-center">
+					<WarningCircleIcon size={80} />
+					<p className="text-xl">Kamu belum mengikuti tryout apapun</p>
+					<Button asChild>
+						<Link to="/tryout">
+							Mulai Tryout <ArrowRightIcon className="" />
+						</Link>
+					</Button>
+				</div>
+			) : (
+				attempts.data?.map((result) => (
+					<ResultCard key={result.id} attemptId={result.id} title={result.tryout.title} score={result.score ?? 0} />
+				))
+			)}
 		</div>
 	);
 }
@@ -63,7 +63,7 @@ const ResultCard = memo(function ResultCard({ attemptId, title, score }: ResultC
 		<Card className="flex flex-col gap-2 p-4">
 			<h3 className="text-base">{title}</h3>
 			<Separator className="my-0" />
-			<div className="translate-y-1 text-base text-muted-foreground">Total Score</div>
+			<div className="text-muted-foreground translate-y-1 text-base">Total Score</div>
 			<div className="mt-auto flex items-center justify-between">
 				<span className="text-3xl">
 					{score} <span className="text-base">/ 1000</span>

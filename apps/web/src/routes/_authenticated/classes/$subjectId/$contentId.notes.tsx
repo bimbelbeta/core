@@ -49,7 +49,7 @@ function RouteComponent() {
 	}
 
 	if (content.isError) {
-		return <p className="text-red-500 text-sm">Error: {content.error.message}</p>;
+		return <p className="text-sm text-red-500">Error: {content.error.message}</p>;
 	}
 
 	if (!content.data) return notFound();
@@ -58,7 +58,7 @@ function RouteComponent() {
 	if (!note) {
 		return (
 			<div className="space-y-4">
-				<p className="font-semibold text-base text-primary-300">Catatan Materi</p>
+				<p className="text-primary-300 text-base font-semibold">Catatan Materi</p>
 				<EmptyContentState />
 			</div>
 		);
@@ -66,9 +66,9 @@ function RouteComponent() {
 
 	return (
 		<div className="space-y-4">
-			<p className="font-semibold text-base text-primary-300">Catatan Materi</p>
+			<p className="text-primary-300 text-base font-semibold">Catatan Materi</p>
 
-			<h2 className="font-bold text-2xl">{content.data.title}</h2>
+			<h2 className="text-2xl font-bold">{content.data.title}</h2>
 
 			<hr />
 

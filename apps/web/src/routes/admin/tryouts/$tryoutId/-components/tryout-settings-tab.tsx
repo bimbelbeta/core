@@ -137,7 +137,7 @@ function AccessCodeSection({ tryoutId }: { tryoutId: number }) {
 				<Separator />
 
 				<div className="space-y-3">
-					<p className="font-medium text-sm">Daftar Kode</p>
+					<p className="text-sm font-medium">Daftar Kode</p>
 					{accessCodesQuery.isPending ? (
 						<p className="text-muted-foreground text-sm">Memuat kode akses...</p>
 					) : accessCodesQuery.data && accessCodesQuery.data.length > 0 ? (
@@ -149,7 +149,7 @@ function AccessCodeSection({ tryoutId }: { tryoutId: number }) {
 								>
 									<div className="space-y-1">
 										<div className="flex items-center gap-2">
-											<p className="font-medium text-sm">{accessCodeItem.label || "Tanpa Label"}</p>
+											<p className="text-sm font-medium">{accessCodeItem.label || "Tanpa Label"}</p>
 											<Badge variant={accessCodeItem.isActive ? "default" : "outline"}>
 												{accessCodeItem.isActive ? "Aktif" : "Nonaktif"}
 											</Badge>
@@ -373,7 +373,7 @@ export function TryoutSettingsTab({ tryout, onUpdate, onFormStateChange }: Tryou
 							{(field) => (
 								<div className="space-y-2">
 									<Label htmlFor={field.name}>
-										Deskripsi <span className="font-normal text-muted-foreground">(Opsional)</span>
+										Deskripsi <span className="text-muted-foreground font-normal">(Opsional)</span>
 									</Label>
 									<Textarea
 										id={field.name}
@@ -459,7 +459,7 @@ export function TryoutSettingsTab({ tryout, onUpdate, onFormStateChange }: Tryou
 									<div className="flex items-center gap-2">
 										<div
 											className={cn(
-												"rounded border px-2 py-1 font-medium text-xs",
+												"rounded border px-2 py-1 text-xs font-medium",
 												STATUS_CONFIG[field.state.value].className,
 											)}
 										>
@@ -486,14 +486,14 @@ export function TryoutSettingsTab({ tryout, onUpdate, onFormStateChange }: Tryou
 
 						<div className="space-y-2">
 							<Label>
-								Periode Tryout <span className="font-normal text-muted-foreground">(Opsional)</span>
+								Periode Tryout <span className="text-muted-foreground font-normal">(Opsional)</span>
 							</Label>
 							<Popover>
 								<PopoverTrigger asChild>
 									<Button
 										variant="input"
 										data-empty={!dateRange.from}
-										className="w-full max-w-sm data-[empty=true]:text-muted-foreground"
+										className="data-[empty=true]:text-muted-foreground w-full max-w-sm"
 									>
 										<CalendarIcon className="mr-2 size-4" />
 										{dateRange.from ? (

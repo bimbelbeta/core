@@ -75,7 +75,7 @@ export function TryoutSubtestsTab({ tryoutId, subtests, onUpdate }: TryoutSubtes
 						</CardDescription>
 						{subtests.length > 0 && (
 							<div className="flex items-center gap-4 pt-2 text-sm">
-								<div className="flex items-center gap-1.5 text-muted-foreground">
+								<div className="text-muted-foreground flex items-center gap-1.5">
 									<ClockIcon className="size-4" />
 									<span>Total durasi: {totalDuration} menit</span>
 								</div>
@@ -90,11 +90,11 @@ export function TryoutSubtestsTab({ tryoutId, subtests, onUpdate }: TryoutSubtes
 				<CardContent>
 					{subtests.length === 0 ? (
 						<div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center">
-							<div className="mb-4 flex size-12 items-center justify-center rounded-full bg-muted">
-								<FileTextIcon className="size-6 text-muted-foreground" />
+							<div className="bg-muted mb-4 flex size-12 items-center justify-center rounded-full">
+								<FileTextIcon className="text-muted-foreground size-6" />
 							</div>
 							<h3 className="font-semibold">Belum ada subtest</h3>
-							<p className="mt-1 mb-6 max-w-sm text-muted-foreground text-sm">
+							<p className="text-muted-foreground mt-1 mb-6 max-w-sm text-sm">
 								Tryout ini belum memiliki subtest. Tambahkan subtest untuk mulai membuat soal dan mengatur durasi
 								pengerjaan.
 							</p>
@@ -119,7 +119,7 @@ export function TryoutSubtestsTab({ tryoutId, subtests, onUpdate }: TryoutSubtes
 									{subtests.map((subtest, index) => (
 										<TableRow key={subtest.id} className="group">
 											<TableCell className="text-center">
-												<div className="mx-auto flex size-6 items-center justify-center rounded-full bg-muted font-medium font-mono text-xs">
+												<div className="bg-muted mx-auto flex size-6 items-center justify-center rounded-full font-mono text-xs font-medium">
 													{index + 1}
 												</div>
 											</TableCell>
@@ -134,13 +134,13 @@ export function TryoutSubtestsTab({ tryoutId, subtests, onUpdate }: TryoutSubtes
 												>
 													<span className="font-medium group-hover/link:underline">{subtest.name}</span>
 													{subtest.description && (
-														<p className="line-clamp-1 text-muted-foreground text-xs">{subtest.description}</p>
+														<p className="text-muted-foreground line-clamp-1 text-xs">{subtest.description}</p>
 													)}
 												</Link>
 											</TableCell>
 											<TableCell>
 												<div className="flex items-center gap-1.5">
-													<ClockIcon className="size-3.5 text-muted-foreground" />
+													<ClockIcon className="text-muted-foreground size-3.5" />
 													<span>{subtest.duration} menit</span>
 												</div>
 											</TableCell>
@@ -161,7 +161,7 @@ export function TryoutSubtestsTab({ tryoutId, subtests, onUpdate }: TryoutSubtes
 														<Button
 															variant="ghost"
 															size="icon"
-															className="text-muted-foreground opacity-0 hover:text-red-600 group-hover:opacity-100"
+															className="text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-red-600"
 														>
 															<TrashIcon className="size-4" />
 														</Button>

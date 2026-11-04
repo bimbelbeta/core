@@ -47,7 +47,7 @@ export function PassingGradeActivity() {
 			<div
 				ref={scrollRef}
 				onScroll={handleScroll}
-				className="max-h-[600px] overflow-auto overflow-clip rounded-sm border border-input"
+				className="border-input max-h-[600px] overflow-auto overflow-clip rounded-sm border"
 			>
 				<Table>
 					<TableHeader>
@@ -63,7 +63,7 @@ export function PassingGradeActivity() {
 							<TableSkeleton columns={4} />
 						) : universities.length === 0 ? (
 							<TableRow>
-								<TableCell colSpan={4} className="h-20 text-center text-muted-foreground">
+								<TableCell colSpan={4} className="text-muted-foreground h-20 text-center">
 									Gagal menemukan Prodi/Universitas. Silahkan coba kata kunci lain. <SmileySadIcon className="inline" />
 								</TableCell>
 							</TableRow>

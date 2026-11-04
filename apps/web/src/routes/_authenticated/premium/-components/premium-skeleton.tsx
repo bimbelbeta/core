@@ -6,7 +6,7 @@ export function PremiumSkeleton() {
 	return (
 		<Container className="space-y-8">
 			{/* Header Skeleton */}
-			<div className="relative overflow-hidden rounded-default bg-neutral-200">
+			<div className="rounded-default relative overflow-hidden bg-neutral-200">
 				<div className="grid grid-cols-1 gap-6 px-6 pt-8 pb-0 sm:grid-cols-2 sm:items-center sm:px-10 sm:py-10">
 					<div className="space-y-4">
 						<Skeleton className="h-8 w-64 sm:h-10" />
@@ -29,7 +29,7 @@ export function PremiumSkeleton() {
 				{/* Premium Cards Skeleton - 2 columns */}
 				<div className="grid gap-4 md:grid-cols-2">
 					{[1, 2].map((i) => (
-						<div key={i} className="flex h-full flex-col rounded-default border border-neutral-200 bg-neutral-100 p-6">
+						<div key={i} className="rounded-default flex h-full flex-col border border-neutral-200 bg-neutral-100 p-6">
 							<Skeleton className="mb-4 h-6 w-24" />
 							<Skeleton className="mb-4 h-8 w-32" />
 							<Skeleton className="mb-4 h-4 w-full" />
@@ -42,7 +42,7 @@ export function PremiumSkeleton() {
 				{/* Credits Cards Skeleton - 4 columns */}
 				<div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
 					{[1, 2, 3, 4].map((i) => (
-						<div key={i} className="flex h-full flex-col rounded-default border border-neutral-200 bg-neutral-100 p-5">
+						<div key={i} className="rounded-default flex h-full flex-col border border-neutral-200 bg-neutral-100 p-5">
 							<Skeleton className="mb-2 h-5 w-28" />
 							<Skeleton className="mb-4 h-6 w-24" />
 							<Skeleton className="mb-2 h-4 w-full" />

@@ -57,17 +57,17 @@ export function LastContentViewedCard({
 	};
 
 	return (
-		<Card className="relative gap-3 rounded-xl border border-border/50 p-3 shadow-sm sm:gap-6 sm:p-4 lg:p-5">
+		<Card className="border-border/50 relative gap-3 rounded-xl border p-3 shadow-sm sm:gap-6 sm:p-4 lg:p-5">
 			{/* Header */}
 			<div className="flex flex-row justify-between gap-3 sm:items-start">
 				{/* Left: badge + title */}
 				<div className="flex items-start gap-3">
-					<div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 font-bold text-primary text-sm shadow-sm sm:size-9">
+					<div className="bg-primary/10 text-primary flex size-8 shrink-0 items-center justify-center rounded-lg text-sm font-bold shadow-sm sm:size-9">
 						{index + 1}
 					</div>
 
 					<div className="flex h-full items-center pt-0.5">
-						<p className="mr-7 font-bold text-neutral-1000 text-sm sm:text-base lg:text-lg">{item.title}</p>
+						<p className="text-neutral-1000 mr-7 text-sm font-bold sm:text-base lg:text-lg">{item.title}</p>
 					</div>
 				</div>
 
@@ -96,7 +96,7 @@ export function LastContentViewedCard({
 								)}
 							>
 								<Icon className="size-4 sm:size-[18px]" weight="bold" />
-								<span className="whitespace-nowrap font-medium text-xs sm:text-[14px]">{label}</span>
+								<span className="text-xs font-medium whitespace-nowrap sm:text-[14px]">{label}</span>
 								<CaretRightIcon className="ml-auto size-4 sm:size-[18px]" weight="bold" />
 							</Link>
 						);

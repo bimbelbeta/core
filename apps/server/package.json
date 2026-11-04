@@ -7,10 +7,10 @@
 		"compile": "bun build --production --compile --minify --sourcemap --bytecode ./src/index.ts --outfile ./bin/server",
 		"dev": "bun run --hot --port=3001 ./src/index.ts ",
 		"start": "bun ./dist/index.js",
-		"check-types": "tsgo --noEmit"
+		"check-types": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@better-upload/server": "^3.0.12",
+		"@better-upload/server": "^3.0.20",
 		"@bimbelbeta/api": "workspace:*",
 		"@bimbelbeta/auth": "workspace:*",
 		"@orpc/arktype": "catalog:",

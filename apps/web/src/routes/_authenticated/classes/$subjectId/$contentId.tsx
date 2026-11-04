@@ -88,7 +88,7 @@ function RouteComponent() {
 	// Show premium modal for forbidden content
 	if (isForbiddenError) {
 		return (
-			<Container className="min-h-screen border-neutral-200 border-x bg-white pt-28 sm:gap-6">
+			<Container className="min-h-screen border-x border-neutral-200 bg-white pt-28 sm:gap-6">
 				<PremiumGateModal isOpen={showPremiumModal} onClose={handlePremiumModalClose} contentType="content" />
 			</Container>
 		);
@@ -114,7 +114,7 @@ function RouteComponent() {
 	};
 
 	return (
-		<Container className="min-h-screen border-neutral-200 border-x bg-white pt-28 sm:gap-6">
+		<Container className="min-h-screen border-x border-neutral-200 bg-white pt-28 sm:gap-6">
 			<div className="flex justify-between">
 				<BackButton
 					to={currentTab === "video" ? `/classes/${subjectId}` : `/classes/${subjectId}/${contentId}/video`}

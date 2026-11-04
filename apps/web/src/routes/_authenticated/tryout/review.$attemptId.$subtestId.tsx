@@ -65,8 +65,8 @@ function RouteComponent() {
 				</Button>
 
 				<div className="space-y-1">
-					<p className="font-semibold text-muted-foreground">Review Hasil Subtes</p>
-					<h1 className="font-bold text-3xl">{data.subtest?.name}</h1>
+					<p className="text-muted-foreground font-semibold">Review Hasil Subtes</p>
+					<h1 className="text-3xl font-bold">{data.subtest?.name}</h1>
 				</div>
 			</div>
 

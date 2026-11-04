@@ -39,11 +39,11 @@ export function SearchProgramTab({ onProgramSelect }: SearchProgramTabProps) {
 					))
 				) : searchResults?.items?.length === 0 ? (
 					<div className="flex flex-col items-center gap-2 py-8 text-center">
-						<div className="flex size-10 items-center justify-center rounded-lg bg-muted">
-							<MagnifyingGlassIcon className="size-5 text-muted-foreground" />
+						<div className="bg-muted flex size-10 items-center justify-center rounded-lg">
+							<MagnifyingGlassIcon className="text-muted-foreground size-5" />
 						</div>
 						<div>
-							<p className="font-medium text-sm">Tidak ditemukan</p>
+							<p className="text-sm font-medium">Tidak ditemukan</p>
 							<p className="text-muted-foreground text-xs">Coba kata kunci lain atau buat program studi baru.</p>
 						</div>
 					</div>
@@ -52,15 +52,15 @@ export function SearchProgramTab({ onProgramSelect }: SearchProgramTabProps) {
 						<button
 							key={prog.id}
 							type="button"
-							className="group flex w-full items-center gap-3 rounded-lg border px-4 py-3 text-left transition-colors hover:border-primary/30 hover:bg-primary/5"
+							className="group hover:border-primary/30 hover:bg-primary/5 flex w-full items-center gap-3 rounded-lg border px-4 py-3 text-left transition-colors"
 							onClick={() => onProgramSelect({ id: prog.id, name: prog.name })}
 						>
-							<div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted transition-colors group-hover:bg-primary/10">
-								<BookOpenIcon className="size-4 text-muted-foreground transition-colors group-hover:text-primary" />
+							<div className="bg-muted group-hover:bg-primary/10 flex size-8 shrink-0 items-center justify-center rounded-md transition-colors">
+								<BookOpenIcon className="text-muted-foreground group-hover:text-primary size-4 transition-colors" />
 							</div>
 							<div className="min-w-0 flex-1">
-								<p className="truncate font-medium text-sm">{prog.name}</p>
-								{prog.description && <p className="truncate text-muted-foreground text-xs">{prog.description}</p>}
+								<p className="truncate text-sm font-medium">{prog.name}</p>
+								{prog.description && <p className="text-muted-foreground truncate text-xs">{prog.description}</p>}
 							</div>
 							<Badge variant="outline" className="shrink-0 text-[10px]">
 								{prog.category}
@@ -69,11 +69,11 @@ export function SearchProgramTab({ onProgramSelect }: SearchProgramTabProps) {
 					))
 				) : !searchProgram ? (
 					<div className="flex flex-col items-center gap-2 py-8 text-center">
-						<div className="flex size-10 items-center justify-center rounded-lg bg-muted">
-							<BookOpenIcon className="size-5 text-muted-foreground" />
+						<div className="bg-muted flex size-10 items-center justify-center rounded-lg">
+							<BookOpenIcon className="text-muted-foreground size-5" />
 						</div>
 						<div>
-							<p className="font-medium text-sm">Cari program studi</p>
+							<p className="text-sm font-medium">Cari program studi</p>
 							<p className="text-muted-foreground text-xs">Ketik nama program untuk mencari.</p>
 						</div>
 					</div>

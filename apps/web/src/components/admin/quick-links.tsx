@@ -38,17 +38,17 @@ const links = [
 export function QuickLinks() {
 	return (
 		<div className="space-y-3">
-			<h3 className="font-medium text-muted-foreground text-sm">Pintasan</h3>
+			<h3 className="text-muted-foreground text-sm font-medium">Pintasan</h3>
 			<div className="grid auto-rows-fr gap-3 sm:grid-cols-2 lg:grid-cols-3">
 				{links.map((link) => (
 					<Link key={link.url} to={link.url} className="h-full">
-						<Card className="h-full py-2 transition-colors hover:bg-muted/50">
+						<Card className="hover:bg-muted/50 h-full py-2 transition-colors">
 							<CardContent className="flex h-full items-center gap-4 px-2">
-								<div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-									<link.icon className="size-5 text-primary" weight="duotone" />
+								<div className="bg-primary/10 flex size-10 shrink-0 items-center justify-center rounded-lg">
+									<link.icon className="text-primary size-5" weight="duotone" />
 								</div>
 								<div className="min-w-0">
-									<p className="font-medium text-sm">{link.title}</p>
+									<p className="text-sm font-medium">{link.title}</p>
 									<p className="text-muted-foreground text-xs">{link.description}</p>
 								</div>
 							</CardContent>

@@ -16,14 +16,14 @@ import { bounce } from "@/lib/animation-variants";
 
 export function Hero() {
 	return (
-		<section className="relative mx-auto flex w-full flex-col items-center justify-start overflow-hidden bg-radial from-neutral-100 via-66% via-primary-100 to-primary-300/80 pt-20 [clip-path:polygon(0_0,100%_0,100%_85%,50%_100%,0%_85%)] *:max-w-5xl">
+		<section className="via-primary-100 to-primary-300/80 relative mx-auto flex w-full flex-col items-center justify-start overflow-hidden bg-radial from-neutral-100 via-66% pt-20 [clip-path:polygon(0_0,100%_0,100%_85%,50%_100%,0%_85%)] *:max-w-5xl">
 			<div className="container mx-auto flex max-w-5xl shrink-0 flex-col items-center px-4 pt-8 md:pt-20">
 				<div className="flex flex-col items-center gap-3 text-center md:gap-4">
 					<m.h2
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ duration: 0.3, delay: 0 }}
-						className="text-2xl sm:text-4xl xl:text-5xl min-[400px]:text-3xl"
+						className="text-2xl min-[400px]:text-3xl sm:text-4xl xl:text-5xl"
 					>
 						Rumah Baru untuk{" "}
 						<Highlight variant="darkBlue" weight={"bold"}>

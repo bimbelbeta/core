@@ -78,7 +78,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			<SidebarHeader>
 				<Link to="/admin/dashboard" className="flex items-center gap-2 px-2 py-1.5">
 					<div className="grid flex-1 text-left text-sm leading-tight">
-						<span className="truncate font-semibold text-sm">BimbelBeta Admin</span>
+						<span className="truncate text-sm font-semibold">BimbelBeta Admin</span>
 					</div>
 				</Link>
 			</SidebarHeader>

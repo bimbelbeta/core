@@ -126,7 +126,7 @@ export function AddUniversityDialog({
 												onChange={(e) => field.handleChange(e.target.value)}
 											/>
 											{field.state.meta.errors.map((error) => (
-												<p key={error?.message} className="text-red-500 text-xs">
+												<p key={error?.message} className="text-xs text-red-500">
 													{error?.message}
 												</p>
 											))}
@@ -138,7 +138,7 @@ export function AddUniversityDialog({
 							<form.Field name="autoGenerateSlug">
 								{(field) => (
 									<div className="flex items-center justify-end gap-2">
-										<Label htmlFor={field.name} className="cursor-pointer text-muted-foreground text-xs">
+										<Label htmlFor={field.name} className="text-muted-foreground cursor-pointer text-xs">
 											Autogenerate Slug
 										</Label>
 										<Checkbox
@@ -167,7 +167,7 @@ export function AddUniversityDialog({
 												disabled={form.getFieldValue("autoGenerateSlug")}
 											/>
 											{field.state.meta.errors.map((error) => (
-												<p key={error?.message} className="text-red-500 text-xs">
+												<p key={error?.message} className="text-xs text-red-500">
 													{error?.message}
 												</p>
 											))}
@@ -191,7 +191,7 @@ export function AddUniversityDialog({
 												placeholder="https://example.com/logo.png"
 											/>
 											{field.state.meta.errors.map((error) => (
-												<p key={error?.message} className="text-red-500 text-xs">
+												<p key={error?.message} className="text-xs text-red-500">
 													{error?.message}
 												</p>
 											))}
@@ -252,7 +252,7 @@ export function AddUniversityDialog({
 												placeholder="https://www.university.ac.id"
 											/>
 											{field.state.meta.errors.map((error) => (
-												<p key={error?.message} className="text-red-500 text-xs">
+												<p key={error?.message} className="text-xs text-red-500">
 													{error?.message}
 												</p>
 											))}
@@ -277,7 +277,7 @@ export function AddUniversityDialog({
 												placeholder="1"
 											/>
 											{field.state.meta.errors.map((error) => (
-												<p key={error?.message} className="text-red-500 text-xs">
+												<p key={error?.message} className="text-xs text-red-500">
 													{error?.message}
 												</p>
 											))}

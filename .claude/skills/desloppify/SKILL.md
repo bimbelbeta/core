@@ -1,11 +1,12 @@
 ---
+
 name: desloppify
 description: >
-  Codebase health scanner and technical debt tracker. Use when the user asks
-  about code quality, technical debt, dead code, large files, god classes,
-  duplicate functions, code smells, naming issues, import cycles, or coupling
-  problems. Also use when asked for a health score, what to fix next, or to
-  create a cleanup plan. Supports 29 languages.
+Codebase health scanner and technical debt tracker. Use when the user asks
+about code quality, technical debt, dead code, large files, god classes,
+duplicate functions, code smells, naming issues, import cycles, or coupling
+problems. Also use when asked for a health score, what to fix next, or to
+create a cleanup plan. Supports 29 languages.
 allowed-tools: Bash(desloppify *)
 ---
 
@@ -134,24 +135,24 @@ Return machine-readable JSON for review imports. For `--external-submit`, includ
 
 ```json
 {
-  "session": {
-    "id": "<session_id_from_template>",
-    "token": "<session_token_from_template>"
-  },
-  "assessments": {
-    "<dimension_from_query>": 0
-  },
-  "findings": [
-    {
-      "dimension": "<dimension_from_query>",
-      "identifier": "short_id",
-      "summary": "one-line defect summary",
-      "related_files": ["relative/path/to/file.py"],
-      "evidence": ["specific code observation"],
-      "suggestion": "concrete fix recommendation",
-      "confidence": "high|medium|low"
-    }
-  ]
+	"session": {
+		"id": "<session_id_from_template>",
+		"token": "<session_token_from_template>"
+	},
+	"assessments": {
+		"<dimension_from_query>": 0
+	},
+	"findings": [
+		{
+			"dimension": "<dimension_from_query>",
+			"identifier": "short_id",
+			"summary": "one-line defect summary",
+			"related_files": ["relative/path/to/file.py"],
+			"evidence": ["specific code observation"],
+			"suggestion": "concrete fix recommendation",
+			"confidence": "high|medium|low"
+		}
+	]
 }
 ```
 

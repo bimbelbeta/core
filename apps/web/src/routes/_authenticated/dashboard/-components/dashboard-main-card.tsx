@@ -14,7 +14,7 @@ interface DashboardMainCardProps {
 export function DashboardMainCard({ title, description, to, href, src }: DashboardMainCardProps) {
 	return (
 		<div className="h-full space-y-6 overflow-visible rounded-sm border border-neutral-200 bg-white p-4">
-			<div className="relative flex h-21.5 w-full justify-end overflow-visible rounded-sm bg-secondary-100 p-1.5">
+			<div className="bg-secondary-100 relative flex h-21.5 w-full justify-end overflow-visible rounded-sm p-1.5">
 				<Image
 					src={src as string}
 					width={150}
@@ -36,9 +36,9 @@ export function DashboardMainCard({ title, description, to, href, src }: Dashboa
 				</Button>
 			</div>
 
-			<div className="space-y-1 text-secondary-800">
-				<h2 className="font-semibold text-2xl leading-tight">{title}</h2>
-				<p className="font-normal text-base leading-normal">{description}</p>
+			<div className="text-secondary-800 space-y-1">
+				<h2 className="text-2xl leading-tight font-semibold">{title}</h2>
+				<p className="text-base leading-normal font-normal">{description}</p>
 			</div>
 		</div>
 	);

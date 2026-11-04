@@ -108,9 +108,9 @@ function SignUpForm() {
 			<div className="absolute left-1/2 z-50 -translate-x-1/2 -translate-y-full">
 				<Image src="/images/main-card-kelas.webp" alt="Study Avatar" width={200} height={200} />
 			</div>
-			<div className="relative z-10 w-full rounded-sm border border-primary/50 bg-white p-8 shadow-lg">
+			<div className="border-primary/50 relative z-10 w-full rounded-sm border bg-white p-8 shadow-lg">
 				<div className="flex flex-col items-center gap-2 text-center">
-					<h1 className="text-3xl text-primary">
+					<h1 className="text-primary text-3xl">
 						Mari <span className="font-bold">Mulai Bersama!</span>
 					</h1>
 					<p className="text-sm">Bergabung bersama untuk memulai sukses</p>
@@ -139,7 +139,7 @@ function SignUpForm() {
 										autoFocus
 									/>
 									{field.state.meta.errors.map((error) => (
-										<p key={error?.message} className="text-red-500 text-xs">
+										<p key={error?.message} className="text-xs text-red-500">
 											{error?.message}
 										</p>
 									))}
@@ -162,7 +162,7 @@ function SignUpForm() {
 										onChange={(e) => field.handleChange(e.target.value)}
 									/>
 									{field.state.meta.errors.map((error) => (
-										<p key={error?.message} className="text-red-500 text-xs">
+										<p key={error?.message} className="text-xs text-red-500">
 											{error?.message}
 										</p>
 									))}
@@ -239,7 +239,7 @@ function SignUpForm() {
 
 				<div className="flex items-center gap-4 py-4">
 					<Separator className="flex-1" />
-					<span className="shrink-0 text-muted-foreground text-xs uppercase">atau</span>
+					<span className="text-muted-foreground shrink-0 text-xs uppercase">atau</span>
 					<Separator className="flex-1" />
 				</div>
 
@@ -271,7 +271,7 @@ function SignUpForm() {
 
 			<p className="mt-4 text-center text-sm">
 				Sudah punya akun?{" "}
-				<Link to="/login" className="font-bold text-primary">
+				<Link to="/login" className="text-primary font-bold">
 					Masuk Sekarang
 				</Link>
 			</p>

@@ -49,7 +49,7 @@ export function QuestionReviewItem({ index, question, isCorrect }: QuestionRevie
 							<div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-white font-semibold text-slate-900 shadow-sm">
 								{index + 1}
 							</div>
-							<div className="line-clamp-2 max-h-14 overflow-hidden font-medium text-sm">
+							<div className="line-clamp-2 max-h-14 overflow-hidden text-sm font-medium">
 								<TiptapRenderer content={question.content} className="prose-sm m-0 p-0 [&>p]:m-0" />
 							</div>
 						</div>
@@ -58,8 +58,8 @@ export function QuestionReviewItem({ index, question, isCorrect }: QuestionRevie
 
 					<div className={cn("mx-auto w-full max-w-[95%] select-none", isOpen && "border-r border-l bg-white")}>
 						<div className="flex w-full justify-between rounded-b-sm border border-t-0 bg-white px-6 py-2 text-xs hover:bg-white/80">
-							<span className="font-medium text-muted-foreground">{isOpen ? "Tutup" : "Penjelasan"}</span>
-							<CaretUpIcon className={`size-4 text-muted-foreground transition-transform ${!isOpen && "rotate-180"}`} />
+							<span className="text-muted-foreground font-medium">{isOpen ? "Tutup" : "Penjelasan"}</span>
+							<CaretUpIcon className={`text-muted-foreground size-4 transition-transform ${!isOpen && "rotate-180"}`} />
 						</div>
 					</div>
 				</div>
@@ -71,7 +71,7 @@ export function QuestionReviewItem({ index, question, isCorrect }: QuestionRevie
 
 					<div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
 						<div className="space-y-4">
-							<p className="font-medium text-muted-foreground text-sm">Jawaban Kamu</p>
+							<p className="text-muted-foreground text-sm font-medium">Jawaban Kamu</p>
 							{question.choices.map((choice) => {
 								const isSelected =
 									question.userAnswer.selectedChoiceId === choice.id ||
@@ -118,7 +118,7 @@ export function QuestionReviewItem({ index, question, isCorrect }: QuestionRevie
 
 						{question.discussion != null && (
 							<div className="space-y-4">
-								<p className="font-medium text-muted-foreground text-sm">Kunci Jawaban & Pembahasan</p>
+								<p className="text-muted-foreground text-sm font-medium">Kunci Jawaban & Pembahasan</p>
 								<div className="rounded-lg border bg-blue-50/30 p-4">
 									<div className="mb-4">
 										{question.choices
@@ -133,7 +133,7 @@ export function QuestionReviewItem({ index, question, isCorrect }: QuestionRevie
 											))}
 									</div>
 									<div className="prose-sm">
-										<p className="mb-2 font-medium text-muted-foregroun text-sm">Pembahasan:</p>
+										<p className="text-muted-foregroun mb-2 text-sm font-medium">Pembahasan:</p>
 										<TiptapRenderer content={question.discussion} />
 									</div>
 								</div>

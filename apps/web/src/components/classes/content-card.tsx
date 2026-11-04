@@ -88,8 +88,8 @@ export function ContentCard({
 	return (
 		<Card
 			className={cn(
-				"relative gap-3 rounded-xl border border-border/50 p-3 shadow-sm transition-all duration-300 sm:gap-6 sm:p-4 lg:p-5",
-				!isAdmin && completed && "border-neutral-200 bg-secondary-100",
+				"border-border/50 relative gap-3 rounded-xl border p-3 shadow-sm transition-all duration-300 sm:gap-6 sm:p-4 lg:p-5",
+				!isAdmin && completed && "bg-secondary-100 border-neutral-200",
 				isPremiumContent ? "overflow-hidden opacity-90" : "hover:border-primary/50 hover:shadow-md",
 			)}
 		>
@@ -102,7 +102,7 @@ export function ContentCard({
 					<div className="absolute top-2 right-2 z-20 sm:top-3 sm:right-3">
 						<div className="flex items-center gap-1.5 rounded-full bg-black/80 px-2.5 py-1 backdrop-blur-sm">
 							<LockIcon className="size-4 text-white" weight="fill" />
-							<span className="font-semibold text-white text-xs">Premium</span>
+							<span className="text-xs font-semibold text-white">Premium</span>
 						</div>
 					</div>
 				</>
@@ -122,7 +122,7 @@ export function ContentCard({
 					{/* Drag Handle - only for admin */}
 					{isAdmin && dragControls && (
 						<div
-							className="mt-0.5 flex size-8 cursor-grab touch-none items-center justify-center rounded-lg text-muted-foreground hover:bg-muted active:cursor-grabbing"
+							className="text-muted-foreground hover:bg-muted mt-0.5 flex size-8 cursor-grab touch-none items-center justify-center rounded-lg active:cursor-grabbing"
 							onPointerDown={(e) => dragControls.start(e)}
 						>
 							<DotsNineIcon className="size-6" weight="bold" />
@@ -130,15 +130,15 @@ export function ContentCard({
 					)}
 					<div
 						className={cn(
-							"flex size-8 shrink-0 items-center justify-center rounded-lg font-bold text-primary text-sm shadow-sm sm:size-9",
-							completed ? "bg-neutral-100 text-neutral-1000" : "bg-primary/10",
+							"text-primary flex size-8 shrink-0 items-center justify-center rounded-lg text-sm font-bold shadow-sm sm:size-9",
+							completed ? "text-neutral-1000 bg-neutral-100" : "bg-primary/10",
 						)}
 					>
 						{index + 1}
 					</div>
 
 					<div className="flex h-full items-center pt-0.5">
-						<p className="mr-7 font-bold text-neutral-1000 text-sm sm:text-base lg:text-lg">{item.title}</p>
+						<p className="text-neutral-1000 mr-7 text-sm font-bold sm:text-base lg:text-lg">{item.title}</p>
 					</div>
 				</div>
 
@@ -157,7 +157,7 @@ export function ContentCard({
 									type="button"
 									variant="ghost"
 									size="icon"
-									className="h-8 w-8 rounded-lg text-destructive hover:text-destructive"
+									className="text-destructive hover:text-destructive h-8 w-8 rounded-lg"
 									onClick={onDelete}
 								>
 									<TrashIcon className="size-4 lg:size-5" />
@@ -186,7 +186,7 @@ export function ContentCard({
 							)}
 						>
 							<Icon className="size-4 sm:size-[18px]" weight="bold" />
-							<span className="whitespace-nowrap font-medium text-xs sm:text-[14px]">{label}</span>
+							<span className="text-xs font-medium whitespace-nowrap sm:text-[14px]">{label}</span>
 							<CaretRightIcon className="ml-auto size-4 sm:size-[18px]" weight="bold" />
 						</Link>
 					);

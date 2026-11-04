@@ -112,14 +112,14 @@ function RouteComponent() {
 									<TableSkeleton columns={4} />
 								) : data?.items?.length === 0 ? (
 									<TableRow>
-										<TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
+										<TableCell colSpan={4} className="text-muted-foreground h-24 text-center">
 											Tidak ada universitas ditemukan.
 										</TableCell>
 									</TableRow>
 								) : (
 									data?.items?.map((uni, index) => (
 										<TableRow key={uni.id} className="group hover:bg-muted/30">
-											<TableCell className="text-center font-mono text-muted-foreground text-sm">{index + 1}</TableCell>
+											<TableCell className="text-muted-foreground text-center font-mono text-sm">{index + 1}</TableCell>
 											<TableCell className="font-medium">
 												<Link
 													to="/admin/passing-grades/$universityId"

@@ -76,7 +76,7 @@ function RouteComponent() {
 	}
 
 	if (content.isError) {
-		return <p className="text-red-500 text-sm">Error: {content.error.message}</p>;
+		return <p className="text-sm text-red-500">Error: {content.error.message}</p>;
 	}
 
 	if (!content.data) return notFound();
@@ -88,7 +88,7 @@ function RouteComponent() {
 	return (
 		<div className="space-y-4">
 			<div className="flex flex-col items-start justify-between space-y-1 sm:flex-row sm:items-center">
-				<h2 className="font-semibold text-lg">Edit Catatan Materi</h2>
+				<h2 className="text-lg font-semibold">Edit Catatan Materi</h2>
 				<div className="flex items-center gap-2">
 					<Button type="button" variant="outline" size="sm" onClick={() => setPickerOpen(true)}>
 						<Plus className="mr-1 size-4" />

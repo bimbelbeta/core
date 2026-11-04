@@ -9,7 +9,7 @@ export function FAQ() {
 	return (
 		<Container className="max-w-6xl">
 			<Heading className="mb-2">
-				Paling <span className="font-semibold text-secondary-700">Sering</span> Ditanyakan
+				Paling <span className="text-secondary-700 font-semibold">Sering</span> Ditanyakan
 			</Heading>
 			<Accordion type="single" collapsible>
 				<div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:gap-6">

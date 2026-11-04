@@ -53,7 +53,7 @@ function RouteComponent() {
 	}
 
 	if (content.isError) {
-		return <p className="text-red-500 text-sm">Error: {content.error.message}</p>;
+		return <p className="text-sm text-red-500">Error: {content.error.message}</p>;
 	}
 
 	if (!content.data) return notFound();
@@ -65,7 +65,7 @@ function RouteComponent() {
 				<div className="flex justify-start">
 					<BackButton to={`/classes/${subjectId}/${contentId}/video`} />
 				</div>
-				<p className="font-semibold text-base text-primary-300">Latihan Soal</p>
+				<p className="text-primary-300 text-base font-semibold">Latihan Soal</p>
 
 				<PracticeQuestionHeader content={content.data.title} />
 
@@ -78,9 +78,9 @@ function RouteComponent() {
 
 	return (
 		<div className="space-y-4">
-			<p className="font-semibold text-base text-primary-300">Latihan Soal</p>
+			<p className="text-primary-300 text-base font-semibold">Latihan Soal</p>
 
-			<h2 className="font-bold text-2xl">{content.data.title}</h2>
+			<h2 className="text-2xl font-bold">{content.data.title}</h2>
 
 			<hr />
 
@@ -100,7 +100,7 @@ function RouteComponent() {
 											<p
 												key={answer.id}
 												className={
-													answer.isCorrect ? "font-semibold text-green-600 text-sm" : "text-muted-foreground text-sm"
+													answer.isCorrect ? "text-sm font-semibold text-green-600" : "text-muted-foreground text-sm"
 												}
 											>
 												{answer.code}. {answer.content}
@@ -115,8 +115,8 @@ function RouteComponent() {
 									</p>
 								)}
 								{Boolean(q.discussion) && (
-									<div className="mt-3 border-neutral-200 border-t pt-3">
-										<p className="mb-1 font-medium text-sm">Pembahasan:</p>
+									<div className="mt-3 border-t border-neutral-200 pt-3">
+										<p className="mb-1 text-sm font-medium">Pembahasan:</p>
 										<TiptapRenderer content={q.discussion} />
 									</div>
 								)}

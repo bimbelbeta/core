@@ -178,7 +178,7 @@ export function ProductForm({ initialData, onSuccess, onCancel }: ProductFormPro
 								placeholder="Contoh: Premium Package"
 							/>
 							{field.state.meta.errors.map((error) => (
-								<p key={error?.message} className="text-red-500 text-xs">
+								<p key={error?.message} className="text-xs text-red-500">
 									{error?.message}
 								</p>
 							))}
@@ -230,7 +230,7 @@ export function ProductForm({ initialData, onSuccess, onCancel }: ProductFormPro
 								placeholder="Contoh: 100000"
 							/>
 							{field.state.meta.errors.map((error) => (
-								<p key={error?.message} className="text-red-500 text-xs">
+								<p key={error?.message} className="text-xs text-red-500">
 									{error?.message}
 								</p>
 							))}

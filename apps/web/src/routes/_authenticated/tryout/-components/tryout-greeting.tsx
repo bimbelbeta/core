@@ -62,7 +62,7 @@ export function TryoutGreeting({ countdownProps }: TryoutGreetingProps) {
 	return (
 		<Card className="flex w-full flex-col gap-6 p-6">
 			<div className="flex items-center justify-between gap-4">
-				<p className="font-semibold text-lg text-muted-foreground">Subtest {data.currentSubtest.order}</p>
+				<p className="text-muted-foreground text-lg font-semibold">Subtest {data.currentSubtest.order}</p>
 				{data.currentSubtest?.deadline && (
 					<div className={buttonVariants({ variant: "outline", size: "sm" })}>
 						Sisa Waktu:
@@ -76,9 +76,9 @@ export function TryoutGreeting({ countdownProps }: TryoutGreetingProps) {
 			<Separator />
 
 			<div className="space-y-2">
-				<h1 className="font-bold text-4xl">{data.currentSubtest?.name}</h1>
+				<h1 className="text-4xl font-bold">{data.currentSubtest?.name}</h1>
 				{data.currentSubtest.description && (
-					<div className="font-bold text-lg text-muted-foreground">{data.currentSubtest.description}</div>
+					<div className="text-muted-foreground text-lg font-bold">{data.currentSubtest.description}</div>
 				)}
 				<div className="text-muted-foreground">
 					<p>

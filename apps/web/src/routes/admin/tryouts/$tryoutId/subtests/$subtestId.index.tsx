@@ -92,7 +92,7 @@ function SubtestDetailPage() {
 						</Link>
 					</Button>
 					<div>
-						<h1 className="font-bold text-2xl text-primary-navy-900">Kelola Soal Subtest</h1>
+						<h1 className="text-primary-navy-900 text-2xl font-bold">Kelola Soal Subtest</h1>
 						<p className="text-muted-foreground text-sm">{questions.length} soal di subtest ini</p>
 					</div>
 				</div>

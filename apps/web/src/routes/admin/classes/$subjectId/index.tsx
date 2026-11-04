@@ -225,7 +225,7 @@ function RouteComponent() {
 		return (
 			<div className="mx-auto max-w-6xl">
 				<Container className="pt-12">
-					<p className="text-red-500 text-sm">Error: {contents.error.message}</p>
+					<p className="text-sm text-red-500">Error: {contents.error.message}</p>
 				</Container>
 			</div>
 		);
@@ -235,7 +235,7 @@ function RouteComponent() {
 	return (
 		<Container className="px-0 py-4">
 			<ClassHeader subject={contents.data.subject} />
-			<div className="sticky top-0 z-10 space-y-4 border-b bg-background/95 pb-4 backdrop-blur">
+			<div className="bg-background/95 sticky top-0 z-10 space-y-4 border-b pb-4 backdrop-blur">
 				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 					<div className="w-full flex-1 sm:max-w-md">
 						<SearchInput value={searchQuery} onChange={(q) => updateSearch({ q })} placeholder="Cari konten..." />
@@ -286,7 +286,7 @@ function RouteComponent() {
 										placeholder="Masukkan judul konten"
 									/>
 									{field.state.meta.errors.map((error) => (
-										<p key={error?.message} className="text-red-500 text-sm">
+										<p key={error?.message} className="text-sm text-red-500">
 											{error?.message}
 										</p>
 									))}
@@ -301,7 +301,7 @@ function RouteComponent() {
 										checked={field.state.value}
 										onCheckedChange={(checked) => field.handleChange(Boolean(checked))}
 									/>
-									<Label htmlFor={field.name} className="font-normal text-sm">
+									<Label htmlFor={field.name} className="text-sm font-normal">
 										Buat catatan materi awal (minimal satu komponen per konten)
 									</Label>
 								</div>
@@ -349,7 +349,7 @@ function RouteComponent() {
 										placeholder="Masukkan judul konten"
 									/>
 									{field.state.meta.errors.map((error) => (
-										<p key={error?.message} className="text-red-500 text-sm">
+										<p key={error?.message} className="text-sm text-red-500">
 											{error?.message}
 										</p>
 									))}

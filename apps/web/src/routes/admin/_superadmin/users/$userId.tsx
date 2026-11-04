@@ -61,7 +61,7 @@ function UserDetailPage() {
 					<ArrowLeftIcon className="size-5" />
 				</Button>
 				<div>
-					<h1 className="font-bold text-2xl text-primary-navy-900">{user.name}</h1>
+					<h1 className="text-primary-navy-900 text-2xl font-bold">{user.name}</h1>
 					<p className="text-muted-foreground">{user.email}</p>
 				</div>
 				<div className="ml-auto flex gap-2">
@@ -141,7 +141,7 @@ function UserDetailPage() {
 					</CardHeader>
 					<CardContent>
 						{creditHistory.length === 0 ? (
-							<p className="py-8 text-center text-muted-foreground">Tidak ada transaksi kredit</p>
+							<p className="text-muted-foreground py-8 text-center">Tidak ada transaksi kredit</p>
 						) : (
 							<div className="rounded-md border">
 								<Table>

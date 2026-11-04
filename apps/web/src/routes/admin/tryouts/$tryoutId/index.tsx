@@ -153,7 +153,7 @@ function TryoutDetailPage() {
 							<>
 								<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
 									<div className="space-y-1">
-										<p className="text-muted-foreground text-xs uppercase tracking-wide">Status</p>
+										<p className="text-muted-foreground text-xs tracking-wide uppercase">Status</p>
 										<div className="flex items-center gap-2">
 											<div
 												className={cn("size-2 rounded-full", {
@@ -166,16 +166,16 @@ function TryoutDetailPage() {
 										</div>
 									</div>
 									<div className="space-y-1">
-										<p className="text-muted-foreground text-xs uppercase tracking-wide">Kategori</p>
+										<p className="text-muted-foreground text-xs tracking-wide uppercase">Kategori</p>
 										<p className="font-medium">{CATEGORY_LABELS[tryout!.category]}</p>
 									</div>
 									<div className="space-y-1">
-										<p className="text-muted-foreground text-xs uppercase tracking-wide">Jumlah Subtest</p>
+										<p className="text-muted-foreground text-xs tracking-wide uppercase">Jumlah Subtest</p>
 										<p className="font-medium">{subtests.length}</p>
 									</div>
 									<div className="space-y-1">
-										<p className="text-muted-foreground text-xs uppercase tracking-wide">Jadwal</p>
-										<p className="font-medium text-sm">{formatDateRange()}</p>
+										<p className="text-muted-foreground text-xs tracking-wide uppercase">Jadwal</p>
+										<p className="text-sm font-medium">{formatDateRange()}</p>
 									</div>
 								</div>
 								{tryout!.description && (
@@ -205,7 +205,7 @@ function TryoutDetailPage() {
 								<ListIcon className="size-4" />
 								Subtest
 								{subtests.length > 0 && (
-									<span className="ml-1 rounded-full bg-primary/10 px-1.5 py-0.5 font-medium text-primary text-xs">
+									<span className="bg-primary/10 text-primary ml-1 rounded-full px-1.5 py-0.5 text-xs font-medium">
 										{subtests.length}
 									</span>
 								)}

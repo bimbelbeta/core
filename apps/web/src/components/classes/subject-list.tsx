@@ -66,7 +66,7 @@ export function SubjectList({
 				)}
 			</div>
 
-			{error && <p className="text-red-500 text-sm">{error}</p>}
+			{error && <p className="text-sm text-red-500">{error}</p>}
 
 			{/*{items && items.length === 0 && (
         <NotFoundContentState
@@ -76,7 +76,7 @@ export function SubjectList({
       )}*/}
 
 			{searchQuery && items && items.length > 0 && (
-				<p className="mb-4 text-muted-foreground text-sm">
+				<p className="text-muted-foreground mb-4 text-sm">
 					{items.length} hasil untuk "{searchQuery}"
 				</p>
 			)}

@@ -102,7 +102,7 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 		<Card>
 			<CardHeader className="pb-3">
 				<div className="flex items-center gap-2">
-					<UserIcon className="size-4 text-muted-foreground" />
+					<UserIcon className="text-muted-foreground size-4" />
 					<CardTitle className="text-base">Daftar Attempts</CardTitle>
 				</div>
 				<CardDescription>Riwayat pengerjaan tryout oleh user</CardDescription>
@@ -155,21 +155,21 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 										return (
 											<TableRow key={attempt.id} className="hover:bg-muted/30">
 												<TableCell className="pl-4 text-center">
-													<div className="mx-auto flex size-6 items-center justify-center rounded-full bg-muted font-medium font-mono text-xs">
+													<div className="bg-muted mx-auto flex size-6 items-center justify-center rounded-full font-mono text-xs font-medium">
 														{index + 1}
 													</div>
 												</TableCell>
 
 												<TableCell>
 													<div className="flex items-center gap-3">
-														<Avatar className="size-9 rounded-full ring-2 ring-border">
+														<Avatar className="ring-border size-9 rounded-full ring-2">
 															<AvatarImage src={user.image ?? undefined} alt={user.name} />
-															<AvatarFallback className="bg-primary-100 font-semibold text-primary-700 text-xs">
+															<AvatarFallback className="bg-primary-100 text-primary-700 text-xs font-semibold">
 																{getInitials(user.name)}
 															</AvatarFallback>
 														</Avatar>
 														<div className="flex flex-col">
-															<span className="font-semibold text-foreground leading-tight">{user.name}</span>
+															<span className="text-foreground leading-tight font-semibold">{user.name}</span>
 															<span className="text-muted-foreground text-xs leading-tight">{user.email}</span>
 														</div>
 													</div>
@@ -178,7 +178,7 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 												<TableCell>
 													<Badge
 														variant={statusConfig.variant}
-														className={cn("font-medium text-xs", statusConfig.className)}
+														className={cn("text-xs font-medium", statusConfig.className)}
 													>
 														{statusConfig.label}
 													</Badge>
@@ -186,10 +186,10 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 
 												<TableCell>
 													<div className="flex items-center gap-1.5">
-														<ChartBarIcon className="size-3.5 text-muted-foreground" />
+														<ChartBarIcon className="text-muted-foreground size-3.5" />
 														<span
 															className={cn(
-																"font-semibold text-sm tabular-nums",
+																"text-sm font-semibold tabular-nums",
 																attempt.score == null ? "text-muted-foreground" : "text-foreground",
 															)}
 														>
@@ -204,7 +204,7 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 														<TableCell key={subtest.id}>
 															<span
 																className={cn(
-																	"font-semibold text-sm tabular-nums",
+																	"text-sm font-semibold tabular-nums",
 																	subtestScore == null ? "text-muted-foreground" : "text-foreground",
 																)}
 															>
@@ -218,7 +218,7 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 													{startedAt ? (
 														<Tooltip>
 															<TooltipTrigger asChild>
-																<span className="flex items-center gap-1.5 text-muted-foreground text-xs">
+																<span className="text-muted-foreground flex items-center gap-1.5 text-xs">
 																	<CalendarDotsIcon className="size-3.5" />
 																	{formatRelativeDate(startedAt)}
 																</span>
@@ -242,7 +242,7 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 													{completedAt ? (
 														<Tooltip>
 															<TooltipTrigger asChild>
-																<span className="flex items-center gap-1.5 text-muted-foreground text-xs">
+																<span className="text-muted-foreground flex items-center gap-1.5 text-xs">
 																	<TimerIcon className="size-3.5" />
 																	{formatRelativeDate(completedAt)}
 																</span>
