@@ -15,6 +15,7 @@ import {
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { BulkAddQuestionsDialog } from "../../-components/bulk-add-questions-dialog";
@@ -92,8 +93,10 @@ function SubtestDetailPage() {
 						</Link>
 					</Button>
 					<div>
-						<h1 className="text-primary-navy-900 text-2xl font-bold">Kelola Soal Subtest</h1>
-						<p className="text-muted-foreground text-sm">{questions.length} soal di subtest ini</p>
+						<Typography variant="title">Kelola Soal Subtest</Typography>
+						<Typography variant="body" tone="muted">
+							{questions.length} soal di subtest ini
+						</Typography>
 					</div>
 				</div>
 				<div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:flex lg:flex-wrap lg:justify-end">
