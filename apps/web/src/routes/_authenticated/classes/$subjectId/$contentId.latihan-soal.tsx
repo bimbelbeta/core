@@ -6,6 +6,7 @@ import { PracticeQuestion } from "@/components/classes/practice-question";
 import { PracticeQuestionHeader } from "@/components/classes/practice-question-header";
 import { BackButton } from "@/components/shared/back-button";
 import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 
@@ -49,11 +50,11 @@ function RouteComponent() {
 	}, [content.data?.practiceQuestions, contentId]);
 
 	if (content.isPending) {
-		return <p className="animate-pulse text-sm">Memuat latihan soal...</p>;
+		return <Typography className="animate-pulse">Memuat latihan soal...</Typography>;
 	}
 
 	if (content.isError) {
-		return <p className="text-sm text-red-500">Error: {content.error.message}</p>;
+		return <Typography className="text-red-500">Error: {content.error.message}</Typography>;
 	}
 
 	if (!content.data) return notFound();
@@ -65,7 +66,9 @@ function RouteComponent() {
 				<div className="flex justify-start">
 					<BackButton to={`/classes/${subjectId}/${contentId}/video`} />
 				</div>
-				<p className="text-primary-300 text-base font-semibold">Latihan Soal</p>
+				<Typography variant="subtitle2" as="p" className="text-primary-300">
+					Latihan Soal
+				</Typography>
 
 				<PracticeQuestionHeader content={content.data.title} />
 
@@ -78,9 +81,13 @@ function RouteComponent() {
 
 	return (
 		<div className="space-y-4">
-			<p className="text-primary-300 text-base font-semibold">Latihan Soal</p>
+			<Typography variant="subtitle2" as="p" className="text-primary-300">
+				Latihan Soal
+			</Typography>
 
-			<h2 className="text-2xl font-bold">{content.data.title}</h2>
+			<Typography variant="title" as="h2">
+				{content.data.title}
+			</Typography>
 
 			<hr />
 
@@ -97,26 +104,29 @@ function RouteComponent() {
 								{q.answers && q.answers.length > 0 && (
 									<div className="space-y-2">
 										{q.answers.map((answer) => (
-											<p
+											<Typography
 												key={answer.id}
-												className={
-													answer.isCorrect ? "text-sm font-semibold text-green-600" : "text-muted-foreground text-sm"
-												}
+												tone={answer.isCorrect ? "default" : "muted"}
+												className={answer.isCorrect ? "text-green-600" : undefined}
 											>
-												{answer.code}. {answer.content}
-												{answer.isCorrect && " ✓"}
-											</p>
+												<span className={answer.isCorrect ? "font-semibold" : undefined}>
+													{answer.code}. {answer.content}
+													{answer.isCorrect && " ✓"}
+												</span>
+											</Typography>
 										))}
 									</div>
 								)}
 								{(!q.answers || q.answers.length === 0) && q.type === "essay" && q.essayCorrectAnswer && (
-									<p className="text-sm">
+									<Typography>
 										Kunci jawaban: <span className="font-semibold">{q.essayCorrectAnswer}</span>
-									</p>
+									</Typography>
 								)}
 								{Boolean(q.discussion) && (
 									<div className="mt-3 border-t border-neutral-200 pt-3">
-										<p className="mb-1 text-sm font-medium">Pembahasan:</p>
+										<Typography variant="overline" tone="default" as="p" className="mb-1">
+											Pembahasan:
+										</Typography>
 										<TiptapRenderer content={q.discussion} />
 									</div>
 								)}
@@ -125,7 +135,7 @@ function RouteComponent() {
 					/>
 				))
 			) : (
-				<p className="text-muted-foreground text-sm">Belum ada latihan soal untuk materi ini.</p>
+				<Typography tone="muted">Belum ada latihan soal untuk materi ini.</Typography>
 			)}
 		</div>
 	);
