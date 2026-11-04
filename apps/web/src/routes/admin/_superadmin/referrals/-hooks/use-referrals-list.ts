@@ -2,6 +2,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useBulkSelection } from "@/hooks/use-bulk-selection";
 import { usePaginationNavigation } from "@/hooks/use-pagination-navigation";
 import { orpc } from "@/lib/orpc";
 
@@ -9,13 +10,16 @@ export function useReferralsList() {
 	const navigate = useNavigate({ from: "/admin/referrals/" });
 	const { after, before, limit = 10, search } = useSearch({ from: "/admin/_superadmin/referrals/" });
 
-	const [selectedIds, setSelectedIds] = useState<string[]>([]);
 	const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
 
 	const { data, isLoading, refetch } = useQuery(
 		orpc.admin.referral.list.queryOptions({
 			input: { after, before, limit, search },
 		}),
+	);
+
+	const { selectedIds, toggleSelectAll, toggleSelectOne, clearSelection, allSelected, someSelected } = useBulkSelection(
+		data?.items,
 	);
 
 	const pageInfo = data?.pageInfo;
@@ -40,7 +44,7 @@ export function useReferralsList() {
 		orpc.admin.referral.bulkDeactivate.mutationOptions({
 			onSuccess: (res) => {
 				toast.success(res.message);
-				setSelectedIds([]);
+				clearSelection();
 				setBulkDialogOpen(false);
 				refetch();
 			},
@@ -48,20 +52,6 @@ export function useReferralsList() {
 		}),
 	);
 
-	const toggleSelectAll = () => {
-		if (selectedIds.length === (data?.items.length ?? 0)) {
-			setSelectedIds([]);
-		} else {
-			setSelectedIds(data?.items.map((c) => c.id) ?? []);
-		}
-	};
-
-	const toggleSelectOne = (id: string) => {
-		setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
-	};
-
-	const allSelected = selectedIds.length === (data?.items.length ?? 0) && (data?.items.length ?? 0) > 0;
-	const someSelected = selectedIds.length > 0 && selectedIds.length < (data?.items.length ?? 0);
 	const handleSearch = (value: string) => navigate({ search: value ? { search: value, limit } : baseSearchParams });
 
 	const handleToggleStatus = (codeId: string, status: boolean) => toggleStatusMutation.mutate({ codeId, status });

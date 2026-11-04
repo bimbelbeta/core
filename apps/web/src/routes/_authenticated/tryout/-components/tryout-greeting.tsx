@@ -79,7 +79,9 @@ export function TryoutGreeting({ countdownProps }: TryoutGreetingProps) {
 			<Separator />
 
 			<div className="space-y-2">
-				<Typography variant="display">{data.currentSubtest?.name}</Typography>
+				<Typography variant="display" as="h2">
+					{data.currentSubtest?.name}
+				</Typography>
 				{data.currentSubtest.description && (
 					<div className="text-muted-foreground text-lg font-bold">{data.currentSubtest.description}</div>
 				)}

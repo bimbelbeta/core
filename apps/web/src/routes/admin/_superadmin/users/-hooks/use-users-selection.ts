@@ -1,19 +1,22 @@
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useBulkSelection } from "@/hooks/use-bulk-selection";
 import { orpc } from "@/lib/orpc";
 import { useUsersList } from "./use-users-list";
 
 export function useUsersSelectionState() {
-	const [selectedIds, setSelectedIds] = useState<string[]>([]);
 	const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
 	const { data, refetch } = useUsersList();
+	const { selectedIds, toggleSelectAll, toggleSelectOne, clearSelection, allSelected, someSelected } = useBulkSelection(
+		data?.items,
+	);
 
 	const deleteBatchMutation = useMutation(
 		orpc.admin.users.deleteBatch.mutationOptions({
 			onSuccess: (res) => {
 				toast.success(res.message);
-				setSelectedIds([]);
+				clearSelection();
 				setBulkDeleteDialogOpen(false);
 				refetch();
 			},
@@ -22,21 +25,6 @@ export function useUsersSelectionState() {
 			},
 		}),
 	);
-
-	const toggleSelectAll = () => {
-		if (selectedIds.length === (data?.items.length ?? 0)) {
-			setSelectedIds([]);
-		} else {
-			setSelectedIds(data?.items.map((u) => u.id) ?? []);
-		}
-	};
-
-	const toggleSelectOne = (id: string) => {
-		setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
-	};
-
-	const allSelected = selectedIds.length === (data?.items.length ?? 0) && (data?.items.length ?? 0) > 0;
-	const someSelected = selectedIds.length > 0 && selectedIds.length < (data?.items.length ?? 0);
 
 	const handleBulkDelete = () => {
 		deleteBatchMutation.mutate({ userIds: selectedIds });

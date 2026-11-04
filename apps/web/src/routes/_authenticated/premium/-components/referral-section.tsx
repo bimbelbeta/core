@@ -11,7 +11,7 @@ export function ReferralSection() {
 
 	return (
 		<>
-			<Card className="border-primary-100 from-primary-50 bg-gradient-to-br to-white p-6">
+			<Card className="border-primary-100 from-primary-100 bg-gradient-to-br to-white p-6">
 				<div className="flex items-start gap-4">
 					<div className="bg-primary-100 hidden rounded-xl p-3 sm:block">
 						<TicketIcon size={28} weight="duotone" className="text-primary" />

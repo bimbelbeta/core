@@ -127,9 +127,15 @@ export function BulkAddQuestionsDialog({
 											key={question.id}
 											selected={isSelected}
 											variant="outline"
-											className="hover:bg-muted/50 relative cursor-pointer flex-col items-stretch gap-3 p-3 text-left"
+											className="hover:bg-muted/50 focus-within:ring-primary relative cursor-pointer flex-col items-stretch gap-3 p-3 text-left focus-within:ring-2"
 										>
-											<button type="button" aria-pressed={isSelected} onClick={() => handleQuestionToggle(question.id)}>
+											<label>
+												<input
+													type="checkbox"
+													className="sr-only"
+													checked={isSelected}
+													onChange={() => handleQuestionToggle(question.id)}
+												/>
 												{isSelected && (
 													<div className="text-primary absolute top-3 right-3">
 														<CheckCircleIcon size={20} weight="fill" />
@@ -141,7 +147,7 @@ export function BulkAddQuestionsDialog({
 												<div className="pr-8">
 													<TiptapRenderer content={question.content} />
 												</div>
-											</button>
+											</label>
 										</Item>
 									);
 								})}
