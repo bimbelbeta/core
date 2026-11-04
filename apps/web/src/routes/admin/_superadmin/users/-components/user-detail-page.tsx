@@ -1,4 +1,6 @@
 import { ArrowLeftIcon } from "@phosphor-icons/react";
+import { useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,18 +12,13 @@ import { GrantCreditsDialog } from "./grant-credits-dialog";
 import { GrantPremiumDialog } from "./grant-premium-dialog";
 
 export function UserDetailPage() {
-	const {
-		data,
-		isLoading,
-		refetch,
-		handleBack,
-		isEditRoleDialogOpen,
-		setIsEditRoleDialogOpen,
-		isGrantCreditsDialogOpen,
-		setIsGrantCreditsDialogOpen,
-		isGrantPremiumDialogOpen,
-		setIsGrantPremiumDialogOpen,
-	} = useUserDetail();
+	const { data, isLoading, refetch } = useUserDetail();
+	const navigate = useNavigate({ from: "/admin/users/$userId" });
+	const handleBack = () => navigate({ to: "/admin/users" });
+
+	const [isEditRoleDialogOpen, setIsEditRoleDialogOpen] = useState(false);
+	const [isGrantCreditsDialogOpen, setIsGrantCreditsDialogOpen] = useState(false);
+	const [isGrantPremiumDialogOpen, setIsGrantPremiumDialogOpen] = useState(false);
 
 	if (isLoading) {
 		return (

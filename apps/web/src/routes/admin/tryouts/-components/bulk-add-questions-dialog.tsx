@@ -127,21 +127,17 @@ export function BulkAddQuestionsDialog({
 											selected={isSelected}
 											variant="outline"
 											className="hover:bg-muted/50 focus-within:ring-primary relative cursor-pointer flex-col items-stretch gap-3 p-3 text-left focus-within:ring-2"
+											onClick={() => handleQuestionToggle(question.id)}
 										>
 											<input
-												id={`pick-question-${question.id}`}
 												type="checkbox"
 												className="sr-only"
+												aria-label={`Pilih soal #${question.id}`}
 												checked={isSelected}
 												onChange={() => handleQuestionToggle(question.id)}
 											/>
-											<label
-												htmlFor={`pick-question-${question.id}`}
-												aria-label={`Pilih soal #${question.id}`}
-												className="absolute inset-0 cursor-pointer"
-											/>
 											{isSelected && (
-												<div className="text-primary absolute top-3 right-3">
+												<div className="text-primary pointer-events-none absolute top-3 right-3">
 													<CheckCircleIcon size={20} weight="fill" />
 												</div>
 											)}

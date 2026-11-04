@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { usePaginationNavigation } from "@/hooks/use-pagination-navigation";
 import { orpc } from "@/lib/orpc";
 import { subjectCategorySchema, tryoutStatusSchema } from "@/lib/schemas";
+import { withoutSearchKey } from "@/lib/tanstack-router-utils";
 
 export function useTryoutsList() {
 	const navigate = useNavigate({ from: "/admin/tryouts/" });
@@ -51,20 +52,20 @@ export function useTryoutsList() {
 	};
 
 	const handleSearch = (value: string) => {
-		const { search: _search, ...withoutSearch } = baseSearchParams;
+		const withoutSearch = withoutSearchKey(baseSearchParams, "search");
 		setSearchInput(value);
 		navigate({ search: value ? { ...baseSearchParams, search: value } : withoutSearch });
 	};
 
 	const handleCategoryChange = (value: string) => {
-		const { category: _category, ...rest } = baseSearchParams;
+		const rest = withoutSearchKey(baseSearchParams, "category");
 		navigate({
 			search: value !== "all" ? { ...rest, category: subjectCategorySchema.assert(value) } : rest,
 		});
 	};
 
 	const handleStatusChange = (value: string) => {
-		const { status: _status, ...rest } = baseSearchParams;
+		const rest = withoutSearchKey(baseSearchParams, "status");
 		navigate({
 			search: value !== "all" ? { ...rest, status: tryoutStatusSchema.assert(value) } : rest,
 		});

@@ -3,6 +3,7 @@ import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useState } from "react";
 import { usePaginationNavigation } from "@/hooks/use-pagination-navigation";
 import { orpc } from "@/lib/orpc";
+import { withoutSearchKey } from "@/lib/tanstack-router-utils";
 
 export function useProductsList() {
 	const navigate = useNavigate({ from: "/admin/products/" });
@@ -40,20 +41,20 @@ export function useProductsList() {
 	};
 
 	const handleSearch = (value: string) => {
-		const { search: _search, ...withoutSearch } = baseSearchParams;
+		const withoutSearch = withoutSearchKey(baseSearchParams, "search");
 		setSearchInput(value);
 		navigate({ search: value ? { ...baseSearchParams, search: value } : withoutSearch });
 	};
 
 	const handleVariantChange = (value: string) => {
-		const { variant: _variant, ...rest } = baseSearchParams;
+		const rest = withoutSearchKey(baseSearchParams, "variant");
 		navigate({
 			search: value === "fixed_date" || value === "monthly" || value === "credits" ? { ...rest, variant: value } : rest,
 		});
 	};
 
 	const handleIncludeDeletedChange = (value: string) => {
-		const { includeDeleted: _includeDeleted, ...rest } = baseSearchParams;
+		const rest = withoutSearchKey(baseSearchParams, "includeDeleted");
 		navigate({ search: value === "true" ? { ...rest, includeDeleted: true } : rest });
 	};
 

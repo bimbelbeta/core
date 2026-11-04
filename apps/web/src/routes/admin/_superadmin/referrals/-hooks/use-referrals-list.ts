@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useBulkSelection } from "@/hooks/use-bulk-selection";
 import { usePaginationNavigation } from "@/hooks/use-pagination-navigation";
 import { orpc } from "@/lib/orpc";
+import { withoutSearchKey } from "@/lib/tanstack-router-utils";
 
 export function useReferralsList() {
 	const navigate = useNavigate({ from: "/admin/referrals/" });
@@ -53,7 +54,7 @@ export function useReferralsList() {
 	);
 
 	const handleSearch = (value: string) => {
-		const { search: _search, ...withoutSearch } = baseSearchParams;
+		const withoutSearch = withoutSearchKey(baseSearchParams, "search");
 		navigate({ search: value ? { search: value, limit } : withoutSearch });
 	};
 

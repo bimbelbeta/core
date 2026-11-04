@@ -81,7 +81,7 @@ function ResetPasswordForm() {
 	return (
 		<div className="w-full max-w-md">
 			<Image src="/avatar/study-avatar.webp" alt="Study Avatar" width={128} height={128} className="mx-auto" />
-			<Card variant="plain" className="border-primary/50 w-full rounded-sm p-8 shadow-lg">
+			<Card variant="unpadded" className="border-primary/50 w-full rounded-sm p-8 shadow-lg">
 				<div className="flex flex-col items-center gap-2 text-center">
 					{" "}
 					<Typography variant="display" className="text-primary">
