@@ -125,7 +125,7 @@ export function AnswerPanel() {
 										saveAnswerMutation.isPending && "opacity-50",
 									)}
 								>
-									<span className="min-w-0 flex-1 whitespace-normal break-words">{choice.content}</span>
+									<span className="min-w-0 flex-1 break-words whitespace-normal">{choice.content}</span>
 									<span
 										className={cn(
 											"flex size-8 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
@@ -187,7 +187,7 @@ function AnswerOption({
 		>
 			<span
 				className={cn(
-					"rounded-xs border border-foreground/20 px-2.5 py-0.5 font-medium text-sm",
+					"border-foreground/20 rounded-xs border px-2.5 py-0.5 text-sm font-medium",
 					selected && "bg-primary text-primary-foreground",
 				)}
 			>

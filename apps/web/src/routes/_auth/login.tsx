@@ -113,9 +113,9 @@ function SignInForm() {
 			<div className="absolute left-1/2 z-50 -translate-x-1/2 -translate-y-full">
 				<Image src="/images/main-card-kelas.webp" alt="Study Avatar" width={200} height={200} />
 			</div>
-			<div className="relative z-10 w-full rounded-sm border border-primary/50 bg-white p-8 shadow-lg">
+			<div className="border-primary/50 relative z-10 w-full rounded-sm border bg-white p-8 shadow-lg">
 				<div className="flex flex-col items-center gap-2 text-center">
-					<h1 className="text-3xl text-primary">
+					<h1 className="text-primary text-3xl">
 						<span className="font-bold">Selamat Datang </span>
 						Kembali
 					</h1>
@@ -147,7 +147,7 @@ function SignInForm() {
 										onChange={(e) => field.handleChange(e.target.value)}
 									/>
 									{field.state.meta.errors.map((error) => (
-										<p key={error?.message} className="text-red-500 text-xs">
+										<p key={error?.message} className="text-xs text-red-500">
 											{error?.message}
 										</p>
 									))}
@@ -170,14 +170,14 @@ function SignInForm() {
 										onChange={(e) => field.handleChange(e.target.value)}
 									/>
 									{field.state.meta.errors.map((error) => (
-										<p key={error?.message} className="text-red-500 text-xs">
+										<p key={error?.message} className="text-xs text-red-500">
 											{error?.message}
 										</p>
 									))}
 								</div>
 							)}
 						</form.Field>
-						<Link to="/forgot-password" className="ml-auto w-fit text-primary text-xs underline">
+						<Link to="/forgot-password" className="text-primary ml-auto w-fit text-xs underline">
 							Lupa Password?
 						</Link>
 					</div>
@@ -193,7 +193,7 @@ function SignInForm() {
 
 				<div className="flex items-center gap-4 py-4">
 					<Separator className="flex-1" />
-					<span className="shrink-0 text-muted-foreground text-xs uppercase">atau</span>
+					<span className="text-muted-foreground shrink-0 text-xs uppercase">atau</span>
 					<Separator className="flex-1" />
 				</div>
 
@@ -225,7 +225,7 @@ function SignInForm() {
 
 			<p className="mt-4 text-center text-sm">
 				Belum punya akun?{" "}
-				<Link to="/register" className="font-bold text-primary">
+				<Link to="/register" className="text-primary font-bold">
 					Daftar Sekarang
 				</Link>
 			</p>

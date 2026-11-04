@@ -1,8 +1,8 @@
 import { ArrowUpRightIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -54,7 +54,7 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 
 			<section className="space-y-4">
 				<div className="space-y-1">
-					<h2 className="font-semibold text-lg">Tryout yang tersedia</h2>
+					<h2 className="text-lg font-semibold">Tryout yang tersedia</h2>
 					<p className="text-muted-foreground text-sm">Pilih TO publik lalu masukkan kode akses seperti biasa.</p>
 				</div>
 				{(() => {
@@ -97,7 +97,7 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 										<div className="space-y-2">
 											<div className="flex items-start justify-between gap-3">
 												<div className="space-y-1">
-													<h3 className="font-semibold text-base leading-tight">{tryout.title}</h3>
+													<h3 className="text-base leading-tight font-semibold">{tryout.title}</h3>
 													<p className="text-muted-foreground text-sm">{CATEGORY_LABELS[category]}</p>
 												</div>
 												<Badge variant={tryout.isOpen ? "default" : "secondary"} className="shrink-0">
@@ -106,7 +106,9 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 											</div>
 											<Separator />
 											<p className="text-muted-foreground text-sm">
-												{tryout.isOpen ? "Siap dipilih dan dimulai dengan kode akses." : "Tryout ini sudah dipublikasikan, tetapi jadwalnya belum dibuka."}
+												{tryout.isOpen
+													? "Siap dipilih dan dimulai dengan kode akses."
+													: "Tryout ini sudah dipublikasikan, tetapi jadwalnya belum dibuka."}
 											</p>
 										</div>
 										<TryoutStartConfirmation tryoutId={tryout.id} disabled={!tryout.isOpen}>
@@ -116,7 +118,7 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 										</TryoutStartConfirmation>
 									</Card>
 								);
-								})}
+							})}
 						</div>
 					);
 				})()}
@@ -124,7 +126,7 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 
 			<Card>
 				<CardContent className="space-y-4 text-sm">
-					<h2 className="mb-4 font-bold text-lg">Petunjuk Pengerjaan Try Out</h2>
+					<h2 className="mb-4 text-lg font-bold">Petunjuk Pengerjaan Try Out</h2>
 
 					<div className="space-y-2">
 						<h3 className="flex items-center gap-2 font-bold">
@@ -160,7 +162,7 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 				</CardContent>
 			</Card>
 
-			<Card className="border border-secondary-500 bg-secondary-500/20">
+			<Card className="border-secondary-500 bg-secondary-500/20 border">
 				<CardHeader className="flex items-center justify-between gap-4">
 					<CardTitle className="font-normal sm:text-2xl">
 						Akses Pembahasan Dengan <span className="font-semibold">Tryout Premium</span>

@@ -25,7 +25,7 @@ export function SubjectCard({ subject }: { subject: SubjectListItem }) {
 	return (
 		<Card
 			className={cn(
-				"relative h-auto overflow-hidden border border-neutral-200 bg-white p-4 shadow-md transition-colors duration-500 hover:border-primary-300 hover:shadow-md/20",
+				"hover:border-primary-300 relative h-auto overflow-hidden border border-neutral-200 bg-white p-4 shadow-md transition-colors duration-500 hover:shadow-md/20",
 			)}
 		>
 			{/* Lock overlay for premium content */}
@@ -37,20 +37,20 @@ export function SubjectCard({ subject }: { subject: SubjectListItem }) {
 					<div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 transition-opacity duration-300">
 						<div className="flex items-center justify-center gap-1.5 rounded-full bg-black/60 px-3 py-1.5 backdrop-blur-sm">
 							<LockKeyIcon size={16} className="text-white" weight="fill" />
-							<span className="font-semibold text-white text-xs">Premium dulu yuk!</span>
+							<span className="text-xs font-semibold text-white">Premium dulu yuk!</span>
 						</div>
 					</div>
 				</>
 			)}
 			<div className="flex h-full justify-between">
 				<div className="my-auto w-1/2">
-					<h3 className="text-pretty font-semibold text-lg leading-tight xl:text-2xl">{subject?.name}</h3>
+					<h3 className="text-lg leading-tight font-semibold text-pretty xl:text-2xl">{subject?.name}</h3>
 					{/*<p className="font-light text-sm"> {subject?.totalContent} Konten</p>*/}
 
 					{subject.category === "utbk" ? (
-						<p className="font-light text-sm">SMA Kelas 12</p>
+						<p className="text-sm font-light">SMA Kelas 12</p>
 					) : (
-						<p className="font-light text-sm">
+						<p className="text-sm font-light">
 							<span className="uppercase">{subject.category}</span> Kelas {subject.gradeLevel ?? "-"}
 						</p>
 					)}

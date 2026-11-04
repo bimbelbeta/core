@@ -211,11 +211,11 @@ export function QuestionPickerDialog({
 					{/* Question List */}
 					<div ref={scrollRef} onScroll={handleScroll} className="flex-1 overflow-y-auto">
 						{isPending ? (
-							<div className="flex animate-pulse items-center justify-center py-8 text-muted-foreground">
+							<div className="text-muted-foreground flex animate-pulse items-center justify-center py-8">
 								Memuat soal...
 							</div>
 						) : questions.length === 0 ? (
-							<div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+							<div className="text-muted-foreground flex flex-col items-center justify-center py-8">
 								<p>Tidak ada soal ditemukan</p>
 								{excludeIds.length > 0 && <p className="mt-1 text-xs">({excludeIds.length} soal sudah ditambahkan)</p>}
 							</div>
@@ -225,7 +225,7 @@ export function QuestionPickerDialog({
 									<button
 										type="button"
 										key={question.id}
-										className="group flex w-full cursor-pointer items-start gap-3 rounded-lg border p-3 text-left transition-colors hover:bg-muted/50"
+										className="group hover:bg-muted/50 flex w-full cursor-pointer items-start gap-3 rounded-lg border p-3 text-left transition-colors"
 										onClick={() => handleQuestionToggle(question.id)}
 										onKeyDown={(e) => {
 											if (e.key === "Enter" || e.key === " ") {
@@ -241,8 +241,8 @@ export function QuestionPickerDialog({
 										/>
 										<div className="min-w-0 flex-1 space-y-1">
 											<div className="flex items-start gap-2">
-												<span className="shrink-0 font-mono text-muted-foreground text-xs">#{question.id}</span>
-												<div className="prose prose-sm [&_*]:!m-0 line-clamp-2 min-w-0 flex-1 text-sm [&_p]:line-clamp-2">
+												<span className="text-muted-foreground shrink-0 font-mono text-xs">#{question.id}</span>
+												<div className="prose prose-sm line-clamp-2 min-w-0 flex-1 text-sm [&_*]:!m-0 [&_p]:line-clamp-2">
 													<TiptapRenderer content={question.content} />
 												</div>
 											</div>
@@ -266,7 +266,7 @@ export function QuestionPickerDialog({
 									</button>
 								))}
 								{isFetchingNextPage && (
-									<div className="flex animate-pulse items-center justify-center py-4 text-muted-foreground text-sm">
+									<div className="text-muted-foreground flex animate-pulse items-center justify-center py-4 text-sm">
 										Memuat lebih banyak soal...
 									</div>
 								)}

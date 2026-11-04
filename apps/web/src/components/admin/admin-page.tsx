@@ -10,7 +10,7 @@ AdminPageRoot.displayName = "AdminPageRoot";
 
 const AdminPageTitle = React.forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTMLHeadingElement>>(
 	({ className, ...props }, ref) => (
-		<h1 ref={ref} className={cn("font-bold text-2xl text-primary-navy-900", className)} {...props} />
+		<h1 ref={ref} className={cn("text-primary-navy-900 text-2xl font-bold", className)} {...props} />
 	),
 );
 AdminPageTitle.displayName = "AdminPageTitle";

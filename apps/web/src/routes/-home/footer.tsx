@@ -26,13 +26,13 @@ export default function Footer() {
 			<div className="relative z-10 flex flex-col items-center gap-7 px-4 py-20">
 				<div className="flex flex-col items-center text-center">
 					{/* Heading */}
-					<h2 className="text-3xl text-neutral-1000 leading-tight md:text-4xl">
-						Satu <span className="font-bold text-secondary-700">Langkah Kecil</span> Menuju
-						<br className="hidden sm:block" /> Kampus <span className="font-bold text-secondary-700">Impianmu!</span>
+					<h2 className="text-neutral-1000 text-3xl leading-tight md:text-4xl">
+						Satu <span className="text-secondary-700 font-bold">Langkah Kecil</span> Menuju
+						<br className="hidden sm:block" /> Kampus <span className="text-secondary-700 font-bold">Impianmu!</span>
 					</h2>
 
 					{/* Subheading */}
-					<p className="mt-2 max-w-xs text-pretty text-neutral-1000 text-sm md:max-w-md md:text-base">
+					<p className="text-neutral-1000 mt-2 max-w-xs text-sm text-pretty md:max-w-md md:text-base">
 						Ribuan pesaingmu sudah mulai belajar hari ini.
 						<br className="hidden sm:block" /> Jangan sampai kamu tertinggal.
 					</p>
@@ -49,18 +49,18 @@ export default function Footer() {
 				{/* Gradient Decoration */}
 			</div>
 
-			<div className="pointer-events-none absolute inset-x-0 bottom-0 h-72 bg-linear-to-t from-primary-400 via-primary-200 to-transparent" />
+			<div className="from-primary-400 via-primary-200 pointer-events-none absolute inset-x-0 bottom-0 h-72 bg-linear-to-t to-transparent" />
 
 			{/* Footer Content */}
 			<div className="relative z-10 px-10 pt-30 pb-10">
 				<Container className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
 					<div className="flex flex-col gap-3">
 						<div className="flex items-center gap-2.5">
-							<h3 className="w-full text-center font-semibold text-2xl text-neutral-1000 sm:text-left">
+							<h3 className="text-neutral-1000 w-full text-center text-2xl font-semibold sm:text-left">
 								<span className="text-secondary-900">Bimbel</span> <span className="text-tertiary-1000">Beta</span>
 							</h3>
 						</div>
-						<p className="text-center text-base text-neutral-1000 leading-6 sm:text-left">PT Beta Solusi Edukasi</p>
+						<p className="text-neutral-1000 text-center text-base leading-6 sm:text-left">PT Beta Solusi Edukasi</p>
 					</div>
 					<div className="mt-6 flex flex-col items-center justify-end gap-5 sm:mt-0 sm:items-end">
 						<div className="flex items-center gap-4">
@@ -76,7 +76,7 @@ export default function Footer() {
 								</a>
 							))}
 						</div>
-						<div className="flex items-center gap-3 text-base text-neutral-1000">
+						<div className="text-neutral-1000 flex items-center gap-3 text-base">
 							Build together with{" "}
 							<a
 								href="https://www.instagram.com/omahti_ugm"

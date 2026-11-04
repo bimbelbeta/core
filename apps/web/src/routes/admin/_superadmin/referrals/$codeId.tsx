@@ -63,10 +63,10 @@ function ReferralDetailPage() {
 					<ArrowLeftIcon className="size-5" />
 				</Button>
 				<div>
-					<h1 className="font-bold text-2xl">
-						<code className="rounded bg-muted px-3 py-1 font-mono text-xl tracking-widest">{referralCode.code}</code>
+					<h1 className="text-2xl font-bold">
+						<code className="bg-muted rounded px-3 py-1 font-mono text-xl tracking-widest">{referralCode.code}</code>
 					</h1>
-					<p className="mt-1 text-muted-foreground text-sm">Detail kode referal</p>
+					<p className="text-muted-foreground mt-1 text-sm">Detail kode referal</p>
 				</div>
 			</div>
 
@@ -117,7 +117,7 @@ function ReferralDetailPage() {
 					<CardContent className="space-y-3 text-sm">
 						<div className="flex justify-between">
 							<span className="text-muted-foreground">Total pengguna</span>
-							<span className="font-bold text-lg">{items.length}</span>
+							<span className="text-lg font-bold">{items.length}</span>
 						</div>
 						<div className="flex justify-between">
 							<span className="text-muted-foreground">Pengguna premium aktif</span>
@@ -133,7 +133,7 @@ function ReferralDetailPage() {
 				</CardHeader>
 				<CardContent className="p-0">
 					{items.length === 0 ? (
-						<p className="py-10 text-center text-muted-foreground text-sm">
+						<p className="text-muted-foreground py-10 text-center text-sm">
 							Belum ada pengguna yang menukarkan kode ini.
 						</p>
 					) : (
@@ -155,7 +155,7 @@ function ReferralDetailPage() {
 												<Link
 													to="/admin/users/$userId"
 													params={{ userId: item.userId }}
-													className="font-medium hover:text-primary hover:underline"
+													className="hover:text-primary font-medium hover:underline"
 												>
 													{item.userName}
 												</Link>
@@ -179,7 +179,7 @@ function ReferralDetailPage() {
 											<TableCell className="text-muted-foreground text-sm">
 												{formatDate(item.premiumExpiresAt)}
 											</TableCell>
-											<TableCell className="pr-6 text-muted-foreground text-sm">{formatDate(item.claimedAt)}</TableCell>
+											<TableCell className="text-muted-foreground pr-6 text-sm">{formatDate(item.claimedAt)}</TableCell>
 										</TableRow>
 									))}
 								</TableBody>

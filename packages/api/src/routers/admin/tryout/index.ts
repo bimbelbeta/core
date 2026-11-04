@@ -5,7 +5,7 @@ import { requireCreated, requireFound } from "@/lib/crud-helpers";
 import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
 import { adminImplementer } from "@/lib/router-definition";
 import { pickDefined } from "@/lib/utils";
-import { generateAccessCode, hashAccessCode, maskCode } from "@/routers/admin/tryout/access-code-utils";
+import { generateAccessCode, hashAccessCode } from "@/routers/admin/tryout/access-code-utils";
 import { tryoutAttemptRouter } from "@/routers/admin/tryout/attempt";
 
 const admin = adminImplementer;
@@ -166,7 +166,7 @@ const createAccessCode = admin.admin.tryout.createAccessCode.handler(async ({ in
 				.values({
 					tryoutId: input.id,
 					codeHash,
-				codePreview: plainCode,
+					codePreview: plainCode,
 					label: input.label?.trim() || null,
 					expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
 					maxUses: input.maxUses ?? null,

@@ -195,7 +195,7 @@ function TryoutsListPage() {
 						>
 							{data?.items.map((tryout, index) => (
 								<AdminTableRow key={tryout.id}>
-									<AdminTableCell className="text-center font-mono text-muted-foreground text-sm">
+									<AdminTableCell className="text-muted-foreground text-center font-mono text-sm">
 										{index + 1}
 									</AdminTableCell>
 									<AdminTableCell className="font-medium">

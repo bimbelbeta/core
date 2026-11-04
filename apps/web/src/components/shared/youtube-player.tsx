@@ -22,7 +22,7 @@ export default function YouTubePlayer({ videoId }: { videoId: string }) {
 				}`}
 				aria-hidden={ready}
 			>
-				<div className="aspect-video h-full w-full animate-pulse rounded-xl bg-muted" />
+				<div className="bg-muted aspect-video h-full w-full animate-pulse rounded-xl" />
 			</div>
 			<div className={`transition-opacity duration-300 ${ready ? "opacity-100" : "pointer-events-none opacity-0"}`}>
 				<YouTube

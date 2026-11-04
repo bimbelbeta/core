@@ -73,7 +73,7 @@ export function AdminTableBody({
 		return (
 			<TableBody>
 				<TableRow>
-					<TableCell colSpan={colSpan} className="h-24 text-center text-muted-foreground">
+					<TableCell colSpan={colSpan} className="text-muted-foreground h-24 text-center">
 						{emptyMessage}
 					</TableCell>
 				</TableRow>

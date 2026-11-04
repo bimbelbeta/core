@@ -41,7 +41,7 @@ export function QuestionHeader({ countdownProps }: QuestionHeaderProps) {
 		<>
 			<div className="flex justify-between gap-2 max-sm:flex-col lg:items-center">
 				<div className="flex flex-col">
-					<p className="font-medium text-lg">
+					<p className="text-lg font-medium">
 						Soal Nomor {currentQuestionIndex + 1} dari {totalQuestions}
 					</p>
 					<p className="text-muted-foreground text-sm">{data?.currentSubtest?.name}</p>

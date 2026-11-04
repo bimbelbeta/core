@@ -50,7 +50,8 @@ export function TryoutStartConfirmation({ children, disabled = false, tryoutId }
 			onSuccess: () => {
 				setIsOpen(false);
 				creditBalanceQuery.refetch();
-				if (targetTryoutId) router.navigate({ to: "/tryout/$tryoutId", params: { tryoutId: targetTryoutId.toString() } });
+				if (targetTryoutId)
+					router.navigate({ to: "/tryout/$tryoutId", params: { tryoutId: targetTryoutId.toString() } });
 			},
 		}),
 	);

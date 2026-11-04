@@ -54,22 +54,22 @@ function ProgramPricingCard({
 	variant = "default",
 }: ProgramPricingProps) {
 	return (
-		<div className={cn("flex h-full flex-col rounded-default border border-neutral-200 bg-neutral-100 p-6")}>
+		<div className={cn("rounded-default flex h-full flex-col border border-neutral-200 bg-neutral-100 p-6")}>
 			<div className="mb-6">
-				<h3 className="font-medium text-base">{title}</h3>
+				<h3 className="text-base font-medium">{title}</h3>
 
 				<div className="flex flex-wrap items-center gap-x-3">
 					{originalPrice && (
-						<div className="relative inline-block font-bold text-3xl text-neutral-400">
+						<div className="relative inline-block text-3xl font-bold text-neutral-400">
 							{formatRupiah(originalPrice)}
 
-							<span className="pointer-events-none absolute top-1/2 left-0 h-1 w-full -origin-center rotate-6 bg-red-400" />
+							<span className="-origin-center pointer-events-none absolute top-1/2 left-0 h-1 w-full rotate-6 bg-red-400" />
 						</div>
 					)}
 
-					<p className={cn("font-bold text-3xl", variant === "highlight" ? "text-secondary-700" : "text-neutral-900")}>
+					<p className={cn("text-3xl font-bold", variant === "highlight" ? "text-secondary-700" : "text-neutral-900")}>
 						{formatRupiah(price)}
-						{period && <span className="font-normal text-base">{period}</span>}
+						{period && <span className="text-base font-normal">{period}</span>}
 					</p>
 				</div>
 			</div>
@@ -100,10 +100,10 @@ type TryoutPricingProps = {
 
 function TryoutPricingCard({ title, price, features }: TryoutPricingProps) {
 	return (
-		<div className="space-y-4 rounded-default border border-neutral-200 bg-neutral-100 p-5">
+		<div className="rounded-default space-y-4 border border-neutral-200 bg-neutral-100 p-5">
 			<div>
-				<h3 className="font-medium text-sm">{title}</h3>
-				<p className="font-bold text-xl">{formatRupiah(price)}</p>
+				<h3 className="text-sm font-medium">{title}</h3>
+				<p className="text-xl font-bold">{formatRupiah(price)}</p>
 			</div>
 
 			<ul className="space-y-1">

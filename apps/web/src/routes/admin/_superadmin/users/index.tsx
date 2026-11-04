@@ -311,9 +311,9 @@ function UsersListPage() {
 											</AdminTableCell>
 											<AdminTableCell>
 												<div className="flex items-center gap-3">
-													<Avatar className="size-9 rounded-full ring-2 ring-border">
+													<Avatar className="ring-border size-9 rounded-full ring-2">
 														<AvatarImage src={user.image ?? undefined} alt={user.name} />
-														<AvatarFallback className="bg-primary-100 font-semibold text-primary-700 text-xs">
+														<AvatarFallback className="bg-primary-100 text-primary-700 text-xs font-semibold">
 															{getInitials(user.name)}
 														</AvatarFallback>
 													</Avatar>
@@ -321,7 +321,7 @@ function UsersListPage() {
 														<Link
 															to="/admin/users/$userId"
 															params={{ userId: user.id }}
-															className="font-semibold text-foreground leading-tight transition-colors hover:text-primary"
+															className="text-foreground hover:text-primary leading-tight font-semibold transition-colors"
 														>
 															{user.name}
 														</Link>
@@ -333,7 +333,7 @@ function UsersListPage() {
 											<AdminTableCell>
 												<Badge
 													variant="outline"
-													className={cn("gap-1 py-0.5 font-semibold text-[11px]", roleInfo.className)}
+													className={cn("gap-1 py-0.5 text-[11px] font-semibold", roleInfo.className)}
 												>
 													<RoleIcon className="size-3" />
 													{roleInfo.label}
@@ -354,7 +354,7 @@ function UsersListPage() {
 													</div>
 													<span
 														className={cn(
-															"font-semibold text-sm tabular-nums",
+															"text-sm font-semibold tabular-nums",
 															(user.tryoutCredits ?? 0) > 0 ? "text-foreground" : "text-muted-foreground",
 														)}
 													>
@@ -368,7 +368,7 @@ function UsersListPage() {
 													<div className="flex flex-col justify-center gap-2">
 														<div className="flex w-fit items-center gap-1.5 rounded-full border border-amber-200 bg-linear-to-r from-amber-50 to-yellow-50 px-2.5 py-1 shadow-xs">
 															<CrownIcon className="size-3.5 text-amber-500" weight="fill" />
-															<span className="font-bold text-amber-700 text-xs tracking-wide">PREMIUM</span>
+															<span className="text-xs font-bold tracking-wide text-amber-700">PREMIUM</span>
 														</div>
 														{premiumDate && (
 															<Tooltip>
@@ -396,7 +396,7 @@ function UsersListPage() {
 														)}
 													</div>
 												) : (
-													<span className="flex items-center gap-1.5 text-muted-foreground text-xs">
+													<span className="text-muted-foreground flex items-center gap-1.5 text-xs">
 														<span className="inline-block size-1.5 rounded-full bg-neutral-400" />
 														Non-Premium
 													</span>
@@ -407,7 +407,7 @@ function UsersListPage() {
 												{createdDate ? (
 													<Tooltip>
 														<TooltipTrigger asChild>
-															<span className="flex items-center gap-1.5 text-muted-foreground text-xs">
+															<span className="text-muted-foreground flex items-center gap-1.5 text-xs">
 																<CalendarDotsIcon className="size-3.5" />
 																{formatRelativeDate(createdDate)}
 															</span>
@@ -426,7 +426,7 @@ function UsersListPage() {
 											</AdminTableCell>
 
 											<AdminTableCell className="pr-4 text-right">
-												<div className="flex items-center justify-end gap-1 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
+												<div className="flex items-center justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
 													<EditRoleDialog
 														userId={user.id}
 														userName={user.name}

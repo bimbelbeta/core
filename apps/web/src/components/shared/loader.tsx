@@ -42,7 +42,7 @@ export default function Loader() {
 						repeat: Number.POSITIVE_INFINITY,
 						ease: "easeInOut",
 					}}
-					className="relative z-10 text-primary"
+					className="text-primary relative z-10"
 				>
 					<BookOpenIcon size={64} weight="regular" />
 				</m.div>
@@ -73,7 +73,7 @@ export default function Loader() {
 
 				{/* Glow effect */}
 				<m.div
-					className="absolute -z-10 h-24 w-24 rounded-full bg-primary/20 blur-xl"
+					className="bg-primary/20 absolute -z-10 h-24 w-24 rounded-full blur-xl"
 					animate={{ scale: [1, 1.4, 1], opacity: [0.3, 0.6, 0.3] }}
 					transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
 				/>
@@ -89,7 +89,7 @@ export default function Loader() {
 							animate={{ opacity: 1, y: 0 }}
 							exit={{ opacity: 0, y: -10 }}
 							transition={{ duration: 0.3 }}
-							className="text-center font-medium text-lg text-muted-foreground"
+							className="text-muted-foreground text-center text-lg font-medium"
 						>
 							{currentText}
 						</m.p>
@@ -101,7 +101,7 @@ export default function Loader() {
 					{[0, 1, 2].map((i) => (
 						<m.div
 							key={i}
-							className="h-2 w-2 rounded-full bg-primary"
+							className="bg-primary h-2 w-2 rounded-full"
 							animate={{
 								scale: [1, 1.5, 1],
 								opacity: [0.4, 1, 0.4],

@@ -70,10 +70,10 @@ function LinkedQuestionItem({
 			value={question}
 			dragListener={false}
 			dragControls={dragControls}
-			className="flex items-start gap-3 rounded-lg border bg-background p-3"
+			className="bg-background flex items-start gap-3 rounded-lg border p-3"
 		>
 			<div
-				className="mt-1 cursor-grab touch-none text-muted-foreground hover:text-foreground"
+				className="text-muted-foreground hover:text-foreground mt-1 cursor-grab touch-none"
 				onPointerDown={(e) => dragControls.start(e)}
 			>
 				<DotsSixVertical className="size-5" />
@@ -81,8 +81,8 @@ function LinkedQuestionItem({
 
 			<div className="min-w-0 flex-1 space-y-2">
 				<div className="flex items-start gap-2">
-					<span className="shrink-0 rounded bg-muted px-1.5 py-0.5 font-mono text-xs">{index + 1}</span>
-					<div className="prose prose-sm [&_*]:!m-0 line-clamp-2 min-w-0 flex-1 text-sm [&_p]:line-clamp-2">
+					<span className="bg-muted shrink-0 rounded px-1.5 py-0.5 font-mono text-xs">{index + 1}</span>
+					<div className="prose prose-sm line-clamp-2 min-w-0 flex-1 text-sm [&_*]:!m-0 [&_p]:line-clamp-2">
 						<TiptapRenderer content={question.content} />
 					</div>
 				</div>
@@ -119,7 +119,7 @@ function LinkedQuestionItem({
 					<Button
 						variant="ghost"
 						size="icon"
-						className="shrink-0 text-muted-foreground hover:text-destructive"
+						className="text-muted-foreground hover:text-destructive shrink-0"
 						disabled={removeMutation.isPending}
 					>
 						<Trash className="size-4" />

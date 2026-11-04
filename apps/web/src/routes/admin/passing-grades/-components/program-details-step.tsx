@@ -50,7 +50,7 @@ export function ProgramDetailsStep({ universityId, programId, onSuccess, onBack 
 		<div className="space-y-4">
 			<div className="grid grid-cols-2 gap-3">
 				<div className="space-y-1.5">
-					<Label htmlFor="tuition" className="font-medium text-sm">
+					<Label htmlFor="tuition" className="text-sm font-medium">
 						Biaya (Rp)
 					</Label>
 					<Input
@@ -62,7 +62,7 @@ export function ProgramDetailsStep({ universityId, programId, onSuccess, onBack 
 					/>
 				</div>
 				<div className="space-y-1.5">
-					<Label htmlFor="capacity" className="font-medium text-sm">
+					<Label htmlFor="capacity" className="text-sm font-medium">
 						Kapasitas
 					</Label>
 					<Input
@@ -77,7 +77,7 @@ export function ProgramDetailsStep({ universityId, programId, onSuccess, onBack 
 
 			<div className="grid grid-cols-2 gap-3">
 				<div className="space-y-1.5">
-					<Label htmlFor="accreditation" className="font-medium text-sm">
+					<Label htmlFor="accreditation" className="text-sm font-medium">
 						Akreditasi
 					</Label>
 					<Select value={accreditation} onValueChange={setAccreditation}>
@@ -95,7 +95,7 @@ export function ProgramDetailsStep({ universityId, programId, onSuccess, onBack 
 					</Select>
 				</div>
 				<div className="space-y-1.5">
-					<Label htmlFor="averageScore" className="font-medium text-sm">
+					<Label htmlFor="averageScore" className="text-sm font-medium">
 						Skor Rata-rata
 					</Label>
 					<Input

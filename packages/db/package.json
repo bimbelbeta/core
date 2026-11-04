@@ -28,16 +28,16 @@
 	},
 	"devDependencies": {
 		"@bimbelbeta/config": "workspace:*",
-		"@types/pg": "^8.20.0",
-		"drizzle-kit": "1.0.0-rc.4-5d5b77c",
+		"@types/pg": "^8.23.1",
+		"drizzle-kit": "1.0.0-rc.5-ab785fc",
 		"drizzle-seed": "^0.3.1",
 		"tsdown": "catalog:"
 	},
 	"peerDependencies": {
-		"typescript": "^5"
+		"typescript": "^5.9.3"
 	},
 	"dependencies": {
-		"pg": "^8.17.1",
+		"pg": "^8.23.1",
 		"arktype": "catalog:",
 		"dotenv": "catalog:",
 		"drizzle-orm": "catalog:"

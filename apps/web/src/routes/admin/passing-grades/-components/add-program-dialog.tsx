@@ -90,8 +90,8 @@ export function AddProgramDialog({ universityId, onSuccess, open, onOpenChange }
 									<div className="flex items-center gap-2">
 										<div
 											className={cn(
-												"flex size-6 shrink-0 items-center justify-center rounded-full font-medium text-xs transition-all",
-												isActive && "bg-primary text-primary-foreground ring-2 ring-primary/20",
+												"flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-medium transition-all",
+												isActive && "bg-primary text-primary-foreground ring-primary/20 ring-2",
 												isComplete && "bg-primary text-primary-foreground",
 												!isActive && !isComplete && "bg-muted text-muted-foreground",
 											)}
@@ -102,7 +102,7 @@ export function AddProgramDialog({ universityId, onSuccess, open, onOpenChange }
 											<span
 												className={cn(
 													"text-sm leading-tight",
-													isActive ? "font-medium text-foreground" : "text-muted-foreground",
+													isActive ? "text-foreground font-medium" : "text-muted-foreground",
 												)}
 											>
 												{s.label}
@@ -151,12 +151,12 @@ export function AddProgramDialog({ universityId, onSuccess, open, onOpenChange }
 					selectedProgram && (
 						<div className="px-6 py-5">
 							{/* Selected program indicator */}
-							<div className="mb-4 flex items-center gap-3 rounded-lg border bg-muted/50 px-4 py-3">
-								<div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+							<div className="bg-muted/50 mb-4 flex items-center gap-3 rounded-lg border px-4 py-3">
+								<div className="bg-primary/10 text-primary flex size-8 shrink-0 items-center justify-center rounded-md">
 									<MagnifyingGlassIcon className="size-4" />
 								</div>
 								<div className="min-w-0 flex-1">
-									<p className="truncate font-medium text-sm">{selectedProgram.name}</p>
+									<p className="truncate text-sm font-medium">{selectedProgram.name}</p>
 									<p className="text-muted-foreground text-xs">Program studi terpilih</p>
 								</div>
 								<Badge variant="outline" className="shrink-0">

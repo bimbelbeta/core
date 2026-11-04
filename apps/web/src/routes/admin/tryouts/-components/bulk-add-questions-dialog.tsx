@@ -109,11 +109,11 @@ export function BulkAddQuestionsDialog({
 
 					<div ref={scrollRef} onScroll={handleScroll} className="max-h-[calc(85vh-14rem)] flex-1 overflow-y-auto">
 						{isPending ? (
-							<div className="flex items-center justify-center py-8 text-muted-foreground">
+							<div className="text-muted-foreground flex items-center justify-center py-8">
 								<Spinner />
 							</div>
 						) : questions.length === 0 ? (
-							<div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+							<div className="text-muted-foreground flex flex-col items-center justify-center py-8">
 								Tidak ada soal ditemukan
 							</div>
 						) : (
@@ -123,7 +123,7 @@ export function BulkAddQuestionsDialog({
 									return (
 										<label
 											key={question.id}
-											className={`group relative flex cursor-pointer flex-col gap-3 rounded-lg border p-3 outline-none transition-all focus-within:ring-2 focus-within:ring-primary ${
+											className={`group focus-within:ring-primary relative flex cursor-pointer flex-col gap-3 rounded-lg border p-3 transition-all outline-none focus-within:ring-2 ${
 												isSelected ? "border-primary bg-primary/5" : "border-border hover:bg-muted/50"
 											}`}
 										>
@@ -134,7 +134,7 @@ export function BulkAddQuestionsDialog({
 												onChange={() => handleQuestionToggle(question.id)}
 											/>
 											{isSelected && (
-												<div className="absolute top-3 right-3 text-primary">
+												<div className="text-primary absolute top-3 right-3">
 													<CheckCircleIcon size={20} weight="fill" />
 												</div>
 											)}
@@ -148,7 +148,7 @@ export function BulkAddQuestionsDialog({
 									);
 								})}
 								{isFetchingNextPage && (
-									<div className="flex animate-pulse items-center justify-center py-4 text-muted-foreground text-sm">
+									<div className="text-muted-foreground flex animate-pulse items-center justify-center py-4 text-sm">
 										Memuat lebih banyak soal...
 									</div>
 								)}

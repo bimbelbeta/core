@@ -75,8 +75,8 @@ export function EditProgramDialog({ universityProgram, onSuccess, onOpenChange }
 	return (
 		<div className="space-y-4">
 			{/* Program info header */}
-			<div className="rounded-lg border bg-muted/50 px-4 py-3">
-				<p className="font-medium text-sm">{universityProgram.studyProgram.name}</p>
+			<div className="bg-muted/50 rounded-lg border px-4 py-3">
+				<p className="text-sm font-medium">{universityProgram.studyProgram.name}</p>
 				{universityProgram.studyProgram.category && (
 					<p className="text-muted-foreground text-xs">{universityProgram.studyProgram.category}</p>
 				)}
@@ -93,7 +93,7 @@ export function EditProgramDialog({ universityProgram, onSuccess, onOpenChange }
 					<form.Field name="tuition">
 						{(field) => (
 							<div className="space-y-1.5">
-								<Label htmlFor={field.name} className="font-medium text-sm">
+								<Label htmlFor={field.name} className="text-sm font-medium">
 									Biaya (Rp)
 								</Label>
 								<Input
@@ -116,7 +116,7 @@ export function EditProgramDialog({ universityProgram, onSuccess, onOpenChange }
 					<form.Field name="capacity">
 						{(field) => (
 							<div className="space-y-1.5">
-								<Label htmlFor={field.name} className="font-medium text-sm">
+								<Label htmlFor={field.name} className="text-sm font-medium">
 									Kapasitas
 								</Label>
 								<Input
@@ -141,7 +141,7 @@ export function EditProgramDialog({ universityProgram, onSuccess, onOpenChange }
 					<form.Field name="accreditation">
 						{(field) => (
 							<div className="space-y-1.5">
-								<Label htmlFor={field.name} className="font-medium text-sm">
+								<Label htmlFor={field.name} className="text-sm font-medium">
 									Akreditasi
 								</Label>
 								<Select value={field.state.value} onValueChange={(val) => field.handleChange(val)}>
@@ -170,7 +170,7 @@ export function EditProgramDialog({ universityProgram, onSuccess, onOpenChange }
 					<form.Field name="averageScore">
 						{(field) => (
 							<div className="space-y-1.5">
-								<Label htmlFor={field.name} className="font-medium text-sm">
+								<Label htmlFor={field.name} className="text-sm font-medium">
 									Skor Rata-rata
 								</Label>
 								<Input
@@ -195,7 +195,7 @@ export function EditProgramDialog({ universityProgram, onSuccess, onOpenChange }
 					{(field) => (
 						<div className="flex items-center justify-between rounded-lg border px-4 py-3">
 							<div>
-								<Label htmlFor={field.name} className="cursor-pointer font-medium text-sm">
+								<Label htmlFor={field.name} className="cursor-pointer text-sm font-medium">
 									Status Aktif
 								</Label>
 								<p className="text-muted-foreground text-xs">

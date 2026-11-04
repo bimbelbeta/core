@@ -30,7 +30,8 @@
 			"!**/.agents",
 			"!**/.plan",
 			"!**/.desloppify",
-			"!**/midtrans-client.d.ts"
+			"!**/midtrans-client.d.ts",
+			"!**/public"
 		]
 	},
 	"formatter": {
@@ -48,17 +49,19 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": true,
+			"preset": "recommended",
 			"correctness": {
-				"useExhaustiveDependencies": "info"
+				"useExhaustiveDependencies": "info",
+				"noComponentHookFactories": "off",
+				"noUnknownUnit": "off"
+			},
+			"suspicious": {
+				"noDuplicateProperties": "off"
 			},
 			"nursery": {
-				"useSortedClasses": {
+				"useTailwindSortedClasses": {
 					"level": "warn",
-					"fix": "safe",
-					"options": {
-						"functions": ["clsx", "cva", "cn"]
-					}
+					"fix": "safe"
 				}
 			},
 			"style": {
@@ -85,5 +88,6 @@
 		"parser": {
 			"tailwindDirectives": true
 		}
-	}
+	},
+	"tailwind": { "mergeFunctions": ["clsx", "cn"], "variantFunctions": ["cva"] }
 }

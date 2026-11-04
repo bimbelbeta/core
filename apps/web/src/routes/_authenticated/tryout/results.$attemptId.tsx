@@ -81,7 +81,7 @@ function RouteComponent() {
 					</Link>
 				</Button>
 
-				<h1 className="font-semibold text-3xl">Berikut Hasil Tryoutmu!</h1>
+				<h1 className="text-3xl font-semibold">Berikut Hasil Tryoutmu!</h1>
 			</div>
 
 			{/* Score Cards */}
@@ -89,12 +89,12 @@ function RouteComponent() {
 				{/* Score */}
 				<Card className="border-blue-100 bg-blue-50/50">
 					<CardHeader className="pb-2">
-						<CardTitle className="font-medium text-muted-foreground text-sm">Skor</CardTitle>
+						<CardTitle className="text-muted-foreground text-sm font-medium">Skor</CardTitle>
 					</CardHeader>
 					<CardContent>
 						<div className="flex items-baseline gap-2">
-							<span className="font-semibold text-5xl text-blue-600">{data.score ?? 0}</span>
-							<span className="font-medium text-muted-foreground text-xl">/ 1000</span>
+							<span className="text-5xl font-semibold text-blue-600">{data.score ?? 0}</span>
+							<span className="text-muted-foreground text-xl font-medium">/ 1000</span>
 						</div>
 					</CardContent>
 				</Card>
@@ -103,7 +103,7 @@ function RouteComponent() {
 				{tryoutCategory === "utbk" ? (
 					<Card className="relative overflow-hidden border-green-100 bg-green-50/50">
 						<CardHeader className="flex items-center justify-between gap-2 pb-2">
-							<CardTitle className="font-medium text-muted-foreground text-sm">
+							<CardTitle className="text-muted-foreground text-sm font-medium">
 								Passing Grade
 								{target.data?.studyProgram && (
 									<p className="text-xs">
@@ -122,53 +122,20 @@ function RouteComponent() {
 						</CardHeader>
 						<CardContent className="mt-auto">
 							<div className="flex items-baseline gap-2">
-								<span className={cn("font-semibold text-5xl", isPassed ? "text-green-600" : "text-red-500")}>
+								<span className={cn("text-5xl font-semibold", isPassed ? "text-green-600" : "text-red-500")}>
 									{passingGrade}
 								</span>
-								<span className="font-medium text-muted-foreground text-xl">/ 1000</span>
+								<span className="text-muted-foreground text-xl font-medium">/ 1000</span>
 							</div>
 						</CardContent>
 					</Card>
-				) : (
-					<>
-						{/* Passing Grade removed for TKA. Original JSX kept below for reference.
-						<Card className="relative overflow-hidden border-green-100 bg-green-50/50">
-							<CardHeader className="flex items-center justify-between gap-2 pb-2">
-								<CardTitle className="font-medium text-muted-foreground text-sm">
-									Passing Grade
-									{target.data?.studyProgram && (
-										<p className="text-xs">
-											{target.data.studyProgram.name} {target.data.university.name}
-										</p>
-									)}
-								</CardTitle>
-								<Badge
-									variant="secondary"
-									className={cn(
-										isPassed ? "bg-green-500 text-white hover:bg-green-600" : "bg-red-500 text-white hover:bg-red-600",
-									)}
-								>
-									{isPassed ? "Lulus" : "Tidak Lulus"}
-								</Badge>
-							</CardHeader>
-							<CardContent className="mt-auto">
-								<div className="flex items-baseline gap-2">
-									<span className={cn("font-semibold text-5xl", isPassed ? "text-green-600" : "text-red-500")}>
-										{passingGrade}
-									</span>
-									<span className="font-medium text-muted-foreground text-xl">/ 1000</span>
-								</div>
-							</CardContent>
-						</Card>
-						*/}
-					</>
-				)}
+				) : null}
 			</div>
 
 			{/* Details Section */}
 			<div className="space-y-6">
 				<div className="space-y-1">
-					<h2 className="font-semibold text-2xl">Lihat Lebih Detail</h2>
+					<h2 className="text-2xl font-semibold">Lihat Lebih Detail</h2>
 					<p className="text-muted-foreground">Buka untuk melihat setiap jawabanmu</p>
 				</div>
 

@@ -171,7 +171,7 @@ function ProductsListPage() {
 								<TableSkeleton columns={6} />
 							) : data?.items.length === 0 ? (
 								<TableRow>
-									<TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+									<TableCell colSpan={6} className="text-muted-foreground h-24 text-center">
 										Tidak ada product ditemukan.
 									</TableCell>
 								</TableRow>
@@ -190,7 +190,7 @@ function ProductsListPage() {
 														<Link
 															to="/admin/products/$productId"
 															params={{ productId: product.id }}
-															className="font-semibold text-foreground leading-tight transition-colors hover:underline"
+															className="text-foreground leading-tight font-semibold transition-colors hover:underline"
 														>
 															{product.name}
 														</Link>
@@ -205,18 +205,18 @@ function ProductsListPage() {
 														>
 															<VariantIcon className={cn("size-3.5", variantInfo.iconColor)} />
 														</div>
-														<span className="font-medium text-sm">{variantInfo.label}</span>
+														<span className="text-sm font-medium">{variantInfo.label}</span>
 													</div>
 												</TableCell>
 
 												<TableCell>
-													<span className="font-semibold text-sm">{formatCurrency(product.price)}</span>
+													<span className="text-sm font-semibold">{formatCurrency(product.price)}</span>
 												</TableCell>
 
 												<TableCell>
 													<span
 														className={cn(
-															"rounded-full px-2 py-0.5 font-medium text-xs capitalize",
+															"rounded-full px-2 py-0.5 text-xs font-medium capitalize",
 															product.type === "subscription"
 																? "bg-blue-100 text-blue-700"
 																: "bg-green-100 text-green-700",
@@ -230,7 +230,7 @@ function ProductsListPage() {
 													{createdDate ? (
 														<Tooltip>
 															<TooltipTrigger asChild>
-																<span className="flex items-center gap-1.5 text-muted-foreground text-xs">
+																<span className="text-muted-foreground flex items-center gap-1.5 text-xs">
 																	<CalendarDotsIcon className="size-3.5" />
 																	{formatRelativeDate(createdDate)}
 																</span>
@@ -249,7 +249,7 @@ function ProductsListPage() {
 												</TableCell>
 
 												<TableCell className="pr-4 text-right">
-													<div className="flex items-center justify-end gap-1 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
+													<div className="flex items-center justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
 														{isDeleted ? (
 															<Button variant="ghost" size="icon" onClick={() => setRestoreProductId(product.id)}>
 																<TrashIcon className="size-4 text-green-500" />

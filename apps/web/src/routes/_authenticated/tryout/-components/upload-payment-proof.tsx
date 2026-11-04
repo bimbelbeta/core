@@ -71,7 +71,7 @@ export function UploadPaymentProof({ onUploadComplete, onError, onRemove, disabl
 						(isUploading || disabled) && "pointer-events-none opacity-50",
 					)}
 				>
-					<UploadSimpleIcon className="size-8 text-muted-foreground" />
+					<UploadSimpleIcon className="text-muted-foreground size-8" />
 					<span className="text-muted-foreground text-sm">Klik untuk memilih gambar atau drag & drop</span>
 					<span className="text-muted-foreground text-xs">PNG, JPG, GIF (maks 2MB)</span>
 					<input
@@ -90,26 +90,26 @@ export function UploadPaymentProof({ onUploadComplete, onError, onRemove, disabl
 							<button
 								type="button"
 								onClick={handleRemoveFile}
-								className="absolute top-2 right-2 rounded-full bg-background/80 p-1 hover:bg-background"
+								className="bg-background/80 hover:bg-background absolute top-2 right-2 rounded-full p-1"
 							>
 								<XIcon className="size-4" />
 							</button>
 						)}
 						{isUploading && (
-							<div className="absolute inset-0 flex items-center justify-center bg-background/60">
+							<div className="bg-background/60 absolute inset-0 flex items-center justify-center">
 								<div className="flex flex-col items-center gap-2">
 									<Spinner />
-									<span className="font-medium text-sm">{Math.round(progress * 100)}%</span>
+									<span className="text-sm font-medium">{Math.round(progress * 100)}%</span>
 								</div>
 							</div>
 						)}
 					</div>
 					{isUploading && (
-						<div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
-							<div className="h-full bg-primary transition-all duration-300" style={{ width: `${progress * 100}%` }} />
+						<div className="bg-muted mt-2 h-2 overflow-hidden rounded-full">
+							<div className="bg-primary h-full transition-all duration-300" style={{ width: `${progress * 100}%` }} />
 						</div>
 					)}
-					{isComplete && <p className="mt-2 text-center text-green-600 text-sm">Upload berhasil!</p>}
+					{isComplete && <p className="mt-2 text-center text-sm text-green-600">Upload berhasil!</p>}
 				</div>
 			)}
 			{error && <p className="text-destructive text-sm">{error}</p>}

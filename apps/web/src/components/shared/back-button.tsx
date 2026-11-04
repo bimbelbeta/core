@@ -13,7 +13,7 @@ export function BackButton({ to, search }: BackButtonProps) {
 		<Link
 			to={to}
 			search={search}
-			className={cn(buttonVariants({ size: "sm" }), "gap-2 px-3.5 py-2 text-white text-xs shadow-xs")}
+			className={cn(buttonVariants({ size: "sm" }), "gap-2 px-3.5 py-2 text-xs text-white shadow-xs")}
 		>
 			<ArrowLeftIcon size={20} weight="bold" />
 			Kembali

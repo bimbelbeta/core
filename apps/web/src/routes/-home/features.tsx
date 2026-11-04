@@ -5,10 +5,10 @@ import { Subheading } from "./-components/subheading";
 
 export function Features() {
 	return (
-		<section className="overflow-x-hidden bg-background pb-20 xl:pb-40">
+		<section className="bg-background overflow-x-hidden pb-20 xl:pb-40">
 			<Container className="py-0">
 				<Heading>
-					<span className="font-semibold text-secondary-700">Bimbel Beta</span> Punya Solusinya
+					<span className="text-secondary-700 font-semibold">Bimbel Beta</span> Punya Solusinya
 				</Heading>
 				<div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6">
 					<FeatureOne />
@@ -22,11 +22,11 @@ export function Features() {
 
 function FeatureOne() {
 	return (
-		<div className="relative h-70 w-full rounded-xl border border-neutral-200 bg-linear-to-t from-neutral-100 via-66% via-primary-100 to-primary-300/80 p-5 text-center md:mx-0 md:max-w-none md:p-6 min-[490px]:mx-auto min-[490px]:max-w-[420px]">
+		<div className="via-primary-100 to-primary-300/80 relative h-70 w-full rounded-xl border border-neutral-200 bg-linear-to-t from-neutral-100 via-66% p-5 text-center min-[490px]:mx-auto min-[490px]:max-w-[420px] md:mx-0 md:max-w-none md:p-6">
 			<Subheading>
 				{" "}
-				<span className="font-semibold text-primary-900">Latihan Soal</span> dengan{" "}
-				<span className="font-semibold text-primary-900">Feedback</span> Instan!
+				<span className="text-primary-900 font-semibold">Latihan Soal</span> dengan{" "}
+				<span className="text-primary-900 font-semibold">Feedback</span> Instan!
 			</Subheading>
 			<p className="text-sm">Jawab dan langsung dapat nilai serta pembahasan ringkas.</p>
 
@@ -42,10 +42,10 @@ function FeatureOne() {
 
 function FeatureTwo() {
 	return (
-		<div className="relative h-70 w-full rounded-xl border border-neutral-200 bg-linear-to-t from-neutral-100 via-66% via-primary-100 to-primary-300/80 p-5 text-center md:mx-0 md:max-w-none md:p-6 min-[490px]:mx-auto min-[490px]:max-w-[420px]">
+		<div className="via-primary-100 to-primary-300/80 relative h-70 w-full rounded-xl border border-neutral-200 bg-linear-to-t from-neutral-100 via-66% p-5 text-center min-[490px]:mx-auto min-[490px]:max-w-[420px] md:mx-0 md:max-w-none md:p-6">
 			<Subheading>
-				Simulasi <span className="font-semibold text-primary-900">UTBK & Ranking</span> Nasional{" "}
-				<span className="font-semibold text-primary-900">Feedback</span> Instan!
+				Simulasi <span className="text-primary-900 font-semibold">UTBK & Ranking</span> Nasional{" "}
+				<span className="text-primary-900 font-semibold">Feedback</span> Instan!
 			</Subheading>
 			<p className="text-sm">
 				Ukur kesiapanmu lewat Tryout terjadwal. Cek posisimu di antara pesaing dari seluruh sekolah.
@@ -63,9 +63,9 @@ function FeatureTwo() {
 
 function FeatureThree() {
 	return (
-		<div className="relative h-70 w-full rounded-xl border border-neutral-200 bg-linear-to-r from-neutral-100 via-66% via-primary-100 to-primary-300/80 p-5 text-center md:mx-0 md:max-w-none md:p-6 last:md:col-span-2 last:md:text-left min-[490px]:mx-auto min-[490px]:max-w-[420px]">
+		<div className="via-primary-100 to-primary-300/80 relative h-70 w-full rounded-xl border border-neutral-200 bg-linear-to-r from-neutral-100 via-66% p-5 text-center min-[490px]:mx-auto min-[490px]:max-w-[420px] md:mx-0 md:max-w-none md:p-6 last:md:col-span-2 last:md:text-left">
 			<Subheading className="md:max-w-xs">
-				<span className="font-semibold text-primary-900">Materi Video & Modul</span> yang Terstruktur Rapi
+				<span className="text-primary-900 font-semibold">Materi Video & Modul</span> yang Terstruktur Rapi
 			</Subheading>
 			<p className="text-sm md:mt-2 md:max-w-xs">
 				Tak perlu bingung mulai dari mana. Akses video teori dan rangkuman yang disusun urut per topik dalam satu

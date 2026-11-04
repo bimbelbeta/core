@@ -27,7 +27,7 @@ export const LastClasses = () => {
 				<h2 className="font-medium">Kelas terakhirmu</h2>
 				<div className="flex flex-col items-center justify-center space-y-3 py-8 text-center">
 					<WarningCircleIcon size={80} />
-					<p className="text-black text-xl">Kamu belum melihat kelas apapun</p>
+					<p className="text-xl text-black">Kamu belum melihat kelas apapun</p>
 					<Button asChild>
 						<Link to="/classes">
 							Belajar Sekarang <ArrowRightIcon className="" />
@@ -40,7 +40,7 @@ export const LastClasses = () => {
 
 	return (
 		<section>
-			<h2 className="mb-4 font-medium text-xl">Kelas Terakhir</h2>
+			<h2 className="mb-4 text-xl font-medium">Kelas Terakhir</h2>
 			<div className="space-y-6">
 				{data.map((view, idx) => (
 					<LastContentViewedCard

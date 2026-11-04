@@ -14,7 +14,7 @@ export default function NotFound() {
 					height={250}
 					className="pointer-events-none select-none"
 				/>
-				<h1 className="mt-4 font-bold text-3xl text-neutral-1000">Halaman Tidak Ditemukan</h1>
+				<h1 className="text-neutral-1000 mt-4 text-3xl font-bold">Halaman Tidak Ditemukan</h1>
 				<p className="mt-2 text-neutral-600">Ups! Sepertinya halaman yang kamu cari sudah pindah atau tidak ada.</p>
 				<Button className="mt-8" asChild>
 					<Link to="/">Kembali ke Beranda</Link>

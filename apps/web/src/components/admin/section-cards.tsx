@@ -52,11 +52,11 @@ export function SectionCards() {
 			{cards.map((card) => (
 				<Card key={card.title} className="@container/card">
 					<CardHeader className="flex flex-row items-center justify-between pb-2">
-						<CardTitle className="font-medium text-sm">{card.title}</CardTitle>
+						<CardTitle className="text-sm font-medium">{card.title}</CardTitle>
 						{card.trend > 0 && <ArrowUpIcon className="size-4 text-green-500" />}
 					</CardHeader>
 					<CardContent className="mt-auto">
-						<div className="mt-auto font-bold text-2xl">{card.value}</div>
+						<div className="mt-auto text-2xl font-bold">{card.value}</div>
 					</CardContent>
 				</Card>
 			))}

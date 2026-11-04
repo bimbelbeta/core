@@ -1,39 +1,44 @@
 # Panduan Pembaruan Database: Skema Kode Referal (Database Update Guide: Referral Code Schema)
 
-Dokumen ini berisi panduan langkah demi langkah untuk memperbarui database PostgreSQL *live* (produksi) Anda dengan tabel baru untuk sistem Kode Referal (`referral_code` dan `referral_usage`).
-*(This document contains step-by-step instructions to update your live PostgreSQL database with the new tables for the Referral Code system).*
+Dokumen ini berisi panduan langkah demi langkah untuk memperbarui database PostgreSQL _live_ (produksi) Anda dengan tabel baru untuk sistem Kode Referal (`referral_code` dan `referral_usage`).
+_(This document contains step-by-step instructions to update your live PostgreSQL database with the new tables for the Referral Code system)._
 
 ---
 
 ## Bahasa Indonesia
 
-Karena ini adalah database *live* (produksi), **JANGAN PERNAH** menggunakan perintah `bun db:push` atau `bun db:reset` secara sembarangan, karena dapat menyebabkan hilangnya data jika terjadi perubahan skema yang tidak terduga. Cara paling aman adalah menggunakan sistem migrasi bawaan Drizzle atau mengeksekusi SQL secara manual.
+Karena ini adalah database _live_ (produksi), **JANGAN PERNAH** menggunakan perintah `bun db:push` atau `bun db:reset` secara sembarangan, karena dapat menyebabkan hilangnya data jika terjadi perubahan skema yang tidak terduga. Cara paling aman adalah menggunakan sistem migrasi bawaan Drizzle atau mengeksekusi SQL secara manual.
 
 ### Opsi 1: Menggunakan Migrasi Drizzle (Sangat Disarankan)
 
 1. **Pastikan Koneksi Database Produksi**
    Ubah file `.env` di server atau mesin lokal Anda (jika melakukan migrasi dari lokal) agar `DATABASE_URL` mengarah ke database PostgreSQL produksi Anda.
+
    ```env
    DATABASE_URL="postgresql://user:password@host:port/namadatabase"
    ```
 
 2. **Buat File Migrasi SQL**
    Jalankan perintah berikut di terminal (berada di dalam folder `core`):
+
    ```bash
    bun db:generate
    ```
-   *Perintah ini akan membaca skema di `core/packages/db/src/schema` dan membuat file SQL (misalnya `0000_...sql`) di dalam folder migrasi (`drizzle` / tujuan migrasi yang diatur).*
+
+   _Perintah ini akan membaca skema di `core/packages/db/src/schema` dan membuat file SQL (misalnya `0000_...sql`) di dalam folder migrasi (`drizzle` / tujuan migrasi yang diatur)._
 
 3. **Terapkan Migrasi ke Database**
    Setelah file SQL terbuat, jalankan perintah ini untuk menerapkan perubahan ke database produksi:
+
    ```bash
    bun db:migrate
    ```
-   *Drizzle akan secara otomatis mengeksekusi SQL untuk membuat tabel `referral_code` dan `referral_usage` tanpa mengganggu data yang sudah ada.*
+
+   _Drizzle akan secara otomatis mengeksekusi SQL untuk membuat tabel `referral_code` dan `referral_usage` tanpa mengganggu data yang sudah ada._
 
 ### Opsi 2: Eksekusi SQL Manual
 
-Jika Anda menggunakan *dashboard* seperti Supabase, pgAdmin, atau Neon, Anda bisa menjalankan perintah SQL berikut secara langsung di SQL Editor Anda.
+Jika Anda menggunakan _dashboard_ seperti Supabase, pgAdmin, atau Neon, Anda bisa menjalankan perintah SQL berikut secara langsung di SQL Editor Anda.
 
 ```sql
 -- Tambahkan constraint unique ke kolom name di tabel user (Pembaruan Fitur Login)
@@ -93,23 +98,28 @@ Since this is a live (production) database, **NEVER** indiscriminately use the `
 
 1. **Ensure Production Database Connection**
    Modify the `.env` file on your server or local machine (if migrating remotely) so that `DATABASE_URL` points directly to your production PostgreSQL database.
+
    ```env
    DATABASE_URL="postgresql://user:password@host:port/databasename"
    ```
 
 2. **Generate SQL Migration Files**
    Run the following command in your terminal (inside the `core` folder):
+
    ```bash
    bun db:generate
    ```
-   *This command will read the schemas in `core/packages/db/src/schema` and create an SQL file (e.g., `0000_...sql`) in the migrations folder.*
+
+   _This command will read the schemas in `core/packages/db/src/schema` and create an SQL file (e.g., `0000_...sql`) in the migrations folder._
 
 3. **Apply Migrations to the Database**
    Once the SQL file is generated, run this command to apply the changes to the live database:
+
    ```bash
    bun db:migrate
    ```
-   *Drizzle will automatically execute the SQL to create the `referral_code` and `referral_usage` tables without disrupting any existing data.*
+
+   _Drizzle will automatically execute the SQL to create the `referral_code` and `referral_usage` tables without disrupting any existing data._
 
 ### Option 2: Manual SQL Execution
 

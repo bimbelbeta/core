@@ -49,7 +49,7 @@ export function ComplexChoiceEditRow({ choice, onUpdate, onDelete }: ComplexChoi
 				<button
 					type="button"
 					onClick={onDelete}
-					className="flex items-center justify-center rounded p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+					className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex items-center justify-center rounded p-1 transition-colors"
 				>
 					<TrashIcon className="size-4" />
 				</button>

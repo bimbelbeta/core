@@ -10,8 +10,7 @@
 		"emitDeclarationOnly": true,
 		"tsBuildInfoFile": "dist/.tsbuildinfo",
 		"paths": {
-			"@/*": ["./src/*"],
-			"*": ["./src/*"]
+			"@/*": ["./src/*"]
 		}
 	}
 }

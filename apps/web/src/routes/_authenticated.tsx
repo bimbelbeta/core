@@ -37,7 +37,7 @@ function AuthedLayout() {
 	const stablePathnameRef = useRef(location.pathname);
 
 	// Only update pathname when route is fully loaded (not pending) to prevent layout shifting yg too soon
-	const isPending = routerState.isLoading || routerState.isTransitioning;
+	const isPending = routerState.isLoading;
 
 	useEffect(() => {
 		if (!isPending) {

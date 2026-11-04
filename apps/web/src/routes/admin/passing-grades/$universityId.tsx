@@ -79,13 +79,13 @@ function RouteComponent() {
 					</Link>
 				</Button>
 				<div className="flex flex-col">
-					<h1 className="font-bold text-2xl text-primary-navy-900">{university.name}</h1>
+					<h1 className="text-primary-navy-900 text-2xl font-bold">{university.name}</h1>
 					<span className="text-muted-foreground">{university.location}</span>
 				</div>
 			</div>
 
 			<div className="flex items-center justify-between">
-				<h2 className="font-semibold text-lg">Program Studi</h2>
+				<h2 className="text-lg font-semibold">Program Studi</h2>
 				<AddProgramDialog
 					universityId={universityId}
 					onSuccess={() => {
@@ -124,7 +124,7 @@ function RouteComponent() {
 								<TableSkeleton columns={9} />
 							) : !programs?.items || programs.items.length === 0 ? (
 								<TableRow>
-									<TableCell colSpan={9} className="h-24 text-center text-muted-foreground">
+									<TableCell colSpan={9} className="text-muted-foreground h-24 text-center">
 										Belum ada program studi yang ditautkan.
 									</TableCell>
 								</TableRow>

@@ -75,11 +75,11 @@ Open the web application at [http://localhost:3000](http://localhost:3000). The 
 
 ## Application URLs
 
-| Service | Development URL |
-| --- | --- |
+| Service         | Development URL                                |
+| --------------- | ---------------------------------------------- |
 | Web application | [http://localhost:3000](http://localhost:3000) |
-| API server | [http://localhost:3001](http://localhost:3001) |
-| Drizzle Studio | Started with `bun run db:studio` |
+| API server      | [http://localhost:3001](http://localhost:3001) |
+| Drizzle Studio  | Started with `bun run db:studio`               |
 
 ## Environment Configuration
 
@@ -223,35 +223,35 @@ For implementation details, start with the relevant area:
 
 ### Applications and builds
 
-| Command | Purpose |
-| --- | --- |
-| `bun run dev` | Start all applications in development mode |
-| `bun run dev:web` | Start only the web application |
-| `bun run dev:server` | Start only the API server |
-| `bun run build` | Build all packages and applications |
-| `bun run build:packages` | Build workspace packages with `tsdown` |
-| `bun run start` | Start built applications |
+| Command                  | Purpose                                    |
+| ------------------------ | ------------------------------------------ |
+| `bun run dev`            | Start all applications in development mode |
+| `bun run dev:web`        | Start only the web application             |
+| `bun run dev:server`     | Start only the API server                  |
+| `bun run build`          | Build all packages and applications        |
+| `bun run build:packages` | Build workspace packages with `tsdown`     |
+| `bun run start`          | Start built applications                   |
 
 ### Quality checks
 
-| Command | Purpose |
-| --- | --- |
-| `bun run lint` | Check formatting and lint rules with Biome |
-| `bun run lint:fix` | Apply Biome fixes |
+| Command               | Purpose                                     |
+| --------------------- | ------------------------------------------- |
+| `bun run lint`        | Check formatting and lint rules with Biome  |
+| `bun run lint:fix`    | Apply Biome fixes                           |
 | `bun run check-types` | Check TypeScript types across the workspace |
-| `bun run test` | Run the test suite |
+| `bun run test`        | Run the test suite                          |
 
 ### Database and authentication
 
-| Command | Purpose |
-| --- | --- |
-| `bun run db:push` | Apply the current schema to a local database |
-| `bun run db:generate` | Generate Drizzle migration files |
-| `bun run db:migrate` | Apply generated migrations |
-| `bun run db:studio` | Open Drizzle Studio |
-| `bun run db:seed` | Insert seed data |
-| `bun run db:reset` | Reset and reseed a local database; destructive |
-| `bun run auth:generate` | Generate Better Auth database artifacts |
+| Command                 | Purpose                                        |
+| ----------------------- | ---------------------------------------------- |
+| `bun run db:push`       | Apply the current schema to a local database   |
+| `bun run db:generate`   | Generate Drizzle migration files               |
+| `bun run db:migrate`    | Apply generated migrations                     |
+| `bun run db:studio`     | Open Drizzle Studio                            |
+| `bun run db:seed`       | Insert seed data                               |
+| `bun run db:reset`      | Reset and reseed a local database; destructive |
+| `bun run auth:generate` | Generate Better Auth database artifacts        |
 
 ## Troubleshooting
 

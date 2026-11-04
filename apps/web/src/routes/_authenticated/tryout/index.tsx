@@ -53,7 +53,7 @@ function TryoutHeader({ creditBalance, level }: { creditBalance: number; level: 
 	const currentLevel = TRYOUT_LEVELS[level];
 
 	return (
-		<div className="relative overflow-hidden rounded-default bg-linear-to-r from-primary-500 to-secondary-400">
+		<div className="rounded-default from-primary-500 to-secondary-400 relative overflow-hidden bg-linear-to-r">
 			<div className="grid grid-cols-1 gap-6 px-6 pt-8 pb-0 sm:grid-cols-3 sm:items-center sm:px-10 sm:py-10">
 				<div className="relative order-last -mx-6 h-27.5 overflow-hidden sm:order-first sm:mr-0 sm:-ml-10 sm:h-auto sm:overflow-visible">
 					<Image
@@ -61,18 +61,18 @@ function TryoutHeader({ creditBalance, level }: { creditBalance: number; level: 
 						alt="Tryout Header Avatar"
 						width={260}
 						height={260}
-						className="absolute left-0 size-52.5 -translate-y-10 select-none object-cover sm:bottom-0 sm:translate-y-1/2"
+						className="absolute left-0 size-52.5 -translate-y-10 object-cover select-none sm:bottom-0 sm:translate-y-1/2"
 					/>
 				</div>
 
 				<div className="z-10 max-w-xl space-y-1 sm:col-span-2">
-					<h1 className="font-bold text-2xl text-white leading-tight">{currentLevel.title}</h1>
-					<p className="text-black leading-5">{currentLevel.description}</p>
+					<h1 className="text-2xl leading-tight font-bold text-white">{currentLevel.title}</h1>
+					<p className="leading-5 text-black">{currentLevel.description}</p>
 
 					{creditBalance > 0 ? (
 						<div className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-2">
 							<CoinsIcon size={20} weight="fill" className="text-yellow-300" />
-							<span className="font-medium text-sm text-white">
+							<span className="text-sm font-medium text-white">
 								Kredit Tryout: <strong>{creditBalance}</strong>
 							</span>
 						</div>

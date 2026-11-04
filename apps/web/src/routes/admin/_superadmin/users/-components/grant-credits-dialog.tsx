@@ -68,7 +68,7 @@ export function GrantCreditsDialog({
 					<DialogDescription>Tambahkan tryout credits untuk user "{userName}"</DialogDescription>
 				</DialogHeader>
 				<div className="flex flex-col gap-4 py-2">
-					<div className="flex items-center justify-between rounded-md border bg-muted/50 px-4 py-2.5">
+					<div className="bg-muted/50 flex items-center justify-between rounded-md border px-4 py-2.5">
 						<span className="text-muted-foreground text-sm">Saldo saat ini</span>
 						<span className="font-semibold">{currentCredits ?? 0} credits</span>
 					</div>

@@ -55,7 +55,7 @@ export function EssayForm({
 				onChange={(e) => setValue(e.target.value.trimStart())}
 				className="min-h-37.5"
 			/>
-			<div className="flex items-center justify-between text-muted-foreground text-xs">
+			<div className="text-muted-foreground flex items-center justify-between text-xs">
 				<span className={cn(isOverLimit && "text-destructive")}>
 					{value.length}/{MAX_CHARACTERS} karakter
 				</span>

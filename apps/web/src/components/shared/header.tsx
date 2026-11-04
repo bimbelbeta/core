@@ -8,7 +8,7 @@ export default function Header() {
 
 	return (
 		<div className="fixed inset-x-0 top-0 z-50 mx-auto flex h-20 max-w-7xl flex-row items-center justify-between gap-8 rounded-lg bg-transparent px-6 backdrop-blur-lg md:px-8">
-			<Link to="/" className="font-bold leading-none">
+			<Link to="/" className="leading-none font-bold">
 				<span className="text-secondary-900">Bimbel</span>
 				<span className="text-tertiary-1000">Beta</span>
 			</Link>

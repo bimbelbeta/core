@@ -95,7 +95,7 @@ function RouteComponent() {
 	}
 
 	if (content.isError) {
-		return <p className="text-red-500 text-sm">Error: {content.error.message}</p>;
+		return <p className="text-sm text-red-500">Error: {content.error.message}</p>;
 	}
 
 	if (!content.data) return notFound();
@@ -105,7 +105,7 @@ function RouteComponent() {
 	return (
 		<div className="space-y-6">
 			<div className="flex flex-col items-start justify-between space-y-1 sm:flex-row sm:items-center">
-				<h2 className="font-semibold text-lg">Edit Catatan Materi</h2>
+				<h2 className="text-lg font-semibold">Edit Catatan Materi</h2>
 				<div className="flex gap-2">
 					<form.Subscribe>
 						{(state) => (
@@ -162,7 +162,7 @@ function RouteComponent() {
 						<div className="space-y-2">
 							<TiptapSimpleEditor content={field.state.value} onChange={(c) => field.handleChange(c)} />
 							{field.state.meta.errors.map((error) => (
-								<p key={error?.message} className="text-red-500 text-sm">
+								<p key={error?.message} className="text-sm text-red-500">
 									{error?.message}
 								</p>
 							))}

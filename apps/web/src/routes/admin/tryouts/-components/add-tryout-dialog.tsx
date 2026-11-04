@@ -119,7 +119,7 @@ export function AddTryoutDialog({
 												onChange={(e) => field.handleChange(e.target.value)}
 											/>
 											{field.state.meta.errors.map((error) => (
-												<p key={error?.message} className="text-red-500 text-xs">
+												<p key={error?.message} className="text-xs text-red-500">
 													{error?.message}
 												</p>
 											))}
@@ -190,7 +190,7 @@ export function AddTryoutDialog({
 												<SelectContent>
 													<SelectItem value="draft">
 														<div className="flex items-center gap-2">
-															<FileIcon className="size-4 text-muted-foreground" />
+															<FileIcon className="text-muted-foreground size-4" />
 															<span>Draft</span>
 														</div>
 													</SelectItem>

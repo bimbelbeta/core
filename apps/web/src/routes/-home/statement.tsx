@@ -7,9 +7,9 @@ export function Statement() {
 		<section className="bg-background py-20 xl:py-35">
 			<Container className="max-w-3xl py-0 xl:max-w-5xl">
 				<Heading>
-					<span className="font-semibold text-secondary-700">Masalah terbesarmu</span> bukan kurang pintar,
+					<span className="text-secondary-700 font-semibold">Masalah terbesarmu</span> bukan kurang pintar,
 					<br className="hidden xl:block" />
-					tapi <span className="font-semibold text-secondary-700">caramu belajar yang terpecah-pecah.</span>
+					tapi <span className="text-secondary-700 font-semibold">caramu belajar yang terpecah-pecah.</span>
 				</Heading>
 				<Body>
 					Materi dan soalmu berceceran di banyak tempat dan waktumu

@@ -55,9 +55,9 @@ function RouteComponent() {
 				{content.isPending ? (
 					<Skeleton className="mt-3 h-7 w-full" />
 				) : content.isError ? (
-					<h1 className="mt-3 font-bold text-red-500 text-xl">Error: {content.error.message}</h1>
+					<h1 className="mt-3 text-xl font-bold text-red-500">Error: {content.error.message}</h1>
 				) : (
-					<h1 className="mt-3 font-bold text-xl">{displayTitle}</h1>
+					<h1 className="mt-3 text-xl font-bold">{displayTitle}</h1>
 				)}
 			</div>
 

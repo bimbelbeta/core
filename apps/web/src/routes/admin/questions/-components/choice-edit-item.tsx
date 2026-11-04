@@ -22,7 +22,7 @@ export function ChoiceEditItem({ choice, onUpdate, onDelete }: ChoiceEditItemPro
 				choice.isCorrect ? "border-green-200 bg-green-50" : ""
 			}`}
 		>
-			<div className="flex size-6 shrink-0 items-center justify-center rounded-full border bg-muted font-bold text-muted-foreground text-xs">
+			<div className="bg-muted text-muted-foreground flex size-6 shrink-0 items-center justify-center rounded-full border text-xs font-bold">
 				{choice.code}
 			</div>
 			<div className="flex flex-1 flex-col gap-2">
@@ -37,7 +37,7 @@ export function ChoiceEditItem({ choice, onUpdate, onDelete }: ChoiceEditItemPro
 						checked={choice.isCorrect}
 						onCheckedChange={(checked) => onUpdate(choice.content, checked === true)}
 					/>
-					<Label htmlFor={`correct-${choice.id}`} className="cursor-pointer font-normal text-muted-foreground text-xs">
+					<Label htmlFor={`correct-${choice.id}`} className="text-muted-foreground cursor-pointer text-xs font-normal">
 						Jawaban Benar
 					</Label>
 				</div>
@@ -45,7 +45,7 @@ export function ChoiceEditItem({ choice, onUpdate, onDelete }: ChoiceEditItemPro
 			<button
 				type="button"
 				onClick={onDelete}
-				className="mt-1 flex items-center gap-1 rounded p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+				className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive mt-1 flex items-center gap-1 rounded p-1 transition-colors"
 			>
 				<TrashIcon className="size-4" />
 				<span className="sr-only">Hapus pilihan</span>

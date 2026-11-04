@@ -17,14 +17,14 @@
 	"type": "module",
 	"scripts": {
 		"build": "tsdown",
-		"check-types": "tsgo --noEmit"
+		"check-types": "tsc --noEmit"
 	},
 	"devDependencies": {
 		"@bimbelbeta/config": "workspace:*",
 		"tsdown": "catalog:"
 	},
 	"peerDependencies": {
-		"typescript": "^5"
+		"typescript": "^5.9.3"
 	},
 	"dependencies": {
 		"@bimbelbeta/auth": "workspace:*",

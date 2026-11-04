@@ -56,7 +56,7 @@ export function HeaderDashboard() {
 			className={`fixed inset-x-0 top-0 z-50 backdrop-blur-md transition-colors ${mobileMenuOpen ? "bg-white" : "bg-transparent"}`}
 		>
 			<div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 md:px-8">
-				<Link to="/" className="font-bold leading-none">
+				<Link to="/" className="leading-none font-bold">
 					<span className="text-secondary-900">Bimbel</span>
 					<span className="text-tertiary-1000">Beta</span>
 				</Link>
@@ -88,7 +88,7 @@ export function HeaderDashboard() {
 					<div className="hidden md:flex md:items-center md:gap-4">
 						<DropdownMenu>
 							<DropdownMenuTrigger className="outline-none">
-								<div className="flex size-10 items-center justify-center rounded-default bg-secondary-600 font-normal text-sm text-white transition-transform hover:scale-105 active:scale-95">
+								<div className="rounded-default bg-secondary-600 flex size-10 items-center justify-center text-sm font-normal text-white transition-transform hover:scale-105 active:scale-95">
 									{userInitials}
 								</div>
 							</DropdownMenuTrigger>
@@ -129,7 +129,7 @@ export function HeaderDashboard() {
 							transition={{ type: "spring", damping: 30, stiffness: 300 }}
 						>
 							<div className="flex items-center justify-between">
-								<Link to="/" className="font-bold text-2xl leading-none" onClick={() => setMobileMenuOpen(false)}>
+								<Link to="/" className="text-2xl leading-none font-bold" onClick={() => setMobileMenuOpen(false)}>
 									<span className="text-secondary-900">Bimbel</span>
 									<span className="text-tertiary-1000">Beta</span>
 								</Link>
@@ -154,7 +154,7 @@ export function HeaderDashboard() {
 												href={link.to}
 												target="_blank"
 												rel="noopener noreferrer"
-												className="rounded-md px-4 py-3 font-medium text-lg text-secondary-900 hover:bg-accent"
+												className="text-secondary-900 hover:bg-accent rounded-md px-4 py-3 text-lg font-medium"
 												onClick={() => setMobileMenuOpen(false)}
 											>
 												{link.name}
@@ -166,8 +166,8 @@ export function HeaderDashboard() {
 										<Link
 											key={link.to}
 											to={link.to}
-											className={`rounded-md px-4 py-3 text-lg hover:bg-accent ${
-												isActive ? "bg-secondary-100/50 font-bold text-secondary-700" : "font-medium text-secondary-900"
+											className={`hover:bg-accent rounded-md px-4 py-3 text-lg ${
+												isActive ? "bg-secondary-100/50 text-secondary-700 font-bold" : "text-secondary-900 font-medium"
 											}`}
 											onClick={() => setMobileMenuOpen(false)}
 										>
@@ -177,9 +177,9 @@ export function HeaderDashboard() {
 								})}
 							</m.div>
 
-							<div className="mt-auto border-neutral-200 border-t pt-6">
+							<div className="mt-auto border-t border-neutral-200 pt-6">
 								<div className="mb-4 flex items-center gap-3">
-									<div className="flex size-10 items-center justify-center rounded-default bg-secondary-600 font-normal text-sm text-white">
+									<div className="rounded-default bg-secondary-600 flex size-10 items-center justify-center text-sm font-normal text-white">
 										{userInitials}
 									</div>
 									<span className="font-medium">{session?.user.name}</span>
