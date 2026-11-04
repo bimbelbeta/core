@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Typography } from "@/components/ui/typography";
 import { formatDateMedium } from "@/lib/format-date";
 import { orpc } from "@/lib/orpc";
+import { subjectCategorySchema, tryoutStatusSchema } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 
 import { AccessCodeSection } from "./access-code-section";
@@ -80,8 +81,8 @@ export function TryoutSettingsTab({ tryout, onUpdate, onFormStateChange }: Tryou
 			onChange: type({
 				title: "string >= 1",
 				"description?": "string",
-				category: "'sd' | 'smp' | 'sma' | 'utbk'",
-				status: "'draft' | 'published' | 'archived'",
+				category: subjectCategorySchema,
+				status: tryoutStatusSchema,
 			}),
 		},
 	});
@@ -178,7 +179,7 @@ export function TryoutSettingsTab({ tryout, onUpdate, onFormStateChange }: Tryou
 									<Label htmlFor={field.name}>Kategori</Label>
 									<Select
 										value={field.state.value}
-										onValueChange={(val) => field.handleChange(type("'sd' | 'smp' | 'sma' | 'utbk'").assert(val))}
+										onValueChange={(val) => field.handleChange(subjectCategorySchema.assert(val))}
 									>
 										<SelectTrigger id={field.name} className="w-full max-w-xs">
 											<SelectValue placeholder="Pilih kategori" />
@@ -208,7 +209,7 @@ export function TryoutSettingsTab({ tryout, onUpdate, onFormStateChange }: Tryou
 									<Label htmlFor={field.name}>Status</Label>
 									<Select
 										value={field.state.value}
-										onValueChange={(val) => field.handleChange(type("'draft' | 'published' | 'archived'").assert(val))}
+										onValueChange={(val) => field.handleChange(tryoutStatusSchema.assert(val))}
 									>
 										<SelectTrigger id={field.name} className="w-full max-w-xs gap-2">
 											<SelectValue placeholder="Pilih status" />

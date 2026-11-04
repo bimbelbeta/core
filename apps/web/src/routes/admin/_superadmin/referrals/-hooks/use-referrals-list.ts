@@ -52,7 +52,10 @@ export function useReferralsList() {
 		}),
 	);
 
-	const handleSearch = (value: string) => navigate({ search: value ? { search: value, limit } : baseSearchParams });
+	const handleSearch = (value: string) => {
+		const { search: _search, ...withoutSearch } = baseSearchParams;
+		navigate({ search: value ? { search: value, limit } : withoutSearch });
+	};
 
 	const handleToggleStatus = (codeId: string, status: boolean) => toggleStatusMutation.mutate({ codeId, status });
 

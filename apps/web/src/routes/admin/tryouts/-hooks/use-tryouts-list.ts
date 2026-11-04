@@ -1,10 +1,10 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { type } from "arktype";
 import { useState } from "react";
 import { toast } from "sonner";
 import { usePaginationNavigation } from "@/hooks/use-pagination-navigation";
 import { orpc } from "@/lib/orpc";
+import { subjectCategorySchema, tryoutStatusSchema } from "@/lib/schemas";
 
 export function useTryoutsList() {
 	const navigate = useNavigate({ from: "/admin/tryouts/" });
@@ -59,14 +59,14 @@ export function useTryoutsList() {
 	const handleCategoryChange = (value: string) => {
 		const { category: _category, ...rest } = baseSearchParams;
 		navigate({
-			search: value !== "all" ? { ...rest, category: type("'sd' | 'smp' | 'sma' | 'utbk'").assert(value) } : rest,
+			search: value !== "all" ? { ...rest, category: subjectCategorySchema.assert(value) } : rest,
 		});
 	};
 
 	const handleStatusChange = (value: string) => {
 		const { status: _status, ...rest } = baseSearchParams;
 		navigate({
-			search: value !== "all" ? { ...rest, status: type("'draft' | 'published' | 'archived'").assert(value) } : rest,
+			search: value !== "all" ? { ...rest, status: tryoutStatusSchema.assert(value) } : rest,
 		});
 	};
 

@@ -19,8 +19,6 @@ export function SubjectFilters({
 	return (
 		<ToggleGroup
 			type="single"
-			variant="filter"
-			size="none"
 			value={activeFilter}
 			onValueChange={(value) => {
 				const filter = FILTERS.find((filter) => filter.value === value);
