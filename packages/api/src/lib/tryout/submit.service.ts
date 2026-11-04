@@ -92,8 +92,8 @@ export async function submitSubtest(
 	const nextSubtest = tryoutData.subtests[currentIndex + 1];
 	if (nextSubtest) {
 		const nextDeadline = computeSubtestDeadline(nextSubtest.duration, attempt.deadline);
-		await db
-			.transaction(async (tx) => {
+		await deps
+			.runInTransaction(async (tx) => {
 				await tx
 					.update(tryoutSubtestAttempt)
 					.set({ status: "finished", completedAt: new Date() })
@@ -113,8 +113,8 @@ export async function submitSubtest(
 
 	const scores = await deps.calculateScores(attempt.id);
 
-	await db
-		.transaction(async (tx) => {
+	await deps
+		.runInTransaction(async (tx) => {
 			await tx
 				.update(tryoutSubtestAttempt)
 				.set({ status: "finished", completedAt: new Date() })
@@ -155,8 +155,8 @@ export async function submitTryout(
 
 	const scores = await deps.calculateScores(attempt.id);
 
-	await db
-		.transaction(async (tx) => {
+	await deps
+		.runInTransaction(async (tx) => {
 			await tx
 				.update(tryoutAttempt)
 				.set({

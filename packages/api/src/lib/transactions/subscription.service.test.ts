@@ -1,4 +1,4 @@
-import { describe, expect, mock, test } from "bun:test";
+import { describe, expect, mock, spyOn, test } from "bun:test";
 import { PaymentError } from "./errors";
 import { createSubscriptionService } from "./subscription.service";
 
@@ -74,9 +74,15 @@ describe("subscription service", () => {
 	test("carries the provider error code when checkout fails", async () => {
 		const { deps, service } = setup();
 		deps.createCheckout.mockRejectedValueOnce(new PaymentError("PROVIDER_REJECTED", "rejected"));
-		expect(await service.subscribe("premium", user)).toEqual({
-			status: "payment_failed",
-			reason: "PROVIDER_REJECTED",
-		});
+		const log = spyOn(console, "error").mockImplementation(() => {});
+		try {
+			expect(await service.subscribe("premium", user)).toEqual({
+				status: "payment_failed",
+				reason: "PROVIDER_REJECTED",
+			});
+			expect(log).toHaveBeenCalled();
+		} finally {
+			log.mockRestore();
+		}
 	});
 });

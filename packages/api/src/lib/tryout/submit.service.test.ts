@@ -22,7 +22,9 @@ const attempt = {
 function deps(overrides: Partial<SubmitServiceDependencies> = {}): SubmitServiceDependencies {
 	return {
 		findAttempt: async () => undefined,
-		runInTransaction: async (fn) => fn(null as never),
+		runInTransaction: async () => {
+			throw new Error("unexpected transaction");
+		},
 		calculateScores: async () => ({ subtests: [], totalScore: 0 }),
 		saveScores: async () => {},
 		...overrides,

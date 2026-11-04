@@ -397,6 +397,22 @@ describe.skipIf(!enabled)("API persistence workflows", () => {
 		});
 	});
 
+	test("downgrades an expired premium session on an authenticated read", async () => {
+		await db
+			.update(user)
+			.set({ isPremium: true, premiumExpiresAt: new Date("2020-01-01") })
+			.where(eq(user.id, id));
+
+		const expiredSession = {
+			...session,
+			user: { ...session.user, isPremium: true, premiumExpiresAt: new Date("2020-01-01") },
+		};
+		await call(appRouter.tryout.history, undefined, { context: { session: expiredSession } });
+
+		const [after] = await db.select().from(user).where(eq(user.id, id));
+		expect(after!.isPremium).toBe(false);
+	});
+
 	test("rejects unauthenticated and unauthorized callers", async () => {
 		await expect(call(appRouter.tryout.start, { id: 1 }, { context: { session: null } })).rejects.toMatchObject({
 			code: "UNAUTHORIZED",

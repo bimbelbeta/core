@@ -39,6 +39,7 @@ export const createNotificationService = (deps: NotificationServiceDependencies)
 		try {
 			status = await deps.fetchStatus(orderId);
 		} catch (error) {
+			console.error("payment status fetch failed", error);
 			return { status: "verification_failed", reason: toPaymentErrorCode(error) } as const;
 		}
 

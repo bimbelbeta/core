@@ -15,10 +15,8 @@ const subscribe = authed.transaction.subscribe.handler(async ({ input, context, 
 		throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah menjadi member premium." });
 	if (result.status === "creation_failed")
 		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal membuat transaksi. Silahkan coba lagi." });
-	if (result.status === "payment_failed") {
-		console.error("payment checkout failed", result.reason);
+	if (result.status === "payment_failed")
 		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memproses pembayaran. Silahkan coba lagi." });
-	}
 	return result.checkout;
 });
 
@@ -33,10 +31,8 @@ const notification = pub.transaction.notification.handler(async ({ input, errors
 	if (!verified) throw errors.UNAUTHORIZED({ message: "Invalid webhook signature." });
 
 	const result = await notificationService.process(input.order_id, new Date());
-	if (result.status === "verification_failed") {
-		console.error("payment status fetch failed", result.reason);
+	if (result.status === "verification_failed")
 		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memverifikasi status transaksi." });
-	}
 	if (result.status === "processing_failed")
 		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memproses transaksi." });
 	if (result.status === "update_failed")

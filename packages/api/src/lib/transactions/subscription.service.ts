@@ -51,6 +51,7 @@ export const createSubscriptionService = (deps: SubscriptionServiceDependencies)
 			});
 			return { status: "ok", checkout } as const;
 		} catch (error) {
+			console.error("payment checkout failed", error);
 			return { status: "payment_failed", reason: toPaymentErrorCode(error) } as const;
 		}
 	},
