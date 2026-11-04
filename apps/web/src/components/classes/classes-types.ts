@@ -19,6 +19,5 @@ export type LastContentViewedItem = ContentActionItem & {
 	title: string;
 };
 
-export type { SubjectCategory } from "@/lib/schemas";
 export type SubjectFilter = "all" | SubjectCategory;
 export type ContentFilter = "all" | "video" | "notes" | "quiz";

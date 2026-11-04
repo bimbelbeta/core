@@ -1,8 +1,4 @@
-import { SUBJECT_CATEGORY_LABELS, type SubjectCategory } from "@/lib/schemas";
-
-export type { SubjectCategory };
-
-export const categoryLabel = SUBJECT_CATEGORY_LABELS;
+import { type SubjectCategory, subjectCategorySchema } from "@/lib/schemas";
 
 export const gradeRanges: Record<Exclude<SubjectCategory, "utbk">, [number, number]> = {
 	sd: [1, 6],
@@ -11,7 +7,7 @@ export const gradeRanges: Record<Exclude<SubjectCategory, "utbk">, [number, numb
 };
 
 export function isValidCategory(v: string): v is SubjectCategory {
-	return v in categoryLabel;
+	return subjectCategorySchema.allows(v);
 }
 
 /** Returns a validation error message if gradeLevel is out of range, or null if valid. */

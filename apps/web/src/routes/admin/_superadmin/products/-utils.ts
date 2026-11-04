@@ -35,7 +35,3 @@ export const months = [
 	{ value: 11, label: "November" },
 	{ value: 12, label: "Desember" },
 ] as const;
-
-export function getMonthLabel(month: number): string {
-	return months.find((m) => m.value === month)?.label ?? "";
-}

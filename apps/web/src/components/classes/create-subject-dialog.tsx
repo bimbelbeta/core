@@ -17,8 +17,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
-import { subjectCategorySchema } from "@/lib/schemas";
-import { categoryLabel, isValidCategory, type SubjectCategory, validateGradeLevel } from "./classes-constants";
+import { SUBJECT_CATEGORY_LABELS, type SubjectCategory, subjectCategorySchema } from "@/lib/schemas";
+import { isValidCategory, validateGradeLevel } from "./classes-constants";
 
 type CreateSubjectDialogProps = {
 	open: boolean;
@@ -199,10 +199,10 @@ export function CreateSubjectDialog({ open, onOpenChange, defaultCategory }: Cre
 											<SelectValue placeholder="Pilih kategori" />
 										</SelectTrigger>
 										<SelectContent>
-											<SelectItem value="sd">{categoryLabel.sd}</SelectItem>
-											<SelectItem value="smp">{categoryLabel.smp}</SelectItem>
-											<SelectItem value="sma">{categoryLabel.sma}</SelectItem>
-											<SelectItem value="utbk">{categoryLabel.utbk}</SelectItem>
+											<SelectItem value="sd">{SUBJECT_CATEGORY_LABELS.sd}</SelectItem>
+											<SelectItem value="smp">{SUBJECT_CATEGORY_LABELS.smp}</SelectItem>
+											<SelectItem value="sma">{SUBJECT_CATEGORY_LABELS.sma}</SelectItem>
+											<SelectItem value="utbk">{SUBJECT_CATEGORY_LABELS.utbk}</SelectItem>
 										</SelectContent>
 									</Select>
 								</div>

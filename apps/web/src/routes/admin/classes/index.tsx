@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { type } from "arktype";
 import { useState } from "react";
-import type { SubjectCategory, SubjectFilter } from "@/components/classes/classes-types";
+import type { SubjectFilter } from "@/components/classes/classes-types";
 import { CreateSubjectDialog } from "@/components/classes/create-subject-dialog";
 import { SubjectFilters } from "@/components/classes/subject-filters";
 import { SubjectHeader } from "@/components/classes/subject-header";
@@ -13,6 +13,7 @@ import { SearchInput } from "@/components/ui/search-input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
+import type { SubjectCategory } from "@/lib/schemas";
 import { subjectCategorySchema } from "@/lib/schemas";
 import { createMeta } from "@/lib/seo-utils";
 

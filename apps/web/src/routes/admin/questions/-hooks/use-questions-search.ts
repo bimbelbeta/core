@@ -1,5 +1,5 @@
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import type { SubjectCategory } from "@/lib/schemas";
+import { type SubjectCategory, subjectCategorySchema } from "@/lib/schemas";
 
 type QuestionType = "multiple_choice" | "multiple_choice_complex" | "essay";
 type QuestionCategory = SubjectCategory;
@@ -8,7 +8,7 @@ function isQuestionType(v: string): v is QuestionType {
 	return v === "multiple_choice" || v === "multiple_choice_complex" || v === "essay";
 }
 function isQuestionCategory(v: string): v is QuestionCategory {
-	return v === "sd" || v === "smp" || v === "sma" || v === "utbk";
+	return subjectCategorySchema.allows(v);
 }
 
 export function useQuestionsSearch() {

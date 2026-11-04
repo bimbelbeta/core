@@ -20,7 +20,7 @@ export function PremiumPage() {
 	if (productsQuery.isError) {
 		return (
 			<Container className="max-w-7xl items-center gap-8 py-8">
-				<Card className="border-neutral-200 bg-neutral-100 p-6 text-center text-neutral-700">
+				<Card className="border-neutral-200 bg-neutral-50 p-6 text-center text-neutral-700">
 					<Typography>Gagal memuat paket. Coba refresh halaman.</Typography>
 				</Card>
 			</Container>
@@ -84,7 +84,7 @@ export function PremiumPage() {
 				)}
 
 				{!subscriptionProducts?.length && !productProducts?.length && !productsQuery.isLoading && (
-					<Card className="border-neutral-200 bg-neutral-100 p-6 text-center text-neutral-700">
+					<Card className="border-neutral-200 bg-neutral-50 p-6 text-center text-neutral-700">
 						<Typography>Paket belum tersedia saat ini.</Typography>
 					</Card>
 				)}
