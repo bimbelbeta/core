@@ -1,10 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
-import { createContext, useContext, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { orpc } from "@/lib/orpc";
 import { useUsersList } from "./use-users-list";
-
-export const UsersSelectionContext = createContext<ReturnType<typeof useUsersSelectionState> | null>(null);
 
 export function useUsersSelectionState() {
 	const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -54,10 +52,4 @@ export function useUsersSelectionState() {
 		someSelected,
 		handleBulkDelete,
 	};
-}
-
-export function useUsersSelection() {
-	const selection = useContext(UsersSelectionContext);
-	if (!selection) throw new Error("Konteks pemilihan user tidak tersedia");
-	return selection;
 }

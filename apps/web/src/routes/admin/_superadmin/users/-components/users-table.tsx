@@ -19,11 +19,11 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { cn } from "@/lib/utils";
 import { useUsersList } from "../-hooks/use-users-list";
 import { useUsersPagination } from "../-hooks/use-users-pagination";
-import { useUsersSelection } from "../-hooks/use-users-selection";
 import { formatPremiumExpiry, formatRelativeDate, getInitials, isValidRole, roleConfig } from "../-utils";
 import { EditRoleDialog } from "./edit-role-dialog";
 import { GrantCreditsDialog } from "./grant-credits-dialog";
 import { GrantPremiumDialog } from "./grant-premium-dialog";
+import { useUsersSelection } from "./users-selection-context";
 
 export function UsersTable() {
 	const { data, isLoading, refetch } = useUsersList();

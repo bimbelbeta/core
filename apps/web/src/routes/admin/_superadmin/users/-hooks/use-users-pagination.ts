@@ -1,5 +1,6 @@
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { usePaginationNavigation } from "@/hooks/use-pagination-navigation";
+import { buildUsersSearch } from "../-utils";
 import { useUsersList } from "./use-users-list";
 
 export function useUsersPagination() {
@@ -7,10 +8,5 @@ export function useUsersPagination() {
 	const { limit = 10, search, role, isPremium } = useSearch({ from: "/admin/_superadmin/users/" });
 	const { data } = useUsersList();
 
-	return usePaginationNavigation(navigate, data?.pageInfo, {
-		...(search && { search }),
-		...(role && { role }),
-		...(isPremium !== undefined && { isPremium }),
-		limit,
-	});
+	return usePaginationNavigation(navigate, data?.pageInfo, buildUsersSearch({ search, role, isPremium, limit }));
 }

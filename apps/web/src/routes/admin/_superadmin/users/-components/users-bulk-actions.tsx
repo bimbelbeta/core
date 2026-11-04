@@ -12,7 +12,7 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { useUsersSelection } from "../-hooks/use-users-selection";
+import { useUsersSelection } from "./users-selection-context";
 
 export function UsersBulkActions() {
 	const { selectedIds, bulkDeleteDialogOpen, setBulkDeleteDialogOpen, handleBulkDelete } = useUsersSelection();

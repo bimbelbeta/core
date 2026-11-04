@@ -127,7 +127,7 @@ export function BulkAddQuestionsDialog({
 											key={question.id}
 											selected={isSelected}
 											variant="outline"
-											className="relative cursor-pointer flex-col items-stretch gap-3 p-3"
+											className="hover:bg-muted/50 relative cursor-pointer flex-col items-stretch gap-3 p-3 text-left"
 										>
 											<button type="button" aria-pressed={isSelected} onClick={() => handleQuestionToggle(question.id)}>
 												{isSelected && (

@@ -55,3 +55,22 @@ export const roleConfig = {
 		className: "border-neutral-300 bg-neutral-200 text-neutral-800",
 	},
 } as const;
+
+export function buildUsersSearch({
+	search,
+	role,
+	isPremium,
+	limit,
+}: {
+	search?: string;
+	role?: Role;
+	isPremium?: boolean;
+	limit: number;
+}) {
+	return {
+		...(search && { search }),
+		...(role && { role }),
+		...(isPremium !== undefined && { isPremium }),
+		limit,
+	};
+}

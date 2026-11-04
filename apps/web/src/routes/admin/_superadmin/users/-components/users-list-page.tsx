@@ -6,8 +6,9 @@ import {
 	AdminPageRoot,
 } from "@/components/admin/admin-page";
 import { Typography } from "@/components/ui/typography";
-import { UsersSelectionContext, useUsersSelectionState } from "../-hooks/use-users-selection";
+import { useUsersSelectionState } from "../-hooks/use-users-selection";
 import { UsersBulkActions } from "./users-bulk-actions";
+import { UsersSelectionContext } from "./users-selection-context";
 import { UsersTable } from "./users-table";
 import { UsersToolbar } from "./users-toolbar";
 
