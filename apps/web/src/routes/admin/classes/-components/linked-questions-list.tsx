@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 
 interface LinkedQuestion {
@@ -199,7 +200,7 @@ export function LinkedQuestionsList({ contentId, questions }: LinkedQuestionsLis
 
 	return (
 		<div className="space-y-2">
-			<p className="text-muted-foreground text-xs">Seret untuk mengubah urutan soal</p>
+			<Typography variant="caption">Seret untuk mengubah urutan soal</Typography>
 			<Reorder.Group
 				axis="y"
 				values={items}

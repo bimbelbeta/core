@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { TagInput } from "@/components/ui/tag-input";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 import { MultipleChoiceComplexQuestionForm } from "./multiple-choice-complex-question-form";
 import { MultipleChoiceQuestionForm } from "./multiple-choice-question-form";
@@ -90,7 +91,7 @@ export function EditQuestionForm({ question, initialChoices, onSuccess, onCancel
 					<Button variant="ghost" size="icon" onClick={onCancel}>
 						<ArrowLeftIcon className="size-4" />
 					</Button>
-					<h1 className="text-primary-navy-900 text-2xl font-bold">Edit Soal #{question.id}</h1>
+					<Typography variant="title">Edit Soal #{question.id}</Typography>
 				</div>
 				<div className="flex items-center gap-3">
 					<Button type="button" variant="outline" onClick={onCancel}>

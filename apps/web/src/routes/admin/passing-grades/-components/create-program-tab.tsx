@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 
 interface CreateProgramTabProps {
@@ -90,9 +91,9 @@ export function CreateProgramTab({ onProgramCreate }: CreateProgramTabProps) {
 							placeholder="Contoh: Teknik Informatika"
 						/>
 						{field.state.meta.errors.map((error) => (
-							<p key={error?.message} className="text-destructive text-xs">
+							<Typography key={error?.message} variant="caption" tone="destructive">
 								{error?.message}
-							</p>
+							</Typography>
 						))}
 					</div>
 				)}
@@ -129,9 +130,9 @@ export function CreateProgramTab({ onProgramCreate }: CreateProgramTabProps) {
 								className="font-mono text-sm"
 							/>
 							{field.state.meta.errors.map((error) => (
-								<p key={error?.message} className="text-destructive text-xs">
+								<Typography key={error?.message} variant="caption" tone="destructive">
 									{error?.message}
-								</p>
+								</Typography>
 							))}
 						</>
 					)}
@@ -154,9 +155,9 @@ export function CreateProgramTab({ onProgramCreate }: CreateProgramTabProps) {
 							</SelectContent>
 						</Select>
 						{field.state.meta.errors.map((error) => (
-							<p key={error?.message} className="text-destructive text-xs">
+							<Typography key={error?.message} variant="caption" tone="destructive">
 								{error?.message}
-							</p>
+							</Typography>
 						))}
 					</div>
 				)}

@@ -2,8 +2,10 @@ import { BookOpenIcon, MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Item } from "@/components/ui/item";
 import { SearchInput } from "@/components/ui/search-input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 
 interface SearchProgramTabProps {
@@ -43,29 +45,40 @@ export function SearchProgramTab({ onProgramSelect }: SearchProgramTabProps) {
 							<MagnifyingGlassIcon className="text-muted-foreground size-5" />
 						</div>
 						<div>
-							<p className="text-sm font-medium">Tidak ditemukan</p>
-							<p className="text-muted-foreground text-xs">Coba kata kunci lain atau buat program studi baru.</p>
+							<Typography variant="overline" as="p" tone="default">
+								Tidak ditemukan
+							</Typography>
+							<Typography variant="caption">Coba kata kunci lain atau buat program studi baru.</Typography>
 						</div>
 					</div>
 				) : searchResults?.items ? (
 					searchResults.items.map((prog) => (
-						<button
+						<Item
+							asChild
 							key={prog.id}
-							type="button"
-							className="group hover:border-primary/30 hover:bg-primary/5 flex w-full items-center gap-3 rounded-lg border px-4 py-3 text-left transition-colors"
-							onClick={() => onProgramSelect({ id: prog.id, name: prog.name })}
+							variant="outline"
+							size="sm"
+							className="group hover:border-primary/30 hover:bg-primary/5 w-full flex-nowrap gap-3 rounded-lg text-left"
 						>
-							<div className="bg-muted group-hover:bg-primary/10 flex size-8 shrink-0 items-center justify-center rounded-md transition-colors">
-								<BookOpenIcon className="text-muted-foreground group-hover:text-primary size-4 transition-colors" />
-							</div>
-							<div className="min-w-0 flex-1">
-								<p className="truncate text-sm font-medium">{prog.name}</p>
-								{prog.description && <p className="text-muted-foreground truncate text-xs">{prog.description}</p>}
-							</div>
-							<Badge variant="outline" className="shrink-0 text-[10px]">
-								{prog.category}
-							</Badge>
-						</button>
+							<button type="button" onClick={() => onProgramSelect({ id: prog.id, name: prog.name })}>
+								<div className="bg-muted group-hover:bg-primary/10 flex size-8 shrink-0 items-center justify-center rounded-md transition-colors">
+									<BookOpenIcon className="text-muted-foreground group-hover:text-primary size-4 transition-colors" />
+								</div>
+								<div className="min-w-0 flex-1">
+									<Typography variant="overline" as="p" tone="default" className="truncate">
+										{prog.name}
+									</Typography>
+									{prog.description && (
+										<Typography variant="caption" className="truncate">
+											{prog.description}
+										</Typography>
+									)}
+								</div>
+								<Badge variant="outline" className="shrink-0 text-[10px]">
+									{prog.category}
+								</Badge>
+							</button>
+						</Item>
 					))
 				) : !searchProgram ? (
 					<div className="flex flex-col items-center gap-2 py-8 text-center">
@@ -73,8 +86,10 @@ export function SearchProgramTab({ onProgramSelect }: SearchProgramTabProps) {
 							<BookOpenIcon className="text-muted-foreground size-5" />
 						</div>
 						<div>
-							<p className="text-sm font-medium">Cari program studi</p>
-							<p className="text-muted-foreground text-xs">Ketik nama program untuk mencari.</p>
+							<Typography variant="overline" as="p" tone="default">
+								Cari program studi
+							</Typography>
+							<Typography variant="caption">Ketik nama program untuk mencari.</Typography>
 						</div>
 					</div>
 				) : null}

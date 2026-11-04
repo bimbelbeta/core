@@ -4,6 +4,7 @@ import { BackButton } from "@/components/shared/back-button";
 import { Container } from "@/components/ui/container";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 
@@ -55,9 +56,13 @@ function RouteComponent() {
 				{content.isPending ? (
 					<Skeleton className="mt-3 h-7 w-full" />
 				) : content.isError ? (
-					<h1 className="mt-3 text-xl font-bold text-red-500">Error: {content.error.message}</h1>
+					<Typography variant="title" tone="destructive" className="mt-3">
+						Error: {content.error.message}
+					</Typography>
 				) : (
-					<h1 className="mt-3 text-xl font-bold">{displayTitle}</h1>
+					<Typography variant="title" className="mt-3">
+						{displayTitle}
+					</Typography>
 				)}
 			</div>
 

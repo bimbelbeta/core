@@ -43,6 +43,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Typography } from "@/components/ui/typography";
 import { extractTextFromTiptap, truncateText } from "@/lib/content-text";
 import { orpc } from "@/lib/orpc";
 import { useQuestionsSearch } from "./-hooks/use-questions-search";
@@ -156,7 +157,7 @@ function QuestionsListPage() {
 			<AdminPageHeader>
 				<AdminPageHeaderContent>
 					<AdminPageTitle>Question Bank</AdminPageTitle>
-					<p className="text-muted-foreground text-sm">Kelola soal-soal untuk tryout dan ujian</p>
+					<Typography tone="muted">Kelola soal-soal untuk tryout dan ujian</Typography>
 				</AdminPageHeaderContent>
 				<AdminPageHeaderActions>
 					<Button asChild>
