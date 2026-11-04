@@ -80,7 +80,7 @@ export function PasteScoresDialog({ open, onOpenChange, expectedCount, onPaste }
 						className="font-mono"
 					/>
 					{error && (
-						<Typography variant="body" className="text-red-500">
+						<Typography variant="body" tone="destructive">
 							{error}
 						</Typography>
 					)}

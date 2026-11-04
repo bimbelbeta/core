@@ -87,7 +87,7 @@ function RouteComponent() {
 	if (contents.isError) {
 		return (
 			<Container className="pt-12">
-				<Typography className="text-red-500">Error: {contents.error.message}</Typography>
+				<Typography tone="destructive">Error: {contents.error.message}</Typography>
 			</Container>
 		);
 	}

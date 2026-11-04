@@ -120,7 +120,7 @@ export function AddTryoutDialog({
 												onChange={(e) => field.handleChange(e.target.value)}
 											/>
 											{field.state.meta.errors.map((error) => (
-												<Typography variant="caption" tone="default" key={error?.message} className="text-red-500">
+												<Typography variant="caption" tone="destructive" key={error?.message}>
 													{error?.message}
 												</Typography>
 											))}

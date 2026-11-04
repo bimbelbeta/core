@@ -229,42 +229,41 @@ export function QuestionPickerDialog({
 							<div className="space-y-2">
 								{questions.map((question) => (
 									<Item
-										asChild
 										variant="outline"
+										selected={selectedQuestionIds.has(question.id)}
 										key={question.id}
 										className="group hover:bg-muted/50 w-full cursor-pointer flex-nowrap items-start gap-3 rounded-lg p-3 text-left"
+										onClick={() => handleQuestionToggle(question.id)}
 									>
-										<button type="button" onClick={() => handleQuestionToggle(question.id)}>
-											<Checkbox
-												checked={selectedQuestionIds.has(question.id)}
-												onCheckedChange={() => handleQuestionToggle(question.id)}
-												className="mt-0.5"
-											/>
-											<div className="min-w-0 flex-1 space-y-1">
-												<div className="flex items-start gap-2">
-													<span className="text-muted-foreground shrink-0 font-mono text-xs">#{question.id}</span>
-													<div className="prose prose-sm line-clamp-2 min-w-0 flex-1 text-sm [&_*]:!m-0 [&_p]:line-clamp-2">
-														<TiptapRenderer content={question.content} />
-													</div>
-												</div>
-												<div className="flex flex-wrap items-center gap-1.5">
-													<Badge
-														variant={question.type === "multiple_choice" ? "default" : "outline"}
-														className="text-xs"
-													>
-														{question.type === "multiple_choice" ? "PG" : "Esai"}
-													</Badge>
-													{question.tags?.slice(0, 3).map((tag) => (
-														<Badge key={tag} variant="secondary" className="text-xs">
-															{tag}
-														</Badge>
-													))}
-													{question.tags && question.tags.length > 3 && (
-														<span className="text-muted-foreground text-xs">+{question.tags.length - 3}</span>
-													)}
+										<Checkbox
+											checked={selectedQuestionIds.has(question.id)}
+											aria-label={`Pilih soal #${question.id}`}
+											className="pointer-events-none mt-0.5"
+										/>
+										<div className="min-w-0 flex-1 space-y-1">
+											<div className="flex items-start gap-2">
+												<span className="text-muted-foreground shrink-0 font-mono text-xs">#{question.id}</span>
+												<div className="prose prose-sm line-clamp-2 min-w-0 flex-1 text-sm [&_*]:!m-0 [&_p]:line-clamp-2">
+													<TiptapRenderer content={question.content} />
 												</div>
 											</div>
-										</button>
+											<div className="flex flex-wrap items-center gap-1.5">
+												<Badge
+													variant={question.type === "multiple_choice" ? "default" : "outline"}
+													className="text-xs"
+												>
+													{question.type === "multiple_choice" ? "PG" : "Esai"}
+												</Badge>
+												{question.tags?.slice(0, 3).map((tag) => (
+													<Badge key={tag} variant="secondary" className="text-xs">
+														{tag}
+													</Badge>
+												))}
+												{question.tags && question.tags.length > 3 && (
+													<span className="text-muted-foreground text-xs">+{question.tags.length - 3}</span>
+												)}
+											</div>
+										</div>
 									</Item>
 								))}
 								{isFetchingNextPage && (

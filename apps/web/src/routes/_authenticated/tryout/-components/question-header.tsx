@@ -58,7 +58,7 @@ export function QuestionHeader({ countdownProps }: QuestionHeaderProps) {
 						<div
 							className={cn(
 								buttonVariants({ size: "xs", variant: "outline", className: "text-secondary-700" }),
-								isExpired && "text-red-500",
+								isExpired && "text-destructive",
 							)}
 						>
 							<ClockIcon className="size-5" />

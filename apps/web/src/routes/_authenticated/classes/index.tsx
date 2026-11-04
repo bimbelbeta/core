@@ -85,9 +85,7 @@ function RouteComponent() {
 					</div>
 				)}
 
-				{subjectsQuery.isError && (
-					<Typography className="text-red-500">Error: {subjectsQuery.error.message}</Typography>
-				)}
+				{subjectsQuery.isError && <Typography tone="destructive">Error: {subjectsQuery.error.message}</Typography>}
 
 				{subjectsQuery.data && subjectsQuery.data.items.length === 0 && (
 					<NotFoundContentState

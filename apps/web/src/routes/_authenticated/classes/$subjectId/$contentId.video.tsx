@@ -60,7 +60,7 @@ function RouteComponent() {
 	}
 
 	if (content.isError) {
-		return <Typography className="text-red-500">Error: {content.error.message}</Typography>;
+		return <Typography tone="destructive">Error: {content.error.message}</Typography>;
 	}
 
 	if (!content.data) return notFound();

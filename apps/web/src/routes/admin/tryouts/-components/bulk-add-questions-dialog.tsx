@@ -5,8 +5,10 @@ import { toast } from "sonner";
 import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
+import { Item } from "@/components/ui/item";
 import { Spinner } from "@/components/ui/spinner";
 import { orpc } from "@/lib/orpc";
 
@@ -121,18 +123,14 @@ export function BulkAddQuestionsDialog({
 								{questions.map((question) => {
 									const isSelected = selectedQuestionIds.has(question.id);
 									return (
-										<label
+										<Item
 											key={question.id}
-											className={`group focus-within:ring-primary relative flex cursor-pointer flex-col gap-3 rounded-lg border p-3 transition-all outline-none focus-within:ring-2 ${
-												isSelected ? "border-primary bg-primary/5" : "border-border hover:bg-muted/50"
-											}`}
+											selected={isSelected}
+											variant="outline"
+											className="relative cursor-pointer flex-col items-stretch gap-3 p-3"
+											onClick={() => handleQuestionToggle(question.id)}
 										>
-											<input
-												type="checkbox"
-												className="sr-only"
-												checked={isSelected}
-												onChange={() => handleQuestionToggle(question.id)}
-											/>
+											<Checkbox checked={isSelected} aria-label={`Pilih soal #${question.id}`} className="sr-only" />
 											{isSelected && (
 												<div className="text-primary absolute top-3 right-3">
 													<CheckCircleIcon size={20} weight="fill" />
@@ -144,7 +142,7 @@ export function BulkAddQuestionsDialog({
 											<div className="pr-8">
 												<TiptapRenderer content={question.content} />
 											</div>
-										</label>
+										</Item>
 									);
 								})}
 								{isFetchingNextPage && (
