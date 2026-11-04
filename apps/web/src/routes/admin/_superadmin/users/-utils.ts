@@ -3,15 +3,6 @@ import { ShieldCheckIcon, ShieldPlusIcon, UserIcon } from "@phosphor-icons/react
 
 export const isValidRole = (value: string | null): value is Role => Object.values(ROLES).some((role) => role === value);
 
-export function getInitials(name: string) {
-	return name
-		.split(" ")
-		.slice(0, 2)
-		.map((n) => n[0])
-		.join("")
-		.toUpperCase();
-}
-
 export function formatPremiumExpiry(date: Date) {
 	const now = new Date();
 	const diffMs = date.getTime() - now.getTime();

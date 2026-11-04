@@ -11,17 +11,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatRelativeDate } from "@/lib/format-date";
+import { getInitials } from "@/lib/formatter";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
-
-function getInitials(name: string) {
-	return name
-		.split(" ")
-		.map((n) => n[0])
-		.join("")
-		.toUpperCase()
-		.slice(0, 2);
-}
 
 interface TryoutAttemptsTabProps {
 	subtests: {

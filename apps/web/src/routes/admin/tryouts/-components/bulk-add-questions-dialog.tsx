@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Item } from "@/components/ui/item";
@@ -129,13 +130,12 @@ export function BulkAddQuestionsDialog({
 											className="hover:bg-muted/50 focus-within:ring-primary relative cursor-pointer flex-col items-stretch gap-3 p-3 text-left focus-within:ring-2"
 											onClick={() => handleQuestionToggle(question.id)}
 										>
-											<input
-												type="checkbox"
+											<Checkbox
 												className="sr-only"
 												aria-label={`Pilih soal #${question.id}`}
 												checked={isSelected}
 												onClick={(e) => e.stopPropagation()}
-												onChange={() => handleQuestionToggle(question.id)}
+												onCheckedChange={() => handleQuestionToggle(question.id)}
 											/>
 											{isSelected && (
 												<div className="text-primary pointer-events-none absolute top-3 right-3">

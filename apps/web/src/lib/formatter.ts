@@ -10,3 +10,12 @@ export function formatRupiah(value: number | string) {
 		.replace("IDR", "Rp")
 		.replace(/\s/g, "");
 }
+
+export function getInitials(name: string) {
+	return name
+		.split(" ")
+		.slice(0, 2)
+		.map((part) => part[0])
+		.join("")
+		.toUpperCase();
+}
