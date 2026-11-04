@@ -1,13 +1,19 @@
 import type { auth } from "@bimbelbeta/auth";
-import { createSubscriptionTransaction } from "@/lib/transactions/client";
-import { subscriptionRepository } from "@/lib/transactions/subscription.repository";
+import { toPaymentErrorCode } from "@/lib/transactions/errors";
+import { midtransProvider } from "@/lib/transactions/providers/midtrans";
+import { paymentRepository } from "@/lib/transactions/repository";
 
 const dependencies = {
-	repository: subscriptionRepository,
-	createPayment: createSubscriptionTransaction,
+	repository: paymentRepository,
+	createCheckout: midtransProvider.createCheckout,
 };
 
-export const createSubscriptionService = (deps: typeof dependencies) => ({
+type Dependencies = {
+	repository: Pick<typeof paymentRepository, "findProduct" | "createTransaction">;
+	createCheckout: typeof midtransProvider.createCheckout;
+};
+
+export const createSubscriptionService = (deps: Dependencies) => ({
 	async subscribe(slug: string, user: Pick<typeof auth.$Infer.Session.user, "id" | "name" | "email" | "isPremium">) {
 		const plan = await deps.repository.findProduct(slug);
 		if (!plan) return { status: "not_found" } as const;
@@ -25,11 +31,17 @@ export const createSubscriptionService = (deps: typeof dependencies) => ({
 		});
 		if (!created) return { status: "creation_failed" } as const;
 
-		const payment = await deps
-			.createPayment({ id: orderId, user, name: plan.name, price: plan.price })
-			.catch(() => null);
-		if (!payment) return { status: "payment_failed" } as const;
-		return { status: "ok", payment } as const;
+		try {
+			const checkout = await deps.createCheckout({
+				orderId,
+				amount: String(plan.price),
+				description: plan.name,
+				customer: { name: user.name, email: user.email },
+			});
+			return { status: "ok", checkout } as const;
+		} catch (error) {
+			return { status: "payment_failed", reason: toPaymentErrorCode(error) } as const;
+		}
 	},
 });
 

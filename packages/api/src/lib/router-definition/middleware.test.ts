@@ -1,4 +1,5 @@
-import { describe, expect, mock, test } from "bun:test";
+import { describe, expect, mock, spyOn, test } from "bun:test";
+import { db } from "@bimbelbeta/db";
 
 type MockedMiddlewareFn = (input: {
 	context: Record<string, unknown>;
@@ -15,14 +16,9 @@ mock.module("@/lib/router-definition/base", () => ({
 	baseImplementer: { middleware: mockMiddleware },
 }));
 
-mock.module("@bimbelbeta/db", () => ({
-	db: { update: () => ({ set: () => ({ where: () => Promise.resolve() }) }) },
-}));
-
-// NOTE: Do NOT mock @bimbelbeta/db/schema/auth — the stub { user: { id: "id" } }
-// strips the Drizzle Symbol.for("drizzle:Name") property from the `user` table,
-// which leaks to other test files and breaks any test that relies on the real
-// table object. The db mock below is sufficient to isolate this module.
+spyOn(db, "update").mockReturnValue({
+	set: () => ({ where: () => Promise.resolve() }),
+} as unknown as ReturnType<typeof db.update>);
 
 mock.module("@orpc/experimental-ratelimit", () => ({
 	createRatelimitMiddleware: () => "rateLimit",

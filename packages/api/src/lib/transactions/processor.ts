@@ -2,7 +2,7 @@ import type { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { creditTransaction } from "@bimbelbeta/db/schema/credit";
 import { transaction } from "@bimbelbeta/db/schema/transaction";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import type { PurchaseBenefits, TransactionWithProduct } from "@/lib/transactions/types";
 
 export interface ProcessSuccessfulTransactionOpts {
@@ -21,14 +21,14 @@ export async function processSuccessfulTransaction({
 	existingTransaction,
 	purchaseDate,
 	benefits,
-}: ProcessSuccessfulTransactionOpts): Promise<void> {
-	await trx
+}: ProcessSuccessfulTransactionOpts): Promise<boolean> {
+	const claimed = await trx
 		.update(transaction)
-		.set({
-			status: "success",
-			paidAt: purchaseDate,
-		})
-		.where(eq(transaction.id, orderId));
+		.set({ status: "success", paidAt: purchaseDate })
+		.where(and(eq(transaction.id, orderId), isNull(transaction.paidAt)))
+		.returning({ id: transaction.id });
+
+	if (claimed.length === 0) return false;
 
 	if (benefits.grantsPremium && benefits.premiumExpiry) {
 		await trx
@@ -56,4 +56,6 @@ export async function processSuccessfulTransaction({
 			note: `Purchased ${existingTransaction.prodSlug}`,
 		});
 	}
+
+	return true;
 }

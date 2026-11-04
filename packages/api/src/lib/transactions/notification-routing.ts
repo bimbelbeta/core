@@ -1,9 +1,4 @@
-import type {
-	MidtransFraudStatus,
-	MidtransTransactionStatus,
-	PurchaseBenefits,
-	TransactionWithProduct,
-} from "@/lib/transactions/types";
+import type { PaymentStatus, PurchaseBenefits, TransactionWithProduct } from "@/lib/transactions/types";
 
 export type NotificationOutcome =
 	| { action: "already_processed" }
@@ -13,14 +8,8 @@ export type NotificationOutcome =
 	| { action: "update_status"; status: "failed" | "pending" }
 	| { action: "noop" };
 
-/**
- * Pure function that determines what action to take for a Midtrans webhook
- * notification based on transaction status, fraud status, and existing state.
- * Extracted for testability — all I/O is handled by the caller.
- */
 export function resolveNotificationOutcome(
-	transactionStatus: MidtransTransactionStatus,
-	fraudStatus: MidtransFraudStatus,
+	status: PaymentStatus,
 	existingTransaction: TransactionWithProduct | null,
 	purchaseDate: Date,
 	calcBenefits: (tx: TransactionWithProduct, date: Date) => PurchaseBenefits,
@@ -33,7 +22,7 @@ export function resolveNotificationOutcome(
 		return { action: "already_processed" };
 	}
 
-	if (transactionStatus === "settlement" || (transactionStatus === "capture" && fraudStatus === "accept")) {
+	if (status === "paid") {
 		const userId = existingTransaction.tx.userId;
 		if (!userId) {
 			return { action: "user_deleted" };
@@ -42,11 +31,11 @@ export function resolveNotificationOutcome(
 		return { action: "process_success", userId, benefits };
 	}
 
-	if (transactionStatus === "cancel" || transactionStatus === "deny" || transactionStatus === "expire") {
+	if (status === "failed") {
 		return { action: "update_status", status: "failed" };
 	}
 
-	if (transactionStatus === "pending") {
+	if (status === "pending") {
 		return { action: "update_status", status: "pending" };
 	}
 

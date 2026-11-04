@@ -1,8 +1,9 @@
 import { describe, expect, mock, test } from "bun:test";
+import { PaymentError } from "./errors";
 import { createSubscriptionService } from "./subscription.service";
 
 const user = { id: "user-1", name: "User", email: "user@example.com", isPremium: false };
-const product = {
+const plan = {
 	id: "product-1",
 	name: "Premium",
 	slug: "premium",
@@ -21,39 +22,38 @@ const product = {
 const transaction = {
 	id: "order-1",
 	userId: user.id,
-	productId: product.id,
-	grossAmount: product.price,
+	productId: plan.id,
+	grossAmount: plan.price,
 	status: "pending" as const,
 	paidAt: null,
 	orderedAt: null,
 	createdAt: new Date(),
 	updatedAt: new Date(),
 };
+const checkout = { provider: "midtrans", token: "token", redirectUrl: "url" };
 
 function setup() {
 	const deps = {
 		repository: {
-			findProduct: mock(async (): Promise<typeof product | undefined> => product),
+			findProduct: mock(async (): Promise<typeof plan | undefined> => plan),
 			createTransaction: mock(async (): Promise<typeof transaction | undefined> => transaction),
+			findTransactionWithProduct: mock(async () => null),
+			updateStatus: mock(async () => {}),
 		},
-		createPayment: mock(async () => ({ token: "token", redirectUrl: "url" })),
+		createCheckout: mock(async () => checkout),
 	};
 	return { deps, service: createSubscriptionService(deps) };
 }
 
 describe("subscription service", () => {
-	test("creates a transaction before requesting payment", async () => {
+	test("records the transaction before requesting checkout", async () => {
 		const { deps, service } = setup();
-		deps.createPayment.mockImplementation(async () => {
+		deps.createCheckout.mockImplementation(async () => {
 			expect(deps.repository.createTransaction).toHaveBeenCalledTimes(1);
-			return { token: "token", redirectUrl: "url" };
+			return checkout;
 		});
-		expect(await service.subscribe("premium", user)).toEqual({
-			status: "ok",
-			payment: { token: "token", redirectUrl: "url" },
-		});
+		expect(await service.subscribe("premium", user)).toEqual({ status: "ok", checkout });
 		expect(deps.repository.createTransaction).toHaveBeenCalledTimes(1);
-		expect(deps.createPayment).toHaveBeenCalledTimes(1);
 	});
 
 	test("rejects missing products and existing premium memberships", async () => {
@@ -64,12 +64,19 @@ describe("subscription service", () => {
 		expect(deps.repository.createTransaction).not.toHaveBeenCalled();
 	});
 
-	test("reports creation and payment failures", async () => {
+	test("reports a failed transaction write without requesting checkout", async () => {
 		const { deps, service } = setup();
 		deps.repository.createTransaction.mockResolvedValueOnce(undefined);
 		expect(await service.subscribe("premium", user)).toEqual({ status: "creation_failed" });
-		expect(deps.createPayment).not.toHaveBeenCalled();
-		deps.createPayment.mockRejectedValueOnce(new Error("payment failed"));
-		expect(await service.subscribe("premium", user)).toEqual({ status: "payment_failed" });
+		expect(deps.createCheckout).not.toHaveBeenCalled();
+	});
+
+	test("carries the provider error code when checkout fails", async () => {
+		const { deps, service } = setup();
+		deps.createCheckout.mockRejectedValueOnce(new PaymentError("PROVIDER_REJECTED", "rejected"));
+		expect(await service.subscribe("premium", user)).toEqual({
+			status: "payment_failed",
+			reason: "PROVIDER_REJECTED",
+		});
 	});
 });

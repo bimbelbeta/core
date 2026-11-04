@@ -26,7 +26,6 @@ export async function startTryout(
 
 	if (!tryoutData) throw errors.NOT_FOUND({ message: "Tryout tidak ditemukan" });
 
-	// Access control: Premium users OR users with image OR users with credits
 	const isPremiumUser = userData.isPremium;
 	const hasImageProof = !!input.imageUrl;
 	const wantsToUseCredit = !!input.useCredit;

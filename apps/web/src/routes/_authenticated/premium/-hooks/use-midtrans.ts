@@ -56,7 +56,8 @@ export function useMidtrans() {
 
 		try {
 			const data = await transactionMutation.mutateAsync({ slug });
-			setToken(data.token);
+			if (data.token) setToken(data.token);
+			else window.location.assign(data.redirectUrl);
 		} catch (err) {
 			if (err instanceof Error) {
 				toast.error(err.message);

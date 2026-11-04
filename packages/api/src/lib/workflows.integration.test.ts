@@ -55,9 +55,12 @@ let tryoutId = 0;
 const extraTryouts: number[] = [];
 const products: string[] = [];
 let questionId = 0;
+const originalKeys = { server: process.env.MIDTRANS_SERVER_KEY, client: process.env.MIDTRANS_CLIENT_KEY };
 
 describe.skipIf(!enabled)("API persistence workflows", () => {
 	beforeAll(async () => {
+		process.env.MIDTRANS_SERVER_KEY = "test-server-key";
+		process.env.MIDTRANS_CLIENT_KEY = "test-client-key";
 		await db.insert(user).values({ id, name: id, email: session.user.email, role: "admin", tryoutCredits: 1 });
 		const [createdSubject] = await db.insert(subject).values({ name: id, shortName: id }).returning();
 		subjectId = createdSubject!.id;
@@ -71,6 +74,8 @@ describe.skipIf(!enabled)("API persistence workflows", () => {
 		if (subjectId) await db.delete(subject).where(eq(subject.id, subjectId));
 		if (questionId) await db.delete(question).where(eq(question.id, questionId));
 		await db.delete(user).where(eq(user.id, id));
+		process.env.MIDTRANS_SERVER_KEY = originalKeys.server;
+		process.env.MIDTRANS_CLIENT_KEY = originalKeys.client;
 	});
 
 	test("writes content and question data, rolls back failures, and completes a scored tryout", async () => {
@@ -270,7 +275,7 @@ describe.skipIf(!enabled)("API persistence workflows", () => {
 				const statusCode = "200";
 				const amount = "10000";
 				const signature = createHash("sha512")
-					.update(`${orderId}${statusCode}${amount}${process.env.MIDTRANS_SERVER_KEY ?? ""}`)
+					.update(`${orderId}${statusCode}${amount}${process.env.MIDTRANS_SERVER_KEY}`)
 					.digest("hex");
 				return call(
 					appRouter.transaction.notification,
@@ -279,7 +284,6 @@ describe.skipIf(!enabled)("API persistence workflows", () => {
 						status_code: statusCode,
 						gross_amount: amount,
 						signature_key: signature,
-						transaction_status: "settlement",
 					},
 					{ context: { session: null } },
 				);

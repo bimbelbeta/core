@@ -4,8 +4,8 @@ import { and, eq } from "drizzle-orm";
 import { authedNoPremiumImplementer } from "@/lib/router-definition";
 import { baseImplementer } from "@/lib/router-definition/base";
 import { notificationService } from "@/lib/transactions/notification.service";
+import { midtransProvider } from "@/lib/transactions/providers/midtrans";
 import { subscriptionService } from "@/lib/transactions/subscription.service";
-import { verifyMidtransSignature } from "@/lib/transactions/verification";
 
 const pub = baseImplementer;
 const authed = authedNoPremiumImplementer;
@@ -17,22 +17,28 @@ const subscribe = authed.transaction.subscribe.handler(async ({ input, context, 
 		throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah menjadi member premium." });
 	if (result.status === "creation_failed")
 		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal membuat transaksi. Silahkan coba lagi." });
-	if (result.status === "payment_failed")
+	if (result.status === "payment_failed") {
+		console.error("payment checkout failed", result.reason);
 		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memproses pembayaran. Silahkan coba lagi." });
-	return result.payment;
+	}
+	return result.checkout;
 });
 
 const notification = pub.transaction.notification.handler(async ({ input, errors }) => {
-	const { order_id, status_code, gross_amount, signature_key } = input;
-	const purchaseDate = new Date();
-
-	if (!verifyMidtransSignature(order_id, status_code, gross_amount, signature_key)) {
-		throw errors.UNAUTHORIZED({ message: "Invalid webhook signature." });
+	let verified: boolean;
+	try {
+		verified = midtransProvider.verifyNotification(input);
+	} catch {
+		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memverifikasi pembayaran." });
 	}
 
-	const result = await notificationService.process(order_id, purchaseDate);
-	if (result.status === "verification_failed")
+	if (!verified) throw errors.UNAUTHORIZED({ message: "Invalid webhook signature." });
+
+	const result = await notificationService.process(input.order_id, new Date());
+	if (result.status === "verification_failed") {
+		console.error("payment status fetch failed", result.reason);
 		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memverifikasi status transaksi." });
+	}
 	if (result.status === "processing_failed")
 		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memproses transaksi." });
 	if (result.status === "update_failed")
