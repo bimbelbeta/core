@@ -4,6 +4,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
 	DropdownMenu,
@@ -13,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { AddProgramDialog } from "./-components/add-program-dialog";
@@ -79,13 +81,13 @@ function RouteComponent() {
 					</Link>
 				</Button>
 				<div className="flex flex-col">
-					<h1 className="text-primary-navy-900 text-2xl font-bold">{university.name}</h1>
+					<Typography variant="title">{university.name}</Typography>
 					<span className="text-muted-foreground">{university.location}</span>
 				</div>
 			</div>
 
 			<div className="flex items-center justify-between">
-				<h2 className="text-lg font-semibold">Program Studi</h2>
+				<Typography variant="subtitle1">Program Studi</Typography>
 				<AddProgramDialog
 					universityId={universityId}
 					onSuccess={() => {
@@ -103,7 +105,7 @@ function RouteComponent() {
 				/>
 			</div>
 
-			<div className="overflow-hidden rounded-lg border bg-white shadow-sm">
+			<Card variant="flush">
 				<div className="overflow-x-auto">
 					<Table className="min-w-[800px]">
 						<TableHeader>
@@ -133,9 +135,9 @@ function RouteComponent() {
 									<TableRow key={prog.id}>
 										<TableCell>{index + 1}</TableCell>
 										<TableCell className="font-medium">
-											<button type="button" className="hover:underline" onClick={() => setEditProgram(prog)}>
+											<Button type="button" variant="link" size="none" onClick={() => setEditProgram(prog)}>
 												{prog.studyProgram.name}
-											</button>
+											</Button>
 										</TableCell>
 										<TableCell>{prog.studyProgram.category}</TableCell>
 										<TableCell>{prog.tuition ? `Rp ${prog.tuition.toLocaleString("id-ID")}` : "-"}</TableCell>
@@ -167,7 +169,7 @@ function RouteComponent() {
 						</TableBody>
 					</Table>
 				</div>
-			</div>
+			</Card>
 
 			{editProgram && (
 				<Dialog

@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TagInput } from "@/components/ui/tag-input";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 import { MultipleChoiceComplexQuestionForm } from "./multiple-choice-complex-question-form";
 import { MultipleChoiceQuestionForm } from "./multiple-choice-question-form";
@@ -313,9 +314,13 @@ export function CreateQuestionForm({
 													maxLength={15}
 												/>
 												{field.state.meta.errors.map((error, idx) => (
-													<p key={typeof error === "string" ? error : `error-${idx}`} className="text-xs text-red-500">
+													<Typography
+														key={typeof error === "string" ? error : `error-${idx}`}
+														variant="caption"
+														tone="destructive"
+													>
 														{typeof error === "string" ? error : (error as { message: string })?.message}
-													</p>
+													</Typography>
 												))}
 											</div>
 										)}

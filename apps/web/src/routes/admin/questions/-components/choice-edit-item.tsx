@@ -1,7 +1,9 @@
 import { TrashIcon } from "@phosphor-icons/react";
 import type { ChangeEvent } from "react";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { Item } from "@/components/ui/item";
 import { Label } from "@/components/ui/label";
 
 interface ChoiceEditItemProps {
@@ -17,11 +19,7 @@ interface ChoiceEditItemProps {
 
 export function ChoiceEditItem({ choice, onUpdate, onDelete }: ChoiceEditItemProps) {
 	return (
-		<div
-			className={`flex items-start gap-3 rounded-lg border p-3 ${
-				choice.isCorrect ? "border-green-200 bg-green-50" : ""
-			}`}
-		>
+		<Item variant="outline" selected={choice.isCorrect} className="flex-nowrap items-start gap-3 rounded-lg p-3">
 			<div className="bg-muted text-muted-foreground flex size-6 shrink-0 items-center justify-center rounded-full border text-xs font-bold">
 				{choice.code}
 			</div>
@@ -42,14 +40,16 @@ export function ChoiceEditItem({ choice, onUpdate, onDelete }: ChoiceEditItemPro
 					</Label>
 				</div>
 			</div>
-			<button
+			<Button
 				type="button"
+				variant="ghost"
+				size="icon"
 				onClick={onDelete}
-				className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive mt-1 flex items-center gap-1 rounded p-1 transition-colors"
+				className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive mt-1 size-6 rounded"
 			>
 				<TrashIcon className="size-4" />
 				<span className="sr-only">Hapus pilihan</span>
-			</button>
-		</div>
+			</Button>
+		</Item>
 	);
 }

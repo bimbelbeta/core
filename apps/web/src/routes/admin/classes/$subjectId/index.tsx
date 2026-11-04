@@ -31,6 +31,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SearchInput } from "@/components/ui/search-input";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 
@@ -215,7 +216,7 @@ function RouteComponent() {
 		return (
 			<div className="mx-auto max-w-6xl">
 				<Container className="pt-12">
-					<p className="animate-pulse text-sm">Memuat kelas...</p>
+					<Typography className="animate-pulse">Memuat kelas...</Typography>
 				</Container>
 			</div>
 		);
@@ -225,7 +226,7 @@ function RouteComponent() {
 		return (
 			<div className="mx-auto max-w-6xl">
 				<Container className="pt-12">
-					<p className="text-sm text-red-500">Error: {contents.error.message}</p>
+					<Typography tone="destructive">Error: {contents.error.message}</Typography>
 				</Container>
 			</div>
 		);
@@ -286,9 +287,9 @@ function RouteComponent() {
 										placeholder="Masukkan judul konten"
 									/>
 									{field.state.meta.errors.map((error) => (
-										<p key={error?.message} className="text-sm text-red-500">
+										<Typography key={error?.message} tone="destructive">
 											{error?.message}
-										</p>
+										</Typography>
 									))}
 								</div>
 							)}
@@ -349,9 +350,9 @@ function RouteComponent() {
 										placeholder="Masukkan judul konten"
 									/>
 									{field.state.meta.errors.map((error) => (
-										<p key={error?.message} className="text-sm text-red-500">
+										<Typography key={error?.message} tone="destructive">
 											{error?.message}
-										</p>
+										</Typography>
 									))}
 								</div>
 							)}

@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Typography } from "@/components/ui/typography";
 import { useDebounceValue } from "@/hooks/use-debounce-value";
 import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
@@ -114,11 +115,11 @@ function RouteComponent() {
 	const isValidUrl = !!videoId;
 
 	if (content.isPending) {
-		return <p className="animate-pulse text-sm">Memuat video...</p>;
+		return <Typography className="animate-pulse">Memuat video...</Typography>;
 	}
 
 	if (content.isError) {
-		return <p className="text-sm text-red-500">Error: {content.error.message}</p>;
+		return <Typography tone="destructive">Error: {content.error.message}</Typography>;
 	}
 
 	if (!content.data) return notFound();
@@ -128,7 +129,7 @@ function RouteComponent() {
 	return (
 		<div className="space-y-6">
 			<div className="flex flex-col items-start justify-between space-y-1 sm:flex-row sm:items-center">
-				<h2 className="text-lg font-semibold">Edit Video Materi</h2>
+				<Typography variant="subtitle1">Edit Video Materi</Typography>
 				<div className="flex gap-2">
 					<form.Subscribe>
 						{(state) => (
@@ -200,9 +201,9 @@ function RouteComponent() {
 								placeholder="https://www.youtube.com/watch?v=..."
 							/>
 							{field.state.meta.errors.map((error) => (
-								<p key={error?.message} className="text-sm text-red-500">
+								<Typography key={error?.message} tone="destructive">
 									{error?.message}
-								</p>
+								</Typography>
 							))}
 						</div>
 					)}
@@ -217,9 +218,9 @@ function RouteComponent() {
 							</div>
 						) : (
 							<div className="border-muted-foreground/30 bg-muted/50 flex aspect-video w-full items-center justify-center rounded-lg border border-dashed">
-								<p className="text-muted-foreground text-sm">
+								<Typography tone="muted">
 									{debouncedVideoUrl ? "URL tidak valid" : "Masukkan URL YouTube untuk preview"}
-								</p>
+								</Typography>
 							</div>
 						)}
 					</div>
@@ -231,9 +232,9 @@ function RouteComponent() {
 							<Label>Konten Video (Deskripsi)</Label>
 							<TiptapSimpleEditor content={field.state.value} onChange={(c) => field.handleChange(c)} />
 							{field.state.meta.errors.map((error) => (
-								<p key={error?.message} className="text-sm text-red-500">
+								<Typography key={error?.message} tone="destructive">
 									{error?.message}
-								</p>
+								</Typography>
 							))}
 						</div>
 					)}

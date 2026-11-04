@@ -10,6 +10,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
+import { Typography } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
 import { CreateProgramTab } from "./create-program-tab";
 import { ProgramDetailsStep } from "./program-details-step";
@@ -156,8 +157,10 @@ export function AddProgramDialog({ universityId, onSuccess, open, onOpenChange }
 									<MagnifyingGlassIcon className="size-4" />
 								</div>
 								<div className="min-w-0 flex-1">
-									<p className="truncate text-sm font-medium">{selectedProgram.name}</p>
-									<p className="text-muted-foreground text-xs">Program studi terpilih</p>
+									<Typography variant="overline" as="p" tone="default" className="truncate">
+										{selectedProgram.name}
+									</Typography>
+									<Typography variant="caption">Program studi terpilih</Typography>
 								</div>
 								<Badge variant="outline" className="shrink-0">
 									Langkah 2

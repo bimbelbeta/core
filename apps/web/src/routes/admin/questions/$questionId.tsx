@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { cn } from "@/lib/utils";
@@ -65,7 +66,7 @@ function QuestionDetailPage() {
 					<Button variant="ghost" size="icon" onClick={() => router.history.back()}>
 						<ArrowLeftIcon className="size-4" />
 					</Button>
-					<h1 className="text-primary-navy-900 text-2xl font-bold">Detail Soal</h1>
+					<Typography variant="title">Detail Soal</Typography>
 				</div>
 				<Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
 					<PencilSimpleIcon className="mr-2 size-4" />
@@ -95,13 +96,17 @@ function QuestionDetailPage() {
 					</CardHeader>
 					<CardContent className="space-y-6">
 						<div>
-							<h3 className="text-muted-foreground mb-2 text-sm font-medium">Konten Soal</h3>
+							<Typography variant="overline" as="h3" className="mb-2">
+								Konten Soal
+							</Typography>
 							<TiptapRenderer content={question.content} className="prose prose-sm max-w-none rounded-md border p-4" />
 						</div>
 
 						{question.type === "multiple_choice" && choices && (
 							<div>
-								<h3 className="text-muted-foreground mb-2 text-sm font-medium">Pilihan Jawaban</h3>
+								<Typography variant="overline" as="h3" className="mb-2">
+									Pilihan Jawaban
+								</Typography>
 								<div className="flex flex-col gap-2">
 									{choices.map((choice) => (
 										<div
@@ -133,7 +138,9 @@ function QuestionDetailPage() {
 
 						{question.type === "multiple_choice_complex" && choices && (
 							<div>
-								<h3 className="text-muted-foreground mb-2 text-sm font-medium">Pilihan Jawaban</h3>
+								<Typography variant="overline" as="h3" className="mb-2">
+									Pilihan Jawaban
+								</Typography>
 								<div className="rounded-lg border">
 									<Table>
 										<TableHeader>
@@ -175,7 +182,9 @@ function QuestionDetailPage() {
 
 						{Boolean(question.discussion) && (
 							<div>
-								<h3 className="text-muted-foreground mb-2 text-sm font-medium">Pembahasan</h3>
+								<Typography variant="overline" as="h3" className="mb-2">
+									Pembahasan
+								</Typography>
 								<TiptapRenderer
 									content={question.discussion}
 									className="prose prose-sm bg-muted/30 max-w-none rounded-md border p-4"
@@ -185,7 +194,9 @@ function QuestionDetailPage() {
 
 						{question.tags && question.tags.length > 0 && (
 							<div>
-								<h3 className="text-muted-foreground mb-2 text-sm font-medium">Tags</h3>
+								<Typography variant="overline" as="h3" className="mb-2">
+									Tags
+								</Typography>
 								<div className="flex flex-wrap gap-2">
 									{question.tags.map((tag) => (
 										<Badge key={tag} variant="outline">

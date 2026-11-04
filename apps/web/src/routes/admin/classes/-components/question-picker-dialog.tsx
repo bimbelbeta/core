@@ -8,8 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
+import { Item } from "@/components/ui/item";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 
 type CategoryFilter = "all" | "sd" | "smp" | "sma" | "utbk";
@@ -216,54 +218,54 @@ export function QuestionPickerDialog({
 							</div>
 						) : questions.length === 0 ? (
 							<div className="text-muted-foreground flex flex-col items-center justify-center py-8">
-								<p>Tidak ada soal ditemukan</p>
-								{excludeIds.length > 0 && <p className="mt-1 text-xs">({excludeIds.length} soal sudah ditambahkan)</p>}
+								<Typography>Tidak ada soal ditemukan</Typography>
+								{excludeIds.length > 0 && (
+									<Typography variant="caption" className="mt-1">
+										({excludeIds.length} soal sudah ditambahkan)
+									</Typography>
+								)}
 							</div>
 						) : (
 							<div className="space-y-2">
 								{questions.map((question) => (
-									<button
-										type="button"
+									<Item
+										asChild
+										variant="outline"
 										key={question.id}
-										className="group hover:bg-muted/50 flex w-full cursor-pointer items-start gap-3 rounded-lg border p-3 text-left transition-colors"
-										onClick={() => handleQuestionToggle(question.id)}
-										onKeyDown={(e) => {
-											if (e.key === "Enter" || e.key === " ") {
-												e.preventDefault();
-												handleQuestionToggle(question.id);
-											}
-										}}
+										className="group hover:bg-muted/50 w-full cursor-pointer flex-nowrap items-start gap-3 rounded-lg p-3 text-left"
 									>
-										<Checkbox
-											checked={selectedQuestionIds.has(question.id)}
-											onCheckedChange={() => handleQuestionToggle(question.id)}
-											className="mt-0.5"
-										/>
-										<div className="min-w-0 flex-1 space-y-1">
-											<div className="flex items-start gap-2">
-												<span className="text-muted-foreground shrink-0 font-mono text-xs">#{question.id}</span>
-												<div className="prose prose-sm line-clamp-2 min-w-0 flex-1 text-sm [&_*]:!m-0 [&_p]:line-clamp-2">
-													<TiptapRenderer content={question.content} />
+										<button type="button" onClick={() => handleQuestionToggle(question.id)}>
+											<Checkbox
+												checked={selectedQuestionIds.has(question.id)}
+												onCheckedChange={() => handleQuestionToggle(question.id)}
+												className="mt-0.5"
+											/>
+											<div className="min-w-0 flex-1 space-y-1">
+												<div className="flex items-start gap-2">
+													<span className="text-muted-foreground shrink-0 font-mono text-xs">#{question.id}</span>
+													<div className="prose prose-sm line-clamp-2 min-w-0 flex-1 text-sm [&_*]:!m-0 [&_p]:line-clamp-2">
+														<TiptapRenderer content={question.content} />
+													</div>
+												</div>
+												<div className="flex flex-wrap items-center gap-1.5">
+													<Badge
+														variant={question.type === "multiple_choice" ? "default" : "outline"}
+														className="text-xs"
+													>
+														{question.type === "multiple_choice" ? "PG" : "Esai"}
+													</Badge>
+													{question.tags?.slice(0, 3).map((tag) => (
+														<Badge key={tag} variant="secondary" className="text-xs">
+															{tag}
+														</Badge>
+													))}
+													{question.tags && question.tags.length > 3 && (
+														<span className="text-muted-foreground text-xs">+{question.tags.length - 3}</span>
+													)}
 												</div>
 											</div>
-											<div className="flex flex-wrap items-center gap-1.5">
-												<Badge
-													variant={question.type === "multiple_choice" ? "default" : "outline"}
-													className="text-xs"
-												>
-													{question.type === "multiple_choice" ? "PG" : "Esai"}
-												</Badge>
-												{question.tags?.slice(0, 3).map((tag) => (
-													<Badge key={tag} variant="secondary" className="text-xs">
-														{tag}
-													</Badge>
-												))}
-												{question.tags && question.tags.length > 3 && (
-													<span className="text-muted-foreground text-xs">+{question.tags.length - 3}</span>
-												)}
-											</div>
-										</div>
-									</button>
+										</button>
+									</Item>
 								))}
 								{isFetchingNextPage && (
 									<div className="text-muted-foreground flex animate-pulse items-center justify-center py-4 text-sm">

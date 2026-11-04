@@ -13,6 +13,7 @@ import {
 } from "@/components/admin/admin-page";
 import { PaginationButtons } from "@/components/admin/pagination-buttons";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { SearchInput } from "@/components/ui/search-input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
@@ -96,7 +97,7 @@ function RouteComponent() {
 					/>
 				</div>
 
-				<div className="rounded-lg border bg-white shadow-sm">
+				<Card variant="flush">
 					<div className="overflow-x-auto">
 						<Table>
 							<TableHeader>
@@ -152,7 +153,7 @@ function RouteComponent() {
 							/>
 						</div>
 					)}
-				</div>
+				</Card>
 			</AdminPageContent>
 		</AdminPageRoot>
 	);
