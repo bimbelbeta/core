@@ -17,6 +17,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { orpc } from "@/lib/orpc";
+import { isValidRole } from "../-utils";
 
 interface EditRoleDialogProps {
 	userId: string;
@@ -26,9 +27,6 @@ interface EditRoleDialogProps {
 	onOpenChange: (open: boolean) => void;
 	onSuccess: () => void;
 }
-
-const isValidRole = (v: string | null): v is Role =>
-	v !== null && (Object.values(ROLES) as readonly string[]).includes(v);
 
 export function EditRoleDialog({ userId, userName, currentRole, open, onOpenChange, onSuccess }: EditRoleDialogProps) {
 	const [role, setRole] = useState<Role>(isValidRole(currentRole) ? currentRole : ROLES.USER);
