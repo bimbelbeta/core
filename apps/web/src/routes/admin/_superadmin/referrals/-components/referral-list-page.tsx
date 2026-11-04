@@ -193,11 +193,11 @@ export function ReferralListPage() {
 														<CheckCircleIcon className="size-4 text-green-600" />
 													)}
 												</Button>
-												<Link to="/admin/referrals/$codeId" params={{ codeId: item.id }}>
-													<Button variant="ghost" size="icon" className="size-8" title="Lihat detail">
+												<Button variant="ghost" size="icon" className="size-8" asChild>
+													<Link to="/admin/referrals/$codeId" params={{ codeId: item.id }} aria-label="Lihat detail">
 														<ArrowRightIcon className="size-4" />
-													</Button>
-												</Link>
+													</Link>
+												</Button>
 											</div>
 										</AdminTableCell>
 									</AdminTableRow>

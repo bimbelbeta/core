@@ -64,7 +64,7 @@ export function BulkAddQuestionsDialog({
 	);
 
 	const handleSelectAll = () => {
-		if (questions.length > 0 && selectedQuestionIds.size === questions.length) {
+		if (questions.length > 0 && questions.every((question) => selectedQuestionIds.has(question.id))) {
 			setSelectedQuestionIds(new Set());
 		} else {
 			setSelectedQuestionIds(new Set(questions.map((q) => q.id)));

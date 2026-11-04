@@ -29,3 +29,13 @@ export function formatRelativeDate(date: Date): string {
 	if (days < 365) return `${Math.floor(days / 30)} bulan lalu`;
 	return `${Math.floor(days / 365)} tahun lalu`;
 }
+
+export function formatDateTime(date: Date): string {
+	return date.toLocaleDateString("id-ID", {
+		day: "numeric",
+		month: "long",
+		year: "numeric",
+		hour: "2-digit",
+		minute: "2-digit",
+	});
+}
