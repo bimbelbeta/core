@@ -50,9 +50,9 @@ export function BulkQuestionsTable({
 									className="translate-y-0.5"
 								/>
 							</TableHead>
-							<TableHead className="text-primary-navy-900 text-center font-semibold">ID</TableHead>
-							<TableHead className="text-primary-navy-900 text-center font-semibold">Pertanyaan</TableHead>
-							<TableHead className="text-primary-navy-900 text-center font-semibold">Tipe</TableHead>
+							<TableHead className="text-center font-semibold">ID</TableHead>
+							<TableHead className="text-center font-semibold">Pertanyaan</TableHead>
+							<TableHead className="text-center font-semibold">Tipe</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>

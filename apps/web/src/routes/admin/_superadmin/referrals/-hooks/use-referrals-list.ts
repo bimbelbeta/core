@@ -64,6 +64,10 @@ export function useReferralsList() {
 	const someSelected = selectedIds.length > 0 && selectedIds.length < (data?.items.length ?? 0);
 	const handleSearch = (value: string) => navigate({ search: value ? { search: value, limit } : baseSearchParams });
 
+	const handleToggleStatus = (codeId: string, status: boolean) => toggleStatusMutation.mutate({ codeId, status });
+
+	const handleBulkDeactivate = () => bulkDeactivateMutation.mutate({ codeIds: selectedIds });
+
 	return {
 		data,
 		isLoading,
@@ -76,8 +80,8 @@ export function useReferralsList() {
 		handleNext,
 		handlePrevious,
 		handleSearch,
-		toggleStatusMutation,
-		bulkDeactivateMutation,
+		handleToggleStatus,
+		handleBulkDeactivate,
 		toggleSelectAll,
 		toggleSelectOne,
 		allSelected,

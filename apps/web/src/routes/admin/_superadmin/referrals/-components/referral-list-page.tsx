@@ -54,8 +54,8 @@ export function ReferralListPage() {
 		handleNext,
 		handlePrevious,
 		handleSearch,
-		toggleStatusMutation,
-		bulkDeactivateMutation,
+		handleToggleStatus,
+		handleBulkDeactivate,
 		toggleSelectAll,
 		toggleSelectOne,
 		allSelected,
@@ -98,10 +98,7 @@ export function ReferralListPage() {
 								</AlertDialogHeader>
 								<AlertDialogFooter>
 									<AlertDialogCancel>Batal</AlertDialogCancel>
-									<AlertDialogAction
-										onClick={() => bulkDeactivateMutation.mutate({ codeIds: selectedIds })}
-										className="bg-red-600 hover:bg-red-700"
-									>
+									<AlertDialogAction onClick={handleBulkDeactivate} className="bg-red-600 hover:bg-red-700">
 										Nonaktifkan
 									</AlertDialogAction>
 								</AlertDialogFooter>
@@ -186,7 +183,7 @@ export function ReferralListPage() {
 													variant="ghost"
 													size="icon"
 													className="size-8"
-													onClick={() => toggleStatusMutation.mutate({ codeId: item.id, status: !item.status })}
+													onClick={() => handleToggleStatus(item.id, !item.status)}
 													title={item.status ? "Nonaktifkan" : "Aktifkan"}
 													id={`toggle-status-${item.id}`}
 												>

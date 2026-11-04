@@ -12,7 +12,7 @@ const toggleVariants = cva(
 				default:
 					"hover:bg-muted hover:text-foreground data-[state=on]:bg-accent data-[state=on]:text-accent-foreground rounded-md",
 				filter:
-					"border-primary-600 text-primary-600 hover:bg-primary-50 data-[state=on]:bg-primary-500 rounded-lg border bg-white px-3 py-1.5 text-xs font-normal data-[state=on]:text-white sm:h-10",
+					"border-primary-600 text-primary-600 hover:bg-primary-100 data-[state=on]:bg-primary-500 rounded-lg border bg-white px-3 py-1.5 text-xs font-normal data-[state=on]:text-white sm:h-10",
 			},
 			size: {
 				default: "h-9 px-2.5",
