@@ -3,6 +3,7 @@ import { typographyTones, typographyVariants } from "./typography-variants";
 
 describe("typographyVariants", () => {
 	test("maps each variant to its semantic element", () => {
+		expect(typographyVariants.hero.element).toBe("h1");
 		expect(typographyVariants.display.element).toBe("h1");
 		expect(typographyVariants.title.element).toBe("h1");
 		expect(typographyVariants.subtitle1.element).toBe("h2");

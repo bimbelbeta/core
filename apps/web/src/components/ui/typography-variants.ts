@@ -1,4 +1,9 @@
 export const typographyVariants = {
+	hero: {
+		element: "h1",
+		className: "text-2xl leading-tight font-semibold min-[400px]:text-3xl sm:text-4xl xl:text-5xl",
+		tone: "default",
+	},
 	display: { element: "h1", className: "text-3xl leading-tight font-semibold sm:text-4xl", tone: "default" },
 	title: { element: "h1", className: "text-primary-navy-900 text-2xl font-bold", tone: "default" },
 	subtitle1: { element: "h2", className: "text-lg font-semibold", tone: "default" },

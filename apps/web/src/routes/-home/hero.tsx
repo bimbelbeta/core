@@ -23,7 +23,7 @@ export function Hero() {
 			<div className="container mx-auto flex max-w-5xl shrink-0 flex-col items-center px-4 pt-8 md:pt-20">
 				<div className="flex flex-col items-center gap-3 text-center md:gap-4">
 					<MotionTypography
-						variant="display"
+						variant="hero"
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ duration: 0.3, delay: 0 }}
