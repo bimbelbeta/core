@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Item } from "@/components/ui/item";
@@ -124,30 +123,25 @@ export function BulkAddQuestionsDialog({
 									const isSelected = selectedQuestionIds.has(question.id);
 									return (
 										<Item
+											asChild
 											key={question.id}
 											selected={isSelected}
 											variant="outline"
-											className="focus-within:ring-primary relative cursor-pointer flex-col items-stretch gap-3 p-3 focus-within:ring-2"
-											onClick={() => handleQuestionToggle(question.id)}
+											className="relative cursor-pointer flex-col items-stretch gap-3 p-3"
 										>
-											<Checkbox
-												checked={isSelected}
-												onCheckedChange={() => handleQuestionToggle(question.id)}
-												onClick={(e) => e.stopPropagation()}
-												aria-label={`Pilih soal #${question.id}`}
-												className="sr-only"
-											/>
-											{isSelected && (
-												<div className="text-primary absolute top-3 right-3">
-													<CheckCircleIcon size={20} weight="fill" />
+											<button type="button" aria-pressed={isSelected} onClick={() => handleQuestionToggle(question.id)}>
+												{isSelected && (
+													<div className="text-primary absolute top-3 right-3">
+														<CheckCircleIcon size={20} weight="fill" />
+													</div>
+												)}
+												<Badge variant={question.type === "multiple_choice" ? "default" : "outline"} className="w-fit">
+													{question.type === "multiple_choice" ? "Pilihan Ganda" : "Esai"}
+												</Badge>
+												<div className="pr-8">
+													<TiptapRenderer content={question.content} />
 												</div>
-											)}
-											<Badge variant={question.type === "multiple_choice" ? "default" : "outline"} className="w-fit">
-												{question.type === "multiple_choice" ? "Pilihan Ganda" : "Esai"}
-											</Badge>
-											<div className="pr-8">
-												<TiptapRenderer content={question.content} />
-											</div>
+											</button>
 										</Item>
 									);
 								})}

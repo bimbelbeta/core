@@ -124,7 +124,7 @@ function RouteComponent() {
 								)}
 								{Boolean(q.discussion) && (
 									<div className="mt-3 border-t border-neutral-200 pt-3">
-										<Typography variant="overline" tone="default" as="p" className="mb-1">
+										<Typography variant="overline" as="p" className="mb-1">
 											Pembahasan:
 										</Typography>
 										<TiptapRenderer content={q.discussion} />

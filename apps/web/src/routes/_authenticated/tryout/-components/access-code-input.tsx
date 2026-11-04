@@ -22,9 +22,7 @@ export function AccessCodeInput({ onSubmit, isLoading = false }: AccessCodeInput
 		<div className="bg-muted/20 rounded-lg border p-4">
 			<div className="mb-2 flex items-center gap-2">
 				<KeyIcon size={18} className="text-muted-foreground" />
-				<Typography variant="overline" tone="default">
-					Gunakan Kode Akses
-				</Typography>
+				<Typography variant="overline">Gunakan Kode Akses</Typography>
 			</div>
 			<div className="flex gap-2">
 				<Input

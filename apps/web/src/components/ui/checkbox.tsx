@@ -24,4 +24,20 @@ function Checkbox({ className, ...props }: React.ComponentProps<typeof CheckboxP
 	);
 }
 
-export { Checkbox };
+function CheckboxIndicator({ className, checked }: { className?: string; checked: boolean }) {
+	return (
+		<span
+			aria-hidden
+			data-slot="checkbox-indicator"
+			data-state={checked ? "checked" : "unchecked"}
+			className={cn(
+				"border-input data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground flex size-4 shrink-0 items-center justify-center rounded-[4px] border shadow-xs transition-shadow",
+				className,
+			)}
+		>
+			{checked && <Check className="size-3.5" />}
+		</span>
+	);
+}
+
+export { Checkbox, CheckboxIndicator };

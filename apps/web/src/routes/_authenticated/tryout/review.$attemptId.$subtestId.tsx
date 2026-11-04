@@ -67,7 +67,9 @@ function RouteComponent() {
 				</Button>
 
 				<div className="space-y-1">
-					<Typography variant="overline">Review Hasil Subtes</Typography>
+					<Typography variant="overline" tone="muted">
+						Review Hasil Subtes
+					</Typography>
 					<Typography variant="display">{data.subtest?.name}</Typography>
 				</div>
 			</Card>

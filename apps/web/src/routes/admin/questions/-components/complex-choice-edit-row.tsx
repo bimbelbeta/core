@@ -2,7 +2,6 @@ import { TrashIcon } from "@phosphor-icons/react";
 import type { ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Item } from "@/components/ui/item";
 import { TableCell, TableRow } from "@/components/ui/table";
 
 interface ComplexChoiceEditRowProps {
@@ -18,53 +17,46 @@ interface ComplexChoiceEditRowProps {
 
 export function ComplexChoiceEditRow({ choice, onUpdate, onDelete }: ComplexChoiceEditRowProps) {
 	return (
-		<Item
-			asChild
-			variant="outline"
-			selected={choice.isCorrect}
-			className="table-row rounded-none border-x-0 border-t-0 p-0"
-		>
-			<TableRow>
-				<TableCell>
-					<Input
-						value={choice.content}
-						onChange={(e: ChangeEvent<HTMLInputElement>) => onUpdate(e.target.value, choice.isCorrect)}
-						placeholder="Isi jawaban..."
-					/>
-				</TableCell>
-				<TableCell>
-					<div className="flex items-center justify-center gap-2">
-						<Button
-							type="button"
-							variant={choice.isCorrect ? "default" : "outline"}
-							size="sm"
-							onClick={() => onUpdate(choice.content, true)}
-						>
-							Benar
-						</Button>
-						<Button
-							type="button"
-							variant={!choice.isCorrect ? "default" : "outline"}
-							size="sm"
-							onClick={() => onUpdate(choice.content, false)}
-						>
-							Salah
-						</Button>
-					</div>
-				</TableCell>
-				<TableCell>
+		<TableRow data-state={choice.isCorrect ? "selected" : undefined}>
+			<TableCell>
+				<Input
+					value={choice.content}
+					onChange={(e: ChangeEvent<HTMLInputElement>) => onUpdate(e.target.value, choice.isCorrect)}
+					placeholder="Isi jawaban..."
+				/>
+			</TableCell>
+			<TableCell>
+				<div className="flex items-center justify-center gap-2">
 					<Button
 						type="button"
-						variant="ghost"
-						size="icon"
-						onClick={onDelete}
-						aria-label="Hapus pilihan"
-						className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive size-6 rounded"
+						variant={choice.isCorrect ? "default" : "outline"}
+						size="sm"
+						onClick={() => onUpdate(choice.content, true)}
 					>
-						<TrashIcon className="size-4" />
+						Benar
 					</Button>
-				</TableCell>
-			</TableRow>
-		</Item>
+					<Button
+						type="button"
+						variant={!choice.isCorrect ? "default" : "outline"}
+						size="sm"
+						onClick={() => onUpdate(choice.content, false)}
+					>
+						Salah
+					</Button>
+				</div>
+			</TableCell>
+			<TableCell>
+				<Button
+					type="button"
+					variant="ghost"
+					size="icon"
+					onClick={onDelete}
+					aria-label="Hapus pilihan"
+					className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive size-6 rounded"
+				>
+					<TrashIcon className="size-4" />
+				</Button>
+			</TableCell>
+		</TableRow>
 	);
 }

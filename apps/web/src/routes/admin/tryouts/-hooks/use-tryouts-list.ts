@@ -1,14 +1,14 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import { type } from "arktype";
 import { useState } from "react";
 import { toast } from "sonner";
 import { usePaginationNavigation } from "@/hooks/use-pagination-navigation";
 import { orpc } from "@/lib/orpc";
-import { Route } from "../index";
 
 export function useTryoutsList() {
-	const navigate = Route.useNavigate();
-	const { after, before, limit = 10, search, category, status } = Route.useSearch();
+	const navigate = useNavigate({ from: "/admin/tryouts/" });
+	const { after, before, limit = 10, search, category, status } = useSearch({ from: "/admin/tryouts/" });
 
 	const [searchInput, setSearchInput] = useState(search ?? "");
 

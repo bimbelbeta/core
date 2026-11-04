@@ -171,25 +171,19 @@ function TryoutDetailPage() {
 										<Typography variant="caption" tone="muted" className="tracking-wide uppercase">
 											Kategori
 										</Typography>
-										<Typography variant="overline" tone="default">
-											{CATEGORY_LABELS[tryout!.category]}
-										</Typography>
+										<Typography variant="overline">{CATEGORY_LABELS[tryout!.category]}</Typography>
 									</div>
 									<div className="space-y-1">
 										<Typography variant="caption" tone="muted" className="tracking-wide uppercase">
 											Jumlah Subtest
 										</Typography>
-										<Typography variant="overline" tone="default">
-											{subtests.length}
-										</Typography>
+										<Typography variant="overline">{subtests.length}</Typography>
 									</div>
 									<div className="space-y-1">
 										<Typography variant="caption" tone="muted" className="tracking-wide uppercase">
 											Jadwal
 										</Typography>
-										<Typography variant="overline" tone="default">
-											{formatDateRange()}
-										</Typography>
+										<Typography variant="overline">{formatDateRange()}</Typography>
 									</div>
 								</div>
 								{tryout!.description && (

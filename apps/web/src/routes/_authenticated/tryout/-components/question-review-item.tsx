@@ -72,7 +72,9 @@ export function QuestionReviewItem({ index, question, isCorrect }: QuestionRevie
 
 					<div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
 						<div className="space-y-4">
-							<Typography variant="overline">Jawaban Kamu</Typography>
+							<Typography variant="overline" tone="muted">
+								Jawaban Kamu
+							</Typography>
 							{question.choices.map((choice) => {
 								const isSelected =
 									question.userAnswer.selectedChoiceId === choice.id ||
@@ -119,7 +121,9 @@ export function QuestionReviewItem({ index, question, isCorrect }: QuestionRevie
 
 						{question.discussion != null && (
 							<div className="space-y-4">
-								<Typography variant="overline">Kunci Jawaban & Pembahasan</Typography>
+								<Typography variant="overline" tone="muted">
+									Kunci Jawaban & Pembahasan
+								</Typography>
 								<div className="rounded-lg border bg-blue-50/30 p-4">
 									<div className="mb-4">
 										{question.choices
@@ -134,7 +138,7 @@ export function QuestionReviewItem({ index, question, isCorrect }: QuestionRevie
 											))}
 									</div>
 									<div className="prose-sm">
-										<Typography variant="overline" tone="default" className="mb-2">
+										<Typography variant="overline" className="mb-2">
 											Pembahasan:
 										</Typography>
 										<TiptapRenderer content={question.discussion} />

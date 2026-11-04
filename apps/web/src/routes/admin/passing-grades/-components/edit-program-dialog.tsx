@@ -77,9 +77,7 @@ export function EditProgramDialog({ universityProgram, onSuccess, onOpenChange }
 		<div className="space-y-4">
 			{/* Program info header */}
 			<div className="bg-muted/50 rounded-lg border px-4 py-3">
-				<Typography variant="overline" tone="default">
-					{universityProgram.studyProgram.name}
-				</Typography>
+				<Typography variant="overline">{universityProgram.studyProgram.name}</Typography>
 				{universityProgram.studyProgram.category && (
 					<Typography variant="caption">{universityProgram.studyProgram.category}</Typography>
 				)}

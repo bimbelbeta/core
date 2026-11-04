@@ -1,12 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useState } from "react";
 import { usePaginationNavigation } from "@/hooks/use-pagination-navigation";
 import { orpc } from "@/lib/orpc";
-import { Route } from "../index";
 
 export function useProductsList() {
-	const navigate = Route.useNavigate();
-	const { after, before, limit = 10, search, variant, includeDeleted } = Route.useSearch();
+	const navigate = useNavigate({ from: "/admin/products/" });
+	const {
+		after,
+		before,
+		limit = 10,
+		search,
+		variant,
+		includeDeleted,
+	} = useSearch({ from: "/admin/_superadmin/products/" });
 	const [searchInput, setSearchInput] = useState(search ?? "");
 	const [deleteProductId, setDeleteProductId] = useState<string | null>(null);
 	const [restoreProductId, setRestoreProductId] = useState<string | null>(null);

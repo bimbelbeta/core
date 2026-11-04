@@ -1,13 +1,13 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { usePaginationNavigation } from "@/hooks/use-pagination-navigation";
 import { orpc } from "@/lib/orpc";
-import { Route } from "../index";
 
 export function useReferralsList() {
-	const navigate = Route.useNavigate();
-	const { after, before, limit = 10, search } = Route.useSearch();
+	const navigate = useNavigate({ from: "/admin/referrals/" });
+	const { after, before, limit = 10, search } = useSearch({ from: "/admin/_superadmin/referrals/" });
 
 	const [selectedIds, setSelectedIds] = useState<string[]>([]);
 	const [bulkDialogOpen, setBulkDialogOpen] = useState(false);

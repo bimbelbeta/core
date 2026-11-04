@@ -1,10 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useParams } from "@tanstack/react-router";
 import { orpc } from "@/lib/orpc";
-import { Route } from "../$productId";
 
 export function useProductDetail() {
-	const { productId } = Route.useParams();
+	const { productId } = useParams({ from: "/admin/_superadmin/products/$productId" });
 	const navigate = useNavigate();
 	const { data, isLoading } = useQuery(
 		orpc.admin.products.find.queryOptions({

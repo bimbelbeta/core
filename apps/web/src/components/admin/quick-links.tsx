@@ -39,7 +39,7 @@ const links = [
 export function QuickLinks() {
 	return (
 		<div className="space-y-3">
-			<Typography variant="overline" as="h3">
+			<Typography variant="overline" as="h3" tone="muted">
 				Pintasan
 			</Typography>
 			<div className="grid auto-rows-fr gap-3 sm:grid-cols-2 lg:grid-cols-3">

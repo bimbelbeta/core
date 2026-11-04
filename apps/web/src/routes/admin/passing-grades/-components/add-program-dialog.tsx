@@ -157,7 +157,7 @@ export function AddProgramDialog({ universityId, onSuccess, open, onOpenChange }
 									<MagnifyingGlassIcon className="size-4" />
 								</div>
 								<div className="min-w-0 flex-1">
-									<Typography variant="overline" tone="default" className="truncate">
+									<Typography variant="overline" className="truncate">
 										{selectedProgram.name}
 									</Typography>
 									<Typography variant="caption">Program studi terpilih</Typography>

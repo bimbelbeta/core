@@ -80,9 +80,7 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 						return (
 							<Card className="flex items-center justify-between gap-3 p-4">
 								<div>
-									<Typography variant="overline" tone="default">
-										Belum ada Try Out publik
-									</Typography>
+									<Typography variant="overline">Belum ada Try Out publik</Typography>
 									<Typography tone="muted">
 										Saat admin mempublikasikan TO baru, judul dan kategorinya akan muncul di sini.
 									</Typography>
@@ -165,7 +163,7 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 						</ul>
 					</div>
 
-					<Typography variant="overline" tone="default" className="pt-2">
+					<Typography variant="overline" className="pt-2">
 						Siap? Yuk mulai tryoutnya! Semangat 💪🔥
 					</Typography>
 				</CardContent>
