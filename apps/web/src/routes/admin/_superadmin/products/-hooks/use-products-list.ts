@@ -41,36 +41,19 @@ export function useProductsList() {
 
 	const handleSearch = (value: string) => {
 		setSearchInput(value);
-		navigate({
-			search: {
-				...(value && { search: value }),
-				...(variant && { variant }),
-				...(includeDeleted !== undefined && { includeDeleted }),
-				limit,
-			},
-		});
+		navigate({ search: value ? { ...baseSearchParams, search: value } : baseSearchParams });
 	};
 
 	const handleVariantChange = (value: string) => {
+		const { variant: _variant, ...rest } = baseSearchParams;
 		navigate({
-			search: {
-				...(search && { search }),
-				...((value === "fixed_date" || value === "monthly" || value === "credits") && { variant: value }),
-				...(includeDeleted !== undefined && { includeDeleted }),
-				limit,
-			},
+			search: value === "fixed_date" || value === "monthly" || value === "credits" ? { ...rest, variant: value } : rest,
 		});
 	};
 
 	const handleIncludeDeletedChange = (value: string) => {
-		navigate({
-			search: {
-				...(search && { search }),
-				...(variant && { variant }),
-				...(value === "true" && { includeDeleted: true }),
-				limit,
-			},
-		});
+		const { includeDeleted: _includeDeleted, ...rest } = baseSearchParams;
+		navigate({ search: value === "true" ? { ...rest, includeDeleted: true } : rest });
 	};
 
 	const { handleNext, handlePrevious } = usePaginationNavigation(navigate, pageInfo, baseSearchParams);

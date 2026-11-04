@@ -1,5 +1,5 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import { ToggleGroup as ToggleGroupPrimitive, Toggle as TogglePrimitive } from "radix-ui";
+import { ToggleGroup as ToggleGroupPrimitive } from "radix-ui";
 import type * as React from "react";
 import { createContext, useContext } from "react";
 import { cn } from "@/lib/utils";
@@ -64,15 +64,4 @@ function ToggleGroupItem({
 	);
 }
 
-function Toggle({
-	className,
-	variant,
-	size,
-	...props
-}: React.ComponentProps<typeof TogglePrimitive.Root> & VariantProps<typeof toggleVariants>) {
-	return (
-		<TogglePrimitive.Root data-slot="toggle" className={cn(toggleVariants({ variant, size }), className)} {...props} />
-	);
-}
-
-export { Toggle, ToggleGroup, ToggleGroupItem };
+export { ToggleGroup, ToggleGroupItem };

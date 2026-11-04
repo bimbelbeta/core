@@ -11,7 +11,6 @@ import {
 	AdminPageHeaderActions,
 	AdminPageHeaderContent,
 	AdminPageRoot,
-	AdminPageTitle,
 } from "@/components/admin/admin-page";
 import {
 	AdminTable,
@@ -156,7 +155,7 @@ function QuestionsListPage() {
 		<AdminPageRoot>
 			<AdminPageHeader>
 				<AdminPageHeaderContent>
-					<AdminPageTitle>Question Bank</AdminPageTitle>
+					<Typography variant="title">Question Bank</Typography>
 					<Typography tone="muted">Kelola soal-soal untuk tryout dan ujian</Typography>
 				</AdminPageHeaderContent>
 				<AdminPageHeaderActions>

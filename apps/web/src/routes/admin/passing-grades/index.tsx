@@ -9,7 +9,6 @@ import {
 	AdminPageHeaderActions,
 	AdminPageHeaderContent,
 	AdminPageRoot,
-	AdminPageTitle,
 } from "@/components/admin/admin-page";
 import { PaginationButtons } from "@/components/admin/pagination-buttons";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +16,7 @@ import { Card } from "@/components/ui/card";
 import { SearchInput } from "@/components/ui/search-input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
+import { Typography } from "@/components/ui/typography";
 import { usePaginationNavigation } from "@/hooks/use-pagination-navigation";
 import { orpc } from "@/lib/orpc";
 import { AddUniversityDialog } from "./-components/add-university-dialog";
@@ -74,7 +74,7 @@ function RouteComponent() {
 		<AdminPageRoot>
 			<AdminPageHeader>
 				<AdminPageHeaderContent>
-					<AdminPageTitle>Passing Grades</AdminPageTitle>
+					<Typography variant="title">Passing Grades</Typography>
 				</AdminPageHeaderContent>
 				<AdminPageHeaderActions>
 					<AddUniversityDialog

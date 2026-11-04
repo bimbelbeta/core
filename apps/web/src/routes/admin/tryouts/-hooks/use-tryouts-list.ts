@@ -52,35 +52,20 @@ export function useTryoutsList() {
 
 	const handleSearch = (value: string) => {
 		setSearchInput(value);
-		navigate({
-			search: {
-				...(value && { search: value }),
-				...(category && { category }),
-				...(status && { status }),
-				limit,
-			},
-		});
+		navigate({ search: value ? { ...baseSearchParams, search: value } : baseSearchParams });
 	};
 
 	const handleCategoryChange = (value: string) => {
+		const { category: _category, ...rest } = baseSearchParams;
 		navigate({
-			search: {
-				...(search && { search }),
-				...(value !== "all" && { category: type("'sd' | 'smp' | 'sma' | 'utbk'").assert(value) }),
-				...(status && { status }),
-				limit,
-			},
+			search: value !== "all" ? { ...rest, category: type("'sd' | 'smp' | 'sma' | 'utbk'").assert(value) } : rest,
 		});
 	};
 
 	const handleStatusChange = (value: string) => {
+		const { status: _status, ...rest } = baseSearchParams;
 		navigate({
-			search: {
-				...(search && { search }),
-				...(category && { category }),
-				...(value !== "all" && { status: type("'draft' | 'published' | 'archived'").assert(value) }),
-				limit,
-			},
+			search: value !== "all" ? { ...rest, status: type("'draft' | 'published' | 'archived'").assert(value) } : rest,
 		});
 	};
 

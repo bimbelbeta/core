@@ -15,52 +15,17 @@ export function useUsersNavigation() {
 
 	const handleSearch = (value: string) => {
 		setSearchInput(value);
-		navigate({
-			search: value
-				? {
-						search: value,
-						...(role && { role }),
-						...(isPremium !== undefined && { isPremium }),
-						limit,
-					}
-				: baseSearchParams,
-		});
+		navigate({ search: value ? { ...baseSearchParams, search: value } : baseSearchParams });
 	};
 
 	const handleRoleChange = (value: string) => {
-		navigate({
-			search:
-				value !== "all" && isValidRole(value)
-					? {
-							role: value,
-							...(search && { search }),
-							...(isPremium !== undefined && { isPremium }),
-							limit,
-						}
-					: {
-							...(search && { search }),
-							...(isPremium !== undefined && { isPremium }),
-							limit,
-						},
-		});
+		const { role: _role, ...rest } = baseSearchParams;
+		navigate({ search: value !== "all" && isValidRole(value) ? { ...rest, role: value } : rest });
 	};
 
 	const handlePremiumChange = (value: string) => {
-		navigate({
-			search:
-				value !== "all"
-					? {
-							isPremium: value === "true",
-							...(search && { search }),
-							...(role && { role }),
-							limit,
-						}
-					: {
-							...(search && { search }),
-							...(role && { role }),
-							limit,
-						},
-		});
+		const { isPremium: _isPremium, ...rest } = baseSearchParams;
+		navigate({ search: value !== "all" ? { ...rest, isPremium: value === "true" } : rest });
 	};
 
 	return {

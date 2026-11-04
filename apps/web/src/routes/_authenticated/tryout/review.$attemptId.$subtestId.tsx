@@ -52,7 +52,7 @@ function RouteComponent() {
 	return (
 		<div className="flex flex-col gap-8 p-4 md:p-8">
 			{/* Header */}
-			<Card className="gap-0 space-y-6 rounded-xl p-6">
+			<Card variant="plain" className="space-y-6 rounded-xl p-6">
 				<Button variant="default" size="sm" className="bg-[#009CA6] hover:bg-[#008a93]" asChild>
 					<Link
 						to="/tryout/results/$attemptId"

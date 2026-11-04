@@ -1,5 +1,6 @@
 import { ArrowLeftIcon } from "@phosphor-icons/react";
-import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { Link, useNavigate, useParams } from "@tanstack/react-router";
 import {
 	AdminPageContent,
 	AdminPageHeader,
@@ -10,12 +11,19 @@ import {
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Typography } from "@/components/ui/typography";
-import { useProductDetail } from "../-hooks/use-product-detail";
+import { orpc } from "@/lib/orpc";
 import { ProductForm } from "./product-form";
 import { ProductFormHelpAccordion } from "./product-form-help-accordion";
 
 export function ProductDetailPage() {
-	const { data, isLoading, handleBack } = useProductDetail();
+	const { productId } = useParams({ from: "/admin/_superadmin/products/$productId" });
+	const navigate = useNavigate();
+	const { data, isLoading } = useQuery(
+		orpc.admin.products.find.queryOptions({
+			input: { productId },
+		}),
+	);
+	const handleBack = () => navigate({ to: "/admin/products" });
 
 	if (isLoading) {
 		return (

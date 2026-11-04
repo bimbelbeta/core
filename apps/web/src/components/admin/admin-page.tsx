@@ -1,5 +1,4 @@
 import * as React from "react";
-import { Typography } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
 
 const AdminPageRoot = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
@@ -8,10 +7,6 @@ const AdminPageRoot = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTML
 	),
 );
 AdminPageRoot.displayName = "AdminPageRoot";
-
-function AdminPageTitle(props: React.ComponentProps<"h1">) {
-	return <Typography variant="title" {...props} />;
-}
 
 const AdminPageContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
 	({ className, ...props }, ref) => (
@@ -47,11 +42,4 @@ const AdminPageHeaderActions = React.forwardRef<HTMLDivElement, React.HTMLAttrib
 );
 AdminPageHeaderActions.displayName = "AdminPageHeaderActions";
 
-export {
-	AdminPageContent,
-	AdminPageHeader,
-	AdminPageHeaderActions,
-	AdminPageHeaderContent,
-	AdminPageRoot,
-	AdminPageTitle,
-};
+export { AdminPageContent, AdminPageHeader, AdminPageHeaderActions, AdminPageHeaderContent, AdminPageRoot };

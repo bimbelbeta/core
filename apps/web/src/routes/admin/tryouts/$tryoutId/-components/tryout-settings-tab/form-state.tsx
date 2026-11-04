@@ -10,7 +10,7 @@ export function FormStateNotifier({
 	state,
 	onFormStateChange,
 }: {
-	state: { isDirty: boolean; canSubmit: boolean; isSubmitting: boolean };
+	state: TryoutSettingsFormState;
 	onFormStateChange?: (state: TryoutSettingsFormState) => void;
 }) {
 	const prevStateRef = useRef(state);

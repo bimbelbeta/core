@@ -10,7 +10,6 @@ import {
 	AdminPageHeaderActions,
 	AdminPageHeaderContent,
 	AdminPageRoot,
-	AdminPageTitle,
 } from "@/components/admin/admin-page";
 import TiptapSimpleEditor from "@/components/tiptap/tiptap-simple-editor";
 import { Button } from "@/components/ui/button";
@@ -115,7 +114,7 @@ export function CreateQuestionForm({
 						<Button variant="ghost" size="icon" onClick={onCancel}>
 							<ArrowLeftIcon className="size-4" />
 						</Button>
-						<AdminPageTitle>Buat Soal</AdminPageTitle>
+						<Typography variant="title">Buat Soal</Typography>
 					</div>
 				</AdminPageHeaderContent>
 				<AdminPageHeaderActions>

@@ -30,7 +30,9 @@ export const LastClasses = () => {
 				<Typography variant="subtitle1">Kelas terakhirmu</Typography>
 				<div className="flex flex-col items-center justify-center space-y-3 py-8 text-center">
 					<WarningCircleIcon size={80} />
-					<Typography className="text-black">Kamu belum melihat kelas apapun</Typography>
+					<Typography variant="subtitle1" as="p" className="text-black">
+						Kamu belum melihat kelas apapun
+					</Typography>
 					<Button asChild>
 						<Link to="/classes">
 							Belajar Sekarang <ArrowRightIcon className="" />

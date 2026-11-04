@@ -51,7 +51,7 @@ export function QuickLinks() {
 									<link.icon className="text-primary size-5" weight="duotone" />
 								</div>
 								<div className="min-w-0">
-									<Typography variant="body">{link.title}</Typography>
+									<Typography variant="overline">{link.title}</Typography>
 									<Typography variant="caption">{link.description}</Typography>
 								</div>
 							</CardContent>

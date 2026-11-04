@@ -1,15 +1,23 @@
 import { ArrowLeftIcon, CrownIcon, XCircleIcon } from "@phosphor-icons/react";
-import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { Link, useNavigate, useParams } from "@tanstack/react-router";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Typography } from "@/components/ui/typography";
-import { useReferralDetail } from "../-hooks/use-referral-detail";
+import { orpc } from "@/lib/orpc";
 import { formatDateTime } from "../-utils";
 
 export function ReferralDetailPage() {
-	const { data, isLoading, handleBack } = useReferralDetail();
+	const { codeId } = useParams({ from: "/admin/_superadmin/referrals/$codeId" });
+	const navigate = useNavigate({ from: "/admin/referrals/$codeId" });
+	const { data, isLoading } = useQuery(
+		orpc.admin.referral.getUsages.queryOptions({
+			input: { codeId, limit: 50 },
+		}),
+	);
+	const handleBack = () => navigate({ to: "/admin/referrals" });
 
 	if (isLoading) {
 		return (

@@ -110,7 +110,7 @@ function SignUpForm() {
 			<div className="absolute left-1/2 z-50 -translate-x-1/2 -translate-y-full">
 				<Image src="/images/main-card-kelas.webp" alt="Study Avatar" width={200} height={200} />
 			</div>
-			<Card className="border-primary/50 relative z-10 w-full gap-0 rounded-sm p-8 shadow-lg">
+			<Card variant="plain" className="border-primary/50 relative z-10 w-full rounded-sm p-8 shadow-lg">
 				<div className="flex flex-col items-center gap-2 text-center">
 					<Typography variant="display" className="text-primary">
 						Mari <span className="font-bold">Mulai Bersama!</span>

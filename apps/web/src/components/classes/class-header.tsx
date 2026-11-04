@@ -28,9 +28,9 @@ export function ClassHeader({ subject }: { subject: SubjectHeaderProps }) {
 						</Typography>
 
 						{subject.category === "utbk" ? (
-							<Typography variant="body">SMA Kelas 12</Typography>
+							<Typography variant="overline">SMA Kelas 12</Typography>
 						) : (
-							<Typography variant="body">
+							<Typography variant="overline">
 								<span className="uppercase">{subject.category}</span> Kelas {subject.gradeLevel ?? "-"}
 							</Typography>
 						)}
