@@ -45,7 +45,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Typography } from "@/components/ui/typography";
 import { extractTextFromTiptap, truncateText } from "@/lib/content-text";
 import { orpc } from "@/lib/orpc";
-import { subjectCategorySchema } from "@/lib/schemas";
+import { SUBJECT_CATEGORY_LABELS, subjectCategorySchema } from "@/lib/schemas";
 import { useQuestionsSearch } from "./-hooks/use-questions-search";
 
 const searchSchema = type({
@@ -188,10 +188,11 @@ function QuestionsListPage() {
 						</SelectTrigger>
 						<SelectContent>
 							<SelectItem value="all">Semua Kategori</SelectItem>
-							<SelectItem value="sd">SD</SelectItem>
-							<SelectItem value="smp">SMP</SelectItem>
-							<SelectItem value="sma">SMA</SelectItem>
-							<SelectItem value="utbk">UTBK</SelectItem>
+							{Object.entries(SUBJECT_CATEGORY_LABELS).map(([value, label]) => (
+								<SelectItem key={value} value={value}>
+									{label}
+								</SelectItem>
+							))}
 						</SelectContent>
 					</Select>
 				</AdminTableToolbar>

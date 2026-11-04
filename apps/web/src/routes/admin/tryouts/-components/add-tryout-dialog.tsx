@@ -23,7 +23,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Typography } from "@/components/ui/typography";
 import { formatDateMedium } from "@/lib/format-date";
 import { orpc } from "@/lib/orpc";
-import { type SubjectCategory, subjectCategorySchema, type TryoutStatus, tryoutStatusSchema } from "@/lib/schemas";
+import {
+	SUBJECT_CATEGORY_LABELS,
+	type SubjectCategory,
+	subjectCategorySchema,
+	type TryoutStatus,
+	tryoutStatusSchema,
+} from "@/lib/schemas";
 
 export function AddTryoutDialog({
 	open,
@@ -174,10 +180,11 @@ export function AddTryoutDialog({
 													<SelectValue placeholder="Pilih kategori" />
 												</SelectTrigger>
 												<SelectContent>
-													<SelectItem value="sd">SD</SelectItem>
-													<SelectItem value="smp">SMP</SelectItem>
-													<SelectItem value="sma">SMA</SelectItem>
-													<SelectItem value="utbk">UTBK</SelectItem>
+													{Object.entries(SUBJECT_CATEGORY_LABELS).map(([value, label]) => (
+														<SelectItem key={value} value={value}>
+															{label}
+														</SelectItem>
+													))}
 												</SelectContent>
 											</Select>
 										</div>

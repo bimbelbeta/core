@@ -13,13 +13,13 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
-import type { SubjectCategory } from "@/lib/schemas";
+import { SUBJECT_CATEGORY_LABELS, type SubjectCategory, subjectCategorySchema } from "@/lib/schemas";
 
 type CategoryFilter = "all" | SubjectCategory;
 type TypeFilter = "all" | "multiple_choice" | "essay";
 
 function isCategoryFilter(v: string): v is CategoryFilter {
-	return ["all", "sd", "smp", "sma", "utbk"].includes(v);
+	return v === "all" || subjectCategorySchema.allows(v);
 }
 
 function isTypeFilter(v: string): v is TypeFilter {
@@ -169,10 +169,11 @@ export function QuestionPickerDialog({
 							</SelectTrigger>
 							<SelectContent>
 								<SelectItem value="all">Semua</SelectItem>
-								<SelectItem value="sd">SD</SelectItem>
-								<SelectItem value="smp">SMP</SelectItem>
-								<SelectItem value="sma">SMA</SelectItem>
-								<SelectItem value="utbk">UTBK</SelectItem>
+								{Object.entries(SUBJECT_CATEGORY_LABELS).map(([value, label]) => (
+									<SelectItem key={value} value={value}>
+										{label}
+									</SelectItem>
+								))}
 							</SelectContent>
 						</Select>
 						<Select

@@ -200,10 +200,11 @@ export function EditSubjectDialog({ open, onOpenChange, subject }: EditSubjectDi
 											<SelectValue placeholder="Pilih kategori" />
 										</SelectTrigger>
 										<SelectContent>
-											<SelectItem value="sd">{SUBJECT_CATEGORY_LABELS.sd}</SelectItem>
-											<SelectItem value="smp">{SUBJECT_CATEGORY_LABELS.smp}</SelectItem>
-											<SelectItem value="sma">{SUBJECT_CATEGORY_LABELS.sma}</SelectItem>
-											<SelectItem value="utbk">{SUBJECT_CATEGORY_LABELS.utbk}</SelectItem>
+											{Object.entries(SUBJECT_CATEGORY_LABELS).map(([value, label]) => (
+												<SelectItem key={value} value={value}>
+													{label}
+												</SelectItem>
+											))}
 										</SelectContent>
 									</Select>
 								</div>

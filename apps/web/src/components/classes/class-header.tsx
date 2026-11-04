@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Typography } from "@/components/ui/typography";
 import { useIsAdmin } from "@/hooks/use-is-admin";
+import type { SubjectCategory } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import { BackButton } from "../shared/back-button";
 import { Badge } from "../ui/badge";
@@ -8,7 +9,7 @@ import { Badge } from "../ui/badge";
 type SubjectHeaderProps = {
 	id: number;
 	name: string;
-	category: "sd" | "sma" | "smp" | "utbk";
+	category: SubjectCategory;
 	gradeLevel: number | null;
 	hasViewed?: boolean;
 };

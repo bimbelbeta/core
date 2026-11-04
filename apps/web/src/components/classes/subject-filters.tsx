@@ -1,12 +1,13 @@
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { SUBJECT_CATEGORY_LABELS } from "@/lib/schemas";
 import type { SubjectFilter } from "./classes-types";
 
 const FILTERS: { value: SubjectFilter; label: string }[] = [
 	{ value: "all", label: "Semua Kelas" },
-	{ value: "sd", label: "SD" },
-	{ value: "smp", label: "SMP" },
-	{ value: "sma", label: "SMA" },
-	{ value: "utbk", label: "UTBK" },
+	...Object.entries(SUBJECT_CATEGORY_LABELS).map(([value, label]) => ({
+		value: value as SubjectFilter,
+		label,
+	})),
 ];
 
 export function SubjectFilters({

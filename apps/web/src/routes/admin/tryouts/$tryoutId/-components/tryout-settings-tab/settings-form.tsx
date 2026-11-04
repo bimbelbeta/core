@@ -17,6 +17,7 @@ import { Typography } from "@/components/ui/typography";
 import { formatDateMedium } from "@/lib/format-date";
 import { orpc } from "@/lib/orpc";
 import {
+	SUBJECT_CATEGORY_LABELS,
 	type SubjectCategory,
 	subjectCategorySchema,
 	TRYOUT_STATUS_BADGE,
@@ -189,10 +190,11 @@ export function TryoutSettingsTab({ tryout, onUpdate, onFormStateChange }: Tryou
 											<SelectValue placeholder="Pilih kategori" />
 										</SelectTrigger>
 										<SelectContent>
-											<SelectItem value="sd">SD</SelectItem>
-											<SelectItem value="smp">SMP</SelectItem>
-											<SelectItem value="sma">SMA</SelectItem>
-											<SelectItem value="utbk">UTBK</SelectItem>
+											{Object.entries(SUBJECT_CATEGORY_LABELS).map(([value, label]) => (
+												<SelectItem key={value} value={value}>
+													{label}
+												</SelectItem>
+											))}
 										</SelectContent>
 									</Select>
 									<Typography variant="caption" tone="muted">

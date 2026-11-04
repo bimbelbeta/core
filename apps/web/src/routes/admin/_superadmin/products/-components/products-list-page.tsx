@@ -200,7 +200,12 @@ export function ProductsListPage() {
 																<ArrowCounterClockwiseIcon className="size-4" />
 															</Button>
 														) : (
-															<Button variant="ghost" size="icon" onClick={() => setDeleteProductId(product.id)}>
+															<Button
+																variant="ghost"
+																size="icon"
+																aria-label="Hapus product"
+																onClick={() => setDeleteProductId(product.id)}
+															>
 																<TrashIcon className="size-4" />
 															</Button>
 														)}

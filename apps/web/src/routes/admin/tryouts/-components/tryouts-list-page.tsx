@@ -33,7 +33,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Typography } from "@/components/ui/typography";
-import { TRYOUT_STATUS_BADGE } from "@/lib/schemas";
+import { SUBJECT_CATEGORY_LABELS, TRYOUT_STATUS_BADGE } from "@/lib/schemas";
 import { useTryoutsList } from "../-hooks/use-tryouts-list";
 import { AddTryoutDialog } from "./add-tryout-dialog";
 
@@ -77,10 +77,11 @@ export function TryoutsListPage() {
 						</SelectTrigger>
 						<SelectContent>
 							<SelectItem value="all">Semua Kategori</SelectItem>
-							<SelectItem value="sd">SD</SelectItem>
-							<SelectItem value="smp">SMP</SelectItem>
-							<SelectItem value="sma">SMA</SelectItem>
-							<SelectItem value="utbk">UTBK</SelectItem>
+							{Object.entries(SUBJECT_CATEGORY_LABELS).map(([value, label]) => (
+								<SelectItem key={value} value={value}>
+									{label}
+								</SelectItem>
+							))}
 						</SelectContent>
 					</Select>
 					<Select value={status ?? "all"} onValueChange={handleStatusChange}>
