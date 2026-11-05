@@ -1,5 +1,5 @@
 import { ArrowUpRightIcon } from "@phosphor-icons/react";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,31 +16,24 @@ const CATEGORY_LABELS = {
 	utbk: "UTBK",
 } as const;
 
-type TryoutCategory = keyof typeof CATEGORY_LABELS;
-
-const LEVEL_CATEGORIES: Record<"tka" | "utbk", readonly TryoutCategory[]> = {
-	tka: ["sd", "smp", "sma"],
-	utbk: ["utbk"],
-};
-
-type TryoutLevel = keyof typeof LEVEL_CATEGORIES;
-
-function normalizeTryoutCategory(category: string | null | undefined): TryoutCategory | null {
-	if (!category) return null;
-	const normalized = category.trim().toLowerCase();
-	return normalized in CATEGORY_LABELS ? (normalized as TryoutCategory) : null;
-}
+const AVAILABILITY = {
+	upcoming: { label: "Belum dibuka", description: "Tryout ini sudah dipublikasikan, tetapi jadwalnya belum dibuka." },
+	open: { label: "Tersedia", description: "Siap dipilih dan dimulai dengan kode akses." },
+	expired: { label: "Sudah berakhir", description: "Jadwal tryout ini sudah berakhir." },
+} as const;
 
 interface GuidelineActivityProps {
-	level: TryoutLevel;
+	level: "tka" | "utbk";
 }
 
 export function GuidelineActivity({ level }: GuidelineActivityProps) {
-	const publishedTryouts = useQuery({
-		...orpc.tryout.list.queryOptions({ input: { limit: 100 } }),
-		retry: false,
-		meta: { skipErrorToast: true },
-	});
+	const publishedTryouts = useInfiniteQuery(
+		orpc.tryout.list.infiniteOptions({
+			input: (after) => ({ level, limit: 20, after }),
+			initialPageParam: undefined as string | undefined,
+			getNextPageParam: (page) => (page.pageInfo.hasNextPage ? page.pageInfo.endCursor : undefined),
+		}),
+	);
 
 	return (
 		<section className="flex flex-col gap-6">
@@ -58,12 +51,7 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 					<p className="text-muted-foreground text-sm">Pilih TO publik lalu masukkan kode akses seperti biasa.</p>
 				</div>
 				{(() => {
-					const allowedCategories = LEVEL_CATEGORIES[level];
-					const allPublishedTryouts = publishedTryouts.data?.items ?? [];
-					const visibleTryouts = allPublishedTryouts.filter((tryout) => {
-						const category = normalizeTryoutCategory(tryout.category);
-						return category !== null && allowedCategories.includes(category);
-					});
+					const visibleTryouts = publishedTryouts.data?.pages.flatMap((page) => page.items) ?? [];
 
 					if (publishedTryouts.isPending) {
 						return (
@@ -73,6 +61,10 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 								<PublishedTryoutSkeleton />
 							</div>
 						);
+					}
+
+					if (publishedTryouts.isError && visibleTryouts.length === 0) {
+						return <p className="text-destructive text-sm">Gagal memuat tryout. Silakan coba lagi.</p>;
 					}
 
 					if (visibleTryouts.length === 0) {
@@ -89,37 +81,47 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 					}
 
 					return (
-						<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-							{visibleTryouts.map((tryout) => {
-								const category = normalizeTryoutCategory(tryout.category) ?? "utbk";
-								return (
-									<Card key={tryout.id} className="flex flex-col gap-4 p-4">
-										<div className="space-y-2">
-											<div className="flex items-start justify-between gap-3">
-												<div className="space-y-1">
-													<h3 className="text-base leading-tight font-semibold">{tryout.title}</h3>
-													<p className="text-muted-foreground text-sm">{CATEGORY_LABELS[category]}</p>
+						<>
+							<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+								{visibleTryouts.map((tryout) => {
+									const availability = AVAILABILITY[tryout.availability];
+									return (
+										<Card key={tryout.id} className="flex flex-col gap-4 p-4">
+											<div className="space-y-2">
+												<div className="flex items-start justify-between gap-3">
+													<div className="space-y-1">
+														<h3 className="text-base leading-tight font-semibold">{tryout.title}</h3>
+														<p className="text-muted-foreground text-sm">{CATEGORY_LABELS[tryout.category]}</p>
+													</div>
+													<Badge
+														variant={tryout.availability === "open" ? "default" : "secondary"}
+														className="shrink-0"
+													>
+														{availability.label}
+													</Badge>
 												</div>
-												<Badge variant={tryout.isOpen ? "default" : "secondary"} className="shrink-0">
-													{tryout.isOpen ? "Published" : "Belum dibuka"}
-												</Badge>
+												<Separator />
+												<p className="text-muted-foreground text-sm">{availability.description}</p>
 											</div>
-											<Separator />
-											<p className="text-muted-foreground text-sm">
-												{tryout.isOpen
-													? "Siap dipilih dan dimulai dengan kode akses."
-													: "Tryout ini sudah dipublikasikan, tetapi jadwalnya belum dibuka."}
-											</p>
-										</div>
-										<TryoutStartConfirmation tryoutId={tryout.id} disabled={!tryout.isOpen}>
-											<Button className="w-full" disabled={!tryout.isOpen}>
-												Pilih Tryout
-											</Button>
-										</TryoutStartConfirmation>
-									</Card>
-								);
-							})}
-						</div>
+											<TryoutStartConfirmation tryoutId={tryout.id} disabled={tryout.availability !== "open"}>
+												<Button className="w-full" disabled={tryout.availability !== "open"}>
+													Pilih Tryout
+												</Button>
+											</TryoutStartConfirmation>
+										</Card>
+									);
+								})}
+							</div>
+							{publishedTryouts.hasNextPage && (
+								<Button
+									variant="outline"
+									onClick={() => publishedTryouts.fetchNextPage()}
+									disabled={publishedTryouts.isFetchingNextPage}
+								>
+									{publishedTryouts.isFetchingNextPage ? "Memuat..." : "Muat lebih banyak"}
+								</Button>
+							)}
+						</>
 					);
 				})()}
 			</section>

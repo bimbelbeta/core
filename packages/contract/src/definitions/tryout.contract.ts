@@ -100,6 +100,7 @@ export const tryoutContract = {
 		.input(
 			type({
 				"limit?": "number >= 1",
+				level: "'tka' | 'utbk'",
 				"after?": "string",
 				"before?": "string",
 			}),
@@ -111,7 +112,7 @@ export const tryoutContract = {
 						"...": TryoutListItemSchema,
 						attemptId: "number | null",
 						attemptStatus: `${TryoutAttemptStatus} | null`,
-						isOpen: "boolean",
+						availability: "'upcoming' | 'open' | 'expired'",
 					},
 					"[]",
 				),
