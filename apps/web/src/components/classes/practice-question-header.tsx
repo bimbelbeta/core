@@ -11,7 +11,7 @@ export function PracticeQuestionHeader({ content }: { content: string }) {
 
 			{/* Main content (penentu height) */}
 			<div className="relative flex items-center gap-6 px-6 py-4" style={{ zIndex: 1 }}>
-				<Typography variant="subtitle1" as="h1" className="text-neutral-1000">
+				<Typography variant="title" className="text-neutral-1000">
 					{content}
 				</Typography>
 			</div>

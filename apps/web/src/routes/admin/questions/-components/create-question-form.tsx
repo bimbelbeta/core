@@ -21,6 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TagInput } from "@/components/ui/tag-input";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
+import { type QuestionType, questionTypeSchema } from "@/lib/schemas";
 import { MultipleChoiceComplexQuestionForm } from "./multiple-choice-complex-question-form";
 import { MultipleChoiceQuestionForm } from "./multiple-choice-question-form";
 import type { Choice } from "./types";
@@ -32,19 +33,13 @@ interface CreateQuestionFormProps {
 	onCancel: () => void;
 }
 
-function isValidQuestionType(v: string): v is "multiple_choice" | "multiple_choice_complex" | "essay" {
-	return v === "multiple_choice" || v === "multiple_choice_complex" || v === "essay";
-}
-
 export function CreateQuestionForm({
 	questionType: initialType,
 	subtestId,
 	onSuccess,
 	onCancel,
 }: CreateQuestionFormProps) {
-	const [questionType, setQuestionType] = useState<"multiple_choice" | "multiple_choice_complex" | "essay">(
-		initialType,
-	);
+	const [questionType, setQuestionType] = useState<QuestionType>(initialType);
 
 	const addQuestionToSubtestMutation = useMutation(
 		orpc.admin.tryout.questionsBulk.addQuestionToSubtest.mutationOptions({
@@ -148,7 +143,7 @@ export function CreateQuestionForm({
 							defaultValue={questionType}
 							value={questionType}
 							onValueChange={(val) => {
-								if (isValidQuestionType(val)) setQuestionType(val);
+								if (questionTypeSchema.allows(val)) setQuestionType(val);
 							}}
 						>
 							<TabsList>

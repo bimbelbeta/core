@@ -54,7 +54,7 @@ function TryoutHeader({ creditBalance, level }: { creditBalance: number; level: 
 	const currentLevel = TRYOUT_LEVELS[level];
 
 	return (
-		<div className="rounded-default from-primary-500 to-secondary-400 relative overflow-hidden bg-linear-to-r">
+		<div className="rounded-default from-primary-700 to-secondary-800 relative overflow-hidden bg-linear-to-r">
 			<div className="grid grid-cols-1 gap-6 px-6 pt-8 pb-0 sm:grid-cols-3 sm:items-center sm:px-10 sm:py-10">
 				<div className="relative order-last -mx-6 h-27.5 overflow-hidden sm:order-first sm:mr-0 sm:-ml-10 sm:h-auto sm:overflow-visible">
 					<Image
@@ -73,7 +73,7 @@ function TryoutHeader({ creditBalance, level }: { creditBalance: number; level: 
 					<Typography className="leading-5 text-black">{currentLevel.description}</Typography>
 
 					{creditBalance > 0 ? (
-						<div className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-2">
+						<div className="mt-3 inline-flex items-center gap-2 rounded-full bg-black/25 px-4 py-2">
 							<CoinsIcon size={20} weight="fill" className="text-yellow-300" />
 							<span className="text-sm font-medium text-white">
 								Kredit Tryout: <strong>{creditBalance}</strong>
@@ -82,10 +82,10 @@ function TryoutHeader({ creditBalance, level }: { creditBalance: number; level: 
 					) : (
 						<Link
 							to="/premium"
-							className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 transition-colors hover:bg-white/30"
+							className="mt-3 inline-flex items-center gap-2 rounded-full bg-black/25 px-4 py-2 transition-colors hover:bg-black/35"
 						>
-							<CoinsIcon size={20} className="text-white/70" />
-							<span className="text-sm text-white/90">Beli Kredit Tryout</span>
+							<CoinsIcon size={20} className="text-white" />
+							<span className="text-sm text-white">Beli Kredit Tryout</span>
 						</Link>
 					)}
 				</div>

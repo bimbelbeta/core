@@ -146,7 +146,7 @@ export function TryoutsListPage() {
 												onOpenChange={(open) => setDeleteDialogOpen(open ? tryout.id : null)}
 											>
 												<AlertDialogTrigger asChild>
-													<Button variant="ghost" size="icon" aria-label="Hapus tryout">
+													<Button variant="ghost" size="icon" aria-label={`Hapus tryout ${tryout.title}`}>
 														<TrashIcon className="size-4 text-red-600" />
 													</Button>
 												</AlertDialogTrigger>

@@ -57,8 +57,12 @@ describe("formatRelativeDate", () => {
 	});
 
 	test("the year boundary", () => {
+		expect(formatRelativeDate(ago(329 * DAY))).toBe("10 bulan lalu");
 		expect(formatRelativeDate(ago(359 * DAY))).toBe("11 bulan lalu");
+		expect(formatRelativeDate(ago(360 * DAY))).toBe("1 tahun lalu");
+		expect(formatRelativeDate(ago(364 * DAY))).toBe("1 tahun lalu");
 		expect(formatRelativeDate(ago(365 * DAY))).toBe("1 tahun lalu");
+		expect(formatRelativeDate(ago(730 * DAY))).toBe("2 tahun lalu");
 	});
 });
 

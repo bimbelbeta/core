@@ -26,8 +26,9 @@ export function formatRelativeDate(date: Date): string {
 	if (days === 1) return "Kemarin";
 	if (days < 7) return `${days} hari lalu`;
 	if (days < 30) return `${Math.floor(days / 7)} minggu lalu`;
-	if (days < 365) return `${Math.floor(days / 30)} bulan lalu`;
-	return `${Math.floor(days / 365)} tahun lalu`;
+	const months = Math.floor(days / 30);
+	if (months < 12) return `${months} bulan lalu`;
+	return `${Math.max(1, Math.floor(days / 365))} tahun lalu`;
 }
 
 export function formatDateTime(date: Date): string {

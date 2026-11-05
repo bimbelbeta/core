@@ -46,13 +46,18 @@ import { Typography } from "@/components/ui/typography";
 import { useBulkSelection } from "@/hooks/use-bulk-selection";
 import { extractTextFromTiptap, truncateText } from "@/lib/content-text";
 import { orpc } from "@/lib/orpc";
-import { QUESTION_TYPE_LABELS, SUBJECT_CATEGORY_LABELS, subjectCategorySchema } from "@/lib/schemas";
+import {
+	QUESTION_TYPE_LABELS,
+	questionTypeSchema,
+	SUBJECT_CATEGORY_LABELS,
+	subjectCategorySchema,
+} from "@/lib/schemas";
 import { useQuestionsSearch } from "./-hooks/use-questions-search";
 
 const searchSchema = type({
 	"...": PaginationInputSchema,
 	"search?": "string",
-	"type?": "'multiple_choice' | 'multiple_choice_complex' | 'essay'",
+	"type?": questionTypeSchema,
 	"category?": subjectCategorySchema,
 	"tag?": "string",
 });
@@ -279,7 +284,7 @@ function QuestionsListPage() {
 													onOpenChange={(open) => setDeleteDialogOpen(open ? q.id : null)}
 												>
 													<AlertDialogTrigger asChild>
-														<Button variant="ghost" size="icon" aria-label="Hapus soal">
+														<Button variant="ghost" size="icon" aria-label={`Hapus soal ${q.id}`}>
 															<TrashIcon className="size-4 text-red-600" />
 														</Button>
 													</AlertDialogTrigger>

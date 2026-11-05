@@ -1,13 +1,10 @@
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { type SubjectCategory, subjectCategorySchema } from "@/lib/schemas";
+import { type QuestionType, questionTypeSchema, type SubjectCategory, subjectCategorySchema } from "@/lib/schemas";
 import { withoutSearchKey } from "@/lib/tanstack-router-utils";
 
-type QuestionType = "multiple_choice" | "multiple_choice_complex" | "essay";
 type QuestionCategory = SubjectCategory;
 
-function isQuestionType(v: string): v is QuestionType {
-	return v === "multiple_choice" || v === "multiple_choice_complex" || v === "essay";
-}
+const isQuestionType = (v: string): v is QuestionType => questionTypeSchema.allows(v);
 function isQuestionCategory(v: string): v is QuestionCategory {
 	return subjectCategorySchema.allows(v);
 }

@@ -89,7 +89,7 @@ function RouteComponent() {
 	return (
 		<div className="space-y-4">
 			<div className="flex flex-col items-start justify-between space-y-1 sm:flex-row sm:items-center">
-				<Typography variant="subtitle1">Edit Catatan Materi</Typography>
+				<Typography variant="subtitle1">Edit Latihan Soal</Typography>
 				<div className="flex items-center gap-2">
 					<Button type="button" variant="outline" size="sm" onClick={() => setPickerOpen(true)}>
 						<Plus className="mr-1 size-4" />
