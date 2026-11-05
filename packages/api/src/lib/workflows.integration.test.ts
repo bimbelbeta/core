@@ -344,9 +344,22 @@ describe.skipIf(!enabled)("API persistence workflows", () => {
 		await db.insert(transaction).values({ id: orderId, userId: id, productId: plan!.id, grossAmount: "10000" });
 		await db.update(user).set({ tryoutCredits: 0 }).where(eq(user.id, id));
 
-		const response = () =>
-			new Response(JSON.stringify({ transaction_status: "settlement", fraud_status: "accept" }), { status: 200 });
-		const fetchStatus = spyOn(globalThis, "fetch").mockResolvedValueOnce(response()).mockResolvedValueOnce(response());
+		let arrived = 0;
+		let release = () => {};
+		const bothArrived = new Promise<void>((resolve) => {
+			release = resolve;
+		});
+		const gated = Object.assign(
+			async () => {
+				if (++arrived === 2) release();
+				await bothArrived;
+				return new Response(JSON.stringify({ transaction_status: "settlement", fraud_status: "accept" }), {
+					status: 200,
+				});
+			},
+			{ preconnect: () => {} },
+		);
+		const fetchStatus = spyOn(globalThis, "fetch").mockImplementation(gated);
 		try {
 			const signature = createHash("sha512")
 				.update(`${orderId}20010000${process.env.MIDTRANS_SERVER_KEY}`)
