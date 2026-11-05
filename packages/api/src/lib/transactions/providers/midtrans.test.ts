@@ -2,7 +2,12 @@ import { afterAll, describe, expect, spyOn, test } from "bun:test";
 import { createHash } from "node:crypto";
 import { Snap } from "midtrans-client";
 import { PaymentError } from "@/lib/transactions/errors";
-import { midtransProvider, signatureMatches, toPaymentStatus } from "@/lib/transactions/providers/midtrans";
+import {
+	midtransProvider,
+	signatureMatches,
+	toFailureCode,
+	toPaymentStatus,
+} from "@/lib/transactions/providers/midtrans";
 
 const SERVER_KEY = "test-server-key-abc123";
 const originalServerKey = process.env.MIDTRANS_SERVER_KEY;
@@ -66,6 +71,31 @@ describe("toPaymentStatus", () => {
 	});
 });
 
+describe("toFailureCode", () => {
+	test("maps the unambiguous statuses without reading the message", () => {
+		expect(toFailureCode("expire")).toBe("payment_expired");
+		expect(toFailureCode("cancel")).toBe("payment_cancelled");
+		expect(toFailureCode("deny", "deny")).toBe("fraud_rejected");
+	});
+
+	test("falls back to the status when the message says nothing useful", () => {
+		expect(toFailureCode("deny", "accept", "Transaction denied")).toBe("card_declined");
+		expect(toFailureCode("failure", "accept", "midtrans payment notification")).toBe("provider_error");
+	});
+
+	test("reads the reason out of the free-text message", () => {
+		expect(toFailureCode("failure", "accept", "Insufficient balance")).toBe("insufficient_balance");
+		expect(toFailureCode("deny", "accept", "Saldo tidak cukup")).toBe("insufficient_balance");
+		expect(toFailureCode("failure", "accept", "Daily limit exceeded")).toBe("limit_exceeded");
+		expect(toFailureCode("deny", "accept", "Card declined by issuer")).toBe("card_declined");
+	});
+
+	test("says nothing for statuses that are not failures", () => {
+		expect(toFailureCode("settlement")).toBeUndefined();
+		expect(toFailureCode("pending")).toBeUndefined();
+	});
+});
+
 describe("verifyNotification", () => {
 	test("accepts a correctly signed payload", () => {
 		process.env.MIDTRANS_SERVER_KEY = SERVER_KEY;
@@ -93,7 +123,7 @@ describe("fetchStatus", () => {
 		process.env.MIDTRANS_SERVER_KEY = SERVER_KEY;
 		const request = respond({ transaction_status: "settlement", fraud_status: "accept" });
 		try {
-			expect(await midtransProvider.fetchStatus(ORDER_ID)).toBe("paid");
+			expect(await midtransProvider.fetchStatus(ORDER_ID)).toEqual({ status: "paid" });
 		} finally {
 			request.mockRestore();
 		}
@@ -113,6 +143,19 @@ describe("fetchStatus", () => {
 			await expect(midtransProvider.fetchStatus(ORDER_ID)).rejects.toMatchObject({ code: "PROVIDER_REJECTED" });
 		} finally {
 			unknownOrder.mockRestore();
+		}
+	});
+
+	test("carries the failure reason for a failed payment", async () => {
+		process.env.MIDTRANS_SERVER_KEY = SERVER_KEY;
+		const request = respond({ transaction_status: "failure", status_message: "Insufficient balance" });
+		try {
+			expect(await midtransProvider.fetchStatus(ORDER_ID)).toEqual({
+				status: "failed",
+				failure: "insufficient_balance",
+			});
+		} finally {
+			request.mockRestore();
 		}
 	});
 

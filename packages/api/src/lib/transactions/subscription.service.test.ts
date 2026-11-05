@@ -25,6 +25,7 @@ const transaction = {
 	productId: plan.id,
 	grossAmount: plan.price,
 	status: "pending" as const,
+	failureCode: null,
 	paidAt: null,
 	orderedAt: null,
 	createdAt: new Date(),

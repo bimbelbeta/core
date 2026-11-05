@@ -1,6 +1,7 @@
 import { db } from "@bimbelbeta/db";
 import { product, transaction } from "@bimbelbeta/db/schema/transaction";
 import { and, eq, isNull } from "drizzle-orm";
+import type { PaymentFailureCode } from "@/lib/transactions/failures";
 import type { TransactionWithProduct } from "@/lib/transactions/types";
 
 export const paymentRepository = {
@@ -33,10 +34,10 @@ export const paymentRepository = {
 		return result || null;
 	},
 
-	async updateStatus(orderId: string, status: "failed" | "pending") {
+	async updateStatus(orderId: string, status: "failed" | "pending", failure?: PaymentFailureCode) {
 		await db
 			.update(transaction)
-			.set({ status })
+			.set({ status, failureCode: failure ?? null })
 			.where(and(eq(transaction.id, orderId), isNull(transaction.paidAt)));
 	},
 };

@@ -56,6 +56,7 @@ const status = authed.transaction.status.handler(async ({ input, context, errors
 	const row = tx[0]!;
 	return {
 		status: row.status,
+		failureCode: row.failureCode,
 		paidAt: row.paidAt?.toISOString() ?? null,
 	};
 });

@@ -1,10 +1,12 @@
-import type { PaymentStatus, PurchaseBenefits, TransactionWithProduct } from "@/lib/transactions/types";
+import type { PaymentEvent, PaymentFailureCode } from "@/lib/transactions/failures";
+import type { PurchaseBenefits, TransactionWithProduct } from "@/lib/transactions/types";
 
 export type NotificationOutcome =
 	| { action: "already_processed" }
 	| { action: "user_deleted" }
 	| { action: "process_success"; userId: string; benefits: PurchaseBenefits }
-	| { action: "update_status"; status: "failed" | "pending" }
+	| { action: "update_status"; status: "failed"; failure?: PaymentFailureCode }
+	| { action: "update_status"; status: "pending" }
 	| { action: "noop" };
 
 /**
@@ -17,7 +19,7 @@ export type NotificationOutcome =
  * @returns The single action to take, including the benefits to grant when the payment is paid.
  */
 export function resolveNotificationOutcome(
-	status: PaymentStatus,
+	event: PaymentEvent,
 	existingTransaction: TransactionWithProduct,
 	purchaseDate: Date,
 	calcBenefits: (tx: TransactionWithProduct, date: Date) => PurchaseBenefits,
@@ -26,7 +28,7 @@ export function resolveNotificationOutcome(
 		return { action: "already_processed" };
 	}
 
-	if (status === "paid") {
+	if (event.status === "paid") {
 		const userId = existingTransaction.tx.userId;
 		if (!userId) {
 			return { action: "user_deleted" };
@@ -35,11 +37,11 @@ export function resolveNotificationOutcome(
 		return { action: "process_success", userId, benefits };
 	}
 
-	if (status === "failed") {
-		return { action: "update_status", status: "failed" };
+	if (event.status === "failed") {
+		return { action: "update_status", status: "failed", failure: event.failure };
 	}
 
-	if (status === "pending") {
+	if (event.status === "pending") {
 		return { action: "update_status", status: "pending" };
 	}
 

@@ -1,8 +1,9 @@
 import { calculatePurchaseBenefits } from "@/lib/transactions/benefits";
+import type { PaymentEvent } from "@/lib/transactions/failures";
 import { resolveNotificationOutcome } from "@/lib/transactions/notification-routing";
 import type { processSuccessfulTransaction } from "@/lib/transactions/processor";
 import type { paymentRepository } from "@/lib/transactions/repository";
-import type { PaymentProvider, PaymentStatus } from "@/lib/transactions/types";
+import type { PaymentProvider } from "@/lib/transactions/types";
 
 export type NotificationServiceDependencies = {
 	fetchStatus: PaymentProvider<unknown>["fetchStatus"];
@@ -38,15 +39,15 @@ export const createNotificationService = (deps: NotificationServiceDependencies)
 		const existingTransaction = await deps.find(orderId);
 		if (!existingTransaction) return { status: "not_found" } as const;
 
-		let status: PaymentStatus;
+		let event: PaymentEvent;
 		try {
-			status = await deps.fetchStatus(orderId);
+			event = await deps.fetchStatus(orderId);
 		} catch (error) {
 			console.error("payment status fetch failed", error);
 			return { status: "verification_failed" } as const;
 		}
 
-		const outcome = resolveNotificationOutcome(status, existingTransaction, purchaseDate, calculatePurchaseBenefits);
+		const outcome = resolveNotificationOutcome(event, existingTransaction, purchaseDate, calculatePurchaseBenefits);
 
 		if (outcome.action === "already_processed" || outcome.action === "user_deleted") {
 			return { status: outcome.action } as const;
@@ -62,7 +63,8 @@ export const createNotificationService = (deps: NotificationServiceDependencies)
 			if (applied === null) return { status: "processing_failed" } as const;
 			if (!applied) return { status: "already_processed" } as const;
 		} else if (outcome.action === "update_status") {
-			const updated = await deps.updateStatus(orderId, outcome.status).then(
+			const failure = outcome.status === "failed" ? outcome.failure : undefined;
+			const updated = await deps.updateStatus(orderId, outcome.status, failure).then(
 				() => true,
 				(error) => {
 					console.error("payment status update failed", error);

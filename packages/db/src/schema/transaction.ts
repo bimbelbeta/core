@@ -14,6 +14,17 @@ export const typeEnum = pgEnum("product_type_enum", ["subscription", "product"])
 export const statusEnum = pgEnum("transaction_status_enum", ["pending", "success", "failed"]);
 export const productVariantEnum = pgEnum("product_variant_enum", ["fixed_date", "monthly", "credits"]);
 
+export const paymentFailureEnum = pgEnum("payment_failure_code", [
+	"insufficient_balance",
+	"limit_exceeded",
+	"card_declined",
+	"fraud_rejected",
+	"payment_expired",
+	"payment_cancelled",
+	"provider_error",
+	"unknown",
+]);
+
 export const transaction = pgTable(
 	"transaction",
 	{
@@ -22,6 +33,7 @@ export const transaction = pgTable(
 		productId: uuid("product_id").references(() => product.id, { onDelete: "set null" }),
 		grossAmount: decimal("gross_amount"),
 		status: statusEnum("status").notNull().default("pending"),
+		failureCode: paymentFailureEnum("failure_code"),
 		paidAt: timestamp("paid_at"),
 		orderedAt: timestamp("ordered_at").defaultNow(),
 		createdAt: timestamp("created_at").notNull().defaultNow(),

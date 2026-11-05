@@ -27,6 +27,7 @@ function makeTx(overrides?: Partial<TransactionWithProduct["tx"]>): TransactionW
 			productId: "product-1",
 			grossAmount: "100000.00",
 			status: "pending",
+			failureCode: null,
 			paidAt: null,
 			orderedAt: PURCHASE_DATE,
 			createdAt: PURCHASE_DATE,
@@ -39,33 +40,52 @@ function makeTx(overrides?: Partial<TransactionWithProduct["tx"]>): TransactionW
 describe("resolveNotificationOutcome", () => {
 	test("returns already_processed when the transaction was already paid", () => {
 		const tx = makeTx({ paidAt: new Date("2025-01-10") });
-		expect(resolveNotificationOutcome("paid", tx, PURCHASE_DATE, calcBenefits)).toEqual({
+		expect(resolveNotificationOutcome({ status: "paid" }, tx, PURCHASE_DATE, calcBenefits)).toEqual({
 			action: "already_processed",
 		});
 	});
 
 	test("returns user_deleted when a paid transaction has no user", () => {
 		const tx = makeTx({ userId: null });
-		expect(resolveNotificationOutcome("paid", tx, PURCHASE_DATE, calcBenefits)).toEqual({ action: "user_deleted" });
+		expect(resolveNotificationOutcome({ status: "paid" }, tx, PURCHASE_DATE, calcBenefits)).toEqual({
+			action: "user_deleted",
+		});
 	});
 
 	test("grants benefits for a paid transaction", () => {
-		const outcome = resolveNotificationOutcome("paid", makeTx(), PURCHASE_DATE, calcBenefits);
+		const outcome = resolveNotificationOutcome({ status: "paid" }, makeTx(), PURCHASE_DATE, calcBenefits);
 		expect(outcome).toEqual({ action: "process_success", userId: "user-abc", benefits: mockBenefits });
 	});
 
+	test("carries the failure reason into the status write", () => {
+		expect(
+			resolveNotificationOutcome(
+				{ status: "failed", failure: "insufficient_balance" },
+				makeTx(),
+				PURCHASE_DATE,
+				calcBenefits,
+			),
+		).toEqual({
+			action: "update_status",
+			status: "failed",
+			failure: "insufficient_balance",
+		});
+	});
+
 	test("updates the status for failed and pending payments", () => {
-		expect(resolveNotificationOutcome("failed", makeTx(), PURCHASE_DATE, calcBenefits)).toEqual({
+		expect(resolveNotificationOutcome({ status: "failed" }, makeTx(), PURCHASE_DATE, calcBenefits)).toEqual({
 			action: "update_status",
 			status: "failed",
 		});
-		expect(resolveNotificationOutcome("pending", makeTx(), PURCHASE_DATE, calcBenefits)).toEqual({
+		expect(resolveNotificationOutcome({ status: "pending" }, makeTx(), PURCHASE_DATE, calcBenefits)).toEqual({
 			action: "update_status",
 			status: "pending",
 		});
 	});
 
 	test("does nothing for an unresolved status", () => {
-		expect(resolveNotificationOutcome("unknown", makeTx(), PURCHASE_DATE, calcBenefits)).toEqual({ action: "noop" });
+		expect(resolveNotificationOutcome({ status: "unknown" }, makeTx(), PURCHASE_DATE, calcBenefits)).toEqual({
+			action: "noop",
+		});
 	});
 });

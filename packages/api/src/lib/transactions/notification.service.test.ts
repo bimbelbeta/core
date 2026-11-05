@@ -1,7 +1,8 @@
 import { describe, expect, mock, spyOn, test } from "bun:test";
 import { PaymentError } from "./errors";
+import type { PaymentEvent } from "./failures";
 import { createNotificationService } from "./notification.service";
-import type { PaymentStatus, TransactionWithProduct } from "./types";
+import type { TransactionWithProduct } from "./types";
 
 const date = new Date("2025-01-15T10:00:00Z");
 const transaction: TransactionWithProduct = {
@@ -17,6 +18,7 @@ const transaction: TransactionWithProduct = {
 		productId: "product-1",
 		grossAmount: "10000",
 		status: "pending",
+		failureCode: null,
 		paidAt: null,
 		orderedAt: date,
 		createdAt: date,
@@ -26,9 +28,9 @@ const transaction: TransactionWithProduct = {
 
 function setup() {
 	const deps = {
-		fetchStatus: mock(async (): Promise<PaymentStatus> => "pending"),
+		fetchStatus: mock(async (): Promise<PaymentEvent> => ({ status: "pending" })),
 		find: mock(async (): Promise<TransactionWithProduct | null> => transaction),
-		updateStatus: mock(async (_orderId: string, _status: "pending" | "failed") => {}),
+		updateStatus: mock(async (_orderId: string, _status: "pending" | "failed", _failure?: string) => {}),
 		process: mock(async (): Promise<boolean> => true),
 	};
 	return { deps, service: createNotificationService(deps) };
@@ -38,26 +40,26 @@ describe("notification service", () => {
 	test("updates pending transactions", async () => {
 		const { deps, service } = setup();
 		expect(await service.process("order-1", date)).toEqual({ status: "ok" });
-		expect(deps.updateStatus).toHaveBeenCalledWith("order-1", "pending");
+		expect(deps.updateStatus).toHaveBeenCalledWith("order-1", "pending", undefined);
 	});
 
 	test("applies benefits once for a paid transaction", async () => {
 		const { deps, service } = setup();
-		deps.fetchStatus.mockResolvedValue("paid");
+		deps.fetchStatus.mockResolvedValue({ status: "paid" });
 		expect(await service.process("order-1", date)).toEqual({ status: "ok" });
 		expect(deps.process).toHaveBeenCalledTimes(1);
 	});
 
 	test("reports already_processed when the payment was claimed elsewhere", async () => {
 		const { deps, service } = setup();
-		deps.fetchStatus.mockResolvedValue("paid");
+		deps.fetchStatus.mockResolvedValue({ status: "paid" });
 		deps.process.mockResolvedValue(false);
 		expect(await service.process("order-1", date)).toEqual({ status: "already_processed" });
 	});
 
 	test("reports a failed benefit write and keeps a trace", async () => {
 		const { deps, service } = setup();
-		deps.fetchStatus.mockResolvedValue("paid");
+		deps.fetchStatus.mockResolvedValue({ status: "paid" });
 		deps.process.mockRejectedValue(new Error("processing failed"));
 		const log = spyOn(console, "error").mockImplementation(() => {});
 		try {
@@ -87,6 +89,13 @@ describe("notification service", () => {
 		} finally {
 			log.mockRestore();
 		}
+	});
+
+	test("records the failure reason when a payment fails", async () => {
+		const { deps, service } = setup();
+		deps.fetchStatus.mockResolvedValue({ status: "failed", failure: "insufficient_balance" });
+		expect(await service.process("order-1", date)).toEqual({ status: "ok" });
+		expect(deps.updateStatus).toHaveBeenCalledWith("order-1", "failed", "insufficient_balance");
 	});
 
 	test("reports a failed status update", async () => {

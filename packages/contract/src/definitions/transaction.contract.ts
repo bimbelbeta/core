@@ -13,6 +13,7 @@ const NotificationOutputSchema = type({
 
 const GetStatusOutputSchema = type({
 	status: "string",
+	failureCode: "string | null",
 	paidAt: "string | null",
 });
 

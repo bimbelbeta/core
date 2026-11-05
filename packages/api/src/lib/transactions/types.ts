@@ -1,4 +1,5 @@
 import type { productVariantEnum, transaction } from "@bimbelbeta/db/schema/transaction";
+import type { PaymentEvent } from "@/lib/transactions/failures";
 
 export type TransactionWithProduct = {
 	tx: typeof transaction.$inferSelect;
@@ -44,5 +45,5 @@ export type Checkout = {
 export type PaymentProvider<TNotification> = {
 	createCheckout(input: CheckoutInput): Promise<Checkout>;
 	verifyNotification(payload: TNotification): boolean;
-	fetchStatus(orderId: string): Promise<PaymentStatus>;
+	fetchStatus(orderId: string): Promise<PaymentEvent>;
 };

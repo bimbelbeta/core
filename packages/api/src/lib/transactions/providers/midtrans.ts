@@ -1,6 +1,7 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import { Snap } from "midtrans-client";
 import { PaymentError } from "@/lib/transactions/errors";
+import type { PaymentEvent, PaymentFailureCode } from "@/lib/transactions/failures";
 import type { Checkout, CheckoutInput, PaymentProvider, PaymentStatus } from "@/lib/transactions/types";
 
 export type MidtransNotification = {
@@ -21,6 +22,38 @@ const failed = new Set(["deny", "cancel", "expire", "failure"]);
  * `unknown` rather than paid. Anything not recognised stays `unknown` so the caller can ignore
  * it instead of guessing.
  */
+const messageHints: Array<[RegExp, PaymentFailureCode]> = [
+	[/insufficient|saldo tidak cukup|dana tidak cukup/i, "insufficient_balance"],
+	[/limit/i, "limit_exceeded"],
+	[/expired|kadaluarsa/i, "payment_expired"],
+	[/cancel|dibatalkan/i, "payment_cancelled"],
+	[/fraud/i, "fraud_rejected"],
+	[/decline|denied|ditolak/i, "card_declined"],
+];
+
+/**
+ * Reads a failure reason out of Midtrans' vocabulary.
+ *
+ * Midtrans has no failure-code enumeration: it reports `deny`, `cancel`, `expire`, or `failure`
+ * and puts the actual reason in free-text `status_message`. The status alone is therefore mapped
+ * where it is unambiguous, and the message is only used as a best-effort hint; anything
+ * unrecognised stays `unknown` rather than guessing at a cause the user would act on.
+ */
+export function toFailureCode(
+	transactionStatus: string,
+	fraudStatus?: string,
+	statusMessage?: string,
+): PaymentFailureCode | undefined {
+	if (transactionStatus === "expire") return "payment_expired";
+	if (transactionStatus === "cancel") return "payment_cancelled";
+	if (transactionStatus === "deny" && fraudStatus === "deny") return "fraud_rejected";
+	if (transactionStatus !== "deny" && transactionStatus !== "failure") return undefined;
+
+	const hint = messageHints.find(([pattern]) => statusMessage && pattern.test(statusMessage));
+	if (hint) return hint[1];
+	return transactionStatus === "deny" ? "card_declined" : "provider_error";
+}
+
 export function toPaymentStatus(transactionStatus: string, fraudStatus?: string): PaymentStatus {
 	if (paid.has(transactionStatus)) return "paid";
 	if (transactionStatus === "capture") return fraudStatus === "accept" ? "paid" : "unknown";
@@ -130,7 +163,7 @@ function verifyNotification(payload: MidtransNotification): boolean {
  * responses, network failures, and unrecognised payloads all become `PaymentError`s so the caller
  * can log a reason and refuse to grant anything.
  */
-async function fetchStatus(orderId: string): Promise<PaymentStatus> {
+async function fetchStatus(orderId: string): Promise<PaymentEvent> {
 	const credentials = Buffer.from(`${getServerKey()}:`).toString("base64");
 	const host = isProduction() ? "api.midtrans.com" : "api.sandbox.midtrans.com";
 
@@ -156,7 +189,13 @@ async function fetchStatus(orderId: string): Promise<PaymentStatus> {
 	}
 
 	const fraudStatus = "fraud_status" in body && typeof body.fraud_status === "string" ? body.fraud_status : undefined;
-	return toPaymentStatus(transactionStatus, fraudStatus);
+	const statusMessage =
+		"status_message" in body && typeof body.status_message === "string" ? body.status_message : undefined;
+
+	const status = toPaymentStatus(transactionStatus, fraudStatus);
+	if (status !== "failed") return { status };
+
+	return { status, failure: toFailureCode(transactionStatus, fraudStatus, statusMessage) ?? "unknown" };
 }
 
 export const midtransProvider: PaymentProvider<MidtransNotification> = {
