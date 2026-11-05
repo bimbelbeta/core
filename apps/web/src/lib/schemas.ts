@@ -1,4 +1,4 @@
-import { ArchiveIcon, EyeIcon, FileIcon } from "@phosphor-icons/react";
+import { ArchiveIcon, CalendarIcon, ClockIcon, CreditCardIcon, EyeIcon, FileIcon } from "@phosphor-icons/react";
 import { type } from "arktype";
 
 export const subjectCategorySchema = type("'sd' | 'smp' | 'sma' | 'utbk'");
@@ -68,3 +68,24 @@ export const isSubscriptionVariant = (variant: ProductVariant) => variant !== "c
 export const productTypeSchema = type("'subscription' | 'product'");
 
 export type ProductType = typeof productTypeSchema.infer;
+
+export const variantConfig = {
+	fixed_date: {
+		label: "Fixed Date",
+		icon: CalendarIcon,
+		iconColor: "text-purple-500",
+		bgColor: "bg-purple-100",
+	},
+	monthly: {
+		label: "Monthly",
+		icon: ClockIcon,
+		iconColor: "text-blue-500",
+		bgColor: "bg-blue-100",
+	},
+	credits: {
+		label: "Credits",
+		icon: CreditCardIcon,
+		iconColor: "text-green-700",
+		bgColor: "bg-green-100",
+	},
+} as const;

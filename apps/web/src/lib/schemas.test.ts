@@ -1,5 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import { variantConfig } from "../routes/admin/_superadmin/products/-utils";
 import {
 	isSubscriptionVariant,
 	productTypeSchema,
@@ -9,6 +8,7 @@ import {
 	subjectCategorySchema,
 	TRYOUT_STATUS_BADGE,
 	tryoutStatusSchema,
+	variantConfig,
 } from "./schemas";
 
 describe("product variants", () => {

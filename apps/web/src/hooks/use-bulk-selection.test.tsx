@@ -50,6 +50,27 @@ describe("useBulkSelection", () => {
 		expect(result.current.selectedIds).toEqual([1]);
 	});
 
+	test("select-all adds the shown rows to what was already picked", () => {
+		const { result, rerender } = renderHook(({ items }) => useBulkSelection(items, { keepSelection: true }), {
+			initialProps: { items: rows(1, 2) },
+		});
+		act(() => result.current.toggleSelectOne(1));
+		rerender({ items: rows(7, 8) });
+		act(() => result.current.toggleSelectAll());
+		expect(result.current.selectedIds).toEqual([1, 7, 8]);
+	});
+
+	test("deselect-all only drops the rows currently shown", () => {
+		const { result, rerender } = renderHook(({ items }) => useBulkSelection(items, { keepSelection: true }), {
+			initialProps: { items: rows(1, 2) },
+		});
+		act(() => result.current.toggleSelectOne(1));
+		rerender({ items: rows(7, 8) });
+		act(() => result.current.toggleSelectAll());
+		act(() => result.current.toggleSelectAll());
+		expect(result.current.selectedIds).toEqual([1]);
+	});
+
 	test("clears the selection when the row set is replaced", () => {
 		const { result, rerender } = renderHook(({ items }) => useBulkSelection(items), {
 			initialProps: { items: rows(1, 2) },

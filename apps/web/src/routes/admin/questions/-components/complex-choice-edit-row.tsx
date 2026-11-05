@@ -33,6 +33,8 @@ export function ComplexChoiceEditRow({ choice, onUpdate, onDelete }: ComplexChoi
 						variant={choice.isCorrect ? "default" : "outline"}
 						size="sm"
 						onClick={() => onUpdate(choice.content, true)}
+						aria-pressed={choice.isCorrect}
+						aria-label={`Tandai pilihan ${choice.code} benar`}
 					>
 						Benar
 					</Button>
@@ -41,6 +43,8 @@ export function ComplexChoiceEditRow({ choice, onUpdate, onDelete }: ComplexChoi
 						variant={!choice.isCorrect ? "default" : "outline"}
 						size="sm"
 						onClick={() => onUpdate(choice.content, false)}
+						aria-pressed={!choice.isCorrect}
+						aria-label={`Tandai pilihan ${choice.code} salah`}
 					>
 						Salah
 					</Button>

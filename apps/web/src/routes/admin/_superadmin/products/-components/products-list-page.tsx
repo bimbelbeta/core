@@ -26,9 +26,10 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Typography } from "@/components/ui/typography";
 import { formatDateLong, formatRelativeDate } from "@/lib/format-date";
 import { formatRupiah } from "@/lib/formatter";
+import { variantConfig } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import { useProductsList } from "../-hooks/use-products-list";
-import { variantConfig } from "../-utils";
+
 import { DeleteProductDialog } from "./delete-product-dialog";
 import { RestoreProductDialog } from "./restore-product-dialog";
 

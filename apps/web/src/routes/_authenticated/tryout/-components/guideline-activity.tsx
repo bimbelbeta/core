@@ -98,7 +98,7 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 													<Typography tone="muted">{SUBJECT_CATEGORY_LABELS[category]}</Typography>
 												</div>
 												<Badge variant={tryout.isOpen ? "default" : "secondary"} className="shrink-0">
-													{tryout.isOpen ? "Published" : "Belum dibuka"}
+													{tryout.isOpen ? "Dibuka" : "Belum dibuka"}
 												</Badge>
 											</div>
 											<Separator />

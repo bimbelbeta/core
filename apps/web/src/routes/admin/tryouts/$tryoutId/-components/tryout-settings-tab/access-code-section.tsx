@@ -162,7 +162,7 @@ export function AccessCodeSection({ tryoutId }: { tryoutId: number }) {
 												type="button"
 												size="icon"
 												variant="ghost"
-												aria-label={`Salin pratinjau kode akses ${accessCodeItem.label}`}
+												aria-label={`Salin pratinjau kode akses ${accessCodeItem.label ?? accessCodeItem.codePreview}`}
 												onClick={() => {
 													navigator.clipboard.writeText(accessCodeItem.codePreview);
 													toast.success("Kode disalin!");
@@ -186,7 +186,7 @@ export function AccessCodeSection({ tryoutId }: { tryoutId: number }) {
 											{accessCodeItem.isActive ? "Aktif" : "Nonaktif"}
 										</span>
 										<Switch
-											aria-label={`Aktifkan kode akses ${accessCodeItem.label}`}
+											aria-label={`Aktifkan kode akses ${accessCodeItem.label ?? accessCodeItem.codePreview}`}
 											checked={accessCodeItem.isActive}
 											onCheckedChange={(checked) => {
 												toggleAccessCodeMutation.mutate({

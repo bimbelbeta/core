@@ -17,7 +17,10 @@ export function useBulkSelection<T extends string | number>(
 	const allSelected = !!items?.length && items.every((item) => selectedIds.includes(item.id));
 
 	const toggleSelectAll = () => {
-		setSelectedIds(allSelected ? [] : (items?.map((item) => item.id) ?? []));
+		const shown = items?.map((item) => item.id) ?? [];
+		setSelectedIds((prev) =>
+			allSelected ? prev.filter((id) => !shown.includes(id)) : [...prev, ...shown.filter((id) => !prev.includes(id))],
+		);
 	};
 
 	const toggleSelectOne = (id: T) => {
