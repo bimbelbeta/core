@@ -144,15 +144,12 @@ export function ReferralListPage() {
 										</AdminTableCell>
 										<AdminTableCell>
 											{item.status && !isExpired && !isFull ? (
-												<Badge
-													className="gap-1 border-green-200 bg-green-50 text-[11px] text-green-700"
-													variant="outline"
-												>
+												<Badge className="gap-1 text-[11px]" variant="success">
 													<CheckCircleIcon className="size-3" weight="fill" />
 													Aktif
 												</Badge>
 											) : (
-												<Badge className="gap-1 border-red-200 bg-red-50 text-[11px] text-red-700" variant="outline">
+												<Badge className="gap-1 text-[11px]" variant="danger">
 													<XCircleIcon className="size-3" weight="fill" />
 													{!item.status ? "Nonaktif" : isExpired ? "Kedaluwarsa" : "Kuota Habis"}
 												</Badge>

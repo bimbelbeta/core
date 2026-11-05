@@ -68,7 +68,7 @@ export function BulkQuestionsTable({
 											isSelected ? "bg-primary/5 hover:bg-primary/10" : "hover:bg-muted/30",
 										)}
 									>
-										<TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
+										<TableCell className="text-center">
 											<Checkbox
 												checked={isSelected}
 												onCheckedChange={() => onToggleOne(item.id)}

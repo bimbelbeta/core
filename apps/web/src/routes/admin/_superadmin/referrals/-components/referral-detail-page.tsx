@@ -65,11 +65,11 @@ export function ReferralDetailPage() {
 						<div className="flex justify-between">
 							<span className="text-muted-foreground">Status</span>
 							{isActive ? (
-								<Badge className="gap-1 border-green-200 bg-green-50 text-green-700" variant="outline">
+								<Badge className="gap-1" variant="success">
 									Aktif
 								</Badge>
 							) : (
-								<Badge className="gap-1 border-red-200 bg-red-50 text-red-700" variant="outline">
+								<Badge className="gap-1" variant="danger">
 									<XCircleIcon className="size-3" />
 									{!referralCode.status ? "Nonaktif" : isExpired ? "Kedaluwarsa" : "Kuota Habis"}
 								</Badge>

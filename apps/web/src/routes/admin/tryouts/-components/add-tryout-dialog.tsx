@@ -27,9 +27,16 @@ import {
 	SUBJECT_CATEGORY_LABELS,
 	type SubjectCategory,
 	subjectCategorySchema,
+	TRYOUT_STATUS_BADGE,
 	type TryoutStatus,
 	tryoutStatusSchema,
 } from "@/lib/schemas";
+
+const STATUS_ICONS = {
+	draft: FileIcon,
+	published: EyeIcon,
+	archived: ArchiveIcon,
+};
 
 export function AddTryoutDialog({
 	open,
@@ -174,7 +181,7 @@ export function AddTryoutDialog({
 										<div className="col-span-3">
 											<Select
 												value={field.state.value}
-												onValueChange={(val) => field.handleChange(val as typeof field.state.value)}
+												onValueChange={(val) => field.handleChange(subjectCategorySchema.assert(val))}
 											>
 												<SelectTrigger id={field.name} className="w-full">
 													<SelectValue placeholder="Pilih kategori" />
@@ -201,30 +208,23 @@ export function AddTryoutDialog({
 										<div className="col-span-3">
 											<Select
 												value={field.state.value}
-												onValueChange={(val) => field.handleChange(val as typeof field.state.value)}
+												onValueChange={(val) => field.handleChange(tryoutStatusSchema.assert(val))}
 											>
 												<SelectTrigger id={field.name} className="w-full">
 													<SelectValue placeholder="Pilih status" />
 												</SelectTrigger>
 												<SelectContent>
-													<SelectItem value="draft">
-														<div className="flex items-center gap-2">
-															<FileIcon className="text-muted-foreground size-4" />
-															<span>Draft</span>
-														</div>
-													</SelectItem>
-													<SelectItem value="published">
-														<div className="flex items-center gap-2">
-															<EyeIcon className="size-4 text-green-600" />
-															<span>Published</span>
-														</div>
-													</SelectItem>
-													<SelectItem value="archived">
-														<div className="flex items-center gap-2">
-															<ArchiveIcon className="size-4 text-orange-600" />
-															<span>Archived</span>
-														</div>
-													</SelectItem>
+													{Object.entries(TRYOUT_STATUS_BADGE).map(([value, status]) => {
+														const Icon = STATUS_ICONS[value as keyof typeof STATUS_ICONS];
+														return (
+															<SelectItem key={value} value={value}>
+																<div className="flex items-center gap-2">
+																	<Icon className="size-4" />
+																	<span>{status.label}</span>
+																</div>
+															</SelectItem>
+														);
+													})}
 												</SelectContent>
 											</Select>
 										</div>

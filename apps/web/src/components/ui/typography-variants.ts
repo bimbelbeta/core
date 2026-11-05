@@ -19,7 +19,7 @@ export const typographyTones = {
 	default: "",
 	muted: "text-muted-foreground",
 	destructive: "text-destructive",
-	accent: "text-primary-300",
+	accent: "text-primary-700",
 } as const;
 
 export type TypographyTone = keyof typeof typographyTones;

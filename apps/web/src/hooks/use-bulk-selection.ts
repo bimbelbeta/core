@@ -1,14 +1,13 @@
 import { useState } from "react";
+import { shouldClearSelection } from "@/lib/selection";
 
 export function useBulkSelection<T extends string | number>(items: { id: T }[] | undefined) {
 	const [selectedIds, setSelectedIds] = useState<T[]>([]);
-	const signature = items?.map((item) => item.id).join(",") ?? "";
-	const [shownSignature, setShownSignature] = useState(signature);
+	const ids = items?.map((item) => item.id) ?? [];
+	const [shownIds, setShownIds] = useState<T[]>(ids);
 
-	if (shownSignature !== signature) {
-		setShownSignature(signature);
-		setSelectedIds([]);
-	}
+	if (shouldClearSelection(shownIds, ids)) setSelectedIds([]);
+	if (shownIds.join(",") !== ids.join(",")) setShownIds(ids);
 	const allSelected = !!items?.length && items.every((item) => selectedIds.includes(item.id));
 
 	const toggleSelectAll = () => {
