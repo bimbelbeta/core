@@ -46,7 +46,12 @@ function RouteComponent() {
 
 	const navigate = Route.useNavigate();
 	const updateSearch = (updates: { q?: string; category?: SubjectCategory }) => {
-		navigate({ search: { q: updates.q ?? undefined, category: updates.category ?? undefined } });
+		navigate({
+			search: {
+				q: "q" in updates ? updates.q || undefined : q || undefined,
+				category: "category" in updates ? updates.category : category,
+			},
+		});
 	};
 
 	const subjectsQuery = useQuery({

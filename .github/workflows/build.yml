@@ -12,6 +12,8 @@ on:
       - "package.json"
       - "biome.json"
       - "bun.lock"
+      - "apps/web/Dockerfile"
+      - "apps/server/Dockerfile"
   pull_request:
     branches: ["main"]
   workflow_dispatch:

@@ -199,7 +199,7 @@ export function QuestionPickerDialog({
 								onCheckedChange={handleSelectAll}
 								disabled={questions.length === 0}
 							/>
-							<span className="text-sm">Pilih Semua ({selectedQuestionIds.length} dipilih)</span>
+							<span className="text-sm">Pilih yang Tampil ({selectedQuestionIds.length} dipilih)</span>
 						</div>
 						<Button
 							variant="default"

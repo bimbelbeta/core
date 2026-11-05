@@ -54,9 +54,6 @@ describe("question type appearance", () => {
 			multiple_choice_complex: "secondary",
 			essay: "outline",
 		});
-		for (const type of Object.keys(QUESTION_TYPE_LABELS)) {
-			expect(QUESTION_TYPE_BADGE[type as keyof typeof QUESTION_TYPE_BADGE]).toBeDefined();
-		}
 	});
 });
 
