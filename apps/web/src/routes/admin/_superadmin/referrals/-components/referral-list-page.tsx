@@ -181,7 +181,7 @@ export function ReferralListPage() {
 													size="icon"
 													className="size-8"
 													onClick={() => handleToggleStatus(item.id, !item.status)}
-													title={item.status ? "Nonaktifkan" : "Aktifkan"}
+													aria-label={`${item.status ? "Nonaktifkan" : "Aktifkan"} ${item.code}`}
 													id={`toggle-status-${item.id}`}
 												>
 													{item.status ? (
@@ -191,7 +191,11 @@ export function ReferralListPage() {
 													)}
 												</Button>
 												<Button variant="ghost" size="icon" className="size-8" asChild>
-													<Link to="/admin/referrals/$codeId" params={{ codeId: item.id }} aria-label="Lihat detail">
+													<Link
+														to="/admin/referrals/$codeId"
+														params={{ codeId: item.id }}
+														aria-label={`Lihat detail ${item.code}`}
+													>
 														<ArrowRightIcon className="size-4" />
 													</Link>
 												</Button>

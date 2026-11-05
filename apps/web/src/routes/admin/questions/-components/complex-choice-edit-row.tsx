@@ -52,7 +52,7 @@ export function ComplexChoiceEditRow({ choice, onUpdate, onDelete }: ComplexChoi
 					variant="ghost"
 					size="icon"
 					onClick={onDelete}
-					aria-label="Hapus pilihan"
+					aria-label={`Hapus pilihan ${choice.code}`}
 					className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive size-6 rounded"
 				>
 					<TrashIcon className="size-4" />

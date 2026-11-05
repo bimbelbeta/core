@@ -13,7 +13,9 @@ export function formatPremiumExpiry(date: Date) {
 	if (diffDays === 1) return "Besok";
 	if (diffDays < 7) return `${diffDays} hari lagi`;
 	if (diffDays < 30) return `${Math.floor(diffDays / 7)} minggu lagi`;
-	return `${Math.floor(diffDays / 30)} bulan lagi`;
+	const months = Math.floor(diffDays / 30);
+	if (months < 12) return `${months} bulan lagi`;
+	return `${Math.max(1, Math.floor(diffDays / 365))} tahun lagi`;
 }
 
 export const roleConfig = {

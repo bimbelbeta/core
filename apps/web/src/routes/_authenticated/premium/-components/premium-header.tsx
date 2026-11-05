@@ -20,7 +20,7 @@ export function PremiumHeader() {
 						kebutuhanmu.
 					</Typography>
 					{creditBalance > 0 && (
-						<div className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-2">
+						<div className="mt-4 inline-flex items-center gap-2 rounded-full bg-black/25 px-4 py-2">
 							<Coins size={20} weight="fill" className="text-yellow-300" />
 							<span className="text-sm font-medium">
 								Kredit Tryout: <strong>{creditBalance}</strong>

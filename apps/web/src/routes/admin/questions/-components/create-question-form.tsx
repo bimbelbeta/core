@@ -21,7 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TagInput } from "@/components/ui/tag-input";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
-import { type QuestionType, questionTypeSchema } from "@/lib/schemas";
+import { QUESTION_TYPE_LABELS, type QuestionType, questionTypeSchema } from "@/lib/schemas";
 import { MultipleChoiceComplexQuestionForm } from "./multiple-choice-complex-question-form";
 import { MultipleChoiceQuestionForm } from "./multiple-choice-question-form";
 import type { Choice } from "./types";
@@ -147,9 +147,11 @@ export function CreateQuestionForm({
 							}}
 						>
 							<TabsList>
-								<TabsTrigger value="multiple_choice">Pilihan Ganda</TabsTrigger>
-								<TabsTrigger value="multiple_choice_complex">Pilihan Ganda Kompleks</TabsTrigger>
-								<TabsTrigger value="essay">Esai</TabsTrigger>
+								<TabsTrigger value="multiple_choice">{QUESTION_TYPE_LABELS.multiple_choice}</TabsTrigger>
+								<TabsTrigger value="multiple_choice_complex">
+									{QUESTION_TYPE_LABELS.multiple_choice_complex}
+								</TabsTrigger>
+								<TabsTrigger value="essay">{QUESTION_TYPE_LABELS.essay}</TabsTrigger>
 							</TabsList>
 
 							<TabsContent value="multiple_choice" className="mt-6">

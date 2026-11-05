@@ -152,7 +152,11 @@ function RouteComponent() {
 										<TableCell>
 											<DropdownMenu>
 												<DropdownMenuTrigger asChild>
-													<Button variant="ghost" size="icon" aria-label="Aksi program studi">
+													<Button
+														variant="ghost"
+														size="icon"
+														aria-label={`Aksi program studi ${prog.studyProgram.name}`}
+													>
 														<DotsThreeIcon className="size-4" />
 													</Button>
 												</DropdownMenuTrigger>

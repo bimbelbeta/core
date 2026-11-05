@@ -162,9 +162,9 @@ function QuestionsListPage() {
 						</SelectTrigger>
 						<SelectContent>
 							<SelectItem value="all">Semua Tipe</SelectItem>
-							<SelectItem value="multiple_choice">Pilihan Ganda</SelectItem>
-							<SelectItem value="multiple_choice_complex">Pilihan Ganda Kompleks</SelectItem>
-							<SelectItem value="essay">Esai</SelectItem>
+							<SelectItem value="multiple_choice">{QUESTION_TYPE_LABELS.multiple_choice}</SelectItem>
+							<SelectItem value="multiple_choice_complex">{QUESTION_TYPE_LABELS.multiple_choice_complex}</SelectItem>
+							<SelectItem value="essay">{QUESTION_TYPE_LABELS.essay}</SelectItem>
 						</SelectContent>
 					</Select>
 					<Select value={category ?? "all"} onValueChange={handleCategoryChange}>

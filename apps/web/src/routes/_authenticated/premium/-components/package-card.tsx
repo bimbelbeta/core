@@ -80,11 +80,11 @@ export function PackageCard({
 					>
 						{formatRupiah(price)}
 					</Typography>
-					{isPremiumPackage && premiumSubtitle && <span className="text-sm text-neutral-500">{premiumSubtitle}</span>}
+					{isPremiumPackage && premiumSubtitle && <span className="text-sm text-neutral-800">{premiumSubtitle}</span>}
 				</div>
 			</div>
 
-			<Typography className="mb-4 text-neutral-600">
+			<Typography className="mb-4 text-neutral-800">
 				{isPremiumPackage ? (
 					"Akses penuh ke semua materi, tryout tanpa batas, dan fitur eksklusif."
 				) : (

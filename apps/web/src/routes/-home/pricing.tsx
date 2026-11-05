@@ -62,7 +62,7 @@ function ProgramPricingCard({
 
 				<div className="flex flex-wrap items-center gap-x-3">
 					{originalPrice && (
-						<Typography variant="display" as="span" className="relative inline-block text-neutral-400">
+						<Typography variant="display" as="span" className="relative inline-block text-neutral-600">
 							{formatRupiah(originalPrice)}
 
 							<span className="-origin-center pointer-events-none absolute top-1/2 left-0 h-1 w-full rotate-6 bg-red-400" />

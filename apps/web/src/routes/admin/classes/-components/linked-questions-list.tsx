@@ -117,7 +117,7 @@ function LinkedQuestionItem({
 					<Button
 						variant="ghost"
 						size="icon"
-						aria-label="Hapus soal dari paket"
+						aria-label={`Hapus soal ${question.questionId} dari paket`}
 						className="text-muted-foreground hover:text-destructive shrink-0"
 						disabled={removeMutation.isPending}
 					>

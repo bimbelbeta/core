@@ -70,7 +70,7 @@ function TryoutHeader({ creditBalance, level }: { creditBalance: number; level: 
 					<Typography variant="title" className="leading-tight text-white">
 						{currentLevel.title}
 					</Typography>
-					<Typography className="leading-5 text-black">{currentLevel.description}</Typography>
+					<Typography className="leading-5 text-white">{currentLevel.description}</Typography>
 
 					{creditBalance > 0 ? (
 						<div className="mt-3 inline-flex items-center gap-2 rounded-full bg-black/25 px-4 py-2">
