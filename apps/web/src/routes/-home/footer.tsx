@@ -74,7 +74,7 @@ export default function Footer() {
 									target="_blank"
 									rel="noopener noreferrer"
 									aria-label={social.label}
-									className={cn(buttonVariants({ size: "icon" }), "bg-secondary-700 hover:bg-secondary-700/90")}
+									className={cn(buttonVariants({ size: "icon" }), "bg-secondary-800 hover:bg-secondary-900")}
 								>
 									<social.icon className="size-5" weight="bold" />
 								</a>

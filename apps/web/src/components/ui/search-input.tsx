@@ -14,6 +14,9 @@ export function SearchInput({ value, onChange, debounceMs = 500, className, ...p
 	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	useEffect(() => {
+		if (timeoutRef.current) {
+			clearTimeout(timeoutRef.current);
+		}
 		setLocalValue(value);
 	}, [value]);
 

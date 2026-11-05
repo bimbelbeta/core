@@ -58,6 +58,24 @@ describe("SearchInput", () => {
 		expect(calls).toEqual(["abc"]);
 	});
 
+	test("a prop-driven value change cancels the pending debounce", async () => {
+		const calls: string[] = [];
+		const view = (value: string) =>
+			createElement(SearchInput, { value, onChange: (v: string) => calls.push(v), debounceMs: 30 });
+		const { rerender } = render(view("abc"));
+		const input = document.querySelector("input");
+		if (!input) throw new Error("no input");
+
+		await type(input, "xyz");
+		await act(async () => {
+			rerender(view("def"));
+		});
+		await act(async () => {
+			await settle(60);
+		});
+		expect(calls).toEqual([]);
+	});
+
 	test("clearing within the debounce window does not re-apply the stale query", async () => {
 		const { calls, input } = renderSearch();
 		await type(input, "abc");
