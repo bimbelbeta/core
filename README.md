@@ -150,7 +150,7 @@ The database uses PostgreSQL with Drizzle ORM. Run database commands from the re
 
 ### Local development
 
-Use `db:push` to apply the current schema directly to a local development database:
+`db:push` is for development only. Do not run it against production or any shared database. Use it to apply the current schema directly to a local development database:
 
 ```bash
 bun run db:push
@@ -171,16 +171,15 @@ bun run db:down
 
 ### Production and shared databases
 
-Do not use `db:reset` against production. Avoid using `db:push` on a live database unless the change has been reviewed and the project owner explicitly accepts the risk.
-
-For production schema changes, generate and review a Drizzle migration, then apply it:
+Production migrations never run `db:push` or `db:reset`. For production schema changes, generate and review a Drizzle migration locally:
 
 ```bash
 bun run db:generate
-bun run db:migrate
 ```
 
-Back up the database, verify the target connection, and test the migration before applying it to production. The [database update guide](database_update.md) contains the detailed referral-code migration procedure and manual SQL fallback.
+Commit the generated files under `packages/db/src/migrations`. The `Build` GitHub Actions workflow (`.github/workflows/build.yml`) detects any change in that directory and runs `bun run db:migrate` against production with the `DATABASE_URL` secret; the build and deploy jobs wait on it. No manual migration step is needed for production.
+
+Back up the database and test the migration against a copy before merging.
 
 ## Project Structure
 
@@ -195,7 +194,6 @@ core/
 │   ├── config/       # Shared TypeScript configuration
 │   ├── contract/     # API contracts, schemas, and error definitions
 │   └── db/           # Drizzle schema, migrations, and database utilities
-├── database_update.md # Detailed database migration notes
 ├── patch_notes.md     # Feature changes and maintenance history
 └── package.json       # Workspace scripts and package manager configuration
 ```
@@ -207,7 +205,6 @@ Keep shared database logic in `packages/db` or `packages/api/src/lib`, API route
 The following documents provide additional context:
 
 - [Patch notes](patch_notes.md): implementation history, feature-specific behavior, deployment actions, and known limitations
-- [Database update guide](database_update.md): production-safe schema migration instructions and referral-code SQL
 - [Agent guidelines](AGENTS.md): repository conventions for API, database, frontend, validation, and build workflows
 
 For implementation details, start with the relevant area:
@@ -243,15 +240,15 @@ For implementation details, start with the relevant area:
 
 ### Database and authentication
 
-| Command                 | Purpose                                        |
-| ----------------------- | ---------------------------------------------- |
-| `bun run db:push`       | Apply the current schema to a local database   |
-| `bun run db:generate`   | Generate Drizzle migration files               |
-| `bun run db:migrate`    | Apply generated migrations                     |
-| `bun run db:studio`     | Open Drizzle Studio                            |
-| `bun run db:seed`       | Insert seed data                               |
-| `bun run db:reset`      | Reset and reseed a local database; destructive |
-| `bun run auth:generate` | Generate Better Auth database artifacts        |
+| Command                 | Purpose                                                        |
+| ----------------------- | -------------------------------------------------------------- |
+| `bun run db:push`       | Development only: apply the current schema to a local database |
+| `bun run db:generate`   | Generate Drizzle migration files                               |
+| `bun run db:migrate`    | Apply generated migrations (CI/CD in production)               |
+| `bun run db:studio`     | Open Drizzle Studio                                            |
+| `bun run db:seed`       | Insert seed data                                               |
+| `bun run db:reset`      | Reset and reseed a local database; destructive                 |
+| `bun run auth:generate` | Generate Better Auth database artifacts                        |
 
 ## Troubleshooting
 
@@ -278,7 +275,7 @@ The current session caching behavior may require a page reload after redeeming a
 
 ### A schema change is needed in production
 
-Do not reset the database. Review the generated migration, back up production data, and follow [database_update.md](database_update.md) for the documented production procedure.
+Do not reset or push the database. Generate and review a migration and back up production data. Committed migrations under `packages/db/src/migrations` are applied automatically by the `Build` workflow.
 
 ## Contribution Workflow
 
