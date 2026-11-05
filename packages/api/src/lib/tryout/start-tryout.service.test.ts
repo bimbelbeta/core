@@ -162,6 +162,19 @@ describe("start tryout service", () => {
 		expect(inserts.find((insert) => insert.table === "credit_transaction")).toBeUndefined();
 	});
 
+	test("does not spend the code quota when a credit pays for the attempt", async () => {
+		const { trx, inserts, updates } = makeMockTrx();
+		const result = await startTryout(
+			{ id: 1, accessCode: "CODE", useCredit: true },
+			user,
+			deps({ runInTransaction: async (fn) => fn(trx as never) }),
+		);
+
+		expect(result).toMatchObject({ usedCredit: true, usedAccessCode: false, accessCodeId: null });
+		expect(updates.find((update) => update.table === "tryout_access_code")).toBeUndefined();
+		expect(inserts.find((insert) => insert.table === "credit_transaction")).toBeDefined();
+	});
+
 	test("aborts the whole start when the access code quota is exhausted", async () => {
 		const { trx, inserts } = makeMockTrx({ quotaLeft: false });
 		await expect(
