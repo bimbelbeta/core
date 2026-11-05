@@ -63,11 +63,11 @@ export function SearchProgramTab({ onProgramSelect }: SearchProgramTabProps) {
 									<BookOpenIcon className="text-muted-foreground group-hover:text-primary size-4 transition-colors" />
 								</div>
 								<div className="min-w-0 flex-1">
-									<Typography variant="overline" className="truncate">
+									<Typography variant="overline" as="span" className="truncate">
 										{prog.name}
 									</Typography>
 									{prog.description && (
-										<Typography variant="caption" className="truncate">
+										<Typography variant="caption" as="span" className="truncate">
 											{prog.description}
 										</Typography>
 									)}

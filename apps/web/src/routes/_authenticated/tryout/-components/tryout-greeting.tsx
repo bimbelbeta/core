@@ -83,7 +83,7 @@ export function TryoutGreeting({ countdownProps }: TryoutGreetingProps) {
 					{data.currentSubtest?.name}
 				</Typography>
 				{data.currentSubtest.description && (
-					<Typography variant="subtitle1" tone="muted">
+					<Typography variant="body" tone="muted">
 						{data.currentSubtest.description}
 					</Typography>
 				)}

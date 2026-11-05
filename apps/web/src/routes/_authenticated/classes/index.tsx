@@ -13,8 +13,7 @@ import { SearchInput } from "@/components/ui/search-input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
-import type { SubjectCategory } from "@/lib/schemas";
-import { subjectCategorySchema } from "@/lib/schemas";
+import { type SubjectCategory, subjectCategorySchema } from "@/lib/schemas";
 import { createMeta } from "@/lib/seo-utils";
 
 const searchSchema = type({

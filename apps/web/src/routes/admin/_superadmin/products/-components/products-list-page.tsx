@@ -18,6 +18,7 @@ import {
 } from "@/components/admin/admin-table";
 import { AdminTablePaginationWrapper } from "@/components/admin/admin-table-toolbar";
 import { PaginationButtons } from "@/components/admin/pagination-buttons";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SearchInput } from "@/components/ui/search-input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -154,16 +155,9 @@ export function ProductsListPage() {
 												</AdminTableCell>
 
 												<AdminTableCell>
-													<span
-														className={cn(
-															"rounded-full px-2 py-0.5 text-xs font-medium capitalize",
-															product.type === "subscription"
-																? "bg-blue-100 text-blue-700"
-																: "bg-green-100 text-green-700",
-														)}
-													>
+													<Badge variant={product.type === "subscription" ? "info" : "success"} className="capitalize">
 														{product.type}
-													</span>
+													</Badge>
 												</AdminTableCell>
 
 												<AdminTableCell>
