@@ -37,7 +37,7 @@ jobs:
         working-directory: packages/db
         run: |
           bunx drizzle-kit generate
-          git diff --exit-code src/migrations
+          test -z "$(git status --porcelain src/migrations)"
       - run: bun build:packages
       - run: bun check-types
       - run: bunx biome check .
