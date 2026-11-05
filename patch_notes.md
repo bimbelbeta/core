@@ -19,7 +19,7 @@ Keep provider-specific payment behaviour in one adapter so adding a provider doe
 
 If the dashboard keeps the old URL, every notification 404s, orders stay `pending`, and no premium time or credits are granted.
 
-`MIDTRANS_SERVER_KEY` is now required. Webhook verification fails instead of accepting signatures computed against an empty key. `MIDTRANS_CLIENT_KEY` is no longer read on the server at all; it is a web-only value and the checkout call authenticates with the server key alone. Remove it from the API host if it is set.
+`MIDTRANS_SERVER_KEY` is now required. Webhook verification fails instead of accepting signatures computed against an empty key. `MIDTRANS_CLIENT_KEY` is no longer read on the server at all; the checkout call authenticates with the server key alone. Remove it from the API host if it is set, and set the web host's client key as `VITE_MIDTRANS_CLIENT_KEY` (it was previously named without the prefix and never reached the browser).
 
 ### Code Changes & Logic
 

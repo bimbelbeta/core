@@ -51,7 +51,7 @@ export const createNotificationService = (deps: NotificationServiceDependencies)
 			return { status: outcome.action } as const;
 		}
 
-		if (outcome.action === "process_success" && existingTransaction) {
+		if (outcome.action === "process_success") {
 			const applied = await deps
 				.process({ orderId, userId: outcome.userId, existingTransaction, purchaseDate, benefits: outcome.benefits })
 				.catch((error) => {

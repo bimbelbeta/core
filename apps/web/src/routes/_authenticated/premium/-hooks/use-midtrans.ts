@@ -17,8 +17,8 @@ export function useMidtrans() {
 			: "https://app.sandbox.midtrans.com/snap/snap.js";
 		const scriptTag = document.createElement("script");
 		scriptTag.src = midtransScriptUrl;
-		const myMidtransClientKey = (process.env.MIDTRANS_CLIENT_KEY ?? import.meta.env.MIDTRANS_CLIENT_KEY) || "";
-		scriptTag.setAttribute("data-client-key", myMidtransClientKey);
+		const midtransClientKey = import.meta.env.VITE_MIDTRANS_CLIENT_KEY ?? "";
+		scriptTag.setAttribute("data-client-key", midtransClientKey);
 		document.body.appendChild(scriptTag);
 		return () => {
 			document.body.removeChild(scriptTag);

@@ -22,7 +22,8 @@ const notification = pub.transaction.notification.handler(async ({ input, errors
 	let verified: boolean;
 	try {
 		verified = verifyNotification(input);
-	} catch {
+	} catch (error) {
+		console.error("payment notification verification failed", error);
 		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memverifikasi pembayaran." });
 	}
 
