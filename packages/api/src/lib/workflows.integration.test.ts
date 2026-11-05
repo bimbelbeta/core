@@ -416,6 +416,45 @@ describe.skipIf(!enabled)("API persistence workflows", () => {
 		expect(after!.isPremium).toBe(false);
 	});
 
+	test("lets a lapsed member start a new checkout", async () => {
+		const [plan] = await db
+			.insert(product)
+			.values({
+				name: "Renewal",
+				slug: `${id}-renewal`,
+				price: "10000",
+				type: "subscription",
+				variant: "monthly",
+				durationDays: 30,
+			})
+			.returning();
+		products.push(plan!.id);
+		const expiredAt = new Date("2020-01-01");
+		await db.update(user).set({ isPremium: true, premiumExpiresAt: expiredAt }).where(eq(user.id, id));
+
+		const snap = spyOn(Snap.prototype, "createTransaction").mockResolvedValue({
+			token: "renewal-token",
+			redirect_url: "https://example.test/pay",
+		});
+		try {
+			const expiredSession = {
+				...session,
+				user: { ...session.user, isPremium: true, premiumExpiresAt: expiredAt },
+			};
+			const checkout = await call(
+				appRouter.transaction.subscribe,
+				{ slug: plan!.slug },
+				{ context: { session: expiredSession } },
+			);
+			expect(checkout).toMatchObject({ provider: "midtrans", token: "renewal-token" });
+		} finally {
+			snap.mockRestore();
+		}
+
+		const [after] = await db.select().from(user).where(eq(user.id, id));
+		expect(after!.isPremium).toBe(false);
+	});
+
 	test("rejects unauthenticated and unauthorized callers", async () => {
 		await expect(call(appRouter.tryout.start, { id: 1 }, { context: { session: null } })).rejects.toMatchObject({
 			code: "UNAUTHORIZED",
