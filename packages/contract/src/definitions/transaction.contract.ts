@@ -2,8 +2,9 @@ import { type } from "arktype";
 import { oc } from "@/lib/contract-definition";
 
 const SubscribeOutputSchema = type({
-	token: "string",
+	provider: "string",
 	redirectUrl: "string",
+	"token?": "string",
 });
 
 const NotificationOutputSchema = type({
@@ -12,6 +13,8 @@ const NotificationOutputSchema = type({
 
 const GetStatusOutputSchema = type({
 	status: "string",
+	failureCode: "string | null",
+	failureDetail: "string | null",
 	paidAt: "string | null",
 });
 
@@ -20,8 +23,6 @@ const MidtransNotificationSchema = type({
 	status_code: "string",
 	gross_amount: "string",
 	signature_key: "string",
-	transaction_status: "string",
-	"fraud_status?": "string",
 });
 
 export const transactionContract = {
@@ -36,7 +37,7 @@ export const transactionContract = {
 
 	notification: oc
 		.route({
-			path: "/transactions/notification",
+			path: "/transactions/notification/midtrans",
 			method: "POST",
 			tags: ["Payment", "Webhook"],
 		})

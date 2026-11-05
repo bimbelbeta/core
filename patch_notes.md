@@ -4,6 +4,39 @@ This document contains incremental updates, patch logs, and developer instructio
 
 ---
 
+## Payment Provider Layer
+
+### Goal
+
+Keep provider-specific payment behaviour in one adapter so adding a provider does not touch business rules.
+
+### Action Required for Developers / Admins
+
+`VITE_PAYMENTS_ENABLED` is a build-time switch, not a runtime one. Set it to `true` as a repository variable so the web image is built with payments enabled; leaving it unset ships the "Segera Hadir" buttons. It and `VITE_MIDTRANS_CLIENT_KEY` are allow-listed on the `build` task in `turbo.json`, which is also what makes them part of the cache key — without that entry Turbo strips them and a cached payments-disabled build is replayed.
+
+**Update the Midtrans notification URL before deploying.** Nothing in the repository configures it; it lives in the Midtrans dashboard. The path gained a provider segment:
+
+- Old: `https://<server-host>/api-reference/transactions/notification`
+- New: `https://<server-host>/api-reference/transactions/notification/midtrans`
+
+If the dashboard keeps the old URL, every notification 404s, orders stay `pending`, and no premium time or credits are granted.
+
+`MIDTRANS_SERVER_KEY` is now required. Webhook verification fails instead of accepting signatures computed against an empty key. `MIDTRANS_CLIENT_KEY` is no longer read on the server at all; the checkout call authenticates with the server key alone. Remove it from the API host if it is set, and pass the web client key as the `VITE_MIDTRANS_CLIENT_KEY` build arg (it is inlined at build time, so a runtime env var is not enough; it was previously named without the prefix and never reached the browser).
+
+### Code Changes & Logic
+
+- **Providers**: `packages/api/src/lib/transactions/providers/midtrans.ts` owns checkout creation, signature verification, and status fetching. It maps Midtrans statuses to `paid`, `pending`, `failed`, or `unknown`, and maps provider failures to internal codes (`INVALID_PAYLOAD`, `PROVIDER_UNAVAILABLE`, `PROVIDER_REJECTED`, `CONFIGURATION_ERROR`).
+- **Composition**: `packages/api/src/lib/transactions/composition.ts` is the only API runtime module that names a provider. _Adding_ a provider costs one adapter, one contract route, one procedure reusing the same error mapping, and composition wiring — the mapping is transport glue and stays at the boundary. _Running two at once_ is a different job: webhooks are already per-provider, but checkout is a single active provider, so `subscribe` would need a client-visible provider selector.
+- **Replay**: the success transition claims the order with `paid_at IS NULL`, so a repeated or concurrent notification cannot grant benefits twice.
+- **Transaction facts**: the row records `provider` (which gateway owns the order, so a second adapter is routable), `providerTransactionId`, `amountPaid`, `paymentMethod`, and `expiresAt`. `amountPaid` is the amount the gateway reports for the order, which for Midtrans always equals `grossAmount`; the check that refuses a mismatched amount is therefore a tripwire for a bug in our own order creation, not protection against a wrong settlement.
+- **Failure reasons**: a failed payment stores a provider-agnostic code on the transaction and `transaction.status` returns it as `failureCode`. Codes are `insufficient_balance`, `limit_exceeded`, `card_declined`, `fraud_rejected`, `payment_expired`, `payment_cancelled`, `provider_error`, `unknown`. Midtrans publishes no failure-code enumeration, so the adapter maps `deny`/`cancel`/`expire` directly and treats `status_message` and `channel_response_message` as best-effort hints. The provider's own message is stored as `failureDetail` so nothing is lost when the code falls back to `unknown`. The user-facing copy is a frontend concern and is not implemented yet.
+- **Contracts**: `subscribe` returns `provider` and an optional `token`; clients fall back to `redirectUrl` when no token is returned.
+- **Renewal**: `subscribe` and `transaction.status` now run the expired-premium check, and the premium page treats a lapsed session as non-premium, so a lapsed member can buy again instead of being told they already are one.
+- **Access codes**: sending a code together with `useCredit` now uses the credit alone, where it previously consumed both the credit and a code use.
+- **Return URL**: `CheckoutInput` carries a provider-neutral `returnUrl`, which the Midtrans adapter maps to its `finish`, `error`, and `pending` callbacks. It points at `/premium`, so a redirect-based payment returns to the pricing page.
+
+---
+
 ## Direct Login with Username or Email
 
 ### Goal
@@ -417,3 +450,11 @@ Fix the 500/output validation issue on the Tryout dashboard after introducing le
   - `TKA` shows only `SD`, `SMP`, and `SMA`
   - `UTBK` shows only `UTBK`
 - **Logic**: The TO list is still pulled from the existing published tryout endpoint, but the page now narrows the visible cards based on the selected top-level tab.
+
+## Deploy order: migrations must run before the app
+
+This patch moves every table and enum from `public` into the `app` schema. Old app code queries `public`, new app code queries `app`, so the database and the running image must not be out of step.
+
+`build.yml` now runs the migration as its first job and both image builds depend on it, so nothing ships while the schema is behind. The job only installs and migrates when the push actually touched `packages/db/src/migrations`; API-only pushes skip straight to building.
+
+Production's `drizzle.__drizzle_migrations` already records the first two migrations, so `migrate` starts at the third. Do not run `drizzle-kit push` against production: it would create empty tables in `app` and leave the real data in `public`, and the app would boot with no users and no error.

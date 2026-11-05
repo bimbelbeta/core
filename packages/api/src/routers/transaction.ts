@@ -1,111 +1,45 @@
 import { db } from "@bimbelbeta/db";
-import { product, transaction } from "@bimbelbeta/db/schema/transaction";
+import { transaction } from "@bimbelbeta/db/schema/transaction";
 import { and, eq } from "drizzle-orm";
-import { authedNoPremiumImplementer } from "@/lib/router-definition";
+import { authedImplementer } from "@/lib/router-definition";
 import { baseImplementer } from "@/lib/router-definition/base";
-import { calculatePurchaseBenefits } from "@/lib/transactions/benefits";
-import { createSubscriptionTransaction } from "@/lib/transactions/client";
-import { resolveNotificationOutcome } from "@/lib/transactions/notification-routing";
-import { processSuccessfulTransaction } from "@/lib/transactions/processor";
-import { fetchTransactionWithProduct } from "@/lib/transactions/products";
-import { updateTransactionStatus } from "@/lib/transactions/status";
-import { verifyMidtransSignature, verifyMidtransTransaction } from "@/lib/transactions/verification";
+import { notificationService, subscriptionService, verifyNotification } from "@/lib/transactions/composition";
 
 const pub = baseImplementer;
-const authed = authedNoPremiumImplementer;
+const authed = authedImplementer;
 
 const subscribe = authed.transaction.subscribe.handler(async ({ input, context, errors }) => {
-	const [plan] = await db.select().from(product).where(eq(product.slug, input.slug)).limit(1);
-	if (!plan) throw errors.NOT_FOUND({ message: "Produk tidak ditemukan." });
-
-	if (plan.variant === "fixed_date" || plan.variant === "monthly") {
-		if (context.session.user.isPremium)
-			throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah menjadi member premium." });
-	}
-
-	const grossAmount = plan.price;
-	const orderId = `tx_${crypto.randomUUID()}`;
-
-	const [createdTransaction] = await db
-		.insert(transaction)
-		.values({
-			id: orderId,
-			productId: plan.id,
-			grossAmount: String(grossAmount),
-			userId: context.session.user.id,
-		})
-		.returning();
-	if (!createdTransaction)
-		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal membuat transaksi. Silahkan coba lagi." });
-
-	return await createSubscriptionTransaction({
-		id: orderId,
-		session: context.session,
-		name: plan.name,
-		price: plan.price,
-	}).catch(() => {
+	const result = await subscriptionService.subscribe(input.slug, context.session.user);
+	if (result.status === "not_found") throw errors.NOT_FOUND({ message: "Produk tidak ditemukan." });
+	if (result.status === "already_premium")
+		throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah menjadi member premium." });
+	if (result.status === "payment_failed")
 		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memproses pembayaran. Silahkan coba lagi." });
-	});
+	return result.checkout;
 });
 
 const notification = pub.transaction.notification.handler(async ({ input, errors }) => {
-	const { order_id, status_code, gross_amount, signature_key } = input;
-	const purchaseDate = new Date();
-
-	if (!verifyMidtransSignature(order_id, status_code, gross_amount, signature_key)) {
-		throw errors.UNAUTHORIZED({ message: "Invalid webhook signature." });
+	let verified: boolean;
+	try {
+		verified = verifyNotification(input);
+	} catch (error) {
+		console.error("payment notification verification failed", error);
+		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memverifikasi pembayaran." });
 	}
 
-	const { transaction_status: transactionStatus, fraud_status: fraudStatus } = await verifyMidtransTransaction(
-		order_id,
-	).catch(() => {
+	if (!verified) throw errors.UNAUTHORIZED({ message: "Invalid webhook signature." });
+
+	const result = await notificationService.process(input.order_id, new Date());
+	if (result.status === "verification_failed")
 		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memverifikasi status transaksi." });
-	});
+	if (result.status === "processing_failed")
+		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memproses transaksi." });
+	if (result.status === "update_failed")
+		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memperbarui status transaksi." });
+	if (result.status === "amount_mismatch")
+		throw errors.INTERNAL_SERVER_ERROR({ message: "Nominal pembayaran tidak sesuai." });
 
-	const existingTransaction = await fetchTransactionWithProduct(order_id);
-
-	const outcome = resolveNotificationOutcome(
-		transactionStatus,
-		fraudStatus,
-		existingTransaction,
-		purchaseDate,
-		calculatePurchaseBenefits,
-	);
-
-	if (outcome.action === "not_found") {
-		return { status: "not_found" };
-	}
-
-	if (outcome.action === "already_processed") {
-		return { status: "already_processed" };
-	}
-
-	if (outcome.action === "user_deleted") {
-		return { status: "user_deleted" };
-	}
-
-	if (outcome.action === "process_success") {
-		await db
-			.transaction(async (trx) => {
-				await processSuccessfulTransaction({
-					trx,
-					orderId: order_id,
-					userId: outcome.userId,
-					existingTransaction: existingTransaction!,
-					purchaseDate,
-					benefits: outcome.benefits,
-				});
-			})
-			.catch(() => {
-				throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memproses transaksi." });
-			});
-	} else if (outcome.action === "update_status") {
-		await updateTransactionStatus(order_id, outcome.status).catch(() => {
-			throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memperbarui status transaksi." });
-		});
-	}
-
-	return { status: "ok" };
+	return result;
 });
 
 const status = authed.transaction.status.handler(async ({ input, context, errors }) => {
@@ -124,6 +58,8 @@ const status = authed.transaction.status.handler(async ({ input, context, errors
 	const row = tx[0]!;
 	return {
 		status: row.status,
+		failureCode: row.failureCode,
+		failureDetail: row.failureDetail,
 		paidAt: row.paidAt?.toISOString() ?? null,
 	};
 });

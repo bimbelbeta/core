@@ -4,6 +4,7 @@ import { createRatelimitMiddleware } from "@orpc/experimental-ratelimit";
 import { eq } from "drizzle-orm";
 import { ROLES } from "@/lib/roles";
 import { baseImplementer } from "@/lib/router-definition/base";
+import { assertAdmin, assertSuperAdmin, isPremiumExpired } from "@/lib/router-definition/guards";
 import { getFreeRatelimiter, getNoOpRatelimiter, getPremiumRatelimiter } from "@/lib/router-definition/rate-limiter";
 
 export const rateLimit = createRatelimitMiddleware({
@@ -16,31 +17,31 @@ export const rateLimit = createRatelimitMiddleware({
 });
 
 export const requireAdmin = baseImplementer.middleware(async ({ context, next, errors }) => {
-	const role = context.session?.user.role;
-	if (role !== ROLES.ADMIN && role !== ROLES.SUPER_ADMIN) throw errors.UNAUTHORIZED();
+	assertAdmin(context.session?.user.role, errors);
 
 	return next();
 });
 
 export const requireSuperAdmin = baseImplementer.middleware(async ({ context, next, errors }) => {
-	if (context.session?.user.role !== ROLES.SUPER_ADMIN) throw errors.UNAUTHORIZED();
+	assertSuperAdmin(context.session?.user.role, errors);
 
 	return next();
 });
 
 export const requireAuth = baseImplementer.middleware(async ({ context, next, errors }) => {
-	if (!context.session?.user) throw errors.UNAUTHORIZED();
+	const session = context.session;
+	if (!session?.user) throw errors.UNAUTHORIZED();
 
 	return next({
 		context: {
-			session: context.session,
+			session,
 		},
 	});
 });
 
 export const revokeExpiredPremium = baseImplementer.middleware(async ({ context, next }) => {
 	const sess = context.session;
-	if (sess?.user.isPremium && sess.user.premiumExpiresAt && sess.user.premiumExpiresAt.getTime() < Date.now()) {
+	if (sess && isPremiumExpired(sess.user, Date.now())) {
 		await db.update(user).set({ isPremium: false }).where(eq(user.id, sess.user.id));
 
 		return next({
@@ -54,19 +55,4 @@ export const revokeExpiredPremium = baseImplementer.middleware(async ({ context,
 	}
 
 	return next();
-});
-
-export const requirePremium = baseImplementer.middleware(async ({ context, next, errors }) => {
-	if (
-		!context.session?.user.isPremium &&
-		context.session?.user.role !== ROLES.ADMIN &&
-		context.session?.user.role !== ROLES.SUPER_ADMIN
-	)
-		throw errors.FORBIDDEN();
-
-	return next({
-		context: {
-			session: context.session,
-		},
-	});
 });

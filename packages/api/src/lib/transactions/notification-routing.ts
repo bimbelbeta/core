@@ -1,39 +1,40 @@
-import type {
-	MidtransFraudStatus,
-	MidtransTransactionStatus,
-	PurchaseBenefits,
-	TransactionWithProduct,
-} from "@/lib/transactions/types";
+import type { PaymentEvent, PaymentFailureCode } from "@/lib/transactions/failures";
+import type { PurchaseBenefits, TransactionWithProduct } from "@/lib/transactions/types";
 
 export type NotificationOutcome =
 	| { action: "already_processed" }
-	| { action: "not_found" }
+	| { action: "amount_mismatch"; expected: string; received: string }
 	| { action: "user_deleted" }
 	| { action: "process_success"; userId: string; benefits: PurchaseBenefits }
-	| { action: "update_status"; status: "failed" | "pending" }
+	| { action: "update_status"; status: "failed"; failure?: PaymentFailureCode; detail?: string }
+	| { action: "update_status"; status: "pending" }
 	| { action: "noop" };
 
 /**
- * Pure function that determines what action to take for a Midtrans webhook
- * notification based on transaction status, fraud status, and existing state.
- * Extracted for testability — all I/O is handled by the caller.
+ * Decides what a payment notification should do, without touching the database.
+ *
+ * Pure so the decision table can be tested directly: unknown orders and already-paid orders are
+ * ignored, a paid status grants benefits once, failed and pending statuses only update the stored
+ * status, and anything else is a no-op.
+ *
+ * @returns The single action to take, including the benefits to grant when the payment is paid.
  */
 export function resolveNotificationOutcome(
-	transactionStatus: MidtransTransactionStatus,
-	fraudStatus: MidtransFraudStatus,
-	existingTransaction: TransactionWithProduct | null,
+	event: PaymentEvent,
+	existingTransaction: TransactionWithProduct,
 	purchaseDate: Date,
 	calcBenefits: (tx: TransactionWithProduct, date: Date) => PurchaseBenefits,
 ): NotificationOutcome {
-	if (!existingTransaction) {
-		return { action: "not_found" };
-	}
-
 	if (existingTransaction.tx.paidAt) {
 		return { action: "already_processed" };
 	}
 
-	if (transactionStatus === "settlement" || (transactionStatus === "capture" && fraudStatus === "accept")) {
+	if (event.status === "paid") {
+		const expected = existingTransaction.tx.grossAmount;
+		if (event.amountPaid && expected && Number(event.amountPaid) !== Number(expected)) {
+			return { action: "amount_mismatch", expected, received: event.amountPaid };
+		}
+
 		const userId = existingTransaction.tx.userId;
 		if (!userId) {
 			return { action: "user_deleted" };
@@ -42,11 +43,11 @@ export function resolveNotificationOutcome(
 		return { action: "process_success", userId, benefits };
 	}
 
-	if (transactionStatus === "cancel" || transactionStatus === "deny" || transactionStatus === "expire") {
-		return { action: "update_status", status: "failed" };
+	if (event.status === "failed") {
+		return { action: "update_status", status: "failed", failure: event.failure, detail: event.detail };
 	}
 
-	if (transactionStatus === "pending") {
+	if (event.status === "pending") {
 		return { action: "update_status", status: "pending" };
 	}
 

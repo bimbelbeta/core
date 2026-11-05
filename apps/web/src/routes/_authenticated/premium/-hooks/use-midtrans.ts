@@ -1,13 +1,14 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { PAYMENTS_ENABLED } from "@/lib/billing-config";
 import { orpc } from "@/lib/orpc";
 
 export function useMidtrans() {
 	const queryClient = useQueryClient();
 	const transactionMutation = useMutation(orpc.transaction.subscribe.mutationOptions());
 	const [token, setToken] = useState<string | undefined>();
-	const enabled = import.meta.env.VITE_PAYMENTS_ENABLED === "true";
+	const enabled = PAYMENTS_ENABLED;
 
 	useEffect(() => {
 		if (!enabled) return;
@@ -17,8 +18,8 @@ export function useMidtrans() {
 			: "https://app.sandbox.midtrans.com/snap/snap.js";
 		const scriptTag = document.createElement("script");
 		scriptTag.src = midtransScriptUrl;
-		const myMidtransClientKey = (process.env.MIDTRANS_CLIENT_KEY ?? import.meta.env.MIDTRANS_CLIENT_KEY) || "";
-		scriptTag.setAttribute("data-client-key", myMidtransClientKey);
+		const midtransClientKey = import.meta.env.VITE_MIDTRANS_CLIENT_KEY ?? "";
+		scriptTag.setAttribute("data-client-key", midtransClientKey);
 		document.body.appendChild(scriptTag);
 		return () => {
 			document.body.removeChild(scriptTag);
@@ -56,7 +57,8 @@ export function useMidtrans() {
 
 		try {
 			const data = await transactionMutation.mutateAsync({ slug });
-			setToken(data.token);
+			if (data.token) setToken(data.token);
+			else window.location.assign(data.redirectUrl);
 		} catch (err) {
 			if (err instanceof Error) {
 				toast.error(err.message);
