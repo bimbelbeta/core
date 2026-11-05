@@ -27,6 +27,7 @@ If the dashboard keeps the old URL, every notification 404s, orders stay `pendin
 - **Composition**: `packages/api/src/lib/transactions/composition.ts` is the only module that names a provider.
 - **Replay**: the success transition claims the order with `paid_at IS NULL`, so a repeated or concurrent notification cannot grant benefits twice.
 - **Contracts**: `subscribe` returns `provider` and an optional `token`; clients fall back to `redirectUrl` when no token is returned.
+- **Renewal**: `subscribe` and `transaction.status` now run the expired-premium check, so a lapsed member can buy again instead of being told they already are one.
 - **Return URL**: `CheckoutInput` carries a provider-neutral `returnUrl`, which the Midtrans adapter maps to its `finish`, `error`, and `pending` callbacks. It points at `/premium`, so a redirect-based payment returns to the pricing page.
 
 ---
