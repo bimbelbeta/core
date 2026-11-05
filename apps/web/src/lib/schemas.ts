@@ -89,3 +89,9 @@ export const variantConfig = {
 		bgColor: "bg-green-100",
 	},
 } as const;
+
+export const QUESTION_TYPE_BADGE = {
+	multiple_choice: "default",
+	multiple_choice_complex: "secondary",
+	essay: "outline",
+} as const satisfies Record<QuestionType, "default" | "secondary" | "outline" | "destructive">;

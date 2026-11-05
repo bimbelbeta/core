@@ -153,7 +153,7 @@ export function BulkAddQuestionsDialog({
 					<div className="flex flex-col gap-2 border-b pb-2 sm:flex-row sm:items-center sm:justify-between">
 						<div className="flex flex-wrap items-center gap-2">
 							<Button variant="tertiary" size="sm" onClick={handleSelectAll}>
-								{allSelected ? "Batal Pilih Semua" : "Pilih Semua"}
+								{allSelected ? "Batal Pilih yang Tampil" : "Pilih Semua yang Tampil"}
 							</Button>
 							<span className="text-muted-foreground text-sm">({selectedQuestionIds.length} dipilih)</span>
 						</div>

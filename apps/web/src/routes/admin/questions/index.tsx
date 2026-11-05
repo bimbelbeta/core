@@ -47,6 +47,7 @@ import { useBulkSelection } from "@/hooks/use-bulk-selection";
 import { extractTextFromTiptap, truncateText } from "@/lib/content-text";
 import { orpc } from "@/lib/orpc";
 import {
+	QUESTION_TYPE_BADGE,
 	QUESTION_TYPE_LABELS,
 	questionTypeSchema,
 	SUBJECT_CATEGORY_LABELS,
@@ -67,12 +68,6 @@ export const Route = createFileRoute("/admin/questions/")({
 	component: QuestionsListPage,
 	validateSearch: searchSchema,
 });
-
-const QUESTION_TYPE_BADGE_VARIANTS: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
-	multiple_choice: "default",
-	multiple_choice_complex: "secondary",
-	essay: "outline",
-};
 
 function QuestionsListPage() {
 	const { searchParams, handleSearch, handleTypeChange, handleCategoryChange, handleNext, handlePrevious } =
@@ -256,7 +251,7 @@ function QuestionsListPage() {
 											</div>
 										</AdminTableCell>
 										<AdminTableCell>
-											<Badge variant={QUESTION_TYPE_BADGE_VARIANTS[q.type] ?? "outline"}>
+											<Badge variant={QUESTION_TYPE_BADGE[q.type] ?? "outline"}>
 												{QUESTION_TYPE_LABELS[q.type] ?? q.type}
 											</Badge>
 										</AdminTableCell>

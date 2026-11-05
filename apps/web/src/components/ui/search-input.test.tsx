@@ -63,9 +63,9 @@ describe("SearchInput", () => {
 		await type(input, "abc");
 
 		const clear = document.querySelector('button[aria-label="Hapus pencarian"]');
-		expect(clear).not.toBeNull();
+		expect(clear).toBeInstanceOf(dom.window.HTMLButtonElement);
 		await act(async () => {
-			(clear as HTMLElement).click();
+			if (clear instanceof dom.window.HTMLButtonElement) clear.click();
 		});
 
 		await act(async () => {

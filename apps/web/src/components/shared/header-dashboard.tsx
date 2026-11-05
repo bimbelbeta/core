@@ -167,7 +167,7 @@ export function HeaderDashboard() {
 											key={link.to}
 											to={link.to}
 											className={`hover:bg-accent rounded-md px-4 py-3 text-lg ${
-												isActive ? "bg-secondary-100/50 text-secondary-700 font-bold" : "text-secondary-900 font-medium"
+												isActive ? "bg-secondary-100/50 text-secondary-800 font-bold" : "text-secondary-900 font-medium"
 											}`}
 											onClick={() => setMobileMenuOpen(false)}
 										>

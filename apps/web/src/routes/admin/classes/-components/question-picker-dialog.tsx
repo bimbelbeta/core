@@ -14,22 +14,23 @@ import { Typography } from "@/components/ui/typography";
 import { useBulkSelection } from "@/hooks/use-bulk-selection";
 import { orpc } from "@/lib/orpc";
 import {
+	QUESTION_TYPE_BADGE,
 	QUESTION_TYPE_LABELS,
+	type QuestionType,
+	questionTypeSchema,
 	SUBJECT_CATEGORY_LABELS,
 	type SubjectCategory,
 	subjectCategorySchema,
 } from "@/lib/schemas";
 
 type CategoryFilter = "all" | SubjectCategory;
-type TypeFilter = "all" | "multiple_choice" | "essay";
+type TypeFilter = "all" | QuestionType;
 
 function isCategoryFilter(v: string): v is CategoryFilter {
 	return v === "all" || subjectCategorySchema.allows(v);
 }
 
-function isTypeFilter(v: string): v is TypeFilter {
-	return ["all", "multiple_choice", "essay"].includes(v);
-}
+const isTypeFilter = (v: string): v is TypeFilter => v === "all" || questionTypeSchema.allows(v);
 
 interface QuestionPickerDialogProps {
 	open: boolean;
@@ -180,8 +181,11 @@ export function QuestionPickerDialog({
 							</SelectTrigger>
 							<SelectContent>
 								<SelectItem value="all">Semua Tipe</SelectItem>
-								<SelectItem value="multiple_choice">{QUESTION_TYPE_LABELS.multiple_choice}</SelectItem>
-								<SelectItem value="essay">{QUESTION_TYPE_LABELS.essay}</SelectItem>
+								{Object.entries(QUESTION_TYPE_LABELS).map(([value, label]) => (
+									<SelectItem key={value} value={value}>
+										{label}
+									</SelectItem>
+								))}
 							</SelectContent>
 						</Select>
 					</div>
@@ -245,11 +249,8 @@ export function QuestionPickerDialog({
 													</div>
 												</div>
 												<div className="flex flex-wrap items-center gap-1.5">
-													<Badge
-														variant={question.type === "multiple_choice" ? "default" : "outline"}
-														className="text-xs"
-													>
-														{question.type === "multiple_choice" ? "PG" : QUESTION_TYPE_LABELS.essay}
+													<Badge variant={QUESTION_TYPE_BADGE[question.type]} className="text-xs">
+														{QUESTION_TYPE_LABELS[question.type]}
 													</Badge>
 													{question.tags?.slice(0, 3).map((tag) => (
 														<Badge key={tag} variant="secondary" className="text-xs">
