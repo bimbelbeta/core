@@ -4,7 +4,12 @@ function isPrefixOf<T>(prefix: readonly T[], values: readonly T[]): boolean {
 }
 
 export function shouldClearSelection<T>(previous: readonly T[], next: readonly T[]): boolean {
-	if (previous.length === 0) return false;
-	if (isPrefixOf(previous, next)) return false;
-	return previous.join(",") !== next.join(",");
+	return previous.length > 0 && !isPrefixOf(previous, next);
+}
+
+export function resolveBulkSelection<T>(shown: T[], selected: T[], incoming: T[]) {
+	return {
+		shown: incoming,
+		selected: shouldClearSelection(shown, incoming) ? [] : selected,
+	};
 }

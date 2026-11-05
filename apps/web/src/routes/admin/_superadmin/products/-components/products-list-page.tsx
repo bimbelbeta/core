@@ -24,7 +24,7 @@ import { SearchInput } from "@/components/ui/search-input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Typography } from "@/components/ui/typography";
-import { formatRelativeDate } from "@/lib/format-date";
+import { formatDateLong, formatRelativeDate } from "@/lib/format-date";
 import { formatRupiah } from "@/lib/formatter";
 import { cn } from "@/lib/utils";
 import { useProductsList } from "../-hooks/use-products-list";
@@ -169,13 +169,7 @@ export function ProductsListPage() {
 																	{formatRelativeDate(createdDate)}
 																</span>
 															</TooltipTrigger>
-															<TooltipContent>
-																{createdDate.toLocaleDateString("id-ID", {
-																	day: "numeric",
-																	month: "long",
-																	year: "numeric",
-																})}
-															</TooltipContent>
+															<TooltipContent>{formatDateLong(createdDate)}</TooltipContent>
 														</Tooltip>
 													) : (
 														<span className="text-muted-foreground text-xs">-</span>

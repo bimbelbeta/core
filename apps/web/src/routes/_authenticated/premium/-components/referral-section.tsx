@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Typography } from "@/components/ui/typography";
+import { formatDateLong } from "@/lib/format-date";
 import { useReferral } from "../-hooks/use-referral";
 
 export function ReferralSection() {
@@ -69,14 +70,8 @@ export function ReferralSection() {
 							{successData && (
 								<>
 									Akun Premium kamu aktif hingga{" "}
-									<strong>
-										{new Date(successData.premiumExpiresAt).toLocaleDateString("id-ID", {
-											day: "numeric",
-											month: "long",
-											year: "numeric",
-										})}
-									</strong>
-									. Nikmati akses penuh ke semua fitur!
+									<strong>{formatDateLong(new Date(successData.premiumExpiresAt))}</strong>. Nikmati akses penuh ke
+									semua fitur!
 								</>
 							)}
 						</DialogDescription>

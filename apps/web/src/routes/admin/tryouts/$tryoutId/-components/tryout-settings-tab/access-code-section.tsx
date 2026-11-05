@@ -158,7 +158,7 @@ export function AccessCodeSection({ tryoutId }: { tryoutId: number }) {
 												type="button"
 												size="icon"
 												variant="ghost"
-												aria-label="Salin kode akses"
+												aria-label="Salin pratinjau kode akses"
 												onClick={() => {
 													navigator.clipboard.writeText(accessCodeItem.codePreview);
 													toast.success("Kode disalin!");

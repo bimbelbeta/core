@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Typography } from "@/components/ui/typography";
 import { PAYMENTS_COMING_SOON_LABEL, PAYMENTS_ENABLED } from "@/lib/billing-config";
+import { formatDateMedium } from "@/lib/format-date";
 import { formatRupiah } from "@/lib/formatter";
 import { cn } from "@/lib/utils";
 
@@ -42,7 +43,7 @@ export function PackageCard({
 		if (variant === "fixed_date" && fixedExpiryMonth && fixedExpiryDay) {
 			const displayYear = new Date().getFullYear();
 			const date = new Date(displayYear, fixedExpiryMonth - 1, fixedExpiryDay);
-			return `s.d. ${date.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })}`;
+			return `s.d. ${formatDateMedium(date)}`;
 		}
 
 		if (variant === "monthly" && durationDays) {

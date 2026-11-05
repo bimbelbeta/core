@@ -10,7 +10,7 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { formatRelativeDate } from "@/lib/format-date";
+import { formatDateTime, formatRelativeDate } from "@/lib/format-date";
 import { getInitials } from "@/lib/formatter";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
@@ -198,15 +198,7 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 																	{formatRelativeDate(startedAt)}
 																</span>
 															</TooltipTrigger>
-															<TooltipContent>
-																{startedAt.toLocaleString("id-ID", {
-																	day: "numeric",
-																	month: "long",
-																	year: "numeric",
-																	hour: "2-digit",
-																	minute: "2-digit",
-																})}
-															</TooltipContent>
+															<TooltipContent>{formatDateTime(startedAt)}</TooltipContent>
 														</Tooltip>
 													) : (
 														<span className="text-muted-foreground text-xs">-</span>
@@ -222,15 +214,7 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 																	{formatRelativeDate(completedAt)}
 																</span>
 															</TooltipTrigger>
-															<TooltipContent>
-																{completedAt.toLocaleString("id-ID", {
-																	day: "numeric",
-																	month: "long",
-																	year: "numeric",
-																	hour: "2-digit",
-																	minute: "2-digit",
-																})}
-															</TooltipContent>
+															<TooltipContent>{formatDateTime(completedAt)}</TooltipContent>
 														</Tooltip>
 													) : (
 														<span className="text-muted-foreground text-xs">-</span>
