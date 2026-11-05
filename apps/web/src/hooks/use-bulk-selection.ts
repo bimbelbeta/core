@@ -2,6 +2,13 @@ import { useState } from "react";
 
 export function useBulkSelection<T extends string | number>(items: { id: T }[] | undefined) {
 	const [selectedIds, setSelectedIds] = useState<T[]>([]);
+	const signature = items?.map((item) => item.id).join(",") ?? "";
+	const [shownSignature, setShownSignature] = useState(signature);
+
+	if (shownSignature !== signature) {
+		setShownSignature(signature);
+		setSelectedIds([]);
+	}
 	const allSelected = !!items?.length && items.every((item) => selectedIds.includes(item.id));
 
 	const toggleSelectAll = () => {

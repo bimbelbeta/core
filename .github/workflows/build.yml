@@ -7,6 +7,10 @@ on:
       - "apps/web/**"
       - "apps/server/**"
       - "packages/**"
+      - "scripts/**"
+      - "turbo.json"
+      - "package.json"
+      - "biome.json"
 
 jobs:
   build-web:

@@ -47,8 +47,11 @@ describe("formatRelativeDate", () => {
 		expect(formatRelativeDate(ago(3 * HOUR))).toBe("3 jam lalu");
 	});
 
-	test("yesterday is named, not counted", () => {
+	test("the 24-to-47 hour bucket reads as Kemarin", () => {
+		expect(formatRelativeDate(ago(23 * HOUR))).toBe("23 jam lalu");
 		expect(formatRelativeDate(ago(DAY))).toBe("Kemarin");
+		expect(formatRelativeDate(ago(47 * HOUR))).toBe("Kemarin");
+		expect(formatRelativeDate(ago(48 * HOUR))).toBe("2 hari lalu");
 	});
 
 	test("the day and week boundaries", () => {
