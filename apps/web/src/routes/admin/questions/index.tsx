@@ -220,7 +220,7 @@ function QuestionsListPage() {
 								<Checkbox
 									checked={someSelected ? "indeterminate" : allSelected}
 									onCheckedChange={toggleSelectAll}
-									aria-label="Select all"
+									aria-label="Pilih semua soal"
 								/>
 							</AdminTableHead>
 							<AdminTableHead className="w-16 text-center">ID</AdminTableHead>
@@ -243,7 +243,7 @@ function QuestionsListPage() {
 											<Checkbox
 												checked={selectedIds.includes(q.id)}
 												onCheckedChange={() => toggleSelectOne(q.id)}
-												aria-label={`Select question ${q.id}`}
+												aria-label={`Pilih soal #${q.id}`}
 											/>
 										</AdminTableCell>
 										<AdminTableCell className="text-muted-foreground text-center font-mono text-sm">

@@ -26,7 +26,7 @@ describe("typographyVariants", () => {
 		expect(typographyVariants.overline.element).toBe("p");
 	});
 
-	test("colour comes from tone, never from className", () => {
+	test("no variant keeps colour in its className — that is what tone is for", () => {
 		for (const [variant, config] of Object.entries(typographyVariants)) {
 			expect(config.className, variant).not.toMatch(
 				/text-(white|black|current|primary|secondary|tertiary|neutral|muted|destructive|green|red|blue|amber|yellow|gray)/,

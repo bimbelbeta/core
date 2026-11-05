@@ -56,7 +56,7 @@ export function UsersTable() {
 						<Checkbox
 							checked={someSelected ? "indeterminate" : allSelected}
 							onCheckedChange={toggleSelectAll}
-							aria-label="Select all"
+							aria-label="Pilih semua user"
 						/>
 					</AdminTableHead>
 					<AdminTableHead>Nama</AdminTableHead>
@@ -86,7 +86,7 @@ export function UsersTable() {
 										<Checkbox
 											checked={selectedIds.includes(user.id)}
 											onCheckedChange={() => toggleSelectOne(user.id)}
-											aria-label={`Select user ${user.id}`}
+											aria-label={`Pilih ${user.name}`}
 										/>
 									</AdminTableCell>
 									<AdminTableCell>

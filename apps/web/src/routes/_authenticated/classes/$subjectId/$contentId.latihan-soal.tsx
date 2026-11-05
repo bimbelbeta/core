@@ -66,7 +66,7 @@ function RouteComponent() {
 				<div className="flex justify-start">
 					<BackButton to={`/classes/${subjectId}/${contentId}/video`} />
 				</div>
-				<Typography variant="subtitle2" as="p" className="text-primary-300">
+				<Typography variant="subtitle2" as="p" tone="accent">
 					Latihan Soal
 				</Typography>
 
@@ -81,7 +81,7 @@ function RouteComponent() {
 
 	return (
 		<div className="space-y-4">
-			<Typography variant="subtitle2" as="p" className="text-primary-300">
+			<Typography variant="subtitle2" as="p" tone="accent">
 				Latihan Soal
 			</Typography>
 

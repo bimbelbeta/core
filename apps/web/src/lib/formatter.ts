@@ -13,7 +13,8 @@ export function formatRupiah(value: number | string) {
 
 export function getInitials(name: string) {
 	return name
-		.split(" ")
+		.trim()
+		.split(/\s+/)
 		.slice(0, 2)
 		.map((part) => part[0])
 		.join("")

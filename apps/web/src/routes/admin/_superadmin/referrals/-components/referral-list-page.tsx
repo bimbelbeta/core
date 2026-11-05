@@ -114,7 +114,7 @@ export function ReferralListPage() {
 								<Checkbox
 									checked={someSelected ? "indeterminate" : allSelected}
 									onCheckedChange={toggleSelectAll}
-									aria-label="Select all"
+									aria-label="Pilih semua kode referal"
 								/>
 							</AdminTableHead>
 							<AdminTableHead>Status</AdminTableHead>
@@ -139,7 +139,7 @@ export function ReferralListPage() {
 											<Checkbox
 												checked={selectedIds.includes(item.id)}
 												onCheckedChange={() => toggleSelectOne(item.id)}
-												aria-label={`Select ${item.code}`}
+												aria-label={`Pilih ${item.code}`}
 											/>
 										</AdminTableCell>
 										<AdminTableCell>

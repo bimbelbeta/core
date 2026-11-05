@@ -59,7 +59,7 @@ function RouteComponent() {
 	if (!note) {
 		return (
 			<div className="space-y-4">
-				<Typography variant="subtitle2" as="p" className="text-primary-300">
+				<Typography variant="subtitle2" as="p" tone="accent">
 					Catatan Materi
 				</Typography>
 				<EmptyContentState />
@@ -69,7 +69,7 @@ function RouteComponent() {
 
 	return (
 		<div className="space-y-4">
-			<Typography variant="subtitle2" as="p" className="text-primary-300">
+			<Typography variant="subtitle2" as="p" tone="accent">
 				Catatan Materi
 			</Typography>
 

@@ -36,7 +36,7 @@ export function BulkQuestionsTable({
 								<Checkbox
 									checked={isAllSelected}
 									onCheckedChange={() => onSelectAll()}
-									aria-label="Select all"
+									aria-label="Pilih semua soal"
 									className="translate-y-0.5"
 								/>
 							</TableHead>
@@ -72,7 +72,7 @@ export function BulkQuestionsTable({
 											<Checkbox
 												checked={isSelected}
 												onCheckedChange={() => onToggleOne(item.id)}
-												aria-label={`Pilih soal ${item.order}`}
+												aria-label={`Pilih soal #${item.order}`}
 												className="translate-y-0.5"
 											/>
 										</TableCell>

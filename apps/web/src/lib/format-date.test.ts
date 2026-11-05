@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { formatDateLong, formatDateMedium, formatRelativeDate } from "./format-date";
+import { formatDateLong, formatDateMedium, formatDateTime, formatRelativeDate } from "./format-date";
 
 describe("formatDateLong", () => {
 	test("formats date with day, full month, and year in Indonesian", () => {
@@ -51,10 +51,34 @@ describe("formatRelativeDate", () => {
 		expect(formatRelativeDate(ago(DAY))).toBe("Kemarin");
 	});
 
-	test("days, weeks, months, years past the boundaries", () => {
-		expect(formatRelativeDate(ago(3 * DAY))).toBe("3 hari lalu");
-		expect(formatRelativeDate(ago(10 * DAY))).toBe("1 minggu lalu");
-		expect(formatRelativeDate(ago(40 * DAY))).toBe("1 bulan lalu");
-		expect(formatRelativeDate(ago(400 * DAY))).toBe("1 tahun lalu");
+	test("the day and week boundaries", () => {
+		expect(formatRelativeDate(ago(6 * DAY))).toBe("6 hari lalu");
+		expect(formatRelativeDate(ago(7 * DAY))).toBe("1 minggu lalu");
+	});
+
+	test("the month boundary does not produce 0 bulan for four-week ranges", () => {
+		expect(formatRelativeDate(ago(27 * DAY))).toBe("3 minggu lalu");
+		expect(formatRelativeDate(ago(28 * DAY))).toBe("4 minggu lalu");
+		expect(formatRelativeDate(ago(29 * DAY))).toBe("4 minggu lalu");
+		expect(formatRelativeDate(ago(30 * DAY))).toBe("1 bulan lalu");
+	});
+
+	test("the year boundary", () => {
+		expect(formatRelativeDate(ago(359 * DAY))).toBe("11 bulan lalu");
+		expect(formatRelativeDate(ago(365 * DAY))).toBe("1 tahun lalu");
+	});
+});
+
+describe("formatDateTime", () => {
+	test("keeps the time of day", () => {
+		const result = formatDateTime(new Date("2026-11-04T17:13:00"));
+		expect(result).toContain("2026");
+		expect(result).toMatch(/17[.:]13/);
+	});
+
+	test("uses the long month, unlike formatDateMedium", () => {
+		const date = new Date("2026-11-04T17:13:00");
+		expect(formatDateTime(date)).not.toBe(formatDateMedium(date));
+		expect(formatDateTime(date).length).toBeGreaterThan(formatDateMedium(date).length);
 	});
 });
