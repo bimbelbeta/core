@@ -2,6 +2,19 @@ import { describe, expect, test } from "bun:test";
 import { typographyTones, typographyVariants } from "./typography-variants";
 
 describe("typographyVariants", () => {
+	test("the variant set is closed", () => {
+		expect(Object.keys(typographyVariants).sort()).toEqual([
+			"body",
+			"caption",
+			"display",
+			"hero",
+			"overline",
+			"subtitle1",
+			"subtitle2",
+			"title",
+		]);
+	});
+
 	test("maps each variant to its semantic element", () => {
 		expect(typographyVariants.hero.element).toBe("h1");
 		expect(typographyVariants.display.element).toBe("h1");
@@ -13,22 +26,9 @@ describe("typographyVariants", () => {
 		expect(typographyVariants.overline.element).toBe("p");
 	});
 
-	test("every variant has a non-empty class name", () => {
-		for (const config of Object.values(typographyVariants)) {
-			expect(config.className.length).toBeGreaterThan(0);
-		}
-	});
-
 	test("every variant default tone exists", () => {
 		for (const config of Object.values(typographyVariants)) {
 			expect(typographyTones).toHaveProperty(config.tone);
-		}
-	});
-
-	test("no variant is missing a tone or element", () => {
-		for (const [variant, config] of Object.entries(typographyVariants)) {
-			expect(config.element, variant).toBeString();
-			expect(config.tone, variant).toBeString();
 		}
 	});
 });

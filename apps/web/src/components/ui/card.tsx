@@ -7,8 +7,8 @@ const cardVariants = cva("bg-card border shadow-sm", {
 	variants: {
 		variant: {
 			default: "text-card-foreground flex flex-col gap-6 rounded-xl py-6",
-			flush: "text-foreground flex flex-col gap-0 overflow-clip rounded-lg bg-white py-0",
-			unpadded: "text-foreground rounded-lg bg-white",
+			flush: "text-foreground flex flex-col gap-0 overflow-clip rounded-lg py-0",
+			unpadded: "text-foreground rounded-lg",
 		},
 	},
 	defaultVariants: {
