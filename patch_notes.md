@@ -12,6 +12,8 @@ Keep provider-specific payment behaviour in one adapter so adding a provider doe
 
 ### Action Required for Developers / Admins
 
+`VITE_PAYMENTS_ENABLED` is a build-time switch, not a runtime one. Set it to `true` as a repository variable so the web image is built with payments enabled; leaving it unset ships the "Segera Hadir" buttons.
+
 **Update the Midtrans notification URL before deploying.** Nothing in the repository configures it; it lives in the Midtrans dashboard. The path gained a provider segment:
 
 - Old: `https://<server-host>/api-reference/transactions/notification`
@@ -69,6 +71,8 @@ Allow users to log in using either their **Username** or **Email** address along
 Enforce login using purely the `name` column as a username (no email required for user sign-in) utilizing Better-Auth's `username` plugin.
 
 ### Action Required for Developers / Admins
+
+`VITE_PAYMENTS_ENABLED` is a build-time switch, not a runtime one. Set it to `true` as a repository variable so the web image is built with payments enabled; leaving it unset ships the "Segera Hadir" buttons.
 
 > [!IMPORTANT]
 > - The Drizzle schema (`core/packages/db/src/schema/auth.ts`) has been updated to mark `name` as `.unique()`.
@@ -153,6 +157,8 @@ Allow super admins to select multiple users in the dashboard and delete them at 
 Implement a complete Referral Code system that allows superadmins to create and manage codes, and authenticated users to redeem them for time-limited Premium access. Redemption is atomic (database transaction + row-level lock) to prevent race conditions.
 
 ### Action Required for Developers / Admins
+
+`VITE_PAYMENTS_ENABLED` is a build-time switch, not a runtime one. Set it to `true` as a repository variable so the web image is built with payments enabled; leaving it unset ships the "Segera Hadir" buttons.
 
 > [!IMPORTANT]
 > This patch adds two new tables to the database: `referral_code` and `referral_usage`.

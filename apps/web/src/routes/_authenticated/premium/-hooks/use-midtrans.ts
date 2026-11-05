@@ -1,13 +1,14 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { PAYMENTS_ENABLED } from "@/lib/billing-config";
 import { orpc } from "@/lib/orpc";
 
 export function useMidtrans() {
 	const queryClient = useQueryClient();
 	const transactionMutation = useMutation(orpc.transaction.subscribe.mutationOptions());
 	const [token, setToken] = useState<string | undefined>();
-	const enabled = import.meta.env.VITE_PAYMENTS_ENABLED === "true";
+	const enabled = PAYMENTS_ENABLED;
 
 	useEffect(() => {
 		if (!enabled) return;
