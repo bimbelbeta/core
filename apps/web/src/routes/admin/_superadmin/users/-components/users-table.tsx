@@ -32,21 +32,9 @@ export function UsersTable() {
 	const pageInfo = data?.pageInfo;
 	const { handleNext, handlePrevious } = useUsersPagination();
 	const { selectedIds, allSelected, someSelected, toggleSelectAll, toggleSelectOne } = useUsersSelection();
-	const [editRoleUser, setEditRoleUser] = useState<{
-		userId: string;
-		userName: string;
-		currentRole: string | null;
-	} | null>(null);
-	const [grantCreditsUser, setGrantCreditsUser] = useState<{
-		userId: string;
-		userName: string;
-		currentCredits: number | null;
-	} | null>(null);
-	const [grantPremiumUser, setGrantPremiumUser] = useState<{
-		userId: string;
-		userName: string;
-		currentPremiumExpiry: Date | null;
-	} | null>(null);
+	const [editRoleUserId, setEditRoleUserId] = useState<string | null>(null);
+	const [grantCreditsUserId, setGrantCreditsUserId] = useState<string | null>(null);
+	const [grantPremiumUserId, setGrantPremiumUserId] = useState<string | null>(null);
 
 	return (
 		<AdminTableRoot className="mt-3">
@@ -197,48 +185,24 @@ export function UsersTable() {
 												userId={user.id}
 												userName={user.name}
 												currentRole={user.role}
-												open={editRoleUser?.userId === user.id}
-												onOpenChange={(open) =>
-													setEditRoleUser(
-														open ? { userId: user.id, userName: user.name, currentRole: user.role } : null,
-													)
-												}
+												open={editRoleUserId === user.id}
+												onOpenChange={(open) => setEditRoleUserId(open ? user.id : null)}
 												onSuccess={() => refetch()}
 											/>
 											<GrantCreditsDialog
 												userId={user.id}
 												userName={user.name}
 												currentCredits={user.tryoutCredits}
-												open={grantCreditsUser?.userId === user.id}
-												onOpenChange={(open) =>
-													setGrantCreditsUser(
-														open
-															? {
-																	userId: user.id,
-																	userName: user.name,
-																	currentCredits: user.tryoutCredits,
-																}
-															: null,
-													)
-												}
+												open={grantCreditsUserId === user.id}
+												onOpenChange={(open) => setGrantCreditsUserId(open ? user.id : null)}
 												onSuccess={() => refetch()}
 											/>
 											<GrantPremiumDialog
 												userId={user.id}
 												userName={user.name}
 												currentPremiumExpiry={user.premiumExpiresAt}
-												open={grantPremiumUser?.userId === user.id}
-												onOpenChange={(open) =>
-													setGrantPremiumUser(
-														open
-															? {
-																	userId: user.id,
-																	userName: user.name,
-																	currentPremiumExpiry: user.premiumExpiresAt,
-																}
-															: null,
-													)
-												}
+												open={grantPremiumUserId === user.id}
+												onOpenChange={(open) => setGrantPremiumUserId(open ? user.id : null)}
 												onSuccess={() => refetch()}
 											/>
 										</div>

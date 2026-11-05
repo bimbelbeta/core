@@ -64,3 +64,7 @@ export const productVariantSchema = type("'fixed_date' | 'monthly' | 'credits'")
 export type ProductVariant = typeof productVariantSchema.infer;
 
 export const isSubscriptionVariant = (variant: ProductVariant) => variant !== "credits";
+
+export const productTypeSchema = type("'subscription' | 'product'");
+
+export type ProductType = typeof productTypeSchema.infer;

@@ -80,32 +80,30 @@ export function ReferralListPage() {
 					searchPlaceholder="Cari kode referal..."
 				/>
 
-				{selectedIds.length > 0 && (
-					<AdminTableBulkActions selectedCount={selectedIds.length}>
-						<AlertDialog open={bulkDialogOpen} onOpenChange={setBulkDialogOpen}>
-							<AlertDialogTrigger asChild>
-								<Button variant="destructive" size="sm">
-									<ProhibitIcon className="mr-2 size-4" />
-									Nonaktifkan Terpilih
-								</Button>
-							</AlertDialogTrigger>
-							<AlertDialogContent>
-								<AlertDialogHeader>
-									<AlertDialogTitle>Nonaktifkan Kode Referal</AlertDialogTitle>
-									<AlertDialogDescription>
-										{selectedIds.length} kode akan dinonaktifkan. Pengguna tidak dapat lagi menukarkan kode ini.
-									</AlertDialogDescription>
-								</AlertDialogHeader>
-								<AlertDialogFooter>
-									<AlertDialogCancel>Batal</AlertDialogCancel>
-									<AlertDialogAction onClick={handleBulkDeactivate} variant="destructive">
-										Nonaktifkan
-									</AlertDialogAction>
-								</AlertDialogFooter>
-							</AlertDialogContent>
-						</AlertDialog>
-					</AdminTableBulkActions>
-				)}
+				<AdminTableBulkActions selectedCount={selectedIds.length}>
+					<AlertDialog open={bulkDialogOpen} onOpenChange={setBulkDialogOpen}>
+						<AlertDialogTrigger asChild>
+							<Button variant="destructive" size="sm">
+								<ProhibitIcon className="mr-2 size-4" />
+								Nonaktifkan Terpilih
+							</Button>
+						</AlertDialogTrigger>
+						<AlertDialogContent>
+							<AlertDialogHeader>
+								<AlertDialogTitle>Nonaktifkan Kode Referal</AlertDialogTitle>
+								<AlertDialogDescription>
+									{selectedIds.length} kode akan dinonaktifkan. Pengguna tidak dapat lagi menukarkan kode ini.
+								</AlertDialogDescription>
+							</AlertDialogHeader>
+							<AlertDialogFooter>
+								<AlertDialogCancel>Batal</AlertDialogCancel>
+								<AlertDialogAction onClick={handleBulkDeactivate} variant="destructive">
+									Nonaktifkan
+								</AlertDialogAction>
+							</AlertDialogFooter>
+						</AlertDialogContent>
+					</AlertDialog>
+				</AdminTableBulkActions>
 
 				<AdminTableRoot className="mt-3">
 					<AdminTable>

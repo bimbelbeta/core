@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 import type { ProductVariant } from "@/lib/schemas";
+import { productTypeSchema, productVariantSchema } from "@/lib/schemas";
 import { isProductVariant, months } from "../-utils";
 
 type ProductType = "subscription" | "product";
@@ -82,8 +83,8 @@ export function ProductForm({ initialData, onSuccess, onCancel }: ProductFormPro
 			onChange: type({
 				name: "string >= 1",
 				price: "string >= 1",
-				type: "'subscription' | 'product'",
-				variant: "'fixed_date' | 'monthly' | 'credits'",
+				type: productTypeSchema,
+				variant: productVariantSchema,
 			}),
 		},
 	});

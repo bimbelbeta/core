@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
 	isSubscriptionVariant,
+	productTypeSchema,
 	productVariantSchema,
 	QUESTION_TYPE_LABELS,
 	SUBJECT_CATEGORY_LABELS,
@@ -10,6 +11,12 @@ import {
 } from "./schemas";
 
 describe("product variants", () => {
+	test("the form validator and the search schema accept the same set", () => {
+		expect(productVariantSchema.allows("annual")).toBe(false);
+		expect(productTypeSchema.allows("subscription")).toBe(true);
+		expect(productTypeSchema.allows("product")).toBe(true);
+	});
+
 	test("only credits is not a subscription", () => {
 		expect(productVariantSchema.allows("fixed_date")).toBe(true);
 		expect(productVariantSchema.allows("credits")).toBe(true);
