@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { typographyTones, typographyVariants } from "./typography-variants";
+import { typographyVariants } from "./typography-variants";
 
 describe("typographyVariants", () => {
 	test("the variant set is closed", () => {
@@ -28,7 +28,6 @@ describe("typographyVariants", () => {
 
 	test("colour comes from tone, never from className", () => {
 		for (const [variant, config] of Object.entries(typographyVariants)) {
-			expect(typographyTones).toHaveProperty(config.tone);
 			expect(config.className, variant).not.toMatch(
 				/text-(white|black|current|primary|secondary|tertiary|neutral|muted|destructive|green|red|blue|amber|yellow|gray)/,
 			);

@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/ui/typography";
+import { useBulkSelection } from "@/hooks/use-bulk-selection";
 import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { BulkAddQuestionsDialog } from "../../-components/bulk-add-questions-dialog";
@@ -43,7 +44,6 @@ function SubtestDetailPage() {
 		}),
 	);
 
-	const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
 	const [isBulkAddOpen, setIsBulkAddOpen] = useState(false);
 	const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
 
@@ -51,7 +51,7 @@ function SubtestDetailPage() {
 		orpc.admin.tryout.questionsBulk.bulkRemoveQuestionsFromSubtest.mutationOptions({
 			onSuccess: (result) => {
 				toast.success(`${result.removedCount} soal berhasil dihapus dari subtest`);
-				setSelectedIds(new Set());
+				clearSelection();
 				setIsBulkDeleteOpen(false);
 				refetch();
 			},
@@ -62,24 +62,22 @@ function SubtestDetailPage() {
 	);
 
 	const questions = data?.questions;
-	// ToDO: better to show skeleton here
-	if (isPending || !questions) return null;
-	const isAllSelected = questions.length > 0 && selectedIds.size === questions.length;
+	const {
+		selectedIds,
+		toggleSelectAll: handleSelectAll,
+		toggleSelectOne,
+		clearSelection,
+		allSelected: isAllSelected,
+	} = useBulkSelection(questions);
 
-	const handleSelectAll = () => {
-		if (isAllSelected) {
-			setSelectedIds(new Set());
-		} else {
-			setSelectedIds(new Set(questions.map((q) => q.id)));
-		}
-	};
+	if (isPending || !questions) return null;
 
 	const handleBulkDelete = () => {
-		if (selectedIds.size === 0) return;
+		if (selectedIds.length === 0) return;
 
 		bulkDeleteMutation.mutate({
 			subtestId,
-			questionIds: Array.from(selectedIds),
+			questionIds: selectedIds,
 		});
 	};
 
@@ -117,24 +115,24 @@ function SubtestDetailPage() {
 						<Button
 							variant="destructive"
 							onClick={() => setIsBulkDeleteOpen(true)}
-							disabled={selectedIds.size === 0}
+							disabled={selectedIds.length === 0}
 							className="w-full gap-2 sm:w-auto"
 						>
 							<TrashIcon className="size-4" />
-							Hapus {selectedIds.size > 0 && `(${selectedIds.size})`}
+							Hapus {selectedIds.length > 0 && `(${selectedIds.length})`}
 						</Button>
 						<AlertDialogContent>
 							<AlertDialogHeader>
 								<AlertDialogTitle>Hapus Soal Massal</AlertDialogTitle>
 								<AlertDialogDescription>
-									Apakah Anda yakin ingin menghapus {selectedIds.size} soal dari subtest ini? Tindakan ini tidak dapat
+									Apakah Anda yakin ingin menghapus {selectedIds.length} soal dari subtest ini? Tindakan ini tidak dapat
 									dibatalkan.
 								</AlertDialogDescription>
 							</AlertDialogHeader>
 							<AlertDialogFooter>
 								<AlertDialogCancel>Batal</AlertDialogCancel>
 								<AlertDialogAction onClick={handleBulkDelete} variant="destructive">
-									Hapus {selectedIds.size} Soal
+									Hapus {selectedIds.length} Soal
 								</AlertDialogAction>
 							</AlertDialogFooter>
 						</AlertDialogContent>
@@ -146,7 +144,7 @@ function SubtestDetailPage() {
 				questions={questions}
 				isPending={isPending}
 				selectedIds={selectedIds}
-				onSelectionChange={setSelectedIds}
+				onToggleOne={toggleSelectOne}
 				onSelectAll={handleSelectAll}
 				isAllSelected={isAllSelected}
 			/>

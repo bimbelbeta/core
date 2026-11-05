@@ -14,11 +14,14 @@ export function useBulkSelection<T extends string | number>(items: { id: T }[] |
 
 	const clearSelection = () => setSelectedIds([]);
 
+	const deselect = (id: T) => setSelectedIds((prev) => prev.filter((i) => i !== id));
+
 	return {
 		selectedIds,
 		toggleSelectAll,
 		toggleSelectOne,
 		clearSelection,
+		deselect,
 		allSelected,
 		someSelected: selectedIds.length > 0 && !allSelected,
 	};

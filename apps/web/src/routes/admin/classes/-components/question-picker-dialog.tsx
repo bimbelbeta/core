@@ -70,6 +70,7 @@ export function QuestionPickerDialog({
 		toggleSelectAll: handleSelectAll,
 		toggleSelectOne: handleQuestionToggle,
 		clearSelection,
+		allSelected,
 	} = useBulkSelection(questions);
 
 	const handleScroll = useCallback(() => {
@@ -184,11 +185,7 @@ export function QuestionPickerDialog({
 					{/* Select All and Add Button */}
 					<div className="flex items-center justify-between border-b pb-2">
 						<div className="flex items-center gap-2">
-							<Checkbox
-								checked={questions.length > 0 && selectedQuestionIds.length === questions.length}
-								onCheckedChange={handleSelectAll}
-								disabled={questions.length === 0}
-							/>
+							<Checkbox checked={allSelected} onCheckedChange={handleSelectAll} disabled={questions.length === 0} />
 							<Label className="cursor-pointer text-sm">Pilih Semua ({selectedQuestionIds.length} dipilih)</Label>
 						</div>
 						<Button

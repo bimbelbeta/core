@@ -130,7 +130,7 @@ export function TryoutsListPage() {
 										</Link>
 									</AdminTableCell>
 									<AdminTableCell>
-										<Badge variant="outline">{tryout.category.toUpperCase()}</Badge>
+										<Badge variant="outline">{SUBJECT_CATEGORY_LABELS[tryout.category]}</Badge>
 									</AdminTableCell>
 									<AdminTableCell>
 										<Badge variant={TRYOUT_STATUS_BADGE[tryout.status].variant}>

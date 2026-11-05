@@ -43,6 +43,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Typography } from "@/components/ui/typography";
+import { useBulkSelection } from "@/hooks/use-bulk-selection";
 import { extractTextFromTiptap, truncateText } from "@/lib/content-text";
 import { orpc } from "@/lib/orpc";
 import { SUBJECT_CATEGORY_LABELS, subjectCategorySchema } from "@/lib/schemas";
@@ -80,7 +81,6 @@ function QuestionsListPage() {
 	const { after, before, limit, search, questionType, category, tag } = searchParams;
 
 	const [searchInput, setSearchInput] = useState(search ?? "");
-	const [selectedIds, setSelectedIds] = useState<number[]>([]);
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState<number | null>(null);
 	const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
 
@@ -106,7 +106,7 @@ function QuestionsListPage() {
 				toast.success("Soal berhasil dihapus");
 				setDeleteDialogOpen(null);
 				refetch();
-				setSelectedIds((prev) => prev.filter((id) => id !== deleteDialogOpen));
+				if (deleteDialogOpen !== null) deselect(deleteDialogOpen);
 			},
 			onError: (err) => {
 				toast.error(err.message);
@@ -133,24 +133,12 @@ function QuestionsListPage() {
 		if (errorCount > 0) toast.error(`${errorCount} soal gagal dihapus`);
 
 		setBulkDeleteDialogOpen(false);
-		setSelectedIds([]);
+		clearSelection();
 		refetch();
 	};
 
-	const toggleSelectAll = () => {
-		if (selectedIds.length === (data?.items.length ?? 0)) {
-			setSelectedIds([]);
-		} else {
-			setSelectedIds(data?.items.map((q) => q.id) ?? []);
-		}
-	};
-
-	const toggleSelectOne = (id: number) => {
-		setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
-	};
-
-	const allSelected = selectedIds.length === (data?.items.length ?? 0) && (data?.items.length ?? 0) > 0;
-	const someSelected = selectedIds.length > 0 && selectedIds.length < (data?.items.length ?? 0);
+	const { selectedIds, toggleSelectAll, toggleSelectOne, clearSelection, deselect, allSelected, someSelected } =
+		useBulkSelection(data?.items);
 
 	return (
 		<AdminPageRoot>

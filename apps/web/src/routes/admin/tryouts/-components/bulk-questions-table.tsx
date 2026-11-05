@@ -12,8 +12,8 @@ import { cn } from "@/lib/utils";
 interface BulkQuestionsTableProps {
 	questions: BodyOutputs["admin"]["tryout"]["questionsBulk"]["list"]["questions"];
 	isPending?: boolean;
-	selectedIds: Set<number>;
-	onSelectionChange: (ids: Set<number>) => void;
+	selectedIds: number[];
+	onToggleOne: (id: number) => void;
 	onSelectAll: () => void;
 	isAllSelected?: boolean;
 }
@@ -22,20 +22,10 @@ export function BulkQuestionsTable({
 	questions,
 	isPending,
 	selectedIds,
-	onSelectionChange,
+	onToggleOne,
 	onSelectAll,
 	isAllSelected,
 }: BulkQuestionsTableProps) {
-	const handleCheckboxChange = (id: number, checked: boolean) => {
-		const newSelectedIds = new Set(selectedIds);
-		if (checked) {
-			newSelectedIds.add(id);
-		} else {
-			newSelectedIds.delete(id);
-		}
-		onSelectionChange(newSelectedIds);
-	};
-
 	return (
 		<Card variant="flush" className="overflow-hidden transition-all hover:shadow-md">
 			<div className="overflow-x-auto">
@@ -69,7 +59,7 @@ export function BulkQuestionsTable({
 							</TableRow>
 						) : (
 							questions.map((item) => {
-								const isSelected = selectedIds.has(item.id);
+								const isSelected = selectedIds.includes(item.id);
 								return (
 									<TableRow
 										key={item.id}
@@ -81,8 +71,8 @@ export function BulkQuestionsTable({
 										<TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
 											<Checkbox
 												checked={isSelected}
-												onCheckedChange={(checked) => handleCheckboxChange(item.id, checked === true)}
-												aria-label={`Select question ${item.order}`}
+												onCheckedChange={() => onToggleOne(item.id)}
+												aria-label={`Pilih soal ${item.order}`}
 												className="translate-y-0.5"
 											/>
 										</TableCell>
