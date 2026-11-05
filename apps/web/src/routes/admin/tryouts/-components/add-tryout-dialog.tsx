@@ -209,8 +209,8 @@ export function AddTryoutDialog({
 													<SelectValue placeholder="Pilih status" />
 												</SelectTrigger>
 												<SelectContent>
-													{Object.values(TRYOUT_STATUS_BADGE).map((status) => (
-														<SelectItem key={status.label} value={status.label.toLowerCase()}>
+													{Object.entries(TRYOUT_STATUS_BADGE).map(([value, status]) => (
+														<SelectItem key={value} value={value}>
 															<div className="flex items-center gap-2">
 																<status.icon className={cn("size-4", status.iconClassName)} />
 																<span>{status.label}</span>

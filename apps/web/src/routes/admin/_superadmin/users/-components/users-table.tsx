@@ -16,7 +16,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { formatRelativeDate } from "@/lib/format-date";
+import { formatDateLong, formatDateTime, formatRelativeDate } from "@/lib/format-date";
 import { getInitials } from "@/lib/formatter";
 import { cn } from "@/lib/utils";
 import { useUsersList } from "../-hooks/use-users-list";
@@ -163,15 +163,7 @@ export function UsersTable() {
 																{formatPremiumExpiry(premiumDate)}
 															</span>
 														</TooltipTrigger>
-														<TooltipContent>
-															{premiumDate.toLocaleDateString("id-ID", {
-																day: "numeric",
-																month: "long",
-																year: "numeric",
-																hour: "2-digit",
-																minute: "2-digit",
-															})}
-														</TooltipContent>
+														<TooltipContent>{formatDateTime(premiumDate)}</TooltipContent>
 													</Tooltip>
 												)}
 											</div>
@@ -192,13 +184,7 @@ export function UsersTable() {
 														{formatRelativeDate(createdDate)}
 													</span>
 												</TooltipTrigger>
-												<TooltipContent>
-													{createdDate.toLocaleDateString("id-ID", {
-														day: "numeric",
-														month: "long",
-														year: "numeric",
-													})}
-												</TooltipContent>
+												<TooltipContent>{formatDateLong(createdDate)}</TooltipContent>
 											</Tooltip>
 										) : (
 											<span className="text-muted-foreground text-xs">-</span>

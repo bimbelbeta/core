@@ -4,19 +4,13 @@ import { useState } from "react";
 import { LogoutDialog } from "@/components/shared/logout-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SidebarFooter, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { getInitials } from "@/lib/formatter";
 
 export function NavFooter() {
 	const { session } = useRouteContext({ from: "/admin" });
 	const [open, setOpen] = useState(false);
 
-	const userInitials = session?.user?.name
-		? session.user.name
-				.split(" ")
-				.map((n) => n[0])
-				.join("")
-				.toUpperCase()
-				.slice(0, 2)
-		: "AD";
+	const userInitials = session?.user?.name ? getInitials(session.user.name) : "AD";
 
 	return (
 		<SidebarFooter>

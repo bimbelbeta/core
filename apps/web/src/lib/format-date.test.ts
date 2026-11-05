@@ -10,24 +10,17 @@ describe("formatDateLong", () => {
 	});
 
 	test("formats a date correctly", () => {
-		const date = new Date("2026-04-29");
-		const result = formatDateLong(date);
-		expect(result).toBeTruthy();
-		expect(typeof result).toBe("string");
+		expect(formatDateLong(new Date("2026-04-29"))).toBe("29 April 2026");
 	});
 });
 
 describe("formatDateMedium", () => {
 	test("formats date with numeric day, short month, and year", () => {
-		const date = new Date("2026-04-29");
-		const result = formatDateMedium(date);
-		expect(result).toBeTruthy();
-		expect(typeof result).toBe("string");
+		expect(formatDateMedium(new Date("2026-04-29"))).toBe("29 Apr 2026");
 	});
 
 	test("produces different output from formatDateLong", () => {
-		const date = new Date("2026-04-29");
-		expect(formatDateMedium(date)).not.toBe(formatDateLong(date));
+		expect(formatDateMedium(new Date("2026-04-29"))).not.toBe(formatDateLong(new Date("2026-04-29")));
 	});
 });
 

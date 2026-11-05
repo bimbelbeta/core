@@ -147,11 +147,11 @@ export function TryoutsListPage() {
 												onOpenChange={(open) => setDeleteDialogOpen(open ? tryout.id : null)}
 											>
 												<AlertDialogTrigger asChild>
-													<Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}>
+													<Button variant="ghost" size="icon">
 														<TrashIcon className="size-4 text-red-600" />
 													</Button>
 												</AlertDialogTrigger>
-												<AlertDialogContent onClick={(e) => e.stopPropagation()}>
+												<AlertDialogContent>
 													<AlertDialogHeader>
 														<AlertDialogTitle>Hapus Tryout</AlertDialogTitle>
 														<AlertDialogDescription>

@@ -4,6 +4,7 @@ import { AnimatePresence } from "motion/react";
 import * as m from "motion/react-m";
 import { useState } from "react";
 import { LogoutDialog } from "@/components/shared/logout-dialog";
+import { getInitials } from "@/lib/formatter";
 import { Button } from "../ui/button";
 import {
 	DropdownMenu,
@@ -42,14 +43,7 @@ export function HeaderDashboard() {
 	const [open, setOpen] = useState(false);
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-	const userInitials = session?.user.name
-		? session.user.name
-				.split(" ")
-				.map((n) => n[0])
-				.join("")
-				.substring(0, 2)
-				.toUpperCase()
-		: "U";
+	const userInitials = session?.user.name ? getInitials(session.user.name) : "U";
 
 	return (
 		<header

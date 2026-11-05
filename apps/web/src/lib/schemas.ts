@@ -36,7 +36,7 @@ export const TRYOUT_STATUS_BADGE = {
 		variant: "danger",
 		dotClassName: "bg-red-500",
 		icon: ArchiveIcon,
-		iconClassName: "text-orange-600",
+		iconClassName: "text-red-600",
 	},
 } as const satisfies Record<
 	TryoutStatus,

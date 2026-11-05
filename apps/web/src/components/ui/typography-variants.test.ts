@@ -34,3 +34,13 @@ describe("typographyVariants", () => {
 		}
 	});
 });
+
+import { typographyTones } from "./typography-variants";
+
+describe("typographyTones", () => {
+	test("no tone uses a palette step this theme does not define", () => {
+		for (const [name, className] of Object.entries(typographyTones)) {
+			expect(className, name).not.toMatch(/primary-navy-900|primary-navy-50|primary-50\b|primary-300/);
+		}
+	});
+});
