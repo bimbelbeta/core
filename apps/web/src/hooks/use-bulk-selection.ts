@@ -7,7 +7,7 @@ export function useBulkSelection<T extends string | number>(items: { id: T }[] |
 	const [shownIds, setShownIds] = useState<T[]>(ids);
 
 	const next = resolveBulkSelection(shownIds, selectedIds, ids);
-	if (next.shown !== shownIds) {
+	if (next) {
 		setShownIds(next.shown);
 		if (next.selected !== selectedIds) setSelectedIds(next.selected);
 	}

@@ -29,21 +29,19 @@ describe("shouldClearSelection", () => {
 });
 
 describe("resolveBulkSelection", () => {
-	test("advances the shown set so the next render is judged against it", () => {
-		expect(resolveBulkSelection([1, 2], [1], [1, 2, 3]).shown).toEqual([1, 2, 3]);
+	test("reports no change for an equal set of equal ids, whatever the array identity", () => {
+		expect(resolveBulkSelection([1, 2, 3], [], [1, 2, 3])).toBeNull();
+	});
+
+	test("advances the shown set so the next call is judged against it", () => {
+		expect(resolveBulkSelection([1, 2], [1], [1, 2, 3])?.shown).toEqual([1, 2, 3]);
 	});
 
 	test("keeps the selection across an append", () => {
-		expect(resolveBulkSelection([1, 2], [1, 2], [1, 2, 3]).selected).toEqual([1, 2]);
+		expect(resolveBulkSelection([1, 2], [1, 2], [1, 2, 3])?.selected).toEqual([1, 2]);
 	});
 
 	test("clears the selection when the page changes", () => {
-		expect(resolveBulkSelection([1, 2], [1, 2], [3, 4]).selected).toEqual([]);
-	});
-
-	test("a shown set that never advances keeps a stale selection", () => {
-		const first = resolveBulkSelection([], [], [1, 2]);
-		expect(first.selected).toEqual([]);
-		expect(resolveBulkSelection(first.shown, [1, 2], [3, 4]).selected).toEqual([]);
+		expect(resolveBulkSelection([1, 2], [1, 2], [3, 4])?.selected).toEqual([]);
 	});
 });

@@ -27,10 +27,12 @@ describe("typographyVariants", () => {
 	});
 
 	test("no variant keeps colour in its className — that is what tone is for", () => {
+		const nonColour =
+			/^text-(?:xs|sm|base|lg|xl|[2-9]xl|center|left|right|justify|start|end|balance|pretty|wrap|nowrap|ellipsis|clip)$/;
 		for (const [variant, config] of Object.entries(typographyVariants)) {
-			expect(config.className, variant).not.toMatch(
-				/text-(white|black|current|primary|secondary|tertiary|neutral|muted|destructive|green|red|blue|amber|yellow|gray)/,
-			);
+			for (const token of config.className.match(/\btext-[\w[\]().,#%-]+/g) ?? []) {
+				expect(nonColour.test(token), `${variant}: ${token}`).toBe(true);
+			}
 		}
 	});
 });
