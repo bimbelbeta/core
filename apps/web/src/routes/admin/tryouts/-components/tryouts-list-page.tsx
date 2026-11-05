@@ -90,9 +90,11 @@ export function TryoutsListPage() {
 						</SelectTrigger>
 						<SelectContent>
 							<SelectItem value="all">Semua Status</SelectItem>
-							<SelectItem value="draft">Draft</SelectItem>
-							<SelectItem value="published">Published</SelectItem>
-							<SelectItem value="archived">Archived</SelectItem>
+							{Object.entries(TRYOUT_STATUS_BADGE).map(([value, status]) => (
+								<SelectItem key={value} value={value}>
+									{status.label}
+								</SelectItem>
+							))}
 						</SelectContent>
 					</Select>
 				</AdminTableToolbar>

@@ -37,7 +37,7 @@ function TestimonialCard({ data }: { data: typeof HOME_PAGE_CONTENT.testimonials
 	return (
 		<div className="grid gap-6 sm:grid-cols-2">
 			{data.map((t) => (
-				<Card key={t.id} variant="flush" className="items-start gap-4 p-4 md:h-60 md:flex-row">
+				<Card key={t.id} variant="flush" className="items-start gap-4 p-4 shadow-none md:h-60 md:flex-row">
 					<Image
 						src={t.avatar ?? placeholder}
 						alt={`${t.name} avatar`}

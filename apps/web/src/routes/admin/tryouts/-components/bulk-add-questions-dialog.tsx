@@ -136,6 +136,7 @@ export function BulkAddQuestionsDialog({
 												<input
 													type="checkbox"
 													className="sr-only"
+													aria-label={`Pilih soal #${question.id}`}
 													checked={isSelected}
 													onChange={() => handleQuestionToggle(question.id)}
 												/>

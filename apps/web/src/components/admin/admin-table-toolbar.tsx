@@ -42,7 +42,7 @@ export function AdminTableBulkActions({ selectedCount, children, className }: Ad
 
 	return (
 		<div className={cn("border-primary-200 bg-primary-100 flex items-center gap-2 rounded-md border p-2", className)}>
-			<span className="text-primary-navy-700 text-sm">{selectedCount} item dipilih</span>
+			<span className="text-primary-navy-800 text-sm">{selectedCount} item dipilih</span>
 			<div className="ml-auto">{children}</div>
 		</div>
 	);

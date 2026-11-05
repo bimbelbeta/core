@@ -16,7 +16,10 @@ export const SUBJECT_CATEGORY_LABELS: Record<SubjectCategory, string> = {
 };
 
 export const TRYOUT_STATUS_BADGE = {
-	draft: { label: "Draft", variant: "outline" },
-	published: { label: "Published", variant: "success" },
-	archived: { label: "Archived", variant: "danger" },
-} as const satisfies Record<TryoutStatus, { label: string; variant: "outline" | "success" | "danger" }>;
+	draft: { label: "Draft", variant: "outline", dotClassName: "bg-gray-400" },
+	published: { label: "Published", variant: "success", dotClassName: "bg-green-500" },
+	archived: { label: "Archived", variant: "danger", dotClassName: "bg-red-500" },
+} as const satisfies Record<
+	TryoutStatus,
+	{ label: string; variant: "outline" | "success" | "danger"; dotClassName: string }
+>;

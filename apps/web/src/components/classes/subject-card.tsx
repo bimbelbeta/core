@@ -50,11 +50,9 @@ export function SubjectCard({ subject }: { subject: SubjectListItem }) {
 					</Typography>
 
 					{subject.category === "utbk" ? (
-						<Typography variant="body" tone="muted">
-							SMA Kelas 12
-						</Typography>
+						<Typography variant="body">SMA Kelas 12</Typography>
 					) : (
-						<Typography variant="body" tone="muted">
+						<Typography variant="body">
 							<span className="uppercase">{subject.category}</span> Kelas {subject.gradeLevel ?? "-"}
 						</Typography>
 					)}

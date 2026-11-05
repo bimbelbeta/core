@@ -221,24 +221,14 @@ export function TryoutSettingsTab({ tryout, onUpdate, onFormStateChange }: Tryou
 											<SelectValue placeholder="Pilih status" />
 										</SelectTrigger>
 										<SelectContent>
-											<SelectItem value="draft">
-												<div className="flex items-center gap-2">
-													<div className="size-2 rounded-full bg-gray-400" />
-													Draft
-												</div>
-											</SelectItem>
-											<SelectItem value="published">
-												<div className="flex items-center gap-2">
-													<div className="size-2 rounded-full bg-green-500" />
-													Published
-												</div>
-											</SelectItem>
-											<SelectItem value="archived">
-												<div className="flex items-center gap-2">
-													<div className="size-2 rounded-full bg-red-500" />
-													Archived
-												</div>
-											</SelectItem>
+											{Object.entries(TRYOUT_STATUS_BADGE).map(([value, status]) => (
+												<SelectItem key={value} value={value}>
+													<div className="flex items-center gap-2">
+														<div className={`size-2 rounded-full ${status.dotClassName}`} />
+														{status.label}
+													</div>
+												</SelectItem>
+											))}
 										</SelectContent>
 									</Select>
 									<div className="flex items-center gap-2">
