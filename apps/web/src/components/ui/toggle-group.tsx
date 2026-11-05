@@ -34,7 +34,7 @@ function ToggleGroup({
 				const next = first ? 0 : last ? items.length - 1 : (current + step + items.length) % items.length;
 				if (next === current) return;
 				items[next].focus();
-				items[next].click();
+				if (items[next].getAttribute("data-state") !== "on") items[next].click();
 			}}
 			{...props}
 		/>

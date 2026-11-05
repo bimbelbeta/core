@@ -75,14 +75,23 @@ describe("ToggleGroup single", () => {
 		expect(checked()).toEqual(["smp"]);
 	});
 
-	test("wraps at both ends", async () => {
+	test("wraps at both ends and carries the selection with it", async () => {
 		renderGroup();
 		radios()[2].focus();
 		await press("ArrowRight");
 		expect(focusedIndex()).toBe(0);
-		radios()[0].focus();
+		expect(checked()).toEqual(["all"]);
 		await press("ArrowLeft");
 		expect(focusedIndex()).toBe(2);
+		expect(checked()).toEqual(["smp"]);
+	});
+
+	test("never leaves a single group with nothing selected", async () => {
+		const changes = renderGroup();
+		radios()[2].focus();
+		for (const key of ["ArrowRight", "ArrowLeft", "ArrowRight", "Home", "End"]) await press(key);
+		expect(changes).not.toContain("");
+		expect(checked()).toHaveLength(1);
 	});
 
 	test("Home, End, PageUp and PageDown jump to an end", async () => {

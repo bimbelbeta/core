@@ -114,7 +114,7 @@ export function UploadPaymentProof({ onUploadComplete, onError, onRemove, disabl
 							<div className="bg-primary h-full transition-all duration-300" style={{ width: `${progress * 100}%` }} />
 						</div>
 					)}
-					{isComplete && <Typography className="mt-2 text-center text-green-600">Upload berhasil!</Typography>}
+					{isComplete && <Typography className="mt-2 text-center text-green-700">Upload berhasil!</Typography>}
 				</div>
 			)}
 			{error && <Typography tone="destructive">{error}</Typography>}

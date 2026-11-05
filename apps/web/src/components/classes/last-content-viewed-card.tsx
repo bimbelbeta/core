@@ -24,7 +24,7 @@ const DASHBOARD_CONTENT_ACTIONS = [
 		icon: NoteIcon,
 		enabled: (i: ContentActionItem) => i.hasNote,
 		className: (completed?: boolean | null) =>
-			completed ? "bg-green-100 text-green-700" : "bg-tertiary-500 text-neutral-100",
+			completed ? "bg-green-50 text-green-700" : "bg-tertiary-500 text-neutral-100",
 		width: "w-fit",
 	},
 	{
@@ -34,7 +34,7 @@ const DASHBOARD_CONTENT_ACTIONS = [
 		icon: NoteIcon,
 		enabled: (i: ContentActionItem) => i.hasPracticeQuestions,
 		className: (completed?: boolean | null) =>
-			completed ? "bg-green-100 text-green-700" : "bg-primary-100 text-neutral-1000",
+			completed ? "bg-green-50 text-green-700" : "bg-primary-100 text-neutral-1000",
 		width: "w-fit",
 	},
 ] as const;

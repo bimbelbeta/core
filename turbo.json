@@ -13,7 +13,8 @@
 			"outputs": ["dist/**", ".output/**"]
 		},
 		"lint": {
-			"dependsOn": ["^lint"]
+			"dependsOn": ["^lint"],
+			"inputs": ["$TURBO_DEFAULT$", "../../**/*.tsx"]
 		},
 		"check-types": {
 			"cache": true,

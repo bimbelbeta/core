@@ -42,9 +42,9 @@ describe("typographyTones", () => {
 	test("the tone set is closed", () => {
 		expect(Object.values(typographyTones).sort()).toEqual([
 			"",
-			"text-destructive",
 			"text-muted-foreground",
 			"text-primary-800",
+			"text-red-200",
 		]);
 	});
 

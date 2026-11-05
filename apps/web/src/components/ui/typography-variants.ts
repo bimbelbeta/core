@@ -18,7 +18,7 @@ export type TypographyVariant = keyof typeof typographyVariants;
 export const typographyTones = {
 	default: "",
 	muted: "text-muted-foreground",
-	destructive: "text-destructive",
+	destructive: "text-red-200",
 	accent: "text-primary-800",
 } as const;
 
