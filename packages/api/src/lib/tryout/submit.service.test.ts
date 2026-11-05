@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { type SubmitServiceDependencies, submitSubtest, submitTryout } from "./submit.service";
+import { createSubmitService, type SubmitServiceDependencies } from "./submit.service";
 
 const attempt = {
 	id: 1,
@@ -33,11 +33,13 @@ function deps(overrides: Partial<SubmitServiceDependencies> = {}): SubmitService
 
 describe("tryout submission", () => {
 	test("requires an active attempt for both submission workflows", async () => {
-		await expect(submitSubtest({ tryoutId: 2, subtestId: 3 }, "user-1", deps())).rejects.toMatchObject({
+		await expect(
+			createSubmitService(deps()).submitSubtest({ tryoutId: 2, subtestId: 3 }, "user-1"),
+		).rejects.toMatchObject({
 			code: "BAD_REQUEST",
 			message: "Gagal menemukan pengerjaan tryout.",
 		});
-		await expect(submitTryout({ tryoutId: 2 }, "user-1", deps())).rejects.toMatchObject({
+		await expect(createSubmitService(deps()).submitTryout({ tryoutId: 2 }, "user-1")).rejects.toMatchObject({
 			code: "BAD_REQUEST",
 			message: "Gagal menemukan pengerjaan tryout.",
 		});
@@ -45,7 +47,9 @@ describe("tryout submission", () => {
 
 	test("rejects submission of an inactive subtest", async () => {
 		const withAttempt = deps({ findAttempt: async () => attempt });
-		await expect(submitSubtest({ tryoutId: 2, subtestId: 3 }, "user-1", withAttempt)).rejects.toMatchObject({
+		await expect(
+			createSubmitService(withAttempt).submitSubtest({ tryoutId: 2, subtestId: 3 }, "user-1"),
+		).rejects.toMatchObject({
 			code: "BAD_REQUEST",
 			message: "Subtest tidak aktif",
 		});

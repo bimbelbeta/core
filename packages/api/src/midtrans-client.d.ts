@@ -11,12 +11,5 @@ declare module "midtrans-client" {
 			token: string;
 			redirect_url: string;
 		}>;
-		transaction: {
-			notification(params: unknown): Promise<{
-				order_id: string;
-				transaction_status: string;
-				fraud_status?: string;
-			}>;
-		};
 	}
 }

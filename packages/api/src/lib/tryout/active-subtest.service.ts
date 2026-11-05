@@ -15,7 +15,7 @@ async function findOngoingAttempt(tryoutId: number, userId: string) {
 	});
 }
 
-export const createActiveSubtestService = (findAttempt: typeof findOngoingAttempt) => ({
+export const createActiveSubtestService = (deps: { findAttempt: typeof findOngoingAttempt }) => ({
 	/**
 	 * Decides whether the user may answer questions right now.
 	 *
@@ -29,7 +29,7 @@ export const createActiveSubtestService = (findAttempt: typeof findOngoingAttemp
 	 * @returns The attempt id to write answers against.
 	 */
 	async require(tryoutId: number, userId: string) {
-		const attempt = await findAttempt(tryoutId, userId);
+		const attempt = await deps.findAttempt(tryoutId, userId);
 		if (!attempt) throw errors.BAD_REQUEST({ message: "Tidak ada pengerjaan yang aktif" });
 
 		const subtest = attempt.subtestAttempts.find((item) => item.status === "ongoing");
@@ -42,4 +42,4 @@ export const createActiveSubtestService = (findAttempt: typeof findOngoingAttemp
 	},
 });
 
-export const activeSubtestService = createActiveSubtestService(findOngoingAttempt);
+export const activeSubtestService = createActiveSubtestService({ findAttempt: findOngoingAttempt });

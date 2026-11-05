@@ -1,8 +1,8 @@
 import { db } from "@bimbelbeta/db";
 import { fetchSubtestQuestionRows, flattenTryoutQuestions } from "@/lib/question-utils";
 import { authedImplementer } from "@/lib/router-definition";
-import { startTryout } from "@/lib/tryout/start-tryout.service";
-import { finalizeExpiredAttempt } from "@/lib/tryout/submit.service";
+import { startTryoutService } from "@/lib/tryout/start-tryout.service";
+import { submitService } from "@/lib/tryout/submit.service";
 import { toProcedureError } from "@/lib/tryout/tryout-error";
 import { parseNullableInt } from "@/lib/utils";
 
@@ -62,7 +62,7 @@ export const find = authed.tryout.find.handler(async ({ input, context, errors }
 		!normalizedAttempt.completedAt &&
 		normalizedAttempt.status === "ongoing"
 	) {
-		await finalizeExpiredAttempt(normalizedAttempt.id);
+		await submitService.finalizeExpiredAttempt(normalizedAttempt.id);
 
 		return {
 			...tryoutData,
@@ -123,7 +123,7 @@ export const find = authed.tryout.find.handler(async ({ input, context, errors }
 
 export const start = authed.tryout.start.handler(async ({ input, context, errors }) => {
 	try {
-		return await startTryout(input, context.session.user);
+		return await startTryoutService.start(input, context.session.user);
 	} catch (error) {
 		return toProcedureError(error, errors);
 	}

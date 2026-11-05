@@ -4,10 +4,7 @@ import { sql } from "drizzle-orm";
 import { authedImplementer } from "@/lib/router-definition";
 import { activeSubtestService } from "@/lib/tryout/active-subtest.service";
 import { startSubtestService } from "@/lib/tryout/start-subtest.service";
-import {
-	submitSubtest as submitSubtestService,
-	submitTryout as submitTryoutService,
-} from "@/lib/tryout/submit.service";
+import { submitService } from "@/lib/tryout/submit.service";
 import { toProcedureError } from "@/lib/tryout/tryout-error";
 
 const authed = authedImplementer;
@@ -81,7 +78,7 @@ export const toggleRaguRagu = authed.tryout.toggleRaguRagu.handler(async ({ inpu
 
 export const submitSubtest = authed.tryout.submitSubtest.handler(async ({ input, context, errors }) => {
 	try {
-		return await submitSubtestService(input, context.session.user.id);
+		return await submitService.submitSubtest(input, context.session.user.id);
 	} catch (error) {
 		return toProcedureError(error, errors);
 	}
@@ -89,7 +86,7 @@ export const submitSubtest = authed.tryout.submitSubtest.handler(async ({ input,
 
 export const submitTryout = authed.tryout.submitTryout.handler(async ({ input, context, errors }) => {
 	try {
-		return await submitTryoutService(input, context.session.user.id);
+		return await submitService.submitTryout(input, context.session.user.id);
 	} catch (error) {
 		return toProcedureError(error, errors);
 	}

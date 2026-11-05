@@ -4,7 +4,7 @@
  * Kept separate from oRPC error codes because the payment layer also runs from webhooks and
  * jobs. Procedures decide how each one surfaces to the caller.
  */
-export const paymentErrorCodes = [
+const paymentErrorCodes = [
 	"INVALID_PAYLOAD",
 	"PROVIDER_UNAVAILABLE",
 	"PROVIDER_REJECTED",
