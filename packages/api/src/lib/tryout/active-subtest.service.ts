@@ -1,4 +1,5 @@
 import { db } from "@bimbelbeta/db";
+import { tryoutErrors as errors } from "@/lib/tryout/tryout-error";
 
 async function findOngoingAttempt(tryoutId: number, userId: string) {
 	return db.query.tryoutAttempt.findFirst({
@@ -23,20 +24,21 @@ export const createActiveSubtestService = (findAttempt: typeof findOngoingAttemp
 	 * fresh clock reading rather than trusting the client or a cached payload.
 	 *
 	 * Shared by saving an answer and toggling the ragu-ragu flag so both reject the same ways.
-	 * Never throws; the status tells the procedure which message to use.
+	 * Throws a `TryoutError` for every expected rejection.
 	 *
-	 * @returns `active` with the attempt id to write answers against, or `no_attempt`,
-	 * `no_subtest`, or `expired`.
+	 * @returns The attempt id to write answers against.
 	 */
-	async find(tryoutId: number, userId: string) {
+	async require(tryoutId: number, userId: string) {
 		const attempt = await findAttempt(tryoutId, userId);
-		if (!attempt) return { status: "no_attempt" } as const;
+		if (!attempt) throw errors.BAD_REQUEST({ message: "Tidak ada pengerjaan yang aktif" });
 
 		const subtest = attempt.subtestAttempts.find((item) => item.status === "ongoing");
-		if (!subtest) return { status: "no_subtest" } as const;
-		if (subtest.deadline && subtest.deadline < new Date()) return { status: "expired" } as const;
+		if (!subtest) throw errors.BAD_REQUEST({ message: "Tidak ada subtest yang aktif" });
+		if (subtest.deadline && subtest.deadline < new Date()) {
+			throw errors.BAD_REQUEST({ message: "Batas waktu subtest telah habis" });
+		}
 
-		return { status: "active", attemptId: attempt.id } as const;
+		return attempt.id;
 	},
 });
 

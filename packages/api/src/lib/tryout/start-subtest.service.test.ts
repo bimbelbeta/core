@@ -40,28 +40,36 @@ function setup() {
 describe("start subtest service", () => {
 	test("returns an existing attempt without creating another", async () => {
 		const { deps, service } = setup();
-		const result = await service.start(1, 10, "user");
-		expect(result).toEqual({ status: "started", attempt: { ...subtestAttempt, score: 75 } });
+		expect(await service.start(1, 10, "user")).toEqual({ ...subtestAttempt, score: 75 });
 		expect(deps.createSubtestAttempt).not.toHaveBeenCalled();
 	});
 
 	test("starts the next subtest using the prior deadline, capped by the overall deadline", async () => {
 		const { deps, service } = setup();
-		expect((await service.start(1, 11, "user")).status).toBe("started");
+		expect(await service.start(1, 11, "user")).toMatchObject({ subtestId: 11 });
 		expect(deps.createSubtestAttempt).toHaveBeenCalledWith({ tryoutAttemptId: 2, subtestId: 11, deadline });
 	});
 
 	test("rejects missing attempts and unknown subtests", async () => {
 		const { deps, service } = setup();
 		deps.findAttempt.mockResolvedValueOnce(undefined);
-		expect(await service.start(1, 10, "user")).toEqual({ status: "no_attempt" });
-		expect(await service.start(1, 99, "user")).toEqual({ status: "no_subtest" });
+		await expect(service.start(1, 10, "user")).rejects.toMatchObject({
+			code: "BAD_REQUEST",
+			message: "Anda belum memulai tryout ini",
+		});
+		await expect(service.start(1, 99, "user")).rejects.toMatchObject({
+			code: "NOT_FOUND",
+			message: "Subtest tidak ditemukan",
+		});
 	});
 
 	test("rejects starting a subtest before its predecessor is finished", async () => {
 		const { deps, service } = setup();
 		deps.findAttempt.mockResolvedValueOnce({ ...attempt, subtestAttempts: [] });
-		expect(await service.start(1, 11, "user")).toEqual({ status: "previous_unfinished" });
+		await expect(service.start(1, 11, "user")).rejects.toMatchObject({
+			code: "BAD_REQUEST",
+			message: "Selesaikan subtest sebelumnya terlebih dahulu",
+		});
 		expect(deps.createSubtestAttempt).not.toHaveBeenCalled();
 	});
 });

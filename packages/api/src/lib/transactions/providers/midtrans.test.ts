@@ -6,6 +6,12 @@ import { midtransProvider, signatureMatches, toPaymentStatus } from "@/lib/trans
 
 const SERVER_KEY = "test-server-key-abc123";
 const originalServerKey = process.env.MIDTRANS_SERVER_KEY;
+const originalClientKey = process.env.MIDTRANS_CLIENT_KEY;
+
+function restore(key: string, value: string | undefined) {
+	if (value === undefined) delete process.env[key];
+	else process.env[key] = value;
+}
 const ORDER_ID = "ORDER-001";
 const STATUS_CODE = "200";
 const GROSS_AMOUNT = "100000.00";
@@ -22,7 +28,8 @@ const notification = {
 };
 
 afterAll(() => {
-	process.env.MIDTRANS_SERVER_KEY = originalServerKey;
+	restore("MIDTRANS_SERVER_KEY", originalServerKey);
+	restore("MIDTRANS_CLIENT_KEY", originalClientKey);
 });
 
 describe("signatureMatches", () => {

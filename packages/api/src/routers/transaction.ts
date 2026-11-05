@@ -1,12 +1,12 @@
 import { db } from "@bimbelbeta/db";
 import { transaction } from "@bimbelbeta/db/schema/transaction";
 import { and, eq } from "drizzle-orm";
-import { authedNoPremiumImplementer } from "@/lib/router-definition";
+import { authedImplementer } from "@/lib/router-definition";
 import { baseImplementer } from "@/lib/router-definition/base";
 import { notificationService, subscriptionService, verifyNotification } from "@/lib/transactions/composition";
 
 const pub = baseImplementer;
-const authed = authedNoPremiumImplementer;
+const authed = authedImplementer;
 
 const subscribe = authed.transaction.subscribe.handler(async ({ input, context, errors }) => {
 	const result = await subscriptionService.subscribe(input.slug, context.session.user);

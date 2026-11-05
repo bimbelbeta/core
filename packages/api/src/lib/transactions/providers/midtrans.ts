@@ -135,6 +135,7 @@ async function fetchStatus(orderId: string): Promise<PaymentStatus> {
 
 	const response = await fetch(`https://${host}/v2/${orderId}/status`, {
 		headers: { Authorization: `Basic ${credentials}`, "Content-Type": "application/json" },
+		signal: AbortSignal.timeout(10_000),
 	}).catch((error: unknown) => {
 		throw new PaymentError("PROVIDER_UNAVAILABLE", "Midtrans status request failed", { cause: error });
 	});
