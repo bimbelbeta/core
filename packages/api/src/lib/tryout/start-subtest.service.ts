@@ -16,10 +16,8 @@ const dependencies = {
 				},
 			},
 		}),
-	createSubtestAttempt: async (data: typeof tryoutSubtestAttempt.$inferInsert) => {
-		const [attempt] = await db.insert(tryoutSubtestAttempt).values(data).returning();
-		return attempt;
-	},
+	createSubtestAttempt: async (data: typeof tryoutSubtestAttempt.$inferInsert) =>
+		(await db.insert(tryoutSubtestAttempt).values(data).returning())[0]!,
 };
 
 /**
@@ -70,7 +68,6 @@ export const createStartSubtestService = (deps: typeof dependencies) => ({
 		const startFrom = previous?.deadline ?? new Date();
 		const deadline = computeSubtestDeadline(attempt.tryout.subtests[index]!.duration, attempt.deadline, startFrom);
 		const created = await deps.createSubtestAttempt({ tryoutAttemptId: attempt.id, subtestId, deadline });
-		if (!created) throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memulai subtest" });
 		return { ...created, score: parseNullableInt(created.score) };
 	},
 });

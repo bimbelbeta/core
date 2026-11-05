@@ -28,10 +28,3 @@ export class PaymentError extends Error {
 		super(message, options);
 	}
 }
-
-/**
- * Narrows any thrown value to a payment error code.
- *
- * Anything that is not a `PaymentError` is treated as the provider being unavailable, which is
- * the safe assumption when a transport or parsing failure escapes without a specific cause.
- */

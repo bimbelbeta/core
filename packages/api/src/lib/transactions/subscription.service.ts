@@ -22,7 +22,7 @@ export const createSubscriptionService = (deps: SubscriptionServiceDependencies)
 	 * @param slug Product slug identifying the plan being bought.
 	 * @param user Buyer identity and current premium state.
 	 * @returns `ok` with the checkout, `not_found`, `already_premium`, or
-	 * `payment_failed` with a `reason` describing what the gateway did.
+	 * or `payment_failed`.
 	 */
 	async subscribe(slug: string, user: Pick<typeof auth.$Infer.Session.user, "id" | "name" | "email" | "isPremium">) {
 		const plan = await deps.repository.findProduct(slug);

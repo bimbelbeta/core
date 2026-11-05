@@ -152,20 +152,20 @@ export async function startTryout(
 
 	// Use a transaction to atomically create attempt and deduct credits if needed
 	const attempt = await deps.runInTransaction(async (trx) => {
-		const [newAttempt] = await trx
-			.insert(tryoutAttempt)
-			.values({
-				tryoutId: input.id,
-				userId: userData.id,
-				submittedImageUrl: usesCredit ? null : input.imageUrl,
-				deadline: overallDeadline,
-				usedCredit: usesCredit,
-				usedAccessCode: usesAccessCode,
-				accessCodeId: usesAccessCode ? (validAccessCode?.id ?? null) : null,
-			})
-			.returning();
-
-		if (!newAttempt) throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal membuat pengerjaan" });
+		const newAttempt = (
+			await trx
+				.insert(tryoutAttempt)
+				.values({
+					tryoutId: input.id,
+					userId: userData.id,
+					submittedImageUrl: usesCredit ? null : input.imageUrl,
+					deadline: overallDeadline,
+					usedCredit: usesCredit,
+					usedAccessCode: usesAccessCode,
+					accessCodeId: usesAccessCode ? (validAccessCode?.id ?? null) : null,
+				})
+				.returning()
+		)[0]!;
 
 		if (usesAccessCode && validAccessCode) {
 			const code = validAccessCode;

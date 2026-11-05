@@ -31,7 +31,7 @@ export const createNotificationService = (deps: NotificationServiceDependencies)
 	 * @param orderId Order id from the notification payload.
 	 * @param purchaseDate Timestamp used as the paid-at time and the basis for premium expiry.
 	 * @returns One of `ok`, `not_found`, `already_processed`, `user_deleted`, `verification_failed`
-	 * (with `reason`), `processing_failed`, or `update_failed`.
+	 * `processing_failed`, or `update_failed`.
 	 */
 	async process(orderId: string, purchaseDate: Date) {
 		let status: PaymentStatus;

@@ -10,11 +10,6 @@ export type MidtransNotification = {
 	signature_key: string;
 };
 
-type MidtransStatusPayload = {
-	transaction_status: string;
-	fraud_status?: string;
-};
-
 const paid = new Set(["settlement"]);
 const failed = new Set(["deny", "cancel", "expire"]);
 
@@ -81,7 +76,8 @@ function getSnap(): Snap {
 }
 
 function isRejection(error: unknown): boolean {
-	const status = (error as { httpStatusCode?: number } | null)?.httpStatusCode;
+	if (typeof error !== "object" || error === null || !("httpStatusCode" in error)) return false;
+	const status = error.httpStatusCode;
 	return typeof status === "number" && status >= 400 && status < 500;
 }
 
@@ -141,16 +137,17 @@ async function fetchStatus(orderId: string): Promise<PaymentStatus> {
 	}
 
 	const body: unknown = await response.json().catch(() => null);
-	if (
-		typeof body !== "object" ||
-		body === null ||
-		typeof (body as MidtransStatusPayload).transaction_status !== "string"
-	) {
+	if (typeof body !== "object" || body === null || !("transaction_status" in body)) {
 		throw new PaymentError("INVALID_PAYLOAD", "Midtrans status response is not a status payload");
 	}
 
-	const payload = body as MidtransStatusPayload;
-	return toPaymentStatus(payload.transaction_status, payload.fraud_status);
+	const { transaction_status: transactionStatus } = body;
+	if (typeof transactionStatus !== "string") {
+		throw new PaymentError("INVALID_PAYLOAD", "Midtrans status response is not a status payload");
+	}
+
+	const fraudStatus = "fraud_status" in body && typeof body.fraud_status === "string" ? body.fraud_status : undefined;
+	return toPaymentStatus(transactionStatus, fraudStatus);
 }
 
 export const midtransProvider: PaymentProvider<MidtransNotification> = {
