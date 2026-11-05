@@ -38,9 +38,12 @@ describe("typographyVariants", () => {
 import { typographyTones } from "./typography-variants";
 
 describe("typographyTones", () => {
-	test("no tone uses a palette step this theme does not define", () => {
-		for (const [name, className] of Object.entries(typographyTones)) {
-			expect(className, name).not.toMatch(/primary-navy-900|primary-navy-50|primary-50\b|primary-300/);
-		}
+	test("the tone set is closed and every tone resolves to a real colour", () => {
+		expect(Object.values(typographyTones).sort()).toEqual([
+			"",
+			"text-destructive",
+			"text-muted-foreground",
+			"text-primary-800",
+		]);
 	});
 });

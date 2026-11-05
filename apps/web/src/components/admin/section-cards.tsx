@@ -2,6 +2,7 @@ import { ArrowUpIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatRupiah } from "@/lib/formatter";
 import { orpc } from "@/lib/orpc";
 
 export function SectionCards() {
@@ -42,7 +43,7 @@ export function SectionCards() {
 		},
 		{
 			title: "Pendapatan Bulan Ini",
-			value: `Rp ${stats.monthlyRevenue.toLocaleString("id-ID")}`,
+			value: formatRupiah(stats.monthlyRevenue),
 			trend: stats.revenueTrend,
 		},
 	];

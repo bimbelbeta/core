@@ -43,7 +43,7 @@ export function ReferralDetailPage() {
 	return (
 		<div className="flex flex-col gap-6 p-6">
 			<div className="flex items-center gap-4">
-				<Button variant="ghost" size="icon" onClick={handleBack}>
+				<Button aria-label="Kembali" variant="ghost" size="icon" onClick={handleBack}>
 					<ArrowLeftIcon className="size-5" />
 				</Button>
 				<div>

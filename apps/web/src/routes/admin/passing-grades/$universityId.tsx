@@ -15,6 +15,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { Typography } from "@/components/ui/typography";
+import { formatRupiah } from "@/lib/formatter";
 import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { AddProgramDialog } from "./-components/add-program-dialog";
@@ -140,7 +141,7 @@ function RouteComponent() {
 											</Button>
 										</TableCell>
 										<TableCell>{prog.studyProgram.category}</TableCell>
-										<TableCell>{prog.tuition ? `Rp ${prog.tuition.toLocaleString("id-ID")}` : "-"}</TableCell>
+										<TableCell>{prog.tuition ? formatRupiah(prog.tuition) : "-"}</TableCell>
 										<TableCell>{prog.capacity ?? "-"}</TableCell>
 										<TableCell>{prog.accreditation ?? "-"}</TableCell>
 										<TableCell>

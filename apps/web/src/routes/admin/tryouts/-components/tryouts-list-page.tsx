@@ -33,6 +33,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Typography } from "@/components/ui/typography";
+import { formatDateMedium } from "@/lib/format-date";
 import { SUBJECT_CATEGORY_LABELS, TRYOUT_STATUS_BADGE } from "@/lib/schemas";
 import { useTryoutsList } from "../-hooks/use-tryouts-list";
 import { AddTryoutDialog } from "./add-tryout-dialog";
@@ -137,9 +138,7 @@ export function TryoutsListPage() {
 											{TRYOUT_STATUS_BADGE[tryout.status].label}
 										</Badge>
 									</AdminTableCell>
-									<AdminTableCell>
-										{tryout.createdAt ? new Date(tryout.createdAt).toLocaleDateString("id-ID") : "-"}
-									</AdminTableCell>
+									<AdminTableCell>{tryout.createdAt ? formatDateMedium(tryout.createdAt) : "-"}</AdminTableCell>
 									<AdminTableCell className="text-right">
 										<div className="flex items-center justify-end gap-2">
 											<AlertDialog
@@ -147,7 +146,7 @@ export function TryoutsListPage() {
 												onOpenChange={(open) => setDeleteDialogOpen(open ? tryout.id : null)}
 											>
 												<AlertDialogTrigger asChild>
-													<Button variant="ghost" size="icon">
+													<Button variant="ghost" size="icon" aria-label="Hapus tryout">
 														<TrashIcon className="size-4 text-red-600" />
 													</Button>
 												</AlertDialogTrigger>

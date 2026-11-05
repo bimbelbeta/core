@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Typography } from "@/components/ui/typography";
+import { formatDateTime } from "@/lib/format-date";
 import { useUserDetail } from "../-hooks/use-user-detail";
 import { EditRoleDialog } from "./edit-role-dialog";
 import { GrantCreditsDialog } from "./grant-credits-dialog";
@@ -41,7 +42,7 @@ export function UserDetailPage() {
 	return (
 		<div className="flex h-full flex-col gap-6 p-6">
 			<div className="flex items-center gap-4">
-				<Button variant="ghost" size="icon" onClick={handleBack}>
+				<Button aria-label="Kembali" variant="ghost" size="icon" onClick={handleBack}>
 					<ArrowLeftIcon className="size-5" />
 				</Button>
 				<div>
@@ -105,16 +106,16 @@ export function UserDetailPage() {
 						{user.premiumExpiresAt && (
 							<div className="flex justify-between">
 								<span className="text-muted-foreground">Premium Expired</span>
-								<span className="font-semibold">{new Date(user.premiumExpiresAt).toLocaleString("id-ID")}</span>
+								<span className="font-semibold">{formatDateTime(user.premiumExpiresAt)}</span>
 							</div>
 						)}
 						<div className="flex justify-between">
 							<span className="text-muted-foreground">Dibuat</span>
-							<span>{user.createdAt ? new Date(user.createdAt).toLocaleString("id-ID") : "-"}</span>
+							<span>{user.createdAt ? formatDateTime(user.createdAt) : "-"}</span>
 						</div>
 						<div className="flex justify-between">
 							<span className="text-muted-foreground">Diupdate</span>
-							<span>{user.updatedAt ? new Date(user.updatedAt).toLocaleString("id-ID") : "-"}</span>
+							<span>{user.updatedAt ? formatDateTime(user.updatedAt) : "-"}</span>
 						</div>
 					</CardContent>
 				</Card>
@@ -142,9 +143,7 @@ export function UserDetailPage() {
 									<TableBody>
 										{creditHistory.map((tx) => (
 											<TableRow key={tx.id}>
-												<TableCell className="whitespace-nowrap">
-													{new Date(tx.createdAt).toLocaleString("id-ID")}
-												</TableCell>
+												<TableCell className="whitespace-nowrap">{formatDateTime(tx.createdAt)}</TableCell>
 												<TableCell>
 													<span className={tx.amount >= 0 ? "text-green-600" : "text-red-600"}>
 														{tx.amount > 0 ? "+" : ""}

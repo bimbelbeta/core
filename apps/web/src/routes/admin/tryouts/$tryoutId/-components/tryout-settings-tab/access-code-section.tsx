@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Typography } from "@/components/ui/typography";
+import { formatDateTime } from "@/lib/format-date";
 import { orpc } from "@/lib/orpc";
 
 export function AccessCodeSection({ tryoutId }: { tryoutId: number }) {
@@ -172,7 +173,7 @@ export function AccessCodeSection({ tryoutId }: { tryoutId: number }) {
 										</Typography>
 										{accessCodeItem.expiresAt ? (
 											<Typography variant="caption" tone="muted">
-												Kadaluarsa {new Date(accessCodeItem.expiresAt).toLocaleString("id-ID")}
+												Kadaluarsa {formatDateTime(accessCodeItem.expiresAt)}
 											</Typography>
 										) : null}
 									</div>

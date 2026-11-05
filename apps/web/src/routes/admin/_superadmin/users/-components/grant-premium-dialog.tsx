@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { formatDateLong } from "@/lib/format-date";
+import { formatDateLong, formatDateMedium } from "@/lib/format-date";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
 
@@ -62,7 +62,7 @@ export function GrantPremiumDialog({
 			}}
 		>
 			<DialogTrigger asChild>
-				<Button variant="ghost" size="icon">
+				<Button variant="ghost" size="icon" aria-label="Beri premium">
 					<StarIcon className="size-4" />
 				</Button>
 			</DialogTrigger>
@@ -75,7 +75,7 @@ export function GrantPremiumDialog({
 					{currentPremiumExpiry && (
 						<div className="bg-muted/50 flex items-center justify-between rounded-md border px-4 py-2.5">
 							<span className="text-muted-foreground text-sm">Premium expires</span>
-							<Badge variant="outline">{new Date(currentPremiumExpiry).toLocaleDateString("id-ID")}</Badge>
+							<Badge variant="outline">{formatDateMedium(currentPremiumExpiry)}</Badge>
 						</div>
 					)}
 					<div className="flex flex-col gap-2">

@@ -58,7 +58,7 @@ export function GrantCreditsDialog({
 			}}
 		>
 			<DialogTrigger asChild>
-				<Button variant="ghost" size="icon">
+				<Button variant="ghost" size="icon" aria-label="Tambah kredit">
 					<PlusIcon className="size-4" />
 				</Button>
 			</DialogTrigger>

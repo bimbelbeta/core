@@ -17,6 +17,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Typography } from "@/components/ui/typography";
+import { formatDateMedium } from "@/lib/format-date";
 import { orpc } from "@/lib/orpc";
 import { SUBJECT_CATEGORY_LABELS, TRYOUT_STATUS_BADGE } from "@/lib/schemas";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
@@ -78,16 +79,12 @@ function TryoutDetailPage() {
 
 	const formatDateRange = () => {
 		if (!tryout) return "Tidak dijadwalkan";
-		if (!tryout.startsAt && !tryout.endsAt) return "Tidak dijadwalkan";
-		if (tryout.startsAt && !tryout.endsAt) {
-			return `Mulai ${new Date(tryout.startsAt).toLocaleDateString("id-ID")}`;
+		if (!tryout.startsAt || !tryout.endsAt) {
+			if (tryout.startsAt) return `Mulai ${formatDateMedium(tryout.startsAt)}`;
+			if (tryout.endsAt) return `Sampai ${formatDateMedium(tryout.endsAt)}`;
+			return "Tidak dijadwalkan";
 		}
-		if (!tryout.startsAt && tryout.endsAt) {
-			return `Sampai ${new Date(tryout.endsAt).toLocaleDateString("id-ID")}`;
-		}
-		const start = new Date(tryout.startsAt!).toLocaleDateString("id-ID");
-		const end = new Date(tryout.endsAt!).toLocaleDateString("id-ID");
-		return `${start} - ${end}`;
+		return `${formatDateMedium(tryout.startsAt)} - ${formatDateMedium(tryout.endsAt)}`;
 	};
 
 	return (
