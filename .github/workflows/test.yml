@@ -31,8 +31,13 @@ jobs:
         with:
           bun-version: 1.4.4
       - run: bun install --frozen-lockfile
-      - run: bunx drizzle-kit push --force
+      - run: bunx drizzle-kit migrate
         working-directory: packages/db
+      - name: Schema and migrations must agree
+        working-directory: packages/db
+        run: |
+          bunx drizzle-kit generate
+          git diff --exit-code src/migrations
       - run: bun build:packages
       - run: bun check-types
       - run: bunx biome check .

@@ -1,4 +1,4 @@
-CREATE TABLE "referral_code" (
+CREATE TABLE IF NOT EXISTS "referral_code" (
 	"id" text PRIMARY KEY,
 	"code" text NOT NULL UNIQUE,
 	"status" boolean DEFAULT true NOT NULL,
@@ -11,7 +11,7 @@ CREATE TABLE "referral_code" (
 	"created_by" text
 );
 --> statement-breakpoint
-CREATE TABLE "referral_usage" (
+CREATE TABLE IF NOT EXISTS "referral_usage" (
 	"id" text PRIMARY KEY,
 	"user_id" text NOT NULL,
 	"referral_code_id" text NOT NULL,
@@ -19,9 +19,21 @@ CREATE TABLE "referral_usage" (
 	CONSTRAINT "referral_usage_user_code_idx" UNIQUE("user_id","referral_code_id")
 );
 --> statement-breakpoint
-CREATE INDEX "idx_referral_code_code" ON "referral_code" ("code");--> statement-breakpoint
-CREATE INDEX "idx_referral_usage_user_id" ON "referral_usage" ("user_id");--> statement-breakpoint
-CREATE INDEX "idx_referral_usage_code_id" ON "referral_usage" ("referral_code_id");--> statement-breakpoint
-ALTER TABLE "referral_code" ADD CONSTRAINT "referral_code_created_by_user_id_fkey" FOREIGN KEY ("created_by") REFERENCES "user"("id") ON DELETE SET NULL;--> statement-breakpoint
-ALTER TABLE "referral_usage" ADD CONSTRAINT "referral_usage_user_id_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE CASCADE;--> statement-breakpoint
-ALTER TABLE "referral_usage" ADD CONSTRAINT "referral_usage_referral_code_id_referral_code_id_fkey" FOREIGN KEY ("referral_code_id") REFERENCES "referral_code"("id") ON DELETE CASCADE;
+CREATE INDEX IF NOT EXISTS "idx_referral_code_code" ON "referral_code" ("code");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_referral_usage_user_id" ON "referral_usage" ("user_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_referral_usage_code_id" ON "referral_usage" ("referral_code_id");--> statement-breakpoint
+DO $$ BEGIN
+	IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'referral_code_created_by_user_id_fkey') THEN
+		ALTER TABLE "referral_code" ADD CONSTRAINT "referral_code_created_by_user_id_fkey" FOREIGN KEY ("created_by") REFERENCES "user"("id") ON DELETE SET NULL;
+	END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+	IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'referral_usage_user_id_user_id_fkey') THEN
+		ALTER TABLE "referral_usage" ADD CONSTRAINT "referral_usage_user_id_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE CASCADE;
+	END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+	IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'referral_usage_referral_code_id_referral_code_id_fkey') THEN
+		ALTER TABLE "referral_usage" ADD CONSTRAINT "referral_usage_referral_code_id_referral_code_id_fkey" FOREIGN KEY ("referral_code_id") REFERENCES "referral_code"("id") ON DELETE CASCADE;
+	END IF;
+END $$;
