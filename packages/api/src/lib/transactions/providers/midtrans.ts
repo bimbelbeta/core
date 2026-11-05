@@ -67,12 +67,6 @@ function getServerKey(): string {
 	return serverKey;
 }
 
-function getClientKey(): string {
-	const clientKey = process.env.MIDTRANS_CLIENT_KEY ?? "";
-	if (!clientKey) throw new PaymentError("CONFIGURATION_ERROR", "MIDTRANS_CLIENT_KEY is not set");
-	return clientKey;
-}
-
 function isProduction(): boolean {
 	return process.env.NODE_ENV === "production";
 }
@@ -80,7 +74,13 @@ function isProduction(): boolean {
 let snap: Snap | null = null;
 
 function getSnap(): Snap {
-	if (!snap) snap = new Snap({ isProduction: isProduction(), serverKey: getServerKey(), clientKey: getClientKey() });
+	if (!snap) {
+		snap = new Snap({
+			isProduction: isProduction(),
+			serverKey: getServerKey(),
+			clientKey: process.env.MIDTRANS_CLIENT_KEY ?? "",
+		});
+	}
 	return snap;
 }
 

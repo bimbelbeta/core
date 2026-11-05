@@ -118,7 +118,6 @@ describe("fetchStatus", () => {
 describe("createCheckout", () => {
 	test("maps the provider response to the neutral checkout shape", async () => {
 		process.env.MIDTRANS_SERVER_KEY = SERVER_KEY;
-		process.env.MIDTRANS_CLIENT_KEY = "test-client-key";
 		const create = spyOn(Snap.prototype, "createTransaction").mockResolvedValue({
 			token: "snap-token",
 			redirect_url: "https://app.midtrans.com/snap/v4/redirection/abc",
@@ -149,9 +148,29 @@ describe("createCheckout", () => {
 		}
 	});
 
+	test("does not require a client key, which the server never sends", async () => {
+		process.env.MIDTRANS_SERVER_KEY = SERVER_KEY;
+		process.env.MIDTRANS_CLIENT_KEY = "";
+		const create = spyOn(Snap.prototype, "createTransaction").mockResolvedValue({
+			token: "snap-token",
+			redirect_url: "https://example.test/pay",
+		});
+		try {
+			await expect(
+				midtransProvider.createCheckout({
+					orderId: ORDER_ID,
+					amount: "10000",
+					description: "Premium",
+					customer: { name: "User", email: "user@example.com" },
+				}),
+			).resolves.toMatchObject({ provider: "midtrans" });
+		} finally {
+			create.mockRestore();
+		}
+	});
+
 	test("reports a rejected checkout as PROVIDER_REJECTED", async () => {
 		process.env.MIDTRANS_SERVER_KEY = SERVER_KEY;
-		process.env.MIDTRANS_CLIENT_KEY = "test-client-key";
 		const create = spyOn(Snap.prototype, "createTransaction").mockRejectedValue({ httpStatusCode: 406 });
 		try {
 			await expect(

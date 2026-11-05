@@ -5,12 +5,13 @@ import { midtransProvider } from "@/lib/transactions/providers/midtrans";
 import { paymentRepository } from "@/lib/transactions/repository";
 import { createSubscriptionService } from "@/lib/transactions/subscription.service";
 
+const appOrigin = process.env.CORS_ORIGIN ?? "http://localhost:3000";
+
 export const verifyNotification = midtransProvider.verifyNotification;
 
 export const subscriptionService = createSubscriptionService({
 	repository: paymentRepository,
-	createCheckout: (input) =>
-		midtransProvider.createCheckout({ ...input, returnUrl: `${process.env.CORS_ORIGIN}/premium` }),
+	createCheckout: (input) => midtransProvider.createCheckout({ ...input, returnUrl: `${appOrigin}/premium` }),
 });
 
 export const notificationService = createNotificationService({
