@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { variantConfig } from "../routes/admin/_superadmin/products/-utils";
 import {
 	isSubscriptionVariant,
 	productTypeSchema,
@@ -11,10 +12,18 @@ import {
 } from "./schemas";
 
 describe("product variants", () => {
-	test("the form validator and the search schema accept the same set", () => {
+	test("rejects a value the closed set does not contain", () => {
 		expect(productVariantSchema.allows("annual")).toBe(false);
+		expect(productTypeSchema.allows("annual")).toBe(false);
 		expect(productTypeSchema.allows("subscription")).toBe(true);
 		expect(productTypeSchema.allows("product")).toBe(true);
+	});
+
+	test("the admin filter offers every variant the map knows", () => {
+		expect(Object.keys(variantConfig).sort()).toEqual(["credits", "fixed_date", "monthly"]);
+		for (const value of Object.keys(variantConfig)) {
+			expect(productVariantSchema.allows(value), value).toBe(true);
+		}
 	});
 
 	test("only credits is not a subscription", () => {

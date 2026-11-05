@@ -39,6 +39,9 @@ export function SearchInput({ value, onChange, debounceMs = 500, className, ...p
 	};
 
 	const handleClear = () => {
+		if (timeoutRef.current) {
+			clearTimeout(timeoutRef.current);
+		}
 		setLocalValue("");
 		onChange("");
 	};

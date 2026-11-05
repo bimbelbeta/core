@@ -165,7 +165,7 @@ export function TryoutSubtestsTab({ tryoutId, subtests, onUpdate }: TryoutSubtes
 															variant="ghost"
 															size="icon"
 															aria-label={`Hapus subtest ${subtest.name}`}
-															className="text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-red-600"
+															className="text-muted-foreground opacity-0 group-hover:opacity-100 focus-within:opacity-100 hover:text-red-600"
 														>
 															<TrashIcon className="size-4" />
 														</Button>

@@ -11,6 +11,9 @@ on:
       - "turbo.json"
       - "package.json"
       - "biome.json"
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
 
 jobs:
   build-web:

@@ -11,15 +11,10 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
-import type { ProductVariant } from "@/lib/schemas";
-import { productTypeSchema, productVariantSchema } from "@/lib/schemas";
+import { type ProductType, type ProductVariant, productTypeSchema, productVariantSchema } from "@/lib/schemas";
 import { isProductVariant, months } from "../-utils";
 
-type ProductType = "subscription" | "product";
-
-function isProductType(v: string): v is ProductType {
-	return v === "subscription" || v === "product";
-}
+const isProductType = (v: string): v is ProductType => productTypeSchema.allows(v);
 
 interface ProductFormProps {
 	initialData?: {

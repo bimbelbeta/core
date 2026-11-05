@@ -188,7 +188,7 @@ function RouteComponent() {
 								<Label htmlFor={field.name}>URL Video (YouTube)</Label>
 								<div className="flex items-center gap-2">
 									{showPreview ? <VideoCamera className="size-4" /> : <VideoCameraSlash className="size-4" />}
-									<Switch checked={showPreview} onCheckedChange={setShowPreview} />
+									<Switch checked={showPreview} onCheckedChange={setShowPreview} aria-label="Pratinjau video" />
 								</div>
 							</div>
 							<Input

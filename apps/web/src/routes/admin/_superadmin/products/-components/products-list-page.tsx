@@ -83,9 +83,11 @@ export function ProductsListPage() {
 							</SelectTrigger>
 							<SelectContent>
 								<SelectItem value="all">Semua Variant</SelectItem>
-								<SelectItem value="fixed_date">Fixed Date</SelectItem>
-								<SelectItem value="monthly">Monthly</SelectItem>
-								<SelectItem value="credits">Credits</SelectItem>
+								{Object.entries(variantConfig).map(([value, config]) => (
+									<SelectItem key={value} value={value}>
+										{config.label}
+									</SelectItem>
+								))}
 							</SelectContent>
 						</Select>
 						<Select value={includeDeleted ? "true" : "false"} onValueChange={handleIncludeDeletedChange}>

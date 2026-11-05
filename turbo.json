@@ -73,7 +73,7 @@
 		},
 		"test": {
 			"dependsOn": ["^build"],
-			"inputs": ["$TURBO_DEFAULT$", "bunfig.toml"]
+			"inputs": ["$TURBO_DEFAULT$"]
 		}
 	}
 }

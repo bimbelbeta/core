@@ -1,4 +1,4 @@
-import { ArrowUpIcon } from "@phosphor-icons/react";
+import { ArrowDownIcon, ArrowUpIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -54,7 +54,8 @@ export function SectionCards() {
 				<Card key={card.title} className="@container/card">
 					<CardHeader className="flex flex-row items-center justify-between pb-2">
 						<CardTitle className="text-sm font-medium">{card.title}</CardTitle>
-						{card.trend > 0 && <ArrowUpIcon className="size-4 text-green-500" />}
+						{card.trend > 0 && <ArrowUpIcon className="size-4 text-green-700" aria-label="Naik" />}
+						{card.trend < 0 && <ArrowDownIcon className="size-4 text-red-200" aria-label="Turun" />}
 					</CardHeader>
 					<CardContent className="mt-auto">
 						<div className="mt-auto text-2xl font-bold">{card.value}</div>

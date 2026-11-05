@@ -182,33 +182,31 @@ function QuestionsListPage() {
 					</Select>
 				</AdminTableToolbar>
 
-				{selectedIds.length > 0 && (
-					<AdminTableBulkActions selectedCount={selectedIds.length}>
-						<AlertDialog open={bulkDeleteDialogOpen} onOpenChange={setBulkDeleteDialogOpen}>
-							<AlertDialogTrigger asChild>
-								<Button variant="destructive" size="sm">
-									<TrashIcon className="mr-2 size-4" />
-									Hapus Terpilih
-								</Button>
-							</AlertDialogTrigger>
-							<AlertDialogContent>
-								<AlertDialogHeader>
-									<AlertDialogTitle>Hapus Multiple Soal</AlertDialogTitle>
-									<AlertDialogDescription>
-										Apakah Anda yakin ingin menghapus {selectedIds.length} soal yang dipilih? Tindakan ini tidak dapat
-										dibatalkan.
-									</AlertDialogDescription>
-								</AlertDialogHeader>
-								<AlertDialogFooter>
-									<AlertDialogCancel>Batal</AlertDialogCancel>
-									<AlertDialogAction onClick={handleBulkDelete} variant="destructive">
-										Hapus
-									</AlertDialogAction>
-								</AlertDialogFooter>
-							</AlertDialogContent>
-						</AlertDialog>
-					</AdminTableBulkActions>
-				)}
+				<AdminTableBulkActions selectedCount={selectedIds.length}>
+					<AlertDialog open={bulkDeleteDialogOpen} onOpenChange={setBulkDeleteDialogOpen}>
+						<AlertDialogTrigger asChild>
+							<Button variant="destructive" size="sm">
+								<TrashIcon className="mr-2 size-4" />
+								Hapus Terpilih
+							</Button>
+						</AlertDialogTrigger>
+						<AlertDialogContent>
+							<AlertDialogHeader>
+								<AlertDialogTitle>Hapus Multiple Soal</AlertDialogTitle>
+								<AlertDialogDescription>
+									Apakah Anda yakin ingin menghapus {selectedIds.length} soal yang dipilih? Tindakan ini tidak dapat
+									dibatalkan.
+								</AlertDialogDescription>
+							</AlertDialogHeader>
+							<AlertDialogFooter>
+								<AlertDialogCancel>Batal</AlertDialogCancel>
+								<AlertDialogAction onClick={handleBulkDelete} variant="destructive">
+									Hapus
+								</AlertDialogAction>
+							</AlertDialogFooter>
+						</AlertDialogContent>
+					</AlertDialog>
+				</AdminTableBulkActions>
 
 				<AdminTableRoot className="mt-3">
 					<AdminTable>
