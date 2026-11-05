@@ -10,13 +10,13 @@ describe("formatDateLong", () => {
 	});
 
 	test("formats a date correctly", () => {
-		expect(formatDateLong(new Date("2026-04-29"))).toBe("29 April 2026");
+		expect(formatDateLong(new Date("2026-05-01"))).toBe("1 Mei 2026");
 	});
 });
 
 describe("formatDateMedium", () => {
 	test("formats date with numeric day, short month, and year", () => {
-		expect(formatDateMedium(new Date("2026-04-29"))).toBe("29 Apr 2026");
+		expect(formatDateMedium(new Date("2026-05-01"))).toBe("1 Mei 2026");
 	});
 
 	test("produces different output from formatDateLong", () => {

@@ -63,7 +63,7 @@ function QuestionDetailPage() {
 		<div className="flex h-full flex-col gap-6 p-6">
 			<div className="flex items-center justify-between">
 				<div className="flex items-center gap-4">
-					<Button variant="ghost" size="icon" onClick={() => router.history.back()}>
+					<Button variant="ghost" size="icon" aria-label="Kembali" onClick={() => router.history.back()}>
 						<ArrowLeftIcon className="size-4" />
 					</Button>
 					<Typography variant="title">Detail Soal</Typography>

@@ -86,7 +86,7 @@ function SubtestDetailPage() {
 			<div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 				<div className="flex items-start gap-4 sm:items-center">
 					<Button variant="ghost" size="icon" asChild>
-						<Link to="/admin/tryouts/$tryoutId" params={{ tryoutId: tId }}>
+						<Link to="/admin/tryouts/$tryoutId" params={{ tryoutId: tId }} aria-label="Kembali">
 							<ArrowLeftIcon className="size-4" />
 						</Link>
 					</Button>

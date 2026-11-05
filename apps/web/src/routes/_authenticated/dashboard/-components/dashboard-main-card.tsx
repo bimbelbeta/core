@@ -30,11 +30,11 @@ export function DashboardMainCard({ title, description, to, href, src }: Dashboa
 
 				<Button asChild size="icon">
 					{to ? (
-						<Link to={to}>
+						<Link to={to} aria-label="Selengkapnya">
 							<ArrowRightIcon weight="bold" />
 						</Link>
 					) : (
-						<a href={href} target="_blank" rel="noopener noreferrer">
+						<a href={href} target="_blank" rel="noopener noreferrer" aria-label="Selengkapnya">
 							<ArrowRightIcon weight="bold" />
 						</a>
 					)}

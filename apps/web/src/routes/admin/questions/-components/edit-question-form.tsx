@@ -88,7 +88,7 @@ export function EditQuestionForm({ question, initialChoices, onSuccess, onCancel
 		<div className="flex h-full flex-col gap-6 p-6">
 			<div className="flex items-center justify-between">
 				<div className="flex items-center gap-4">
-					<Button variant="ghost" size="icon" onClick={onCancel}>
+					<Button variant="ghost" size="icon" aria-label="Batal" onClick={onCancel}>
 						<ArrowLeftIcon className="size-4" />
 					</Button>
 					<Typography variant="title">Edit Soal #{question.id}</Typography>

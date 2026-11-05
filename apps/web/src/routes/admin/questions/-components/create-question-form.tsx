@@ -111,7 +111,7 @@ export function CreateQuestionForm({
 			<AdminPageHeader>
 				<AdminPageHeaderContent>
 					<div className="flex items-center gap-3">
-						<Button variant="ghost" size="icon" onClick={onCancel}>
+						<Button variant="ghost" size="icon" aria-label="Batal" onClick={onCancel}>
 							<ArrowLeftIcon className="size-4" />
 						</Button>
 						<Typography variant="title">Buat Soal</Typography>

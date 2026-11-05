@@ -166,6 +166,7 @@ function RouteComponent() {
 										<TableCell className="text-right">
 											<Button
 												size="icon"
+												aria-label={`Lihat pembahasan ${subtest.name}`}
 												className="h-8 w-8 rounded-md bg-[#009CA6] hover:cursor-pointer hover:bg-[#008a93]"
 												onClick={() => {
 													if (session.data?.user.isPremium || data.usedCredit || data.usedAccessCode) {

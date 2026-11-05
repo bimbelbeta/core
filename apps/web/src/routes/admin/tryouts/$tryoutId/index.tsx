@@ -93,7 +93,7 @@ function TryoutDetailPage() {
 				<AdminPageHeaderContent>
 					<div className="flex items-center gap-3">
 						<Button variant="ghost" size="icon" asChild>
-							<Link to="/admin/tryouts">
+							<Link to="/admin/tryouts" aria-label="Kembali">
 								<ArrowLeftIcon className="size-4" />
 							</Link>
 						</Button>

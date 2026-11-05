@@ -150,7 +150,14 @@ export function ContentCard({
 					{isAdmin && (onEdit || onDelete) && (
 						<div className="flex items-center gap-1">
 							{onEdit && (
-								<Button type="button" variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={onEdit}>
+								<Button
+									type="button"
+									variant="ghost"
+									size="icon"
+									aria-label={`Edit ${item.title}`}
+									className="h-8 w-8 rounded-lg"
+									onClick={onEdit}
+								>
 									<PencilSimpleIcon className="size-4 lg:size-5" />
 								</Button>
 							)}
@@ -160,6 +167,7 @@ export function ContentCard({
 									type="button"
 									variant="ghost"
 									size="icon"
+									aria-label={`Hapus ${item.title}`}
 									className="text-destructive hover:text-destructive h-8 w-8 rounded-lg"
 									onClick={onDelete}
 								>

@@ -77,6 +77,7 @@ export function SubjectCard({ subject }: { subject: SubjectListItem }) {
 										type="button"
 										size="icon"
 										variant="outline"
+										aria-label={`Edit ${subject.name}`}
 										onClick={() => setEditOpen(true)}
 										className="z-10"
 									>
@@ -86,6 +87,7 @@ export function SubjectCard({ subject }: { subject: SubjectListItem }) {
 										type="button"
 										size="icon"
 										variant="destructive"
+										aria-label={`Hapus ${subject.name}`}
 										onClick={() => setDeleteOpen(true)}
 										className="z-10"
 									>

@@ -97,7 +97,13 @@ export function HeaderDashboard() {
 					</div>
 
 					{/* Mobile Menu Button */}
-					<Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileMenuOpen(true)}>
+					<Button
+						variant="ghost"
+						size="icon"
+						aria-label="Buka menu"
+						className="md:hidden"
+						onClick={() => setMobileMenuOpen(true)}
+					>
 						<ListIcon className="size-6" />
 					</Button>
 				</div>
@@ -127,7 +133,7 @@ export function HeaderDashboard() {
 									<span className="text-secondary-900">Bimbel</span>
 									<span className="text-tertiary-1000">Beta</span>
 								</Link>
-								<Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
+								<Button variant="ghost" size="icon" aria-label="Tutup menu" onClick={() => setMobileMenuOpen(false)}>
 									<XIcon className="size-6" />
 								</Button>
 							</div>

@@ -77,7 +77,7 @@ function RouteComponent() {
 		<div className="flex h-full flex-col gap-6 p-6">
 			<div className="flex items-center gap-4">
 				<Button variant="ghost" size="icon" asChild>
-					<Link to="/admin/passing-grades">
+					<Link to="/admin/passing-grades" aria-label="Kembali">
 						<ArrowLeftIcon className="size-5" />
 					</Link>
 				</Button>
@@ -152,7 +152,7 @@ function RouteComponent() {
 										<TableCell>
 											<DropdownMenu>
 												<DropdownMenuTrigger asChild>
-													<Button variant="ghost" size="icon">
+													<Button variant="ghost" size="icon" aria-label="Aksi program studi">
 														<DotsThreeIcon className="size-4" />
 													</Button>
 												</DropdownMenuTrigger>

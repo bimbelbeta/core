@@ -1,6 +1,6 @@
 export function formatDateLong(date: Date): string {
 	return date.toLocaleDateString("id-ID", {
-		day: "2-digit",
+		day: "numeric",
 		month: "long",
 		year: "numeric",
 	});
