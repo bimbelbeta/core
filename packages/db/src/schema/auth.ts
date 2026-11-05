@@ -1,7 +1,8 @@
 import { defineRelationsPart } from "drizzle-orm";
-import { boolean, index, integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, index, integer, text, timestamp } from "drizzle-orm/pg-core";
+import { app } from "@/schema/app";
 
-export const user = pgTable("user", {
+export const user = app.table("user", {
 	id: text("id").primaryKey(),
 	name: text("name").notNull().unique(),
 	email: text("email").notNull().unique(),
@@ -20,7 +21,7 @@ export const user = pgTable("user", {
 	targetStudyProgramId: integer("target_study_program_id"),
 });
 
-export const session = pgTable(
+export const session = app.table(
 	"session",
 	{
 		id: text("id").primaryKey(),
@@ -39,7 +40,7 @@ export const session = pgTable(
 	(table) => [index("session_userId_idx").on(table.userId)],
 );
 
-export const account = pgTable(
+export const account = app.table(
 	"account",
 	{
 		id: text("id").primaryKey(),
@@ -63,7 +64,7 @@ export const account = pgTable(
 	(table) => [index("account_userId_idx").on(table.userId)],
 );
 
-export const verification = pgTable(
+export const verification = app.table(
 	"verification",
 	{
 		id: text("id").primaryKey(),

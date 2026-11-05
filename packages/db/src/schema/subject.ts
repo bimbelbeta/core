@@ -1,14 +1,15 @@
 import { defineRelationsPart } from "drizzle-orm";
-import { boolean, index, integer, jsonb, pgEnum, pgTable, text, timestamp, unique } from "drizzle-orm/pg-core";
+import { boolean, index, integer, jsonb, text, timestamp, unique } from "drizzle-orm/pg-core";
+import { app } from "@/schema/app";
 import { user } from "@/schema/auth";
 import { question } from "@/schema/question";
 
 /*
   Subject (Classes)
 */
-export const subjectCategoryEnum = pgEnum("subject_category", ["sd", "smp", "sma", "utbk"]);
+export const subjectCategoryEnum = app.enum("subject_category", ["sd", "smp", "sma", "utbk"]);
 
-export const subject = pgTable("subject", {
+export const subject = app.table("subject", {
 	id: integer().primaryKey().generatedAlwaysAsIdentity(),
 	name: text().notNull(),
 	shortName: text("short_name").notNull().unique(),
@@ -23,7 +24,7 @@ export const subject = pgTable("subject", {
 /*
   Content Item
 */
-export const contentItem = pgTable(
+export const contentItem = app.table(
 	"content_item",
 	{
 		id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -41,7 +42,7 @@ export const contentItem = pgTable(
 /*
   Content Components (Optional, max 1 per content)
 */
-export const videoMaterial = pgTable("video_material", {
+export const videoMaterial = app.table("video_material", {
 	id: integer().primaryKey().generatedAlwaysAsIdentity(),
 	contentItemId: integer("content_item_id")
 		.notNull()
@@ -53,7 +54,7 @@ export const videoMaterial = pgTable("video_material", {
 	updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-export const noteMaterial = pgTable("note_material", {
+export const noteMaterial = app.table("note_material", {
 	id: integer().primaryKey().generatedAlwaysAsIdentity(),
 	contentItemId: integer("content_item_id")
 		.notNull()
@@ -64,7 +65,7 @@ export const noteMaterial = pgTable("note_material", {
 	updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-export const contentPracticeQuestions = pgTable(
+export const contentPracticeQuestions = app.table(
 	"content_practice_questions",
 	{
 		contentItemId: integer("content_item_id")
@@ -86,7 +87,7 @@ export const contentPracticeQuestions = pgTable(
 /*
   User Progress
 */
-export const userProgress = pgTable(
+export const userProgress = app.table(
 	"user_progress",
 	{
 		id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -115,7 +116,7 @@ export const userProgress = pgTable(
 /*
   Recent Content Views (Keep last 5 per user)
 */
-export const recentContentView = pgTable(
+export const recentContentView = app.table(
 	"recent_content_view",
 	{
 		id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -133,7 +134,7 @@ export const recentContentView = pgTable(
 /*
   User Subject View (Track which subjects a user has opened)
 */
-export const userSubjectView = pgTable(
+export const userSubjectView = app.table(
 	"user_subject_view",
 	{
 		id: integer().primaryKey().generatedAlwaysAsIdentity(),

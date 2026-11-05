@@ -1,4 +1,5 @@
-import { decimal, index, integer, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { decimal, index, integer, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { app } from "@/schema/app";
 import { user } from "@/schema/auth";
 
 /**
@@ -10,11 +11,11 @@ import { user } from "@/schema/auth";
  * 3. CREDITS    - Credits only, no expiry
  */
 
-export const typeEnum = pgEnum("product_type_enum", ["subscription", "product"]);
-export const statusEnum = pgEnum("transaction_status_enum", ["pending", "success", "failed"]);
-export const productVariantEnum = pgEnum("product_variant_enum", ["fixed_date", "monthly", "credits"]);
+export const typeEnum = app.enum("product_type_enum", ["subscription", "product"]);
+export const statusEnum = app.enum("transaction_status_enum", ["pending", "success", "failed"]);
+export const productVariantEnum = app.enum("product_variant_enum", ["fixed_date", "monthly", "credits"]);
 
-export const paymentFailureEnum = pgEnum("payment_failure_code", [
+export const paymentFailureEnum = app.enum("payment_failure_code", [
 	"insufficient_balance",
 	"limit_exceeded",
 	"card_declined",
@@ -25,7 +26,7 @@ export const paymentFailureEnum = pgEnum("payment_failure_code", [
 	"unknown",
 ]);
 
-export const transaction = pgTable(
+export const transaction = app.table(
 	"transaction",
 	{
 		id: text().primaryKey(),
@@ -51,7 +52,7 @@ export const transaction = pgTable(
 	(t) => [index("idx_transaction_user_id").on(t.userId), index("idx_transaction_product_id").on(t.productId)],
 );
 
-export const product = pgTable("product", {
+export const product = app.table("product", {
 	id: uuid().defaultRandom().primaryKey(),
 	name: text().notNull(),
 	slug: text().notNull().unique(),

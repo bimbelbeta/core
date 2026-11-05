@@ -1,9 +1,10 @@
 import { defineRelationsPart } from "drizzle-orm";
-import { boolean, integer, pgEnum, pgTable, text, timestamp, unique } from "drizzle-orm/pg-core";
+import { boolean, integer, text, timestamp, unique } from "drizzle-orm/pg-core";
+import { app } from "@/schema/app";
 
-export const studyProgramCategory = pgEnum("study_program_category", ["SAINTEK", "SOSHUM"]);
+export const studyProgramCategory = app.enum("study_program_category", ["SAINTEK", "SOSHUM"]);
 
-export const university = pgTable(
+export const university = app.table(
 	"university",
 	{
 		id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -23,7 +24,7 @@ export const university = pgTable(
 	(t) => [unique("university_slug").on(t.slug)],
 );
 
-export const studyProgram = pgTable(
+export const studyProgram = app.table(
 	"study_program",
 	{
 		id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -39,7 +40,7 @@ export const studyProgram = pgTable(
 	(t) => [unique("study_program_slug").on(t.slug)],
 );
 
-export const universityStudyProgram = pgTable(
+export const universityStudyProgram = app.table(
 	"university_study_program",
 	{
 		id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -62,7 +63,7 @@ export const universityStudyProgram = pgTable(
 	(t) => [unique("university_study_program_unique").on(t.universityId, t.studyProgramId)],
 );
 
-export const programYearlyData = pgTable(
+export const programYearlyData = app.table(
 	"program_yearly_data",
 	{
 		id: integer().primaryKey().generatedAlwaysAsIdentity(),

@@ -1,27 +1,16 @@
 import { defineRelationsPart } from "drizzle-orm";
-import {
-	boolean,
-	index,
-	integer,
-	jsonb,
-	numeric,
-	pgEnum,
-	pgTable,
-	primaryKey,
-	text,
-	timestamp,
-	unique,
-} from "drizzle-orm/pg-core";
+import { boolean, index, integer, jsonb, numeric, primaryKey, text, timestamp, unique } from "drizzle-orm/pg-core";
+import { app } from "@/schema/app";
 import { user } from "@/schema/auth";
 import { question, questionChoice } from "@/schema/question";
 
 /*
   Tryout & Subtests
  */
-export const tryoutCategory = pgEnum("tryout_category", ["sd", "smp", "sma", "utbk"]);
-export const tryoutStatus = pgEnum("tryout_status", ["draft", "published", "archived"]);
+export const tryoutCategory = app.enum("tryout_category", ["sd", "smp", "sma", "utbk"]);
+export const tryoutStatus = app.enum("tryout_status", ["draft", "published", "archived"]);
 
-export const tryout = pgTable("tryout", {
+export const tryout = app.table("tryout", {
 	id: integer().primaryKey().generatedAlwaysAsIdentity(),
 	title: text().notNull(),
 	description: text(),
@@ -36,7 +25,7 @@ export const tryout = pgTable("tryout", {
 		.$onUpdate(() => new Date()),
 });
 
-export const tryoutAccessCode = pgTable(
+export const tryoutAccessCode = app.table(
 	"tryout_access_code",
 	{
 		id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -61,7 +50,7 @@ export const tryoutAccessCode = pgTable(
 	],
 );
 
-export const tryoutSubtest = pgTable(
+export const tryoutSubtest = app.table(
 	"tryout_subtest",
 	{
 		id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -81,7 +70,7 @@ export const tryoutSubtest = pgTable(
 /*
   Linking Questions to Subtests
 */
-export const tryoutSubtestQuestion = pgTable(
+export const tryoutSubtestQuestion = app.table(
 	"tryout_subtest_question",
 	{
 		subtestId: integer("subtest_id")
@@ -100,9 +89,9 @@ export const tryoutSubtestQuestion = pgTable(
 /*
   Attempts & User Answers
 */
-export const tryoutAttemptStatus = pgEnum("tryout_attempt_status", ["not_started", "ongoing", "finished"]);
+export const tryoutAttemptStatus = app.enum("tryout_attempt_status", ["not_started", "ongoing", "finished"]);
 
-export const tryoutAttempt = pgTable(
+export const tryoutAttempt = app.table(
 	"tryout_attempt",
 	{
 		id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -126,7 +115,7 @@ export const tryoutAttempt = pgTable(
 	(t) => [unique("user_tryout_attempt").on(t.userId, t.tryoutId), index("idx_tryout_attempt_tryout_id").on(t.tryoutId)],
 );
 
-export const tryoutSubtestAttempt = pgTable(
+export const tryoutSubtestAttempt = app.table(
 	"tryout_subtest_attempt",
 	{
 		id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -148,7 +137,7 @@ export const tryoutSubtestAttempt = pgTable(
 	],
 );
 
-export const tryoutUserAnswer = pgTable(
+export const tryoutUserAnswer = app.table(
 	"tryout_user_answer",
 	{
 		attemptId: integer("attempt_id")

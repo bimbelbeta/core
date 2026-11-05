@@ -1,9 +1,10 @@
 import { defineRelationsPart } from "drizzle-orm";
-import { boolean, char, integer, jsonb, pgEnum, pgTable, text, timestamp, unique } from "drizzle-orm/pg-core";
+import { boolean, char, integer, jsonb, text, timestamp, unique } from "drizzle-orm/pg-core";
+import { app } from "@/schema/app";
 
-export const questionType = pgEnum("question_type", ["multiple_choice", "multiple_choice_complex", "essay"]);
+export const questionType = app.enum("question_type", ["multiple_choice", "multiple_choice_complex", "essay"]);
 
-export const question = pgTable("question", {
+export const question = app.table("question", {
 	id: integer().primaryKey().generatedAlwaysAsIdentity(),
 	type: questionType("type").notNull().default("multiple_choice"),
 	// Plain-text content kept for backward compat during Tiptap migration.
@@ -19,7 +20,7 @@ export const question = pgTable("question", {
 	updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export const questionChoice = pgTable(
+export const questionChoice = app.table(
 	"question_choice",
 	{
 		id: integer().primaryKey().generatedAlwaysAsIdentity(),
