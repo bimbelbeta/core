@@ -3,6 +3,7 @@ import {
 	isSubscriptionVariant,
 	productTypeSchema,
 	productVariantSchema,
+	QUESTION_TYPE_BADGE,
 	QUESTION_TYPE_LABELS,
 	SUBJECT_CATEGORY_LABELS,
 	subjectCategorySchema,
@@ -43,6 +44,19 @@ describe("question types", () => {
 			multiple_choice_complex: "Pilihan Ganda Kompleks",
 			essay: "Esai",
 		});
+	});
+});
+
+describe("question type appearance", () => {
+	test("every question type has a badge variant", () => {
+		expect(QUESTION_TYPE_BADGE).toEqual({
+			multiple_choice: "default",
+			multiple_choice_complex: "secondary",
+			essay: "outline",
+		});
+		for (const type of Object.keys(QUESTION_TYPE_LABELS)) {
+			expect(QUESTION_TYPE_BADGE[type as keyof typeof QUESTION_TYPE_BADGE]).toBeDefined();
+		}
 	});
 });
 

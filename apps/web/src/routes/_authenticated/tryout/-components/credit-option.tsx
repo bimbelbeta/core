@@ -35,7 +35,7 @@ export function CreditOption({ onUseCredit, isLoading = false }: CreditOptionPro
 			<Button
 				onClick={onUseCredit}
 				disabled={isLoading || isBalanceLoading}
-				className="mt-3 w-full bg-amber-600 hover:bg-amber-700"
+				className="mt-3 w-full bg-amber-700 hover:bg-amber-800"
 			>
 				{isLoading ? (
 					<>

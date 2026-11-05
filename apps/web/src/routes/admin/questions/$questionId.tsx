@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
-import { QUESTION_TYPE_LABELS } from "@/lib/schemas";
+import { QUESTION_TYPE_BADGE, QUESTION_TYPE_LABELS } from "@/lib/schemas";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { cn } from "@/lib/utils";
 import { EditQuestionForm } from "./-components/edit-question-form";
@@ -80,15 +80,7 @@ function QuestionDetailPage() {
 					<CardHeader>
 						<div className="flex items-center justify-between">
 							<CardTitle>Informasi Soal #{question.id}</CardTitle>
-							<Badge
-								variant={
-									question.type === "multiple_choice" || question.type === "multiple_choice_complex"
-										? "default"
-										: "secondary"
-								}
-							>
-								{QUESTION_TYPE_LABELS[question.type]}
-							</Badge>
+							<Badge variant={QUESTION_TYPE_BADGE[question.type]}>{QUESTION_TYPE_LABELS[question.type]}</Badge>
 						</div>
 					</CardHeader>
 					<CardContent className="space-y-6">

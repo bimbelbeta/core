@@ -12,7 +12,7 @@ import { Item } from "@/components/ui/item";
 import { Spinner } from "@/components/ui/spinner";
 import { useBulkSelection } from "@/hooks/use-bulk-selection";
 import { orpc } from "@/lib/orpc";
-import { QUESTION_TYPE_LABELS } from "@/lib/schemas";
+import { QUESTION_TYPE_BADGE, QUESTION_TYPE_LABELS } from "@/lib/schemas";
 
 export function BulkAddQuestionsDialog({
 	open,
@@ -131,7 +131,7 @@ export function BulkAddQuestionsDialog({
 												<div className="pointer-events-none absolute top-3 right-3">
 													<CheckboxIndicator checked={isSelected} />
 												</div>
-												<Badge variant={question.type === "multiple_choice" ? "default" : "outline"} className="w-fit">
+												<Badge variant={QUESTION_TYPE_BADGE[question.type]} className="w-fit">
 													{QUESTION_TYPE_LABELS[question.type]}
 												</Badge>
 												<div className="pr-8">

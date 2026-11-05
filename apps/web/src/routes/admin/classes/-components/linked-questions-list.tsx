@@ -19,7 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
-import { QUESTION_TYPE_LABELS } from "@/lib/schemas";
+import { QUESTION_TYPE_BADGE, QUESTION_TYPE_LABELS } from "@/lib/schemas";
 
 interface LinkedQuestion {
 	questionId: number;
@@ -89,16 +89,7 @@ function LinkedQuestionItem({
 					</div>
 				</div>
 				<div className="flex flex-wrap items-center gap-1.5">
-					<Badge
-						variant={
-							question.type === "multiple_choice"
-								? "default"
-								: question.type === "multiple_choice_complex"
-									? "secondary"
-									: "outline"
-						}
-						className="text-xs"
-					>
+					<Badge variant={QUESTION_TYPE_BADGE[question.type]} className="text-xs">
 						{QUESTION_TYPE_LABELS[question.type]}
 					</Badge>
 					{question.tags?.slice(0, 3).map((tag) => (
