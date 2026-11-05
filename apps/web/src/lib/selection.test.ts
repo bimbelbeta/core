@@ -23,3 +23,9 @@ describe("shouldClearSelection", () => {
 		expect(shouldClearSelection([], [1, 2])).toBe(false);
 	});
 });
+
+describe("shouldClearSelection on identical sets", () => {
+	test("does nothing when the row set is unchanged", () => {
+		expect(shouldClearSelection([1, 2, 3], [1, 2, 3])).toBe(false);
+	});
+});

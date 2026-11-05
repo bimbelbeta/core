@@ -1,6 +1,5 @@
 export function isPrefixOf<T>(prefix: readonly T[], values: readonly T[]): boolean {
 	if (prefix.length === 0) return false;
-	if (prefix.length >= values.length) return false;
 	return prefix.every((value, index) => values[index] === value);
 }
 

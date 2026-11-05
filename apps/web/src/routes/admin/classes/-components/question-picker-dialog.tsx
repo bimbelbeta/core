@@ -9,7 +9,6 @@ import { Checkbox, CheckboxIndicator } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Item } from "@/components/ui/item";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Typography } from "@/components/ui/typography";
 import { useBulkSelection } from "@/hooks/use-bulk-selection";
@@ -185,8 +184,13 @@ export function QuestionPickerDialog({
 					{/* Select All and Add Button */}
 					<div className="flex items-center justify-between border-b pb-2">
 						<div className="flex items-center gap-2">
-							<Checkbox checked={allSelected} onCheckedChange={handleSelectAll} disabled={questions.length === 0} />
-							<Label className="cursor-pointer text-sm">Pilih Semua ({selectedQuestionIds.length} dipilih)</Label>
+							<Checkbox
+								checked={allSelected}
+								aria-label="Pilih semua soal"
+								onCheckedChange={handleSelectAll}
+								disabled={questions.length === 0}
+							/>
+							<span className="text-sm">Pilih Semua ({selectedQuestionIds.length} dipilih)</span>
 						</div>
 						<Button
 							variant="default"

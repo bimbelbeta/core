@@ -1,4 +1,4 @@
-import { ArchiveIcon, CalendarIcon, EyeIcon, FileIcon, PlusIcon } from "@phosphor-icons/react";
+import { CalendarIcon, PlusIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { type } from "arktype";
@@ -31,12 +31,7 @@ import {
 	type TryoutStatus,
 	tryoutStatusSchema,
 } from "@/lib/schemas";
-
-const STATUS_ICONS = {
-	draft: FileIcon,
-	published: EyeIcon,
-	archived: ArchiveIcon,
-};
+import { cn } from "@/lib/utils";
 
 export function AddTryoutDialog({
 	open,
@@ -214,17 +209,14 @@ export function AddTryoutDialog({
 													<SelectValue placeholder="Pilih status" />
 												</SelectTrigger>
 												<SelectContent>
-													{Object.entries(TRYOUT_STATUS_BADGE).map(([value, status]) => {
-														const Icon = STATUS_ICONS[value as keyof typeof STATUS_ICONS];
-														return (
-															<SelectItem key={value} value={value}>
-																<div className="flex items-center gap-2">
-																	<Icon className="size-4" />
-																	<span>{status.label}</span>
-																</div>
-															</SelectItem>
-														);
-													})}
+													{Object.values(TRYOUT_STATUS_BADGE).map((status) => (
+														<SelectItem key={status.label} value={status.label.toLowerCase()}>
+															<div className="flex items-center gap-2">
+																<status.icon className={cn("size-4", status.iconClassName)} />
+																<span>{status.label}</span>
+															</div>
+														</SelectItem>
+													))}
 												</SelectContent>
 											</Select>
 										</div>

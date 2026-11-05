@@ -4,9 +4,10 @@ import type { SubjectFilter } from "./classes-types";
 
 const FILTERS: { value: SubjectFilter; label: string }[] = [
 	{ value: "all", label: "Semua Kelas" },
-	...Object.keys(SUBJECT_CATEGORY_LABELS)
-		.filter((category) => subjectCategorySchema.allows(category))
-		.map((category) => ({ value: category, label: SUBJECT_CATEGORY_LABELS[category] })),
+	...Object.entries(SUBJECT_CATEGORY_LABELS).map(([value, label]) => ({
+		value: subjectCategorySchema.assert(value),
+		label,
+	})),
 ];
 
 export function SubjectFilters({
