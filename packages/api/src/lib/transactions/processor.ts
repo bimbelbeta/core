@@ -56,7 +56,7 @@ export async function processSuccessfulTransaction({
 		const updatedUser = (
 			await trx
 				.update(user)
-				.set({ tryoutCredits: sql`${user.tryoutCredits} + ${creditsToAdd}` })
+				.set({ tryoutCredits: sql`COALESCE(${user.tryoutCredits}, 0) + ${creditsToAdd}` })
 				.where(eq(user.id, userId))
 				.returning({ tryoutCredits: user.tryoutCredits })
 		)[0]!;

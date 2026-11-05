@@ -193,7 +193,7 @@ export const createStartTryoutService = (deps: StartTryoutDependencies) => ({
 				const [updatedUser] = await trx
 					.update(user)
 					.set({
-						tryoutCredits: sql`${user.tryoutCredits} - 1`,
+						tryoutCredits: sql`COALESCE(${user.tryoutCredits}, 0) - 1`,
 					})
 					.where(eq(user.id, userData.id))
 					.returning({ tryoutCredits: user.tryoutCredits });

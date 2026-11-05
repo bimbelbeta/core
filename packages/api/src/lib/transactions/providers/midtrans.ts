@@ -81,10 +81,10 @@ function statusErrorCode(status: number): PaymentError["code"] {
 	return "PROVIDER_UNAVAILABLE";
 }
 
-function isRejection(error: unknown): boolean {
-	if (typeof error !== "object" || error === null || !("httpStatusCode" in error)) return false;
+function errorStatusCode(error: unknown): number | null {
+	if (typeof error !== "object" || error === null || !("httpStatusCode" in error)) return null;
 	const status = error.httpStatusCode;
-	return typeof status === "number" && status >= 400 && status < 500;
+	return typeof status === "number" ? status : null;
 }
 
 async function createCheckout(input: CheckoutInput): Promise<Checkout> {
@@ -99,10 +99,13 @@ async function createCheckout(input: CheckoutInput): Promise<Checkout> {
 				: undefined,
 		})
 		.catch((error: unknown) => {
+			const status = errorStatusCode(error);
 			throw new PaymentError(
-				isRejection(error) ? "PROVIDER_REJECTED" : "PROVIDER_UNAVAILABLE",
+				status === null ? "PROVIDER_UNAVAILABLE" : statusErrorCode(status),
 				"Midtrans checkout failed",
-				{ cause: error },
+				{
+					cause: error,
+				},
 			);
 		});
 

@@ -381,7 +381,7 @@ describe.skipIf(!enabled)("API persistence workflows", () => {
 		}
 	});
 
-	test("keeps a claimed order paid and reads through a transaction handle", async () => {
+	test("keeps a claimed order paid and reads a transaction with its product", async () => {
 		const [plan] = await db
 			.insert(product)
 			.values({

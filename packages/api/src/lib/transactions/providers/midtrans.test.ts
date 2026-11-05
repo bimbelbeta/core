@@ -190,6 +190,23 @@ describe("createCheckout", () => {
 		}
 	});
 
+	test("treats a rejected key as a configuration problem, like the status call", async () => {
+		process.env.MIDTRANS_SERVER_KEY = SERVER_KEY;
+		const create = spyOn(Snap.prototype, "createTransaction").mockRejectedValue({ httpStatusCode: 401 });
+		try {
+			await expect(
+				midtransProvider.createCheckout({
+					orderId: ORDER_ID,
+					amount: "10000",
+					description: "Premium",
+					customer: { name: "User", email: "user@example.com" },
+				}),
+			).rejects.toMatchObject({ code: "CONFIGURATION_ERROR" });
+		} finally {
+			create.mockRestore();
+		}
+	});
+
 	test("reports a rejected checkout as PROVIDER_REJECTED", async () => {
 		process.env.MIDTRANS_SERVER_KEY = SERVER_KEY;
 		const create = spyOn(Snap.prototype, "createTransaction").mockRejectedValue({ httpStatusCode: 406 });
