@@ -455,12 +455,6 @@ Fix the 500/output validation issue on the Tryout dashboard after introducing le
 
 This patch moves every table and enum from `public` into the `app` schema. Old app code queries `public`, new app code queries `app`, so the database and the running image must not be out of step.
 
-`.github/workflows/build.yml` and `.github/workflows/migrate.yml` both trigger on merge to `main` and have no ordering between them. Apply the migration first, then let the new image deploy:
-
-```bash
-cd packages/db && bun run db:migrate
-```
-
-If the image rolls out first, every request fails until the migration lands, because `app.user` does not exist yet.
+`build.yml` now runs the migration as its first job and both image builds depend on it, so nothing ships while the schema is behind. The job only installs and migrates when the push actually touched `packages/db/src/migrations`; API-only pushes skip straight to building.
 
 Production's `drizzle.__drizzle_migrations` already records the first two migrations, so `migrate` starts at the third. Do not run `drizzle-kit push` against production: it would create empty tables in `app` and leave the real data in `public`, and the app would boot with no users and no error.

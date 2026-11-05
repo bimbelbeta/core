@@ -9,7 +9,38 @@ on:
       - "packages/**"
 
 jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: changed
+        name: Did this push touch migrations?
+        run: |
+          before="${{ github.event.before }}"
+          if [ "$before" = "0000000000000000000000000000000000000000" ]; then
+            echo "value=true" >> "$GITHUB_OUTPUT"
+          elif git diff --quiet "$before" "${{ github.sha }}" -- packages/db/src/migrations; then
+            echo "value=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.changed.outputs.value == 'true'
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.4.4"
+      - if: steps.changed.outputs.value == 'true'
+        run: bun install --frozen-lockfile
+      - if: steps.changed.outputs.value == 'true'
+        name: Apply migrations before anything ships
+        working-directory: ./packages/db
+        env:
+          DATABASE_URL: "${{ secrets.DATABASE_URL }}"
+        run: bun run db:migrate
+
   build-web:
+    needs: migrate
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -42,6 +73,7 @@ jobs:
             --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
 
   build-server:
+    needs: migrate
     runs-on: ubuntu-latest
     permissions:
       contents: read
