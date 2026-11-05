@@ -70,7 +70,7 @@ export function QuestionPickerDialog({
 		toggleSelectOne: handleQuestionToggle,
 		clearSelection,
 		allSelected,
-	} = useBulkSelection(questions);
+	} = useBulkSelection(questions, { keepSelection: true });
 
 	const handleScroll = useCallback(() => {
 		const el = scrollRef.current;

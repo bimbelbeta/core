@@ -11,10 +11,10 @@ export function shouldClearSelection<T>(previous: readonly T[], next: readonly T
 	return previous.length > 0 && !isPrefixOf(previous, next);
 }
 
-export function resolveBulkSelection<T>(shown: T[], selected: T[], incoming: T[]) {
+export function resolveBulkSelection<T>(shown: T[], selected: T[], incoming: T[], keepSelection = false) {
 	if (isSameSequence(shown, incoming)) return null;
 	return {
 		shown: incoming,
-		selected: shouldClearSelection(shown, incoming) ? [] : selected,
+		selected: keepSelection || !shouldClearSelection(shown, incoming) ? selected : [],
 	};
 }

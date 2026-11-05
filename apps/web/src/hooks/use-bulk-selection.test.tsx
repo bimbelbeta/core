@@ -39,6 +39,17 @@ describe("useBulkSelection", () => {
 		expect(result.current.selectedIds).toEqual([1]);
 	});
 
+	test("keeps the selection across a narrowing search when asked", () => {
+		const { result, rerender } = renderHook(({ items }) => useBulkSelection(items, { keepSelection: true }), {
+			initialProps: { items: rows(1, 2) },
+		});
+		act(() => result.current.toggleSelectOne(1));
+		rerender({ items: [] });
+		expect(result.current.selectedIds).toEqual([1]);
+		rerender({ items: rows(3) });
+		expect(result.current.selectedIds).toEqual([1]);
+	});
+
 	test("clears the selection when the row set is replaced", () => {
 		const { result, rerender } = renderHook(({ items }) => useBulkSelection(items), {
 			initialProps: { items: rows(1, 2) },

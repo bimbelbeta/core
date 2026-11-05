@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { resolveBulkSelection } from "@/lib/selection";
 
-export function useBulkSelection<T extends string | number>(items: { id: T }[] | undefined) {
+export function useBulkSelection<T extends string | number>(
+	items: { id: T }[] | undefined,
+	{ keepSelection = false }: { keepSelection?: boolean } = {},
+) {
 	const [selectedIds, setSelectedIds] = useState<T[]>([]);
 	const ids = items?.map((item) => item.id) ?? [];
 	const [shownIds, setShownIds] = useState<T[]>(ids);
 
-	const next = resolveBulkSelection(shownIds, selectedIds, ids);
+	const next = resolveBulkSelection(shownIds, selectedIds, ids, keepSelection);
 	if (next) {
 		setShownIds(next.shown);
 		if (next.selected !== selectedIds) setSelectedIds(next.selected);

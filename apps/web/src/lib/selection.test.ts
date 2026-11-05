@@ -45,3 +45,21 @@ describe("resolveBulkSelection", () => {
 		expect(resolveBulkSelection([1, 2], [1, 2], [3, 4])?.selected).toEqual([]);
 	});
 });
+
+describe("resolveBulkSelection with keepSelection", () => {
+	test("keeps the selection when a search narrows the row set", () => {
+		expect(resolveBulkSelection([1, 2], [1, 2], [2], true)?.selected).toEqual([1, 2]);
+	});
+
+	test("keeps the selection when the row set briefly empties", () => {
+		expect(resolveBulkSelection([1, 2], [1], [], true)?.selected).toEqual([1]);
+	});
+
+	test("still advances the shown set", () => {
+		expect(resolveBulkSelection([1], [1], [2, 3], true)?.shown).toEqual([2, 3]);
+	});
+
+	test("does not change the clearing default", () => {
+		expect(resolveBulkSelection([1, 2], [1, 2], [3, 4])?.selected).toEqual([]);
+	});
+});
