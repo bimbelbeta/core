@@ -56,7 +56,7 @@ export function SearchInput({ value, onChange, debounceMs = 500, className, ...p
 			/>
 			{localValue && (
 				<InputGroupAddon align="inline-end">
-					<InputGroupButton onClick={handleClear} size="icon-xs" variant="ghost">
+					<InputGroupButton onClick={handleClear} size="icon-xs" variant="ghost" aria-label="Hapus pencarian">
 						<XIcon weight="bold" />
 					</InputGroupButton>
 				</InputGroupAddon>

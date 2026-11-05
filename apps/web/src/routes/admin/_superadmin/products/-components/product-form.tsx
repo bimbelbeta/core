@@ -11,9 +11,9 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
+import type { ProductVariant } from "@/lib/schemas";
 import { isProductVariant, months } from "../-utils";
 
-type ProductVariant = "fixed_date" | "monthly" | "credits";
 type ProductType = "subscription" | "product";
 
 function isProductType(v: string): v is ProductType {

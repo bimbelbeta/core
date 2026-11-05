@@ -5,6 +5,7 @@ import { Typography } from "@/components/ui/typography";
 import { PAYMENTS_COMING_SOON_LABEL, PAYMENTS_ENABLED } from "@/lib/billing-config";
 import { formatDateMedium } from "@/lib/format-date";
 import { formatRupiah } from "@/lib/formatter";
+import { isSubscriptionVariant, type ProductVariant } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 
 interface PackageCardProps {
@@ -12,7 +13,7 @@ interface PackageCardProps {
 	slug: string;
 	price: string;
 	credits: number | null;
-	variant: "fixed_date" | "monthly" | "credits";
+	variant: ProductVariant;
 	fixedExpiryMonth?: number | null;
 	fixedExpiryDay?: number | null;
 	durationDays?: number | null;
@@ -36,8 +37,8 @@ export function PackageCard({
 	onPurchase,
 	disabled,
 }: PackageCardProps) {
-	const isPremiumPackage = variant === "fixed_date" || variant === "monthly";
-	const isCreditsPackage = variant === "credits";
+	const isPremiumPackage = isSubscriptionVariant(variant);
+	const isCreditsPackage = !isSubscriptionVariant(variant);
 
 	const premiumSubtitle = (() => {
 		if (variant === "fixed_date" && fixedExpiryMonth && fixedExpiryDay) {
@@ -63,7 +64,7 @@ export function PackageCard({
 		>
 			{isPremiumPackage && (
 				<div className="bg-primary-100 mb-4 inline-flex items-center gap-1.5 self-start rounded-full px-3 py-1">
-					<span className="text-primary-700 text-xs font-medium">Premium</span>
+					<span className="text-primary-800 text-xs font-medium">Premium</span>
 				</div>
 			)}
 
@@ -89,7 +90,7 @@ export function PackageCard({
 					"Akses penuh ke semua materi, tryout tanpa batas, dan fitur eksklusif."
 				) : (
 					<>
-						<span className="font-semibold text-amber-600">{credits}x</span> kredit tryout untuk memulai tryout
+						<span className="font-semibold text-amber-700">{credits}x</span> kredit tryout untuk memulai tryout
 						pilihanmu.
 					</>
 				)}

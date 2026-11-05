@@ -1,11 +1,24 @@
 import { describe, expect, test } from "bun:test";
 import {
+	isSubscriptionVariant,
+	productVariantSchema,
 	QUESTION_TYPE_LABELS,
 	SUBJECT_CATEGORY_LABELS,
 	subjectCategorySchema,
 	TRYOUT_STATUS_BADGE,
 	tryoutStatusSchema,
 } from "./schemas";
+
+describe("product variants", () => {
+	test("only credits is not a subscription", () => {
+		expect(productVariantSchema.allows("fixed_date")).toBe(true);
+		expect(productVariantSchema.allows("credits")).toBe(true);
+		expect(productVariantSchema.allows("monthly")).toBe(true);
+		expect(isSubscriptionVariant("fixed_date")).toBe(true);
+		expect(isSubscriptionVariant("monthly")).toBe(true);
+		expect(isSubscriptionVariant("credits")).toBe(false);
+	});
+});
 
 describe("question types", () => {
 	test("every type has an Indonesian label", () => {

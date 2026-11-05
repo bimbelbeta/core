@@ -1,8 +1,7 @@
 import { CalendarIcon, ClockIcon, CreditCardIcon } from "@phosphor-icons/react";
+import { type ProductVariant, productVariantSchema } from "@/lib/schemas";
 
-export function isProductVariant(v: string): v is keyof typeof variantConfig {
-	return v === "fixed_date" || v === "monthly" || v === "credits";
-}
+export const isProductVariant = (v: string): v is ProductVariant => productVariantSchema.allows(v);
 
 export const variantConfig = {
 	fixed_date: {

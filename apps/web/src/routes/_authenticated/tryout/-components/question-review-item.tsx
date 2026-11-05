@@ -130,7 +130,7 @@ export function QuestionReviewItem({ index, question, isCorrect }: QuestionRevie
 											.filter((c) => c.isCorrect)
 											.map((c) => (
 												<div key={c.id} className="flex items-center gap-2 text-green-700">
-													<span className="flex size-6 items-center justify-center rounded-full bg-green-100 text-xs">
+													<span className="flex size-6 items-center justify-center rounded-full bg-green-50 text-xs">
 														{c.code}
 													</span>
 													<TiptapRenderer content={c.content} />

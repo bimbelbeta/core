@@ -93,7 +93,7 @@ export function UsersTable() {
 										<div className="flex items-center gap-3">
 											<Avatar className="ring-border size-9 rounded-full ring-2">
 												<AvatarImage src={user.image ?? undefined} alt={user.name} />
-												<AvatarFallback className="bg-primary-100 text-primary-700 text-xs font-semibold">
+												<AvatarFallback className="bg-primary-100 text-primary-800 text-xs font-semibold">
 													{getInitials(user.name)}
 												</AvatarFallback>
 											</Avatar>

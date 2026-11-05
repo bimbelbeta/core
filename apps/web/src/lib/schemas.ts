@@ -58,3 +58,9 @@ export const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
 	multiple_choice_complex: "Pilihan Ganda Kompleks",
 	essay: "Esai",
 };
+
+export const productVariantSchema = type("'fixed_date' | 'monthly' | 'credits'");
+
+export type ProductVariant = typeof productVariantSchema.infer;
+
+export const isSubscriptionVariant = (variant: ProductVariant) => variant !== "credits";

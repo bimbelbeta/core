@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useRouteContext } from "@tanstack/react-router";
 import { orpc } from "@/lib/orpc";
+import { isSubscriptionVariant } from "@/lib/schemas";
 import { useMidtrans } from "./use-midtrans";
 
 export function usePremium() {
@@ -13,16 +14,16 @@ export function usePremium() {
 
 	const sortedProducts = productsQuery.data
 		? [...productsQuery.data.items].sort((a, b) => {
-				const aIsSubscription = a.variant === "fixed_date" || a.variant === "monthly";
-				const bIsSubscription = b.variant === "fixed_date" || b.variant === "monthly";
+				const aIsSubscription = isSubscriptionVariant(a.variant);
+				const bIsSubscription = isSubscriptionVariant(b.variant);
 				if (aIsSubscription && !bIsSubscription) return -1;
 				if (!aIsSubscription && bIsSubscription) return 1;
 				return 0;
 			})
 		: undefined;
 
-	const subscriptionProducts = sortedProducts?.filter((p) => p.variant === "fixed_date" || p.variant === "monthly");
-	const productProducts = sortedProducts?.filter((p) => p.variant === "credits");
+	const subscriptionProducts = sortedProducts?.filter((p) => isSubscriptionVariant(p.variant));
+	const productProducts = sortedProducts?.filter((p) => !isSubscriptionVariant(p.variant));
 
 	return { productsQuery, subscriptionProducts, productProducts, isPremium, creditBalance, handlePurchase, isPending };
 }
