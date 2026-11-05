@@ -44,10 +44,39 @@ describe("start subtest service", () => {
 		expect(deps.createSubtestAttempt).not.toHaveBeenCalled();
 	});
 
-	test("starts the next subtest using the prior deadline, capped by the overall deadline", async () => {
+	test("starts the next subtest from the prior deadline", async () => {
 		const { deps, service } = setup();
-		expect(await service.start(1, 11, "user")).toMatchObject({ subtestId: 11 });
-		expect(deps.createSubtestAttempt).toHaveBeenCalledWith({ tryoutAttemptId: 2, subtestId: 11, deadline });
+		const overall = new Date(Date.now() + 120 * 60 * 1000);
+		const previousDeadline = new Date(Date.now() + 5 * 60 * 1000);
+		deps.findAttempt.mockResolvedValueOnce({
+			...attempt,
+			deadline: overall,
+			subtestAttempts: [{ ...subtestAttempt, deadline: previousDeadline }],
+		});
+
+		await service.start(1, 11, "user");
+
+		expect(deps.createSubtestAttempt).toHaveBeenCalledWith({
+			tryoutAttemptId: 2,
+			subtestId: 11,
+			deadline: new Date(previousDeadline.getTime() + 30 * 60 * 1000),
+		});
+	});
+
+	test("caps the next deadline at the overall tryout deadline", async () => {
+		const { deps, service } = setup();
+		const overall = new Date(Date.now() + 50 * 60 * 1000);
+		const previousDeadline = new Date(Date.now() + 40 * 60 * 1000);
+		deps.findAttempt.mockResolvedValueOnce({
+			...attempt,
+			deadline: overall,
+			subtestAttempts: [{ ...subtestAttempt, deadline: previousDeadline }],
+		});
+
+		await service.start(1, 11, "user");
+
+		expect(deps.createSubtestAttempt).toHaveBeenCalledWith({ tryoutAttemptId: 2, subtestId: 11, deadline: overall });
+		expect(overall.getTime()).toBeLessThan(previousDeadline.getTime() + 30 * 60 * 1000);
 	});
 
 	test("rejects missing attempts and unknown subtests", async () => {

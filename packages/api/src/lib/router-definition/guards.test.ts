@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { assertAdmin, assertPremium, assertSuperAdmin, isPremiumExpired } from "./guards";
+import { assertAdmin, assertSuperAdmin, isPremiumExpired } from "./guards";
 
 const errors = {
 	UNAUTHORIZED: () => new Error("UNAUTHORIZED"),
@@ -22,19 +22,6 @@ describe("assertSuperAdmin", () => {
 	test("accepts only superadmin", () => {
 		expect(() => assertSuperAdmin("superadmin", errors)).not.toThrow();
 		expect(() => assertSuperAdmin("admin", errors)).toThrow("UNAUTHORIZED");
-	});
-});
-
-describe("assertPremium", () => {
-	test("accepts premium users, admins and superadmins", () => {
-		expect(() => assertPremium({ isPremium: true, role: "user" }, errors)).not.toThrow();
-		expect(() => assertPremium({ isPremium: false, role: "admin" }, errors)).not.toThrow();
-		expect(() => assertPremium({ isPremium: false, role: "superadmin" }, errors)).not.toThrow();
-	});
-
-	test("rejects non-premium users and an empty session", () => {
-		expect(() => assertPremium({ isPremium: false, role: "user" }, errors)).toThrow("FORBIDDEN");
-		expect(() => assertPremium({}, errors)).toThrow("FORBIDDEN");
 	});
 });
 

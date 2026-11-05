@@ -142,7 +142,7 @@ describe("start tryout service", () => {
 		);
 
 		expect(result).toMatchObject({ id: 99, usedCredit: true, usedAccessCode: false });
-		expect(updates.find((update) => update.table === "user")?.set).toMatchObject({});
+		expect(updates.find((update) => update.table === "user")?.set.tryoutCredits).toBeDefined();
 		expect(inserts.find((insert) => insert.table === "credit_transaction")?.values).toMatchObject({
 			amount: -1,
 			balanceAfter: 1,

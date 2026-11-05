@@ -4,7 +4,7 @@ import { createRatelimitMiddleware } from "@orpc/experimental-ratelimit";
 import { eq } from "drizzle-orm";
 import { ROLES } from "@/lib/roles";
 import { baseImplementer } from "@/lib/router-definition/base";
-import { assertAdmin, assertPremium, assertSuperAdmin, isPremiumExpired } from "@/lib/router-definition/guards";
+import { assertAdmin, assertSuperAdmin, isPremiumExpired } from "@/lib/router-definition/guards";
 import { getFreeRatelimiter, getNoOpRatelimiter, getPremiumRatelimiter } from "@/lib/router-definition/rate-limiter";
 
 export const rateLimit = createRatelimitMiddleware({
@@ -55,16 +55,4 @@ export const revokeExpiredPremium = baseImplementer.middleware(async ({ context,
 	}
 
 	return next();
-});
-
-export const requirePremium = baseImplementer.middleware(async ({ context, next, errors }) => {
-	const session = context.session;
-	if (!session?.user) throw errors.FORBIDDEN();
-	assertPremium(session.user, errors);
-
-	return next({
-		context: {
-			session,
-		},
-	});
 });
