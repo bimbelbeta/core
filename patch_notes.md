@@ -12,7 +12,7 @@ Keep provider-specific payment behaviour in one adapter so adding a provider doe
 
 ### Action Required for Developers / Admins
 
-`VITE_PAYMENTS_ENABLED` is a build-time switch, not a runtime one. Set it to `true` as a repository variable so the web image is built with payments enabled; leaving it unset ships the "Segera Hadir" buttons.
+`VITE_PAYMENTS_ENABLED` is a build-time switch, not a runtime one. Set it to `true` as a repository variable so the web image is built with payments enabled; leaving it unset ships the "Segera Hadir" buttons. It and `VITE_MIDTRANS_CLIENT_KEY` are allow-listed on the `build` task in `turbo.json`, which is also what makes them part of the cache key — without that entry Turbo strips them and a cached payments-disabled build is replayed.
 
 **Update the Midtrans notification URL before deploying.** Nothing in the repository configures it; it lives in the Midtrans dashboard. The path gained a provider segment:
 
