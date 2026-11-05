@@ -26,9 +26,12 @@ describe("typographyVariants", () => {
 		expect(typographyVariants.overline.element).toBe("p");
 	});
 
-	test("every variant default tone exists", () => {
-		for (const config of Object.values(typographyVariants)) {
+	test("colour comes from tone, never from className", () => {
+		for (const [variant, config] of Object.entries(typographyVariants)) {
 			expect(typographyTones).toHaveProperty(config.tone);
+			expect(config.className, variant).not.toMatch(
+				/text-(white|black|current|primary|secondary|tertiary|neutral|muted|destructive|green|red|blue|amber|yellow|gray)/,
+			);
 		}
 	});
 });

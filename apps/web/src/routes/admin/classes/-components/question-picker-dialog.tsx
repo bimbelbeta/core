@@ -12,6 +12,7 @@ import { Item } from "@/components/ui/item";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Typography } from "@/components/ui/typography";
+import { useBulkSelection } from "@/hooks/use-bulk-selection";
 import { orpc } from "@/lib/orpc";
 import { SUBJECT_CATEGORY_LABELS, type SubjectCategory, subjectCategorySchema } from "@/lib/schemas";
 
@@ -44,7 +45,6 @@ export function QuestionPickerDialog({
 	const [search, setSearch] = useState("");
 	const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("all");
 	const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
-	const [selectedQuestionIds, setSelectedQuestionIds] = useState<Set<number>>(new Set());
 
 	const queryClient = useQueryClient();
 	const scrollRef = useRef<HTMLDivElement>(null);
@@ -65,6 +65,12 @@ export function QuestionPickerDialog({
 	);
 
 	const questions = data?.pages.flatMap((page) => page.items) ?? [];
+	const {
+		selectedIds: selectedQuestionIds,
+		toggleSelectAll: handleSelectAll,
+		toggleSelectOne: handleQuestionToggle,
+		clearSelection,
+	} = useBulkSelection(questions);
 
 	const handleScroll = useCallback(() => {
 		const el = scrollRef.current;
@@ -77,7 +83,7 @@ export function QuestionPickerDialog({
 		orpc.admin.content.addPracticeQuestions.mutationOptions({
 			onSuccess: (result) => {
 				toast.success(result.message);
-				setSelectedQuestionIds(new Set());
+				clearSelection();
 				queryClient.invalidateQueries({
 					queryKey: orpc.admin.content.listPracticeQuestions.queryKey({
 						input: { id: contentId },
@@ -97,29 +103,11 @@ export function QuestionPickerDialog({
 		}),
 	);
 
-	const handleSelectAll = () => {
-		if (selectedQuestionIds.size === questions.length) {
-			setSelectedQuestionIds(new Set());
-		} else {
-			setSelectedQuestionIds(new Set(questions.map((q) => q.id)));
-		}
-	};
-
-	const handleQuestionToggle = (id: number) => {
-		const newSelectedIds = new Set(selectedQuestionIds);
-		if (newSelectedIds.has(id)) {
-			newSelectedIds.delete(id);
-		} else {
-			newSelectedIds.add(id);
-		}
-		setSelectedQuestionIds(newSelectedIds);
-	};
-
 	const handleAdd = () => {
-		if (selectedQuestionIds.size > 0) {
+		if (selectedQuestionIds.length > 0) {
 			addMutation.mutate({
 				id: contentId,
-				questionIds: Array.from(selectedQuestionIds),
+				questionIds: selectedQuestionIds,
 			});
 		}
 	};
@@ -127,7 +115,7 @@ export function QuestionPickerDialog({
 	const handleOpenChange = (newOpen: boolean) => {
 		if (!newOpen) {
 			// Reset state when closing
-			setSelectedQuestionIds(new Set());
+			clearSelection();
 			setSearch("");
 			setCategoryFilter("all");
 			setTypeFilter("all");
@@ -197,18 +185,18 @@ export function QuestionPickerDialog({
 					<div className="flex items-center justify-between border-b pb-2">
 						<div className="flex items-center gap-2">
 							<Checkbox
-								checked={questions.length > 0 && selectedQuestionIds.size === questions.length}
+								checked={questions.length > 0 && selectedQuestionIds.length === questions.length}
 								onCheckedChange={handleSelectAll}
 								disabled={questions.length === 0}
 							/>
-							<Label className="cursor-pointer text-sm">Pilih Semua ({selectedQuestionIds.size} dipilih)</Label>
+							<Label className="cursor-pointer text-sm">Pilih Semua ({selectedQuestionIds.length} dipilih)</Label>
 						</div>
 						<Button
 							variant="default"
 							onClick={handleAdd}
-							disabled={selectedQuestionIds.size === 0 || addMutation.isPending}
+							disabled={selectedQuestionIds.length === 0 || addMutation.isPending}
 						>
-							{addMutation.isPending ? "Menambahkan..." : `Tambah ${selectedQuestionIds.size} Soal`}
+							{addMutation.isPending ? "Menambahkan..." : `Tambah ${selectedQuestionIds.length} Soal`}
 						</Button>
 					</div>
 
@@ -233,16 +221,16 @@ export function QuestionPickerDialog({
 									<Item
 										asChild
 										variant="outline"
-										selected={selectedQuestionIds.has(question.id)}
+										selected={selectedQuestionIds.includes(question.id)}
 										key={question.id}
 										className="group hover:bg-muted/50 w-full cursor-pointer flex-nowrap items-start gap-3 rounded-lg p-3 text-left text-base"
 									>
 										<button
 											type="button"
-											aria-pressed={selectedQuestionIds.has(question.id)}
+											aria-pressed={selectedQuestionIds.includes(question.id)}
 											onClick={() => handleQuestionToggle(question.id)}
 										>
-											<CheckboxIndicator checked={selectedQuestionIds.has(question.id)} className="mt-0.5" />
+											<CheckboxIndicator checked={selectedQuestionIds.includes(question.id)} className="mt-0.5" />
 											<div className="min-w-0 flex-1 space-y-1">
 												<div className="flex items-start gap-2">
 													<span className="text-muted-foreground shrink-0 font-mono text-xs">#{question.id}</span>

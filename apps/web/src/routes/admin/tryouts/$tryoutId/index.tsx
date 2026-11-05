@@ -18,7 +18,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
-import { SUBJECT_CATEGORY_LABELS } from "@/lib/schemas";
+import { SUBJECT_CATEGORY_LABELS, TRYOUT_STATUS_BADGE } from "@/lib/schemas";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { cn } from "@/lib/utils";
 import { TryoutAttemptsTab } from "./-components/tryout-attempts-tab";
@@ -157,14 +157,8 @@ function TryoutDetailPage() {
 											Status
 										</Typography>
 										<div className="flex items-center gap-2">
-											<div
-												className={cn("size-2 rounded-full", {
-													"bg-green-500": tryout!.status === "published",
-													"bg-gray-400": tryout!.status === "draft",
-													"bg-red-500": tryout!.status === "archived",
-												})}
-											/>
-											<span className="font-medium capitalize">{tryout!.status}</span>
+											<div className={cn("size-2 rounded-full", TRYOUT_STATUS_BADGE[tryout!.status].dotClassName)} />
+											<span className="font-medium">{TRYOUT_STATUS_BADGE[tryout!.status].label}</span>
 										</div>
 									</div>
 									<div className="space-y-1">

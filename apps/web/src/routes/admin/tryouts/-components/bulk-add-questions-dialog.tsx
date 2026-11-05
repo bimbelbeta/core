@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Item } from "@/components/ui/item";
 import { Spinner } from "@/components/ui/spinner";
+import { useBulkSelection } from "@/hooks/use-bulk-selection";
 import { orpc } from "@/lib/orpc";
 
 export function BulkAddQuestionsDialog({
@@ -24,7 +25,6 @@ export function BulkAddQuestionsDialog({
 	subtestId: number;
 }) {
 	const [search, setSearch] = useState("");
-	const [selectedQuestionIds, setSelectedQuestionIds] = useState<Set<number>>(new Set());
 	const scrollRef = useRef<HTMLDivElement>(null);
 
 	const { data, isPending, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery(
@@ -40,6 +40,13 @@ export function BulkAddQuestionsDialog({
 	);
 
 	const questions = data?.pages.flatMap((page) => page.items) ?? [];
+	const {
+		selectedIds: selectedQuestionIds,
+		toggleSelectAll: handleSelectAll,
+		toggleSelectOne: handleQuestionToggle,
+		clearSelection,
+		allSelected,
+	} = useBulkSelection(questions);
 
 	const handleScroll = useCallback(() => {
 		const el = scrollRef.current;
@@ -53,7 +60,7 @@ export function BulkAddQuestionsDialog({
 		orpc.admin.tryout.questionsBulk.bulkAddQuestionsToSubtest.mutationOptions({
 			onSuccess: (result) => {
 				toast.success(`${result.addedCount} soal berhasil ditambahkan`);
-				setSelectedQuestionIds(new Set());
+				clearSelection();
 				onSuccess();
 				onOpenChange(false);
 			},
@@ -63,31 +70,11 @@ export function BulkAddQuestionsDialog({
 		}),
 	);
 
-	const allSelected = questions.length > 0 && questions.every((question) => selectedQuestionIds.has(question.id));
-
-	const handleSelectAll = () => {
-		if (allSelected) {
-			setSelectedQuestionIds(new Set());
-		} else {
-			setSelectedQuestionIds(new Set(questions.map((q) => q.id)));
-		}
-	};
-
-	const handleQuestionToggle = (id: number) => {
-		const newSelectedIds = new Set(selectedQuestionIds);
-		if (newSelectedIds.has(id)) {
-			newSelectedIds.delete(id);
-		} else {
-			newSelectedIds.add(id);
-		}
-		setSelectedQuestionIds(newSelectedIds);
-	};
-
 	const handleAdd = () => {
-		if (selectedQuestionIds.size > 0) {
+		if (selectedQuestionIds.length > 0) {
 			bulkAddMutation.mutate({
 				subtestId,
-				questionIds: Array.from(selectedQuestionIds),
+				questionIds: selectedQuestionIds,
 			});
 		}
 	};
@@ -123,7 +110,7 @@ export function BulkAddQuestionsDialog({
 						) : (
 							<div className="space-y-2 overflow-visible">
 								{questions.map((question) => {
-									const isSelected = selectedQuestionIds.has(question.id);
+									const isSelected = selectedQuestionIds.includes(question.id);
 									return (
 										<Item
 											asChild
@@ -167,12 +154,12 @@ export function BulkAddQuestionsDialog({
 							<Button variant="tertiary" size="sm" onClick={handleSelectAll}>
 								{allSelected ? "Batal Pilih Semua" : "Pilih Semua"}
 							</Button>
-							<span className="text-muted-foreground text-sm">({selectedQuestionIds.size} dipilih)</span>
+							<span className="text-muted-foreground text-sm">({selectedQuestionIds.length} dipilih)</span>
 						</div>
 						<Button
 							variant="default"
 							onClick={handleAdd}
-							disabled={selectedQuestionIds.size === 0 || bulkAddMutation.isPending}
+							disabled={selectedQuestionIds.length === 0 || bulkAddMutation.isPending}
 							className="w-full sm:w-auto"
 						>
 							{bulkAddMutation.isPending ? (
@@ -180,7 +167,7 @@ export function BulkAddQuestionsDialog({
 							) : (
 								<>
 									<PlusCircleIcon weight="fill" />
-									Tambah {selectedQuestionIds.size} Soal
+									Tambah {selectedQuestionIds.length} Soal
 								</>
 							)}
 						</Button>
