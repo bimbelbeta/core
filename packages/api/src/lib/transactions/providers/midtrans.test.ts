@@ -146,6 +146,24 @@ describe("fetchStatus", () => {
 		}
 	});
 
+	test("reads the acquirer message when the status message is generic", async () => {
+		process.env.MIDTRANS_SERVER_KEY = SERVER_KEY;
+		const request = respond({
+			transaction_status: "deny",
+			fraud_status: "accept",
+			status_message: "midtrans payment notification",
+			channel_response_message: "Insufficient balance",
+		});
+		try {
+			expect(await midtransProvider.fetchStatus(ORDER_ID)).toEqual({
+				status: "failed",
+				failure: "insufficient_balance",
+			});
+		} finally {
+			request.mockRestore();
+		}
+	});
+
 	test("carries the failure reason for a failed payment", async () => {
 		process.env.MIDTRANS_SERVER_KEY = SERVER_KEY;
 		const request = respond({ transaction_status: "failure", status_message: "Insufficient balance" });

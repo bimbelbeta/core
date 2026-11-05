@@ -35,21 +35,22 @@ const messageHints: Array<[RegExp, PaymentFailureCode]> = [
  * Reads a failure reason out of Midtrans' vocabulary.
  *
  * Midtrans has no failure-code enumeration: it reports `deny`, `cancel`, `expire`, or `failure`
- * and puts the actual reason in free-text `status_message`. The status alone is therefore mapped
- * where it is unambiguous, and the message is only used as a best-effort hint; anything
- * unrecognised stays `unknown` rather than guessing at a cause the user would act on.
+ * and puts the actual reason in free text — `status_message`, and for card payments the acquirer's
+ * answer in `channel_response_message`. The status alone is therefore mapped where it is
+ * unambiguous, and the messages are only used as a best-effort hint; anything unrecognised falls
+ * back to the status rather than guessing at a cause the user would act on.
  */
 export function toFailureCode(
 	transactionStatus: string,
 	fraudStatus?: string,
-	statusMessage?: string,
+	...messages: (string | undefined)[]
 ): PaymentFailureCode | undefined {
 	if (transactionStatus === "expire") return "payment_expired";
 	if (transactionStatus === "cancel") return "payment_cancelled";
 	if (transactionStatus === "deny" && fraudStatus === "deny") return "fraud_rejected";
 	if (transactionStatus !== "deny" && transactionStatus !== "failure") return undefined;
 
-	const hint = messageHints.find(([pattern]) => statusMessage && pattern.test(statusMessage));
+	const hint = messageHints.find(([pattern]) => messages.some((message) => message && pattern.test(message)));
 	if (hint) return hint[1];
 	return transactionStatus === "deny" ? "card_declined" : "provider_error";
 }
@@ -191,11 +192,15 @@ async function fetchStatus(orderId: string): Promise<PaymentEvent> {
 	const fraudStatus = "fraud_status" in body && typeof body.fraud_status === "string" ? body.fraud_status : undefined;
 	const statusMessage =
 		"status_message" in body && typeof body.status_message === "string" ? body.status_message : undefined;
+	const channelMessage =
+		"channel_response_message" in body && typeof body.channel_response_message === "string"
+			? body.channel_response_message
+			: undefined;
 
 	const status = toPaymentStatus(transactionStatus, fraudStatus);
 	if (status !== "failed") return { status };
 
-	return { status, failure: toFailureCode(transactionStatus, fraudStatus, statusMessage) ?? "unknown" };
+	return { status, failure: toFailureCode(transactionStatus, fraudStatus, statusMessage, channelMessage) ?? "unknown" };
 }
 
 export const midtransProvider: PaymentProvider<MidtransNotification> = {
