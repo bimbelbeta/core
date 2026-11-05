@@ -3,24 +3,21 @@ import { formatDateLong, formatDateMedium, formatDateTime, formatRelativeDate } 
 
 describe("formatDateLong", () => {
 	test("formats date with day, full month, and year in Indonesian", () => {
-		const date = new Date("2026-01-15");
-		const result = formatDateLong(date);
-		expect(result).toContain("15");
-		expect(result).toContain("2026");
+		expect(formatDateLong(new Date(2026, 0, 15))).toBe("15 Januari 2026");
 	});
 
-	test("formats a date correctly", () => {
-		expect(formatDateLong(new Date("2026-05-01"))).toBe("1 Mei 2026");
+	test("does not pad the day", () => {
+		expect(formatDateLong(new Date(2026, 4, 1))).toBe("1 Mei 2026");
 	});
 });
 
 describe("formatDateMedium", () => {
 	test("formats date with numeric day, short month, and year", () => {
-		expect(formatDateMedium(new Date("2026-05-01"))).toBe("1 Mei 2026");
+		expect(formatDateMedium(new Date(2026, 4, 1))).toBe("1 Mei 2026");
 	});
 
 	test("produces different output from formatDateLong", () => {
-		expect(formatDateMedium(new Date("2026-04-29"))).not.toBe(formatDateLong(new Date("2026-04-29")));
+		expect(formatDateMedium(new Date(2026, 3, 29))).not.toBe(formatDateLong(new Date(2026, 3, 29)));
 	});
 });
 

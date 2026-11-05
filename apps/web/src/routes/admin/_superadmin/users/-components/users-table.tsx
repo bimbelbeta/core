@@ -126,8 +126,8 @@ export function UsersTable() {
 												className={cn(
 													"flex size-6 items-center justify-center rounded-md",
 													(user.tryoutCredits ?? 0) > 0
-														? "bg-green-100 text-green-200"
-														: "bg-neutral-200 text-neutral-500",
+														? "text-neutral-1000 bg-green-100"
+														: "bg-neutral-200 text-neutral-800",
 												)}
 											>
 												<CreditCardIcon className="size-3.5" />
@@ -156,7 +156,7 @@ export function UsersTable() {
 															<span
 																className={cn(
 																	"flex items-center gap-1 text-[11px]",
-																	isPremiumExpired ? "text-red-100" : "text-amber-600",
+																	isPremiumExpired ? "text-red-200" : "text-amber-700",
 																)}
 															>
 																<ClockIcon className="size-3" />

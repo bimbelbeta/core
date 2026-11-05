@@ -1,7 +1,7 @@
 {
 	"$schema": "https://turbo.build/schema.json",
 	"ui": "tui",
-	"globalDependencies": ["scripts/**"],
+	"globalDependencies": ["scripts/**", "biome.json"],
 	"remoteCache": {
 		"enabled": true,
 		"teamSlug": "bimbelbeta-production"
