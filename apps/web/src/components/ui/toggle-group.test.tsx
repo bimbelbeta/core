@@ -86,10 +86,11 @@ describe("ToggleGroup single", () => {
 		expect(checked()).toEqual(["smp"]);
 	});
 
-	test("never leaves a single group with nothing selected", async () => {
+	test("arrowing around never emits the empty value a toggle would", async () => {
 		const changes = renderGroup();
 		radios()[2].focus();
 		for (const key of ["ArrowRight", "ArrowLeft", "ArrowRight", "Home", "End"]) await press(key);
+		expect(changes.length).toBeGreaterThan(0);
 		expect(changes).not.toContain("");
 		expect(checked()).toHaveLength(1);
 	});
@@ -111,11 +112,12 @@ describe("ToggleGroup single", () => {
 		expect(checked()).toEqual(["all"]);
 	});
 
-	test("skips a disabled item", async () => {
+	test("skips a disabled item, selection included", async () => {
 		renderGroup("sd");
 		radios()[0].focus();
 		await press("ArrowRight");
 		expect(focusedIndex()).toBe(2);
+		expect(checked()).toEqual(["smp"]);
 	});
 
 	test("leaves modifier chords to the browser", async () => {
@@ -128,5 +130,13 @@ describe("ToggleGroup single", () => {
 			await new Promise((resolve) => setTimeout(resolve, 10));
 		});
 		expect(changes).toEqual([]);
+
+		await act(async () => {
+			document.activeElement?.dispatchEvent(
+				new dom.window.KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true, cancelable: true }),
+			);
+			await new Promise((resolve) => setTimeout(resolve, 10));
+		});
+		expect(changes).toEqual(["sd"]);
 	});
 });

@@ -73,6 +73,7 @@ export default function Footer() {
 									href={social.url}
 									target="_blank"
 									rel="noopener noreferrer"
+									aria-label={social.label}
 									className={cn(buttonVariants({ size: "icon" }), "bg-secondary-700 hover:bg-secondary-700/90")}
 								>
 									<social.icon className="size-5" weight="bold" />

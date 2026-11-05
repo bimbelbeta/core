@@ -55,7 +55,7 @@ export function ChoiceEditItem({ choice, onUpdate, onDelete }: ChoiceEditItemPro
 				className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive mt-1 size-6 rounded"
 			>
 				<TrashIcon className="size-4" />
-				<span className="sr-only">Hapus pilihan</span>
+				<span className="sr-only">Hapus pilihan {choice.code}</span>
 			</Button>
 		</Item>
 	);

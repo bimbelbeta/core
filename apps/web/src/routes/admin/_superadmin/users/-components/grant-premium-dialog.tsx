@@ -62,7 +62,7 @@ export function GrantPremiumDialog({
 			}}
 		>
 			<DialogTrigger asChild>
-				<Button variant="ghost" size="icon" aria-label="Beri premium">
+				<Button variant="ghost" size="icon" aria-label={`Beri premium ${userName}`}>
 					<StarIcon className="size-4" />
 				</Button>
 			</DialogTrigger>
