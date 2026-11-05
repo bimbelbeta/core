@@ -75,6 +75,12 @@ function getSnap(): Snap {
 	return snap;
 }
 
+function statusErrorCode(status: number): PaymentError["code"] {
+	if (status === 401 || status === 403) return "CONFIGURATION_ERROR";
+	if (status >= 400 && status < 500) return "PROVIDER_REJECTED";
+	return "PROVIDER_UNAVAILABLE";
+}
+
 function isRejection(error: unknown): boolean {
 	if (typeof error !== "object" || error === null || !("httpStatusCode" in error)) return false;
 	const status = error.httpStatusCode;
@@ -133,7 +139,7 @@ async function fetchStatus(orderId: string): Promise<PaymentStatus> {
 	});
 
 	if (!response.ok) {
-		throw new PaymentError("PROVIDER_UNAVAILABLE", `Midtrans status request failed: ${response.status}`);
+		throw new PaymentError(statusErrorCode(response.status), `Midtrans status request failed: ${response.status}`);
 	}
 
 	const body: unknown = await response.json().catch(() => null);

@@ -3,7 +3,6 @@ import { assertAdmin, assertSuperAdmin, isPremiumExpired } from "./guards";
 
 const errors = {
 	UNAUTHORIZED: () => new Error("UNAUTHORIZED"),
-	FORBIDDEN: () => new Error("FORBIDDEN"),
 };
 
 describe("assertAdmin", () => {

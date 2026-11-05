@@ -99,6 +99,23 @@ describe("fetchStatus", () => {
 		}
 	});
 
+	test("separates a rejected key from an outage", async () => {
+		process.env.MIDTRANS_SERVER_KEY = SERVER_KEY;
+		const unauthorized = respond({}, 401);
+		try {
+			await expect(midtransProvider.fetchStatus(ORDER_ID)).rejects.toMatchObject({ code: "CONFIGURATION_ERROR" });
+		} finally {
+			unauthorized.mockRestore();
+		}
+
+		const unknownOrder = respond({}, 404);
+		try {
+			await expect(midtransProvider.fetchStatus(ORDER_ID)).rejects.toMatchObject({ code: "PROVIDER_REJECTED" });
+		} finally {
+			unknownOrder.mockRestore();
+		}
+	});
+
 	test("reports an unreachable provider", async () => {
 		process.env.MIDTRANS_SERVER_KEY = SERVER_KEY;
 		const request = respond({}, 503);

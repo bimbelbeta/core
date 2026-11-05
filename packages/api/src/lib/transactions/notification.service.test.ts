@@ -68,10 +68,11 @@ describe("notification service", () => {
 		}
 	});
 
-	test("returns not_found for unknown transactions", async () => {
+	test("returns not_found for unknown transactions without calling the provider", async () => {
 		const { deps, service } = setup();
 		deps.find.mockResolvedValueOnce(null);
 		expect(await service.process("missing", date)).toEqual({ status: "not_found" });
+		expect(deps.fetchStatus).not.toHaveBeenCalled();
 		expect(deps.updateStatus).not.toHaveBeenCalled();
 	});
 

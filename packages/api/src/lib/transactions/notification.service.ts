@@ -34,6 +34,9 @@ export const createNotificationService = (deps: NotificationServiceDependencies)
 	 * `processing_failed`, or `update_failed`.
 	 */
 	async process(orderId: string, purchaseDate: Date) {
+		const existingTransaction = await deps.find(orderId);
+		if (!existingTransaction) return { status: "not_found" } as const;
+
 		let status: PaymentStatus;
 		try {
 			status = await deps.fetchStatus(orderId);
@@ -42,10 +45,9 @@ export const createNotificationService = (deps: NotificationServiceDependencies)
 			return { status: "verification_failed" } as const;
 		}
 
-		const existingTransaction = await deps.find(orderId);
 		const outcome = resolveNotificationOutcome(status, existingTransaction, purchaseDate, calculatePurchaseBenefits);
 
-		if (outcome.action === "not_found" || outcome.action === "already_processed" || outcome.action === "user_deleted") {
+		if (outcome.action === "already_processed" || outcome.action === "user_deleted") {
 			return { status: outcome.action } as const;
 		}
 

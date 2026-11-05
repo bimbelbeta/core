@@ -2,7 +2,6 @@ import { ROLES } from "@/lib/roles";
 
 type GuardErrors = {
 	UNAUTHORIZED: () => Error;
-	FORBIDDEN: () => Error;
 };
 
 type Role = string | null | undefined;

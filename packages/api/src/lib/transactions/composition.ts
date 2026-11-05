@@ -12,7 +12,7 @@ export const subscriptionService = createSubscriptionService({
 	createCheckout: (input) =>
 		midtransProvider.createCheckout({
 			...input,
-			returnUrl: `${process.env.CORS_ORIGIN ?? "http://localhost:3000"}/premium`,
+			returnUrl: `${process.env.CORS_ORIGIN || "http://localhost:3000"}/premium`,
 		}),
 });
 

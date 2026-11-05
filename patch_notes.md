@@ -28,7 +28,7 @@ If the dashboard keeps the old URL, every notification 404s, orders stay `pendin
 - **Replay**: the success transition claims the order with `paid_at IS NULL`, so a repeated or concurrent notification cannot grant benefits twice.
 - **Contracts**: `subscribe` returns `provider` and an optional `token`; clients fall back to `redirectUrl` when no token is returned.
 - **Renewal**: `subscribe` and `transaction.status` now run the expired-premium check, and the premium page treats a lapsed session as non-premium, so a lapsed member can buy again instead of being told they already are one.
-- **Access codes**: a code only spends its quota when it is what granted access. Sending a code together with `useCredit` now uses the credit alone, where it previously consumed both.
+- **Access codes**: sending a code together with `useCredit` now uses the credit alone, where it previously consumed both the credit and a code use.
 - **Return URL**: `CheckoutInput` carries a provider-neutral `returnUrl`, which the Midtrans adapter maps to its `finish`, `error`, and `pending` callbacks. It points at `/premium`, so a redirect-based payment returns to the pricing page.
 
 ---
