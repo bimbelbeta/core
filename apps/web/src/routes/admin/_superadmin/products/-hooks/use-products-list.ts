@@ -15,7 +15,6 @@ export function useProductsList() {
 		variant,
 		includeDeleted,
 	} = useSearch({ from: "/admin/_superadmin/products/" });
-	const [searchInput, setSearchInput] = useState(search ?? "");
 	const [deleteProductId, setDeleteProductId] = useState<string | null>(null);
 	const [restoreProductId, setRestoreProductId] = useState<string | null>(null);
 
@@ -42,7 +41,6 @@ export function useProductsList() {
 
 	const handleSearch = (value: string) => {
 		const withoutSearch = withoutSearchKey(baseSearchParams, "search");
-		setSearchInput(value);
 		navigate({ search: value ? { ...baseSearchParams, search: value } : withoutSearch });
 	};
 
@@ -65,7 +63,7 @@ export function useProductsList() {
 		isLoading,
 		refetch,
 		pageInfo,
-		searchInput,
+		searchInput: search ?? "",
 		variant,
 		includeDeleted,
 		deleteProductId,

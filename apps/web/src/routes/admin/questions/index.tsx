@@ -80,7 +80,6 @@ function QuestionsListPage() {
 		useQuestionsSearch();
 	const { after, before, limit, search, questionType, category, tag } = searchParams;
 
-	const [searchInput, setSearchInput] = useState(search ?? "");
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState<number | null>(null);
 	const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
 
@@ -114,7 +113,6 @@ function QuestionsListPage() {
 	);
 
 	const onSearch = (value: string) => {
-		setSearchInput(value);
 		handleSearch(value);
 	};
 
@@ -158,7 +156,7 @@ function QuestionsListPage() {
 			</AdminPageHeader>
 
 			<AdminPageContent>
-				<AdminTableToolbar searchValue={searchInput} onSearchChange={onSearch} searchPlaceholder="Cari soal...">
+				<AdminTableToolbar searchValue={search ?? ""} onSearchChange={onSearch} searchPlaceholder="Cari soal...">
 					<Select value={questionType ?? "all"} onValueChange={handleTypeChange}>
 						<SelectTrigger className="w-full sm:w-40">
 							<SelectValue placeholder="Semua Tipe" />

@@ -11,8 +11,6 @@ export function useTryoutsList() {
 	const navigate = useNavigate({ from: "/admin/tryouts/" });
 	const { after, before, limit = 10, search, category, status } = useSearch({ from: "/admin/tryouts/" });
 
-	const [searchInput, setSearchInput] = useState(search ?? "");
-
 	const { data, isLoading, refetch } = useQuery(
 		orpc.admin.tryout.list.queryOptions({
 			input: {
@@ -53,7 +51,6 @@ export function useTryoutsList() {
 
 	const handleSearch = (value: string) => {
 		const withoutSearch = withoutSearchKey(baseSearchParams, "search");
-		setSearchInput(value);
 		navigate({ search: value ? { ...baseSearchParams, search: value } : withoutSearch });
 	};
 
@@ -80,7 +77,7 @@ export function useTryoutsList() {
 	return {
 		category,
 		status,
-		searchInput,
+		searchInput: search ?? "",
 		isAddDialogOpen,
 		setIsAddDialogOpen,
 		deleteDialogOpen,

@@ -9,6 +9,7 @@ import type { ContentActionItem, LastContentViewedItem } from "./classes-types";
 const DASHBOARD_CONTENT_ACTIONS = [
 	{
 		key: "video",
+		completed: (i: ContentActionItem) => i.videoCompleted,
 		label: "Video Materi",
 		icon: PlayCircleIcon,
 		enabled: (i: ContentActionItem) => i.hasVideo,
@@ -18,6 +19,7 @@ const DASHBOARD_CONTENT_ACTIONS = [
 	},
 	{
 		key: "notes",
+		completed: (i: ContentActionItem) => i.noteCompleted,
 		label: "Catatan Materi",
 		icon: NoteIcon,
 		enabled: (i: ContentActionItem) => i.hasNote,
@@ -27,6 +29,7 @@ const DASHBOARD_CONTENT_ACTIONS = [
 	},
 	{
 		key: "latihan-soal",
+		completed: (i: ContentActionItem) => i.practiceQuestionsCompleted,
 		label: "Latihan Soal",
 		icon: NoteIcon,
 		enabled: (i: ContentActionItem) => i.hasPracticeQuestions,
@@ -83,8 +86,8 @@ export function LastContentViewedCard({
 			{/* Actions */}
 			<div className="mt-2 flex gap-2 overflow-x-auto sm:gap-3">
 				{DASHBOARD_CONTENT_ACTIONS.filter(({ enabled }) => enabled(item)).map(
-					({ key, label, icon: Icon, className, width }) => {
-						const completed = item[`${key}Completed` as keyof ContentActionItem] as boolean | undefined;
+					({ key, label, icon: Icon, className, width, completed: getCompleted }) => {
+						const completed = getCompleted(item);
 
 						return (
 							<Link

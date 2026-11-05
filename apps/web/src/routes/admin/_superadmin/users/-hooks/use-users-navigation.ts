@@ -1,17 +1,14 @@
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { useState } from "react";
 import { withoutSearchKey } from "@/lib/tanstack-router-utils";
 import { buildUsersSearch, isValidRole } from "../-utils";
 
 export function useUsersNavigation() {
 	const navigate = useNavigate({ from: "/admin/users/" });
 	const { limit = 10, search, role, isPremium } = useSearch({ from: "/admin/_superadmin/users/" });
-	const [searchInput, setSearchInput] = useState(search ?? "");
 	const baseSearchParams = buildUsersSearch({ search, role, isPremium, limit });
 
 	const handleSearch = (value: string) => {
 		const withoutSearch = withoutSearchKey(baseSearchParams, "search");
-		setSearchInput(value);
 		navigate({ search: value ? { ...baseSearchParams, search: value } : withoutSearch });
 	};
 
@@ -26,7 +23,7 @@ export function useUsersNavigation() {
 	};
 
 	return {
-		searchInput,
+		searchInput: search ?? "",
 		role,
 		isPremium,
 		handleSearch,

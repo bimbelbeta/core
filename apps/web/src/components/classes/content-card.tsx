@@ -21,6 +21,7 @@ import type { ContentActionItem, ContentListItem } from "./classes-types";
 const CONTENT_ACTIONS = [
 	{
 		key: "video",
+		completed: (i: ContentActionItem) => i.videoCompleted,
 		label: "Video Materi",
 		icon: PlayCircleIcon,
 		enabled: (i: ContentActionItem) => i.hasVideo,
@@ -30,6 +31,7 @@ const CONTENT_ACTIONS = [
 	},
 	{
 		key: "notes",
+		completed: (i: ContentActionItem) => i.noteCompleted,
 		label: "Catatan Materi",
 		icon: NoteIcon,
 		enabled: (i: ContentActionItem) => i.hasNote,
@@ -39,6 +41,7 @@ const CONTENT_ACTIONS = [
 	},
 	{
 		key: "latihan-soal",
+		completed: (i: ContentActionItem) => i.practiceQuestionsCompleted,
 		label: "Latihan Soal",
 		icon: NoteIcon,
 		enabled: (i: ContentActionItem) => i.hasPracticeQuestions,
@@ -181,27 +184,29 @@ export function ContentCard({
 
 			{/* Actions - Links still work but will be caught by route guard */}
 			<div className="mt-2 flex gap-2 overflow-x-auto sm:gap-3">
-				{CONTENT_ACTIONS.filter(({ enabled }) => enabled(item)).map(({ key, label, icon: Icon, className, width }) => {
-					const completed = item[`${key}Completed` as keyof ContentActionItem] as boolean | undefined;
-					return (
-						<Link
-							key={key}
-							to={`${basePath}/$subjectId/$contentId/${key}`}
-							params={params}
-							className={cn(
-								"flex items-center gap-1.5 rounded-lg px-3 py-2 sm:gap-2 sm:px-4 sm:py-2.5",
-								"w-full sm:w-auto",
-								className(completed),
-								width,
-								isPremiumContent && "pointer-events-none opacity-60",
-							)}
-						>
-							<Icon className="size-4 sm:size-[18px]" weight="bold" />
-							<span className="text-xs font-medium whitespace-nowrap sm:text-[14px]">{label}</span>
-							<CaretRightIcon className="ml-auto size-4 sm:size-[18px]" weight="bold" />
-						</Link>
-					);
-				})}
+				{CONTENT_ACTIONS.filter(({ enabled }) => enabled(item)).map(
+					({ key, label, icon: Icon, className, width, completed: getCompleted }) => {
+						const completed = getCompleted(item);
+						return (
+							<Link
+								key={key}
+								to={`${basePath}/$subjectId/$contentId/${key}`}
+								params={params}
+								className={cn(
+									"flex items-center gap-1.5 rounded-lg px-3 py-2 sm:gap-2 sm:px-4 sm:py-2.5",
+									"w-full sm:w-auto",
+									className(completed),
+									width,
+									isPremiumContent && "pointer-events-none opacity-60",
+								)}
+							>
+								<Icon className="size-4 sm:size-[18px]" weight="bold" />
+								<span className="text-xs font-medium whitespace-nowrap sm:text-[14px]">{label}</span>
+								<CaretRightIcon className="ml-auto size-4 sm:size-[18px]" weight="bold" />
+							</Link>
+						);
+					},
+				)}
 			</div>
 		</Card>
 	);

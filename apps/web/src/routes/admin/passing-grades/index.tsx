@@ -36,8 +36,6 @@ function RouteComponent() {
 	const navigate = Route.useNavigate();
 	const { after, before, limit = 10, search } = Route.useSearch();
 
-	const [searchInput, setSearchInput] = useState(search ?? "");
-
 	const { data, isLoading, refetch } = useQuery(
 		orpc.admin.university.universities.list.queryOptions({
 			input: {
@@ -59,7 +57,6 @@ function RouteComponent() {
 	};
 
 	const handleSearch = (value: string) => {
-		setSearchInput(value);
 		navigate({
 			search: {
 				...(value && { search: value }),
@@ -90,7 +87,7 @@ function RouteComponent() {
 			<AdminPageContent>
 				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 					<SearchInput
-						value={searchInput}
+						value={search ?? ""}
 						onChange={handleSearch}
 						placeholder="Cari universitas..."
 						className="w-full sm:max-w-sm md:max-w-md"

@@ -10,7 +10,7 @@ interface DashboardMainCardProps {
 	description: string;
 	to?: string;
 	href?: string;
-	src?: string;
+	src: string;
 }
 
 export function DashboardMainCard({ title, description, to, href, src }: DashboardMainCardProps) {
@@ -21,7 +21,7 @@ export function DashboardMainCard({ title, description, to, href, src }: Dashboa
 		>
 			<div className="bg-secondary-100 relative flex h-21.5 w-full justify-end overflow-visible rounded-sm p-1.5">
 				<Image
-					src={src as string}
+					src={src}
 					width={150}
 					alt=""
 					height={150}
