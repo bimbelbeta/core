@@ -115,7 +115,7 @@ function QuestionDetailPage() {
 											</span>
 											<span className="flex-1 text-sm">{choice.content}</span>
 											{choice.isCorrect && (
-												<Badge variant="outline" className="ml-auto border-green-200 bg-green-50 text-green-700">
+												<Badge variant="success" className="ml-auto">
 													Benar
 												</Badge>
 											)}

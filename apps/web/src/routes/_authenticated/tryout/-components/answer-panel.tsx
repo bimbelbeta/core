@@ -98,16 +98,19 @@ export function AnswerPanel() {
 		<div className="flex h-full min-h-0 flex-col">
 			<div className={cn("flex flex-col gap-2", isComplexQuestion && "min-h-0 flex-1 overflow-y-auto pr-1")}>
 				{currentQuestion?.type === "multiple_choice" ? (
-					choices.map((choice) => (
-						<AnswerOption
-							key={choice.id}
-							code={choice.code}
-							content={choice.content}
-							selected={selectedAnswerId === choice.id}
-							onSelect={() => handleSelectAnswer(choice.id)}
-							disabled={saveAnswerMutation.isPending}
-						/>
-					))
+					<fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+						<legend className="sr-only">Pilih satu jawaban</legend>
+						{choices.map((choice) => (
+							<AnswerOption
+								key={choice.id}
+								code={choice.code}
+								content={choice.content}
+								selected={selectedAnswerId === choice.id}
+								onSelect={() => handleSelectAnswer(choice.id)}
+								disabled={saveAnswerMutation.isPending}
+							/>
+						))}
+					</fieldset>
 				) : currentQuestion?.type === "multiple_choice_complex" ? (
 					<div className="flex flex-col gap-3">
 						{choices.map((choice) => {
@@ -194,7 +197,8 @@ function AnswerOption({
 				disabled && "opacity-50",
 			)}
 		>
-			<button type="button" aria-pressed={selected} disabled={disabled} onClick={onSelect}>
+			<label className="flex w-full cursor-pointer flex-nowrap items-center gap-3">
+				<input type="radio" className="sr-only" checked={selected} disabled={disabled} onChange={onSelect} />
 				<span
 					className={cn(
 						"border-foreground/20 rounded-xs border px-2.5 py-0.5 text-sm font-medium",
@@ -204,7 +208,7 @@ function AnswerOption({
 					{code}
 				</span>
 				{content}
-			</button>
+			</label>
 		</Item>
 	);
 }

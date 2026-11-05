@@ -12,6 +12,7 @@ on:
       - "package.json"
       - "biome.json"
       - "bun.lock"
+      - "bunfig.toml"
       - "apps/web/Dockerfile"
       - "apps/server/Dockerfile"
   pull_request:

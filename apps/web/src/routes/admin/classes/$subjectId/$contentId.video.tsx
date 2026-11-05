@@ -230,7 +230,11 @@ function RouteComponent() {
 					{(field) => (
 						<div className="space-y-2">
 							<Label>Konten Video (Deskripsi)</Label>
-							<TiptapSimpleEditor content={field.state.value} onChange={(c) => field.handleChange(c)} />
+							<TiptapSimpleEditor
+								label="Konten Video (Deskripsi)"
+								content={field.state.value}
+								onChange={(c) => field.handleChange(c)}
+							/>
 							{field.state.meta.errors.map((error) => (
 								<Typography key={error?.message} tone="destructive">
 									{error?.message}

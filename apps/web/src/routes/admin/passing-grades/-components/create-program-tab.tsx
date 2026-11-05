@@ -146,7 +146,7 @@ export function CreateProgramTab({ onProgramCreate }: CreateProgramTabProps) {
 							Kategori <span className="text-destructive">*</span>
 						</Label>
 						<Select value={field.state.value} onValueChange={(val) => field.handleChange(val as "SAINTEK" | "SOSHUM")}>
-							<SelectTrigger>
+							<SelectTrigger id={field.name}>
 								<SelectValue placeholder="Pilih kategori" />
 							</SelectTrigger>
 							<SelectContent>

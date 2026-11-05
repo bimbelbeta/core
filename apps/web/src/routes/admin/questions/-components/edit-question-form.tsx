@@ -129,8 +129,9 @@ export function EditQuestionForm({ question, initialChoices, onSuccess, onCancel
 						<form.Field name="content">
 							{(field) => (
 								<div className="grid gap-2">
-									<Label htmlFor={field.name}>Konten Soal *</Label>
+									<Label>Konten Soal *</Label>
 									<TiptapSimpleEditor
+										label="Konten Soal"
 										content={field.state.value ?? undefined}
 										onChange={(content) => field.handleChange(content)}
 									/>
@@ -162,8 +163,9 @@ export function EditQuestionForm({ question, initialChoices, onSuccess, onCancel
 						<form.Field name="discussion">
 							{(field) => (
 								<div className="grid gap-2">
-									<Label htmlFor={field.name}>Pembahasan</Label>
+									<Label>Pembahasan</Label>
 									<TiptapSimpleEditor
+										label="Pembahasan"
 										content={field.state.value ?? undefined}
 										onChange={(content) => field.handleChange(content)}
 									/>
@@ -174,7 +176,7 @@ export function EditQuestionForm({ question, initialChoices, onSuccess, onCancel
 						<form.Field name="tags">
 							{(field) => (
 								<div className="grid gap-2">
-									<Label htmlFor={field.name}>Tags</Label>
+									<Label>Tags</Label>
 									<TagInput
 										value={field.state.value}
 										onChange={(tags) => field.handleChange(tags)}

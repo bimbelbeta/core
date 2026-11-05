@@ -196,7 +196,7 @@ export function EditSubjectDialog({ open, onOpenChange, subject }: EditSubjectDi
 											}
 										}}
 									>
-										<SelectTrigger className="w-full">
+										<SelectTrigger id={field.name} className="w-full">
 											<SelectValue placeholder="Pilih kategori" />
 										</SelectTrigger>
 										<SelectContent>

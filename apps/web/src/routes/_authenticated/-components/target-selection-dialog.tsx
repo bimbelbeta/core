@@ -116,7 +116,7 @@ export function TargetSelectionDialog() {
 									}}
 									disabled={isPending || (universities?.items && universities.items.length < 1)}
 								>
-									<SelectTrigger>
+									<SelectTrigger id={field.name}>
 										<SelectValue placeholder="Pilih universitas" />
 									</SelectTrigger>
 									<SelectContent>
@@ -164,7 +164,7 @@ export function TargetSelectionDialog() {
 												onValueChange={(value) => field.handleChange(Number.parseInt(value, 10))}
 												disabled={isFetching || !studyPrograms?.items}
 											>
-												<SelectTrigger>
+												<SelectTrigger id={field.name}>
 													<SelectValue
 														placeholder={!studyPrograms?.items ? "Pilih universitas dulu" : "Pilih program studi"}
 													/>

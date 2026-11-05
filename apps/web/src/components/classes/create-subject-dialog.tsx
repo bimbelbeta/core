@@ -195,7 +195,7 @@ export function CreateSubjectDialog({ open, onOpenChange, defaultCategory }: Cre
 											}
 										}}
 									>
-										<SelectTrigger className="w-full">
+										<SelectTrigger id={field.name} className="w-full">
 											<SelectValue placeholder="Pilih kategori" />
 										</SelectTrigger>
 										<SelectContent>
