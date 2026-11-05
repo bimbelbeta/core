@@ -8,6 +8,8 @@ services:
       dockerfile: ./apps/web/Dockerfile
       args:
         VITE_SERVER_URL: http://localhost:3001
+        VITE_MIDTRANS_CLIENT_KEY: ${VITE_MIDTRANS_CLIENT_KEY}
+        VITE_PAYMENTS_ENABLED: ${VITE_PAYMENTS_ENABLED:-false}
     ports:
       - 3000:3000
     env_file: ./apps/web/.env.prod

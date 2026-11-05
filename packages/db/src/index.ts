@@ -55,6 +55,7 @@ const relations = defineRelations(schema, () => ({}));
 
 const connection: PoolConfig = {
 	connectionString: process.env.DATABASE_URL || "",
+	options: "-c search_path=app,public",
 	...(process.env.NODE_ENV !== "production" ? { ssl: false } : {}),
 };
 

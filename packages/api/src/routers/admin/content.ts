@@ -2,6 +2,7 @@ import { db } from "@bimbelbeta/db";
 import { question, questionChoice } from "@bimbelbeta/db/schema/question";
 import { contentItem, contentPracticeQuestions, noteMaterial, videoMaterial } from "@bimbelbeta/db/schema/subject";
 import { and, asc, eq, inArray, sql } from "drizzle-orm";
+import { contentService } from "@/lib/content/content.service";
 import { readTiptapContent } from "@/lib/content-utils";
 import { requireCreated, requireFound } from "@/lib/crud-helpers";
 import { adminImplementer } from "@/lib/router-definition";
@@ -9,84 +10,12 @@ import { adminImplementer } from "@/lib/router-definition";
 const admin = adminImplementer;
 
 const create = admin.admin.content.create.handler(async ({ input, errors }) => {
-	const hasVideo = input.video !== undefined;
-	const hasNote = input.note !== undefined;
-	const hasPracticeQuestions = (input.practiceQuestionIds?.length ?? 0) > 0;
-
-	if (!hasVideo && !hasNote && !hasPracticeQuestions) {
+	const result = await contentService.create(input);
+	if (result.status === "no_materials")
 		throw errors.BAD_REQUEST({
 			message: "Konten harus memiliki minimal salah satu: video, catatan, atau latihan soal",
 		});
-	}
-
-	const result = await db.transaction(async (tx) => {
-		const newContent = requireCreated(
-			await tx
-				.insert(contentItem)
-				.values({
-					subjectId: input.subjectId,
-					title: input.title,
-					order: input.order,
-				})
-				.returning(),
-			"konten",
-			errors,
-		);
-
-		const createdMaterials: {
-			video?: number;
-			note?: number;
-			practiceQuestions?: number;
-		} = {};
-
-		if (hasVideo) {
-			const [video] = await tx
-				.insert(videoMaterial)
-				.values({
-					contentItemId: newContent.id,
-					videoUrl: input.video!.videoUrl,
-					content: input.video!.content,
-				})
-				.returning();
-
-			if (video) createdMaterials.video = video.id;
-		}
-
-		if (hasNote) {
-			const [note] = await tx
-				.insert(noteMaterial)
-				.values({
-					contentItemId: newContent.id,
-					content: input.note!.content,
-				})
-				.returning();
-
-			if (note) createdMaterials.note = note.id;
-		}
-
-		if (hasPracticeQuestions && input.practiceQuestionIds) {
-			await tx.insert(contentPracticeQuestions).values(
-				input.practiceQuestionIds.map((questionId: number, index: number) => ({
-					contentItemId: newContent.id,
-					questionId,
-					order: index + 1,
-				})),
-			);
-
-			createdMaterials.practiceQuestions = input.practiceQuestionIds.length;
-		}
-
-		return {
-			contentId: newContent.id,
-			createdMaterials,
-		};
-	});
-
-	return {
-		message: "Konten berhasil dibuat",
-		contentId: result.contentId,
-		createdMaterials: result.createdMaterials,
-	};
+	return { message: "Konten berhasil dibuat", contentId: result.contentId, createdMaterials: result.createdMaterials };
 });
 
 const update = admin.admin.content.update.handler(async ({ input, errors }) => {

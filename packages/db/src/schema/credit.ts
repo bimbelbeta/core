@@ -1,5 +1,6 @@
 import { defineRelationsPart } from "drizzle-orm";
-import { index, integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { index, integer, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { app } from "@/schema/app";
 import { user } from "@/schema/auth";
 import { transaction } from "@/schema/transaction";
 import { tryoutAttempt } from "@/schema/tryout";
@@ -11,7 +12,7 @@ import { tryoutAttempt } from "@/schema/tryout";
  * - Credit additions (from purchases): amount > 0, transactionId set
  * - Credit consumption (from tryout starts): amount < 0, tryoutAttemptId set
  */
-export const creditTransaction = pgTable(
+export const creditTransaction = app.table(
 	"credit_transaction",
 	{
 		id: uuid().defaultRandom().primaryKey(),

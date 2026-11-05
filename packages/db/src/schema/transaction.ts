@@ -1,4 +1,5 @@
-import { decimal, index, integer, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { decimal, index, integer, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { app } from "@/schema/app";
 import { user } from "@/schema/auth";
 
 /**
@@ -10,18 +11,36 @@ import { user } from "@/schema/auth";
  * 3. CREDITS    - Credits only, no expiry
  */
 
-export const typeEnum = pgEnum("product_type_enum", ["subscription", "product"]);
-export const statusEnum = pgEnum("transaction_status_enum", ["pending", "success", "failed"]);
-export const productVariantEnum = pgEnum("product_variant_enum", ["fixed_date", "monthly", "credits"]);
+export const typeEnum = app.enum("product_type_enum", ["subscription", "product"]);
+export const statusEnum = app.enum("transaction_status_enum", ["pending", "success", "failed"]);
+export const productVariantEnum = app.enum("product_variant_enum", ["fixed_date", "monthly", "credits"]);
 
-export const transaction = pgTable(
+export const paymentFailureEnum = app.enum("payment_failure_code", [
+	"insufficient_balance",
+	"limit_exceeded",
+	"card_declined",
+	"fraud_rejected",
+	"payment_expired",
+	"payment_cancelled",
+	"provider_error",
+	"unknown",
+]);
+
+export const transaction = app.table(
 	"transaction",
 	{
 		id: text().primaryKey(),
 		userId: text("user_id").references(() => user.id, { onDelete: "set null" }),
 		productId: uuid("product_id").references(() => product.id, { onDelete: "set null" }),
 		grossAmount: decimal("gross_amount"),
+		amountPaid: decimal("amount_paid"),
+		provider: text("provider").notNull().default("midtrans"),
+		providerTransactionId: text("provider_transaction_id"),
+		paymentMethod: text("payment_method"),
+		expiresAt: timestamp("expires_at"),
 		status: statusEnum("status").notNull().default("pending"),
+		failureCode: paymentFailureEnum("failure_code"),
+		failureDetail: text("failure_detail"),
 		paidAt: timestamp("paid_at"),
 		orderedAt: timestamp("ordered_at").defaultNow(),
 		createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -33,7 +52,7 @@ export const transaction = pgTable(
 	(t) => [index("idx_transaction_user_id").on(t.userId), index("idx_transaction_product_id").on(t.productId)],
 );
 
-export const product = pgTable("product", {
+export const product = app.table("product", {
 	id: uuid().defaultRandom().primaryKey(),
 	name: text().notNull(),
 	slug: text().notNull().unique(),

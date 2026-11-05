@@ -19,7 +19,38 @@ on:
   workflow_dispatch:
 
 jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: changed
+        name: Did this push touch migrations?
+        run: |
+          before="${{ github.event.before }}"
+          if [ "$before" = "0000000000000000000000000000000000000000" ]; then
+            echo "value=true" >> "$GITHUB_OUTPUT"
+          elif git diff --quiet "$before" "${{ github.sha }}" -- packages/db/src/migrations; then
+            echo "value=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.changed.outputs.value == 'true'
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+      - if: steps.changed.outputs.value == 'true'
+        run: bun install --frozen-lockfile
+      - if: steps.changed.outputs.value == 'true'
+        name: Apply migrations before anything ships
+        working-directory: ./packages/db
+        env:
+          DATABASE_URL: "${{ secrets.DATABASE_URL }}"
+        run: bun run db:migrate
+
   build-web:
+    needs: migrate
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -45,13 +76,16 @@ jobs:
             TURBO_TEAM=${{ secrets.TURBO_TEAM }}
             TURBO_TOKEN=${{ secrets.TURBO_TOKEN }}
             VITE_SERVER_URL=https://api.bimbelbeta.com
+            VITE_MIDTRANS_CLIENT_KEY=${{ secrets.MIDTRANS_CLIENT_KEY }}
+            VITE_PAYMENTS_ENABLED=${{ vars.VITE_PAYMENTS_ENABLED }}
       - name: Deploy to Coolify
         if: github.ref == 'refs/heads/main'
         run: |
-          curl --request GET '${{ secrets.COOLIFY_WEB_WEBHOOK }}' \
+          curl --fail-with-body --request POST '${{ secrets.COOLIFY_WEB_WEBHOOK }}' \
             --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
 
   build-server:
+    needs: migrate
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -79,5 +113,5 @@ jobs:
       - name: Deploy to Coolify
         if: github.ref == 'refs/heads/main'
         run: |
-          curl --request GET '${{ secrets.COOLIFY_SERVER_WEBHOOK }}' \
+          curl --fail-with-body --request POST '${{ secrets.COOLIFY_SERVER_WEBHOOK }}' \
             --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'

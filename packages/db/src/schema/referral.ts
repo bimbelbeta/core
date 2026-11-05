@@ -1,7 +1,8 @@
-import { boolean, index, integer, pgTable, text, timestamp, unique } from "drizzle-orm/pg-core";
+import { boolean, index, integer, text, timestamp, unique } from "drizzle-orm/pg-core";
+import { app } from "@/schema/app";
 import { user } from "@/schema/auth";
 
-export const referralCode = pgTable(
+export const referralCode = app.table(
 	"referral_code",
 	{
 		id: text("id").primaryKey(),
@@ -21,7 +22,7 @@ export const referralCode = pgTable(
 	(t) => [index("idx_referral_code_code").on(t.code)],
 );
 
-export const referralUsage = pgTable(
+export const referralUsage = app.table(
 	"referral_usage",
 	{
 		id: text("id").primaryKey(),
