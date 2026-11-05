@@ -38,7 +38,7 @@ jobs:
         run: |
           bunx drizzle-kit generate
           test -z "$(git status --porcelain src/migrations)"
-      - run: bun run build -- --filter='!web'
+      - run: bun run build
       - run: bun check-types
-      - run: bunx biome check .
+      - run: bunx biome check . --error-on-warnings
       - run: bun test
