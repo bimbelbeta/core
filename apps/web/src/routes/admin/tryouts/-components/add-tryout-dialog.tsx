@@ -42,12 +42,7 @@ export function AddTryoutDialog({
 	onOpenChange: (open: boolean) => void;
 	onSuccess: () => void;
 }) {
-	const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
-		from: undefined,
-		to: undefined,
-	});
-
-	const defaultValues: {
+	type TryoutFormValues = {
 		title: string;
 		description: string;
 		category: SubjectCategory;
@@ -55,7 +50,14 @@ export function AddTryoutDialog({
 		status: TryoutStatus;
 		startsAt: string;
 		endsAt: string;
-	} = {
+	};
+
+	const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
+		from: undefined,
+		to: undefined,
+	});
+
+	const defaultValues: TryoutFormValues = {
 		title: "",
 		description: "",
 		category: "utbk",

@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { typographyVariants } from "./typography-variants";
+import { readFileSync } from "node:fs";
+import { typographyTones, typographyVariants } from "./typography-variants";
 
 describe("typographyVariants", () => {
 	test("the variant set is closed", () => {
@@ -37,15 +38,22 @@ describe("typographyVariants", () => {
 	});
 });
 
-import { typographyTones } from "./typography-variants";
-
 describe("typographyTones", () => {
-	test("the tone set is closed and every tone resolves to a real colour", () => {
+	test("the tone set is closed", () => {
 		expect(Object.values(typographyTones).sort()).toEqual([
 			"",
 			"text-destructive",
 			"text-muted-foreground",
 			"text-primary-800",
 		]);
+	});
+
+	test("every tone colour is a token this theme defines", () => {
+		const css = readFileSync(new URL("../../index.css", import.meta.url), "utf8");
+		for (const className of Object.values(typographyTones)) {
+			for (const token of className.match(/\btext-[\w-]+/g) ?? []) {
+				expect(css.includes(`--color-${token.slice(5)}:`), token).toBe(true);
+			}
+		}
 	});
 });
