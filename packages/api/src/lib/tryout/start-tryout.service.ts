@@ -97,7 +97,7 @@ export async function startTryout(
 		}
 	}
 
-	const usesAccessCode = !!validAccessCode && !wantsToUseCredit;
+	const usesAccessCode = !!validAccessCode && !wantsToUseCredit && !isPremiumUser && !hasImageProof;
 
 	if (!isPremiumUser && !hasImageProof && !wantsToUseCredit && !usesAccessCode) {
 		throw errors.FORBIDDEN({

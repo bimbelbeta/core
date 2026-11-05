@@ -72,7 +72,6 @@ Enforce login using purely the `name` column as a username (no email required fo
 
 ### Action Required for Developers / Admins
 
-`VITE_PAYMENTS_ENABLED` is a build-time switch, not a runtime one. Set it to `true` as a repository variable so the web image is built with payments enabled; leaving it unset ships the "Segera Hadir" buttons.
 
 > [!IMPORTANT]
 > - The Drizzle schema (`core/packages/db/src/schema/auth.ts`) has been updated to mark `name` as `.unique()`.
@@ -158,7 +157,6 @@ Implement a complete Referral Code system that allows superadmins to create and 
 
 ### Action Required for Developers / Admins
 
-`VITE_PAYMENTS_ENABLED` is a build-time switch, not a runtime one. Set it to `true` as a repository variable so the web image is built with payments enabled; leaving it unset ships the "Segera Hadir" buttons.
 
 > [!IMPORTANT]
 > This patch adds two new tables to the database: `referral_code` and `referral_usage`.

@@ -2,7 +2,7 @@ import { db } from "@bimbelbeta/db";
 import { tryoutAttempt, tryoutSubtestAttempt } from "@bimbelbeta/db/schema/tryout";
 import { eq } from "drizzle-orm";
 import { calculateTryoutScores, saveScoresToDatabase } from "@/lib/calculate-score";
-import { computeSubtestDeadline } from "@/lib/tryout/start-subtest.service";
+import { computeSubtestDeadline } from "@/lib/tryout/deadline";
 import { tryoutErrors as errors } from "@/lib/tryout/tryout-error";
 
 const dependencies = {

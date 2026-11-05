@@ -60,11 +60,13 @@ async function saveContent(input: CreateContentInput) {
  * @returns `created` with the new content item id and the ids of the materials that were written,
  * `no_materials` when nothing was supplied.
  */
-export const createContentService = (save: typeof saveContent) => ({
-	async create(input: CreateContentInput) {
-		if (!input.video && !input.note && !input.practiceQuestionIds?.length) return { status: "no_materials" } as const;
-		return { status: "created", ...(await save(input)) } as const;
-	},
-});
+export function hasMaterials(input: CreateContentInput): boolean {
+	return !!input.video || !!input.note || (input.practiceQuestionIds?.length ?? 0) > 0;
+}
 
-export const contentService = createContentService(saveContent);
+export const contentService = {
+	async create(input: CreateContentInput) {
+		if (!hasMaterials(input)) return { status: "no_materials" } as const;
+		return { status: "created", ...(await saveContent(input)) } as const;
+	},
+};

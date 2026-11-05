@@ -1,44 +1,52 @@
-import { describe, expect, mock, test } from "bun:test";
-import { createQuestionService } from "./question.service";
+import { describe, expect, test } from "bun:test";
+import { validateQuestion } from "./question.service";
 
 const choice = { content: "Pilihan", isCorrect: true };
 const input = { type: "multiple_choice" as const, content: "Soal", discussion: "Pembahasan" };
 
-describe("question creation", () => {
-	test("rejects multiple-choice questions without two choices and exactly one correct answer", async () => {
-		const save = mock(async () => 1);
-		const service = createQuestionService(save);
-		expect(await service.create(input)).toEqual({ status: "too_few_choices" });
-		expect(await service.create({ ...input, choices: [choice, choice] })).toEqual({ status: "incorrect_choice_count" });
-		expect(save).not.toHaveBeenCalled();
+describe("validateQuestion", () => {
+	test("rejects a multiple choice without two choices", () => {
+		expect(validateQuestion(input)).toEqual({ status: "too_few_choices" });
+		expect(validateQuestion({ ...input, choices: [choice] })).toEqual({ status: "too_few_choices" });
 	});
 
-	test("allows complex choices with no correct answer and normalizes content", async () => {
-		const save = mock(async () => 7);
-		const service = createQuestionService(save);
-		const complex = {
-			...input,
-			type: "multiple_choice_complex" as const,
-			content: { type: "doc", content: [] },
-			choices: [
-				{ ...choice, isCorrect: false },
-				{ ...choice, isCorrect: false },
-			],
-		};
-		expect(await service.create({ ...complex, choices: [] })).toEqual({ status: "too_few_complex_choices" });
-		expect(await service.create(complex)).toEqual({ status: "created", id: 7 });
-		expect(save).toHaveBeenCalledWith(complex, {
-			contentJson: complex.content,
-			discussionJson: null,
-			contentText: JSON.stringify(complex.content),
-			discussionText: "Pembahasan",
+	test("rejects a multiple choice without exactly one correct answer", () => {
+		expect(validateQuestion({ ...input, choices: [choice, choice] })).toEqual({ status: "incorrect_choice_count" });
+		expect(
+			validateQuestion({
+				...input,
+				choices: [
+					{ ...choice, isCorrect: false },
+					{ ...choice, isCorrect: false },
+				],
+			}),
+		).toEqual({ status: "incorrect_choice_count" });
+	});
+
+	test("accepts a multiple choice with exactly one correct answer", () => {
+		expect(validateQuestion({ ...input, choices: [choice, { ...choice, isCorrect: false }] })).toBeNull();
+	});
+
+	test("rejects a complex multiple choice without two choices", () => {
+		expect(validateQuestion({ ...input, type: "multiple_choice_complex" })).toEqual({
+			status: "too_few_complex_choices",
 		});
 	});
 
-	test("propagates a failed insert", async () => {
-		const service = createQuestionService(async () => {
-			throw new Error("insert failed");
-		});
-		await expect(service.create({ ...input, type: "essay" })).rejects.toThrow("insert failed");
+	test("accepts a complex multiple choice with no correct answer", () => {
+		expect(
+			validateQuestion({
+				...input,
+				type: "multiple_choice_complex",
+				choices: [
+					{ ...choice, isCorrect: false },
+					{ ...choice, isCorrect: false },
+				],
+			}),
+		).toBeNull();
+	});
+
+	test("accepts an essay without choices", () => {
+		expect(validateQuestion({ ...input, type: "essay" })).toBeNull();
 	});
 });

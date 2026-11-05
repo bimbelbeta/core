@@ -1,5 +1,6 @@
 import { db } from "@bimbelbeta/db";
 import { tryoutSubtestAttempt } from "@bimbelbeta/db/schema/tryout";
+import { computeSubtestDeadline } from "@/lib/tryout/deadline";
 import { tryoutErrors as errors } from "@/lib/tryout/tryout-error";
 import { parseNullableInt } from "@/lib/utils";
 
@@ -19,17 +20,6 @@ const dependencies = {
 	createSubtestAttempt: async (data: typeof tryoutSubtestAttempt.$inferInsert) =>
 		(await db.insert(tryoutSubtestAttempt).values(data).returning())[0]!,
 };
-
-/**
- * Computes when a subtest must end, honouring both limits at once.
- *
- * A subtest has its own duration but can never run past the overall tryout deadline, so the
- * result is the earlier of the two. `startFrom` is the previous subtest's deadline, which chains
- * subtests back to back without idle time; it defaults to now for the first subtest.
- */
-export function computeSubtestDeadline(durationMinutes: number, overallDeadline: Date, startFrom: Date = new Date()) {
-	return new Date(Math.min(startFrom.getTime() + durationMinutes * 60 * 1000, overallDeadline.getTime()));
-}
 
 export const createStartSubtestService = (deps: typeof dependencies) => ({
 	/**

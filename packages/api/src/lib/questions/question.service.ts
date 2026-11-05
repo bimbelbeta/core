@@ -55,21 +55,25 @@ async function saveQuestion(input: CreateQuestionInput, content: ReturnType<type
  * @returns `created` with the new question id, or `too_few_choices`, `incorrect_choice_count`,
  * or `too_few_complex_choices`.
  */
-export const createQuestionService = (save: typeof saveQuestion) => ({
+export function validateQuestion(input: CreateQuestionInput) {
+	const choices = input.choices;
+	if (input.type === "multiple_choice") {
+		if (!choices || choices.length < 2) return { status: "too_few_choices" } as const;
+		if (choices.filter((choice) => choice.isCorrect).length !== 1) {
+			return { status: "incorrect_choice_count" } as const;
+		}
+	}
+	if (input.type === "multiple_choice_complex" && (!choices || choices.length < 2)) {
+		return { status: "too_few_complex_choices" } as const;
+	}
+	return null;
+}
+
+export const questionService = {
 	async create(input: CreateQuestionInput) {
-		const content = normalizeQuestionContent(input);
-		const choices = input.choices;
-		if (input.type === "multiple_choice") {
-			if (!choices || choices.length < 2) return { status: "too_few_choices" } as const;
-			if (choices.filter((choice) => choice.isCorrect).length !== 1)
-				return { status: "incorrect_choice_count" } as const;
-		}
-		if (input.type === "multiple_choice_complex" && (!choices || choices.length < 2)) {
-			return { status: "too_few_complex_choices" } as const;
-		}
+		const invalid = validateQuestion(input);
+		if (invalid) return invalid;
 
-		return { status: "created", id: await save(input, content) } as const;
+		return { status: "created", id: await saveQuestion(input, normalizeQuestionContent(input)) } as const;
 	},
-});
-
-export const questionService = createQuestionService(saveQuestion);
+};

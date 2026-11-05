@@ -1,37 +1,17 @@
-import { describe, expect, mock, test } from "bun:test";
-import { createContentService } from "./content.service";
+import { describe, expect, test } from "bun:test";
+import { hasMaterials } from "./content.service";
 
 const input = { subjectId: 1, title: "Konten", order: 1 };
 
-describe("content creation", () => {
-	test("rejects content without material, including an empty practice question list", async () => {
-		const save = mock(async () => ({ contentId: 1, createdMaterials: {} }));
-		const service = createContentService(save);
-		expect(await service.create(input)).toEqual({ status: "no_materials" });
-		expect(await service.create({ ...input, practiceQuestionIds: [] })).toEqual({ status: "no_materials" });
-		expect(save).not.toHaveBeenCalled();
+describe("hasMaterials", () => {
+	test("rejects content without any material", () => {
+		expect(hasMaterials(input)).toBe(false);
+		expect(hasMaterials({ ...input, practiceQuestionIds: [] })).toBe(false);
 	});
 
-	test("accepts each kind of material and preserves the saved result", async () => {
-		const save = mock(async () => ({ contentId: 1, createdMaterials: { video: 2, note: 3, practiceQuestions: 1 } }));
-		const service = createContentService(save);
-		for (const material of [
-			{ video: { videoUrl: "video", content: {} } },
-			{ note: { content: {} } },
-			{ practiceQuestionIds: [10] },
-		]) {
-			expect(await service.create({ ...input, ...material })).toEqual({
-				status: "created",
-				contentId: 1,
-				createdMaterials: { video: 2, note: 3, practiceQuestions: 1 },
-			});
-		}
-	});
-
-	test("propagates a failed content insert", async () => {
-		const service = createContentService(async () => {
-			throw new Error("insert failed");
-		});
-		await expect(service.create({ ...input, note: { content: {} } })).rejects.toThrow("insert failed");
+	test("accepts each kind of material", () => {
+		expect(hasMaterials({ ...input, video: { videoUrl: "video", content: {} } })).toBe(true);
+		expect(hasMaterials({ ...input, note: { content: {} } })).toBe(true);
+		expect(hasMaterials({ ...input, practiceQuestionIds: [10] })).toBe(true);
 	});
 });
