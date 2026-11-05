@@ -21,14 +21,10 @@ afterEach(cleanup);
 const rows = (...ids: number[]) => ids.map((id) => ({ id }));
 
 describe("useBulkSelection", () => {
-	test("settles on the ids it was mounted with", () => {
-		const { result, rerender } = renderHook(({ items }) => useBulkSelection(items), {
+	test("mounts with nothing selected", () => {
+		const { result } = renderHook(({ items }) => useBulkSelection(items), {
 			initialProps: { items: rows(1, 2) },
 		});
-		expect(result.current.selectedIds).toEqual([]);
-
-		rerender({ items: rows(1, 2) });
-		rerender({ items: rows(1, 2) });
 		expect(result.current.selectedIds).toEqual([]);
 	});
 

@@ -1,5 +1,6 @@
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { type SubjectCategory, subjectCategorySchema } from "@/lib/schemas";
+import { withoutSearchKey } from "@/lib/tanstack-router-utils";
 
 type QuestionType = "multiple_choice" | "multiple_choice_complex" | "essay";
 type QuestionCategory = SubjectCategory;
@@ -32,39 +33,18 @@ export function useQuestionsSearch() {
 	};
 
 	const handleSearch = (value: string) => {
-		navigate({
-			search: {
-				...(value && { search: value }),
-				...(questionType && { type: questionType }),
-				...(category && { category }),
-				...(tag && { tag }),
-				limit,
-			},
-		});
+		const rest = withoutSearchKey(baseParams, "search");
+		navigate({ search: value ? { ...rest, search: value } : rest });
 	};
 
 	const handleTypeChange = (value: string) => {
-		navigate({
-			search: {
-				...(search && { search }),
-				...(value !== "all" && isQuestionType(value) && { type: value }),
-				...(category && { category }),
-				...(tag && { tag }),
-				limit,
-			},
-		});
+		const rest = withoutSearchKey(baseParams, "type");
+		navigate({ search: value !== "all" && isQuestionType(value) ? { ...rest, type: value } : rest });
 	};
 
 	const handleCategoryChange = (value: string) => {
-		navigate({
-			search: {
-				...(search && { search }),
-				...(questionType && { type: questionType }),
-				...(value !== "all" && isQuestionCategory(value) && { category: value }),
-				...(tag && { tag }),
-				limit,
-			},
-		});
+		const rest = withoutSearchKey(baseParams, "category");
+		navigate({ search: value !== "all" && isQuestionCategory(value) ? { ...rest, category: value } : rest });
 	};
 
 	const handleNext = (endCursor: string) => {

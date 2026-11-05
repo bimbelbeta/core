@@ -167,8 +167,8 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 						Akses Pembahasan Dengan <span className="font-semibold">Tryout Premium</span>
 					</CardTitle>
 					<CardAction className="mt-auto">
-						<Button size={"icon"} asChild>
-							<Link to="/premium">
+						<Button size="icon" asChild>
+							<Link to="/premium" aria-label="Lihat Tryout Premium">
 								<ArrowUpRightIcon weight="bold" />
 							</Link>
 						</Button>
