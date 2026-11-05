@@ -13,7 +13,7 @@ describe("formatDateLong", () => {
 
 describe("formatDateMedium", () => {
 	test("formats date with numeric day, short month, and year", () => {
-		expect(formatDateMedium(new Date(2026, 4, 1))).toBe("1 Mei 2026");
+		expect(formatDateMedium(new Date(2026, 0, 15))).toBe("15 Jan 2026");
 	});
 
 	test("produces different output from formatDateLong", () => {
@@ -69,9 +69,7 @@ describe("formatDateTime", () => {
 		expect(result).toMatch(/17[.:]13/);
 	});
 
-	test("uses the long month, unlike formatDateMedium", () => {
-		const date = new Date("2026-11-04T17:13:00");
-		expect(formatDateTime(date)).not.toBe(formatDateMedium(date));
-		expect(formatDateTime(date).length).toBeGreaterThan(formatDateMedium(date).length);
+	test("uses the long month and the time of day", () => {
+		expect(formatDateTime(new Date(2026, 10, 4, 17, 13))).toBe("4 November 2026 pukul 17.13");
 	});
 });

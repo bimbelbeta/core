@@ -15,7 +15,7 @@ const buttonVariants = cva(
 				tertiary: "text-primary-navy-700 hover:bg-primary-100 hover:text-primary-navy-800 bg-transparent",
 				warning: "bg-yellow-500 hover:bg-yellow-500/80",
 				"warning-outline": "text-foreground border-2 border-yellow-300 bg-white shadow-xs hover:bg-yellow-300/20",
-				destructive: "bg-destructive hover:bg-destructive/80 text-white shadow-xs",
+				destructive: "bg-destructive text-white shadow-xs hover:bg-red-200",
 				outline: "border-secondary-700 border bg-white shadow-xs hover:bg-white/80",
 				input:
 					"border-input focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 h-9 w-full min-w-0 justify-start rounded-md border bg-white px-3 py-1 text-left font-normal shadow-xs hover:bg-white focus-visible:ring-[3px]",

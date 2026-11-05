@@ -11,6 +11,10 @@ export function formatRupiah(value: number | string) {
 		.replace(/\s/g, "");
 }
 
+export function formatCount(value: number) {
+	return new Intl.NumberFormat("id-ID").format(value);
+}
+
 export function getInitials(name: string) {
 	return name
 		.trim()

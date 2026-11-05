@@ -2,7 +2,7 @@ import { ArrowUpIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatRupiah } from "@/lib/formatter";
+import { formatCount, formatRupiah } from "@/lib/formatter";
 import { orpc } from "@/lib/orpc";
 
 export function SectionCards() {
@@ -28,17 +28,17 @@ export function SectionCards() {
 	const cards = [
 		{
 			title: "Total Pengguna",
-			value: stats.totalUsers.toLocaleString(),
+			value: formatCount(stats.totalUsers),
 			trend: stats.usersTrend,
 		},
 		{
 			title: "Pengguna Premium",
-			value: stats.premiumUsers.toLocaleString(),
+			value: formatCount(stats.premiumUsers),
 			trend: stats.premiumTrend,
 		},
 		{
 			title: "Mata Pelajaran Aktif",
-			value: stats.activeSubjects.toLocaleString(),
+			value: formatCount(stats.activeSubjects),
 			trend: stats.subjectsTrend,
 		},
 		{
