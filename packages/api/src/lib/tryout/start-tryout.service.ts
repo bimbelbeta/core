@@ -79,7 +79,12 @@ export const createStartTryoutService = (deps: StartTryoutDependencies) => ({
 		if (accessCodeInput) {
 			const codeHash = hashAccessCode(accessCodeInput);
 			validAccessCode = (await deps.findAccessCode(input.id, codeHash)) ?? null;
+		}
 
+		const usesAccessCode = !!validAccessCode && !wantsToUseCredit && !isPremiumUser && !hasImageProof;
+		const codeIsTheOnlyAttempt = !!accessCodeInput && !isPremiumUser && !hasImageProof && !wantsToUseCredit;
+
+		if (codeIsTheOnlyAttempt) {
 			if (!validAccessCode) {
 				throw errors.FORBIDDEN({ message: "Kode akses tidak valid" });
 			}
@@ -97,21 +102,19 @@ export const createStartTryoutService = (deps: StartTryoutDependencies) => ({
 			}
 		}
 
-		const usesAccessCode = !!validAccessCode && !wantsToUseCredit && !isPremiumUser && !hasImageProof;
-
 		if (!isPremiumUser && !hasImageProof && !wantsToUseCredit && !usesAccessCode) {
 			throw errors.FORBIDDEN({
 				message: "Upload bukti pembayaran, gunakan kredit tryout, atau masukkan kode akses",
 			});
 		}
 
-		if (wantsToUseCredit && userCredits <= 0) {
+		const usesCredit = wantsToUseCredit && !isPremiumUser;
+
+		if (usesCredit && userCredits <= 0) {
 			throw errors.FORBIDDEN({
 				message: "Kredit tryout tidak cukup",
 			});
 		}
-
-		const usesCredit = wantsToUseCredit && !isPremiumUser;
 		if (tryoutData.startsAt && tryoutData.startsAt > now) {
 			throw errors.BAD_REQUEST({
 				message: "Tryout belum dimulai",

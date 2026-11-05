@@ -149,11 +149,26 @@ describe("start tryout service", () => {
 		const { trx, inserts, updates } = makeMockTrx();
 		const service = createStartTryoutService(deps({ runInTransaction: async (fn) => fn(trx as never) }));
 
-		const result = await service.start({ id: 1, useCredit: true }, { ...user, isPremium: true });
+		const result = await service.start({ id: 1, useCredit: true }, { ...user, isPremium: true, tryoutCredits: 0 });
 
 		expect(result).toMatchObject({ usedCredit: false });
 		expect(updates.find((update) => update.table === "user")).toBeUndefined();
 		expect(inserts.find((insert) => insert.table === "credit_transaction")).toBeUndefined();
+	});
+
+	test("ignores an unusable code when access came from elsewhere", async () => {
+		const { trx, updates } = makeMockTrx();
+		const service = createStartTryoutService(
+			deps({
+				findAccessCode: async () => undefined,
+				runInTransaction: async (fn) => fn(trx as never),
+			}),
+		);
+
+		const result = await service.start({ id: 1, accessCode: "NOPE" }, { ...user, isPremium: true });
+
+		expect(result).toMatchObject({ usedAccessCode: false, accessCodeId: null });
+		expect(updates.find((update) => update.table === "tryout_access_code")).toBeUndefined();
 	});
 
 	test("does not spend the code quota when access already came from elsewhere", async () => {
