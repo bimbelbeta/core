@@ -35,6 +35,3 @@ export class PaymentError extends Error {
  * Anything that is not a `PaymentError` is treated as the provider being unavailable, which is
  * the safe assumption when a transport or parsing failure escapes without a specific cause.
  */
-export function toPaymentErrorCode(error: unknown): PaymentErrorCode {
-	return error instanceof PaymentError ? error.code : "PROVIDER_UNAVAILABLE";
-}

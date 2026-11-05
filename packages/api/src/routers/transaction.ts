@@ -13,8 +13,6 @@ const subscribe = authed.transaction.subscribe.handler(async ({ input, context, 
 	if (result.status === "not_found") throw errors.NOT_FOUND({ message: "Produk tidak ditemukan." });
 	if (result.status === "already_premium")
 		throw errors.UNPROCESSABLE_CONTENT({ message: "Kamu sudah menjadi member premium." });
-	if (result.status === "creation_failed")
-		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal membuat transaksi. Silahkan coba lagi." });
 	if (result.status === "payment_failed")
 		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memproses pembayaran. Silahkan coba lagi." });
 	return result.checkout;

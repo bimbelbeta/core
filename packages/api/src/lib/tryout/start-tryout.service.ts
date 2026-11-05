@@ -161,13 +161,13 @@ export async function startTryout(
 				deadline: overallDeadline,
 				usedCredit: usesCredit,
 				usedAccessCode: usesAccessCode,
-				accessCodeId: validAccessCode?.id ?? null,
+				accessCodeId: usesAccessCode ? (validAccessCode?.id ?? null) : null,
 			})
 			.returning();
 
 		if (!newAttempt) throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal membuat pengerjaan" });
 
-		if (validAccessCode) {
+		if (usesAccessCode && validAccessCode) {
 			const code = validAccessCode;
 			const [updatedCode] = await trx
 				.update(tryoutAccessCode)

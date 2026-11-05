@@ -17,7 +17,6 @@ const create = admin.admin.tryout.questions.create.handler(async ({ input, error
 		throw errors.BAD_REQUEST({ message: "Multiple choice harus memiliki tepat 1 pilihan yang benar" });
 	if (result.status === "too_few_complex_choices")
 		throw errors.BAD_REQUEST({ message: "Pilihan majemuk kompleks harus memiliki minimal 2 pilihan" });
-	if (result.status === "creation_failed") throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal membuat question" });
 	return { message: "Question berhasil dibuat", id: result.id };
 });
 

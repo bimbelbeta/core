@@ -64,23 +64,21 @@ describe("subscription service", () => {
 		expect(deps.repository.createTransaction).not.toHaveBeenCalled();
 	});
 
-	test("reports a failed transaction write without requesting checkout", async () => {
+	test("propagates a failed transaction write without requesting checkout", async () => {
 		const { deps, service } = setup();
-		deps.repository.createTransaction.mockResolvedValueOnce(undefined);
-		expect(await service.subscribe("premium", user)).toEqual({ status: "creation_failed" });
+		deps.repository.createTransaction.mockRejectedValueOnce(new Error("insert failed"));
+		await expect(service.subscribe("premium", user)).rejects.toThrow("insert failed");
 		expect(deps.createCheckout).not.toHaveBeenCalled();
 	});
 
-	test("carries the provider error code when checkout fails", async () => {
+	test("reports a failed checkout and logs the provider error", async () => {
 		const { deps, service } = setup();
-		deps.createCheckout.mockRejectedValueOnce(new PaymentError("PROVIDER_REJECTED", "rejected"));
+		const failure = new PaymentError("PROVIDER_REJECTED", "rejected");
+		deps.createCheckout.mockRejectedValueOnce(failure);
 		const log = spyOn(console, "error").mockImplementation(() => {});
 		try {
-			expect(await service.subscribe("premium", user)).toEqual({
-				status: "payment_failed",
-				reason: "PROVIDER_REJECTED",
-			});
-			expect(log).toHaveBeenCalled();
+			expect(await service.subscribe("premium", user)).toEqual({ status: "payment_failed" });
+			expect(log).toHaveBeenCalledWith("payment checkout failed", failure);
 		} finally {
 			log.mockRestore();
 		}

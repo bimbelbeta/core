@@ -28,8 +28,10 @@ describe("content creation", () => {
 		}
 	});
 
-	test("reports a failed content insert", async () => {
-		const service = createContentService(async () => undefined);
-		expect(await service.create({ ...input, note: { content: {} } })).toEqual({ status: "creation_failed" });
+	test("propagates a failed content insert", async () => {
+		const service = createContentService(async () => {
+			throw new Error("insert failed");
+		});
+		await expect(service.create({ ...input, note: { content: {} } })).rejects.toThrow("insert failed");
 	});
 });

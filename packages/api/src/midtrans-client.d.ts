@@ -2,7 +2,7 @@ declare module "midtrans-client" {
 	export type SnapOptions = {
 		isProduction: boolean;
 		serverKey: string;
-		clientKey: string;
+		clientKey?: string;
 	};
 
 	export class Snap {

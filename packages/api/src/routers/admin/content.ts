@@ -15,7 +15,6 @@ const create = admin.admin.content.create.handler(async ({ input, errors }) => {
 		throw errors.BAD_REQUEST({
 			message: "Konten harus memiliki minimal salah satu: video, catatan, atau latihan soal",
 		});
-	if (result.status === "creation_failed") throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal membuat konten" });
 	return { message: "Konten berhasil dibuat", contentId: result.contentId, createdMaterials: result.createdMaterials };
 });
 

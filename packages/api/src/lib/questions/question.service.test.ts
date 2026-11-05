@@ -35,8 +35,10 @@ describe("question creation", () => {
 		});
 	});
 
-	test("reports a failed insert", async () => {
-		const service = createQuestionService(async () => undefined);
-		expect(await service.create({ ...input, type: "essay" })).toEqual({ status: "creation_failed" });
+	test("propagates a failed insert", async () => {
+		const service = createQuestionService(async () => {
+			throw new Error("insert failed");
+		});
+		await expect(service.create({ ...input, type: "essay" })).rejects.toThrow("insert failed");
 	});
 });

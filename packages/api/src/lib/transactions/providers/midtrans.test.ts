@@ -6,7 +6,6 @@ import { midtransProvider, signatureMatches, toPaymentStatus } from "@/lib/trans
 
 const SERVER_KEY = "test-server-key-abc123";
 const originalServerKey = process.env.MIDTRANS_SERVER_KEY;
-const originalClientKey = process.env.MIDTRANS_CLIENT_KEY;
 
 function restore(key: string, value: string | undefined) {
 	if (value === undefined) delete process.env[key];
@@ -29,7 +28,6 @@ const notification = {
 
 afterAll(() => {
 	restore("MIDTRANS_SERVER_KEY", originalServerKey);
-	restore("MIDTRANS_CLIENT_KEY", originalClientKey);
 });
 
 describe("signatureMatches", () => {
@@ -157,7 +155,6 @@ describe("createCheckout", () => {
 
 	test("does not require a client key, which the server never sends", async () => {
 		process.env.MIDTRANS_SERVER_KEY = SERVER_KEY;
-		process.env.MIDTRANS_CLIENT_KEY = "";
 		const create = spyOn(Snap.prototype, "createTransaction").mockResolvedValue({
 			token: "snap-token",
 			redirect_url: "https://example.test/pay",

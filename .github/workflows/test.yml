@@ -25,7 +25,6 @@ jobs:
       DATABASE_URL: postgresql://postgres:password@localhost:5432/bimbelbeta
       TEST_DATABASE_URL: postgresql://postgres:password@localhost:5432/bimbelbeta
       MIDTRANS_SERVER_KEY: test-server-key
-      MIDTRANS_CLIENT_KEY: test-client-key
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2

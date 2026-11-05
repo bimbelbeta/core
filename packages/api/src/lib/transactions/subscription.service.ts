@@ -1,5 +1,4 @@
 import type { auth } from "@bimbelbeta/auth";
-import { toPaymentErrorCode } from "@/lib/transactions/errors";
 import type { paymentRepository } from "@/lib/transactions/repository";
 import type { PaymentProvider } from "@/lib/transactions/types";
 
@@ -22,7 +21,7 @@ export const createSubscriptionService = (deps: SubscriptionServiceDependencies)
 	 *
 	 * @param slug Product slug identifying the plan being bought.
 	 * @param user Buyer identity and current premium state.
-	 * @returns `ok` with the checkout, `not_found`, `already_premium`, `creation_failed`, or
+	 * @returns `ok` with the checkout, `not_found`, `already_premium`, or
 	 * `payment_failed` with a `reason` describing what the gateway did.
 	 */
 	async subscribe(slug: string, user: Pick<typeof auth.$Infer.Session.user, "id" | "name" | "email" | "isPremium">) {
@@ -34,13 +33,12 @@ export const createSubscriptionService = (deps: SubscriptionServiceDependencies)
 		}
 
 		const orderId = `tx_${crypto.randomUUID()}`;
-		const created = await deps.repository.createTransaction({
+		await deps.repository.createTransaction({
 			id: orderId,
 			productId: plan.id,
 			grossAmount: String(plan.price),
 			userId: user.id,
 		});
-		if (!created) return { status: "creation_failed" } as const;
 
 		try {
 			const checkout = await deps.createCheckout({
@@ -52,7 +50,7 @@ export const createSubscriptionService = (deps: SubscriptionServiceDependencies)
 			return { status: "ok", checkout } as const;
 		} catch (error) {
 			console.error("payment checkout failed", error);
-			return { status: "payment_failed", reason: toPaymentErrorCode(error) } as const;
+			return { status: "payment_failed" } as const;
 		}
 	},
 });

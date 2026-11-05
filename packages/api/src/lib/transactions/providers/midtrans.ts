@@ -75,11 +75,7 @@ let snap: Snap | null = null;
 
 function getSnap(): Snap {
 	if (!snap) {
-		snap = new Snap({
-			isProduction: isProduction(),
-			serverKey: getServerKey(),
-			clientKey: process.env.MIDTRANS_CLIENT_KEY ?? "",
-		});
+		snap = new Snap({ isProduction: isProduction(), serverKey: getServerKey() });
 	}
 	return snap;
 }

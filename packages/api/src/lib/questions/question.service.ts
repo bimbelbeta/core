@@ -11,12 +11,10 @@ type CreateQuestionInput = {
 	choices?: { content: string; isCorrect: boolean }[];
 };
 
-const creationFailed = new Error("Question creation failed");
-
 async function saveQuestion(input: CreateQuestionInput, content: ReturnType<typeof normalizeQuestionContent>) {
-	try {
-		return await db.transaction(async (tx) => {
-			const [created] = await tx
+	return await db.transaction(async (tx) => {
+		const created = (
+			await tx
 				.insert(question)
 				.values({
 					type: input.type,
@@ -27,26 +25,21 @@ async function saveQuestion(input: CreateQuestionInput, content: ReturnType<type
 					tags: input.tags ?? [],
 					essayCorrectAnswer: input.essayCorrectAnswer,
 				})
-				.returning();
-			if (!created) throw creationFailed;
-
-			if ((input.type === "multiple_choice" || input.type === "multiple_choice_complex") && input.choices) {
-				const codes = ["A", "B", "C", "D", "E", "F", "G"] as const;
-				await tx.insert(questionChoice).values(
-					input.choices.map((choice, index) => ({
-						questionId: created.id,
-						code: codes[index] || "A",
-						content: choice.content,
-						isCorrect: choice.isCorrect,
-					})),
-				);
-			}
-			return created.id;
-		});
-	} catch (error) {
-		if (error === creationFailed) return undefined;
-		throw error;
-	}
+				.returning()
+		)[0]!;
+		if ((input.type === "multiple_choice" || input.type === "multiple_choice_complex") && input.choices) {
+			const codes = ["A", "B", "C", "D", "E", "F", "G"] as const;
+			await tx.insert(questionChoice).values(
+				input.choices.map((choice, index) => ({
+					questionId: created.id,
+					code: codes[index] || "A",
+					content: choice.content,
+					isCorrect: choice.isCorrect,
+				})),
+			);
+		}
+		return created.id;
+	});
 }
 
 /**
@@ -60,7 +53,7 @@ async function saveQuestion(input: CreateQuestionInput, content: ReturnType<type
  * cannot leave a question with missing options.
  *
  * @returns `created` with the new question id, or `too_few_choices`, `incorrect_choice_count`,
- * `too_few_complex_choices`, or `creation_failed`.
+ * or `too_few_complex_choices`.
  */
 export const createQuestionService = (save: typeof saveQuestion) => ({
 	async create(input: CreateQuestionInput) {
@@ -75,9 +68,7 @@ export const createQuestionService = (save: typeof saveQuestion) => ({
 			return { status: "too_few_complex_choices" } as const;
 		}
 
-		const id = await save(input, content);
-		if (id === undefined) return { status: "creation_failed" } as const;
-		return { status: "created", id } as const;
+		return { status: "created", id: await save(input, content) } as const;
 	},
 });
 

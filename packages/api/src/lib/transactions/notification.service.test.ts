@@ -75,16 +75,14 @@ describe("notification service", () => {
 		expect(deps.updateStatus).not.toHaveBeenCalled();
 	});
 
-	test("carries the provider error code when the status fetch fails", async () => {
+	test("reports a failed status fetch and logs the provider error", async () => {
 		const { deps, service } = setup();
-		deps.fetchStatus.mockRejectedValue(new PaymentError("PROVIDER_UNAVAILABLE", "down"));
+		const failure = new PaymentError("PROVIDER_UNAVAILABLE", "down");
+		deps.fetchStatus.mockRejectedValue(failure);
 		const log = spyOn(console, "error").mockImplementation(() => {});
 		try {
-			expect(await service.process("order-1", date)).toEqual({
-				status: "verification_failed",
-				reason: "PROVIDER_UNAVAILABLE",
-			});
-			expect(log).toHaveBeenCalled();
+			expect(await service.process("order-1", date)).toEqual({ status: "verification_failed" });
+			expect(log).toHaveBeenCalledWith("payment status fetch failed", failure);
 		} finally {
 			log.mockRestore();
 		}

@@ -1,5 +1,4 @@
 import { calculatePurchaseBenefits } from "@/lib/transactions/benefits";
-import { toPaymentErrorCode } from "@/lib/transactions/errors";
 import { resolveNotificationOutcome } from "@/lib/transactions/notification-routing";
 import type { processSuccessfulTransaction } from "@/lib/transactions/processor";
 import type { paymentRepository } from "@/lib/transactions/repository";
@@ -26,7 +25,7 @@ export const createNotificationService = (deps: NotificationServiceDependencies)
 	 * reports `already_processed` instead of paying out twice.
 	 *
 	 * Provider failures are reported as a status so the procedure decides which oRPC error to raise,
-	 * and `verification_failed` keeps the payment error code in `reason` for logging. A failing
+	 * and the thrown `PaymentError` carries the provider error code into the log above. A failing
 	 * database call rejects, because there is no status that could represent it honestly.
 	 *
 	 * @param orderId Order id from the notification payload.
@@ -40,7 +39,7 @@ export const createNotificationService = (deps: NotificationServiceDependencies)
 			status = await deps.fetchStatus(orderId);
 		} catch (error) {
 			console.error("payment status fetch failed", error);
-			return { status: "verification_failed", reason: toPaymentErrorCode(error) } as const;
+			return { status: "verification_failed" } as const;
 		}
 
 		const existingTransaction = await deps.find(orderId);
