@@ -9,6 +9,7 @@ export const verifyNotification = midtransProvider.verifyNotification;
 
 export const subscriptionService = createSubscriptionService({
 	repository: paymentRepository,
+	providerName: midtransProvider.name,
 	createCheckout: (input) =>
 		midtransProvider.createCheckout({
 			...input,

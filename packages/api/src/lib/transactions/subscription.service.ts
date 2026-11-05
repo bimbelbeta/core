@@ -2,9 +2,12 @@ import type { auth } from "@bimbelbeta/auth";
 import type { paymentRepository } from "@/lib/transactions/repository";
 import type { PaymentProvider } from "@/lib/transactions/types";
 
+const PAYMENT_WINDOW_MS = 24 * 60 * 60 * 1000;
+
 export type SubscriptionServiceDependencies = {
 	repository: Pick<typeof paymentRepository, "findProduct" | "createTransaction">;
 	createCheckout: PaymentProvider<unknown>["createCheckout"];
+	providerName: string;
 };
 
 export const createSubscriptionService = (deps: SubscriptionServiceDependencies) => ({
@@ -32,11 +35,14 @@ export const createSubscriptionService = (deps: SubscriptionServiceDependencies)
 		}
 
 		const orderId = `tx_${crypto.randomUUID()}`;
+		const expiresAt = new Date(Date.now() + PAYMENT_WINDOW_MS);
 		await deps.repository.createTransaction({
 			id: orderId,
 			productId: plan.id,
 			grossAmount: String(plan.price),
 			userId: user.id,
+			provider: deps.providerName,
+			expiresAt,
 		});
 
 		try {
@@ -45,6 +51,7 @@ export const createSubscriptionService = (deps: SubscriptionServiceDependencies)
 				amount: String(plan.price),
 				description: plan.name,
 				customer: { name: user.name, email: user.email },
+				expiresAt,
 			});
 			return { status: "ok", checkout } as const;
 		} catch (error) {

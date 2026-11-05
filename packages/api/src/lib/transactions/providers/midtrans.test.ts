@@ -215,6 +215,7 @@ describe("createCheckout", () => {
 					description: "Premium",
 					customer: { name: "User", email: "user@example.com" },
 					returnUrl: "https://app.example.com/premium",
+					expiresAt: new Date(Date.now() + 60_000),
 				}),
 			).toEqual({
 				provider: "midtrans",
@@ -246,6 +247,7 @@ describe("createCheckout", () => {
 					amount: "10000",
 					description: "Premium",
 					customer: { name: "User", email: "user@example.com" },
+					expiresAt: new Date(Date.now() + 60_000),
 				}),
 			).resolves.toMatchObject({ provider: "midtrans" });
 		} finally {
@@ -263,6 +265,7 @@ describe("createCheckout", () => {
 					amount: "10000",
 					description: "Premium",
 					customer: { name: "User", email: "user@example.com" },
+					expiresAt: new Date(Date.now() + 60_000),
 				}),
 			).rejects.toMatchObject({ code: "CONFIGURATION_ERROR" });
 		} finally {
@@ -280,6 +283,7 @@ describe("createCheckout", () => {
 					amount: "10000",
 					description: "Premium",
 					customer: { name: "User", email: "user@example.com" },
+					expiresAt: new Date(Date.now() + 60_000),
 				}),
 			).rejects.toMatchObject({ code: "PROVIDER_REJECTED" });
 		} finally {

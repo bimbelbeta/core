@@ -96,6 +96,10 @@ function getServerKey(): string {
 	return serverKey;
 }
 
+function minutesUntil(deadline: Date): number {
+	return Math.max(1, Math.round((deadline.getTime() - Date.now()) / 60_000));
+}
+
 function isProduction(): boolean {
 	return process.env.NODE_ENV === "production";
 }
@@ -125,6 +129,7 @@ async function createCheckout(input: CheckoutInput): Promise<Checkout> {
 	const created = await getSnap()
 		.createTransaction({
 			transaction_details: { order_id: input.orderId, gross_amount: input.amount },
+			expiry: { unit: "minute", duration: minutesUntil(input.expiresAt) },
 			item_details: [{ price: input.amount, quantity: 1, name: input.description }],
 			customer_details: { first_name: input.customer.name, email: input.customer.email },
 			credit_card: { secure: true },
@@ -198,19 +203,41 @@ async function fetchStatus(orderId: string): Promise<PaymentEvent> {
 			: undefined;
 
 	const status = toPaymentStatus(transactionStatus, fraudStatus);
-	if (status !== "failed") return { status };
 
 	const detail = [channelMessage, statusMessage].find(
 		(message) => message && message !== "midtrans payment notification",
 	);
+	const settled = settlementOf(body as Record<string, unknown>);
+	if (status !== "failed") return { status, ...settled };
+
 	return {
 		status,
 		failure: toFailureCode(transactionStatus, fraudStatus, statusMessage, channelMessage) ?? "unknown",
 		detail,
+		...settled,
+	};
+}
+
+/**
+ * Pulls the fields worth keeping for reconciliation and support out of a status payload.
+ *
+ * Everything is optional because Midtrans omits what does not apply to the payment channel, and a
+ * missing field must never be mistaken for a value.
+ */
+function settlementOf(body: Record<string, unknown>): Omit<PaymentEvent, "status" | "failure" | "detail"> {
+	const read = (key: string) => {
+		const value = body[key];
+		return typeof value === "string" ? value : undefined;
+	};
+	return {
+		providerTransactionId: read("transaction_id"),
+		amountPaid: read("gross_amount"),
+		paymentMethod: read("payment_type"),
 	};
 }
 
 export const midtransProvider: PaymentProvider<MidtransNotification> = {
+	name: "midtrans",
 	createCheckout,
 	verifyNotification,
 	fetchStatus,

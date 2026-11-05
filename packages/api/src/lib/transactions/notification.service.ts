@@ -3,7 +3,7 @@ import type { PaymentEvent } from "@/lib/transactions/failures";
 import { resolveNotificationOutcome } from "@/lib/transactions/notification-routing";
 import type { processSuccessfulTransaction } from "@/lib/transactions/processor";
 import type { paymentRepository } from "@/lib/transactions/repository";
-import type { PaymentProvider } from "@/lib/transactions/types";
+import { type PaymentProvider, settlementColumns } from "@/lib/transactions/types";
 
 export type NotificationServiceDependencies = {
 	fetchStatus: PaymentProvider<unknown>["fetchStatus"];
@@ -53,9 +53,21 @@ export const createNotificationService = (deps: NotificationServiceDependencies)
 			return { status: outcome.action } as const;
 		}
 
+		if (outcome.action === "amount_mismatch") {
+			console.error("payment amount does not match the order", outcome);
+			return { status: "amount_mismatch" } as const;
+		}
+
 		if (outcome.action === "process_success") {
 			const applied = await deps
-				.process({ orderId, userId: outcome.userId, existingTransaction, purchaseDate, benefits: outcome.benefits })
+				.process({
+					orderId,
+					userId: outcome.userId,
+					existingTransaction,
+					purchaseDate,
+					benefits: outcome.benefits,
+					settlement: settlementColumns(event),
+				})
 				.catch((error) => {
 					console.error("payment processing failed", error);
 					return null;
@@ -65,7 +77,8 @@ export const createNotificationService = (deps: NotificationServiceDependencies)
 		} else if (outcome.action === "update_status") {
 			const failure = outcome.status === "failed" ? outcome.failure : undefined;
 			const detail = outcome.status === "failed" ? outcome.detail : undefined;
-			const updated = await deps.updateStatus(orderId, outcome.status, failure, detail).then(
+			const update = { status: outcome.status, failure, detail, ...settlementColumns(event) };
+			const updated = await deps.updateStatus(orderId, update).then(
 				() => true,
 				(error) => {
 					console.error("payment status update failed", error);

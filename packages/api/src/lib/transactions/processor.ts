@@ -3,7 +3,7 @@ import { user } from "@bimbelbeta/db/schema/auth";
 import { creditTransaction } from "@bimbelbeta/db/schema/credit";
 import { transaction } from "@bimbelbeta/db/schema/transaction";
 import { and, eq, isNull, sql } from "drizzle-orm";
-import type { PurchaseBenefits, TransactionWithProduct } from "@/lib/transactions/types";
+import type { PurchaseBenefits, Settlement, TransactionWithProduct } from "@/lib/transactions/types";
 
 export interface ProcessSuccessfulTransactionOpts {
 	trx: Parameters<Parameters<typeof db.transaction>[0]>[0];
@@ -12,6 +12,7 @@ export interface ProcessSuccessfulTransactionOpts {
 	existingTransaction: TransactionWithProduct;
 	purchaseDate: Date;
 	benefits: PurchaseBenefits;
+	settlement: Settlement;
 }
 
 /**
@@ -34,10 +35,11 @@ export async function processSuccessfulTransaction({
 	existingTransaction,
 	purchaseDate,
 	benefits,
+	settlement,
 }: ProcessSuccessfulTransactionOpts): Promise<boolean> {
 	const claimed = await trx
 		.update(transaction)
-		.set({ status: "success", paidAt: purchaseDate })
+		.set({ status: "success", paidAt: purchaseDate, ...settlement })
 		.where(and(eq(transaction.id, orderId), isNull(transaction.paidAt)))
 		.returning({ id: transaction.id });
 

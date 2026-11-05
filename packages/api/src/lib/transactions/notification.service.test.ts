@@ -20,6 +20,11 @@ const transaction: TransactionWithProduct = {
 		status: "pending",
 		failureCode: null,
 		failureDetail: null,
+		provider: "midtrans",
+		providerTransactionId: null,
+		amountPaid: null,
+		paymentMethod: null,
+		expiresAt: null,
 		paidAt: null,
 		orderedAt: date,
 		createdAt: date,
@@ -31,7 +36,7 @@ function setup() {
 	const deps = {
 		fetchStatus: mock(async (): Promise<PaymentEvent> => ({ status: "pending" })),
 		find: mock(async (): Promise<TransactionWithProduct | null> => transaction),
-		updateStatus: mock(async (_orderId: string, _status: "pending" | "failed", _failure?: string) => {}),
+		updateStatus: mock(async (_orderId: string, _update: { status: "pending" | "failed" }) => {}),
 		process: mock(async (): Promise<boolean> => true),
 	};
 	return { deps, service: createNotificationService(deps) };
@@ -41,7 +46,14 @@ describe("notification service", () => {
 	test("updates pending transactions", async () => {
 		const { deps, service } = setup();
 		expect(await service.process("order-1", date)).toEqual({ status: "ok" });
-		expect(deps.updateStatus).toHaveBeenCalledWith("order-1", "pending", undefined, undefined);
+		expect(deps.updateStatus).toHaveBeenCalledWith("order-1", {
+			status: "pending",
+			failure: undefined,
+			detail: undefined,
+			providerTransactionId: null,
+			amountPaid: null,
+			paymentMethod: null,
+		});
 	});
 
 	test("applies benefits once for a paid transaction", async () => {
@@ -100,7 +112,40 @@ describe("notification service", () => {
 			detail: "Saldo tidak cukup",
 		});
 		expect(await service.process("order-1", date)).toEqual({ status: "ok" });
-		expect(deps.updateStatus).toHaveBeenCalledWith("order-1", "failed", "insufficient_balance", "Saldo tidak cukup");
+		expect(deps.updateStatus).toHaveBeenCalledWith("order-1", {
+			status: "failed",
+			failure: "insufficient_balance",
+			detail: "Saldo tidak cukup",
+			providerTransactionId: null,
+			amountPaid: null,
+			paymentMethod: null,
+		});
+	});
+
+	test("stores what the provider reported as settled", async () => {
+		const { deps, service } = setup();
+		deps.fetchStatus.mockResolvedValue({
+			status: "failed",
+			paymentMethod: "qris",
+			amountPaid: "10000.00",
+			providerTransactionId: "midtrans-123",
+		});
+		expect(await service.process("order-1", date)).toEqual({ status: "ok" });
+		expect(deps.updateStatus).toHaveBeenCalledWith(
+			"order-1",
+			expect.objectContaining({
+				paymentMethod: "qris",
+				amountPaid: "10000.00",
+				providerTransactionId: "midtrans-123",
+			}),
+		);
+	});
+
+	test("refuses a payment whose amount does not match the order", async () => {
+		const { deps, service } = setup();
+		deps.fetchStatus.mockResolvedValue({ status: "paid", amountPaid: "1.00" });
+		expect(await service.process("order-1", date)).toEqual({ status: "amount_mismatch" });
+		expect(deps.process).not.toHaveBeenCalled();
 	});
 
 	test("reports a failed status update", async () => {

@@ -27,6 +27,11 @@ const transaction = {
 	status: "pending" as const,
 	failureCode: null,
 	failureDetail: null,
+	provider: "midtrans",
+	providerTransactionId: null,
+	amountPaid: null,
+	paymentMethod: null,
+	expiresAt: null,
 	paidAt: null,
 	orderedAt: null,
 	createdAt: new Date(),
@@ -41,6 +46,7 @@ function setup() {
 			createTransaction: mock(async (): Promise<typeof transaction | undefined> => transaction),
 		},
 		createCheckout: mock(async () => checkout),
+		providerName: "midtrans",
 	};
 	return { deps, service: createSubscriptionService(deps) };
 }

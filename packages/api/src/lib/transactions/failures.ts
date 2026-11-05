@@ -17,4 +17,7 @@ export type PaymentEvent = {
 	status: "paid" | "pending" | "failed" | "unknown";
 	failure?: PaymentFailureCode;
 	detail?: string;
+	providerTransactionId?: string;
+	amountPaid?: string;
+	paymentMethod?: string;
 };

@@ -18,6 +18,21 @@ export type PurchaseBenefits = {
 	creditsToAdd: number | null;
 };
 
+export type Settlement = {
+	providerTransactionId: string | null;
+	amountPaid: string | null;
+	paymentMethod: string | null;
+};
+
+/** What the provider reported as actually settled, in column form. */
+export function settlementColumns(event: PaymentEvent): Settlement {
+	return {
+		providerTransactionId: event.providerTransactionId ?? null,
+		amountPaid: event.amountPaid ?? null,
+		paymentMethod: event.paymentMethod ?? null,
+	};
+}
+
 /** Provider-independent payment state. `unknown` means "do not act on this" rather than "error". */
 export type PaymentStatus = "paid" | "pending" | "failed" | "unknown";
 
@@ -27,6 +42,7 @@ export type CheckoutInput = {
 	description: string;
 	customer: { name: string; email: string };
 	returnUrl?: string;
+	expiresAt: Date;
 };
 
 export type Checkout = {
@@ -43,6 +59,7 @@ export type Checkout = {
  * a server fault rather than a forged webhook.
  */
 export type PaymentProvider<TNotification> = {
+	name: string;
 	createCheckout(input: CheckoutInput): Promise<Checkout>;
 	verifyNotification(payload: TNotification): boolean;
 	fetchStatus(orderId: string): Promise<PaymentEvent>;

@@ -3,6 +3,7 @@ import type { PurchaseBenefits, TransactionWithProduct } from "@/lib/transaction
 
 export type NotificationOutcome =
 	| { action: "already_processed" }
+	| { action: "amount_mismatch"; expected: string; received: string }
 	| { action: "user_deleted" }
 	| { action: "process_success"; userId: string; benefits: PurchaseBenefits }
 	| { action: "update_status"; status: "failed"; failure?: PaymentFailureCode; detail?: string }
@@ -29,6 +30,11 @@ export function resolveNotificationOutcome(
 	}
 
 	if (event.status === "paid") {
+		const expected = existingTransaction.tx.grossAmount;
+		if (event.amountPaid && expected && Number(event.amountPaid) !== Number(expected)) {
+			return { action: "amount_mismatch", expected, received: event.amountPaid };
+		}
+
 		const userId = existingTransaction.tx.userId;
 		if (!userId) {
 			return { action: "user_deleted" };

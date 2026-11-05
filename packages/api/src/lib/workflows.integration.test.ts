@@ -401,8 +401,14 @@ describe.skipIf(!enabled)("API persistence workflows", () => {
 			{ id: unsettled, userId: id, productId: plan!.id, grossAmount: "10000" },
 		]);
 
-		await paymentRepository.updateStatus(claimed, "failed");
-		await paymentRepository.updateStatus(unsettled, "failed");
+		const update = {
+			status: "failed" as const,
+			providerTransactionId: null,
+			amountPaid: null,
+			paymentMethod: null,
+		};
+		await paymentRepository.updateStatus(claimed, update);
+		await paymentRepository.updateStatus(unsettled, update);
 
 		expect((await db.select().from(transaction).where(eq(transaction.id, claimed)))[0]!.status).toBe("success");
 		expect((await db.select().from(transaction).where(eq(transaction.id, unsettled)))[0]!.status).toBe("failed");

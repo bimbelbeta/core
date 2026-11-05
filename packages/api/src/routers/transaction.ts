@@ -36,6 +36,8 @@ const notification = pub.transaction.notification.handler(async ({ input, errors
 		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memproses transaksi." });
 	if (result.status === "update_failed")
 		throw errors.INTERNAL_SERVER_ERROR({ message: "Gagal memperbarui status transaksi." });
+	if (result.status === "amount_mismatch")
+		throw errors.INTERNAL_SERVER_ERROR({ message: "Nominal pembayaran tidak sesuai." });
 
 	return result;
 });

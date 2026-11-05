@@ -78,6 +78,7 @@ function run(trx: MockTrx, benefits: ProcessSuccessfulTransactionOpts["benefits"
 		existingTransaction: baseTransaction,
 		purchaseDate: PURCHASE_DATE,
 		benefits,
+		settlement: { providerTransactionId: null, amountPaid: null, paymentMethod: null },
 	});
 }
 
@@ -88,7 +89,13 @@ describe("processSuccessfulTransaction", () => {
 		const trx = makeMockTrx();
 		expect(await run(trx, noBenefits)).toBe(true);
 		const txUpdate = trx.updates.find((update) => update.table === "transaction");
-		expect(txUpdate?.set).toEqual({ status: "success", paidAt: PURCHASE_DATE });
+		expect(txUpdate?.set).toEqual({
+			status: "success",
+			paidAt: PURCHASE_DATE,
+			providerTransactionId: null,
+			amountPaid: null,
+			paymentMethod: null,
+		});
 	});
 
 	test("claims the order only while it is still unpaid", async () => {

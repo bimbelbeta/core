@@ -29,6 +29,11 @@ function makeTx(overrides?: Partial<TransactionWithProduct["tx"]>): TransactionW
 			status: "pending",
 			failureCode: null,
 			failureDetail: null,
+			provider: "midtrans",
+			providerTransactionId: null,
+			amountPaid: null,
+			paymentMethod: null,
+			expiresAt: null,
 			paidAt: null,
 			orderedAt: PURCHASE_DATE,
 			createdAt: PURCHASE_DATE,
@@ -88,5 +93,26 @@ describe("resolveNotificationOutcome", () => {
 		expect(resolveNotificationOutcome({ status: "unknown" }, makeTx(), PURCHASE_DATE, calcBenefits)).toEqual({
 			action: "noop",
 		});
+	});
+});
+
+describe("amount check", () => {
+	test("refuses to grant when the settled amount is not what was charged", () => {
+		expect(
+			resolveNotificationOutcome({ status: "paid", amountPaid: "1000.00" }, makeTx(), PURCHASE_DATE, calcBenefits),
+		).toEqual({ action: "amount_mismatch", expected: "100000.00", received: "1000.00" });
+	});
+
+	test("grants when the amounts match regardless of decimal formatting", () => {
+		expect(
+			resolveNotificationOutcome({ status: "paid", amountPaid: "100000" }, makeTx(), PURCHASE_DATE, calcBenefits)
+				.action,
+		).toBe("process_success");
+	});
+
+	test("grants when the provider did not report an amount", () => {
+		expect(resolveNotificationOutcome({ status: "paid" }, makeTx(), PURCHASE_DATE, calcBenefits).action).toBe(
+			"process_success",
+		);
 	});
 });
