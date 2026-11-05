@@ -82,7 +82,7 @@ export function HeaderDashboard() {
 					<div className="hidden md:flex md:items-center md:gap-4">
 						<DropdownMenu>
 							<DropdownMenuTrigger className="outline-none">
-								<div className="rounded-default bg-secondary-600 flex size-10 items-center justify-center text-sm font-normal text-white transition-transform hover:scale-105 active:scale-95">
+								<div className="rounded-default bg-secondary-800 flex size-10 items-center justify-center text-sm font-normal text-white transition-transform hover:scale-105 active:scale-95">
 									{userInitials}
 								</div>
 							</DropdownMenuTrigger>
@@ -179,7 +179,7 @@ export function HeaderDashboard() {
 
 							<div className="mt-auto border-t border-neutral-200 pt-6">
 								<div className="mb-4 flex items-center gap-3">
-									<div className="rounded-default bg-secondary-600 flex size-10 items-center justify-center text-sm font-normal text-white">
+									<div className="rounded-default bg-secondary-800 flex size-10 items-center justify-center text-sm font-normal text-white">
 										{userInitials}
 									</div>
 									<span className="font-medium">{session?.user.name}</span>
