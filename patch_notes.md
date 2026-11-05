@@ -19,12 +19,12 @@ Keep provider-specific payment behaviour in one adapter so adding a provider doe
 
 If the dashboard keeps the old URL, every notification 404s, orders stay `pending`, and no premium time or credits are granted.
 
-`MIDTRANS_SERVER_KEY` is now required. Webhook verification fails instead of accepting signatures computed against an empty key. `MIDTRANS_CLIENT_KEY` is no longer read on the server at all; the checkout call authenticates with the server key alone. Remove it from the API host if it is set, and set the web host's client key as `VITE_MIDTRANS_CLIENT_KEY` (it was previously named without the prefix and never reached the browser).
+`MIDTRANS_SERVER_KEY` is now required. Webhook verification fails instead of accepting signatures computed against an empty key. `MIDTRANS_CLIENT_KEY` is no longer read on the server at all; the checkout call authenticates with the server key alone. Remove it from the API host if it is set, and pass the web client key as the `VITE_MIDTRANS_CLIENT_KEY` build arg (it is inlined at build time, so a runtime env var is not enough; it was previously named without the prefix and never reached the browser).
 
 ### Code Changes & Logic
 
 - **Providers**: `packages/api/src/lib/transactions/providers/midtrans.ts` owns checkout creation, signature verification, and status fetching. It maps Midtrans statuses to `paid`, `pending`, `failed`, or `unknown`, and maps provider failures to internal codes (`INVALID_PAYLOAD`, `PROVIDER_UNAVAILABLE`, `PROVIDER_REJECTED`, `CONFIGURATION_ERROR`).
-- **Composition**: `packages/api/src/lib/transactions/composition.ts` is the only module that names a provider.
+- **Composition**: `packages/api/src/lib/transactions/composition.ts` is the only API runtime module that names a provider. Each provider still needs its own notification route in the contract, since signatures are provider-specific.
 - **Replay**: the success transition claims the order with `paid_at IS NULL`, so a repeated or concurrent notification cannot grant benefits twice.
 - **Contracts**: `subscribe` returns `provider` and an optional `token`; clients fall back to `redirectUrl` when no token is returned.
 - **Renewal**: `subscribe` and `transaction.status` now run the expired-premium check, and the premium page treats a lapsed session as non-premium, so a lapsed member can buy again instead of being told they already are one.

@@ -2,7 +2,6 @@ import type { PaymentStatus, PurchaseBenefits, TransactionWithProduct } from "@/
 
 export type NotificationOutcome =
 	| { action: "already_processed" }
-	| { action: "not_found" }
 	| { action: "user_deleted" }
 	| { action: "process_success"; userId: string; benefits: PurchaseBenefits }
 	| { action: "update_status"; status: "failed" | "pending" }
@@ -19,14 +18,10 @@ export type NotificationOutcome =
  */
 export function resolveNotificationOutcome(
 	status: PaymentStatus,
-	existingTransaction: TransactionWithProduct | null,
+	existingTransaction: TransactionWithProduct,
 	purchaseDate: Date,
 	calcBenefits: (tx: TransactionWithProduct, date: Date) => PurchaseBenefits,
 ): NotificationOutcome {
-	if (!existingTransaction) {
-		return { action: "not_found" };
-	}
-
 	if (existingTransaction.tx.paidAt) {
 		return { action: "already_processed" };
 	}

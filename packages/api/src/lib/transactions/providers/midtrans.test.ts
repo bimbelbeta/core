@@ -61,7 +61,7 @@ describe("toPaymentStatus", () => {
 
 	test("maps pending, failed and unrecognised statuses", () => {
 		expect(toPaymentStatus("pending")).toBe("pending");
-		for (const status of ["deny", "cancel", "expire"]) expect(toPaymentStatus(status)).toBe("failed");
+		for (const status of ["deny", "cancel", "expire", "failure"]) expect(toPaymentStatus(status)).toBe("failed");
 		for (const status of ["refund", "partial_refund", "authorize"]) expect(toPaymentStatus(status)).toBe("unknown");
 	});
 });

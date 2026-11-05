@@ -37,10 +37,6 @@ function makeTx(overrides?: Partial<TransactionWithProduct["tx"]>): TransactionW
 }
 
 describe("resolveNotificationOutcome", () => {
-	test("returns not_found when the transaction does not exist", () => {
-		expect(resolveNotificationOutcome("paid", null, PURCHASE_DATE, calcBenefits)).toEqual({ action: "not_found" });
-	});
-
 	test("returns already_processed when the transaction was already paid", () => {
 		const tx = makeTx({ paidAt: new Date("2025-01-10") });
 		expect(resolveNotificationOutcome("paid", tx, PURCHASE_DATE, calcBenefits)).toEqual({

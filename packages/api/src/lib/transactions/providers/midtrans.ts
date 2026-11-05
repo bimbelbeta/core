@@ -11,7 +11,7 @@ export type MidtransNotification = {
 };
 
 const paid = new Set(["settlement"]);
-const failed = new Set(["deny", "cancel", "expire"]);
+const failed = new Set(["deny", "cancel", "expire", "failure"]);
 
 /**
  * Translates a Midtrans transaction status into the provider-independent status.
