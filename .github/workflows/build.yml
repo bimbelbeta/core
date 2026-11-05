@@ -69,7 +69,7 @@ jobs:
             VITE_PAYMENTS_ENABLED=${{ vars.VITE_PAYMENTS_ENABLED }}
       - name: Deploy to Coolify
         run: |
-          curl --fail-with-body --request GET '${{ secrets.COOLIFY_WEB_WEBHOOK }}' \
+          curl --fail-with-body --request POST '${{ secrets.COOLIFY_WEB_WEBHOOK }}' \
             --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
 
   build-server:
@@ -99,5 +99,5 @@ jobs:
             TURBO_TOKEN=${{ secrets.TURBO_TOKEN }}
       - name: Deploy to Coolify
         run: |
-          curl --fail-with-body --request GET '${{ secrets.COOLIFY_SERVER_WEBHOOK }}' \
+          curl --fail-with-body --request POST '${{ secrets.COOLIFY_SERVER_WEBHOOK }}' \
             --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'

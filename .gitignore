@@ -53,3 +53,8 @@ tmp
 temp
 .vercel
 
+#others
+plan.md
+
+# Desloppify local state
+.desloppify/
