@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { PgDialect } from "drizzle-orm/pg-core";
 import type { ProcessSuccessfulTransactionOpts } from "./processor";
 import { processSuccessfulTransaction } from "./processor";
 
@@ -9,7 +10,7 @@ type DrizzleTable = { [DRIZZLE_NAME]: string };
 type UpdateResult = Promise<void> & { returning: (columns?: unknown) => Promise<unknown[]> };
 
 type MockTrx = {
-	updates: Array<{ table: string; set: Record<string, unknown> }>;
+	updates: Array<{ table: string; set: Record<string, unknown>; where: string }>;
 	inserts: Array<{ table: string; values: Record<string, unknown> }>;
 	update: (table: DrizzleTable) => {
 		set: (data: Record<string, unknown>) => { where: (cond: unknown) => UpdateResult };
@@ -25,8 +26,12 @@ function makeMockTrx({ claimed = true, tryoutCredits = 100 } = {}): MockTrx {
 			return {
 				set(data) {
 					return {
-						where() {
-							mock.updates.push({ table: table[DRIZZLE_NAME], set: data });
+						where(condition: unknown) {
+							mock.updates.push({
+								table: table[DRIZZLE_NAME],
+								set: data,
+								where: new PgDialect().sqlToQuery(condition as never).sql,
+							});
 							const result = Promise.resolve() as UpdateResult;
 							result.returning = () =>
 								Promise.resolve(
@@ -84,6 +89,13 @@ describe("processSuccessfulTransaction", () => {
 		expect(await run(trx, noBenefits)).toBe(true);
 		const txUpdate = trx.updates.find((update) => update.table === "transaction");
 		expect(txUpdate?.set).toEqual({ status: "success", paidAt: PURCHASE_DATE });
+	});
+
+	test("claims the order only while it is still unpaid", async () => {
+		const trx = makeMockTrx();
+		await run(trx, noBenefits);
+		const claim = trx.updates.find((update) => update.table === "transaction");
+		expect(claim?.where).toMatch(/paid_at.*is null/i);
 	});
 
 	test("grants premium when benefits include an expiry", async () => {

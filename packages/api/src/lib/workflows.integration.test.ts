@@ -17,7 +17,7 @@ import {
 import { call } from "@orpc/server";
 import { eq } from "drizzle-orm";
 import { Snap } from "midtrans-client";
-import { createPaymentRepository, paymentRepository } from "@/lib/transactions/repository";
+import { paymentRepository } from "@/lib/transactions/repository";
 import { appRouter } from "@/routers";
 
 const enabled = !!process.env.TEST_DATABASE_URL && process.env.DATABASE_URL === process.env.TEST_DATABASE_URL;
@@ -394,10 +394,7 @@ describe.skipIf(!enabled)("API persistence workflows", () => {
 		expect((await db.select().from(transaction).where(eq(transaction.id, claimed)))[0]!.status).toBe("success");
 		expect((await db.select().from(transaction).where(eq(transaction.id, unsettled)))[0]!.status).toBe("failed");
 
-		await db.transaction(async (trx) => {
-			const scoped = createPaymentRepository(trx);
-			expect(await scoped.findTransactionWithProduct(claimed)).not.toBeNull();
-		});
+		expect(await paymentRepository.findTransactionWithProduct(claimed)).not.toBeNull();
 	});
 
 	test("downgrades an expired premium session on an authenticated read", async () => {
