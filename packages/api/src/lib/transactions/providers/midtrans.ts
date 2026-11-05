@@ -19,8 +19,8 @@ const failed = new Set(["deny", "cancel", "expire", "failure"]);
  *
  * Midtrans signals success two ways: `settlement` for immediate payment, and `capture` for card
  * payments that only count once fraud review accepts them. A challenged capture is therefore
- * `unknown` rather than paid. Anything not recognised stays `unknown` so the caller can ignore
- * it instead of guessing.
+ * `unknown` rather than paid, while a denied one is final and therefore `failed`. Anything not
+ * recognised stays `unknown` so the caller can ignore it instead of guessing.
  */
 const messageHints: Array<[RegExp, PaymentFailureCode]> = [
 	[/insufficient|saldo tidak cukup|dana tidak cukup/i, "insufficient_balance"],
@@ -45,9 +45,9 @@ export function toFailureCode(
 	fraudStatus?: string,
 	...messages: (string | undefined)[]
 ): PaymentFailureCode | undefined {
+	if (fraudStatus === "deny") return "fraud_rejected";
 	if (transactionStatus === "expire") return "payment_expired";
 	if (transactionStatus === "cancel") return "payment_cancelled";
-	if (transactionStatus === "deny" && fraudStatus === "deny") return "fraud_rejected";
 	if (transactionStatus !== "deny" && transactionStatus !== "failure") return undefined;
 
 	const hint = messageHints.find(([pattern]) => messages.some((message) => message && pattern.test(message)));
@@ -57,7 +57,11 @@ export function toFailureCode(
 
 export function toPaymentStatus(transactionStatus: string, fraudStatus?: string): PaymentStatus {
 	if (paid.has(transactionStatus)) return "paid";
-	if (transactionStatus === "capture") return fraudStatus === "accept" ? "paid" : "unknown";
+	if (transactionStatus === "capture") {
+		if (fraudStatus === "accept") return "paid";
+		if (fraudStatus === "deny") return "failed";
+		return "unknown";
+	}
 	if (transactionStatus === "pending") return "pending";
 	if (failed.has(transactionStatus)) return "failed";
 	return "unknown";

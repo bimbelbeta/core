@@ -72,6 +72,15 @@ describe("toPaymentStatus", () => {
 });
 
 describe("toFailureCode", () => {
+	test("treats a fraud-denied capture as a final failure", () => {
+		expect(toPaymentStatus("capture", "deny")).toBe("failed");
+		expect(toFailureCode("capture", "deny")).toBe("fraud_rejected");
+	});
+
+	test("waits on a challenged capture", () => {
+		expect(toPaymentStatus("capture", "challenge")).toBe("unknown");
+	});
+
 	test("maps the unambiguous statuses without reading the message", () => {
 		expect(toFailureCode("expire")).toBe("payment_expired");
 		expect(toFailureCode("cancel")).toBe("payment_cancelled");

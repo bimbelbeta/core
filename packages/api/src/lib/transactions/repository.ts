@@ -44,9 +44,9 @@ export const paymentRepository = {
 				status: update.status,
 				failureCode: update.failure ?? null,
 				failureDetail: update.detail ?? null,
-				providerTransactionId: update.providerTransactionId,
-				amountPaid: update.amountPaid,
-				paymentMethod: update.paymentMethod,
+				...(update.providerTransactionId ? { providerTransactionId: update.providerTransactionId } : {}),
+				...(update.amountPaid ? { amountPaid: update.amountPaid } : {}),
+				...(update.paymentMethod ? { paymentMethod: update.paymentMethod } : {}),
 			})
 			.where(and(eq(transaction.id, orderId), isNull(transaction.paidAt)));
 	},

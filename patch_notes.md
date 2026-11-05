@@ -28,7 +28,7 @@ If the dashboard keeps the old URL, every notification 404s, orders stay `pendin
 - **Providers**: `packages/api/src/lib/transactions/providers/midtrans.ts` owns checkout creation, signature verification, and status fetching. It maps Midtrans statuses to `paid`, `pending`, `failed`, or `unknown`, and maps provider failures to internal codes (`INVALID_PAYLOAD`, `PROVIDER_UNAVAILABLE`, `PROVIDER_REJECTED`, `CONFIGURATION_ERROR`).
 - **Composition**: `packages/api/src/lib/transactions/composition.ts` is the only API runtime module that names a provider. _Adding_ a provider costs one adapter, one contract route, one procedure reusing the same error mapping, and composition wiring — the mapping is transport glue and stays at the boundary. _Running two at once_ is a different job: webhooks are already per-provider, but checkout is a single active provider, so `subscribe` would need a client-visible provider selector.
 - **Replay**: the success transition claims the order with `paid_at IS NULL`, so a repeated or concurrent notification cannot grant benefits twice.
-- **Transaction facts**: the row records `provider` (which gateway owns the order, so a second adapter is routable), `providerTransactionId`, `amountPaid`, `paymentMethod`, and `expiresAt`. A paid notification whose settled amount differs from `grossAmount` is refused with `amount_mismatch` and grants nothing.
+- **Transaction facts**: the row records `provider` (which gateway owns the order, so a second adapter is routable), `providerTransactionId`, `amountPaid`, `paymentMethod`, and `expiresAt`. `amountPaid` is the amount the gateway reports for the order, which for Midtrans always equals `grossAmount`; the check that refuses a mismatched amount is therefore a tripwire for a bug in our own order creation, not protection against a wrong settlement.
 - **Failure reasons**: a failed payment stores a provider-agnostic code on the transaction and `transaction.status` returns it as `failureCode`. Codes are `insufficient_balance`, `limit_exceeded`, `card_declined`, `fraud_rejected`, `payment_expired`, `payment_cancelled`, `provider_error`, `unknown`. Midtrans publishes no failure-code enumeration, so the adapter maps `deny`/`cancel`/`expire` directly and treats `status_message` and `channel_response_message` as best-effort hints. The provider's own message is stored as `failureDetail` so nothing is lost when the code falls back to `unknown`. The user-facing copy is a frontend concern and is not implemented yet.
 - **Contracts**: `subscribe` returns `provider` and an optional `token`; clients fall back to `redirectUrl` when no token is returned.
 - **Renewal**: `subscribe` and `transaction.status` now run the expired-premium check, and the premium page treats a lapsed session as non-premium, so a lapsed member can buy again instead of being told they already are one.
@@ -450,3 +450,17 @@ Fix the 500/output validation issue on the Tryout dashboard after introducing le
   - `TKA` shows only `SD`, `SMP`, and `SMA`
   - `UTBK` shows only `UTBK`
 - **Logic**: The TO list is still pulled from the existing published tryout endpoint, but the page now narrows the visible cards based on the selected top-level tab.
+
+## Deploy order: migrations must run before the app
+
+This patch moves every table and enum from `public` into the `app` schema. Old app code queries `public`, new app code queries `app`, so the database and the running image must not be out of step.
+
+`.github/workflows/build.yml` and `.github/workflows/migrate.yml` both trigger on merge to `main` and have no ordering between them. Apply the migration first, then let the new image deploy:
+
+```bash
+cd packages/db && bun run db:migrate
+```
+
+If the image rolls out first, every request fails until the migration lands, because `app.user` does not exist yet.
+
+Production's `drizzle.__drizzle_migrations` already records the first two migrations, so `migrate` starts at the third. Do not run `drizzle-kit push` against production: it would create empty tables in `app` and leave the real data in `public`, and the app would boot with no users and no error.
