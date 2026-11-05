@@ -26,7 +26,7 @@ If the dashboard keeps the old URL, every notification 404s, orders stay `pendin
 ### Code Changes & Logic
 
 - **Providers**: `packages/api/src/lib/transactions/providers/midtrans.ts` owns checkout creation, signature verification, and status fetching. It maps Midtrans statuses to `paid`, `pending`, `failed`, or `unknown`, and maps provider failures to internal codes (`INVALID_PAYLOAD`, `PROVIDER_UNAVAILABLE`, `PROVIDER_REJECTED`, `CONFIGURATION_ERROR`).
-- **Composition**: `packages/api/src/lib/transactions/composition.ts` is the only API runtime module that names a provider. Each provider still needs its own notification route in the contract, since signatures are provider-specific.
+- **Composition**: `packages/api/src/lib/transactions/composition.ts` is the only API runtime module that names a provider. A second provider costs one adapter, one contract route, one procedure that reuses the same error mapping, and the composition wiring — the mapping is transport glue and stays at the boundary rather than behind a factory.
 - **Replay**: the success transition claims the order with `paid_at IS NULL`, so a repeated or concurrent notification cannot grant benefits twice.
 - **Contracts**: `subscribe` returns `provider` and an optional `token`; clients fall back to `redirectUrl` when no token is returned.
 - **Renewal**: `subscribe` and `transaction.status` now run the expired-premium check, and the premium page treats a lapsed session as non-premium, so a lapsed member can buy again instead of being told they already are one.
@@ -71,7 +71,6 @@ Allow users to log in using either their **Username** or **Email** address along
 Enforce login using purely the `name` column as a username (no email required for user sign-in) utilizing Better-Auth's `username` plugin.
 
 ### Action Required for Developers / Admins
-
 
 > [!IMPORTANT]
 > - The Drizzle schema (`core/packages/db/src/schema/auth.ts`) has been updated to mark `name` as `.unique()`.
@@ -156,7 +155,6 @@ Allow super admins to select multiple users in the dashboard and delete them at 
 Implement a complete Referral Code system that allows superadmins to create and manage codes, and authenticated users to redeem them for time-limited Premium access. Redemption is atomic (database transaction + row-level lock) to prevent race conditions.
 
 ### Action Required for Developers / Admins
-
 
 > [!IMPORTANT]
 > This patch adds two new tables to the database: `referral_code` and `referral_usage`.

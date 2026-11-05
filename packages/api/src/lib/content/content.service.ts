@@ -20,18 +20,19 @@ async function saveContent(input: CreateContentInput) {
 		)[0]!;
 		const createdMaterials: { video?: number; note?: number; practiceQuestions?: number } = {};
 		if (input.video) {
-			const [video] = await tx
-				.insert(videoMaterial)
-				.values({ contentItemId: created.id, videoUrl: input.video.videoUrl, content: input.video.content })
-				.returning();
-			if (video) createdMaterials.video = video.id;
+			const video = (
+				await tx
+					.insert(videoMaterial)
+					.values({ contentItemId: created.id, videoUrl: input.video.videoUrl, content: input.video.content })
+					.returning()
+			)[0]!;
+			createdMaterials.video = video.id;
 		}
 		if (input.note) {
-			const [note] = await tx
-				.insert(noteMaterial)
-				.values({ contentItemId: created.id, content: input.note.content })
-				.returning();
-			if (note) createdMaterials.note = note.id;
+			const note = (
+				await tx.insert(noteMaterial).values({ contentItemId: created.id, content: input.note.content }).returning()
+			)[0]!;
+			createdMaterials.note = note.id;
 		}
 		if (input.practiceQuestionIds?.length) {
 			await tx.insert(contentPracticeQuestions).values(
@@ -47,6 +48,10 @@ async function saveContent(input: CreateContentInput) {
 	});
 }
 
+export function hasMaterials(input: CreateContentInput): boolean {
+	return !!input.video || !!input.note || (input.practiceQuestionIds?.length ?? 0) > 0;
+}
+
 /**
  * Creates a content item together with whichever materials it carries.
  *
@@ -60,10 +65,6 @@ async function saveContent(input: CreateContentInput) {
  * @returns `created` with the new content item id and the ids of the materials that were written,
  * `no_materials` when nothing was supplied.
  */
-export function hasMaterials(input: CreateContentInput): boolean {
-	return !!input.video || !!input.note || (input.practiceQuestionIds?.length ?? 0) > 0;
-}
-
 export const contentService = {
 	async create(input: CreateContentInput) {
 		if (!hasMaterials(input)) return { status: "no_materials" } as const;

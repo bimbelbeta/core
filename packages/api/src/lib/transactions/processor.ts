@@ -53,19 +53,19 @@ export async function processSuccessfulTransaction({
 	if (benefits.grantsCredits && benefits.creditsToAdd) {
 		const creditsToAdd = benefits.creditsToAdd;
 
-		const [updatedUser] = await trx
-			.update(user)
-			.set({
-				tryoutCredits: sql`${user.tryoutCredits} + ${creditsToAdd}`,
-			})
-			.where(eq(user.id, userId))
-			.returning({ tryoutCredits: user.tryoutCredits });
+		const updatedUser = (
+			await trx
+				.update(user)
+				.set({ tryoutCredits: sql`${user.tryoutCredits} + ${creditsToAdd}` })
+				.where(eq(user.id, userId))
+				.returning({ tryoutCredits: user.tryoutCredits })
+		)[0]!;
 
 		await trx.insert(creditTransaction).values({
 			userId: userId,
 			transactionId: orderId,
 			amount: creditsToAdd,
-			balanceAfter: updatedUser?.tryoutCredits ?? creditsToAdd,
+			balanceAfter: updatedUser.tryoutCredits!,
 			note: `Purchased ${existingTransaction.prodSlug}`,
 		});
 	}
