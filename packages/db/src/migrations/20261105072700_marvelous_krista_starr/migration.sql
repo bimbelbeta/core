@@ -1,3 +1,19 @@
+DO $$
+DECLARE rows_present bigint;
+BEGIN
+	IF to_regclass('public.referral_code') IS NOT NULL THEN
+		EXECUTE 'SELECT count(*) FROM public.referral_code' INTO rows_present;
+		IF rows_present > 0 THEN
+			RAISE EXCEPTION 'referral_code holds % rows; this migration recreates the table and will not destroy them', rows_present;
+		END IF;
+	END IF;
+	IF to_regclass('public.referral_usage') IS NOT NULL THEN
+		EXECUTE 'SELECT count(*) FROM public.referral_usage' INTO rows_present;
+		IF rows_present > 0 THEN
+			RAISE EXCEPTION 'referral_usage holds % rows; this migration recreates the table and will not destroy them', rows_present;
+		END IF;
+	END IF;
+END $$;--> statement-breakpoint
 DROP TABLE IF EXISTS "referral_usage";--> statement-breakpoint
 DROP TABLE IF EXISTS "referral_code";--> statement-breakpoint
 CREATE TABLE "referral_code" (
