@@ -25,8 +25,9 @@ export const createNotificationService = (deps: NotificationServiceDependencies)
 	 * reports `already_processed` instead of paying out twice.
 	 *
 	 * Provider failures are reported as a status so the procedure decides which oRPC error to raise,
-	 * and the thrown `PaymentError` carries the provider error code into the log above. A failing
-	 * database call rejects, because there is no status that could represent it honestly.
+	 * and the thrown `PaymentError` carries the provider error code into the log above. A failure
+	 * while granting benefits reports `processing_failed` and a failure while recording the status
+	 * reports `update_failed`, both logged; only the order lookup rejects.
 	 *
 	 * @param orderId Order id from the notification payload.
 	 * @param purchaseDate Timestamp used as the paid-at time and the basis for premium expiry.
