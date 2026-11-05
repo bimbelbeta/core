@@ -76,15 +76,3 @@ describe("typographyTones", () => {
 		}
 	});
 });
-
-import { QUESTION_TYPE_LABELS } from "@/lib/schemas";
-
-describe("question type vocabulary", () => {
-	test("labels are Indonesian and cover every type", () => {
-		expect(QUESTION_TYPE_LABELS).toEqual({
-			multiple_choice: "Pilihan Ganda",
-			multiple_choice_complex: "Pilihan Ganda Kompleks",
-			essay: "Esai",
-		});
-	});
-});

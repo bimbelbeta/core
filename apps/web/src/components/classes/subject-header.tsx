@@ -11,7 +11,7 @@ export function SubjectHeader() {
 		: "Ikuti kelas belajar untuk meningkatkan pengetahuan";
 
 	return (
-		<div className="rounded-default from-secondary-500 to-primary-600 relative flex items-center justify-start overflow-hidden bg-linear-to-l p-6 sm:p-8">
+		<div className="rounded-default from-secondary-800 to-primary-700 relative flex items-center justify-start overflow-hidden bg-linear-to-l p-6 sm:p-8">
 			{/* TEXT — mobile top, desktop LEFT */}
 			<div className="relative z-10">
 				<Typography variant="title" className="text-neutral-100">

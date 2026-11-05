@@ -20,7 +20,7 @@ export const variantConfig = {
 	credits: {
 		label: "Credits",
 		icon: CreditCardIcon,
-		iconColor: "text-green-500",
+		iconColor: "text-green-700",
 		bgColor: "bg-green-100",
 	},
 } as const;

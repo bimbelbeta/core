@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { JSDOM } from "jsdom";
+import type * as React from "react";
 
 const dom = new JSDOM("<!doctype html><html><body></body></html>");
 Object.assign(globalThis, {
@@ -15,12 +16,13 @@ Reflect.set(globalThis, "IS_REACT_ACT_ENVIRONMENT", true);
 
 const { cleanup, render } = await import("@testing-library/react");
 const { createElement } = await import("react");
+type ComponentProps<T extends React.ElementType> = import("react").ComponentProps<T>;
 const { Typography } = await import("./typography");
 
 afterEach(cleanup);
 
-const renderVariant = (props: Record<string, unknown>) => {
-	const { container } = render(createElement(Typography, props as never, "teks"));
+const renderVariant = (props: ComponentProps<typeof Typography>) => {
+	const { container } = render(createElement(Typography, props, "teks"));
 	return container.firstElementChild;
 };
 
