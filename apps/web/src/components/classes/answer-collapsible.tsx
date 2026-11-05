@@ -18,7 +18,7 @@ export function AnswerCollapsible({
 	return (
 		<Collapsible open={isOpen} onOpenChange={setIsOpen}>
 			<CollapsibleTrigger className="group flex items-center gap-2 transition-opacity hover:opacity-80">
-				<Typography variant="overline" as="span">
+				<Typography variant="body" as="span" className="font-medium">
 					{title}
 				</Typography>
 				{isOpen ? <EyeIcon className="size-4" /> : <EyeSlashIcon className="size-4" />}

@@ -16,7 +16,6 @@ import { useUsersSelection } from "./users-selection-context";
 
 export function UsersBulkActions() {
 	const { selectedIds, bulkDeleteDialogOpen, setBulkDeleteDialogOpen, handleBulkDelete } = useUsersSelection();
-	if (selectedIds.length === 0) return null;
 	return (
 		<AdminTableBulkActions selectedCount={selectedIds.length}>
 			<AlertDialog open={bulkDeleteDialogOpen} onOpenChange={setBulkDeleteDialogOpen}>

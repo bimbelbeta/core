@@ -108,7 +108,7 @@ function TryoutPricingCard({ title, price, features }: TryoutPricingProps) {
 	return (
 		<Card variant="flush" className="rounded-default space-y-4 border-neutral-200 bg-neutral-100 p-5 shadow-none">
 			<div>
-				<Typography variant="overline" as="h3">
+				<Typography variant="body" as="h3" className="font-medium">
 					{title}
 				</Typography>
 				<Typography variant="title" as="p">

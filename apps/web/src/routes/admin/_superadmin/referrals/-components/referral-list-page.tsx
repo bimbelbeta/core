@@ -187,7 +187,7 @@ export function ReferralListPage() {
 													{item.status ? (
 														<ProhibitIcon className="text-destructive size-4" />
 													) : (
-														<CheckCircleIcon className="size-4 text-green-600" />
+														<CheckCircleIcon className="size-4 text-green-700" />
 													)}
 												</Button>
 												<Button variant="ghost" size="icon" className="size-8" asChild>

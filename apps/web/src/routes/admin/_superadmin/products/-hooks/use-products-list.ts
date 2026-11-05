@@ -4,6 +4,7 @@ import { useState } from "react";
 import { usePaginationNavigation } from "@/hooks/use-pagination-navigation";
 import { orpc } from "@/lib/orpc";
 import { withoutSearchKey } from "@/lib/tanstack-router-utils";
+import { isProductVariant } from "../-utils";
 
 export function useProductsList() {
 	const navigate = useNavigate({ from: "/admin/products/" });
@@ -47,7 +48,7 @@ export function useProductsList() {
 	const handleVariantChange = (value: string) => {
 		const rest = withoutSearchKey(baseSearchParams, "variant");
 		navigate({
-			search: value === "fixed_date" || value === "monthly" || value === "credits" ? { ...rest, variant: value } : rest,
+			search: isProductVariant(value) ? { ...rest, variant: value } : rest,
 		});
 	};
 

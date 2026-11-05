@@ -97,7 +97,7 @@ export function PackageCard({
 
 			{credits && credits > 1 && isCreditsPackage && (
 				<div className="mb-4">
-					<div className="flex items-center gap-1 text-xs text-green-600">
+					<div className="flex items-center gap-1 text-xs text-green-700">
 						<CheckIcon size={12} weight="bold" />
 						<span>Hemat {formatRupiah(Number.parseFloat(price) / credits)}/tryout</span>
 					</div>
@@ -106,7 +106,7 @@ export function PackageCard({
 
 			{isPremiumPackage && credits && credits > 0 && (
 				<div className="mb-4">
-					<div className="flex items-center gap-1 text-xs text-green-600">
+					<div className="flex items-center gap-1 text-xs text-green-700">
 						<CheckIcon size={12} weight="bold" />
 						<span>Bonus: {credits} kredit tryout</span>
 					</div>

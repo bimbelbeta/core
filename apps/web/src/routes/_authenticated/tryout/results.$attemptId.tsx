@@ -123,7 +123,7 @@ function RouteComponent() {
 						</CardHeader>
 						<CardContent className="mt-auto">
 							<div className="flex items-baseline gap-2">
-								<span className={cn("text-5xl font-semibold", isPassed ? "text-green-600" : "text-destructive")}>
+								<span className={cn("text-5xl font-semibold", isPassed ? "text-green-700" : "text-destructive")}>
 									{passingGrade}
 								</span>
 								<span className="text-muted-foreground text-xl font-medium">/ 1000</span>

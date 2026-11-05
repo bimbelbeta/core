@@ -39,7 +39,7 @@ const links = [
 export function QuickLinks() {
 	return (
 		<div className="space-y-3">
-			<Typography variant="overline" as="h3" tone="muted">
+			<Typography variant="body" as="h3" tone="muted" className="font-medium">
 				Pintasan
 			</Typography>
 			<div className="grid auto-rows-fr gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -51,7 +51,9 @@ export function QuickLinks() {
 									<link.icon className="text-primary size-5" weight="duotone" />
 								</div>
 								<div className="min-w-0">
-									<Typography variant="overline">{link.title}</Typography>
+									<Typography variant="body" className="font-medium">
+										{link.title}
+									</Typography>
 									<Typography variant="caption">{link.description}</Typography>
 								</div>
 							</CardContent>

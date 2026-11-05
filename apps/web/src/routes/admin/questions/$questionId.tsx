@@ -96,7 +96,7 @@ function QuestionDetailPage() {
 					</CardHeader>
 					<CardContent className="space-y-6">
 						<div>
-							<Typography variant="overline" as="h3" tone="muted" className="mb-2">
+							<Typography variant="body" as="h3" tone="muted" className="mb-2 font-medium">
 								Konten Soal
 							</Typography>
 							<TiptapRenderer content={question.content} className="prose prose-sm max-w-none rounded-md border p-4" />
@@ -104,7 +104,7 @@ function QuestionDetailPage() {
 
 						{question.type === "multiple_choice" && choices && (
 							<div>
-								<Typography variant="overline" as="h3" tone="muted" className="mb-2">
+								<Typography variant="body" as="h3" tone="muted" className="mb-2 font-medium">
 									Pilihan Jawaban
 								</Typography>
 								<div className="flex flex-col gap-2">
@@ -138,7 +138,7 @@ function QuestionDetailPage() {
 
 						{question.type === "multiple_choice_complex" && choices && (
 							<div>
-								<Typography variant="overline" as="h3" tone="muted" className="mb-2">
+								<Typography variant="body" as="h3" tone="muted" className="mb-2 font-medium">
 									Pilihan Jawaban
 								</Typography>
 								<div className="rounded-lg border">
@@ -182,7 +182,7 @@ function QuestionDetailPage() {
 
 						{Boolean(question.discussion) && (
 							<div>
-								<Typography variant="overline" as="h3" tone="muted" className="mb-2">
+								<Typography variant="body" as="h3" tone="muted" className="mb-2 font-medium">
 									Pembahasan
 								</Typography>
 								<TiptapRenderer
@@ -194,7 +194,7 @@ function QuestionDetailPage() {
 
 						{question.tags && question.tags.length > 0 && (
 							<div>
-								<Typography variant="overline" as="h3" tone="muted" className="mb-2">
+								<Typography variant="body" as="h3" tone="muted" className="mb-2 font-medium">
 									Tags
 								</Typography>
 								<div className="flex flex-wrap gap-2">

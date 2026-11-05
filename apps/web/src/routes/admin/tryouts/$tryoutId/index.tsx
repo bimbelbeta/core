@@ -150,7 +150,7 @@ function TryoutDetailPage() {
 							<>
 								<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
 									<div className="space-y-1">
-										<Typography variant="caption" tone="muted" className="tracking-wide uppercase">
+										<Typography variant="overline" tone="muted">
 											Status
 										</Typography>
 										<div className="flex items-center gap-2">
@@ -159,22 +159,28 @@ function TryoutDetailPage() {
 										</div>
 									</div>
 									<div className="space-y-1">
-										<Typography variant="caption" tone="muted" className="tracking-wide uppercase">
+										<Typography variant="overline" tone="muted">
 											Kategori
 										</Typography>
-										<Typography variant="overline">{SUBJECT_CATEGORY_LABELS[tryout!.category]}</Typography>
+										<Typography variant="body" className="font-medium">
+											{SUBJECT_CATEGORY_LABELS[tryout!.category]}
+										</Typography>
 									</div>
 									<div className="space-y-1">
-										<Typography variant="caption" tone="muted" className="tracking-wide uppercase">
+										<Typography variant="overline" tone="muted">
 											Jumlah Subtest
 										</Typography>
-										<Typography variant="overline">{subtests.length}</Typography>
+										<Typography variant="body" className="font-medium">
+											{subtests.length}
+										</Typography>
 									</div>
 									<div className="space-y-1">
-										<Typography variant="caption" tone="muted" className="tracking-wide uppercase">
+										<Typography variant="overline" tone="muted">
 											Jadwal
 										</Typography>
-										<Typography variant="overline">{formatDateRange()}</Typography>
+										<Typography variant="body" className="font-medium">
+											{formatDateRange()}
+										</Typography>
 									</div>
 								</div>
 								{tryout!.description && (

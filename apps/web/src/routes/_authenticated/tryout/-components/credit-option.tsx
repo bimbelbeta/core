@@ -24,7 +24,7 @@ export function CreditOption({ onUseCredit, isLoading = false }: CreditOptionPro
 					<CoinsIcon size={20} weight="fill" className="text-amber-600" />
 				</div>
 				<div className="flex-1">
-					<Typography variant="overline" className="text-amber-900">
+					<Typography variant="body" className="font-medium text-amber-900">
 						Gunakan Kredit Tryout
 					</Typography>
 					<Typography className="text-amber-700">

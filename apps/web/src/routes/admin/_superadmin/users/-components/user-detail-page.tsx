@@ -145,7 +145,7 @@ export function UserDetailPage() {
 											<TableRow key={tx.id}>
 												<TableCell className="whitespace-nowrap">{formatDateTime(tx.createdAt)}</TableCell>
 												<TableCell>
-													<span className={tx.amount >= 0 ? "text-green-600" : "text-red-600"}>
+													<span className={tx.amount >= 0 ? "text-green-700" : "text-red-600"}>
 														{tx.amount > 0 ? "+" : ""}
 														{tx.amount}
 													</span>

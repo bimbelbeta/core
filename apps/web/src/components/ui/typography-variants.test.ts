@@ -38,6 +38,23 @@ describe("typographyVariants", () => {
 	});
 });
 
+describe("variant default tones", () => {
+	test("each variant carries the tone the spec assigns it", () => {
+		expect(Object.fromEntries(Object.entries(typographyVariants).map(([name, config]) => [name, config.tone]))).toEqual(
+			{
+				hero: "default",
+				display: "default",
+				title: "default",
+				subtitle1: "default",
+				subtitle2: "default",
+				body: "default",
+				caption: "muted",
+				overline: "default",
+			},
+		);
+	});
+});
+
 describe("typographyTones", () => {
 	test("the tone set is closed", () => {
 		expect(Object.values(typographyTones).sort()).toEqual([

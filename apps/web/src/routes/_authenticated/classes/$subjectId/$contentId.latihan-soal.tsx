@@ -107,7 +107,7 @@ function RouteComponent() {
 											<Typography
 												key={answer.id}
 												tone={answer.isCorrect ? "default" : "muted"}
-												className={answer.isCorrect ? "text-green-600" : undefined}
+												className={answer.isCorrect ? "text-green-700" : undefined}
 											>
 												<span className={answer.isCorrect ? "font-semibold" : undefined}>
 													{answer.code}. {answer.content}
@@ -124,7 +124,7 @@ function RouteComponent() {
 								)}
 								{Boolean(q.discussion) && (
 									<div className="mt-3 border-t border-neutral-200 pt-3">
-										<Typography variant="overline" as="p" className="mb-1">
+										<Typography variant="body" as="p" className="mb-1 font-medium">
 											Pembahasan:
 										</Typography>
 										<TiptapRenderer content={q.discussion} />

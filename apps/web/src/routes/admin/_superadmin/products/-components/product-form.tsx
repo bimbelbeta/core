@@ -11,16 +11,13 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
-import { months } from "../-utils";
+import { isProductVariant, months } from "../-utils";
 
 type ProductVariant = "fixed_date" | "monthly" | "credits";
 type ProductType = "subscription" | "product";
 
 function isProductType(v: string): v is ProductType {
 	return v === "subscription" || v === "product";
-}
-function isProductVariant(v: string): v is ProductVariant {
-	return v === "fixed_date" || v === "monthly" || v === "credits";
 }
 
 interface ProductFormProps {

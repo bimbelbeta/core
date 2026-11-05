@@ -131,7 +131,9 @@ export function AccessCodeSection({ tryoutId }: { tryoutId: number }) {
 				<Separator />
 
 				<div className="space-y-3">
-					<Typography variant="overline">Daftar Kode</Typography>
+					<Typography variant="body" className="font-medium">
+						Daftar Kode
+					</Typography>
 					{accessCodesQuery.isPending ? (
 						<Typography variant="body" tone="muted">
 							Memuat kode akses...
@@ -145,7 +147,9 @@ export function AccessCodeSection({ tryoutId }: { tryoutId: number }) {
 								>
 									<div className="space-y-1">
 										<div className="flex items-center gap-2">
-											<Typography variant="overline">{accessCodeItem.label || "Tanpa Label"}</Typography>
+											<Typography variant="body" className="font-medium">
+												{accessCodeItem.label || "Tanpa Label"}
+											</Typography>
 											<Badge variant={accessCodeItem.isActive ? "default" : "outline"}>
 												{accessCodeItem.isActive ? "Aktif" : "Nonaktif"}
 											</Badge>
