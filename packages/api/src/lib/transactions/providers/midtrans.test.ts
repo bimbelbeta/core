@@ -158,6 +158,7 @@ describe("fetchStatus", () => {
 			expect(await midtransProvider.fetchStatus(ORDER_ID)).toEqual({
 				status: "failed",
 				failure: "insufficient_balance",
+				detail: "Insufficient balance",
 			});
 		} finally {
 			request.mockRestore();
@@ -171,6 +172,7 @@ describe("fetchStatus", () => {
 			expect(await midtransProvider.fetchStatus(ORDER_ID)).toEqual({
 				status: "failed",
 				failure: "insufficient_balance",
+				detail: "Insufficient balance",
 			});
 		} finally {
 			request.mockRestore();

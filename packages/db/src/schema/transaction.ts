@@ -34,6 +34,7 @@ export const transaction = pgTable(
 		grossAmount: decimal("gross_amount"),
 		status: statusEnum("status").notNull().default("pending"),
 		failureCode: paymentFailureEnum("failure_code"),
+		failureDetail: text("failure_detail"),
 		paidAt: timestamp("paid_at"),
 		orderedAt: timestamp("ordered_at").defaultNow(),
 		createdAt: timestamp("created_at").notNull().defaultNow(),

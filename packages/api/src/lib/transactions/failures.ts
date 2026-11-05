@@ -16,4 +16,5 @@ export type PaymentFailureCode = (typeof paymentFailureEnum.enumValues)[number];
 export type PaymentEvent = {
 	status: "paid" | "pending" | "failed" | "unknown";
 	failure?: PaymentFailureCode;
+	detail?: string;
 };

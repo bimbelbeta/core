@@ -19,6 +19,7 @@ const transaction: TransactionWithProduct = {
 		grossAmount: "10000",
 		status: "pending",
 		failureCode: null,
+		failureDetail: null,
 		paidAt: null,
 		orderedAt: date,
 		createdAt: date,
@@ -40,7 +41,7 @@ describe("notification service", () => {
 	test("updates pending transactions", async () => {
 		const { deps, service } = setup();
 		expect(await service.process("order-1", date)).toEqual({ status: "ok" });
-		expect(deps.updateStatus).toHaveBeenCalledWith("order-1", "pending", undefined);
+		expect(deps.updateStatus).toHaveBeenCalledWith("order-1", "pending", undefined, undefined);
 	});
 
 	test("applies benefits once for a paid transaction", async () => {
@@ -93,9 +94,13 @@ describe("notification service", () => {
 
 	test("records the failure reason when a payment fails", async () => {
 		const { deps, service } = setup();
-		deps.fetchStatus.mockResolvedValue({ status: "failed", failure: "insufficient_balance" });
+		deps.fetchStatus.mockResolvedValue({
+			status: "failed",
+			failure: "insufficient_balance",
+			detail: "Saldo tidak cukup",
+		});
 		expect(await service.process("order-1", date)).toEqual({ status: "ok" });
-		expect(deps.updateStatus).toHaveBeenCalledWith("order-1", "failed", "insufficient_balance");
+		expect(deps.updateStatus).toHaveBeenCalledWith("order-1", "failed", "insufficient_balance", "Saldo tidak cukup");
 	});
 
 	test("reports a failed status update", async () => {

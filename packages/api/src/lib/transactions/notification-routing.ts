@@ -5,7 +5,7 @@ export type NotificationOutcome =
 	| { action: "already_processed" }
 	| { action: "user_deleted" }
 	| { action: "process_success"; userId: string; benefits: PurchaseBenefits }
-	| { action: "update_status"; status: "failed"; failure?: PaymentFailureCode }
+	| { action: "update_status"; status: "failed"; failure?: PaymentFailureCode; detail?: string }
 	| { action: "update_status"; status: "pending" }
 	| { action: "noop" };
 
@@ -38,7 +38,7 @@ export function resolveNotificationOutcome(
 	}
 
 	if (event.status === "failed") {
-		return { action: "update_status", status: "failed", failure: event.failure };
+		return { action: "update_status", status: "failed", failure: event.failure, detail: event.detail };
 	}
 
 	if (event.status === "pending") {

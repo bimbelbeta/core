@@ -28,6 +28,7 @@ function makeTx(overrides?: Partial<TransactionWithProduct["tx"]>): TransactionW
 			grossAmount: "100000.00",
 			status: "pending",
 			failureCode: null,
+			failureDetail: null,
 			paidAt: null,
 			orderedAt: PURCHASE_DATE,
 			createdAt: PURCHASE_DATE,

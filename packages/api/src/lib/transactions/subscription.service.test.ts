@@ -26,6 +26,7 @@ const transaction = {
 	grossAmount: plan.price,
 	status: "pending" as const,
 	failureCode: null,
+	failureDetail: null,
 	paidAt: null,
 	orderedAt: null,
 	createdAt: new Date(),
@@ -38,8 +39,6 @@ function setup() {
 		repository: {
 			findProduct: mock(async (): Promise<typeof plan | undefined> => plan),
 			createTransaction: mock(async (): Promise<typeof transaction | undefined> => transaction),
-			findTransactionWithProduct: mock(async () => null),
-			updateStatus: mock(async () => {}),
 		},
 		createCheckout: mock(async () => checkout),
 	};

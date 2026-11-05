@@ -1,7 +1,7 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "10c4c852-aecf-49e2-8d0e-6ad10a261926",
+  "id": "2bad4aa5-df57-4a8f-846c-c34aa6ab33be",
   "prevIds": [
     "a5c7b308-0501-4b5b-98b8-bf7a5c3f6411"
   ],
@@ -2085,6 +2085,19 @@
       "generated": null,
       "identity": null,
       "name": "failure_code",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "transaction"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "failure_detail",
       "entityType": "columns",
       "schema": "public",
       "table": "transaction"

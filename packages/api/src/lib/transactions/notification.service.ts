@@ -64,7 +64,8 @@ export const createNotificationService = (deps: NotificationServiceDependencies)
 			if (!applied) return { status: "already_processed" } as const;
 		} else if (outcome.action === "update_status") {
 			const failure = outcome.status === "failed" ? outcome.failure : undefined;
-			const updated = await deps.updateStatus(orderId, outcome.status, failure).then(
+			const detail = outcome.status === "failed" ? outcome.detail : undefined;
+			const updated = await deps.updateStatus(orderId, outcome.status, failure, detail).then(
 				() => true,
 				(error) => {
 					console.error("payment status update failed", error);

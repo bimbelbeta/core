@@ -200,7 +200,14 @@ async function fetchStatus(orderId: string): Promise<PaymentEvent> {
 	const status = toPaymentStatus(transactionStatus, fraudStatus);
 	if (status !== "failed") return { status };
 
-	return { status, failure: toFailureCode(transactionStatus, fraudStatus, statusMessage, channelMessage) ?? "unknown" };
+	const detail = [channelMessage, statusMessage].find(
+		(message) => message && message !== "midtrans payment notification",
+	);
+	return {
+		status,
+		failure: toFailureCode(transactionStatus, fraudStatus, statusMessage, channelMessage) ?? "unknown",
+		detail,
+	};
 }
 
 export const midtransProvider: PaymentProvider<MidtransNotification> = {

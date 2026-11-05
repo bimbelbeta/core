@@ -34,10 +34,10 @@ export const paymentRepository = {
 		return result || null;
 	},
 
-	async updateStatus(orderId: string, status: "failed" | "pending", failure?: PaymentFailureCode) {
+	async updateStatus(orderId: string, status: "failed" | "pending", failure?: PaymentFailureCode, detail?: string) {
 		await db
 			.update(transaction)
-			.set({ status, failureCode: failure ?? null })
+			.set({ status, failureCode: failure ?? null, failureDetail: detail ?? null })
 			.where(and(eq(transaction.id, orderId), isNull(transaction.paidAt)));
 	},
 };
