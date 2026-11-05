@@ -58,7 +58,7 @@ export function ReferralSection() {
 			>
 				<DialogContent className="max-w-sm text-center">
 					<div className="mx-auto mb-2 flex size-16 items-center justify-center rounded-full bg-amber-100">
-						<span className="text-3xl" role="img" aria-hidden>
+						<span className="text-3xl" aria-hidden>
 							🏆
 						</span>
 					</div>

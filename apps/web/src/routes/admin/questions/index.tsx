@@ -106,7 +106,6 @@ function QuestionsListPage() {
 				toast.success("Soal berhasil dihapus");
 				setDeleteDialogOpen(null);
 				refetch();
-				if (deleteDialogOpen !== null) deselect(deleteDialogOpen);
 			},
 			onError: (err) => {
 				toast.error(err.message);
@@ -137,8 +136,9 @@ function QuestionsListPage() {
 		refetch();
 	};
 
-	const { selectedIds, toggleSelectAll, toggleSelectOne, clearSelection, deselect, allSelected, someSelected } =
-		useBulkSelection(data?.items);
+	const { selectedIds, toggleSelectAll, toggleSelectOne, clearSelection, allSelected, someSelected } = useBulkSelection(
+		data?.items,
+	);
 
 	return (
 		<AdminPageRoot>

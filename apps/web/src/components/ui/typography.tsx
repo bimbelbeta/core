@@ -7,13 +7,19 @@ import {
 	typographyVariants,
 } from "./typography-variants";
 
-type TypographyProps = React.HTMLAttributes<HTMLElement> & {
+type TypographyProps<T extends React.ElementType> = {
 	variant?: TypographyVariant;
 	tone?: TypographyTone;
-	as?: React.ElementType;
-};
+	as?: T;
+} & Omit<React.ComponentPropsWithoutRef<T>, "as" | "variant" | "tone">;
 
-function Typography({ variant = "body", tone, as, className, ...props }: TypographyProps) {
+function Typography<T extends React.ElementType = "p">({
+	variant = "body",
+	tone,
+	as,
+	className,
+	...props
+}: TypographyProps<T>) {
 	const config = typographyVariants[variant];
 	const Comp = as ?? config.element;
 

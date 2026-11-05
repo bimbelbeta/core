@@ -1,6 +1,7 @@
 import { CheckIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import { buttonVariants } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { Highlight } from "@/components/ui/highlight";
 import { Typography } from "@/components/ui/typography";
@@ -55,17 +56,17 @@ function ProgramPricingCard({
 	variant = "default",
 }: ProgramPricingProps) {
 	return (
-		<div className={cn("rounded-default flex h-full flex-col border border-neutral-200 bg-neutral-100 p-6")}>
+		<Card variant="flush" className="rounded-default h-full border-neutral-200 bg-neutral-100 p-6 shadow-none">
 			<div className="mb-6">
 				<Typography variant="subtitle2">{title}</Typography>
 
 				<div className="flex flex-wrap items-center gap-x-3">
 					{originalPrice && (
-						<div className="relative inline-block text-3xl font-bold text-neutral-400">
+						<Typography variant="display" as="span" className="relative inline-block text-neutral-400">
 							{formatRupiah(originalPrice)}
 
 							<span className="-origin-center pointer-events-none absolute top-1/2 left-0 h-1 w-full rotate-6 bg-red-400" />
-						</div>
+						</Typography>
 					)}
 
 					<Typography
@@ -93,7 +94,7 @@ function ProgramPricingCard({
 					Daftar Akun
 				</Link>
 			</div>
-		</div>
+		</Card>
 	);
 }
 
@@ -105,7 +106,7 @@ type TryoutPricingProps = {
 
 function TryoutPricingCard({ title, price, features }: TryoutPricingProps) {
 	return (
-		<div className="rounded-default space-y-4 border border-neutral-200 bg-neutral-100 p-5">
+		<Card variant="flush" className="rounded-default space-y-4 border-neutral-200 bg-neutral-100 p-5 shadow-none">
 			<div>
 				<Typography variant="overline" as="h3">
 					{title}
@@ -127,6 +128,6 @@ function TryoutPricingCard({ title, price, features }: TryoutPricingProps) {
 			<Link to="/register" className={cn(buttonVariants({ size: "sm" }), "w-full")}>
 				Daftar Akun
 			</Link>
-		</div>
+		</Card>
 	);
 }
