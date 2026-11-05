@@ -48,3 +48,13 @@ export const TRYOUT_STATUS_BADGE = {
 		iconClassName: string;
 	}
 >;
+
+export const questionTypeSchema = type("'multiple_choice' | 'multiple_choice_complex' | 'essay'");
+
+export type QuestionType = typeof questionTypeSchema.infer;
+
+export const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
+	multiple_choice: "Pilihan Ganda",
+	multiple_choice_complex: "Pilihan Ganda Kompleks",
+	essay: "Esai",
+};

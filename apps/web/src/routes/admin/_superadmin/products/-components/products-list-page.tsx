@@ -182,7 +182,7 @@ export function ProductsListPage() {
 															<Button
 																variant="ghost"
 																size="icon"
-																aria-label="Pulihkan product"
+																aria-label="Pulihkan produk"
 																onClick={() => setRestoreProductId(product.id)}
 															>
 																<ArrowCounterClockwiseIcon className="size-4" />
@@ -191,7 +191,7 @@ export function ProductsListPage() {
 															<Button
 																variant="ghost"
 																size="icon"
-																aria-label="Hapus product"
+																aria-label="Hapus produk"
 																onClick={() => setDeleteProductId(product.id)}
 															>
 																<TrashIcon className="size-4" />

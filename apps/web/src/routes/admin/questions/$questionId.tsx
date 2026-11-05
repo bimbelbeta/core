@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
+import { QUESTION_TYPE_LABELS } from "@/lib/schemas";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { cn } from "@/lib/utils";
 import { EditQuestionForm } from "./-components/edit-question-form";
@@ -86,11 +87,7 @@ function QuestionDetailPage() {
 										: "secondary"
 								}
 							>
-								{question.type === "multiple_choice"
-									? "Pilihan Ganda"
-									: question.type === "multiple_choice_complex"
-										? "Pilihan Ganda Kompleks"
-										: "Esai"}
+								{QUESTION_TYPE_LABELS[question.type]}
 							</Badge>
 						</div>
 					</CardHeader>
@@ -119,14 +116,14 @@ function QuestionDetailPage() {
 											<span
 												className={cn(
 													"border-foreground/20 rounded-xs border px-2.5 py-0.5 text-sm font-medium",
-													choice.isCorrect && "border-green-500 bg-green-500 text-white",
+													choice.isCorrect && "border-green-700 bg-green-700 text-white",
 												)}
 											>
 												{choice.code}
 											</span>
 											<span className="flex-1 text-sm">{choice.content}</span>
 											{choice.isCorrect && (
-												<Badge variant="outline" className="ml-auto border-green-200 bg-green-100 text-green-700">
+												<Badge variant="outline" className="ml-auto border-green-200 bg-green-50 text-green-700">
 													Benar
 												</Badge>
 											)}
@@ -157,7 +154,7 @@ function QuestionDetailPage() {
 														<div
 															className={cn(
 																"mx-auto flex size-8 items-center justify-center rounded-full border-2",
-																choice.isCorrect ? "border-green-500 bg-green-500 text-white" : "border-border",
+																choice.isCorrect ? "border-green-700 bg-green-700 text-white" : "border-border",
 															)}
 														>
 															{choice.isCorrect && (

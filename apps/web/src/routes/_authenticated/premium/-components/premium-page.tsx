@@ -36,7 +36,7 @@ export function PremiumPage() {
 					<Typography variant="title" as="h2">
 						Pilih Paket <Highlight variant="secondary">Premium</Highlight>
 					</Typography>
-					<Typography className="mt-2 text-neutral-600">
+					<Typography className="mt-2 text-neutral-800">
 						Pilih paket yang sesuai dengan kebutuhanmu. Premium untuk akses penuh, atau beli kredit tryout satuan.
 					</Typography>
 				</div>

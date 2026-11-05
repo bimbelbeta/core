@@ -89,8 +89,8 @@ export function QuestionReviewItem({ index, question, isCorrect }: QuestionRevie
 
 								const iconColor = isSelected
 									? isChoiceCorrect
-										? "border-green-500 bg-green-500 text-white"
-										: "border-red-500 bg-red-500 text-white"
+										? "border-green-700 bg-green-700 text-white"
+										: "border-red-700 bg-red-700 text-white"
 									: "border-gray-300 bg-gray-100";
 
 								return (

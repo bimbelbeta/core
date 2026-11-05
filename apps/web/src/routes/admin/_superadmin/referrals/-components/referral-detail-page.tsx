@@ -107,7 +107,7 @@ export function ReferralDetailPage() {
 						</div>
 						<div className="flex justify-between">
 							<span className="text-muted-foreground">Pengguna premium aktif</span>
-							<span className="font-semibold text-amber-600">{items.filter((u) => u.isPremium).length}</span>
+							<span className="font-semibold text-amber-700">{items.filter((u) => u.isPremium).length}</span>
 						</div>
 					</CardContent>
 				</Card>

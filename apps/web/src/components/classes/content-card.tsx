@@ -115,7 +115,7 @@ export function ContentCard({
 			{/* Completed indicator */}
 			{!isAdmin && completed && !isPremiumContent && (
 				<div className="absolute top-2 right-2 sm:top-3 sm:right-3">
-					<CheckCircleIcon className="size-5 text-green-200 sm:size-6" weight="fill" />
+					<CheckCircleIcon className="size-5 text-green-700 sm:size-6" weight="fill" />
 				</div>
 			)}
 

@@ -7,6 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import type { BodyOutputs } from "@/lib/orpc";
+import { QUESTION_TYPE_LABELS } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 
 interface BulkQuestionsTableProps {
@@ -93,7 +94,7 @@ export function BulkQuestionsTable({
 										</TableCell>
 										<TableCell className="text-center">
 											<Badge variant={item.question.type === "multiple_choice" ? "default" : "outline"}>
-												{item.question.type === "multiple_choice" ? "Pilihan Ganda" : "Esai"}
+												{QUESTION_TYPE_LABELS[item.question.type]}
 											</Badge>
 										</TableCell>
 										<TableCell className="text-muted-foreground text-center font-mono text-xs">

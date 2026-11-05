@@ -13,7 +13,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Typography } from "@/components/ui/typography";
 import { useBulkSelection } from "@/hooks/use-bulk-selection";
 import { orpc } from "@/lib/orpc";
-import { SUBJECT_CATEGORY_LABELS, type SubjectCategory, subjectCategorySchema } from "@/lib/schemas";
+import {
+	QUESTION_TYPE_LABELS,
+	SUBJECT_CATEGORY_LABELS,
+	type SubjectCategory,
+	subjectCategorySchema,
+} from "@/lib/schemas";
 
 type CategoryFilter = "all" | SubjectCategory;
 type TypeFilter = "all" | "multiple_choice" | "essay";
@@ -175,8 +180,8 @@ export function QuestionPickerDialog({
 							</SelectTrigger>
 							<SelectContent>
 								<SelectItem value="all">Semua Tipe</SelectItem>
-								<SelectItem value="multiple_choice">Pilihan Ganda</SelectItem>
-								<SelectItem value="essay">Esai</SelectItem>
+								<SelectItem value="multiple_choice">{QUESTION_TYPE_LABELS.multiple_choice}</SelectItem>
+								<SelectItem value="essay">{QUESTION_TYPE_LABELS.essay}</SelectItem>
 							</SelectContent>
 						</Select>
 					</div>
@@ -244,7 +249,7 @@ export function QuestionPickerDialog({
 														variant={question.type === "multiple_choice" ? "default" : "outline"}
 														className="text-xs"
 													>
-														{question.type === "multiple_choice" ? "PG" : "Esai"}
+														{question.type === "multiple_choice" ? "PG" : QUESTION_TYPE_LABELS.essay}
 													</Badge>
 													{question.tags?.slice(0, 3).map((tag) => (
 														<Badge key={tag} variant="secondary" className="text-xs">

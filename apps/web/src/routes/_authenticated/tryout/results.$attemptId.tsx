@@ -112,14 +112,7 @@ function RouteComponent() {
 									</Typography>
 								)}
 							</CardTitle>
-							<Badge
-								variant="secondary"
-								className={cn(
-									isPassed ? "bg-green-500 text-white hover:bg-green-600" : "bg-red-500 text-white hover:bg-red-600",
-								)}
-							>
-								{isPassed ? "Lulus" : "Tidak Lulus"}
-							</Badge>
+							<Badge variant={isPassed ? "success" : "danger"}>{isPassed ? "Lulus" : "Tidak Lulus"}</Badge>
 						</CardHeader>
 						<CardContent className="mt-auto">
 							<div className="flex items-baseline gap-2">

@@ -46,7 +46,7 @@ import { Typography } from "@/components/ui/typography";
 import { useBulkSelection } from "@/hooks/use-bulk-selection";
 import { extractTextFromTiptap, truncateText } from "@/lib/content-text";
 import { orpc } from "@/lib/orpc";
-import { SUBJECT_CATEGORY_LABELS, subjectCategorySchema } from "@/lib/schemas";
+import { QUESTION_TYPE_LABELS, SUBJECT_CATEGORY_LABELS, subjectCategorySchema } from "@/lib/schemas";
 import { useQuestionsSearch } from "./-hooks/use-questions-search";
 
 const searchSchema = type({
@@ -62,12 +62,6 @@ export const Route = createFileRoute("/admin/questions/")({
 	component: QuestionsListPage,
 	validateSearch: searchSchema,
 });
-
-const QUESTION_TYPE_LABELS: Record<string, string> = {
-	multiple_choice: "Pilihan Ganda",
-	multiple_choice_complex: "Pilihan Ganda Kompleks",
-	essay: "Esai",
-};
 
 const QUESTION_TYPE_BADGE_VARIANTS: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
 	multiple_choice: "default",
