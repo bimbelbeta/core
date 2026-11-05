@@ -96,6 +96,9 @@ async function createCheckout(input: CheckoutInput): Promise<Checkout> {
 			item_details: [{ price: input.amount, quantity: 1, name: input.description }],
 			customer_details: { first_name: input.customer.name, email: input.customer.email },
 			credit_card: { secure: true },
+			callbacks: input.returnUrl
+				? { finish: input.returnUrl, error: input.returnUrl, pending: input.returnUrl }
+				: undefined,
 		})
 		.catch((error: unknown) => {
 			throw new PaymentError(

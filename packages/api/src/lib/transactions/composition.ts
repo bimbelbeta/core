@@ -9,7 +9,8 @@ export const verifyNotification = midtransProvider.verifyNotification;
 
 export const subscriptionService = createSubscriptionService({
 	repository: paymentRepository,
-	createCheckout: midtransProvider.createCheckout,
+	createCheckout: (input) =>
+		midtransProvider.createCheckout({ ...input, returnUrl: `${process.env.CORS_ORIGIN}/premium` }),
 });
 
 export const notificationService = createNotificationService({

@@ -25,6 +25,7 @@ export type CheckoutInput = {
 	amount: string;
 	description: string;
 	customer: { name: string; email: string };
+	returnUrl?: string;
 };
 
 export type Checkout = {

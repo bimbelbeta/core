@@ -1,9 +1,11 @@
-import { afterEach, describe, expect, spyOn, test } from "bun:test";
+import { afterAll, describe, expect, spyOn, test } from "bun:test";
 import { createHash } from "node:crypto";
+import { Snap } from "midtrans-client";
 import { PaymentError } from "@/lib/transactions/errors";
 import { midtransProvider, signatureMatches, toPaymentStatus } from "@/lib/transactions/providers/midtrans";
 
 const SERVER_KEY = "test-server-key-abc123";
+const originalServerKey = process.env.MIDTRANS_SERVER_KEY;
 const ORDER_ID = "ORDER-001";
 const STATUS_CODE = "200";
 const GROSS_AMOUNT = "100000.00";
@@ -19,8 +21,8 @@ const notification = {
 	signature_key: sign(ORDER_ID, STATUS_CODE, GROSS_AMOUNT, SERVER_KEY),
 };
 
-afterEach(() => {
-	process.env.MIDTRANS_SERVER_KEY = SERVER_KEY;
+afterAll(() => {
+	process.env.MIDTRANS_SERVER_KEY = originalServerKey;
 });
 
 describe("signatureMatches", () => {
@@ -109,6 +111,59 @@ describe("fetchStatus", () => {
 			await expect(midtransProvider.fetchStatus(ORDER_ID)).rejects.toMatchObject({ code: "INVALID_PAYLOAD" });
 		} finally {
 			request.mockRestore();
+		}
+	});
+});
+
+describe("createCheckout", () => {
+	test("maps the provider response to the neutral checkout shape", async () => {
+		process.env.MIDTRANS_SERVER_KEY = SERVER_KEY;
+		process.env.MIDTRANS_CLIENT_KEY = "test-client-key";
+		const create = spyOn(Snap.prototype, "createTransaction").mockResolvedValue({
+			token: "snap-token",
+			redirect_url: "https://app.midtrans.com/snap/v4/redirection/abc",
+		});
+		try {
+			expect(
+				await midtransProvider.createCheckout({
+					orderId: ORDER_ID,
+					amount: "10000",
+					description: "Premium",
+					customer: { name: "User", email: "user@example.com" },
+					returnUrl: "https://app.example.com/premium",
+				}),
+			).toEqual({
+				provider: "midtrans",
+				token: "snap-token",
+				redirectUrl: "https://app.midtrans.com/snap/v4/redirection/abc",
+			});
+			expect(create.mock.calls[0]?.[0]).toMatchObject({
+				callbacks: {
+					finish: "https://app.example.com/premium",
+					error: "https://app.example.com/premium",
+					pending: "https://app.example.com/premium",
+				},
+			});
+		} finally {
+			create.mockRestore();
+		}
+	});
+
+	test("reports a rejected checkout as PROVIDER_REJECTED", async () => {
+		process.env.MIDTRANS_SERVER_KEY = SERVER_KEY;
+		process.env.MIDTRANS_CLIENT_KEY = "test-client-key";
+		const create = spyOn(Snap.prototype, "createTransaction").mockRejectedValue({ httpStatusCode: 406 });
+		try {
+			await expect(
+				midtransProvider.createCheckout({
+					orderId: ORDER_ID,
+					amount: "10000",
+					description: "Premium",
+					customer: { name: "User", email: "user@example.com" },
+				}),
+			).rejects.toMatchObject({ code: "PROVIDER_REJECTED" });
+		} finally {
+			create.mockRestore();
 		}
 	});
 });
