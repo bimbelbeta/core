@@ -22,6 +22,10 @@ export function useUsersNavigation() {
 		navigate({ search: value !== "all" ? { ...rest, isPremium: value === "true" } : rest });
 	};
 
+	const handleReset = () => {
+		navigate({ search: { limit } });
+	};
+
 	return {
 		searchInput: search ?? "",
 		role,
@@ -29,5 +33,6 @@ export function useUsersNavigation() {
 		handleSearch,
 		handleRoleChange,
 		handlePremiumChange,
+		handleReset,
 	};
 }

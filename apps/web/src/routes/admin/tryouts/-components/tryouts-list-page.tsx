@@ -1,4 +1,4 @@
-import { TrashIcon } from "@phosphor-icons/react";
+import { DotsThreeIcon, PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import {
 	AdminPageContent,
@@ -18,6 +18,7 @@ import {
 } from "@/components/admin/admin-table";
 import { AdminTablePaginationWrapper, AdminTableToolbar } from "@/components/admin/admin-table-toolbar";
 import { PaginationButtons } from "@/components/admin/pagination-buttons";
+import { TryoutStatus } from "@/components/admin/tryout-status";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -27,10 +28,14 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
-	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Typography } from "@/components/ui/typography";
 import { formatDateMedium } from "@/lib/format-date";
@@ -42,6 +47,7 @@ export function TryoutsListPage() {
 	const {
 		category,
 		status,
+		sort,
 		searchInput,
 		isAddDialogOpen,
 		setIsAddDialogOpen,
@@ -49,21 +55,31 @@ export function TryoutsListPage() {
 		setDeleteDialogOpen,
 		data,
 		isLoading,
+		isError,
 		refetch,
 		pageInfo,
 		handleSearch,
 		handleCategoryChange,
 		handleStatusChange,
+		handleSortChange,
+		handleReset,
 		handleNext,
 		handlePrevious,
 		handleDelete,
 	} = useTryoutsList();
 
+	const hasFilters = Boolean(searchInput || category || status);
+
 	return (
 		<AdminPageRoot>
 			<AdminPageHeader>
 				<AdminPageHeaderContent>
-					<Typography variant="title">Tryout Management</Typography>
+					<Typography variant="title">Tryout</Typography>
+					{pageInfo?.totalCount !== undefined && (
+						<Typography variant="body" tone="muted">
+							{pageInfo.totalCount} tryout
+						</Typography>
+					)}
 				</AdminPageHeaderContent>
 				<AdminPageHeaderActions>
 					<AddTryoutDialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen} onSuccess={() => refetch()} />
@@ -71,9 +87,25 @@ export function TryoutsListPage() {
 			</AdminPageHeader>
 
 			<AdminPageContent>
-				<AdminTableToolbar searchValue={searchInput} onSearchChange={handleSearch} searchPlaceholder="Cari tryout...">
+				<AdminTableToolbar
+					searchValue={searchInput}
+					onSearchChange={handleSearch}
+					searchPlaceholder="Cari tryout..."
+					onReset={hasFilters ? handleReset : undefined}
+					trailing={
+						<Select value={sort ?? "terbaru"} onValueChange={handleSortChange}>
+							<SelectTrigger className="w-full sm:w-44" aria-label="Urutkan tryout">
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="terbaru">Terbaru</SelectItem>
+								<SelectItem value="terlama">Terlama</SelectItem>
+							</SelectContent>
+						</Select>
+					}
+				>
 					<Select value={category ?? "all"} onValueChange={handleCategoryChange}>
-						<SelectTrigger className="w-full sm:w-40">
+						<SelectTrigger className="w-full sm:w-44">
 							<SelectValue placeholder="Semua Kategori" />
 						</SelectTrigger>
 						<SelectContent>
@@ -86,34 +118,49 @@ export function TryoutsListPage() {
 						</SelectContent>
 					</Select>
 					<Select value={status ?? "all"} onValueChange={handleStatusChange}>
-						<SelectTrigger className="w-full sm:w-40">
+						<SelectTrigger className="w-full sm:w-44">
 							<SelectValue placeholder="Semua Status" />
 						</SelectTrigger>
 						<SelectContent>
 							<SelectItem value="all">Semua Status</SelectItem>
-							{Object.entries(TRYOUT_STATUS_BADGE).map(([value, status]) => (
+							{Object.entries(TRYOUT_STATUS_BADGE).map(([value, statusEntry]) => (
 								<SelectItem key={value} value={value}>
-									{status.label}
+									{statusEntry.label}
 								</SelectItem>
 							))}
 						</SelectContent>
 					</Select>
 				</AdminTableToolbar>
 
-				<AdminTableRoot className="mt-3">
+				<AdminTableRoot>
 					<AdminTable>
 						<AdminTableHeader>
-							<AdminTableHead>Judul</AdminTableHead>
-							<AdminTableHead>Kategori</AdminTableHead>
-							<AdminTableHead>Status</AdminTableHead>
-							<AdminTableHead>Dibuat</AdminTableHead>
-							<AdminTableHead className="text-right">Aksi</AdminTableHead>
+							<AdminTableHead>Tryout</AdminTableHead>
+							<AdminTableHead className="hidden w-28 sm:table-cell">Dibuat</AdminTableHead>
+							<AdminTableHead className="w-28">Status</AdminTableHead>
+							<AdminTableHead className="w-14 text-right">
+								<span className="sr-only">Aksi</span>
+							</AdminTableHead>
 						</AdminTableHeader>
 						<AdminTableBody
 							isLoading={isLoading}
-							isEmpty={!isLoading && data?.items.length === 0}
-							emptyMessage="Tidak ada tryout ditemukan."
-							columns={5}
+							isError={isError}
+							onRetry={() => refetch()}
+							isEmpty={!isLoading && !isError && data?.items.length === 0}
+							emptyMessage={hasFilters ? "Tidak ada tryout yang cocok dengan filter ini." : "Belum ada tryout."}
+							emptyAction={
+								hasFilters ? (
+									<Button variant="outline" size="sm" onClick={handleReset}>
+										Hapus filter
+									</Button>
+								) : (
+									<Button size="sm" className="h-9" onClick={() => setIsAddDialogOpen(true)}>
+										<PlusIcon className="size-4" />
+										Tambah tryout
+									</Button>
+								)
+							}
+							columns={4}
 						>
 							{data?.items.map((tryout) => (
 								<AdminTableRow key={tryout.id}>
@@ -121,37 +168,54 @@ export function TryoutsListPage() {
 										<Link
 											to="/admin/tryouts/$tryoutId"
 											params={{ tryoutId: tryout.id.toString() }}
-											className="hover:underline"
+											className="text-row-title text-foreground hover:text-primary focus-visible:ring-ring/50 rounded-sm underline-offset-4 outline-none after:absolute after:inset-0 after:content-[''] hover:underline focus-visible:ring-2"
 										>
 											{tryout.title}
 										</Link>
+										<Typography variant="caption" tone="muted" className="mt-1">
+											{SUBJECT_CATEGORY_LABELS[tryout.category]}
+										</Typography>
+									</AdminTableCell>
+									<AdminTableCell className="text-muted-foreground hidden text-[13px] whitespace-nowrap sm:table-cell">
+										{tryout.updatedAt ? formatDateMedium(new Date(tryout.updatedAt)) : "—"}
 									</AdminTableCell>
 									<AdminTableCell>
-										<Badge variant="outline">{SUBJECT_CATEGORY_LABELS[tryout.category]}</Badge>
+										<TryoutStatus status={tryout.status} />
 									</AdminTableCell>
-									<AdminTableCell>
-										<Badge variant={TRYOUT_STATUS_BADGE[tryout.status].variant}>
-											{TRYOUT_STATUS_BADGE[tryout.status].label}
-										</Badge>
-									</AdminTableCell>
-									<AdminTableCell>{tryout.createdAt ? formatDateMedium(tryout.createdAt) : "-"}</AdminTableCell>
-									<AdminTableCell className="text-right">
+									<AdminTableCell className="relative z-10 text-right align-top">
 										<div className="flex items-center justify-end gap-2">
 											<AlertDialog
 												open={deleteDialogOpen === tryout.id}
 												onOpenChange={(open) => setDeleteDialogOpen(open ? tryout.id : null)}
 											>
-												<AlertDialogTrigger asChild>
-													<Button variant="ghost" size="icon" aria-label={`Hapus tryout ${tryout.title}`}>
-														<TrashIcon className="size-4 text-red-600" />
-													</Button>
-												</AlertDialogTrigger>
-												<AlertDialogContent>
+												<DropdownMenu>
+													<DropdownMenuTrigger asChild>
+														<Button
+															variant="ghost"
+															size="icon"
+															className="size-9"
+															aria-label={`Aksi untuk ${tryout.title}`}
+														>
+															<DotsThreeIcon className="size-5" weight="bold" />
+														</Button>
+													</DropdownMenuTrigger>
+													<DropdownMenuContent align="end">
+														<DropdownMenuItem asChild>
+															<Link to="/admin/tryouts/$tryoutId" params={{ tryoutId: tryout.id.toString() }}>
+																Buka tryout
+															</Link>
+														</DropdownMenuItem>
+														<DropdownMenuItem variant="destructive" onSelect={() => setDeleteDialogOpen(tryout.id)}>
+															<TrashIcon className="size-4" /> Hapus tryout
+														</DropdownMenuItem>
+													</DropdownMenuContent>
+												</DropdownMenu>
+												<AlertDialogContent onClick={(e) => e.stopPropagation()}>
 													<AlertDialogHeader>
 														<AlertDialogTitle>Hapus Tryout</AlertDialogTitle>
 														<AlertDialogDescription>
-															Apakah Anda yakin ingin menghapus tryout "{tryout.title}"? Tindakan ini tidak dapat
-															dibatalkan.
+															Apakah Anda yakin ingin menghapus tryout &quot;{tryout.title}&quot;? Tindakan ini tidak
+															dapat dibatalkan.
 														</AlertDialogDescription>
 													</AlertDialogHeader>
 													<AlertDialogFooter>
@@ -169,13 +233,14 @@ export function TryoutsListPage() {
 						</AdminTableBody>
 					</AdminTable>
 
-					{data && (
+					{data && (pageInfo?.hasPreviousPage || pageInfo?.hasNextPage) && (
 						<AdminTablePaginationWrapper>
 							<PaginationButtons
 								onPrevious={handlePrevious}
 								onNext={handleNext}
 								hasPrevious={!!pageInfo?.hasPreviousPage}
 								hasNext={!!pageInfo?.hasNextPage}
+								totalCount={pageInfo?.totalCount}
 							/>
 						</AdminTablePaginationWrapper>
 					)}

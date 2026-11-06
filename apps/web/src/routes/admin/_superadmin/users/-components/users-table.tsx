@@ -37,7 +37,7 @@ export function UsersTable() {
 	const [grantPremiumUserId, setGrantPremiumUserId] = useState<string | null>(null);
 
 	return (
-		<AdminTableRoot className="mt-3">
+		<AdminTableRoot>
 			<AdminTable>
 				<AdminTableHeader>
 					<AdminTableHead className="w-12 pl-4">

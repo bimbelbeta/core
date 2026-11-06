@@ -1,4 +1,5 @@
 import { Link, useMatches } from "@tanstack/react-router";
+import { Fragment } from "react";
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -13,30 +14,33 @@ export function AdminBreadcrumb() {
 
 	const items = matches
 		.filter((match) => match.staticData?.breadcrumb)
-		.map((match) => ({
-			label: match.staticData.breadcrumb!,
-			to: match.pathname,
-		}));
+		.flatMap((match) => {
+			const leaf = { label: match.staticData.breadcrumb!, to: match.pathname };
+			const parent = match.staticData.breadcrumbParent;
+			return parent ? [parent, leaf] : [leaf];
+		});
+
+	if (items.length === 0) return null;
 
 	return (
 		<Breadcrumb>
-			<BreadcrumbList>
+			<BreadcrumbList className="gap-1.5 text-xs sm:gap-1.5">
 				{items.map((item, index) => {
 					const isLast = index === items.length - 1;
 
 					return (
-						<BreadcrumbItem key={item.to}>
-							{isLast ? (
-								<BreadcrumbPage>{item.label}</BreadcrumbPage>
-							) : (
-								<>
+						<Fragment key={item.to}>
+							<BreadcrumbItem>
+								{isLast ? (
+									<BreadcrumbPage className="text-foreground font-medium">{item.label}</BreadcrumbPage>
+								) : (
 									<BreadcrumbLink asChild>
 										<Link to={item.to}>{item.label}</Link>
 									</BreadcrumbLink>
-									<BreadcrumbSeparator />
-								</>
-							)}
-						</BreadcrumbItem>
+								)}
+							</BreadcrumbItem>
+							{!isLast && <BreadcrumbSeparator className="text-muted-foreground/50 [&>svg]:size-3" />}
+						</Fragment>
 					);
 				})}
 			</BreadcrumbList>

@@ -77,7 +77,7 @@ export function AccessCodeSection({ tryoutId }: { tryoutId: number }) {
 	return (
 		<Card>
 			<CardHeader className="pb-3">
-				<CardTitle className="text-base">Access Code</CardTitle>
+				<CardTitle className="text-base">Kode akses</CardTitle>
 				<CardDescription>Kelola kode akses per tryout untuk membuka akses tanpa bukti pembayaran</CardDescription>
 			</CardHeader>
 			<CardContent className="space-y-6">
@@ -101,7 +101,7 @@ export function AccessCodeSection({ tryoutId }: { tryoutId: number }) {
 						/>
 					</div>
 					<div className="space-y-2">
-						<Label htmlFor="access-code-max-uses">Maksimal Penggunaan</Label>
+						<Label htmlFor="access-code-max-uses">Maksimal penggunaan</Label>
 						<Input
 							id="access-code-max-uses"
 							type="number"
@@ -128,7 +128,7 @@ export function AccessCodeSection({ tryoutId }: { tryoutId: number }) {
 						onClick={handleCreate}
 						disabled={createAccessCodeMutation.isPending}
 					>
-						{"Buat Kode Akses"}
+						{"Buat kode akses"}
 					</Button>
 				</div>
 
@@ -136,7 +136,7 @@ export function AccessCodeSection({ tryoutId }: { tryoutId: number }) {
 
 				<div className="space-y-3">
 					<Typography variant="body" className="font-medium">
-						Daftar Kode
+						Daftar kode
 					</Typography>
 					{accessCodesQuery.isPending ? (
 						<Typography variant="body" tone="muted">

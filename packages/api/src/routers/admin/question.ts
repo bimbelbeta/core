@@ -26,32 +26,39 @@ const list = admin.admin.tryout.questions.list.handler(async ({ input }) => {
 	const cursorStr = input.before || input.after;
 	const cursorId = cursorStr ? parseIdCursor(cursorStr) : undefined;
 
-	const rows = await db
-		.select()
-		.from(question)
-		.where(
-			and(
-				cursorId !== undefined ? (isBackward ? gt(question.id, cursorId) : lt(question.id, cursorId)) : undefined,
-				input.search ? like(question.content, `%${input.search}%`) : undefined,
-				input.type ? eq(question.type, input.type) : undefined,
-				input.tag
-					? sql`EXISTS (
-							SELECT 1
-							FROM unnest(${question.tags}) AS tag
-							WHERE tag ILIKE ${`%${input.tag}%`}
-						)`
-					: undefined,
-				input.category ? sql`${input.category} = ANY(${question.tags})` : undefined,
-				input.excludeIds && input.excludeIds.length > 0
-					? sql`${question.id} NOT IN (${sql.join(
-							input.excludeIds.map((id: number) => sql`${id}`),
-							sql`, `,
-						)})`
-					: undefined,
-			),
-		)
-		.orderBy(isBackward ? asc(question.id) : desc(question.id))
-		.limit(limit + 1);
+	const filters = and(
+		input.search ? like(question.content, `%${input.search}%`) : undefined,
+		input.type ? eq(question.type, input.type) : undefined,
+		input.tag
+			? sql`EXISTS (
+					SELECT 1
+					FROM unnest(${question.tags}) AS tag
+					WHERE tag ILIKE ${`%${input.tag}%`}
+				)`
+			: undefined,
+		input.category ? sql`${input.category} = ANY(${question.tags})` : undefined,
+		input.excludeIds && input.excludeIds.length > 0
+			? sql`${question.id} NOT IN (${sql.join(
+					input.excludeIds.map((id: number) => sql`${id}`),
+					sql`, `,
+				)})`
+			: undefined,
+	);
+
+	const [rows, [totals]] = await Promise.all([
+		db
+			.select()
+			.from(question)
+			.where(
+				and(
+					filters,
+					cursorId !== undefined ? (isBackward ? gt(question.id, cursorId) : lt(question.id, cursorId)) : undefined,
+				),
+			)
+			.orderBy(isBackward ? asc(question.id) : desc(question.id))
+			.limit(limit + 1),
+		db.select({ count: sql<number>`count(*)::int` }).from(question).where(filters),
+	]);
 
 	const { items, pageInfo } = buildIdCursorPage(rows, limit, isBackward, !!cursorStr);
 
@@ -61,7 +68,7 @@ const list = admin.admin.tryout.questions.list.handler(async ({ input }) => {
 			content: readTiptapContent(q.contentJson, q.content),
 			discussion: readTiptapContent(q.discussionJson, q.discussion),
 		})),
-		pageInfo,
+		pageInfo: { ...pageInfo, totalCount: totals?.count ?? 0 },
 	};
 });
 

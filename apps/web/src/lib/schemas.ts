@@ -18,21 +18,21 @@ export const SUBJECT_CATEGORY_LABELS: Record<SubjectCategory, string> = {
 
 export const TRYOUT_STATUS_BADGE = {
 	draft: {
-		label: "Draft",
+		label: "Draf",
 		variant: "outline",
 		dotClassName: "bg-gray-400",
 		icon: FileIcon,
 		iconClassName: "text-muted-foreground",
 	},
 	published: {
-		label: "Published",
+		label: "Terbit",
 		variant: "success",
 		dotClassName: "bg-green-500",
 		icon: EyeIcon,
 		iconClassName: "text-green-600",
 	},
 	archived: {
-		label: "Archived",
+		label: "Arsip",
 		variant: "danger",
 		dotClassName: "bg-red-500",
 		icon: ArchiveIcon,

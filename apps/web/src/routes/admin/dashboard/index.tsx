@@ -5,7 +5,8 @@ import {
 	AdminPageHeaderContent,
 	AdminPageRoot,
 } from "@/components/admin/admin-page";
-import { QuickLinks } from "@/components/admin/quick-links";
+import { RecentQuestions } from "@/components/admin/recent-questions";
+import { RecentTryouts } from "@/components/admin/recent-tryouts";
 import { SectionCards } from "@/components/admin/section-cards";
 import { Typography } from "@/components/ui/typography";
 
@@ -14,18 +15,19 @@ export const Route = createFileRoute("/admin/dashboard/")({
 	component: function AdminDashboard() {
 		return (
 			<AdminPageRoot>
-				<AdminPageHeader>
+				<AdminPageHeader className="sm:items-start">
 					<AdminPageHeaderContent>
 						<Typography variant="title">Dashboard</Typography>
-						<Typography tone="muted">Ikhtisar performa dan aktivitas sistem</Typography>
+						<Typography variant="body" tone="muted">
+							Ringkasan aktivitas dan konten
+						</Typography>
 					</AdminPageHeaderContent>
 				</AdminPageHeader>
 
-				<AdminPageContent>
-					<div className="flex flex-col gap-4">
-						<SectionCards />
-						<QuickLinks />
-					</div>
+				<AdminPageContent className="gap-6">
+					<SectionCards />
+					<RecentTryouts />
+					<RecentQuestions />
 				</AdminPageContent>
 			</AdminPageRoot>
 		);

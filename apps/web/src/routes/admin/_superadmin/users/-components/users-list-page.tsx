@@ -20,7 +20,7 @@ export function UsersListPage() {
 			<AdminPageRoot>
 				<AdminPageHeader>
 					<AdminPageHeaderContent>
-						<Typography variant="title">User Management</Typography>
+						<Typography variant="title">Pengguna</Typography>
 					</AdminPageHeaderContent>
 					<AdminPageHeaderActions />
 				</AdminPageHeader>

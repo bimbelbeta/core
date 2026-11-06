@@ -59,5 +59,6 @@ export function useQuestionsSearch() {
 		handleCategoryChange,
 		handleNext,
 		handlePrevious,
+		handleReset: () => navigate({ search: { limit } }),
 	};
 }

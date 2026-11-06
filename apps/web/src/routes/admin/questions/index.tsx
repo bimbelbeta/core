@@ -1,5 +1,5 @@
 import { PaginationInputSchema } from "@bimbelbeta/contract/common/pagination";
-import { PlusIcon, TrashIcon } from "@phosphor-icons/react";
+import { DotsThreeIcon, PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { type } from "arktype";
@@ -39,15 +39,21 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Typography } from "@/components/ui/typography";
 import { useBulkSelection } from "@/hooks/use-bulk-selection";
-import { extractTextFromTiptap, truncateText } from "@/lib/content-text";
+import { extractTextFromTiptap } from "@/lib/content-text";
+import { formatDateMedium } from "@/lib/format-date";
 import { orpc } from "@/lib/orpc";
 import {
-	QUESTION_TYPE_BADGE,
 	QUESTION_TYPE_LABELS,
 	questionTypeSchema,
 	SUBJECT_CATEGORY_LABELS,
@@ -64,20 +70,34 @@ const searchSchema = type({
 });
 
 export const Route = createFileRoute("/admin/questions/")({
-	staticData: { breadcrumb: "Soal" },
+	staticData: { breadcrumb: "Bank soal" },
 	component: QuestionsListPage,
 	validateSearch: searchSchema,
 });
 
+const QUESTION_TYPE_SHORT_LABELS: Record<string, string> = {
+	multiple_choice: "Pilihan ganda",
+	multiple_choice_complex: "PG kompleks",
+	essay: "Esai",
+};
+
 function QuestionsListPage() {
-	const { searchParams, handleSearch, handleTypeChange, handleCategoryChange, handleNext, handlePrevious } =
-		useQuestionsSearch();
+	const {
+		searchParams,
+		handleSearch,
+		handleTypeChange,
+		handleCategoryChange,
+		handleNext,
+		handlePrevious,
+		handleReset,
+	} = useQuestionsSearch();
 	const { after, before, limit, search, questionType, category, tag } = searchParams;
+	const hasFilters = Boolean(search || questionType || category || tag);
 
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState<number | null>(null);
 	const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
 
-	const { data, isLoading, refetch } = useQuery(
+	const { data, isLoading, isError, refetch } = useQuery(
 		orpc.admin.tryout.questions.list.queryOptions({
 			input: {
 				after,
@@ -136,51 +156,68 @@ function QuestionsListPage() {
 		<AdminPageRoot>
 			<AdminPageHeader>
 				<AdminPageHeaderContent>
-					<Typography variant="title">Question Bank</Typography>
-					<Typography tone="muted">Kelola soal-soal untuk tryout dan ujian</Typography>
+					<Typography variant="title">Bank soal</Typography>
+					{pageInfo?.totalCount !== undefined && (
+						<Typography variant="body" tone="muted">
+							{pageInfo.totalCount} soal
+						</Typography>
+					)}
 				</AdminPageHeaderContent>
 				<AdminPageHeaderActions>
-					<Button asChild>
+					<Button asChild size="sm" className="h-9">
 						<Link to="/admin/questions/create">
-							<PlusIcon className="mr-2 size-4" />
-							Buat Soal
+							<PlusIcon className="size-4" />
+							Tambah soal
 						</Link>
 					</Button>
 				</AdminPageHeaderActions>
 			</AdminPageHeader>
 
 			<AdminPageContent>
-				<AdminTableToolbar searchValue={search ?? ""} onSearchChange={onSearch} searchPlaceholder="Cari soal...">
-					<Select value={questionType ?? "all"} onValueChange={handleTypeChange}>
-						<SelectTrigger className="w-full sm:w-40">
-							<SelectValue placeholder="Semua Tipe" />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value="all">Semua Tipe</SelectItem>
-							<SelectItem value="multiple_choice">{QUESTION_TYPE_LABELS.multiple_choice}</SelectItem>
-							<SelectItem value="multiple_choice_complex">{QUESTION_TYPE_LABELS.multiple_choice_complex}</SelectItem>
-							<SelectItem value="essay">{QUESTION_TYPE_LABELS.essay}</SelectItem>
-						</SelectContent>
-					</Select>
-					<Select value={category ?? "all"} onValueChange={handleCategoryChange}>
-						<SelectTrigger className="w-full sm:w-40">
-							<SelectValue placeholder="Semua Kategori" />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value="all">Semua Kategori</SelectItem>
-							{Object.entries(SUBJECT_CATEGORY_LABELS).map(([value, label]) => (
-								<SelectItem key={value} value={value}>
-									{label}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
-				</AdminTableToolbar>
+				{selectedIds.length === 0 && (
+					<AdminTableToolbar
+						searchValue={search ?? ""}
+						onSearchChange={onSearch}
+						searchPlaceholder="Cari soal..."
+						onReset={
+							hasFilters
+								? () => {
+										handleReset();
+									}
+								: undefined
+						}
+					>
+						<Select value={questionType ?? "all"} onValueChange={handleTypeChange}>
+							<SelectTrigger className="w-full sm:w-40">
+								<SelectValue placeholder="Semua Tipe" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="all">Semua Tipe</SelectItem>
+								<SelectItem value="multiple_choice">{QUESTION_TYPE_LABELS.multiple_choice}</SelectItem>
+								<SelectItem value="multiple_choice_complex">{QUESTION_TYPE_LABELS.multiple_choice_complex}</SelectItem>
+								<SelectItem value="essay">{QUESTION_TYPE_LABELS.essay}</SelectItem>
+							</SelectContent>
+						</Select>
+						<Select value={category ?? "all"} onValueChange={handleCategoryChange}>
+							<SelectTrigger className="w-full sm:w-40">
+								<SelectValue placeholder="Semua Kategori" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="all">Semua Kategori</SelectItem>
+								{Object.entries(SUBJECT_CATEGORY_LABELS).map(([value, label]) => (
+									<SelectItem key={value} value={value}>
+										{label}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</AdminTableToolbar>
+				)}
 
 				<AdminTableBulkActions selectedCount={selectedIds.length}>
 					<AlertDialog open={bulkDeleteDialogOpen} onOpenChange={setBulkDeleteDialogOpen}>
 						<AlertDialogTrigger asChild>
-							<Button variant="destructive" size="sm">
+							<Button variant="destructive" size="xs">
 								<TrashIcon className="mr-2 size-4" />
 								Hapus Terpilih
 							</Button>
@@ -203,32 +240,49 @@ function QuestionsListPage() {
 					</AlertDialog>
 				</AdminTableBulkActions>
 
-				<AdminTableRoot className="mt-3">
-					<AdminTable>
+				<AdminTableRoot>
+					<AdminTable className="table-fixed">
 						<AdminTableHeader>
-							<AdminTableHead className="w-12">
+							<AdminTableHead className="hidden w-12 px-4 sm:table-cell">
 								<Checkbox
 									checked={someSelected ? "indeterminate" : allSelected}
 									onCheckedChange={toggleSelectAll}
 									aria-label="Pilih semua soal"
 								/>
 							</AdminTableHead>
-							<AdminTableHead>Konten Soal</AdminTableHead>
-							<AdminTableHead className="w-32">Tipe</AdminTableHead>
-							<AdminTableHead>Tags</AdminTableHead>
-							<AdminTableHead className="w-24 text-right">Aksi</AdminTableHead>
+							<AdminTableHead>Soal</AdminTableHead>
+							<AdminTableHead className="hidden w-28 sm:table-cell">Dibuat</AdminTableHead>
+							<AdminTableHead className="w-16 text-right">
+								<span className="sr-only">Aksi</span>
+							</AdminTableHead>
 						</AdminTableHeader>
 						<AdminTableBody
 							isLoading={isLoading}
-							isEmpty={!isLoading && data?.items.length === 0}
-							emptyMessage="Tidak ada soal ditemukan. Coba ubah filter atau buat soal baru."
-							columns={5}
+							isError={isError}
+							onRetry={() => refetch()}
+							isEmpty={!isLoading && !isError && data?.items.length === 0}
+							emptyMessage={hasFilters ? "Tidak ada soal yang cocok dengan filter ini." : "Bank soal masih kosong."}
+							emptyAction={
+								hasFilters ? (
+									<Button variant="outline" size="sm" onClick={handleReset}>
+										Hapus filter
+									</Button>
+								) : (
+									<Button asChild size="sm">
+										<Link to="/admin/questions/create">
+											<PlusIcon className="size-4" />
+											Tambah soal
+										</Link>
+									</Button>
+								)
+							}
+							columns={4}
 						>
 							{data?.items.map((q) => {
-								const contentPreview = truncateText(extractTextFromTiptap(q.content));
+								const contentPreview = extractTextFromTiptap(q.content);
 								return (
 									<AdminTableRow key={q.id}>
-										<AdminTableCell>
+										<AdminTableCell className="hidden sm:table-cell">
 											<Checkbox
 												checked={selectedIds.includes(q.id)}
 												onCheckedChange={() => toggleSelectOne(q.id)}
@@ -236,48 +290,58 @@ function QuestionsListPage() {
 											/>
 										</AdminTableCell>
 										<AdminTableCell>
-											<div className="max-w-md">
+											<div className="min-w-0">
 												<Link
 													to="/admin/questions/$questionId"
 													params={{ questionId: q.id.toString() }}
-													className="text-sm leading-relaxed hover:underline"
+													className="text-row-title text-foreground hover:text-primary focus-visible:text-primary focus-visible:ring-ring/50 line-clamp-2 rounded-sm whitespace-normal underline-offset-4 outline-none after:absolute after:inset-0 after:content-[''] hover:underline focus-visible:underline focus-visible:ring-2"
 												>
 													{contentPreview || "(Konten kosong)"}
 												</Link>
+												<div className="text-muted-foreground text-meta mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1">
+													<span className="font-mono">#{q.id}</span>
+													<span aria-hidden>·</span>
+													<span>{QUESTION_TYPE_SHORT_LABELS[q.type] ?? q.type}</span>
+													{q.tags?.slice(0, 3).map((t) => (
+														<Badge key={t} variant="outline" className="text-[11px] font-normal">
+															{t}
+														</Badge>
+													))}
+													{q.tags && q.tags.length > 3 && (
+														<Badge variant="outline" className="text-[11px] font-normal">
+															+{q.tags.length - 3}
+														</Badge>
+													)}
+												</div>
 											</div>
 										</AdminTableCell>
-										<AdminTableCell>
-											<Badge variant={QUESTION_TYPE_BADGE[q.type] ?? "outline"}>
-												{QUESTION_TYPE_LABELS[q.type] ?? q.type}
-											</Badge>
+										<AdminTableCell className="text-muted-foreground hidden text-[13px] whitespace-nowrap sm:table-cell">
+											{q.createdAt ? formatDateMedium(new Date(q.createdAt)) : "—"}
 										</AdminTableCell>
-										<AdminTableCell>
-											<div className="flex max-w-32 flex-wrap gap-1">
-												{q.tags?.slice(0, 3).map((t) => (
-													<Badge key={t} variant="outline" className="text-xs">
-														{t}
-													</Badge>
-												))}
-												{q.tags && q.tags.length > 3 && (
-													<Badge variant="outline" className="text-xs">
-														+{q.tags.length - 3}
-													</Badge>
-												)}
-												{!q.tags?.length && <span className="text-muted-foreground text-xs">-</span>}
-											</div>
-										</AdminTableCell>
-										<AdminTableCell className="text-right">
+										<AdminTableCell className="relative z-10 text-right align-top">
 											<div className="flex items-center justify-end gap-2">
 												<AlertDialog
 													open={deleteDialogOpen === q.id}
 													onOpenChange={(open) => setDeleteDialogOpen(open ? q.id : null)}
 												>
-													<AlertDialogTrigger asChild>
-														<Button variant="ghost" size="icon" aria-label={`Hapus soal ${q.id}`}>
-															<TrashIcon className="size-4 text-red-600" />
-														</Button>
-													</AlertDialogTrigger>
-													<AlertDialogContent>
+													<DropdownMenu>
+														<DropdownMenuTrigger asChild>
+															<Button variant="ghost" size="icon" aria-label={`Aksi untuk soal ${q.id}`}>
+																<DotsThreeIcon className="size-5" weight="bold" />
+															</Button>
+														</DropdownMenuTrigger>
+														<DropdownMenuContent align="end">
+															<DropdownMenuItem asChild>
+																<Link to="/admin/questions/$questionId" params={{ questionId: q.id.toString() }}>
+																	Buka soal
+																</Link>
+															</DropdownMenuItem>
+															<DropdownMenuItem variant="destructive" onSelect={() => setDeleteDialogOpen(q.id)}>
+																<TrashIcon className="size-4" /> Hapus soal
+															</DropdownMenuItem>
+														</DropdownMenuContent>
+													</DropdownMenu>
+													<AlertDialogContent onClick={(e) => e.stopPropagation()}>
 														<AlertDialogHeader>
 															<AlertDialogTitle>Hapus Soal</AlertDialogTitle>
 															<AlertDialogDescription>
@@ -286,7 +350,10 @@ function QuestionsListPage() {
 														</AlertDialogHeader>
 														<AlertDialogFooter>
 															<AlertDialogCancel>Batal</AlertDialogCancel>
-															<AlertDialogAction onClick={() => handleDelete(q.id)} variant="destructive">
+															<AlertDialogAction
+																onClick={() => handleDelete(q.id)}
+																className={buttonVariants({ variant: "destructive" })}
+															>
 																Hapus
 															</AlertDialogAction>
 														</AlertDialogFooter>
@@ -300,13 +367,14 @@ function QuestionsListPage() {
 						</AdminTableBody>
 					</AdminTable>
 
-					{data && data.items.length > 0 && (
+					{data && (pageInfo?.hasPreviousPage || pageInfo?.hasNextPage) && (
 						<AdminTablePaginationWrapper>
 							<PaginationButtons
 								onPrevious={() => pageInfo?.startCursor && handlePrevious(pageInfo.startCursor)}
 								onNext={() => pageInfo?.endCursor && handleNext(pageInfo.endCursor)}
 								hasPrevious={!!pageInfo?.hasPreviousPage}
 								hasNext={!!pageInfo?.hasNextPage}
+								totalCount={pageInfo?.totalCount}
 							/>
 						</AdminTablePaginationWrapper>
 					)}

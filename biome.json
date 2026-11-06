@@ -79,18 +79,6 @@
 			}
 		}
 	},
-	"overrides": [
-		{
-			"includes": ["apps/web/src/components/tiptap*/**"],
-			"linter": {
-				"rules": {
-					"style": {
-						"noDescendingSpecificity": "off"
-					}
-				}
-			}
-		}
-	],
 	"javascript": {
 		"formatter": {
 			"quoteStyle": "double"

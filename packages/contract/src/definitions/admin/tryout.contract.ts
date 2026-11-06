@@ -90,6 +90,7 @@ export const adminTryoutContract = {
 				search: "string?",
 				category: "'sd' | 'smp' | 'sma' | 'utbk'?",
 				status: "'draft' | 'published' | 'archived'?",
+				sort: "'terbaru' | 'terlama'?",
 			}),
 		)
 		.output(type({ items: TryoutSchema.array(), pageInfo: PageInfoSchema })),

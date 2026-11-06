@@ -58,6 +58,10 @@ export function useReferralsList() {
 		navigate({ search: value ? { search: value, limit } : withoutSearch });
 	};
 
+	const handleReset = () => {
+		navigate({ search: { limit } });
+	};
+
 	const handleToggleStatus = (codeId: string, status: boolean) => toggleStatusMutation.mutate({ codeId, status });
 
 	const handleBulkDeactivate = () => bulkDeactivateMutation.mutate({ codeIds: selectedIds });
@@ -73,6 +77,7 @@ export function useReferralsList() {
 		setBulkDialogOpen,
 		handleNext,
 		handlePrevious,
+		handleReset,
 		handleSearch,
 		handleToggleStatus,
 		handleBulkDeactivate,

@@ -6,19 +6,23 @@ interface PaginationButtonsProps {
 	onNext: () => void;
 	hasPrevious: boolean;
 	hasNext: boolean;
+	totalCount?: number;
 }
 
-export function PaginationButtons({ onPrevious, onNext, hasPrevious, hasNext }: PaginationButtonsProps) {
+export function PaginationButtons({ onPrevious, onNext, hasPrevious, hasNext, totalCount }: PaginationButtonsProps) {
 	return (
-		<div className="flex flex-wrap items-center justify-center gap-2">
-			<Button variant="outline" size="sm" disabled={!hasPrevious} onClick={onPrevious}>
-				<CaretLeftIcon className="mr-2 size-4" />
-				Previous
-			</Button>
-			<Button variant="outline" size="sm" disabled={!hasNext} onClick={onNext}>
-				Next
-				<CaretRightIcon className="ml-2 size-4" />
-			</Button>
+		<div className="flex items-center justify-end gap-3">
+			{totalCount !== undefined && <p className="text-muted-foreground mr-auto text-xs">Total {totalCount}</p>}
+			<nav aria-label="Navigasi halaman" className="flex items-center gap-2">
+				<Button variant="outline" size="sm" className="h-9 text-xs" disabled={!hasPrevious} onClick={onPrevious}>
+					<CaretLeftIcon className="size-3.5" />
+					Sebelumnya
+				</Button>
+				<Button variant="outline" size="sm" className="h-9 text-xs" disabled={!hasNext} onClick={onNext}>
+					Berikutnya
+					<CaretRightIcon className="size-3.5" />
+				</Button>
+			</nav>
 		</div>
 	);
 }

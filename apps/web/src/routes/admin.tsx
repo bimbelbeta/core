@@ -1,8 +1,9 @@
 import { ROLES } from "@bimbelbeta/contract/common/roles";
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { ArrowSquareInIcon } from "@phosphor-icons/react";
+import { createFileRoute, Link, Outlet, redirect } from "@tanstack/react-router";
 import { AdminBreadcrumb } from "@/components/admin/admin-breadcrumb";
 import { AppSidebar } from "@/components/admin/app-sidebar";
-import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { $getSession } from "@/lib/get-user";
 import { createMeta } from "@/lib/seo-utils";
@@ -43,15 +44,29 @@ export const Route = createFileRoute("/admin")({
 
 function AdminLayout() {
 	return (
-		<SidebarProvider>
+		<SidebarProvider className="admin-shell [--sidebar-width:13.5rem]!">
 			<AppSidebar />
-			<SidebarInset>
-				<header className="bg-sidebar sticky top-0 z-20 flex h-16 shrink-0 items-center gap-2 border-b px-4 shadow-xs transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-					<SidebarTrigger className="-ml-1" />
-					<Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
+			<SidebarInset className="bg-muted min-w-0">
+				<header className="bg-card/85 sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b px-4 backdrop-blur-md sm:px-6 lg:px-8">
+					<SidebarTrigger
+						title="Buka/tutup navigasi"
+						className="text-muted-foreground hover:bg-muted hover:text-foreground size-8 rounded-md"
+					/>
 					<AdminBreadcrumb />
+					<Button
+						variant="ghost"
+						size="sm"
+						asChild
+						className="text-muted-foreground hover:bg-muted hover:text-foreground ml-auto h-8 gap-1.5 px-2.5 text-[13px]"
+					>
+						<Link to="/dashboard" aria-label="Buka dashboard pengguna">
+							<ArrowSquareInIcon className="size-4" />
+							<span className="hidden sm:inline">Buka dashboard pengguna</span>
+							<span className="sm:hidden">Situs</span>
+						</Link>
+					</Button>
 				</header>
-				<main className="flex flex-1 flex-col gap-4">
+				<main className="flex h-[calc(100svh-3.5rem)] min-h-0 flex-col overflow-y-auto">
 					<Outlet />
 				</main>
 			</SidebarInset>

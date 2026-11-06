@@ -57,7 +57,7 @@ export function ProductsListPage() {
 		<AdminPageRoot>
 			<AdminPageHeader>
 				<AdminPageHeaderContent>
-					<Typography variant="title">Products</Typography>
+					<Typography variant="title">Produk</Typography>
 				</AdminPageHeaderContent>
 				<AdminPageHeaderActions>
 					<Button asChild>

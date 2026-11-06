@@ -6,26 +6,32 @@ import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-	"focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all duration-300 outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&>Link]:hover:cursor-pointer [&>a]:hover:cursor-pointer",
+	"focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all duration-300 outline-none focus-visible:ring-[3px] disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&>Link]:hover:cursor-pointer [&>a]:hover:cursor-pointer",
 	{
 		variants: {
 			variant: {
-				default: "bg-secondary-800 hover:bg-secondary-900 text-white shadow-xs",
+				default:
+					"bg-secondary-800 hover:bg-secondary-900 disabled:bg-muted disabled:text-muted-foreground text-white shadow-xs disabled:shadow-none",
 				secondary:
-					"border-primary-navy-700 text-primary-navy-700 hover:border-primary-navy-800 hover:bg-primary-100 hover:text-primary-navy-800 border bg-white shadow-xs",
-				tertiary: "text-primary-navy-700 hover:bg-primary-100 hover:text-primary-navy-800 bg-transparent",
-				warning: "bg-yellow-500 hover:bg-yellow-500/80",
-				"warning-outline": "text-foreground border-2 border-yellow-300 bg-white shadow-xs hover:bg-yellow-300/20",
-				destructive: "bg-destructive text-white shadow-xs hover:bg-red-200",
-				outline: "border-secondary-700 border bg-white shadow-xs hover:bg-white/80",
+					"border-primary-navy-700 text-primary-navy-700 hover:border-primary-navy-800 hover:bg-primary-100 hover:text-primary-navy-800 border bg-white shadow-xs disabled:opacity-50",
+				tertiary:
+					"text-primary-navy-700 hover:bg-primary-100 hover:text-primary-navy-800 disabled:text-muted-foreground/60 bg-transparent",
+				warning: "bg-yellow-500 hover:bg-yellow-500/80 disabled:opacity-50",
+				"warning-outline":
+					"text-foreground border-2 border-yellow-300 bg-white shadow-xs hover:bg-yellow-300/20 disabled:opacity-50",
+				destructive:
+					"bg-destructive hover:bg-destructive/80 disabled:bg-muted disabled:text-muted-foreground text-white shadow-xs disabled:shadow-none",
+				outline: "border-secondary-700 border bg-white shadow-xs hover:bg-white/80 disabled:opacity-50",
+
 				input:
-					"border-input focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 h-9 w-full min-w-0 justify-start rounded-md border bg-white px-3 py-1 text-left font-normal shadow-xs hover:bg-white focus-visible:ring-[3px]",
-				ghost: "bg-secondary-700/0 hover:bg-secondary-700/20",
-				link: "text-primary underline-offset-4 hover:underline",
-				// Legacy variants kept for compatibility if needed, or mapped to new ones
-				darkBlue: "bg-primary-500 text-primary-foreground hover:bg-primary/90 shadow-xs",
-				white: "bg-white text-black shadow-xs hover:bg-white/90",
-				lightBlue: "bg-primary-300 hover:bg-primary-300 text-white shadow-xs",
+					"border-input focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 h-9 w-full min-w-0 justify-start rounded-md border bg-white px-3 py-1 text-left font-normal shadow-xs hover:bg-white focus-visible:ring-[3px] disabled:opacity-50",
+				ghost: "hover:bg-muted disabled:text-muted-foreground/60 disabled:bg-transparent",
+				link: "text-primary underline-offset-4 hover:underline disabled:opacity-50",
+				darkBlue:
+					"bg-primary text-primary-foreground hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground shadow-xs disabled:shadow-none",
+				white: "bg-white text-black shadow-xs hover:bg-white/90 disabled:opacity-50",
+				lightBlue:
+					"bg-primary-300 hover:bg-primary-300 disabled:bg-muted disabled:text-muted-foreground text-white shadow-xs",
 			},
 			size: {
 				default: "h-10 px-4 py-2.5",

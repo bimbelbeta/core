@@ -9,7 +9,11 @@ function Tabs({ className, ...props }: React.ComponentProps<typeof TabsPrimitive
 
 function TabsList({ className, ...props }: React.ComponentProps<typeof TabsPrimitive.List>) {
 	return (
-		<TabsPrimitive.List data-slot="tabs-list" className={cn("flex w-full gap-3 md:w-fit", className)} {...props} />
+		<TabsPrimitive.List
+			data-slot="tabs-list"
+			className={cn("border-border flex w-full gap-5 border-b", className)}
+			{...props}
+		/>
 	);
 }
 
@@ -18,9 +22,8 @@ function TabsTrigger({ className, ...props }: React.ComponentProps<typeof TabsPr
 		<TabsPrimitive.Trigger
 			data-slot="tabs-trigger"
 			className={cn(
-				"border-primary-300 flex-1 items-center justify-center rounded-lg border px-3.5 py-2 text-xs font-normal whitespace-nowrap shadow-[0px_1px_2px_0px_rgba(16,24,40,0.05)] transition-all focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 sm:h-9.25 md:flex-none",
-				"text-primary-300 bg-white",
-				"data-[state=active]:bg-primary-300 data-[state=active]:text-white",
+				"focus-visible:ring-ring/50 text-muted-foreground hover:text-foreground -mb-px inline-flex items-center justify-center gap-2 rounded-none border-b-2 border-transparent pt-2 pb-2.5 text-sm font-normal whitespace-nowrap transition-colors outline-none focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50",
+				"data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:font-medium",
 				"[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
 				className,
 			)}

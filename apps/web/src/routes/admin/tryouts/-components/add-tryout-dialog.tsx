@@ -107,9 +107,9 @@ export function AddTryoutDialog({
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogTrigger asChild>
-				<Button className="ml-auto">
-					<PlusIcon className="mr-2 size-4" />
-					Tambah Tryout
+				<Button className="bg-primary text-primary-foreground hover:bg-primary/90 ml-auto h-9">
+					<PlusIcon className="size-4" />
+					Tambah tryout
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="flex max-h-[85vh] flex-col sm:max-w-125">

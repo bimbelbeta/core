@@ -9,6 +9,7 @@ const searchSchema = type({
 	"search?": "string",
 	"category?": subjectCategorySchema,
 	"status?": tryoutStatusSchema,
+	"sort?": "'terbaru' | 'terlama'",
 });
 
 export const Route = createFileRoute("/admin/tryouts/")({

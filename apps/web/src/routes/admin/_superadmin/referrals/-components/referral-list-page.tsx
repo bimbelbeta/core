@@ -53,6 +53,7 @@ export function ReferralListPage() {
 		setBulkDialogOpen,
 		handleNext,
 		handlePrevious,
+		handleReset,
 		handleSearch,
 		handleToggleStatus,
 		handleBulkDeactivate,
@@ -66,7 +67,7 @@ export function ReferralListPage() {
 		<AdminPageRoot>
 			<AdminPageHeader>
 				<AdminPageHeaderContent>
-					<Typography variant="title">Referral Codes</Typography>
+					<Typography variant="title">Kode referral</Typography>
 				</AdminPageHeaderContent>
 				<AdminPageHeaderActions>
 					<CreateReferralDialog onSuccess={() => refetch()} />
@@ -77,7 +78,8 @@ export function ReferralListPage() {
 				<AdminTableToolbar
 					searchValue={search ?? ""}
 					onSearchChange={handleSearch}
-					searchPlaceholder="Cari kode referal..."
+					searchPlaceholder="Cari kode referral..."
+					onReset={search ? handleReset : undefined}
 				/>
 
 				<AdminTableBulkActions selectedCount={selectedIds.length}>
@@ -105,7 +107,7 @@ export function ReferralListPage() {
 					</AlertDialog>
 				</AdminTableBulkActions>
 
-				<AdminTableRoot className="mt-3">
+				<AdminTableRoot>
 					<AdminTable>
 						<AdminTableHeader>
 							<AdminTableHead className="w-12 pl-4">

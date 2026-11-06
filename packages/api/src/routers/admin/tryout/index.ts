@@ -1,6 +1,6 @@
 import { db } from "@bimbelbeta/db";
 import { tryout, tryoutAccessCode } from "@bimbelbeta/db/schema/tryout";
-import { and, asc, desc, eq, gt, ilike, lt } from "drizzle-orm";
+import { and, asc, desc, eq, gt, ilike, lt, sql } from "drizzle-orm";
 import { requireCreated, requireFound } from "@/lib/crud-helpers";
 import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
 import { adminImplementer } from "@/lib/router-definition";
@@ -38,24 +38,38 @@ const list = admin.admin.tryout.list.handler(async ({ input }) => {
 	const isBackward = !!input.before;
 	const cursorStr = input.before || input.after;
 	const cursorId = cursorStr ? parseIdCursor(cursorStr) : undefined;
+	const newestFirst = input.sort !== "terlama";
 
-	const rows = await db
-		.select()
-		.from(tryout)
-		.where(
-			and(
-				input.search ? ilike(tryout.title, `%${input.search}%`) : undefined,
-				input.category ? eq(tryout.category, input.category) : undefined,
-				input.status ? eq(tryout.status, input.status) : undefined,
-				cursorId !== undefined ? (isBackward ? lt(tryout.id, cursorId) : gt(tryout.id, cursorId)) : undefined,
-			),
-		)
-		.orderBy(isBackward ? desc(tryout.id) : asc(tryout.id))
-		.limit(limit + 1);
+	const filters = and(
+		input.search ? ilike(tryout.title, `%${input.search}%`) : undefined,
+		input.category ? eq(tryout.category, input.category) : undefined,
+		input.status ? eq(tryout.status, input.status) : undefined,
+	);
+
+	const cursorFilter =
+		cursorId === undefined
+			? undefined
+			: isBackward
+				? newestFirst
+					? gt(tryout.id, cursorId)
+					: lt(tryout.id, cursorId)
+				: newestFirst
+					? lt(tryout.id, cursorId)
+					: gt(tryout.id, cursorId);
+
+	const [rows, [totals]] = await Promise.all([
+		db
+			.select()
+			.from(tryout)
+			.where(and(filters, cursorFilter))
+			.orderBy(isBackward ? (newestFirst ? asc : desc)(tryout.id) : (newestFirst ? desc : asc)(tryout.id))
+			.limit(limit + 1),
+		db.select({ count: sql<number>`count(*)::int` }).from(tryout).where(filters),
+	]);
 
 	const { items, pageInfo } = buildIdCursorPage(rows, limit, isBackward, !!cursorStr);
 
-	return { items, pageInfo };
+	return { items, pageInfo: { ...pageInfo, totalCount: totals?.count ?? 0 } };
 });
 
 const find = admin.admin.tryout.find.handler(async ({ input, errors }) => {

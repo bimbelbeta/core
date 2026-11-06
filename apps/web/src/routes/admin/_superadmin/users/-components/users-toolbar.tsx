@@ -4,12 +4,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useUsersNavigation } from "../-hooks/use-users-navigation";
 
 export function UsersToolbar() {
-	const { searchInput, role, isPremium, handleSearch, handleRoleChange, handlePremiumChange } = useUsersNavigation();
+	const { searchInput, role, isPremium, handleSearch, handleRoleChange, handlePremiumChange, handleReset } =
+		useUsersNavigation();
+	const hasFilters = Boolean(searchInput || role || isPremium !== undefined);
 	return (
 		<AdminTableToolbar
 			searchValue={searchInput}
 			onSearchChange={handleSearch}
 			searchPlaceholder="Cari nama atau email..."
+			onReset={hasFilters ? handleReset : undefined}
 		>
 			<Select value={role ?? "all"} onValueChange={handleRoleChange}>
 				<SelectTrigger className="w-full sm:w-40">

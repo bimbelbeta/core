@@ -71,7 +71,7 @@ function RouteComponent() {
 		<AdminPageRoot>
 			<AdminPageHeader>
 				<AdminPageHeaderContent>
-					<Typography variant="title">Passing Grades</Typography>
+					<Typography variant="title">Passing grade</Typography>
 				</AdminPageHeaderContent>
 				<AdminPageHeaderActions>
 					<AddUniversityDialog

@@ -9,14 +9,15 @@ import { withoutSearchKey } from "@/lib/tanstack-router-utils";
 
 export function useTryoutsList() {
 	const navigate = useNavigate({ from: "/admin/tryouts/" });
-	const { after, before, limit = 10, search, category, status } = useSearch({ from: "/admin/tryouts/" });
+	const { after, before, limit = 10, search, category, status, sort } = useSearch({ from: "/admin/tryouts/" });
 
-	const { data, isLoading, refetch } = useQuery(
+	const { data, isLoading, isError, refetch } = useQuery(
 		orpc.admin.tryout.list.queryOptions({
 			input: {
 				after,
 				before,
 				limit,
+				sort,
 				search: search ?? undefined,
 				category,
 				status,
@@ -46,6 +47,7 @@ export function useTryoutsList() {
 		...(search && { search }),
 		...(category && { category }),
 		...(status && { status }),
+		...(sort && { sort }),
 		limit,
 	};
 
@@ -68,6 +70,17 @@ export function useTryoutsList() {
 		});
 	};
 
+	const handleSortChange = (value: string) => {
+		const rest = withoutSearchKey(baseSearchParams, "sort");
+		navigate({
+			search: value === "terlama" ? { ...rest, sort: "terlama" as const } : rest,
+		});
+	};
+
+	const handleReset = () => {
+		navigate({ search: { limit } });
+	};
+
 	const { handleNext, handlePrevious } = usePaginationNavigation(navigate, pageInfo, baseSearchParams);
 
 	const handleDelete = (id: number) => {
@@ -77,6 +90,7 @@ export function useTryoutsList() {
 	return {
 		category,
 		status,
+		sort,
 		searchInput: search ?? "",
 		isAddDialogOpen,
 		setIsAddDialogOpen,
@@ -84,11 +98,14 @@ export function useTryoutsList() {
 		setDeleteDialogOpen,
 		data,
 		isLoading,
+		isError,
 		refetch,
 		pageInfo,
 		handleSearch,
 		handleCategoryChange,
 		handleStatusChange,
+		handleSortChange,
+		handleReset,
 		handleNext,
 		handlePrevious,
 		handleDelete,
