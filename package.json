@@ -17,10 +17,10 @@
 			"dotenv": "^17.4.2",
 			"drizzle-orm": "^1.0.0-rc.5-ab785fc",
 			"arktype": "^2.2.9",
-			"typescript": "^5.9.3",
+			"typescript": "^7.0.2",
 			"midtrans-client": "^1.4.3",
 			"vite": "^8.3.5",
-			"tsdown": "^0.21.10",
+			"tsdown": "^0.23.4",
 			"@orpc/client": "^1.16.1",
 			"@orpc/contract": "^1.16.1"
 		}
@@ -52,7 +52,7 @@
 	},
 	"dependencies": {
 		"dotenv": "^17.4.2",
-		"typescript": "^5.9.3"
+		"typescript": "^7.0.2"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.6.4",
