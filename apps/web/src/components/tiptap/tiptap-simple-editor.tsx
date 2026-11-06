@@ -8,7 +8,7 @@ interface TiptapSimpleEditorProps {
 
 export default function TiptapSimpleEditor({ content, onChange, label }: TiptapSimpleEditorProps) {
 	return (
-		<fieldset aria-label={label} className="m-0 flex max-h-[400px] min-h-[120px] flex-col border-0 p-0">
+		<fieldset aria-label={label} className="m-0 flex max-h-[400px] min-h-[120px] w-full min-w-0 flex-col border-0 p-0">
 			<SimpleEditor content={content} onChange={onChange} />
 		</fieldset>
 	);

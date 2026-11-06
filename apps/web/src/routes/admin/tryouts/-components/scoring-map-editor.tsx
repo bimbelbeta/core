@@ -1,4 +1,4 @@
-import { ClipboardTextIcon, TrashSimpleIcon } from "@phosphor-icons/react";
+import { ClipboardTextIcon, FloppyDiskIcon, TrashSimpleIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -131,27 +131,27 @@ export function ScoringMapEditor({
 			title="Skoring manual"
 			description="Atur skor berdasarkan jumlah jawaban benar. Jika tidak diatur, akan menggunakan rumus linear (benar/total * 1000)."
 		>
-			<div className="space-y-4">
-				<div className="flex items-center gap-2">
-					<Button type="button" variant="outline" size="sm" onClick={() => setIsPasteDialogOpen(true)}>
-						<ClipboardTextIcon className="mr-2 size-4" />
-						JSON
+			<div className="flex w-full max-w-[880px] flex-col gap-4">
+				<div className="flex flex-wrap items-center gap-1">
+					<Button type="button" variant="outline" size="xs" onClick={() => setIsPasteDialogOpen(true)}>
+						<ClipboardTextIcon className="size-3.5" />
+						Tempel JSON
 					</Button>
 					{hasAnyScore && (
-						<Button type="button" variant="destructive" size="sm" onClick={handleClear}>
-							<TrashSimpleIcon />
-							Hapus Semua
+						<Button type="button" variant="ghost" size="xs" onClick={handleClear}>
+							<TrashSimpleIcon className="size-3.5" />
+							Hapus semua
 						</Button>
 					)}
 				</div>
 
-				<div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+				<div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
 					{Array.from({ length: questionCount }, (_, i) => i + 1).map((num) => {
 						const key = String(num);
 						return (
-							<div key={key} className="flex items-center gap-2">
-								<Label htmlFor={`score-${key}`} className="w-16 shrink-0 text-sm">
-									Benar {num}:
+							<div key={key} className="flex min-w-0 flex-col gap-1">
+								<Label htmlFor={`score-${key}`} className="text-muted-foreground text-meta font-normal">
+									Benar {num}
 								</Label>
 								<Input
 									id={`score-${key}`}
@@ -160,7 +160,7 @@ export function ScoringMapEditor({
 									max="1000"
 									value={scores[key]}
 									onChange={(e) => handleScoreChange(key, e.target.value)}
-									className="h-8 w-20"
+									className="h-8"
 									placeholder="0"
 								/>
 							</div>
@@ -168,14 +168,16 @@ export function ScoringMapEditor({
 					})}
 				</div>
 
-				<div className="flex justify-end gap-2 pt-4">
+				<div className="flex items-center justify-end gap-1">
 					<Button
 						isPending={updateMutation.isPending}
 						type="button"
+						size="xs"
 						onClick={handleSave}
 						disabled={!allScoresFilled || updateMutation.isPending}
 					>
-						{"Simpan Skoring"}
+						<FloppyDiskIcon className="size-3.5" />
+						Simpan skoring
 					</Button>
 				</div>
 			</div>

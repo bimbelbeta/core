@@ -1,6 +1,5 @@
 import { PlusIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { ChoiceEditItem } from "./choice-edit-item";
 import type { Choice } from "./types";
 
@@ -35,9 +34,8 @@ export function MultipleChoiceQuestionForm({ choices, onChoicesChange }: Multipl
 	};
 
 	return (
-		<div className="space-y-4">
-			<Label>Pilihan Jawaban</Label>
-			<div className="space-y-3">
+		<div className="flex flex-col gap-3">
+			<div className="flex flex-col gap-2">
 				{choices.map((choice) => (
 					<ChoiceEditItem
 						key={choice.id}
@@ -48,9 +46,9 @@ export function MultipleChoiceQuestionForm({ choices, onChoicesChange }: Multipl
 				))}
 			</div>
 			{choices.length < 7 && (
-				<Button type="button" variant="outline" onClick={addChoice}>
-					<PlusIcon className="mr-2 size-4" />
-					Tambah Pilihan
+				<Button type="button" variant="outline" size="xs" onClick={addChoice} className="self-start">
+					<PlusIcon className="size-3.5" />
+					Tambah pilihan
 				</Button>
 			)}
 		</div>

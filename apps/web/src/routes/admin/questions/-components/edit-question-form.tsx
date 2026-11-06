@@ -8,18 +8,18 @@ import {
 	AdminFormShell,
 	AdminPageContent,
 	AdminPageHeader,
-	AdminPageHeaderActions,
 	AdminPageHeaderContent,
 	AdminPageRoot,
+	AdminSection,
 } from "@/components/admin/admin-page";
 import TiptapSimpleEditor from "@/components/tiptap/tiptap-simple-editor";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TagInput } from "@/components/ui/tag-input";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
+import { QUESTION_TYPE_SHORT_LABELS } from "@/lib/schemas";
 import { MultipleChoiceComplexQuestionForm } from "./multiple-choice-complex-question-form";
 import { MultipleChoiceQuestionForm } from "./multiple-choice-question-form";
 import type { Choice } from "./types";
@@ -99,108 +99,107 @@ export function EditQuestionForm({ question, initialChoices, onSuccess, onCancel
 						<Button variant="ghost" size="icon" aria-label="Batal" onClick={onCancel}>
 							<ArrowLeftIcon className="size-4" />
 						</Button>
-						<Typography variant="title">Edit Soal #{question.id}</Typography>
+						<Typography variant="title">Edit soal #{question.id}</Typography>
 					</div>
+					<Typography variant="body" tone="muted">
+						{question.type === "essay"
+							? QUESTION_TYPE_SHORT_LABELS[question.type]
+							: `${QUESTION_TYPE_SHORT_LABELS[question.type]} · ${choices.length} pilihan`}
+					</Typography>
 				</AdminPageHeaderContent>
-				<AdminPageHeaderActions>
-					<Button type="button" variant="ghost" size="sm" onClick={onCancel}>
-						<XIcon className="size-3.5" />
-						Batal
-					</Button>
-					<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
-						{([canSubmit, isSubmitting]) => (
-							<Button
-								isPending={isSubmitting}
-								size="sm"
-								type="button"
-								disabled={!canSubmit || isSubmitting}
-								onClick={() => form.handleSubmit()}
-							>
-								<FloppyDiskIcon className="size-3.5" />
-								Simpan Perubahan
-							</Button>
-						)}
-					</form.Subscribe>
-				</AdminPageHeaderActions>
 			</AdminPageHeader>
 
 			<AdminPageContent>
-				<AdminFormShell className="max-w-[720px]">
-					<Card>
-						<CardHeader>
-							<CardTitle>Edit Konten Soal</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<form
-								onSubmit={(e) => {
-									e.preventDefault();
-									form.handleSubmit();
-								}}
-								className="grid gap-5"
-							>
-								<form.Field name="content">
-									{(field) => (
-										<div className="grid gap-3">
-											<Label>Konten Soal *</Label>
-											<TiptapSimpleEditor
-												label="Konten Soal"
-												content={field.state.value ?? undefined}
-												onChange={(content) => field.handleChange(content)}
-											/>
-										</div>
-									)}
-								</form.Field>
-
-								{question.type === "multiple_choice" ? (
-									<MultipleChoiceQuestionForm choices={choices} onChoicesChange={setChoices} />
-								) : question.type === "multiple_choice_complex" ? (
-									<MultipleChoiceComplexQuestionForm choices={choices} onChoicesChange={setChoices} />
-								) : (
-									<form.Field name="essayCorrectAnswer">
-										{(field) => (
-											<div className="grid gap-3">
-												<Label htmlFor={field.name}>Kunci Jawaban *</Label>
-												<Input
-													id={field.name}
-													value={field.state.value}
-													onChange={(e) => field.handleChange(e.target.value)}
-													placeholder="Masukkan kunci jawaban..."
-													required
-												/>
-											</div>
-										)}
-									</form.Field>
+				<AdminFormShell>
+					<form
+						onSubmit={(e) => {
+							e.preventDefault();
+							form.handleSubmit();
+						}}
+						className="flex flex-col gap-5"
+					>
+						<AdminSection title="Konten soal" description="Pertanyaan yang dibaca peserta.">
+							<form.Field name="content">
+								{(field) => (
+									<TiptapSimpleEditor
+										label="Konten soal"
+										content={field.state.value ?? undefined}
+										onChange={(content) => field.handleChange(content)}
+									/>
 								)}
+							</form.Field>
+						</AdminSection>
 
-								<form.Field name="discussion">
+						<AdminSection
+							title="Jawaban"
+							description={
+								question.type === "essay"
+									? "Kunci jawaban acuan penilaian esai."
+									: "Pilihan bertanda benar adalah kunci jawaban."
+							}
+						>
+							{question.type === "multiple_choice" ? (
+								<MultipleChoiceQuestionForm choices={choices} onChoicesChange={setChoices} />
+							) : question.type === "multiple_choice_complex" ? (
+								<MultipleChoiceComplexQuestionForm choices={choices} onChoicesChange={setChoices} />
+							) : (
+								<form.Field name="essayCorrectAnswer">
 									{(field) => (
-										<div className="grid gap-3">
-											<Label>Pembahasan</Label>
-											<TiptapSimpleEditor
-												label="Pembahasan"
-												content={field.state.value ?? undefined}
-												onChange={(content) => field.handleChange(content)}
-											/>
-										</div>
-									)}
-								</form.Field>
-
-								<form.Field name="tags">
-									{(field) => (
-										<div className="grid gap-3">
-											<Label>Tags</Label>
-											<TagInput
+										<div className="flex flex-col gap-1.5">
+											<Label htmlFor={field.name}>Kunci jawaban</Label>
+											<Input
+												id={field.name}
 												value={field.state.value}
-												onChange={(tags) => field.handleChange(tags)}
-												placeholder="Tambah tag..."
-												maxLength={10}
+												onChange={(e) => field.handleChange(e.target.value)}
+												placeholder="Masukkan kunci jawaban..."
+												required
 											/>
 										</div>
 									)}
 								</form.Field>
-							</form>
-						</CardContent>
-					</Card>
+							)}
+						</AdminSection>
+
+						<AdminSection title="Pembahasan" description="Tampil untuk peserta setelah soal selesai.">
+							<form.Field name="discussion">
+								{(field) => (
+									<TiptapSimpleEditor
+										label="Pembahasan"
+										content={field.state.value ?? undefined}
+										onChange={(content) => field.handleChange(content)}
+									/>
+								)}
+							</form.Field>
+						</AdminSection>
+
+						<AdminSection title="Tags" description="Memudahkan penyaringan di bank soal.">
+							<form.Field name="tags">
+								{(field) => (
+									<TagInput
+										value={field.state.value}
+										onChange={(tags) => field.handleChange(tags)}
+										placeholder="Tambah tag..."
+										maxLength={10}
+									/>
+								)}
+							</form.Field>
+						</AdminSection>
+
+						<div className="flex items-center justify-end gap-1">
+							<Button type="button" variant="ghost" size="xs" onClick={onCancel}>
+								<XIcon className="size-3.5" />
+								Batal
+							</Button>
+							<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+								{([canSubmit, isSubmitting]) => (
+									<Button isPending={isSubmitting} size="xs" type="submit" disabled={!canSubmit || isSubmitting}>
+										<FloppyDiskIcon className="size-3.5" />
+										Simpan perubahan
+									</Button>
+								)}
+							</form.Subscribe>
+						</div>
+					</form>
 				</AdminFormShell>
 			</AdminPageContent>
 		</AdminPageRoot>

@@ -99,10 +99,12 @@ function SubtestDetailPage() {
 								<ArrowLeftIcon className="size-4" />
 							</Link>
 						</Button>
-						<Typography variant="title">Soal Subtest</Typography>
+						<Typography variant="title">{subtestData?.name ?? "Subtest"}</Typography>
 					</div>
 					<Typography variant="body" tone="muted">
-						{questions.length} soal di subtest ini
+						{questions.length} soal
+						{subtestData?.duration ? ` · ${subtestData.duration} menit` : ""}
+						{subtestData?.questionOrder === "random" ? " · soal acak" : " · soal berurutan"}
 					</Typography>
 				</AdminPageHeaderContent>
 				<AdminPageHeaderActions>
@@ -112,12 +114,12 @@ function SubtestDetailPage() {
 							params={{ tryoutId: tId, subtestId: subtestId.toString() }}
 						>
 							<PlusIcon className="size-4" />
-							Buat Soal
+							Buat soal
 						</Link>
 					</Button>
 					<Button variant="outline" onClick={() => setIsBulkAddOpen(true)} className="gap-2">
 						<PlusIcon className="size-4" />
-						Tambah soal Massal
+						Tambah soal massal
 					</Button>
 				</AdminPageHeaderActions>
 			</AdminPageHeader>

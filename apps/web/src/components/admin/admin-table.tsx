@@ -39,7 +39,7 @@ export function AdminTableHeader({ children, className }: AdminTableHeaderProps)
 }
 
 interface AdminTableHeadProps {
-	children: React.ReactNode;
+	children?: React.ReactNode;
 	className?: string;
 }
 

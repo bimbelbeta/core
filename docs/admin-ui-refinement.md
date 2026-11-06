@@ -135,6 +135,29 @@ Tryout detail round 2 findings and why they were not applied:
 
 ## Item 9 — create and edit forms
 
-Field rows are label-left, control-right, one field per row (`AdminFieldRow`: `md:grid-cols-[minmax(0,1fr)_minmax(0,22rem)]`). Forms sit in `AdminFormShell` (880px, question forms 720px) so every tab of a detail page lines up on the same control column.
+Field rows are label-left, control-right, one field per row (`AdminFieldRow`: `md:grid-cols-[minmax(0,1fr)_minmax(0,22rem)]`). Forms sit in `AdminFormShell` (880px) so every tab of a detail page lines up on the same control column.
 
 Form actions are `xs` buttons at the bottom-right of the form, never a sticky bar and never in the section header: the sticky bar is clipped by the page padding, and a header button reads as a page action rather than a form action. Save and update carry `FloppyDiskIcon`, reset and cancel `ArrowCounterClockwiseIcon`/`XIcon`.
+
+## Item 10 — subtest and question pages
+
+One measure for every form on the console: `AdminFormShell` is 880px and nothing overrides it. The question forms briefly ran at 720px; the editor toolbar is 745px wide and clipped its last icon there, so the narrower column cost more than it bought.
+
+The subtest page keeps the question table full-width and puts only the manual scoring block on the form measure, so the two read as different kinds of content instead of one ragged column. Scoring inputs are label-above-input cells on a `grid-cols-3 sm:grid-cols-4 md:grid-cols-6` grid — six questions fit one row on desktop, three per row on mobile — with `Tempel JSON` above and `Simpan skoring` bottom-right.
+
+Question rows share one anatomy across the subtest page, the bulk table and the bank: checkbox gutter, question text as the row title, then `Soal n · Pilihan ganda` as the second line. `n` is the row index, not the API `order` field, which returns 1 for every row of a freshly imported set.
+
+The question detail page renders each part as an `AdminSection` — Konten soal, Pilihan jawaban, Pembahasan, Tags — instead of one card. `multiple_choice_complex` shows its statements in an `AdminTable` whose Kunci column holds a pill in both states: `success` for Benar, `outline` for Salah. A filled pill beside bare grey text read as a missing badge, not as a second state.
+
+Review round 3 (GLM-5.3-Flash, blind, references scored in the same call: Linear 9, GitHub 8) scored the set 7–7.5 with two findings applied:
+
+- _Benar is a pill, Salah is plain text in the same column._ Applied as above.
+- _The tags row is cut at 390px._ Not cut — the devtools pill overlapped it — but the in-field `Tambah` button was `sm` while every other form button is `xs`. Applied: `xs`, and the counter moved to `text-meta`.
+
+Rejected with measurements:
+
+- _Scoring inputs are occluded and `Benar 6` is clipped at 390px._ Measured: inputs sit at x=16/139/263 with width 111 inside a 358px column, and the save button at x=228–374 is flush with the page padding. The overlay was the TanStack devtools pill, which the capture harness now removes.
+- _Two stacked rich-text toolbars read as one double toolbar._ They are separated by the Pembahasan heading and its description. Rejected.
+- _`Kunci` header is misaligned with its pills._ Both start at the same x; the pill's `px-2` shifts only its label. Rejected.
+- _Detail pages leave 40% empty below Pembahasan._ That is a short question, not a layout fault.
+- _Muted metadata sits near 3:1 contrast._ `--muted-foreground` is a global token; changing it is a type-scale decision, not a page fix.

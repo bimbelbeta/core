@@ -59,6 +59,12 @@ export const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
 	essay: "Esai",
 };
 
+export const QUESTION_TYPE_SHORT_LABELS: Record<QuestionType, string> = {
+	multiple_choice: "Pilihan ganda",
+	multiple_choice_complex: "PG kompleks",
+	essay: "Esai",
+};
+
 export const productVariantSchema = type("'fixed_date' | 'monthly' | 'credits'");
 
 export type ProductVariant = typeof productVariantSchema.infer;

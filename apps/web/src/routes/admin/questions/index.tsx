@@ -55,6 +55,7 @@ import { formatDateMedium } from "@/lib/format-date";
 import { orpc } from "@/lib/orpc";
 import {
 	QUESTION_TYPE_LABELS,
+	QUESTION_TYPE_SHORT_LABELS,
 	questionTypeSchema,
 	SUBJECT_CATEGORY_LABELS,
 	subjectCategorySchema,
@@ -74,12 +75,6 @@ export const Route = createFileRoute("/admin/questions/")({
 	component: QuestionsListPage,
 	validateSearch: searchSchema,
 });
-
-const QUESTION_TYPE_SHORT_LABELS: Record<string, string> = {
-	multiple_choice: "Pilihan ganda",
-	multiple_choice_complex: "PG kompleks",
-	essay: "Esai",
-};
 
 function QuestionsListPage() {
 	const {

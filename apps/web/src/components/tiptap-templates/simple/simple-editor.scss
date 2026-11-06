@@ -59,6 +59,7 @@ body,
 
 .simple-editor-wrapper {
 	width: 100%;
+	min-width: 0;
 	height: 100%;
 	overflow: hidden;
 	border: 1px solid var(--tt-border-color);
@@ -171,5 +172,16 @@ body,
 				}
 			}
 		}
+	}
+}
+
+/* The toolbar is one row: a wrapped second row leaves a lone icon stranded. */
+.simple-editor-wrapper .tiptap-toolbar[data-variant="fixed"] {
+	flex-wrap: nowrap;
+	overflow-x: auto;
+	scrollbar-width: none;
+
+	&::-webkit-scrollbar {
+		height: 0;
 	}
 }
