@@ -1,11 +1,12 @@
+import { FloppyDiskIcon, XIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { type } from "arktype";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
+import { AdminFieldRow } from "@/components/admin/admin-page";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
@@ -150,37 +151,37 @@ export function ProductForm({ initialData, onSuccess, onCancel }: ProductFormPro
 				e.preventDefault();
 				form.handleSubmit();
 			}}
-			className="flex flex-col gap-6"
+			className="flex flex-col gap-5"
 		>
 			<form.Subscribe selector={(state) => [state.values.type, state.values.variant] as const}>
 				{([productType, variant]) => <VariantEffect productType={productType} variant={variant} />}
 			</form.Subscribe>
 
-			<div className="grid gap-6">
+			<div className="flex flex-col gap-5">
 				<form.Field name="name">
 					{(field) => (
-						<div className="grid gap-2">
-							<Label htmlFor={field.name}>Nama Product *</Label>
-							<Input
-								id={field.name}
-								value={field.state.value}
-								onBlur={field.handleBlur}
-								onChange={(e) => field.handleChange(e.target.value)}
-								placeholder="Contoh: Premium Package"
-							/>
-							{field.state.meta.errors.map((error) => (
-								<Typography key={error?.message} variant="caption" tone="destructive">
-									{error?.message}
-								</Typography>
-							))}
-						</div>
+						<AdminFieldRow label="Nama Product" htmlFor={field.name}>
+							<div className="flex flex-col gap-1.5">
+								<Input
+									id={field.name}
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(e) => field.handleChange(e.target.value)}
+									placeholder="Contoh: Premium Package"
+								/>
+								{field.state.meta.errors.map((error) => (
+									<Typography key={error?.message} variant="caption" tone="destructive">
+										{error?.message}
+									</Typography>
+								))}
+							</div>
+						</AdminFieldRow>
 					)}
 				</form.Field>
 
 				<form.Field name="slug">
 					{(field) => (
-						<div className="grid gap-2">
-							<Label htmlFor={field.name}>Slug (opsional, auto-generate dari nama)</Label>
+						<AdminFieldRow label="Slug" hint="Kosongkan untuk dibuat otomatis dari nama." htmlFor={field.name} optional>
 							<Input
 								id={field.name}
 								value={field.state.value}
@@ -188,14 +189,13 @@ export function ProductForm({ initialData, onSuccess, onCancel }: ProductFormPro
 								onChange={(e) => field.handleChange(e.target.value)}
 								placeholder="Contoh: premium-package"
 							/>
-						</div>
+						</AdminFieldRow>
 					)}
 				</form.Field>
 
 				<form.Field name="description">
 					{(field) => (
-						<div className="grid gap-2">
-							<Label htmlFor={field.name}>Deskripsi</Label>
+						<AdminFieldRow label="Deskripsi" htmlFor={field.name}>
 							<Textarea
 								id={field.name}
 								value={field.state.value}
@@ -204,38 +204,38 @@ export function ProductForm({ initialData, onSuccess, onCancel }: ProductFormPro
 								placeholder="Deskripsi product..."
 								rows={4}
 							/>
-						</div>
+						</AdminFieldRow>
 					)}
 				</form.Field>
 
 				<form.Field name="price">
 					{(field) => (
-						<div className="grid gap-2">
-							<Label htmlFor={field.name}>Harga (IDR) *</Label>
-							<Input
-								id={field.name}
-								type="number"
-								value={field.state.value}
-								onBlur={field.handleBlur}
-								onChange={(e) => field.handleChange(e.target.value)}
-								placeholder="Contoh: 100000"
-							/>
-							{field.state.meta.errors.map((error) => (
-								<Typography key={error?.message} variant="caption" tone="destructive">
-									{error?.message}
-								</Typography>
-							))}
-						</div>
+						<AdminFieldRow label="Harga (IDR)" htmlFor={field.name}>
+							<div className="flex flex-col gap-1.5">
+								<Input
+									id={field.name}
+									type="number"
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(e) => field.handleChange(e.target.value)}
+									placeholder="Contoh: 100000"
+								/>
+								{field.state.meta.errors.map((error) => (
+									<Typography key={error?.message} variant="caption" tone="destructive">
+										{error?.message}
+									</Typography>
+								))}
+							</div>
+						</AdminFieldRow>
 					)}
 				</form.Field>
 
 				<Separator />
 
-				<div className="grid gap-4 md:grid-cols-2">
+				<div className="flex flex-col gap-5">
 					<form.Field name="type">
 						{(field) => (
-							<div className="grid w-full gap-2">
-								<Label>Tipe</Label>
+							<AdminFieldRow label="Tipe" htmlFor="product-type">
 								<Select
 									value={field.state.value}
 									onValueChange={(v) => {
@@ -260,7 +260,7 @@ export function ProductForm({ initialData, onSuccess, onCancel }: ProductFormPro
 										<SelectItem value="product">Produk</SelectItem>
 									</SelectContent>
 								</Select>
-							</div>
+							</AdminFieldRow>
 						)}
 					</form.Field>
 
@@ -272,8 +272,7 @@ export function ProductForm({ initialData, onSuccess, onCancel }: ProductFormPro
 									const isLockedToCredits = !isSubscription;
 
 									return (
-										<div className="grid w-full gap-2">
-											<Label>Varian</Label>
+										<AdminFieldRow label="Varian" htmlFor="product-variant">
 											<Select
 												disabled={isLockedToCredits}
 												value={field.state.value}
@@ -295,7 +294,7 @@ export function ProductForm({ initialData, onSuccess, onCancel }: ProductFormPro
 													)}
 												</SelectContent>
 											</Select>
-										</div>
+										</AdminFieldRow>
 									);
 								}}
 							</form.Field>
@@ -309,26 +308,25 @@ export function ProductForm({ initialData, onSuccess, onCancel }: ProductFormPro
 							{productType !== "subscription" && (
 								<form.Field name="credits">
 									{(field) => (
-										<div className="grid gap-2">
-											<Label>Jumlah Credits</Label>
+										<AdminFieldRow label="Jumlah Credits" htmlFor="product-credits">
 											<Input
+												id="product-credits"
 												type="number"
 												min={1}
 												value={field.state.value}
 												onBlur={field.handleBlur}
 												onChange={(e) => field.handleChange(e.target.valueAsNumber)}
 											/>
-										</div>
+										</AdminFieldRow>
 									)}
 								</form.Field>
 							)}
 
 							{variant === "fixed_date" && (
-								<div className="grid gap-4 md:grid-cols-2">
+								<>
 									<form.Field name="fixedExpiryMonth">
 										{(field) => (
-											<div className="grid w-full gap-2">
-												<Label>Bulan Expired</Label>
+											<AdminFieldRow label="Bulan Expired" htmlFor="product-expiry-month">
 												<Select
 													value={field.state.value.toString()}
 													onValueChange={(v) => field.handleChange(Number.parseInt(v, 10))}
@@ -344,15 +342,15 @@ export function ProductForm({ initialData, onSuccess, onCancel }: ProductFormPro
 														))}
 													</SelectContent>
 												</Select>
-											</div>
+											</AdminFieldRow>
 										)}
 									</form.Field>
 
 									<form.Field name="fixedExpiryDay">
 										{(field) => (
-											<div className="grid gap-2">
-												<Label>Tanggal Expired</Label>
+											<AdminFieldRow label="Tanggal Expired" htmlFor="product-expiry-day">
 												<Input
+													id="product-expiry-day"
 													type="number"
 													min={1}
 													max={31}
@@ -360,25 +358,25 @@ export function ProductForm({ initialData, onSuccess, onCancel }: ProductFormPro
 													onBlur={field.handleBlur}
 													onChange={(e) => field.handleChange(e.target.valueAsNumber)}
 												/>
-											</div>
+											</AdminFieldRow>
 										)}
 									</form.Field>
-								</div>
+								</>
 							)}
 
 							{variant === "monthly" && (
 								<form.Field name="durationDays">
 									{(field) => (
-										<div className="grid gap-2">
-											<Label>Durasi (hari)</Label>
+										<AdminFieldRow label="Durasi (hari)" htmlFor="product-duration-days">
 											<Input
+												id="product-duration-days"
 												type="number"
 												min={1}
 												value={field.state.value}
 												onBlur={field.handleBlur}
 												onChange={(e) => field.handleChange(e.target.valueAsNumber)}
 											/>
-										</div>
+										</AdminFieldRow>
 									)}
 								</form.Field>
 							)}
@@ -391,20 +389,22 @@ export function ProductForm({ initialData, onSuccess, onCancel }: ProductFormPro
 
 			<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
 				{([canSubmit, isSubmitting]) => (
-					<div className="flex items-center gap-2">
-						<Button
-							isPending={isSubmitting || isPending}
-							type="submit"
-							disabled={!canSubmit || isSubmitting || isPending}
-							size="lg"
-						>
-							{initialData ? "Simpan Perubahan" : "Buat Produk"}
-						</Button>
+					<div className="flex items-center justify-end gap-1">
 						{onCancel && (
-							<Button type="button" variant="outline" onClick={onCancel} size="lg">
+							<Button type="button" variant="ghost" size="xs" onClick={onCancel}>
+								<XIcon className="size-3.5" />
 								Batal
 							</Button>
 						)}
+						<Button
+							size="xs"
+							isPending={isSubmitting || isPending}
+							type="submit"
+							disabled={!canSubmit || isSubmitting || isPending}
+						>
+							<FloppyDiskIcon className="size-3.5" />
+							{initialData ? "Simpan Perubahan" : "Buat Produk"}
+						</Button>
 					</div>
 				)}
 			</form.Subscribe>

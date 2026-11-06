@@ -1,5 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import {
+	AdminFormShell,
 	AdminPageContent,
 	AdminPageHeader,
 	AdminPageHeaderContent,
@@ -21,14 +22,14 @@ export function CreateProductPage() {
 			</AdminPageHeader>
 
 			<AdminPageContent className="max-w-none">
-				<div className="flex flex-col gap-6">
+				<AdminFormShell>
 					<ProductFormHelpAccordion />
 					<ProductForm
 						onSuccess={(productId) => {
 							navigate({ to: "/admin/products/$productId", params: { productId } });
 						}}
 					/>
-				</div>
+				</AdminFormShell>
 			</AdminPageContent>
 		</AdminPageRoot>
 	);

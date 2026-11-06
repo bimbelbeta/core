@@ -1,8 +1,8 @@
-import { CopyIcon, KeyIcon } from "@phosphor-icons/react";
+import { CopyIcon, KeyIcon, PlusIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { AdminSection } from "@/components/admin/admin-page";
+import { AdminFieldRow, AdminFormShell, AdminSection } from "@/components/admin/admin-page";
 import {
 	AdminTable,
 	AdminTableBody,
@@ -15,7 +15,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Typography } from "@/components/ui/typography";
 import { formatDateTime } from "@/lib/format-date";
@@ -85,27 +84,24 @@ export function AccessCodeSection({ tryoutId }: { tryoutId: number }) {
 	return (
 		<div className="space-y-8">
 			<AdminSection title="Buat kode akses" description="Kode akses membuka tryout tanpa bukti pembayaran.">
-				<div className="grid gap-4 sm:grid-cols-2">
-					<div className="space-y-1.5">
-						<Label htmlFor="access-code-label">Label</Label>
+				<AdminFormShell>
+					<AdminFieldRow label="Label" htmlFor="access-code-label">
 						<Input
 							id="access-code-label"
 							value={label}
 							onChange={(e) => setLabel(e.target.value)}
 							placeholder="Contoh: Gelombang 1"
 						/>
-					</div>
-					<div className="space-y-1.5">
-						<Label htmlFor="access-code-value">Kode</Label>
+					</AdminFieldRow>
+					<AdminFieldRow label="Kode" htmlFor="access-code-value" hint="Kosongkan untuk generate otomatis.">
 						<Input
 							id="access-code-value"
 							value={code}
 							onChange={(e) => setCode(e.target.value.toUpperCase())}
 							placeholder="Kosongkan untuk generate otomatis"
 						/>
-					</div>
-					<div className="space-y-1.5">
-						<Label htmlFor="access-code-max-uses">Maksimal penggunaan</Label>
+					</AdminFieldRow>
+					<AdminFieldRow label="Maksimal penggunaan" htmlFor="access-code-max-uses" optional>
 						<Input
 							id="access-code-max-uses"
 							type="number"
@@ -114,27 +110,27 @@ export function AccessCodeSection({ tryoutId }: { tryoutId: number }) {
 							onChange={(e) => setMaxUses(e.target.value)}
 							placeholder="Tanpa batas"
 						/>
-					</div>
-					<div className="space-y-1.5">
-						<Label htmlFor="access-code-expires-at">Kadaluarsa</Label>
+					</AdminFieldRow>
+					<AdminFieldRow label="Kadaluarsa" htmlFor="access-code-expires-at" optional>
 						<Input
 							id="access-code-expires-at"
 							type="datetime-local"
 							value={expiresAt}
 							onChange={(e) => setExpiresAt(e.target.value)}
 						/>
+					</AdminFieldRow>
+					<div className="flex items-center justify-end gap-1">
+						<Button
+							size="xs"
+							isPending={createAccessCodeMutation.isPending}
+							onClick={handleCreate}
+							disabled={createAccessCodeMutation.isPending}
+						>
+							<PlusIcon className="size-3.5" />
+							Buat kode akses
+						</Button>
 					</div>
-				</div>
-
-				<div className="flex justify-end">
-					<Button
-						isPending={createAccessCodeMutation.isPending}
-						onClick={handleCreate}
-						disabled={createAccessCodeMutation.isPending}
-					>
-						Buat kode akses
-					</Button>
-				</div>
+				</AdminFormShell>
 			</AdminSection>
 
 			<AdminSection title="Daftar kode" description="Kode yang sudah dibuat untuk tryout ini.">

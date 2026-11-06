@@ -48,22 +48,18 @@ AdminPageHeaderActions.displayName = "AdminPageHeaderActions";
 interface AdminSectionProps extends Omit<React.HTMLAttributes<HTMLElement>, "title"> {
 	title: React.ReactNode;
 	description?: React.ReactNode;
-	action?: React.ReactNode;
 }
 
 const AdminSection = React.forwardRef<HTMLElement, AdminSectionProps>(
-	({ className, title, description, action, children, ...props }, ref) => (
+	({ className, title, description, children, ...props }, ref) => (
 		<section ref={ref} className={cn("flex flex-col gap-4", className)} {...props}>
-			<div className="flex flex-wrap items-start justify-between gap-3">
-				<div className="flex min-w-0 flex-col gap-1">
-					<Typography variant="subtitle2">{title}</Typography>
-					{description && (
-						<Typography variant="body" tone="muted">
-							{description}
-						</Typography>
-					)}
-				</div>
-				{action}
+			<div className="flex min-w-0 flex-col gap-1">
+				<Typography variant="subtitle2">{title}</Typography>
+				{description && (
+					<Typography variant="body" tone="muted">
+						{description}
+					</Typography>
+				)}
 			</div>
 			{children}
 		</section>
@@ -82,7 +78,12 @@ interface AdminFieldRowProps {
 
 function AdminFieldRow({ label, hint, htmlFor, optional, children, className }: AdminFieldRowProps) {
 	return (
-		<div className={cn("grid gap-2 md:grid-cols-[minmax(0,16rem)_minmax(0,32rem)] md:items-start md:gap-8", className)}>
+		<div
+			className={cn(
+				"grid min-w-0 gap-2 md:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] md:items-start md:gap-8",
+				className,
+			)}
+		>
 			<div className="min-w-0">
 				<Label htmlFor={htmlFor}>
 					{label}
@@ -99,8 +100,16 @@ function AdminFieldRow({ label, hint, htmlFor, optional, children, className }: 
 	);
 }
 
+const AdminFormShell = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+	({ className, ...props }, ref) => (
+		<div ref={ref} className={cn("flex w-full max-w-[880px] flex-col gap-5", className)} {...props} />
+	),
+);
+AdminFormShell.displayName = "AdminFormShell";
+
 export {
 	AdminFieldRow,
+	AdminFormShell,
 	AdminPageContent,
 	AdminPageHeader,
 	AdminPageHeaderActions,

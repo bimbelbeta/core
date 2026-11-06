@@ -78,12 +78,6 @@ export function TryoutSubtestsTab({ tryoutId, subtests, onUpdate }: TryoutSubtes
 						? "Belum ada subtest. Tambahkan subtest untuk mulai membuat soal."
 						: `Kelola ${subtests.length} subtest dalam tryout ini.`
 				}
-				action={
-					<Button size="sm" className="h-9" onClick={() => setIsAddDialogOpen(true)}>
-						<PlusIcon className="size-4" />
-						Tambah subtest
-					</Button>
-				}
 			>
 				{subtests.length > 0 && (
 					<div className="text-muted-foreground flex items-center gap-1.5 text-xs">
@@ -102,8 +96,8 @@ export function TryoutSubtestsTab({ tryoutId, subtests, onUpdate }: TryoutSubtes
 							Tryout ini belum memiliki subtest. Tambahkan subtest untuk mulai membuat soal dan mengatur durasi
 							pengerjaan.
 						</Typography>
-						<Button onClick={() => setIsAddDialogOpen(true)}>
-							<PlusIcon className="mr-2 size-4" />
+						<Button size="xs" onClick={() => setIsAddDialogOpen(true)}>
+							<PlusIcon className="size-3.5" />
 							Buat Subtest Pertama
 						</Button>
 					</div>
@@ -189,6 +183,15 @@ export function TryoutSubtestsTab({ tryoutId, subtests, onUpdate }: TryoutSubtes
 							</AdminTableBody>
 						</AdminTable>
 					</AdminTableRoot>
+				)}
+
+				{subtests.length > 0 && (
+					<div className="flex items-center justify-end gap-1">
+						<Button size="xs" onClick={() => setIsAddDialogOpen(true)}>
+							<PlusIcon className="size-3.5" />
+							Tambah subtest
+						</Button>
+					</div>
 				)}
 			</AdminSection>
 

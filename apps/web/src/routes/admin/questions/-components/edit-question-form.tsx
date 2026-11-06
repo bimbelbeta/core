@@ -1,10 +1,11 @@
-import { ArrowLeftIcon } from "@phosphor-icons/react";
+import { ArrowLeftIcon, FloppyDiskIcon, XIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type } from "arktype";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
+	AdminFormShell,
 	AdminPageContent,
 	AdminPageHeader,
 	AdminPageHeaderActions,
@@ -102,18 +103,21 @@ export function EditQuestionForm({ question, initialChoices, onSuccess, onCancel
 					</div>
 				</AdminPageHeaderContent>
 				<AdminPageHeaderActions>
-					<Button type="button" variant="outline" onClick={onCancel}>
+					<Button type="button" variant="ghost" size="sm" onClick={onCancel}>
+						<XIcon className="size-3.5" />
 						Batal
 					</Button>
 					<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
 						{([canSubmit, isSubmitting]) => (
 							<Button
 								isPending={isSubmitting}
-								type="submit"
+								size="sm"
+								type="button"
 								disabled={!canSubmit || isSubmitting}
 								onClick={() => form.handleSubmit()}
 							>
-								{"Simpan Perubahan"}
+								<FloppyDiskIcon className="size-3.5" />
+								Simpan Perubahan
 							</Button>
 						)}
 					</form.Subscribe>
@@ -121,81 +125,83 @@ export function EditQuestionForm({ question, initialChoices, onSuccess, onCancel
 			</AdminPageHeader>
 
 			<AdminPageContent>
-				<Card>
-					<CardHeader>
-						<CardTitle>Edit Konten Soal</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<form
-							onSubmit={(e) => {
-								e.preventDefault();
-								form.handleSubmit();
-							}}
-							className="grid gap-6"
-						>
-							<form.Field name="content">
-								{(field) => (
-									<div className="grid gap-2">
-										<Label>Konten Soal *</Label>
-										<TiptapSimpleEditor
-											label="Konten Soal"
-											content={field.state.value ?? undefined}
-											onChange={(content) => field.handleChange(content)}
-										/>
-									</div>
-								)}
-							</form.Field>
-
-							{question.type === "multiple_choice" ? (
-								<MultipleChoiceQuestionForm choices={choices} onChoicesChange={setChoices} />
-							) : question.type === "multiple_choice_complex" ? (
-								<MultipleChoiceComplexQuestionForm choices={choices} onChoicesChange={setChoices} />
-							) : (
-								<form.Field name="essayCorrectAnswer">
+				<AdminFormShell className="max-w-[720px]">
+					<Card>
+						<CardHeader>
+							<CardTitle>Edit Konten Soal</CardTitle>
+						</CardHeader>
+						<CardContent>
+							<form
+								onSubmit={(e) => {
+									e.preventDefault();
+									form.handleSubmit();
+								}}
+								className="grid gap-5"
+							>
+								<form.Field name="content">
 									{(field) => (
-										<div className="grid gap-2">
-											<Label htmlFor={field.name}>Kunci Jawaban *</Label>
-											<Input
-												id={field.name}
-												value={field.state.value}
-												onChange={(e) => field.handleChange(e.target.value)}
-												placeholder="Masukkan kunci jawaban..."
-												required
+										<div className="grid gap-3">
+											<Label>Konten Soal *</Label>
+											<TiptapSimpleEditor
+												label="Konten Soal"
+												content={field.state.value ?? undefined}
+												onChange={(content) => field.handleChange(content)}
 											/>
 										</div>
 									)}
 								</form.Field>
-							)}
 
-							<form.Field name="discussion">
-								{(field) => (
-									<div className="grid gap-2">
-										<Label>Pembahasan</Label>
-										<TiptapSimpleEditor
-											label="Pembahasan"
-											content={field.state.value ?? undefined}
-											onChange={(content) => field.handleChange(content)}
-										/>
-									</div>
+								{question.type === "multiple_choice" ? (
+									<MultipleChoiceQuestionForm choices={choices} onChoicesChange={setChoices} />
+								) : question.type === "multiple_choice_complex" ? (
+									<MultipleChoiceComplexQuestionForm choices={choices} onChoicesChange={setChoices} />
+								) : (
+									<form.Field name="essayCorrectAnswer">
+										{(field) => (
+											<div className="grid gap-3">
+												<Label htmlFor={field.name}>Kunci Jawaban *</Label>
+												<Input
+													id={field.name}
+													value={field.state.value}
+													onChange={(e) => field.handleChange(e.target.value)}
+													placeholder="Masukkan kunci jawaban..."
+													required
+												/>
+											</div>
+										)}
+									</form.Field>
 								)}
-							</form.Field>
 
-							<form.Field name="tags">
-								{(field) => (
-									<div className="grid gap-2">
-										<Label>Tags</Label>
-										<TagInput
-											value={field.state.value}
-											onChange={(tags) => field.handleChange(tags)}
-											placeholder="Tambah tag..."
-											maxLength={10}
-										/>
-									</div>
-								)}
-							</form.Field>
-						</form>
-					</CardContent>
-				</Card>
+								<form.Field name="discussion">
+									{(field) => (
+										<div className="grid gap-3">
+											<Label>Pembahasan</Label>
+											<TiptapSimpleEditor
+												label="Pembahasan"
+												content={field.state.value ?? undefined}
+												onChange={(content) => field.handleChange(content)}
+											/>
+										</div>
+									)}
+								</form.Field>
+
+								<form.Field name="tags">
+									{(field) => (
+										<div className="grid gap-3">
+											<Label>Tags</Label>
+											<TagInput
+												value={field.state.value}
+												onChange={(tags) => field.handleChange(tags)}
+												placeholder="Tambah tag..."
+												maxLength={10}
+											/>
+										</div>
+									)}
+								</form.Field>
+							</form>
+						</CardContent>
+					</Card>
+				</AdminFormShell>
 			</AdminPageContent>
 		</AdminPageRoot>
 	);

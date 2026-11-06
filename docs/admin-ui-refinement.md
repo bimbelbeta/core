@@ -110,11 +110,11 @@ If two consecutive pages stall below 9 with contradictory findings, the remainin
 
 Judges: GLM-5.3-Flash, blind, references scored in the same call (Linear 9.0–9.5, GitHub 8.5–9.0).
 
-| Page           | Round 1 | Round 2 | Outcome |
-| -------------- | ------- | ------- | ------- |
-| Bank soal      | 7.5     | 7.5     | stopped |
-| Tryout list    | 7.0     | 6.8     | stopped |
-| Tryout detail  | 6.0     | 7.0     | stopped |
+| Page          | Round 1 | Round 2 | Outcome |
+| ------------- | ------- | ------- | ------- |
+| Bank soal     | 7.5     | 7.5     | stopped |
+| Tryout list   | 7.0     | 6.8     | stopped |
+| Tryout detail | 6.0     | 7.0     | stopped |
 
 Round 1 applied: checkbox gutter 48→32px, Terbit badge on the soft green, footer keeps the total on single-page datasets, tryout meta wraps without a dangling separator.
 
@@ -132,3 +132,9 @@ Tryout detail round 2 findings and why they were not applied:
 - _Soal and Durasi are left-aligned despite `text-right`._ Measured computed `text-align`: `right` on both the `th` and the `td` of every row. Rejected.
 - _The Percobaan empty state offers no next step._ Applied without new navigation: the description now points at the Kode akses tab.
 - _Kadaluarsa shows `mm/dd/yyyy` in an Indonesian console._ Real, but the fix is the existing `Calendar` + `Popover` in place of a native `datetime-local`, which belongs to the forms pass below.
+
+## Item 9 — create and edit forms
+
+Field rows are label-left, control-right, one field per row (`AdminFieldRow`: `md:grid-cols-[minmax(0,1fr)_minmax(0,22rem)]`). Forms sit in `AdminFormShell` (880px, question forms 720px) so every tab of a detail page lines up on the same control column.
+
+Form actions are `xs` buttons at the bottom-right of the form, never a sticky bar and never in the section header: the sticky bar is clipped by the page padding, and a header button reads as a page action rather than a form action. Save and update carry `FloppyDiskIcon`, reset and cancel `ArrowCounterClockwiseIcon`/`XIcon`.

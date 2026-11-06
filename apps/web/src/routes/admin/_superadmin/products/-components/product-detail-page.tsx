@@ -2,6 +2,7 @@ import { ArrowLeftIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate, useParams } from "@tanstack/react-router";
 import {
+	AdminFormShell,
 	AdminPageContent,
 	AdminPageHeader,
 	AdminPageHeaderActions,
@@ -71,7 +72,7 @@ export function ProductDetailPage() {
 			</AdminPageHeader>
 
 			<AdminPageContent className="max-w-none">
-				<div className="flex flex-col gap-6">
+				<AdminFormShell>
 					<ProductFormHelpAccordion />
 					<ProductForm
 						initialData={{
@@ -90,7 +91,7 @@ export function ProductDetailPage() {
 						onSuccess={handleBack}
 						onCancel={handleBack}
 					/>
-				</div>
+				</AdminFormShell>
 			</AdminPageContent>
 		</AdminPageRoot>
 	);
