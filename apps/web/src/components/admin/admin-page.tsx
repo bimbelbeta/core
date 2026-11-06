@@ -1,4 +1,6 @@
 import * as React from "react";
+import { Label } from "@/components/ui/label";
+import { Typography } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
 
 const AdminPageRoot = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
@@ -43,4 +45,66 @@ const AdminPageHeaderActions = React.forwardRef<HTMLDivElement, React.HTMLAttrib
 );
 AdminPageHeaderActions.displayName = "AdminPageHeaderActions";
 
-export { AdminPageContent, AdminPageHeader, AdminPageHeaderActions, AdminPageHeaderContent, AdminPageRoot };
+interface AdminSectionProps extends Omit<React.HTMLAttributes<HTMLElement>, "title"> {
+	title: React.ReactNode;
+	description?: React.ReactNode;
+	action?: React.ReactNode;
+}
+
+const AdminSection = React.forwardRef<HTMLElement, AdminSectionProps>(
+	({ className, title, description, action, children, ...props }, ref) => (
+		<section ref={ref} className={cn("flex flex-col gap-4", className)} {...props}>
+			<div className="flex flex-wrap items-start justify-between gap-3">
+				<div className="flex min-w-0 flex-col gap-1">
+					<Typography variant="subtitle2">{title}</Typography>
+					{description && (
+						<Typography variant="body" tone="muted">
+							{description}
+						</Typography>
+					)}
+				</div>
+				{action}
+			</div>
+			{children}
+		</section>
+	),
+);
+AdminSection.displayName = "AdminSection";
+
+interface AdminFieldRowProps {
+	label: string;
+	hint?: React.ReactNode;
+	htmlFor?: string;
+	optional?: boolean;
+	children: React.ReactNode;
+	className?: string;
+}
+
+function AdminFieldRow({ label, hint, htmlFor, optional, children, className }: AdminFieldRowProps) {
+	return (
+		<div className={cn("grid gap-2 md:grid-cols-[minmax(0,16rem)_minmax(0,32rem)] md:items-start md:gap-8", className)}>
+			<div className="min-w-0">
+				<Label htmlFor={htmlFor}>
+					{label}
+					{optional && <span className="text-muted-foreground font-normal">(Opsional)</span>}
+				</Label>
+				{hint && (
+					<Typography variant="caption" className="mt-1 leading-relaxed">
+						{hint}
+					</Typography>
+				)}
+			</div>
+			<div className="min-w-0">{children}</div>
+		</div>
+	);
+}
+
+export {
+	AdminFieldRow,
+	AdminPageContent,
+	AdminPageHeader,
+	AdminPageHeaderActions,
+	AdminPageHeaderContent,
+	AdminPageRoot,
+	AdminSection,
+};

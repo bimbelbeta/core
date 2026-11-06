@@ -4,12 +4,10 @@ import { useMutation } from "@tanstack/react-query";
 import { type } from "arktype";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
+import { AdminFieldRow, AdminSection } from "@/components/admin/admin-page";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -125,143 +123,133 @@ export function TryoutSettingsTab({ tryout, onUpdate, onFormStateChange }: Tryou
 			>
 				{(state) => <FormStateNotifier state={state} onFormStateChange={onFormStateChange} />}
 			</form.Subscribe>
-			<Card>
-				<CardHeader className="pb-3">
-					<CardTitle className="text-base">Pengaturan Tryout</CardTitle>
-					<CardDescription>Kelola informasi dasar, klasifikasi, dan jadwal tryout</CardDescription>
-				</CardHeader>
-				<CardContent className="space-y-8">
+			<AdminSection title="Pengaturan tryout" description="Kelola informasi dasar, klasifikasi, dan jadwal tryout">
+				<div className="space-y-5">
 					<form.Field name="title">
 						{(field) => (
-							<div className="space-y-2">
-								<Label htmlFor={field.name}>Judul</Label>
-								<Input
-									id={field.name}
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-									placeholder="Masukkan judul tryout"
-								/>
-								{field.state.meta.errors.map((error) => (
-									<Typography variant="caption" tone="destructive" key={error?.message}>
-										{error?.message}
-									</Typography>
-								))}
-							</div>
+							<AdminFieldRow label="Judul" htmlFor={field.name}>
+								<div className="space-y-1.5">
+									<Input
+										id={field.name}
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										placeholder="Masukkan judul tryout"
+									/>
+									{field.state.meta.errors.map((error) => (
+										<Typography variant="caption" tone="destructive" key={error?.message}>
+											{error?.message}
+										</Typography>
+									))}
+								</div>
+							</AdminFieldRow>
 						)}
 					</form.Field>
 
 					<form.Field name="description">
 						{(field) => (
-							<div className="space-y-2">
-								<Label htmlFor={field.name}>
-									Deskripsi <span className="text-muted-foreground font-normal">(Opsional)</span>
-								</Label>
-								<Textarea
-									id={field.name}
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-									placeholder="Deskripsikan tryout ini"
-									rows={4}
-								/>
-								{field.state.meta.errors.map((error) => (
-									<Typography variant="caption" tone="destructive" key={error?.message}>
-										{error?.message}
-									</Typography>
-								))}
-							</div>
+							<AdminFieldRow label="Deskripsi" htmlFor={field.name} optional>
+								<div className="space-y-1.5">
+									<Textarea
+										id={field.name}
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										placeholder="Deskripsikan tryout ini"
+										rows={3}
+									/>
+									{field.state.meta.errors.map((error) => (
+										<Typography variant="caption" tone="destructive" key={error?.message}>
+											{error?.message}
+										</Typography>
+									))}
+								</div>
+							</AdminFieldRow>
 						)}
 					</form.Field>
 
-					<div className="border-border border-t" />
-
 					<form.Field name="category">
 						{(field) => (
-							<div className="space-y-2">
-								<Label htmlFor={field.name}>Kategori</Label>
-								<Select
-									value={field.state.value}
-									onValueChange={(val) => field.handleChange(subjectCategorySchema.assert(val))}
-								>
-									<SelectTrigger id={field.name} className="w-full max-w-xs">
-										<SelectValue placeholder="Pilih kategori" />
-									</SelectTrigger>
-									<SelectContent>
-										{Object.entries(SUBJECT_CATEGORY_LABELS).map(([value, label]) => (
-											<SelectItem key={value} value={value}>
-												{label}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-								<Typography variant="caption" tone="muted">
-									Menentukan target jenjang pendidikan
-								</Typography>
-								{field.state.meta.errors.map((error) => (
-									<Typography variant="caption" tone="destructive" key={error?.message}>
-										{error?.message}
-									</Typography>
-								))}
-							</div>
+							<AdminFieldRow label="Kategori" htmlFor={field.name} hint="Menentukan target jenjang pendidikan">
+								<div className="space-y-1.5">
+									<Select
+										value={field.state.value}
+										onValueChange={(val) => field.handleChange(subjectCategorySchema.assert(val))}
+									>
+										<SelectTrigger id={field.name} className="w-full sm:max-w-xs">
+											<SelectValue placeholder="Pilih kategori" />
+										</SelectTrigger>
+										<SelectContent>
+											{Object.entries(SUBJECT_CATEGORY_LABELS).map(([value, label]) => (
+												<SelectItem key={value} value={value}>
+													{label}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+									{field.state.meta.errors.map((error) => (
+										<Typography variant="caption" tone="destructive" key={error?.message}>
+											{error?.message}
+										</Typography>
+									))}
+								</div>
+							</AdminFieldRow>
 						)}
 					</form.Field>
 
 					<form.Field name="status">
 						{(field) => (
-							<div className="space-y-2">
-								<Label htmlFor={field.name}>Status</Label>
-								<Select
-									value={field.state.value}
-									onValueChange={(val) => field.handleChange(tryoutStatusSchema.assert(val))}
-								>
-									<SelectTrigger id={field.name} className="w-full max-w-xs gap-2">
-										<SelectValue placeholder="Pilih status" />
-									</SelectTrigger>
-									<SelectContent>
-										{Object.entries(TRYOUT_STATUS_BADGE).map(([value, status]) => (
-											<SelectItem key={value} value={value}>
-												<div className="flex items-center gap-2">
-													<div className={`size-2 rounded-full ${status.dotClassName}`} />
-													{status.label}
-												</div>
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-								<div className="flex items-center gap-2">
-									<Badge variant={TRYOUT_STATUS_BADGE[field.state.value].variant}>
-										{TRYOUT_STATUS_BADGE[field.state.value].label}
-									</Badge>
-									<span className="text-muted-foreground text-xs">
-										{field.state.value === "published"
-											? "Tryout terlihat oleh pengguna"
-											: field.state.value === "archived"
-												? "Tryout disembunyikan sementara"
-												: "Tryout masih dalam pengembangan"}
-									</span>
+							<AdminFieldRow
+								label="Status"
+								htmlFor={field.name}
+								hint={
+									field.state.value === "published"
+										? "Tryout terlihat oleh pengguna"
+										: field.state.value === "archived"
+											? "Tryout disembunyikan sementara"
+											: "Tryout masih dalam pengembangan"
+								}
+							>
+								<div className="space-y-1.5">
+									<Select
+										value={field.state.value}
+										onValueChange={(val) => field.handleChange(tryoutStatusSchema.assert(val))}
+									>
+										<SelectTrigger id={field.name} className="w-full gap-2 sm:max-w-xs">
+											<SelectValue placeholder="Pilih status" />
+										</SelectTrigger>
+										<SelectContent>
+											{Object.entries(TRYOUT_STATUS_BADGE).map(([value, status]) => (
+												<SelectItem key={value} value={value}>
+													<div className="flex items-center gap-2">
+														<div className={`size-2 rounded-full ${status.dotClassName}`} />
+														{status.label}
+													</div>
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+									{field.state.meta.errors.map((error) => (
+										<Typography variant="caption" tone="destructive" key={error?.message}>
+											{error?.message}
+										</Typography>
+									))}
 								</div>
-								{field.state.meta.errors.map((error) => (
-									<Typography variant="caption" tone="destructive" key={error?.message}>
-										{error?.message}
-									</Typography>
-								))}
-							</div>
+							</AdminFieldRow>
 						)}
 					</form.Field>
 
-					<div className="border-border border-t" />
-
-					<div className="space-y-2">
-						<Label>
-							Periode Tryout <span className="text-muted-foreground font-normal">(Opsional)</span>
-						</Label>
+					<AdminFieldRow
+						label="Periode tryout"
+						optional
+						hint="Kosongkan untuk membuat tryout tersedia segera atau tanpa batas waktu"
+					>
 						<Popover>
 							<PopoverTrigger asChild>
 								<Button
 									variant="input"
 									data-empty={!dateRange.from}
-									className="data-[empty=true]:text-muted-foreground w-full max-w-sm"
+									className="data-[empty=true]:text-muted-foreground w-full sm:max-w-xs"
 								>
 									<CalendarIcon className="mr-2 size-4" />
 									{dateRange.from ? (
@@ -294,27 +282,18 @@ export function TryoutSettingsTab({ tryout, onUpdate, onFormStateChange }: Tryou
 								/>
 							</PopoverContent>
 						</Popover>
-						<Typography variant="caption" tone="muted">
-							Kosongkan untuk membuat tryout tersedia segera/tanpa batas waktu
-						</Typography>
-					</div>
-				</CardContent>
-				<CardFooter className="border-border gap-2 border-t">
-					<Button type="submit" size="sm" className="h-9" disabled={!form.state.isDirty || form.state.isSubmitting}>
+					</AdminFieldRow>
+				</div>
+
+				<div className="flex items-center justify-end gap-2">
+					<Button type="submit" disabled={!form.state.isDirty || form.state.isSubmitting}>
 						Simpan perubahan
 					</Button>
-					<Button
-						type="button"
-						variant="ghost"
-						size="sm"
-						className="h-9"
-						disabled={!form.state.isDirty}
-						onClick={() => form.reset()}
-					>
+					<Button type="button" variant="ghost" disabled={!form.state.isDirty} onClick={() => form.reset()}>
 						Batalkan perubahan
 					</Button>
-				</CardFooter>
-			</Card>
+				</div>
+			</AdminSection>
 		</form>
 	);
 }

@@ -21,7 +21,7 @@ const TryoutListSchema = TryoutSchema.merge({
 
 const TryoutSubtestSchema = createSelectSchema(tryoutSubtest)
 	.pick("tryoutId", "name", "description", "duration", "questionOrder", "order", "scoringMap")
-	.merge({ id: "number" });
+	.merge({ id: "number", questionCount: "number" });
 
 const TryoutAttemptSchema = createSelectSchema(tryoutAttempt)
 	.pick(

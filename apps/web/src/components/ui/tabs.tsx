@@ -11,7 +11,10 @@ function TabsList({ className, ...props }: React.ComponentProps<typeof TabsPrimi
 	return (
 		<TabsPrimitive.List
 			data-slot="tabs-list"
-			className={cn("border-border flex w-full gap-5 border-b", className)}
+			className={cn(
+				"border-border flex w-full [scrollbar-width:none] gap-3 overflow-x-auto border-b sm:gap-5 [&::-webkit-scrollbar]:hidden",
+				className,
+			)}
 			{...props}
 		/>
 	);
@@ -22,7 +25,7 @@ function TabsTrigger({ className, ...props }: React.ComponentProps<typeof TabsPr
 		<TabsPrimitive.Trigger
 			data-slot="tabs-trigger"
 			className={cn(
-				"focus-visible:ring-ring/50 text-muted-foreground hover:text-foreground -mb-px inline-flex items-center justify-center gap-2 rounded-none border-b-2 border-transparent pt-2 pb-2.5 text-sm font-normal whitespace-nowrap transition-colors outline-none focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50",
+				"focus-visible:ring-ring/50 text-muted-foreground hover:text-foreground -mb-px inline-flex items-center justify-center gap-2 rounded-none border-b-2 border-transparent pt-1 pb-1.5 text-sm font-normal whitespace-nowrap transition-colors outline-none focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50",
 				"data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:font-medium",
 				"[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
 				className,

@@ -1,13 +1,21 @@
-import { CopyIcon } from "@phosphor-icons/react";
+import { CopyIcon, KeyIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
+import { AdminSection } from "@/components/admin/admin-page";
+import {
+	AdminTable,
+	AdminTableBody,
+	AdminTableCell,
+	AdminTableHead,
+	AdminTableHeader,
+	AdminTableRoot,
+	AdminTableRow,
+} from "@/components/admin/admin-table";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Typography } from "@/components/ui/typography";
 import { formatDateTime } from "@/lib/format-date";
@@ -75,14 +83,10 @@ export function AccessCodeSection({ tryoutId }: { tryoutId: number }) {
 	};
 
 	return (
-		<Card>
-			<CardHeader className="pb-3">
-				<CardTitle className="text-base">Kode akses</CardTitle>
-				<CardDescription>Kelola kode akses per tryout untuk membuka akses tanpa bukti pembayaran</CardDescription>
-			</CardHeader>
-			<CardContent className="space-y-6">
-				<div className="grid gap-4 md:grid-cols-2">
-					<div className="space-y-2">
+		<div className="space-y-8">
+			<AdminSection title="Buat kode akses" description="Kode akses membuka tryout tanpa bukti pembayaran.">
+				<div className="grid gap-4 sm:grid-cols-2">
+					<div className="space-y-1.5">
 						<Label htmlFor="access-code-label">Label</Label>
 						<Input
 							id="access-code-label"
@@ -91,7 +95,7 @@ export function AccessCodeSection({ tryoutId }: { tryoutId: number }) {
 							placeholder="Contoh: Gelombang 1"
 						/>
 					</div>
-					<div className="space-y-2">
+					<div className="space-y-1.5">
 						<Label htmlFor="access-code-value">Kode</Label>
 						<Input
 							id="access-code-value"
@@ -100,7 +104,7 @@ export function AccessCodeSection({ tryoutId }: { tryoutId: number }) {
 							placeholder="Kosongkan untuk generate otomatis"
 						/>
 					</div>
-					<div className="space-y-2">
+					<div className="space-y-1.5">
 						<Label htmlFor="access-code-max-uses">Maksimal penggunaan</Label>
 						<Input
 							id="access-code-max-uses"
@@ -111,7 +115,7 @@ export function AccessCodeSection({ tryoutId }: { tryoutId: number }) {
 							placeholder="Tanpa batas"
 						/>
 					</div>
-					<div className="space-y-2">
+					<div className="space-y-1.5">
 						<Label htmlFor="access-code-expires-at">Kadaluarsa</Label>
 						<Input
 							id="access-code-expires-at"
@@ -128,90 +132,93 @@ export function AccessCodeSection({ tryoutId }: { tryoutId: number }) {
 						onClick={handleCreate}
 						disabled={createAccessCodeMutation.isPending}
 					>
-						{"Buat kode akses"}
+						Buat kode akses
 					</Button>
 				</div>
+			</AdminSection>
 
-				<Separator />
-
-				<div className="space-y-3">
-					<Typography variant="body" className="font-medium">
-						Daftar kode
+			<AdminSection title="Daftar kode" description="Kode yang sudah dibuat untuk tryout ini.">
+				{accessCodesQuery.isPending ? (
+					<Typography variant="body" tone="muted">
+						Memuat kode akses...
 					</Typography>
-					{accessCodesQuery.isPending ? (
-						<Typography variant="body" tone="muted">
-							Memuat kode akses...
-						</Typography>
-					) : accessCodesQuery.data && accessCodesQuery.data.length > 0 ? (
-						<div className="space-y-2">
-							{accessCodesQuery.data.map((accessCodeItem) => (
-								<div
-									key={accessCodeItem.id}
-									className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3"
-								>
-									<div className="space-y-1">
-										<div className="flex items-center gap-2">
-											<Typography variant="body" className="font-medium">
-												{accessCodeItem.label || "Tanpa Label"}
-											</Typography>
-											<Badge variant={accessCodeItem.isActive ? "default" : "outline"}>
-												{accessCodeItem.isActive ? "Aktif" : "Nonaktif"}
-											</Badge>
-										</div>
-										<div className="flex items-center gap-1">
-											<Typography variant="caption" tone="default" className="tabular-nums">
-												{accessCodeItem.codePreview}
-											</Typography>
-											<Button
-												type="button"
-												size="icon"
-												variant="ghost"
-												aria-label={`Salin pratinjau kode akses ${accessCodeItem.label ?? accessCodeItem.codePreview}`}
-												onClick={() => {
-													navigator.clipboard.writeText(accessCodeItem.codePreview);
-													toast.success("Kode disalin!");
-												}}
-											>
-												<CopyIcon size={12} />
-											</Button>
-										</div>
-										<Typography variant="caption" tone="muted">
-											Digunakan {accessCodeItem.usedCount}
-											{accessCodeItem.maxUses ? ` / ${accessCodeItem.maxUses}` : " kali"}
-										</Typography>
-										{accessCodeItem.expiresAt ? (
-											<Typography variant="caption" tone="muted">
-												Kadaluarsa {formatDateTime(accessCodeItem.expiresAt)}
-											</Typography>
-										) : null}
-									</div>
-									<div className="flex items-center gap-2">
-										<span className="text-muted-foreground text-xs">
-											{accessCodeItem.isActive ? "Aktif" : "Nonaktif"}
-										</span>
-										<Switch
-											aria-label={`Aktifkan kode akses ${accessCodeItem.label ?? accessCodeItem.codePreview}`}
-											checked={accessCodeItem.isActive}
-											onCheckedChange={(checked) => {
-												toggleAccessCodeMutation.mutate({
-													id: tryoutId,
-													accessCodeId: accessCodeItem.id,
-													isActive: checked,
-												});
-											}}
-											disabled={toggleAccessCodeMutation.isPending}
-										/>
-									</div>
-								</div>
-							))}
-						</div>
-					) : (
-						<Typography variant="body" tone="muted">
-							Belum ada kode akses untuk tryout ini.
-						</Typography>
-					)}
-				</div>
-			</CardContent>
-		</Card>
+				) : accessCodesQuery.data && accessCodesQuery.data.length > 0 ? (
+					<AdminTableRoot>
+						<AdminTable>
+							<AdminTableHeader>
+								<AdminTableHead>Label</AdminTableHead>
+								<AdminTableHead className="w-44">Kode</AdminTableHead>
+								<AdminTableHead className="w-32">Penggunaan</AdminTableHead>
+								<AdminTableHead className="w-44">Kadaluarsa</AdminTableHead>
+								<AdminTableHead className="w-28 text-right">Status</AdminTableHead>
+							</AdminTableHeader>
+							<AdminTableBody columns={5}>
+								{accessCodesQuery.data.map((accessCodeItem) => (
+									<AdminTableRow key={accessCodeItem.id}>
+										<AdminTableCell className="text-row-title">{accessCodeItem.label || "Tanpa label"}</AdminTableCell>
+										<AdminTableCell>
+											<div className="flex items-center gap-1">
+												<span className="text-meta font-mono tabular-nums">{accessCodeItem.codePreview}</span>
+												<Button
+													type="button"
+													size="icon"
+													variant="ghost"
+													className="size-6"
+													aria-label={`Salin pratinjau kode akses ${accessCodeItem.label ?? accessCodeItem.codePreview}`}
+													onClick={() => {
+														navigator.clipboard.writeText(accessCodeItem.codePreview);
+														toast.success("Kode disalin!");
+													}}
+												>
+													<CopyIcon size={12} />
+												</Button>
+											</div>
+										</AdminTableCell>
+										<AdminTableCell className="text-meta tabular-nums">
+											{accessCodeItem.usedCount}
+											{accessCodeItem.maxUses ? ` / ${accessCodeItem.maxUses}` : ""}
+										</AdminTableCell>
+										<AdminTableCell className="text-meta">
+											{accessCodeItem.expiresAt ? formatDateTime(accessCodeItem.expiresAt) : "—"}
+										</AdminTableCell>
+										<AdminTableCell className="text-right">
+											<div className="flex items-center justify-end gap-2">
+												<span className="text-muted-foreground text-xs">
+													{accessCodeItem.isActive ? "Aktif" : "Nonaktif"}
+												</span>
+												<Switch
+													aria-label={`Aktifkan kode akses ${accessCodeItem.label ?? accessCodeItem.codePreview}`}
+													checked={accessCodeItem.isActive}
+													onCheckedChange={(checked) => {
+														toggleAccessCodeMutation.mutate({
+															id: tryoutId,
+															accessCodeId: accessCodeItem.id,
+															isActive: checked,
+														});
+													}}
+													disabled={toggleAccessCodeMutation.isPending}
+												/>
+											</div>
+										</AdminTableCell>
+									</AdminTableRow>
+								))}
+							</AdminTableBody>
+						</AdminTable>
+					</AdminTableRoot>
+				) : (
+					<AdminTableRoot>
+						<Empty className="min-h-40">
+							<EmptyHeader>
+								<EmptyMedia variant="icon">
+									<KeyIcon />
+								</EmptyMedia>
+								<EmptyTitle>Belum ada kode akses</EmptyTitle>
+								<EmptyDescription>Kode akses yang dibuat akan muncul di sini.</EmptyDescription>
+							</EmptyHeader>
+						</Empty>
+					</AdminTableRoot>
+				)}
+			</AdminSection>
+		</div>
 	);
 }

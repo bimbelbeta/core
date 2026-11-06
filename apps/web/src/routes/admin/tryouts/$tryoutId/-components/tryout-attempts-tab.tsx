@@ -2,10 +2,11 @@ import { CalendarDotsIcon, ChartBarIcon, TimerIcon, UserIcon } from "@phosphor-i
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { useState } from "react";
+import { AdminSection } from "@/components/admin/admin-page";
+import { AdminTableRoot } from "@/components/admin/admin-table";
 import { PaginationButtons } from "@/components/admin/pagination-buttons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
@@ -73,17 +74,26 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 		setAfter(undefined);
 	};
 
+	const isEmpty = !isPending && data?.items.length === 0;
+
 	return (
-		<Card>
-			<CardHeader className="pb-3">
-				<div className="flex items-center gap-2">
-					<UserIcon className="text-muted-foreground size-4" />
-					<CardTitle className="text-base">Daftar Attempts</CardTitle>
-				</div>
-				<CardDescription>Riwayat pengerjaan tryout oleh user</CardDescription>
-			</CardHeader>
-			<CardContent>
-				<Card variant="flush">
+		<AdminSection title="Daftar percobaan" description="Riwayat pengerjaan tryout oleh peserta">
+			{isEmpty ? (
+				<AdminTableRoot>
+					<Empty className="min-h-48">
+						<EmptyHeader>
+							<EmptyMedia variant="icon">
+								<UserIcon />
+							</EmptyMedia>
+							<EmptyTitle>Belum ada percobaan</EmptyTitle>
+							<EmptyDescription>
+								Belum ada peserta yang mengerjakan tryout ini. Bagikan kode akses agar peserta bisa mulai.
+							</EmptyDescription>
+						</EmptyHeader>
+					</Empty>
+				</AdminTableRoot>
+			) : (
+				<AdminTableRoot>
 					<Table>
 						<TableHeader>
 							<TableRow className="bg-muted/30">
@@ -102,20 +112,6 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 						<TableBody>
 							{isPending ? (
 								<TableSkeleton columns={tableColumnCount} />
-							) : data?.items.length === 0 ? (
-								<TableRow>
-									<TableCell colSpan={tableColumnCount} className="h-48">
-										<Empty>
-											<EmptyHeader>
-												<EmptyMedia variant="icon">
-													<UserIcon />
-												</EmptyMedia>
-												<EmptyTitle>Belum ada attempt</EmptyTitle>
-												<EmptyDescription>Belum ada user yang mengerjakan tryout ini.</EmptyDescription>
-											</EmptyHeader>
-										</Empty>
-									</TableCell>
-								</TableRow>
 							) : (
 								<TooltipProvider delayDuration={200}>
 									{data?.items.map(({ attempt, user, subtestAttempts }) => {
@@ -220,19 +216,17 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 							)}
 						</TableBody>
 					</Table>
-				</Card>
+				</AdminTableRoot>
+			)}
 
-				{data && (
-					<div className="mt-4">
-						<PaginationButtons
-							onPrevious={handlePrevious}
-							onNext={handleNext}
-							hasPrevious={!!pageInfo?.hasPreviousPage}
-							hasNext={!!pageInfo?.hasNextPage}
-						/>
-					</div>
-				)}
-			</CardContent>
-		</Card>
+			{data && (
+				<PaginationButtons
+					onPrevious={handlePrevious}
+					onNext={handleNext}
+					hasPrevious={!!pageInfo?.hasPreviousPage}
+					hasNext={!!pageInfo?.hasNextPage}
+				/>
+			)}
+		</AdminSection>
 	);
 };

@@ -10,24 +10,23 @@ const buttonVariants = cva(
 	{
 		variants: {
 			variant: {
-				default:
-					"bg-primary hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground text-white shadow-xs disabled:shadow-none",
-				secondary: "border-border text-foreground hover:bg-muted bg-white shadow-xs disabled:opacity-50",
+				default: "bg-primary hover:bg-primary/90 disabled:bg-primary/15 disabled:text-primary/75 text-white",
+				secondary: "border-border text-foreground hover:bg-muted bg-white disabled:opacity-50",
 				tertiary: "text-foreground hover:bg-muted disabled:text-muted-foreground/60 bg-transparent",
 				warning: "bg-yellow-500 hover:bg-yellow-600 disabled:opacity-50",
 				"warning-outline":
-					"text-foreground border-2 border-yellow-300 bg-white shadow-xs hover:bg-yellow-100/60 disabled:opacity-50",
+					"text-foreground border-2 border-yellow-300 bg-white hover:bg-yellow-100/60 disabled:opacity-50",
 				destructive:
-					"bg-destructive hover:bg-destructive/80 disabled:bg-muted disabled:text-muted-foreground text-white shadow-xs disabled:shadow-none",
-				outline: "border-border bg-card text-foreground hover:bg-muted shadow-xs disabled:opacity-50",
+					"bg-destructive hover:bg-destructive/80 disabled:bg-destructive/15 disabled:text-destructive/75 text-white",
+				outline: "border-border bg-card text-foreground hover:bg-muted disabled:opacity-50",
 
 				input:
-					"border-input focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 h-9 w-full min-w-0 justify-start rounded-md border bg-white px-3 py-1 text-left font-normal shadow-xs hover:bg-white focus-visible:ring-[3px] disabled:opacity-50",
+					"border-input focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 h-9 w-full min-w-0 justify-start rounded-md border bg-white px-3 py-1 text-left font-normal hover:bg-white focus-visible:ring-[3px] disabled:opacity-50",
 				ghost: "hover:bg-muted disabled:text-muted-foreground/60 disabled:bg-transparent",
 				link: "text-primary underline-offset-4 hover:underline disabled:opacity-50",
-				white: "text-foreground bg-white shadow-xs hover:bg-white/90 disabled:opacity-50",
+				white: "text-foreground bg-white hover:bg-white/90 disabled:opacity-50",
 				lightBlue:
-					"bg-primary-300 hover:bg-primary-300 disabled:bg-muted disabled:text-muted-foreground text-white shadow-xs",
+					"bg-primary-300 hover:bg-primary-300 disabled:bg-primary-300/25 disabled:text-primary-500 text-white",
 			},
 			size: {
 				default: "h-10 px-4 py-2.5",

@@ -2,8 +2,8 @@ import { ClipboardTextIcon, TrashSimpleIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
+import { AdminSection } from "@/components/admin/admin-page";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { orpc } from "@/lib/orpc";
@@ -119,25 +119,19 @@ export function ScoringMapEditor({
 
 	if (questionCount === 0) {
 		return (
-			<Card>
-				<CardHeader>
-					<CardTitle>Skoring Manual</CardTitle>
-					<CardDescription>Tambahkan soal ke subtest terlebih dahulu sebelum mengatur scoring map.</CardDescription>
-				</CardHeader>
-			</Card>
+			<AdminSection
+				title="Skoring manual"
+				description="Tambahkan soal ke subtest terlebih dahulu sebelum mengatur scoring map."
+			/>
 		);
 	}
 
 	return (
-		<Card>
-			<CardHeader>
-				<CardTitle>Skoring Manual</CardTitle>
-				<CardDescription>
-					Atur skor berdasarkan jumlah jawaban benar. Jika tidak diatur, akan menggunakan rumus linear (benar/total *
-					1000).
-				</CardDescription>
-			</CardHeader>
-			<CardContent className="space-y-4">
+		<AdminSection
+			title="Skoring manual"
+			description="Atur skor berdasarkan jumlah jawaban benar. Jika tidak diatur, akan menggunakan rumus linear (benar/total * 1000)."
+		>
+			<div className="space-y-4">
 				<div className="flex items-center gap-2">
 					<Button type="button" variant="outline" size="sm" onClick={() => setIsPasteDialogOpen(true)}>
 						<ClipboardTextIcon className="mr-2 size-4" />
@@ -184,7 +178,7 @@ export function ScoringMapEditor({
 						{"Simpan Skoring"}
 					</Button>
 				</div>
-			</CardContent>
+			</div>
 
 			<PasteScoresDialog
 				open={isPasteDialogOpen}
@@ -192,6 +186,6 @@ export function ScoringMapEditor({
 				expectedCount={questionCount}
 				onPaste={handlePasteScores}
 			/>
-		</Card>
+		</AdminSection>
 	);
 }

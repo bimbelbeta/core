@@ -1,5 +1,11 @@
 import { db } from "@bimbelbeta/db";
-import { tryout, tryoutAccessCode, tryoutAttempt, tryoutSubtest } from "@bimbelbeta/db/schema/tryout";
+import {
+	tryout,
+	tryoutAccessCode,
+	tryoutAttempt,
+	tryoutSubtest,
+	tryoutSubtestQuestion,
+} from "@bimbelbeta/db/schema/tryout";
 import { and, asc, desc, eq, getTableColumns, gt, ilike, lt, sql } from "drizzle-orm";
 import { requireCreated, requireFound } from "@/lib/crud-helpers";
 import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
@@ -93,7 +99,13 @@ const find = admin.admin.tryout.find.handler(async ({ input, errors }) => {
 	const { tryoutSubtest } = await import("@bimbelbeta/db/schema/tryout");
 
 	const subtestsData = await db
-		.select()
+		.select({
+			...getTableColumns(tryoutSubtest),
+			questionCount:
+				sql<number>`(select count(*) from ${tryoutSubtestQuestion} where ${tryoutSubtestQuestion.subtestId} = ${tryoutSubtest.id})`.mapWith(
+					Number,
+				),
+		})
 		.from(tryoutSubtest)
 		.where(eq(tryoutSubtest.tryoutId, input.id))
 		.orderBy(tryoutSubtest.order);
