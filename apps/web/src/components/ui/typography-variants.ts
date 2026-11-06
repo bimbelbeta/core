@@ -5,7 +5,7 @@ export const typographyVariants = {
 		tone: "default",
 	},
 	display: { element: "h1", className: "text-3xl leading-tight font-semibold sm:text-4xl", tone: "default" },
-	title: { element: "h1", className: "text-2xl font-bold", tone: "default" },
+	title: { element: "h1", className: "text-page-title", tone: "default" },
 	subtitle1: { element: "h2", className: "text-lg font-semibold", tone: "default" },
 	subtitle2: { element: "h3", className: "text-base font-semibold", tone: "default" },
 	body: { element: "p", className: "text-sm", tone: "default" },

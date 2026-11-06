@@ -37,8 +37,7 @@ describe("Typography", () => {
 	test("lets as override the element while keeping the variant's classes", () => {
 		const node = renderVariant({ variant: "title", as: "h3" });
 		expect(node?.tagName).toBe("H3");
-		expect(node?.className).toContain("text-2xl");
-		expect(node?.className).toContain("font-bold");
+		expect(node?.className).toContain("text-page-title");
 	});
 
 	test("applies the variant's default tone", () => {

@@ -1,5 +1,11 @@
 # Agent Guidelines — bimbelbeta
 
+### Docs
+
+- Issues and specs live in GitHub Issues for `bimbelbeta/core`. See `docs/agents/issue-tracker.md`.
+- Triage uses the five default labels. See `docs/agents/triage-labels.md`.
+- This repo uses a single-context layout. See `docs/agents/domain.md`.
+
 ### Workflow
 
 - Custom hooks for reusable logic in `hooks/`

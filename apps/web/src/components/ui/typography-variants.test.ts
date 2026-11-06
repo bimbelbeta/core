@@ -29,7 +29,7 @@ describe("typographyVariants", () => {
 
 	test("no variant keeps colour in its className — that is what tone is for", () => {
 		const nonColour =
-			/^text-(?:xs|sm|base|lg|xl|[2-9]xl|center|left|right|justify|start|end|balance|pretty|wrap|nowrap|ellipsis|clip)$/;
+			/^text-(?:xs|sm|base|lg|xl|[2-9]xl|center|left|right|justify|start|end|balance|pretty|wrap|nowrap|ellipsis|clip|page-title|section-title|row-title|meta)$/;
 		const colourAxis = /\b(?:bg|border|fill|stroke|ring|outline|divide|from|to|via)-[\w[\]().,#%-]+/;
 		for (const [variant, config] of Object.entries(typographyVariants)) {
 			expect(config.className.match(colourAxis), variant).toBeNull();
