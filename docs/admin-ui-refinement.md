@@ -110,10 +110,11 @@ If two consecutive pages stall below 9 with contradictory findings, the remainin
 
 Judges: GLM-5.3-Flash, blind, references scored in the same call (Linear 9.0–9.5, GitHub 8.5–9.0).
 
-| Page        | Round 1 | Round 2 | Outcome |
-| ----------- | ------- | ------- | ------- |
-| Bank soal   | 7.5     | 7.5     | stopped |
-| Tryout list | 7.0     | 6.8     | stopped |
+| Page           | Round 1 | Round 2 | Outcome |
+| -------------- | ------- | ------- | ------- |
+| Bank soal      | 7.5     | 7.5     | stopped |
+| Tryout list    | 7.0     | 6.8     | stopped |
+| Tryout detail  | 6.0     | 7.0     | stopped |
 
 Round 1 applied: checkbox gutter 48→32px, Terbit badge on the soft green, footer keeps the total on single-page datasets, tryout meta wraps without a dangling separator.
 
@@ -122,3 +123,12 @@ Round 2 findings and why they were not applied:
 - _Bank soal has a 450px dead zone mid-row._ Measured: the Soal column is 950px of a 1174px table. The whitespace is short question text, not a narrow column. Rejected.
 - _Give the tryout list card `min-height: 100vh`._ With one tryout that paints a 600px empty bordered card. Rejected.
 - _The sort control is stranded on mobile._ Applied: the trailing control goes full-width below the filter grid instead of sitting alone, right-aligned.
+
+Tryout detail round 1 applied: the 9-column Percobaan table was clipping its empty state mid-word at 390px, so the empty state moved outside the table; disabled filled buttons gained a boundary; Kode akses adopted the shared `Empty`; Subtest gained the Soal and Durasi columns the tab exists for.
+
+Tryout detail round 2 findings and why they were not applied:
+
+- _The Urutan soal cell is blank on the Literasi Bahasa Inggris row._ Measured every `tbody tr`: all four render `Berurutan`. The judge misread two identically named rows. Rejected.
+- _Soal and Durasi are left-aligned despite `text-right`._ Measured computed `text-align`: `right` on both the `th` and the `td` of every row. Rejected.
+- _The Percobaan empty state offers no next step._ Applied without new navigation: the description now points at the Kode akses tab.
+- _Kadaluarsa shows `mm/dd/yyyy` in an Indonesian console._ Real, but the fix is the existing `Calendar` + `Popover` in place of a native `datetime-local`, which belongs to the forms pass below.
