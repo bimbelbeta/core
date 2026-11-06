@@ -22,14 +22,14 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 export function RecentQuestions() {
-	const { data, isLoading, isError } = useQuery(orpc.admin.tryout.questions.list.queryOptions({ input: { limit: 4 } }));
+	const { data, isLoading, isError } = useQuery(orpc.admin.tryout.questions.list.queryOptions({ input: { limit: 6 } }));
 	const questions = data?.items ?? [];
 
 	return (
 		<section>
-			<header className="flex min-h-8 flex-wrap items-center justify-between gap-3 pb-4">
+			<header className="flex min-h-8 flex-wrap items-center justify-between gap-3 pb-3">
 				<h2 className="text-section-title">Soal terbaru</h2>
-				<Button variant="ghost" size="sm" className="text-muted-foreground text-meta h-9 gap-1.5 px-2.5" asChild>
+				<Button variant="ghost" size="sm" className="text-muted-foreground text-meta h-8 gap-1.5 px-2.5" asChild>
 					<Link to="/admin/questions">
 						Lihat semua soal
 						<CaretRightIcon className="size-3" />
@@ -41,8 +41,9 @@ export function RecentQuestions() {
 				<AdminTable>
 					<AdminTableHeader>
 						<AdminTableHead>Soal</AdminTableHead>
-						<AdminTableHead className="hidden w-40 sm:table-cell">Tipe</AdminTableHead>
-						<AdminTableHead className="hidden w-32 sm:table-cell">Ditambahkan</AdminTableHead>
+						<AdminTableHead className="w-10">
+							<span className="sr-only">Buka</span>
+						</AdminTableHead>
 					</AdminTableHeader>
 					<AdminTableBody
 						isLoading={isLoading}
@@ -57,28 +58,34 @@ export function RecentQuestions() {
 								</Link>
 							</Button>
 						}
-						columns={3}
+						columns={2}
 					>
 						{questions.map((question) => (
 							<AdminTableRow key={question.id}>
-								<AdminTableCell>
-									<Link
-										to="/admin/questions/$questionId"
-										params={{ questionId: question.id.toString() }}
-										className="text-row-title text-foreground hover:text-primary focus-visible:ring-ring/50 block truncate rounded-sm underline-offset-4 outline-none hover:underline focus-visible:ring-2"
-									>
-										{extractTextFromTiptap(question.content) || "(Konten kosong)"}
-									</Link>
-									<p className="text-muted-foreground text-meta mt-0.5 truncate sm:hidden">
-										{TYPE_LABELS[question.type] ?? question.type}
-										{question.createdAt && ` · ${formatDateMedium(new Date(question.createdAt))}`}
-									</p>
+								<AdminTableCell className="w-full max-w-0">
+									<div className="min-w-0">
+										<Link
+											to="/admin/questions/$questionId"
+											params={{ questionId: question.id.toString() }}
+											className="text-row-title text-foreground hover:text-primary focus-visible:ring-ring/50 line-clamp-2 block rounded-sm underline-offset-4 outline-none after:absolute after:inset-0 after:content-[''] hover:underline focus-visible:ring-2 sm:truncate"
+										>
+											{extractTextFromTiptap(question.content) || "(Konten kosong)"}
+										</Link>
+										<p className="text-muted-foreground text-meta mt-0.5 truncate">
+											<span className="font-mono">#{question.id}</span>
+											<span aria-hidden> · </span>
+											{TYPE_LABELS[question.type] ?? question.type}
+											{question.createdAt && (
+												<>
+													<span aria-hidden> · </span>
+													{formatDateMedium(new Date(question.createdAt))}
+												</>
+											)}
+										</p>
+									</div>
 								</AdminTableCell>
-								<AdminTableCell className="text-muted-foreground text-meta hidden sm:table-cell">
-									{TYPE_LABELS[question.type] ?? question.type}
-								</AdminTableCell>
-								<AdminTableCell className="text-muted-foreground text-meta hidden sm:table-cell">
-									{question.createdAt ? formatDateMedium(new Date(question.createdAt)) : "—"}
+								<AdminTableCell className="text-muted-foreground hidden sm:table-cell">
+									<CaretRightIcon className="size-3.5" />
 								</AdminTableCell>
 							</AdminTableRow>
 						))}

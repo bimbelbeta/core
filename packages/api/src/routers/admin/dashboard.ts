@@ -2,7 +2,7 @@ import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { question } from "@bimbelbeta/db/schema/question";
 import { transaction } from "@bimbelbeta/db/schema/transaction";
-import { tryout } from "@bimbelbeta/db/schema/tryout";
+import { tryout, tryoutAttempt, tryoutSubtest } from "@bimbelbeta/db/schema/tryout";
 import { and, count, desc, eq, gte, lt, sql } from "drizzle-orm";
 import { adminImplementer } from "@/lib/router-definition";
 
@@ -50,6 +50,14 @@ const stats = admin.admin.dashboard.stats.handler(async () => {
 				status: tryout.status,
 				category: tryout.category,
 				updatedAt: tryout.updatedAt,
+				subtestCount:
+					sql<number>`(select count(*) from ${tryoutSubtest} where ${tryoutSubtest.tryoutId} = ${tryout.id})`.mapWith(
+						Number,
+					),
+				attemptCount:
+					sql<number>`(select count(*) from ${tryoutAttempt} where ${tryoutAttempt.tryoutId} = ${tryout.id})`.mapWith(
+						Number,
+					),
 			})
 			.from(tryout)
 			.orderBy(desc(tryout.updatedAt))

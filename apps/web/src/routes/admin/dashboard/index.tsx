@@ -15,16 +15,13 @@ export const Route = createFileRoute("/admin/dashboard/")({
 	component: function AdminDashboard() {
 		return (
 			<AdminPageRoot>
-				<AdminPageHeader className="sm:items-start">
+				<AdminPageHeader>
 					<AdminPageHeaderContent>
 						<Typography variant="title">Dashboard</Typography>
-						<Typography variant="body" tone="muted">
-							Ringkasan aktivitas dan konten
-						</Typography>
 					</AdminPageHeaderContent>
 				</AdminPageHeader>
 
-				<AdminPageContent className="gap-6">
+				<AdminPageContent className="gap-5">
 					<SectionCards />
 					<RecentTryouts />
 					<RecentQuestions />

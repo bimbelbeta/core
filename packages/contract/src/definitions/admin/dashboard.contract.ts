@@ -16,6 +16,8 @@ const DashboardStatsSchema = type({
 			status: "'draft' | 'published' | 'archived'",
 			category: "'sd' | 'smp' | 'sma' | 'utbk'",
 			updatedAt: "string | null",
+			subtestCount: "number",
+			attemptCount: "number",
 		},
 		"[]",
 	),

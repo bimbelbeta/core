@@ -52,13 +52,20 @@ function Stat({
 	trend?: number | null;
 }) {
 	return (
-		<div className="px-4 py-3">
-			<div className="flex items-start justify-between gap-3">
-				<p className="text-muted-foreground text-xs leading-tight">{label}</p>
-				{trend !== undefined && <Trend value={trend} />}
+		<div className="relative px-4 py-2.5">
+			<div className="flex items-center justify-between gap-4 sm:block">
+				<div className="min-w-0">
+					<p className="text-muted-foreground text-xs leading-tight">{label}</p>
+					{meta && <p className="text-muted-foreground text-meta mt-0.5 tabular-nums sm:hidden">{meta}</p>}
+				</div>
+				<p className="text-foreground text-metric shrink-0 sm:mt-2">{value}</p>
 			</div>
-			<p className="text-foreground text-metric mt-2">{value}</p>
-			{meta && <p className="text-muted-foreground mt-1 text-xs tabular-nums">{meta}</p>}
+			{trend !== undefined && (
+				<div className="absolute top-2.5 right-4 hidden sm:block">
+					<Trend value={trend} />
+				</div>
+			)}
+			{meta && <p className="text-muted-foreground mt-1 hidden text-xs tabular-nums sm:block">{meta}</p>}
 		</div>
 	);
 }
@@ -71,7 +78,7 @@ export function SectionCards() {
 			<div className="bg-card rounded-xl border">
 				<div className="grid gap-px sm:grid-cols-3">
 					{[1, 2, 3].map((item) => (
-						<div key={item} className="px-4 py-3">
+						<div key={item} className="px-4 py-2.5">
 							<Skeleton className="h-4 w-24" />
 							<Skeleton className="mt-2 h-5 w-20" />
 							<Skeleton className="mt-1 h-3 w-36" />
@@ -86,12 +93,12 @@ export function SectionCards() {
 		<div className="bg-card rounded-xl border">
 			<div className="grid gap-px sm:grid-cols-3">
 				<Stat
-					label="Total pengguna terdaftar"
+					label="Total pengguna"
 					value={number.format(stats.totalUsers)}
 					trend={stats.usersTrend}
 					meta={
 						stats.totalUsers > 0
-							? `${number.format(stats.premiumUsers)} pengguna premium`
+							? `${number.format(stats.premiumUsers)} premium · ${number.format(stats.totalUsers - stats.premiumUsers)} gratis`
 							: "Belum ada pengguna terdaftar"
 					}
 				/>

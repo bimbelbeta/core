@@ -10,12 +10,7 @@ interface AdminTableRootProps {
 
 export function AdminTableRoot({ children, className }: AdminTableRootProps) {
 	return (
-		<div
-			className={cn(
-				"bg-card flex min-h-0 flex-col overflow-clip rounded-xl border shadow-sm max-sm:flex-none",
-				className,
-			)}
-		>
+		<div className={cn("bg-card flex min-h-0 flex-col overflow-clip rounded-lg border max-sm:flex-none", className)}>
 			{children}
 		</div>
 	);
