@@ -2,6 +2,7 @@ import { ArrowDownRightIcon, ArrowUpRightIcon, MinusIcon } from "@phosphor-icons
 import { useQuery } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatRupiah } from "@/lib/formatter";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
 
@@ -18,7 +19,7 @@ function Trend({ value }: { value: number | null }) {
 		<span
 			className={cn(
 				"flex items-center gap-1 text-[11px] font-medium whitespace-nowrap",
-				direction === "up" && "text-green-700",
+				direction === "up" && "text-green-800",
 				direction === "down" && "text-red-600",
 				direction === "flat" && "text-muted-foreground",
 			)}
@@ -105,7 +106,7 @@ export function SectionCards() {
 				/>
 				<Stat
 					label="Pendapatan bulan ini"
-					value={`Rp ${number.format(stats.monthlyRevenue)}`}
+					value={formatRupiah(stats.monthlyRevenue)}
 					trend={stats.revenueTrend}
 					meta={stats.monthlyRevenue > 0 ? "Dari transaksi sukses bulan berjalan" : "Belum ada transaksi bulan ini"}
 				/>

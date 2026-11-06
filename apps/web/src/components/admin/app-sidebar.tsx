@@ -42,7 +42,7 @@ const allAdminNavLinks = [
 		group: "Konten",
 	},
 	{
-		title: "Passing Grade",
+		title: "Passing grade",
 		url: "/admin/passing-grades",
 		icon: RankingIcon,
 		group: "Konten",
@@ -62,7 +62,7 @@ const allAdminNavLinks = [
 		superadminOnly: true,
 	},
 	{
-		title: "Kode Referral",
+		title: "Kode referral",
 		url: "/admin/referrals",
 		icon: TicketIcon,
 		group: "Manajemen",

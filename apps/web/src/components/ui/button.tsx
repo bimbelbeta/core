@@ -12,24 +12,20 @@ const buttonVariants = cva(
 			variant: {
 				default:
 					"bg-primary hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground text-white shadow-xs disabled:shadow-none",
-				secondary:
-					"border-primary-navy-700 text-primary-navy-700 hover:border-primary-navy-800 hover:bg-primary-100 hover:text-primary-navy-800 border bg-white shadow-xs disabled:opacity-50",
-				tertiary:
-					"text-primary-navy-700 hover:bg-primary-100 hover:text-primary-navy-800 disabled:text-muted-foreground/60 bg-transparent",
+				secondary: "border-border text-foreground hover:bg-muted bg-white shadow-xs disabled:opacity-50",
+				tertiary: "text-foreground hover:bg-muted disabled:text-muted-foreground/60 bg-transparent",
 				warning: "bg-yellow-500 hover:bg-yellow-600 disabled:opacity-50",
 				"warning-outline":
 					"text-foreground border-2 border-yellow-300 bg-white shadow-xs hover:bg-yellow-100/60 disabled:opacity-50",
 				destructive:
 					"bg-destructive hover:bg-destructive/80 disabled:bg-muted disabled:text-muted-foreground text-white shadow-xs disabled:shadow-none",
-				outline: "border-secondary-700 border bg-white shadow-xs hover:bg-white/80 disabled:opacity-50",
+				outline: "border-border bg-card text-foreground hover:bg-muted shadow-xs disabled:opacity-50",
 
 				input:
 					"border-input focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 h-9 w-full min-w-0 justify-start rounded-md border bg-white px-3 py-1 text-left font-normal shadow-xs hover:bg-white focus-visible:ring-[3px] disabled:opacity-50",
 				ghost: "hover:bg-muted disabled:text-muted-foreground/60 disabled:bg-transparent",
 				link: "text-primary underline-offset-4 hover:underline disabled:opacity-50",
-				darkBlue:
-					"bg-primary text-primary-foreground hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground shadow-xs disabled:shadow-none",
-				white: "bg-white text-black shadow-xs hover:bg-white/90 disabled:opacity-50",
+				white: "text-foreground bg-white shadow-xs hover:bg-white/90 disabled:opacity-50",
 				lightBlue:
 					"bg-primary-300 hover:bg-primary-300 disabled:bg-muted disabled:text-muted-foreground text-white shadow-xs",
 			},

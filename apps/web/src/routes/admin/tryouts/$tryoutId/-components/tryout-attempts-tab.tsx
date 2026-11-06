@@ -54,7 +54,7 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 				return {
 					variant: "secondary" as const,
 					label: "Berlangsung",
-					className: "bg-amber-100 text-amber-800 border-amber-200",
+					className: "bg-yellow-100 text-yellow-800 border-yellow-300/70",
 				};
 			default:
 				return { variant: "outline" as const, label: "Belum Mulai", className: "" };

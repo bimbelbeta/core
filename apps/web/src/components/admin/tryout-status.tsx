@@ -2,8 +2,8 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 const statuses = {
-	draft: { label: "Draf", className: "border-amber-600/20 bg-amber-50 text-amber-700" },
-	published: { label: "Terbit", className: "border-green-600/20 bg-green-50 text-green-700" },
+	draft: { label: "Draf", className: "border-yellow-300/70 bg-yellow-100/60 text-yellow-800" },
+	published: { label: "Terbit", className: "border-green-200 bg-green-100/60 text-green-800" },
 	archived: { label: "Arsip", className: "border-border bg-muted text-muted-foreground" },
 };
 

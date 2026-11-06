@@ -1,4 +1,4 @@
-import { ArrowLeftIcon } from "@phosphor-icons/react";
+import { ArrowLeftIcon, CreditCardIcon } from "@phosphor-icons/react";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import {
@@ -11,6 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Typography } from "@/components/ui/typography";
@@ -104,7 +105,7 @@ export function UserDetailPage() {
 				<div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
 					<Card>
 						<CardHeader>
-							<CardTitle>Informasi User</CardTitle>
+							<CardTitle>Informasi pengguna</CardTitle>
 						</CardHeader>
 						<CardContent className="space-y-4">
 							<div className="flex justify-between">
@@ -150,9 +151,15 @@ export function UserDetailPage() {
 						</CardHeader>
 						<CardContent>
 							{creditHistory.length === 0 ? (
-								<Typography tone="muted" className="py-8 text-center">
-									Tidak ada transaksi kredit
-								</Typography>
+								<Empty className="border-none py-8">
+									<EmptyHeader>
+										<EmptyMedia variant="icon">
+											<CreditCardIcon />
+										</EmptyMedia>
+										<EmptyTitle>Belum ada transaksi kredit</EmptyTitle>
+										<EmptyDescription>Kredit pembelian dan pemakaian tryout akan tampil di sini.</EmptyDescription>
+									</EmptyHeader>
+								</Empty>
 							) : (
 								<Table>
 									<TableHeader>

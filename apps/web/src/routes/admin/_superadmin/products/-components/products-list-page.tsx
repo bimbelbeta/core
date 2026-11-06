@@ -74,7 +74,7 @@ export function ProductsListPage() {
 					<SearchInput
 						value={searchInput}
 						onChange={handleSearch}
-						placeholder="Cari nama product..."
+						placeholder="Cari nama produk..."
 						className="w-full sm:max-w-sm md:max-w-md"
 					/>
 					<div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -108,7 +108,7 @@ export function ProductsListPage() {
 						<AdminTableHeader>
 							<AdminTableHead className="pl-4">Nama</AdminTableHead>
 							<AdminTableHead>Variant</AdminTableHead>
-							<AdminTableHead>Harga</AdminTableHead>
+							<AdminTableHead className="text-right">Harga</AdminTableHead>
 							<AdminTableHead>Type</AdminTableHead>
 							<AdminTableHead className="min-w-32.5">Dibuat</AdminTableHead>
 							<AdminTableHead className="pr-4 text-right">Aksi</AdminTableHead>
@@ -153,8 +153,8 @@ export function ProductsListPage() {
 													</div>
 												</AdminTableCell>
 
-												<AdminTableCell>
-													<span className="text-sm font-semibold">{formatRupiah(product.price)}</span>
+												<AdminTableCell className="text-right">
+													<span className="text-sm font-semibold tabular-nums">{formatRupiah(product.price)}</span>
 												</AdminTableCell>
 
 												<AdminTableCell>

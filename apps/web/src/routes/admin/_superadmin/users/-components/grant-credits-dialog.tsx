@@ -58,8 +58,9 @@ export function GrantCreditsDialog({
 			}}
 		>
 			<DialogTrigger asChild>
-				<Button variant="ghost" size="icon" aria-label={`Tambah kredit ${userName}`}>
+				<Button variant="outline" size="sm" className="h-9 gap-2" aria-label={`Tambah kredit ${userName}`}>
 					<PlusIcon className="size-4" />
+					<span>Kredit</span>
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="sm:max-w-sm">

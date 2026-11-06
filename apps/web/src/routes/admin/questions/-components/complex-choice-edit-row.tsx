@@ -18,7 +18,7 @@ interface ComplexChoiceEditRowProps {
 
 export function ComplexChoiceEditRow({ choice, onUpdate, onDelete }: ComplexChoiceEditRowProps) {
 	return (
-		<TableRow className={cn(choice.isCorrect && "bg-green-50")}>
+		<TableRow className={cn(choice.isCorrect && "bg-green-100/40")}>
 			<TableCell>
 				<Input
 					value={choice.content}

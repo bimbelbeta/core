@@ -16,7 +16,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { formatDateLong, formatDateTime, formatRelativeDate } from "@/lib/format-date";
+import { formatDateLong, formatDateMedium, formatDateTime } from "@/lib/format-date";
 import { getInitials } from "@/lib/formatter";
 import { cn } from "@/lib/utils";
 import { useUsersList } from "../-hooks/use-users-list";
@@ -134,17 +134,17 @@ export function UsersTable() {
 									<AdminTableCell>
 										{user.isPremium ? (
 											<div className="flex flex-col justify-center gap-2">
-												<div className="flex w-fit items-center gap-1.5 rounded-full border border-amber-200 bg-linear-to-r from-amber-50 to-yellow-50 px-2.5 py-1 shadow-xs">
-													<CrownIcon className="size-3.5 text-amber-500" weight="fill" />
-													<span className="text-xs font-bold tracking-wide text-amber-700">PREMIUM</span>
-												</div>
+												<Badge variant="warning" className="w-fit gap-1 font-semibold">
+													<CrownIcon className="size-3" weight="fill" />
+													Premium
+												</Badge>
 												{premiumDate && (
 													<Tooltip>
 														<TooltipTrigger asChild>
 															<span
 																className={cn(
 																	"flex items-center gap-1 text-[11px]",
-																	isPremiumExpired ? "text-red-200" : "text-amber-700",
+																	isPremiumExpired ? "text-muted-foreground" : "text-muted-foreground/70",
 																)}
 															>
 																<ClockIcon className="size-3" />
@@ -169,7 +169,7 @@ export function UsersTable() {
 												<TooltipTrigger asChild>
 													<span className="text-muted-foreground flex items-center gap-1.5 text-xs">
 														<CalendarDotsIcon className="size-3.5" />
-														{formatRelativeDate(createdDate)}
+														{formatDateMedium(createdDate)}
 													</span>
 												</TooltipTrigger>
 												<TooltipContent>{formatDateLong(createdDate)}</TooltipContent>

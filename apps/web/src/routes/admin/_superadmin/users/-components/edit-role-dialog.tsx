@@ -53,8 +53,9 @@ export function EditRoleDialog({ userId, userName, currentRole, open, onOpenChan
 			}}
 		>
 			<DialogTrigger asChild>
-				<Button variant="ghost" size="icon" aria-label={`Edit role pengguna ${userName}`}>
+				<Button variant="outline" size="sm" className="h-9 gap-2" aria-label={`Edit role pengguna ${userName}`}>
 					<PencilSimpleIcon className="size-4" />
+					<span>Ubah role</span>
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="sm:max-w-sm">

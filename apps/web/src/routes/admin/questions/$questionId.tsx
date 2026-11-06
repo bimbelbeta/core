@@ -113,13 +113,13 @@ function QuestionDetailPage() {
 											key={choice.id}
 											className={cn(
 												"flex items-center gap-3 rounded-md border p-4 text-start",
-												choice.isCorrect ? "border-green-300 bg-green-50" : "border-border",
+												choice.isCorrect ? "border-green-200 bg-green-100/50" : "border-border",
 											)}
 										>
 											<span
 												className={cn(
 													"border-foreground/20 rounded-xs border px-2.5 py-0.5 text-sm font-medium",
-													choice.isCorrect && "border-green-700 bg-green-700 text-white",
+													choice.isCorrect && "border-green-800 bg-green-800 text-white",
 												)}
 											>
 												{choice.code}
@@ -157,7 +157,7 @@ function QuestionDetailPage() {
 														<div
 															className={cn(
 																"mx-auto flex size-8 items-center justify-center rounded-full border-2",
-																choice.isCorrect ? "border-green-700 bg-green-700 text-white" : "border-border",
+																choice.isCorrect ? "border-green-800 bg-green-800 text-white" : "border-border",
 															)}
 														>
 															{choice.isCorrect && (
