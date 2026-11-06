@@ -223,6 +223,7 @@ export const tryoutContract = {
 				tryout: {
 					id: "number",
 					title: "string",
+					category: "'sd' | 'smp' | 'sma' | 'utbk'",
 					passingGrade: "number",
 					subtests: type(
 						{

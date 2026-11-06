@@ -100,7 +100,7 @@ function RouteComponent() {
 				</Card>
 
 				{/* Passing Grade: show only for UTBK; hidden for SD/SMP/SMA (TKA) */}
-				{tryoutCategory === "utbk" ? (
+				{tryoutCategory === "utbk" && (
 					<Card className="relative overflow-hidden border-green-100 bg-green-50/50">
 						<CardHeader className="flex items-center justify-between gap-2 pb-2">
 							<CardTitle className="font-medium text-muted-foreground text-sm">
@@ -129,39 +129,6 @@ function RouteComponent() {
 							</div>
 						</CardContent>
 					</Card>
-				) : (
-					<>
-						{/* Passing Grade removed for TKA. Original JSX kept below for reference.
-						<Card className="relative overflow-hidden border-green-100 bg-green-50/50">
-							<CardHeader className="flex items-center justify-between gap-2 pb-2">
-								<CardTitle className="font-medium text-muted-foreground text-sm">
-									Passing Grade
-									{target.data?.studyProgram && (
-										<p className="text-xs">
-											{target.data.studyProgram.name} {target.data.university.name}
-										</p>
-									)}
-								</CardTitle>
-								<Badge
-									variant="secondary"
-									className={cn(
-										isPassed ? "bg-green-500 text-white hover:bg-green-600" : "bg-red-500 text-white hover:bg-red-600",
-									)}
-								>
-									{isPassed ? "Lulus" : "Tidak Lulus"}
-								</Badge>
-							</CardHeader>
-							<CardContent className="mt-auto">
-								<div className="flex items-baseline gap-2">
-									<span className={cn("font-semibold text-5xl", isPassed ? "text-green-600" : "text-red-500")}>
-										{passingGrade}
-									</span>
-									<span className="font-medium text-muted-foreground text-xl">/ 1000</span>
-								</div>
-							</CardContent>
-						</Card>
-						*/}
-					</>
 				)}
 			</div>
 

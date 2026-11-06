@@ -101,6 +101,8 @@ export const auth = betterAuth({
 		},
 	},
 	session: {
+		expiresIn: 60 * 60 * 24 * 14, // 14 hari
+		updateAge: 60 * 60 * 24, // Perbarui sesi setiap 1 hari
 		cookieCache: {
 			enabled: false,
 		},

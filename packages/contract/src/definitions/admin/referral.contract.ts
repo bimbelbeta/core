@@ -1,4 +1,3 @@
-import { user } from "@bimbelbeta/db/schema/auth";
 import { referralCode } from "@bimbelbeta/db/schema/referral";
 import { type } from "arktype";
 import { createSelectSchema } from "drizzle-orm/arktype";
@@ -7,7 +6,6 @@ import { MessageResponseSchema } from "@/common/response";
 import { oc } from "@/lib/contract-definition";
 
 const ReferralCodeSchema = createSelectSchema(referralCode);
-const _UserSchema = createSelectSchema(user);
 
 const AlphanumericCodeSchema = type(/^[A-Z0-9]+$/).pipe((s) => s.toUpperCase());
 

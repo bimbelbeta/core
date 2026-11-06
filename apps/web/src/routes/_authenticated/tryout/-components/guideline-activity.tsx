@@ -1,8 +1,8 @@
 import { ArrowUpRightIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -106,7 +106,9 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 											</div>
 											<Separator />
 											<p className="text-muted-foreground text-sm">
-												{tryout.isOpen ? "Siap dipilih dan dimulai dengan kode akses." : "Tryout ini sudah dipublikasikan, tetapi jadwalnya belum dibuka."}
+												{tryout.isOpen
+													? "Siap dipilih dan dimulai dengan kode akses."
+													: "Tryout ini sudah dipublikasikan, tetapi jadwalnya belum dibuka."}
 											</p>
 										</div>
 										<TryoutStartConfirmation tryoutId={tryout.id} disabled={!tryout.isOpen}>
@@ -116,7 +118,7 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 										</TryoutStartConfirmation>
 									</Card>
 								);
-								})}
+							})}
 						</div>
 					);
 				})()}

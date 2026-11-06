@@ -2,8 +2,31 @@ import { createFileRoute, Outlet, redirect, useLocation, useRouterState } from "
 import { useEffect, useRef } from "react";
 import { HeaderDashboard } from "@/components/shared/header-dashboard";
 import { Container } from "@/components/ui/container";
-import { $getSession } from "@/lib/get-user";
+import { $getSession, SessionLookupError } from "@/lib/get-user";
 import { createMeta } from "@/lib/seo-utils";
+import type { RouterAppContext } from "@/routes/__root";
+
+const SESSION_RETRY_DELAYS_MS = [300, 700] as const;
+
+async function getSessionWithRetry(queryClient: RouterAppContext["queryClient"]) {
+	for (let attempt = 0; attempt <= SESSION_RETRY_DELAYS_MS.length; attempt++) {
+		try {
+			return await $getSession(queryClient);
+		} catch (error) {
+			const delay = SESSION_RETRY_DELAYS_MS[attempt];
+
+			if (!(error instanceof SessionLookupError) || !error.retryable || delay === undefined) {
+				throw error;
+			}
+
+			await new Promise<void>((resolve) => {
+				setTimeout(resolve, delay);
+			});
+		}
+	}
+
+	throw new Error("Session verification failed.");
+}
 
 export const Route = createFileRoute("/_authenticated")({
 	head: () => ({
@@ -16,7 +39,8 @@ export const Route = createFileRoute("/_authenticated")({
 	component: AuthedLayout,
 	beforeLoad: async ({ context, preload }) => {
 		if (preload) return;
-		const { session } = await $getSession(context.queryClient);
+
+		const { session } = await getSessionWithRetry(context.queryClient);
 
 		return { session };
 	},
