@@ -157,11 +157,6 @@ function QuestionsListPage() {
 			<AdminPageHeader>
 				<AdminPageHeaderContent>
 					<Typography variant="title">Bank soal</Typography>
-					{pageInfo?.totalCount !== undefined && (
-						<Typography variant="body" tone="muted">
-							{pageInfo.totalCount} soal
-						</Typography>
-					)}
 				</AdminPageHeaderContent>
 				<AdminPageHeaderActions>
 					<Button asChild size="sm" className="h-9">
@@ -243,7 +238,7 @@ function QuestionsListPage() {
 				<AdminTableRoot>
 					<AdminTable className="table-fixed">
 						<AdminTableHeader>
-							<AdminTableHead className="hidden w-12 px-4 sm:table-cell">
+							<AdminTableHead className="hidden w-8 px-4 sm:table-cell">
 								<Checkbox
 									checked={someSelected ? "indeterminate" : allSelected}
 									onCheckedChange={toggleSelectAll}
@@ -251,7 +246,7 @@ function QuestionsListPage() {
 								/>
 							</AdminTableHead>
 							<AdminTableHead>Soal</AdminTableHead>
-							<AdminTableHead className="hidden w-28 sm:table-cell">Dibuat</AdminTableHead>
+							<AdminTableHead className="hidden w-32 text-right sm:table-cell">Dibuat</AdminTableHead>
 							<AdminTableHead className="w-16 text-right">
 								<span className="sr-only">Aksi</span>
 							</AdminTableHead>
@@ -282,7 +277,7 @@ function QuestionsListPage() {
 								const contentPreview = extractTextFromTiptap(q.content);
 								return (
 									<AdminTableRow key={q.id}>
-										<AdminTableCell className="hidden sm:table-cell">
+										<AdminTableCell className="hidden w-8 sm:table-cell">
 											<Checkbox
 												checked={selectedIds.includes(q.id)}
 												onCheckedChange={() => toggleSelectOne(q.id)}
@@ -302,20 +297,15 @@ function QuestionsListPage() {
 													<span className="font-mono">#{q.id}</span>
 													<span aria-hidden>·</span>
 													<span>{QUESTION_TYPE_SHORT_LABELS[q.type] ?? q.type}</span>
-													{q.tags?.slice(0, 3).map((t) => (
+													{q.tags?.map((t) => (
 														<Badge key={t} variant="outline" className="text-meta font-normal">
 															{t}
 														</Badge>
 													))}
-													{q.tags && q.tags.length > 3 && (
-														<Badge variant="outline" className="text-meta font-normal">
-															+{q.tags.length - 3}
-														</Badge>
-													)}
 												</div>
 											</div>
 										</AdminTableCell>
-										<AdminTableCell className="text-muted-foreground text-meta hidden whitespace-nowrap sm:table-cell">
+										<AdminTableCell className="text-muted-foreground text-meta hidden text-right whitespace-nowrap sm:table-cell">
 											{q.createdAt ? formatDateMedium(new Date(q.createdAt)) : "—"}
 										</AdminTableCell>
 										<AdminTableCell className="relative z-10 text-right align-top">
@@ -372,7 +362,7 @@ function QuestionsListPage() {
 						</AdminTableBody>
 					</AdminTable>
 
-					{data && (pageInfo?.hasPreviousPage || pageInfo?.hasNextPage) && (
+					{data && pageInfo?.totalCount !== undefined && (
 						<AdminTablePaginationWrapper>
 							<PaginationButtons
 								onPrevious={() => pageInfo?.startCursor && handlePrevious(pageInfo.startCursor)}

@@ -38,11 +38,7 @@ AdminPageHeaderContent.displayName = "AdminPageHeaderContent";
 
 const AdminPageHeaderActions = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
 	({ className, ...props }, ref) => (
-		<div
-			ref={ref}
-			className={cn("flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end", className)}
-			{...props}
-		/>
+		<div ref={ref} className={cn("ml-auto flex flex-wrap items-center justify-end gap-2", className)} {...props} />
 	),
 );
 AdminPageHeaderActions.displayName = "AdminPageHeaderActions";

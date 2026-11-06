@@ -75,11 +75,6 @@ export function TryoutsListPage() {
 			<AdminPageHeader>
 				<AdminPageHeaderContent>
 					<Typography variant="title">Tryout</Typography>
-					{pageInfo?.totalCount !== undefined && (
-						<Typography variant="body" tone="muted">
-							{pageInfo.totalCount} tryout
-						</Typography>
-					)}
 				</AdminPageHeaderContent>
 				<AdminPageHeaderActions>
 					<AddTryoutDialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen} onSuccess={() => refetch()} />
@@ -136,8 +131,8 @@ export function TryoutsListPage() {
 					<AdminTable>
 						<AdminTableHeader>
 							<AdminTableHead>Tryout</AdminTableHead>
-							<AdminTableHead className="hidden w-28 sm:table-cell">Dibuat</AdminTableHead>
-							<AdminTableHead className="w-28">Status</AdminTableHead>
+							<AdminTableHead className="w-24">Status</AdminTableHead>
+							<AdminTableHead className="hidden w-32 text-right sm:table-cell">Diperbarui</AdminTableHead>
 							<AdminTableHead className="w-14 text-right">
 								<span className="sr-only">Aksi</span>
 							</AdminTableHead>
@@ -164,23 +159,27 @@ export function TryoutsListPage() {
 						>
 							{data?.items.map((tryout) => (
 								<AdminTableRow key={tryout.id}>
-									<AdminTableCell className="font-medium">
-										<Link
-											to="/admin/tryouts/$tryoutId"
-											params={{ tryoutId: tryout.id.toString() }}
-											className="text-row-title text-foreground hover:text-primary focus-visible:ring-ring/50 rounded-sm underline-offset-4 outline-none after:absolute after:inset-0 after:content-[''] hover:underline focus-visible:ring-2"
-										>
-											{tryout.title}
-										</Link>
-										<Typography variant="caption" tone="muted" className="mt-1">
-											{SUBJECT_CATEGORY_LABELS[tryout.category]}
-										</Typography>
-									</AdminTableCell>
-									<AdminTableCell className="text-muted-foreground text-meta hidden whitespace-nowrap sm:table-cell">
-										{tryout.updatedAt ? formatDateMedium(new Date(tryout.updatedAt)) : "—"}
+									<AdminTableCell>
+										<div className="min-w-0">
+											<Link
+												to="/admin/tryouts/$tryoutId"
+												params={{ tryoutId: tryout.id.toString() }}
+												className="text-row-title text-foreground hover:text-primary focus-visible:ring-ring/50 block truncate rounded-sm underline-offset-4 outline-none after:absolute after:inset-0 after:content-[''] hover:underline focus-visible:ring-2"
+											>
+												{tryout.title}
+											</Link>
+											<p className="text-muted-foreground text-meta mt-0.5 flex flex-wrap items-center gap-x-1.5">
+												<span>{SUBJECT_CATEGORY_LABELS[tryout.category]}</span>
+												<span>· {tryout.subtestCount} subtest</span>
+												<span>· {tryout.attemptCount} percobaan</span>
+											</p>
+										</div>
 									</AdminTableCell>
 									<AdminTableCell>
 										<TryoutStatus status={tryout.status} />
+									</AdminTableCell>
+									<AdminTableCell className="text-muted-foreground text-meta hidden text-right whitespace-nowrap sm:table-cell">
+										{tryout.updatedAt ? formatDateMedium(new Date(tryout.updatedAt)) : "—"}
 									</AdminTableCell>
 									<AdminTableCell className="relative z-10 text-right align-top">
 										<div className="flex items-center justify-end gap-2">
@@ -233,7 +232,7 @@ export function TryoutsListPage() {
 						</AdminTableBody>
 					</AdminTable>
 
-					{data && (pageInfo?.hasPreviousPage || pageInfo?.hasNextPage) && (
+					{data && pageInfo?.totalCount !== undefined && (
 						<AdminTablePaginationWrapper>
 							<PaginationButtons
 								onPrevious={handlePrevious}

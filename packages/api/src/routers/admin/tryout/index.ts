@@ -1,6 +1,6 @@
 import { db } from "@bimbelbeta/db";
-import { tryout, tryoutAccessCode } from "@bimbelbeta/db/schema/tryout";
-import { and, asc, desc, eq, gt, ilike, lt, sql } from "drizzle-orm";
+import { tryout, tryoutAccessCode, tryoutAttempt, tryoutSubtest } from "@bimbelbeta/db/schema/tryout";
+import { and, asc, desc, eq, getTableColumns, gt, ilike, lt, sql } from "drizzle-orm";
 import { requireCreated, requireFound } from "@/lib/crud-helpers";
 import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
 import { adminImplementer } from "@/lib/router-definition";
@@ -59,7 +59,17 @@ const list = admin.admin.tryout.list.handler(async ({ input }) => {
 
 	const [rows, [totals]] = await Promise.all([
 		db
-			.select()
+			.select({
+				...getTableColumns(tryout),
+				subtestCount:
+					sql<number>`(select count(*) from ${tryoutSubtest} where ${tryoutSubtest.tryoutId} = ${tryout.id})`.mapWith(
+						Number,
+					),
+				attemptCount:
+					sql<number>`(select count(*) from ${tryoutAttempt} where ${tryoutAttempt.tryoutId} = ${tryout.id})`.mapWith(
+						Number,
+					),
+			})
 			.from(tryout)
 			.where(and(filters, cursorFilter))
 			.orderBy(isBackward ? (newestFirst ? asc : desc)(tryout.id) : (newestFirst ? desc : asc)(tryout.id))

@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 
 const statuses = {
 	draft: { label: "Draf", className: "border-yellow-300/70 bg-yellow-100/60 text-yellow-800" },
-	published: { label: "Terbit", className: "border-green-200 bg-green-100/60 text-green-800" },
+	published: { label: "Terbit", className: "border-green-100 bg-green-100/35 text-green-800" },
 	archived: { label: "Arsip", className: "border-border bg-muted text-muted-foreground" },
 };
 
