@@ -37,7 +37,7 @@ export function AdminTableToolbar({
 				className={cn("h-9 w-full shadow-none sm:max-w-xs", searchClassName)}
 			/>
 			{children && <div className="grid w-full grid-cols-2 items-center gap-2 sm:flex sm:w-auto">{children}</div>}
-			{trailing && <div className="ml-auto">{trailing}</div>}
+			{trailing && <div className="w-full sm:ml-auto sm:w-auto">{trailing}</div>}
 			{onReset && (
 				<Button variant="ghost" size="sm" className="text-muted-foreground h-9" onClick={onReset}>
 					Hapus filter

@@ -97,7 +97,7 @@ Question create/edit, tryout settings, product form.
 ## Guardrails
 
 - Lexend only. No font change, no per-page font override.
-- One accent (primary navy). Green, amber and red only for status.
+- One accent: the product teal, `--primary`. Navy is a secondary scale, never the primary. Green, amber and red only for status.
 - Every page keeps `AdminPage` and `AdminTable`; no page-local restyling.
 - No new token without a call site; no new dependency.
 - `bun lint`, `bun check-types`, `bun test` and `bun run build` green per commit.
@@ -105,3 +105,20 @@ Question create/edit, tryout settings, product form.
 ## Stop rule
 
 If two consecutive pages stall below 9 with contradictory findings, the remaining gap is the typeface and brand decision, not the layout. Escalate instead of iterating.
+
+## Review log
+
+Judges: GLM-5.3-Flash, blind, references scored in the same call (Linear 9.0–9.5, GitHub 8.5–9.0).
+
+| Page        | Round 1 | Round 2 | Outcome |
+| ----------- | ------- | ------- | ------- |
+| Bank soal   | 7.5     | 7.5     | stopped |
+| Tryout list | 7.0     | 6.8     | stopped |
+
+Round 1 applied: checkbox gutter 48→32px, Terbit badge on the soft green, footer keeps the total on single-page datasets, tryout meta wraps without a dangling separator.
+
+Round 2 findings and why they were not applied:
+
+- _Bank soal has a 450px dead zone mid-row._ Measured: the Soal column is 950px of a 1174px table. The whitespace is short question text, not a narrow column. Rejected.
+- _Give the tryout list card `min-height: 100vh`._ With one tryout that paints a 600px empty bordered card. Rejected.
+- _The sort control is stranded on mobile._ Applied: the trailing control goes full-width below the filter grid instead of sitting alone, right-aligned.
