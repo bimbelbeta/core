@@ -156,14 +156,19 @@
 	/* Red */
 	--color-red-100: #fb3748;
 	--color-red-200: #d00416;
+	--color-red-800: #920e1c;
 
 	/* Yellow */
 	--color-yellow-100: #ffdb43;
 	--color-yellow-200: #dfb400;
+	--color-yellow-300: #ffce45;
+	--color-yellow-500: #f0b301;
+	--color-yellow-800: #7c5c06;
 
 	/* Green */
 	--color-green-100: #84ebb4;
 	--color-green-200: #1fc16b;
+	--color-green-800: #0b7a47;
 
 	/* Primary Navy */
 	--color-primary-navy-50: #eff6ff;

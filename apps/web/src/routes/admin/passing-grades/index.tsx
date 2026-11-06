@@ -27,7 +27,7 @@ const searchSchema = type({
 });
 
 export const Route = createFileRoute("/admin/passing-grades/")({
-	staticData: { breadcrumb: "Passing Grades" },
+	staticData: { breadcrumb: "Passing grade" },
 	component: RouteComponent,
 	validateSearch: searchSchema,
 });

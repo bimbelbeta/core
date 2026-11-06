@@ -9,7 +9,7 @@ const searchSchema = type({
 });
 
 export const Route = createFileRoute("/admin/_superadmin/referrals/")({
-	staticData: { breadcrumb: "Referral Codes" },
+	staticData: { breadcrumb: "Kode referral" },
 	component: ReferralListPage,
 	validateSearch: searchSchema,
 });

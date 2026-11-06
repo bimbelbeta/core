@@ -82,7 +82,7 @@ function ContentRow({
 				<ItemActions>
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
-							<Button variant="ghost" size="icon" aria-label={`Aksi untuk ${item.title}`}>
+							<Button variant="ghost" size="icon" className="m-1.5 p-2.5" aria-label={`Aksi untuk ${item.title}`}>
 								<DotsThreeIcon className="size-5" weight="bold" />
 							</Button>
 						</DropdownMenuTrigger>

@@ -109,7 +109,7 @@ function RouteComponent() {
 					{isAdmin && (
 						<Button size="sm" className="h-9" onClick={() => setCreateOpen(true)}>
 							<PlusIcon className="size-4" />
-							Tambah Subject
+							Tambah subject
 						</Button>
 					)}
 				</AdminPageHeaderActions>
@@ -160,7 +160,7 @@ function RouteComponent() {
 								isAdmin && !hasFilters ? (
 									<Button size="sm" onClick={() => setCreateOpen(true)}>
 										<PlusIcon className="size-4" />
-										Tambah Subject
+										Tambah subject
 									</Button>
 								) : undefined
 							}

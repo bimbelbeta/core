@@ -63,7 +63,7 @@ export function ProductsListPage() {
 					<Button asChild>
 						<Link to="/admin/products/create">
 							<PackageIcon className="size-4" />
-							Add Product
+							Tambah produk
 						</Link>
 					</Button>
 				</AdminPageHeaderActions>

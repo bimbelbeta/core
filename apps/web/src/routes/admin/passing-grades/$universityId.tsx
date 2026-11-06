@@ -37,7 +37,7 @@ import { DeleteProgramAlert } from "./-components/delete-program-alert";
 import { EditProgramDialog } from "./-components/edit-program-dialog";
 
 export const Route = createFileRoute("/admin/passing-grades/$universityId")({
-	staticData: { breadcrumb: "Universitas", breadcrumbParent: { label: "Passing Grades", to: "/admin/passing-grades" } },
+	staticData: { breadcrumb: "Universitas", breadcrumbParent: { label: "Passing grade", to: "/admin/passing-grades" } },
 	component: RouteComponent,
 });
 

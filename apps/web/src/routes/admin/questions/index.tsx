@@ -326,7 +326,12 @@ function QuestionsListPage() {
 												>
 													<DropdownMenu>
 														<DropdownMenuTrigger asChild>
-															<Button variant="ghost" size="icon" aria-label={`Aksi untuk soal ${q.id}`}>
+															<Button
+																variant="ghost"
+																size="icon"
+																className="m-1.5 p-2.5"
+																aria-label={`Aksi untuk soal ${q.id}`}
+															>
 																<DotsThreeIcon className="size-5" weight="bold" />
 															</Button>
 														</DropdownMenuTrigger>

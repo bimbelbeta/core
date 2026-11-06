@@ -82,12 +82,12 @@ export function AddUniversityDialog({
 			<DialogTrigger asChild>
 				<Button className="ml-auto">
 					<PlusIcon className="mr-2 size-4" />
-					Tambah Universitas
+					Tambah universitas
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="flex max-h-[85vh] flex-col sm:max-w-125">
 				<DialogHeader className="shrink-0">
-					<DialogTitle>Tambah Universitas</DialogTitle>
+					<DialogTitle>Tambah universitas</DialogTitle>
 					<DialogDescription>Tambahkan universitas baru ke dalam sistem. Isi form di bawah ini.</DialogDescription>
 				</DialogHeader>
 				<form
@@ -292,7 +292,7 @@ export function AddUniversityDialog({
 						<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
 							{([canSubmit, isSubmitting]) => (
 								<Button isPending={isSubmitting} type="submit" disabled={!canSubmit || isSubmitting}>
-									{"Tambah Universitas"}
+									{"Tambah universitas"}
 								</Button>
 							)}
 						</form.Subscribe>

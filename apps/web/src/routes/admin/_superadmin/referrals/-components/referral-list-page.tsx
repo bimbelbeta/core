@@ -190,7 +190,7 @@ export function ReferralListPage() {
 														<CheckCircleIcon className="size-4 text-green-700" />
 													)}
 												</Button>
-												<Button variant="ghost" size="icon" className="size-8" asChild>
+												<Button variant="ghost" size="icon" className="m-1.5 size-9 p-2.5" asChild>
 													<Link
 														to="/admin/referrals/$codeId"
 														params={{ codeId: item.id }}

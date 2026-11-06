@@ -75,8 +75,12 @@ function RootDocument() {
 					<Outlet />
 					<Toaster richColors />
 				</MotionProvider>
-				<TanStackRouterDevtools position="bottom-right" />
-				<ReactQueryDevtools position="bottom" buttonPosition="bottom-right" />
+				{import.meta.env.DEV && (
+					<>
+						<TanStackRouterDevtools position="bottom-right" />
+						<ReactQueryDevtools position="bottom" buttonPosition="bottom-right" />
+					</>
+				)}
 				<Scripts />
 			</body>
 		</html>
