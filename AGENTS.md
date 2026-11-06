@@ -72,3 +72,7 @@ apps/web/src/routes/
 ## Lessons
 
 - When identifying a reference screenshot, read the selected tab and page content before correcting the user.
+
+### Design constraints (do not violate)
+
+- Admin font is **Lexend** (`@fontsource-variable/lexend`, `--font-sans`). Never override the admin font stack (e.g. via `admin-shell`); font-family changes are out of bounds for any UI iteration.
