@@ -1,5 +1,4 @@
 import { ROLES, type Role } from "@bimbelbeta/contract/common/roles";
-import { ShieldCheckIcon, ShieldPlusIcon, UserIcon } from "@phosphor-icons/react";
 
 export const isValidRole = (value: string | null): value is Role => Object.values(ROLES).some((role) => role === value);
 
@@ -19,21 +18,9 @@ export function formatPremiumExpiry(date: Date) {
 }
 
 export const roleConfig = {
-	superadmin: {
-		label: "Superadmin",
-		icon: ShieldPlusIcon,
-		className: "border-tertiary-300 bg-tertiary-100 text-tertiary-800",
-	},
-	admin: {
-		label: "Admin",
-		icon: ShieldCheckIcon,
-		className: "border-primary-300 bg-primary-100 text-primary-800",
-	},
-	user: {
-		label: "User",
-		icon: UserIcon,
-		className: "border-neutral-300 bg-neutral-200 text-neutral-800",
-	},
+	superadmin: { label: "Superadmin", tone: "accent" },
+	admin: { label: "Admin", tone: "accent" },
+	user: { label: "User", tone: "neutral" },
 } as const;
 
 export function buildUsersSearch({

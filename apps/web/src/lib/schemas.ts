@@ -77,22 +77,16 @@ export type ProductType = typeof productTypeSchema.infer;
 
 export const variantConfig = {
 	fixed_date: {
-		label: "Fixed Date",
+		label: "Tanggal tetap",
 		icon: CalendarIcon,
-		iconColor: "text-purple-500",
-		bgColor: "bg-purple-100",
 	},
 	monthly: {
-		label: "Monthly",
+		label: "Bulanan",
 		icon: ClockIcon,
-		iconColor: "text-blue-500",
-		bgColor: "bg-blue-100",
 	},
 	credits: {
-		label: "Credits",
+		label: "Kredit",
 		icon: CreditCardIcon,
-		iconColor: "text-green-700",
-		bgColor: "bg-green-100",
 	},
 } as const;
 

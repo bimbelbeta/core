@@ -1,4 +1,3 @@
-import { PlusIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -10,7 +9,6 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -57,12 +55,6 @@ export function GrantCreditsDialog({
 				onOpenChange(value);
 			}}
 		>
-			<DialogTrigger asChild>
-				<Button variant="outline" size="sm" className="h-9 gap-2" aria-label={`Tambah kredit ${userName}`}>
-					<PlusIcon className="size-4" />
-					<span>Kredit</span>
-				</Button>
-			</DialogTrigger>
 			<DialogContent className="sm:max-w-sm">
 				<DialogHeader>
 					<DialogTitle>Add Credits</DialogTitle>

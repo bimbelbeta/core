@@ -57,6 +57,10 @@ export function useProductsList() {
 		navigate({ search: value === "true" ? { ...rest, includeDeleted: true } : rest });
 	};
 
+	const handleReset = () => {
+		navigate({ search: { limit } });
+	};
+
 	const { handleNext, handlePrevious } = usePaginationNavigation(navigate, pageInfo, baseSearchParams);
 
 	return {
@@ -74,6 +78,7 @@ export function useProductsList() {
 		handleSearch,
 		handleVariantChange,
 		handleIncludeDeletedChange,
+		handleReset,
 		handleNext,
 		handlePrevious,
 	};

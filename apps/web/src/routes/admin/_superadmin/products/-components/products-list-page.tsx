@@ -1,4 +1,4 @@
-import { ArrowCounterClockwiseIcon, CalendarDotsIcon, PackageIcon, TrashIcon } from "@phosphor-icons/react";
+import { ArrowCounterClockwiseIcon, DotsThreeIcon, PackageIcon, TrashIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import {
 	AdminPageContent,
@@ -7,6 +7,7 @@ import {
 	AdminPageHeaderContent,
 	AdminPageRoot,
 } from "@/components/admin/admin-page";
+import { AdminChip, AdminMeta } from "@/components/admin/admin-status";
 import {
 	AdminTable,
 	AdminTableBody,
@@ -16,20 +17,22 @@ import {
 	AdminTableRoot,
 	AdminTableRow,
 } from "@/components/admin/admin-table";
-import { AdminTablePaginationWrapper } from "@/components/admin/admin-table-toolbar";
+import { AdminTablePaginationWrapper, AdminTableToolbar } from "@/components/admin/admin-table-toolbar";
 import { PaginationButtons } from "@/components/admin/pagination-buttons";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { SearchInput } from "@/components/ui/search-input";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Typography } from "@/components/ui/typography";
-import { formatDateLong, formatRelativeDate } from "@/lib/format-date";
+import { formatDateMedium } from "@/lib/format-date";
 import { formatRupiah } from "@/lib/formatter";
 import { variantConfig } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import { useProductsList } from "../-hooks/use-products-list";
-
 import { DeleteProductDialog } from "./delete-product-dialog";
 import { RestoreProductDialog } from "./restore-product-dialog";
 
@@ -49,9 +52,12 @@ export function ProductsListPage() {
 		handleSearch,
 		handleVariantChange,
 		handleIncludeDeletedChange,
+		handleReset,
 		handleNext,
 		handlePrevious,
 	} = useProductsList();
+
+	const hasFilters = Boolean(searchInput || variant || includeDeleted);
 
 	return (
 		<AdminPageRoot>
@@ -70,143 +76,144 @@ export function ProductsListPage() {
 			</AdminPageHeader>
 
 			<AdminPageContent>
-				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-					<SearchInput
-						value={searchInput}
-						onChange={handleSearch}
-						placeholder="Cari nama produk..."
-						className="w-full sm:max-w-sm md:max-w-md"
-					/>
-					<div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-						<Select value={variant ?? "all"} onValueChange={handleVariantChange}>
-							<SelectTrigger className="w-full sm:w-40">
-								<SelectValue placeholder="Semua Variant" />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="all">Semua Variant</SelectItem>
-								{Object.entries(variantConfig).map(([value, config]) => (
-									<SelectItem key={value} value={value}>
-										{config.label}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-						<Select value={includeDeleted ? "true" : "false"} onValueChange={handleIncludeDeletedChange}>
-							<SelectTrigger className="w-full sm:w-40">
-								<SelectValue placeholder="Status" />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="false">Aktif</SelectItem>
-								<SelectItem value="true">Semua (termasuk hapus)</SelectItem>
-							</SelectContent>
-						</Select>
-					</div>
-				</div>
+				<AdminTableToolbar
+					searchValue={searchInput}
+					onSearchChange={handleSearch}
+					searchPlaceholder="Cari nama produk..."
+					onReset={hasFilters ? handleReset : undefined}
+				>
+					<Select value={variant ?? "all"} onValueChange={handleVariantChange}>
+						<SelectTrigger className="w-full sm:w-40">
+							<SelectValue placeholder="Semua varian" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="all">Semua varian</SelectItem>
+							{Object.entries(variantConfig).map(([value, config]) => (
+								<SelectItem key={value} value={value}>
+									{config.label}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+					<Select value={includeDeleted ? "true" : "false"} onValueChange={handleIncludeDeletedChange}>
+						<SelectTrigger className="w-full sm:w-40">
+							<SelectValue placeholder="Status" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="true">Semua produk</SelectItem>
+							<SelectItem value="false">Hanya aktif</SelectItem>
+						</SelectContent>
+					</Select>
+				</AdminTableToolbar>
 
 				<AdminTableRoot>
-					<AdminTable>
+					<AdminTable className="table-fixed">
 						<AdminTableHeader>
-							<AdminTableHead className="pl-4">Nama</AdminTableHead>
-							<AdminTableHead>Variant</AdminTableHead>
-							<AdminTableHead className="text-right">Harga</AdminTableHead>
-							<AdminTableHead>Type</AdminTableHead>
-							<AdminTableHead className="min-w-32.5">Dibuat</AdminTableHead>
-							<AdminTableHead className="pr-4 text-right">Aksi</AdminTableHead>
+							<AdminTableHead className="w-[36%] pl-3">Nama</AdminTableHead>
+							<AdminTableHead className="w-[16%]">Varian</AdminTableHead>
+							<AdminTableHead className="w-[14%] text-right">Harga</AdminTableHead>
+							<AdminTableHead className="w-[14%]">Tipe</AdminTableHead>
+							<AdminTableHead className="hidden w-[14%] text-right sm:table-cell">Diperbarui</AdminTableHead>
+							<AdminTableHead className="w-[6%] pr-3 text-right">
+								<span className="sr-only">Aksi</span>
+							</AdminTableHead>
 						</AdminTableHeader>
 						<AdminTableBody
 							isLoading={isLoading}
 							isEmpty={!isLoading && data?.items.length === 0}
 							columns={6}
-							emptyMessage="Tidak ada product ditemukan."
+							emptyMessage={hasFilters ? "Tidak ada produk yang cocok dengan filter ini." : "Belum ada produk."}
+							emptyAction={
+								hasFilters ? (
+									<Button variant="outline" size="sm" onClick={handleReset}>
+										Hapus filter
+									</Button>
+								) : (
+									<Button asChild size="sm">
+										<Link to="/admin/products/create">
+											<PackageIcon className="size-4" />
+											Tambah produk
+										</Link>
+									</Button>
+								)
+							}
 						>
-							{!isLoading && data?.items.length !== 0 && (
-								<TooltipProvider delayDuration={200}>
-									{data?.items.map((product) => {
-										const variantInfo = variantConfig[product.variant] ?? variantConfig.credits;
-										const VariantIcon = variantInfo.icon;
-										const createdDate = product.createdAt ? new Date(product.createdAt) : null;
-										const isDeleted = !!product.deletedAt;
+							{data?.items.map((product) => {
+								const variantInfo = variantConfig[product.variant] ?? variantConfig.credits;
+								const VariantIcon = variantInfo.icon;
+								const isDeleted = !!product.deletedAt;
 
-										return (
-											<AdminTableRow key={product.id} className={cn(isDeleted && "opacity-50")}>
-												<AdminTableCell className="pl-4">
-													<div className="flex flex-col">
-														<Link
-															to="/admin/products/$productId"
-															params={{ productId: product.id }}
-															className="text-foreground leading-tight font-semibold transition-colors hover:underline"
-														>
-															{product.name}
+								return (
+									<AdminTableRow key={product.id} className={cn(isDeleted && "opacity-50")}>
+										<AdminTableCell className="pl-3">
+											<div className="min-w-0">
+												<Link
+													to="/admin/products/$productId"
+													params={{ productId: product.id }}
+													className="text-row-title text-foreground hover:text-primary focus-visible:ring-ring/50 block truncate rounded-sm underline-offset-4 outline-none after:absolute after:inset-0 after:content-[''] hover:underline focus-visible:ring-2"
+												>
+													{product.name}
+												</Link>
+												<p className="text-muted-foreground text-meta truncate font-mono">{product.slug}</p>
+											</div>
+										</AdminTableCell>
+
+										<AdminTableCell>
+											<span className="text-muted-foreground inline-flex items-center gap-1.5 text-sm">
+												<VariantIcon className="size-3.5 shrink-0" />
+												{variantInfo.label}
+											</span>
+										</AdminTableCell>
+
+										<AdminTableCell className="text-right">
+											<span className="text-sm tabular-nums">{formatRupiah(product.price)}</span>
+										</AdminTableCell>
+
+										<AdminTableCell>
+											{product.type === "subscription" ? (
+												<AdminChip tone="accent">Langganan</AdminChip>
+											) : (
+												<AdminMeta>Sekali beli</AdminMeta>
+											)}
+										</AdminTableCell>
+
+										<AdminTableCell className="text-muted-foreground text-meta hidden text-right whitespace-nowrap sm:table-cell">
+											{product.updatedAt ? formatDateMedium(new Date(product.updatedAt)) : "—"}
+										</AdminTableCell>
+
+										<AdminTableCell className="relative z-10 pr-3 text-right">
+											<DropdownMenu>
+												<DropdownMenuTrigger asChild>
+													<Button
+														variant="ghost"
+														size="icon"
+														className="size-9"
+														aria-label={`Aksi untuk ${product.name}`}
+													>
+														<DotsThreeIcon className="size-5" weight="bold" />
+													</Button>
+												</DropdownMenuTrigger>
+												<DropdownMenuContent align="end">
+													<DropdownMenuItem asChild>
+														<Link to="/admin/products/$productId" params={{ productId: product.id }}>
+															Buka produk
 														</Link>
-														<span className="text-muted-foreground text-xs leading-tight">{product.slug}</span>
-													</div>
-												</AdminTableCell>
-
-												<AdminTableCell>
-													<div className="flex items-center gap-1.5">
-														<div
-															className={cn("flex size-6 items-center justify-center rounded-md", variantInfo.bgColor)}
-														>
-															<VariantIcon className={cn("size-3.5", variantInfo.iconColor)} />
-														</div>
-														<span className="text-sm font-medium">{variantInfo.label}</span>
-													</div>
-												</AdminTableCell>
-
-												<AdminTableCell className="text-right">
-													<span className="text-sm font-semibold tabular-nums">{formatRupiah(product.price)}</span>
-												</AdminTableCell>
-
-												<AdminTableCell>
-													<Badge variant={product.type === "subscription" ? "info" : "success"} className="capitalize">
-														{product.type}
-													</Badge>
-												</AdminTableCell>
-
-												<AdminTableCell>
-													{createdDate ? (
-														<Tooltip>
-															<TooltipTrigger asChild>
-																<span className="text-muted-foreground flex items-center gap-1.5 text-xs">
-																	<CalendarDotsIcon className="size-3.5" />
-																	{formatRelativeDate(createdDate)}
-																</span>
-															</TooltipTrigger>
-															<TooltipContent>{formatDateLong(createdDate)}</TooltipContent>
-														</Tooltip>
+													</DropdownMenuItem>
+													{isDeleted ? (
+														<DropdownMenuItem onSelect={() => setRestoreProductId(product.id)}>
+															<ArrowCounterClockwiseIcon className="size-4" /> Pulihkan produk
+														</DropdownMenuItem>
 													) : (
-														<span className="text-muted-foreground text-xs">-</span>
+														<DropdownMenuItem variant="destructive" onSelect={() => setDeleteProductId(product.id)}>
+															<TrashIcon className="size-4" /> Hapus produk
+														</DropdownMenuItem>
 													)}
-												</AdminTableCell>
-
-												<AdminTableCell className="pr-4 text-right">
-													<div className="flex items-center justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
-														{isDeleted ? (
-															<Button
-																variant="ghost"
-																size="icon"
-																aria-label={`Pulihkan produk ${product.name}`}
-																onClick={() => setRestoreProductId(product.id)}
-															>
-																<ArrowCounterClockwiseIcon className="size-4" />
-															</Button>
-														) : (
-															<Button
-																variant="ghost"
-																size="icon"
-																aria-label={`Hapus produk ${product.name}`}
-																onClick={() => setDeleteProductId(product.id)}
-															>
-																<TrashIcon className="size-4" />
-															</Button>
-														)}
-													</div>
-												</AdminTableCell>
-											</AdminTableRow>
-										);
-									})}
-								</TooltipProvider>
-							)}
+												</DropdownMenuContent>
+											</DropdownMenu>
+										</AdminTableCell>
+									</AdminTableRow>
+								);
+							})}
 						</AdminTableBody>
 					</AdminTable>
 
@@ -217,6 +224,7 @@ export function ProductsListPage() {
 								onNext={handleNext}
 								hasPrevious={!!pageInfo?.hasPreviousPage}
 								hasNext={!!pageInfo?.hasNextPage}
+								totalCount={pageInfo?.totalCount}
 							/>
 						</AdminTablePaginationWrapper>
 					)}

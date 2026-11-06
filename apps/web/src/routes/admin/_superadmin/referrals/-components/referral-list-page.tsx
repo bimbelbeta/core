@@ -1,4 +1,4 @@
-import { ArrowRightIcon, CheckCircleIcon, ProhibitIcon, XCircleIcon } from "@phosphor-icons/react";
+import { CheckCircleIcon, DotsThreeIcon, ProhibitIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import {
 	AdminPageContent,
@@ -7,6 +7,7 @@ import {
 	AdminPageHeaderContent,
 	AdminPageRoot,
 } from "@/components/admin/admin-page";
+import { AdminStatus } from "@/components/admin/admin-status";
 import {
 	AdminTable,
 	AdminTableBody,
@@ -16,27 +17,18 @@ import {
 	AdminTableRoot,
 	AdminTableRow,
 } from "@/components/admin/admin-table";
-import {
-	AdminTableBulkActions,
-	AdminTablePaginationWrapper,
-	AdminTableToolbar,
-} from "@/components/admin/admin-table-toolbar";
+import { AdminTablePaginationWrapper, AdminTableToolbar } from "@/components/admin/admin-table-toolbar";
 import { PaginationButtons } from "@/components/admin/pagination-buttons";
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Typography } from "@/components/ui/typography";
+import { formatDateMedium } from "@/lib/format-date";
 import { useReferralsList } from "../-hooks/use-referrals-list";
 import { formatDate } from "../-utils";
 import { CreateReferralDialog } from "./create-referral-dialog";
@@ -48,20 +40,16 @@ export function ReferralListPage() {
 		refetch,
 		pageInfo,
 		search,
-		selectedIds,
-		bulkDialogOpen,
-		setBulkDialogOpen,
+		status,
 		handleNext,
 		handlePrevious,
 		handleReset,
 		handleSearch,
+		handleStatusChange,
 		handleToggleStatus,
-		handleBulkDeactivate,
-		toggleSelectAll,
-		toggleSelectOne,
-		allSelected,
-		someSelected,
 	} = useReferralsList();
+
+	const hasFilters = Boolean(search || status !== undefined);
 
 	return (
 		<AdminPageRoot>
@@ -79,127 +67,106 @@ export function ReferralListPage() {
 					searchValue={search ?? ""}
 					onSearchChange={handleSearch}
 					searchPlaceholder="Cari kode referral..."
-					onReset={search ? handleReset : undefined}
-				/>
-
-				<AdminTableBulkActions selectedCount={selectedIds.length}>
-					<AlertDialog open={bulkDialogOpen} onOpenChange={setBulkDialogOpen}>
-						<AlertDialogTrigger asChild>
-							<Button variant="destructive" size="sm">
-								<ProhibitIcon className="mr-2 size-4" />
-								Nonaktifkan Terpilih
-							</Button>
-						</AlertDialogTrigger>
-						<AlertDialogContent>
-							<AlertDialogHeader>
-								<AlertDialogTitle>Nonaktifkan Kode Referal</AlertDialogTitle>
-								<AlertDialogDescription>
-									{selectedIds.length} kode akan dinonaktifkan. Pengguna tidak dapat lagi menukarkan kode ini.
-								</AlertDialogDescription>
-							</AlertDialogHeader>
-							<AlertDialogFooter>
-								<AlertDialogCancel>Batal</AlertDialogCancel>
-								<AlertDialogAction onClick={handleBulkDeactivate} variant="destructive">
-									Nonaktifkan
-								</AlertDialogAction>
-							</AlertDialogFooter>
-						</AlertDialogContent>
-					</AlertDialog>
-				</AdminTableBulkActions>
+					onReset={hasFilters ? handleReset : undefined}
+				>
+					<Select value={status === undefined ? "all" : status ? "true" : "false"} onValueChange={handleStatusChange}>
+						<SelectTrigger className="w-full sm:w-40">
+							<SelectValue placeholder="Semua status" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="all">Semua status</SelectItem>
+							<SelectItem value="true">Aktif</SelectItem>
+							<SelectItem value="false">Nonaktif</SelectItem>
+						</SelectContent>
+					</Select>
+				</AdminTableToolbar>
 
 				<AdminTableRoot>
-					<AdminTable>
+					<AdminTable className="table-fixed">
 						<AdminTableHeader>
-							<AdminTableHead className="w-12 pl-4">
-								<Checkbox
-									checked={someSelected ? "indeterminate" : allSelected}
-									onCheckedChange={toggleSelectAll}
-									aria-label="Pilih semua kode referal"
-								/>
+							<AdminTableHead className="w-[36%] pl-3">Kode</AdminTableHead>
+							<AdminTableHead className="w-[14%]">Status</AdminTableHead>
+							<AdminTableHead className="w-[14%] text-right">Penggunaan</AdminTableHead>
+							<AdminTableHead className="hidden w-[11%] text-right sm:table-cell">Durasi</AdminTableHead>
+							<AdminTableHead className="hidden w-[19%] text-right sm:table-cell">Diperbarui</AdminTableHead>
+							<AdminTableHead className="w-[6%] pr-3 text-right">
+								<span className="sr-only">Aksi</span>
 							</AdminTableHead>
-							<AdminTableHead>Status</AdminTableHead>
-							<AdminTableHead>Kode</AdminTableHead>
-							<AdminTableHead>Penggunaan</AdminTableHead>
-							<AdminTableHead>Berlaku Hingga</AdminTableHead>
-							<AdminTableHead>Durasi Premium</AdminTableHead>
-							<AdminTableHead className="pr-4 text-right">Aksi</AdminTableHead>
 						</AdminTableHeader>
 						<AdminTableBody
 							isLoading={isLoading}
 							isEmpty={!isLoading && data?.items.length === 0}
-							emptyMessage="Belum ada kode referal."
-							columns={7}
+							emptyMessage={search ? "Tidak ada kode yang cocok dengan pencarian ini." : "Belum ada kode referal."}
+							emptyAction={
+								search ? (
+									<Button variant="outline" size="sm" onClick={handleReset}>
+										Hapus filter
+									</Button>
+								) : undefined
+							}
+							columns={6}
 						>
 							{data?.items.map((item) => {
 								const isExpired = item.validUntil ? new Date(item.validUntil) < new Date() : false;
 								const isFull = item.maxUsages !== null && item.usageCount >= item.maxUsages;
 								return (
 									<AdminTableRow key={item.id}>
-										<AdminTableCell className="pl-4">
-											<Checkbox
-												checked={selectedIds.includes(item.id)}
-												onCheckedChange={() => toggleSelectOne(item.id)}
-												aria-label={`Pilih ${item.code}`}
-											/>
+										<AdminTableCell className="pl-3">
+											<div className="min-w-0">
+												<Link
+													to="/admin/referrals/$codeId"
+													params={{ codeId: item.id }}
+													className="text-row-title text-foreground hover:text-primary focus-visible:ring-ring/50 block rounded-sm font-mono tracking-wide underline-offset-4 outline-none after:absolute after:inset-0 after:content-[''] hover:underline focus-visible:ring-2"
+												>
+													{item.code}
+												</Link>
+												<p className="text-muted-foreground text-meta mt-0.5 truncate">
+													{item.validUntil ? `Berlaku hingga ${formatDate(item.validUntil)}` : "Tanpa batas waktu"}
+												</p>
+											</div>
 										</AdminTableCell>
 										<AdminTableCell>
 											{item.status && !isExpired && !isFull ? (
-												<Badge className="text-meta gap-1" variant="success">
-													<CheckCircleIcon className="size-3" weight="fill" />
-													Aktif
-												</Badge>
+												<AdminStatus tone="positive">Aktif</AdminStatus>
 											) : (
-												<Badge className="text-meta gap-1" variant="danger">
-													<XCircleIcon className="size-3" weight="fill" />
-													{!item.status ? "Nonaktif" : isExpired ? "Kedaluwarsa" : "Kuota Habis"}
-												</Badge>
+												<AdminStatus tone={!item.status ? "neutral" : isExpired ? "danger" : "warning"}>
+													{!item.status ? "Nonaktif" : isExpired ? "Kedaluwarsa" : "Kuota habis"}
+												</AdminStatus>
 											)}
 										</AdminTableCell>
-										<AdminTableCell>
-											<code className="bg-muted rounded px-2 py-0.5 text-sm font-semibold tracking-wide tabular-nums">
-												{item.code}
-											</code>
-										</AdminTableCell>
-										<AdminTableCell>
+										<AdminTableCell className="text-right">
 											<span className="text-sm tabular-nums">
 												{item.usageCount}
 												{item.maxUsages !== null ? ` / ${item.maxUsages}` : " / ∞"}
 											</span>
 										</AdminTableCell>
-										<AdminTableCell>
-											<span className={`text-sm ${isExpired ? "text-red-800" : "text-muted-foreground"}`}>
-												{formatDate(item.validUntil)}
-											</span>
+										<AdminTableCell className="hidden text-right sm:table-cell">
+											<span className="text-sm tabular-nums">{item.premiumDays} hari</span>
 										</AdminTableCell>
-										<AdminTableCell>
-											<span className="text-sm">{item.premiumDays} hari</span>
+										<AdminTableCell className="text-muted-foreground text-meta hidden text-right whitespace-nowrap sm:table-cell">
+											{formatDateMedium(new Date(item.updatedAt))}
 										</AdminTableCell>
-										<AdminTableCell className="pr-4 text-right">
-											<div className="flex items-center justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
-												<Button
-													variant="ghost"
-													size="icon"
-													className="size-8"
-													onClick={() => handleToggleStatus(item.id, !item.status)}
-													aria-label={`${item.status ? "Nonaktifkan" : "Aktifkan"} ${item.code}`}
-													id={`toggle-status-${item.id}`}
-												>
-													{item.status ? (
-														<ProhibitIcon className="text-destructive size-4" />
-													) : (
-														<CheckCircleIcon className="size-4 text-green-800" />
-													)}
-												</Button>
-												<Button variant="ghost" size="icon" className="m-1.5 size-9 p-2.5" asChild>
-													<Link
-														to="/admin/referrals/$codeId"
-														params={{ codeId: item.id }}
-														aria-label={`Lihat detail ${item.code}`}
-													>
-														<ArrowRightIcon className="size-4" />
-													</Link>
-												</Button>
-											</div>
+										<AdminTableCell className="relative z-10 pr-3 text-right">
+											<DropdownMenu>
+												<DropdownMenuTrigger asChild>
+													<Button variant="ghost" size="icon" className="size-9" aria-label={`Aksi untuk ${item.code}`}>
+														<DotsThreeIcon className="size-5" weight="bold" />
+													</Button>
+												</DropdownMenuTrigger>
+												<DropdownMenuContent align="end">
+													<DropdownMenuItem onSelect={() => handleToggleStatus(item.id, !item.status)}>
+														{item.status ? (
+															<>
+																<ProhibitIcon className="size-4" /> Nonaktifkan
+															</>
+														) : (
+															<>
+																<CheckCircleIcon className="size-4" /> Aktifkan
+															</>
+														)}
+													</DropdownMenuItem>
+												</DropdownMenuContent>
+											</DropdownMenu>
 										</AdminTableCell>
 									</AdminTableRow>
 								);
@@ -214,6 +181,7 @@ export function ReferralListPage() {
 								onNext={handleNext}
 								hasPrevious={!!pageInfo?.hasPreviousPage}
 								hasNext={!!pageInfo?.hasNextPage}
+								totalCount={pageInfo?.totalCount}
 							/>
 						</AdminTablePaginationWrapper>
 					)}

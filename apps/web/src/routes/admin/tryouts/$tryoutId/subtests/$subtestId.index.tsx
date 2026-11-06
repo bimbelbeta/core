@@ -1,4 +1,4 @@
-import { ArrowLeftIcon, PlusIcon, TrashIcon } from "@phosphor-icons/react";
+import { ArrowLeftIcon, PlusIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
@@ -11,25 +11,13 @@ import {
 	AdminPageHeaderContent,
 	AdminPageRoot,
 } from "@/components/admin/admin-page";
-import { AdminTableBulkActions } from "@/components/admin/admin-table-toolbar";
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/ui/typography";
-import { useBulkSelection } from "@/hooks/use-bulk-selection";
 import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
-import { BulkAddQuestionsDialog } from "../../-components/bulk-add-questions-dialog";
-import { BulkQuestionsTable } from "../../-components/bulk-questions-table";
+import { AttachQuestionsDialog } from "../../-components/attach-questions-dialog";
 import { ScoringMapEditor } from "../../-components/scoring-map-editor";
+import { SubtestQuestionsTable } from "../../-components/subtest-questions-table";
 
 export const Route = createFileRoute("/admin/tryouts/$tryoutId/subtests/$subtestId/")({
 	staticData: { breadcrumb: "Subtest", breadcrumbParent: { label: "Tryout", to: "/admin/tryouts/$tryoutId" } },
@@ -52,15 +40,12 @@ function SubtestDetailPage() {
 		}),
 	);
 
-	const [isBulkAddOpen, setIsBulkAddOpen] = useState(false);
-	const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
+	const [isAttachOpen, setIsAttachOpen] = useState(false);
 
-	const bulkDeleteMutation = useMutation(
-		orpc.admin.tryout.questionsBulk.bulkRemoveQuestionsFromSubtest.mutationOptions({
-			onSuccess: (result) => {
-				toast.success(`${result.removedCount} soal berhasil dihapus dari subtest`);
-				clearSelection();
-				setIsBulkDeleteOpen(false);
+	const removeMutation = useMutation(
+		orpc.admin.tryout.questionsBulk.removeQuestionFromSubtest.mutationOptions({
+			onSuccess: () => {
+				toast.success("Soal dilepas dari subtest");
 				refetch();
 			},
 			onError: (err) => {
@@ -70,24 +55,8 @@ function SubtestDetailPage() {
 	);
 
 	const questions = data?.questions;
-	const {
-		selectedIds,
-		toggleSelectAll: handleSelectAll,
-		toggleSelectOne,
-		clearSelection,
-		allSelected: isAllSelected,
-	} = useBulkSelection(questions);
 
 	if (isPending || !questions) return null;
-
-	const handleBulkDelete = () => {
-		if (selectedIds.length === 0) return;
-
-		bulkDeleteMutation.mutate({
-			subtestId,
-			questionIds: selectedIds,
-		});
-	};
 
 	return (
 		<AdminPageRoot>
@@ -108,7 +77,11 @@ function SubtestDetailPage() {
 					</Typography>
 				</AdminPageHeaderContent>
 				<AdminPageHeaderActions>
-					<Button className="gap-2" asChild>
+					<Button variant="outline" onClick={() => setIsAttachOpen(true)}>
+						<PlusIcon className="size-4" />
+						Tambah soal
+					</Button>
+					<Button asChild>
 						<Link
 							to="/admin/tryouts/$tryoutId/subtests/$subtestId/questions/new"
 							params={{ tryoutId: tId, subtestId: subtestId.toString() }}
@@ -117,50 +90,15 @@ function SubtestDetailPage() {
 							Buat soal
 						</Link>
 					</Button>
-					<Button variant="outline" onClick={() => setIsBulkAddOpen(true)} className="gap-2">
-						<PlusIcon className="size-4" />
-						Tambah soal massal
-					</Button>
 				</AdminPageHeaderActions>
 			</AdminPageHeader>
 
 			<AdminPageContent>
-				<AdminTableBulkActions selectedCount={selectedIds.length}>
-					<AlertDialog open={isBulkDeleteOpen} onOpenChange={setIsBulkDeleteOpen}>
-						<Button
-							variant="destructive"
-							onClick={() => setIsBulkDeleteOpen(true)}
-							disabled={selectedIds.length === 0}
-							className="gap-2"
-						>
-							<TrashIcon className="size-4" />
-							Hapus {selectedIds.length > 0 && `(${selectedIds.length})`}
-						</Button>
-						<AlertDialogContent>
-							<AlertDialogHeader>
-								<AlertDialogTitle>Hapus Soal Massal</AlertDialogTitle>
-								<AlertDialogDescription>
-									Apakah Anda yakin ingin menghapus {selectedIds.length} soal dari subtest ini? Tindakan ini tidak dapat
-									dibatalkan.
-								</AlertDialogDescription>
-							</AlertDialogHeader>
-							<AlertDialogFooter>
-								<AlertDialogCancel>Batal</AlertDialogCancel>
-								<AlertDialogAction onClick={handleBulkDelete} variant="destructive">
-									Hapus {selectedIds.length} Soal
-								</AlertDialogAction>
-							</AlertDialogFooter>
-						</AlertDialogContent>
-					</AlertDialog>
-				</AdminTableBulkActions>
-
-				<BulkQuestionsTable
+				<SubtestQuestionsTable
 					questions={questions}
 					isPending={isPending}
-					selectedIds={selectedIds}
-					onToggleOne={toggleSelectOne}
-					onSelectAll={handleSelectAll}
-					isAllSelected={isAllSelected}
+					isRemoving={removeMutation.isPending}
+					onRemove={(questionId) => removeMutation.mutate({ subtestId, questionId })}
 				/>
 
 				<ScoringMapEditor
@@ -171,11 +109,12 @@ function SubtestDetailPage() {
 				/>
 			</AdminPageContent>
 
-			<BulkAddQuestionsDialog
-				open={isBulkAddOpen}
-				onOpenChange={setIsBulkAddOpen}
+			<AttachQuestionsDialog
+				open={isAttachOpen}
+				onOpenChange={setIsAttachOpen}
 				onSuccess={() => refetch()}
 				subtestId={subtestId}
+				attachedIds={questions.map((item) => item.question.id)}
 			/>
 		</AdminPageRoot>
 	);

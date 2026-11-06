@@ -60,12 +60,12 @@ export function CreateReferralDialog({ onSuccess }: { onSuccess: () => void }) {
 		<>
 			<Button onClick={() => setOpen(true)} size="sm" id="create-referral-btn">
 				<PlusIcon className="mr-1 size-4" />
-				Buat Kode Referal
+				Buat kode referal
 			</Button>
 			<Dialog open={open} onOpenChange={setOpen}>
 				<DialogContent className="max-w-md">
 					<DialogHeader>
-						<DialogTitle>Buat Kode Referal</DialogTitle>
+						<DialogTitle>Buat kode referal</DialogTitle>
 						<DialogDescription>
 							Kosongkan kolom "Kode" untuk auto-generate. Hanya huruf dan angka (A-Z, 0-9).
 						</DialogDescription>
@@ -122,7 +122,7 @@ export function CreateReferralDialog({ onSuccess }: { onSuccess: () => void }) {
 								disabled={createMutation.isPending}
 								id="submit-create-referral-btn"
 							>
-								{"Buat Kode"}
+								{"Buat kode"}
 							</Button>
 						</DialogFooter>
 					</form>

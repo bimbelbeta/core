@@ -11,6 +11,7 @@ import {
 	AdminPageHeaderContent,
 	AdminPageRoot,
 } from "@/components/admin/admin-page";
+import { AdminChip } from "@/components/admin/admin-status";
 import {
 	AdminTable,
 	AdminTableBody,
@@ -25,7 +26,6 @@ import type { SubjectFilter, SubjectListItem } from "@/components/classes/classe
 import { CreateSubjectDialog } from "@/components/classes/create-subject-dialog";
 import { DeleteSubjectDialog } from "@/components/classes/delete-subject-dialog";
 import { EditSubjectDialog } from "@/components/classes/edit-subject-dialog";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -129,10 +129,10 @@ function RouteComponent() {
 						}
 					>
 						<SelectTrigger className="w-full sm:w-40">
-							<SelectValue placeholder="Semua Kelas" />
+							<SelectValue placeholder="Semua kelas" />
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value="all">Semua Kelas</SelectItem>
+							<SelectItem value="all">Semua kelas</SelectItem>
 							{Object.entries(SUBJECT_CATEGORY_LABELS).map(([value, label]) => (
 								<SelectItem key={value} value={value}>
 									{label}
@@ -145,10 +145,12 @@ function RouteComponent() {
 				<AdminTableRoot>
 					<AdminTable>
 						<AdminTableHeader>
-							<AdminTableHead className="pl-4">Subject</AdminTableHead>
+							<AdminTableHead className="pl-3">Subject</AdminTableHead>
 							<AdminTableHead className="hidden w-32 sm:table-cell">Kategori</AdminTableHead>
 							<AdminTableHead className="hidden w-36 sm:table-cell">Dibuka</AdminTableHead>
-							<AdminTableHead className="pr-4 text-right">Aksi</AdminTableHead>
+							<AdminTableHead className="pr-3 text-right">
+								<span className="sr-only">Aksi</span>
+							</AdminTableHead>
 						</AdminTableHeader>
 						<AdminTableBody
 							isLoading={subjectsQuery.isPending && !subjectsQuery.data}
@@ -168,7 +170,7 @@ function RouteComponent() {
 						>
 							{items.map((subject) => (
 								<AdminTableRow key={subject.id}>
-									<AdminTableCell className="pl-4">
+									<AdminTableCell className="pl-3">
 										<div className="min-w-0">
 											<Link
 												to={isAdmin ? "/admin/classes/$subjectId" : "/classes/$subjectId"}
@@ -183,14 +185,12 @@ function RouteComponent() {
 										</div>
 									</AdminTableCell>
 									<AdminTableCell className="hidden sm:table-cell">
-										<Badge variant="outline" className="font-normal uppercase">
-											{subject.category}
-										</Badge>
+										<AdminChip>{subject.category}</AdminChip>
 									</AdminTableCell>
 									<AdminTableCell className="text-muted-foreground hidden text-sm sm:table-cell">
 										{subject.hasViewed ? "Sudah dibuka" : "—"}
 									</AdminTableCell>
-									<AdminTableCell className="relative z-10 pr-4 text-right">
+									<AdminTableCell className="relative z-10 pr-3 text-right">
 										<div className="flex items-center justify-end">
 											<DropdownMenu>
 												<DropdownMenuTrigger asChild>

@@ -3,7 +3,7 @@ import { SUBJECT_CATEGORY_LABELS, subjectCategorySchema } from "@/lib/schemas";
 import type { SubjectFilter } from "./classes-types";
 
 const FILTERS: { value: SubjectFilter; label: string }[] = [
-	{ value: "all", label: "Semua Kelas" },
+	{ value: "all", label: "Semua kelas" },
 	...Object.entries(SUBJECT_CATEGORY_LABELS).map(([value, label]) => ({
 		value: subjectCategorySchema.assert(value),
 		label,

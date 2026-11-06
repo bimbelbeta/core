@@ -6,6 +6,7 @@ import { ReferralListPage } from "./-components/referral-list-page";
 const searchSchema = type({
 	"...": PaginationInputSchema,
 	"search?": "string",
+	"status?": "boolean",
 });
 
 export const Route = createFileRoute("/admin/_superadmin/referrals/")({

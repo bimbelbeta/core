@@ -28,17 +28,4 @@ function Checkbox({ className, ...props }: React.ComponentProps<typeof CheckboxP
 	);
 }
 
-function CheckboxIndicator({ className, checked }: { className?: string; checked: boolean }) {
-	return (
-		<span
-			aria-hidden
-			data-slot="checkbox-indicator"
-			data-state={checked ? "checked" : "unchecked"}
-			className={cn(checkboxSurface, "flex items-center justify-center", className)}
-		>
-			{checked && <Check className="size-3.5" />}
-		</span>
-	);
-}
-
-export { Checkbox, CheckboxIndicator };
+export { Checkbox };

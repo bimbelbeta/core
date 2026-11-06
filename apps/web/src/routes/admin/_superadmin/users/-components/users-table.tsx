@@ -1,6 +1,7 @@
-import { CalendarDotsIcon, ClockIcon, CreditCardIcon, CrownIcon } from "@phosphor-icons/react";
+import { DotsThreeIcon, PencilSimpleIcon, PlusIcon, StarIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { AdminChip, AdminMeta, AdminStatus } from "@/components/admin/admin-status";
 import {
 	AdminTable,
 	AdminTableBody,
@@ -13,8 +14,13 @@ import {
 import { AdminTablePaginationWrapper } from "@/components/admin/admin-table-toolbar";
 import { PaginationButtons } from "@/components/admin/pagination-buttons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatDateLong, formatDateMedium, formatDateTime } from "@/lib/format-date";
 import { getInitials } from "@/lib/formatter";
@@ -25,184 +31,149 @@ import { formatPremiumExpiry, isValidRole, roleConfig } from "../-utils";
 import { EditRoleDialog } from "./edit-role-dialog";
 import { GrantCreditsDialog } from "./grant-credits-dialog";
 import { GrantPremiumDialog } from "./grant-premium-dialog";
-import { useUsersSelection } from "./users-selection-context";
 
 export function UsersTable() {
 	const { data, isLoading, refetch } = useUsersList();
 	const pageInfo = data?.pageInfo;
 	const { handleNext, handlePrevious } = useUsersPagination();
-	const { selectedIds, allSelected, someSelected, toggleSelectAll, toggleSelectOne } = useUsersSelection();
 	const [editRoleUserId, setEditRoleUserId] = useState<string | null>(null);
 	const [grantCreditsUserId, setGrantCreditsUserId] = useState<string | null>(null);
 	const [grantPremiumUserId, setGrantPremiumUserId] = useState<string | null>(null);
 
 	return (
 		<AdminTableRoot>
-			<AdminTable>
+			<AdminTable className="table-fixed">
 				<AdminTableHeader>
-					<AdminTableHead className="w-12 pl-4">
-						<Checkbox
-							checked={someSelected ? "indeterminate" : allSelected}
-							onCheckedChange={toggleSelectAll}
-							aria-label="Pilih semua user"
-						/>
+					<AdminTableHead className="w-[36%] pl-3">Nama</AdminTableHead>
+					<AdminTableHead className="w-[14%]">Role</AdminTableHead>
+					<AdminTableHead className="w-[16%]">Premium</AdminTableHead>
+					<AdminTableHead className="hidden w-[9%] text-right sm:table-cell">Kredit</AdminTableHead>
+					<AdminTableHead className="hidden w-[19%] text-right sm:table-cell">Diperbarui</AdminTableHead>
+					<AdminTableHead className="w-[6%] pr-3 text-right">
+						<span className="sr-only">Aksi</span>
 					</AdminTableHead>
-					<AdminTableHead>Nama</AdminTableHead>
-					<AdminTableHead>Role</AdminTableHead>
-					<AdminTableHead>Credits</AdminTableHead>
-					<AdminTableHead className="min-w-45">Premium</AdminTableHead>
-					<AdminTableHead className="min-w-32.5">Dibuat</AdminTableHead>
-					<AdminTableHead className="pr-4 text-right">Aksi</AdminTableHead>
 				</AdminTableHeader>
 				<AdminTableBody
 					isLoading={isLoading}
 					isEmpty={!isLoading && data?.items.length === 0}
 					emptyMessage="Tidak ada user ditemukan."
-					columns={7}
+					columns={6}
 				>
 					<TooltipProvider delayDuration={200}>
 						{data?.items.map((user) => {
 							const roleInfo = isValidRole(user.role) ? roleConfig[user.role] : roleConfig.user;
-							const RoleIcon = roleInfo.icon;
 							const premiumDate = user.premiumExpiresAt ? new Date(user.premiumExpiresAt) : null;
 							const isPremiumExpired = premiumDate ? premiumDate.getTime() < Date.now() : false;
-							const createdDate = user.createdAt ? new Date(user.createdAt) : null;
+							const updatedDate = new Date(user.updatedAt);
 
 							return (
 								<AdminTableRow key={user.id}>
-									<AdminTableCell className="pl-4">
-										<Checkbox
-											checked={selectedIds.includes(user.id)}
-											onCheckedChange={() => toggleSelectOne(user.id)}
-											aria-label={`Pilih ${user.name}`}
-										/>
-									</AdminTableCell>
-									<AdminTableCell>
-										<div className="flex items-center gap-3">
-											<Avatar className="ring-border size-9 rounded-full ring-2">
+									<AdminTableCell className="pl-3">
+										<div className="flex min-w-0 items-center gap-3">
+											<Avatar className="ring-border size-8 shrink-0 rounded-full ring-1">
 												<AvatarImage src={user.image ?? undefined} alt={user.name} />
-												<AvatarFallback className="bg-primary-100 text-primary-800 text-xs font-semibold">
+												<AvatarFallback className="bg-primary-100 text-primary-800 text-meta font-semibold">
 													{getInitials(user.name)}
 												</AvatarFallback>
 											</Avatar>
-											<div className="flex flex-col">
+											<div className="min-w-0">
 												<Link
 													to="/admin/users/$userId"
 													params={{ userId: user.id }}
-													className="text-foreground hover:text-primary leading-tight font-semibold transition-colors"
+													className="text-row-title text-foreground hover:text-primary focus-visible:ring-ring/50 block truncate rounded-sm underline-offset-4 outline-none after:absolute after:inset-0 after:content-[''] hover:underline focus-visible:ring-2"
 												>
 													{user.name}
 												</Link>
-												<span className="text-muted-foreground text-xs leading-tight">{user.email}</span>
+												<p className="text-muted-foreground text-meta truncate">{user.email}</p>
 											</div>
 										</div>
 									</AdminTableCell>
 
 									<AdminTableCell>
-										<Badge variant="outline" className={cn("text-meta gap-1 py-0.5 font-semibold", roleInfo.className)}>
-											<RoleIcon className="size-3" />
-											{roleInfo.label}
-										</Badge>
-									</AdminTableCell>
-
-									<AdminTableCell>
-										<div className="flex items-center gap-1.5">
-											<div
-												className={cn(
-													"flex size-6 items-center justify-center rounded-md",
-													(user.tryoutCredits ?? 0) > 0
-														? "text-neutral-1000 bg-green-100"
-														: "bg-neutral-200 text-neutral-800",
-												)}
-											>
-												<CreditCardIcon className="size-3.5" />
-											</div>
-											<span
-												className={cn(
-													"text-sm font-semibold tabular-nums",
-													(user.tryoutCredits ?? 0) > 0 ? "text-foreground" : "text-muted-foreground",
-												)}
-											>
-												{user.tryoutCredits ?? 0}
-											</span>
-										</div>
+										{roleInfo.tone === "neutral" ? (
+											<AdminMeta>{roleInfo.label}</AdminMeta>
+										) : (
+											<AdminChip tone="accent">{roleInfo.label}</AdminChip>
+										)}
 									</AdminTableCell>
 
 									<AdminTableCell>
 										{user.isPremium ? (
-											<div className="flex flex-col justify-center gap-2">
-												<Badge variant="warning" className="w-fit gap-1 font-semibold">
-													<CrownIcon className="size-3" weight="fill" />
-													Premium
-												</Badge>
-												{premiumDate && (
-													<Tooltip>
-														<TooltipTrigger asChild>
-															<span
-																className={cn(
-																	"text-meta flex items-center gap-1",
-																	isPremiumExpired ? "text-muted-foreground" : "text-muted-foreground/70",
-																)}
-															>
-																<ClockIcon className="size-3" />
-																{formatPremiumExpiry(premiumDate)}
-															</span>
-														</TooltipTrigger>
-														<TooltipContent>{formatDateTime(premiumDate)}</TooltipContent>
-													</Tooltip>
-												)}
-											</div>
-										) : (
-											<span className="text-muted-foreground flex items-center gap-1.5 text-xs">
-												<span className="inline-block size-1.5 rounded-full bg-neutral-400" />
-												Non-Premium
-											</span>
-										)}
-									</AdminTableCell>
-
-									<AdminTableCell>
-										{createdDate ? (
 											<Tooltip>
 												<TooltipTrigger asChild>
-													<span className="text-muted-foreground flex items-center gap-1.5 text-xs">
-														<CalendarDotsIcon className="size-3.5" />
-														{formatDateMedium(createdDate)}
-													</span>
+													<AdminStatus tone="positive" className={cn(isPremiumExpired && "line-through decoration-1")}>
+														Premium
+													</AdminStatus>
 												</TooltipTrigger>
-												<TooltipContent>{formatDateLong(createdDate)}</TooltipContent>
+												<TooltipContent>
+													{premiumDate
+														? `Berakhir ${formatPremiumExpiry(premiumDate)} · ${formatDateTime(premiumDate)}`
+														: "Premium aktif"}
+												</TooltipContent>
 											</Tooltip>
 										) : (
-											<span className="text-muted-foreground text-xs">-</span>
+											<AdminMeta>Non-premium</AdminMeta>
 										)}
 									</AdminTableCell>
 
-									<AdminTableCell className="pr-4 text-right">
-										<div className="flex items-center justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
-											<EditRoleDialog
-												userId={user.id}
-												userName={user.name}
-												currentRole={user.role}
-												open={editRoleUserId === user.id}
-												onOpenChange={(open) => setEditRoleUserId(open ? user.id : null)}
-												onSuccess={() => refetch()}
-											/>
-											<GrantCreditsDialog
-												userId={user.id}
-												userName={user.name}
-												currentCredits={user.tryoutCredits}
-												open={grantCreditsUserId === user.id}
-												onOpenChange={(open) => setGrantCreditsUserId(open ? user.id : null)}
-												onSuccess={() => refetch()}
-											/>
-											<GrantPremiumDialog
-												userId={user.id}
-												userName={user.name}
-												currentPremiumExpiry={user.premiumExpiresAt}
-												open={grantPremiumUserId === user.id}
-												onOpenChange={(open) => setGrantPremiumUserId(open ? user.id : null)}
-												onSuccess={() => refetch()}
-											/>
-										</div>
+									<AdminTableCell className="hidden text-right sm:table-cell">
+										<span className={cn("text-sm tabular-nums", !user.tryoutCredits && "text-muted-foreground")}>
+											{user.tryoutCredits || "—"}
+										</span>
+									</AdminTableCell>
+
+									<AdminTableCell className="text-muted-foreground text-meta hidden text-right whitespace-nowrap sm:table-cell">
+										<Tooltip>
+											<TooltipTrigger asChild>
+												<span>{formatDateMedium(updatedDate)}</span>
+											</TooltipTrigger>
+											<TooltipContent>{formatDateLong(updatedDate)}</TooltipContent>
+										</Tooltip>
+									</AdminTableCell>
+
+									<AdminTableCell className="relative z-10 pr-3 text-right">
+										<EditRoleDialog
+											userId={user.id}
+											userName={user.name}
+											currentRole={user.role}
+											open={editRoleUserId === user.id}
+											onOpenChange={(open) => setEditRoleUserId(open ? user.id : null)}
+											onSuccess={() => refetch()}
+										/>
+										<GrantCreditsDialog
+											userId={user.id}
+											userName={user.name}
+											currentCredits={user.tryoutCredits}
+											open={grantCreditsUserId === user.id}
+											onOpenChange={(open) => setGrantCreditsUserId(open ? user.id : null)}
+											onSuccess={() => refetch()}
+										/>
+										<GrantPremiumDialog
+											userId={user.id}
+											userName={user.name}
+											currentPremiumExpiry={user.premiumExpiresAt}
+											open={grantPremiumUserId === user.id}
+											onOpenChange={(open) => setGrantPremiumUserId(open ? user.id : null)}
+											onSuccess={() => refetch()}
+										/>
+										<DropdownMenu>
+											<DropdownMenuTrigger asChild>
+												<Button variant="ghost" size="icon" className="size-9" aria-label={`Aksi untuk ${user.name}`}>
+													<DotsThreeIcon className="size-5" weight="bold" />
+												</Button>
+											</DropdownMenuTrigger>
+											<DropdownMenuContent align="end">
+												<DropdownMenuItem onSelect={() => setEditRoleUserId(user.id)}>
+													<PencilSimpleIcon className="size-4" /> Ubah role
+												</DropdownMenuItem>
+												<DropdownMenuItem onSelect={() => setGrantCreditsUserId(user.id)}>
+													<PlusIcon className="size-4" /> Tambah kredit
+												</DropdownMenuItem>
+												<DropdownMenuItem onSelect={() => setGrantPremiumUserId(user.id)}>
+													<StarIcon className="size-4" /> Beri premium
+												</DropdownMenuItem>
+											</DropdownMenuContent>
+										</DropdownMenu>
 									</AdminTableCell>
 								</AdminTableRow>
 							);
@@ -218,6 +189,7 @@ export function UsersTable() {
 						onNext={handleNext}
 						hasPrevious={!!pageInfo?.hasPreviousPage}
 						hasNext={!!pageInfo?.hasNextPage}
+						totalCount={pageInfo?.totalCount}
 					/>
 				</AdminTablePaginationWrapper>
 			)}

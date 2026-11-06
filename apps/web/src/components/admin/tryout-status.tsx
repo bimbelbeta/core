@@ -1,16 +1,13 @@
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { AdminStatus } from "@/components/admin/admin-status";
 
 const statuses = {
-	draft: { label: "Draf", className: "border-yellow-300/70 bg-yellow-100/60 text-yellow-800" },
-	published: { label: "Terbit", className: "border-green-100 bg-green-100/35 text-green-800" },
-	archived: { label: "Arsip", className: "border-border bg-muted text-muted-foreground" },
-};
+	draft: { label: "Draf", tone: "warning" },
+	published: { label: "Terbit", tone: "positive" },
+	archived: { label: "Arsip", tone: "neutral" },
+} as const;
 
 export function TryoutStatus({ status }: { status: keyof typeof statuses }) {
-	return (
-		<Badge variant="outline" className={cn("h-6 px-2.5 py-0 text-xs font-normal", statuses[status].className)}>
-			{statuses[status].label}
-		</Badge>
-	);
+	const { label, tone } = statuses[status];
+
+	return <AdminStatus tone={tone}>{label}</AdminStatus>;
 }

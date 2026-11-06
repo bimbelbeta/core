@@ -1,5 +1,5 @@
 import { db } from "@bimbelbeta/db";
-import { university } from "@bimbelbeta/db/schema/university";
+import { university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
 import { and, asc, desc, eq, gt, lt, sql } from "drizzle-orm";
 import { requireCreated, requireFound } from "@/lib/crud-helpers";
 import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
@@ -13,6 +13,11 @@ const list = admin.admin.university.universities.list.handler(async ({ input }) 
 	const cursor = input.before || input.after;
 	const cursorId = cursor ? parseIdCursor(cursor) : undefined;
 
+	const filters = and(
+		input.search ? sql`(${university.name} ILIKE ${`%${input.search}%`})` : undefined,
+		input.isActive !== undefined ? eq(university.isActive, input.isActive) : undefined,
+	);
+
 	const rows = await db
 		.select({
 			id: university.id,
@@ -24,20 +29,27 @@ const list = admin.admin.university.universities.list.handler(async ({ input }) 
 			website: university.website,
 			rank: university.rank,
 			isActive: university.isActive,
+			updatedAt: university.updatedAt,
+			programCount: sql<number>`count(${universityStudyProgram.id})::int`,
+			scoreMin: sql<number | null>`min(${universityStudyProgram.averageScore})::int`,
+			scoreMax: sql<number | null>`max(${universityStudyProgram.averageScore})::int`,
 		})
 		.from(university)
+		.leftJoin(universityStudyProgram, eq(universityStudyProgram.universityId, university.id))
 		.where(
 			and(
 				cursorId !== undefined ? (isBackward ? lt(university.id, cursorId) : gt(university.id, cursorId)) : undefined,
-				input.search ? sql`(${university.name} ILIKE ${`%${input.search}%`})` : undefined,
+				filters,
 			),
 		)
+		.groupBy(university.id)
 		.orderBy(isBackward ? desc(university.id) : asc(university.id))
 		.limit(limit + 1);
 
 	const { items, pageInfo } = buildIdCursorPage(rows, limit, isBackward, !!cursor);
+	const [totals] = await db.select({ count: sql<number>`count(*)::int` }).from(university).where(filters);
 
-	return { items, pageInfo };
+	return { items, pageInfo: { ...pageInfo, totalCount: totals?.count ?? 0 } };
 });
 
 const find = admin.admin.university.universities.find.handler(async ({ input, errors }) => {
