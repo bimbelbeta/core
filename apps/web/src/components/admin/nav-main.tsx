@@ -32,7 +32,7 @@ export function NavMain({ groups }: { groups: { label: string; items: NavItem[] 
 									asChild
 									isActive={item.isActive}
 									tooltip={item.title}
-									className="text-muted-foreground hover:text-foreground data-[active=true]:bg-primary/8 data-[active=true]:text-primary h-9 gap-2.5 rounded-md px-2.5 text-[13px] font-normal transition-colors data-[active=true]:font-semibold"
+									className="text-muted-foreground hover:text-foreground data-[active=true]:bg-primary/8 data-[active=true]:text-primary text-meta h-9 gap-2.5 rounded-md px-2.5 font-normal transition-colors data-[active=true]:font-semibold"
 								>
 									<Link to={item.url}>
 										<item.icon weight={item.isActive ? "fill" : "regular"} className="size-4" />

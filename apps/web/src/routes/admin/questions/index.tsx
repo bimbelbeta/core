@@ -303,19 +303,19 @@ function QuestionsListPage() {
 													<span aria-hidden>·</span>
 													<span>{QUESTION_TYPE_SHORT_LABELS[q.type] ?? q.type}</span>
 													{q.tags?.slice(0, 3).map((t) => (
-														<Badge key={t} variant="outline" className="text-[11px] font-normal">
+														<Badge key={t} variant="outline" className="text-meta font-normal">
 															{t}
 														</Badge>
 													))}
 													{q.tags && q.tags.length > 3 && (
-														<Badge variant="outline" className="text-[11px] font-normal">
+														<Badge variant="outline" className="text-meta font-normal">
 															+{q.tags.length - 3}
 														</Badge>
 													)}
 												</div>
 											</div>
 										</AdminTableCell>
-										<AdminTableCell className="text-muted-foreground hidden text-[13px] whitespace-nowrap sm:table-cell">
+										<AdminTableCell className="text-muted-foreground text-meta hidden whitespace-nowrap sm:table-cell">
 											{q.createdAt ? formatDateMedium(new Date(q.createdAt)) : "—"}
 										</AdminTableCell>
 										<AdminTableCell className="relative z-10 text-right align-top">

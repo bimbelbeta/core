@@ -18,7 +18,7 @@ function Trend({ value }: { value: number | null }) {
 	return (
 		<span
 			className={cn(
-				"flex items-center gap-1 text-[11px] font-medium whitespace-nowrap",
+				"text-meta flex items-center gap-1 font-medium whitespace-nowrap",
 				direction === "up" && "text-green-800",
 				direction === "down" && "text-red-600",
 				direction === "flat" && "text-muted-foreground",

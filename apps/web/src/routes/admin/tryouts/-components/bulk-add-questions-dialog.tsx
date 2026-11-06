@@ -84,7 +84,7 @@ export function BulkAddQuestionsDialog({
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="flex max-h-[85vh] flex-col sm:max-w-2xl">
 				<DialogHeader className="shrink-0">
-					<DialogTitle>Tambah Soal Massal</DialogTitle>
+					<DialogTitle>Tambah soal Massal</DialogTitle>
 					<DialogDescription>Pilih soal dari bank soal untuk ditambahkan ke subtest.</DialogDescription>
 				</DialogHeader>
 				<div className="flex flex-1 flex-col gap-4">

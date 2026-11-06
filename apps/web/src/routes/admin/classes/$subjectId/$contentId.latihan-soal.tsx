@@ -93,7 +93,7 @@ function RouteComponent() {
 				<div className="flex items-center gap-2">
 					<Button type="button" variant="outline" size="sm" onClick={() => setPickerOpen(true)}>
 						<Plus className="mr-1 size-4" />
-						Tambah Soal
+						Tambah soal
 					</Button>
 					{hasQuestions && (
 						<AlertDialog>
@@ -141,7 +141,7 @@ function RouteComponent() {
 					<EmptyContentState title="Belum ada latihan soal" desc="Tambahkan soal dari bank soal untuk konten ini" />
 					<Button type="button" onClick={() => setPickerOpen(true)}>
 						<Plus className="mr-1 size-4" />
-						Tambah Soal
+						Tambah soal
 					</Button>
 				</div>
 			)}

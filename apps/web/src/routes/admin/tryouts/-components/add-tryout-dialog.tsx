@@ -114,7 +114,7 @@ export function AddTryoutDialog({
 			</DialogTrigger>
 			<DialogContent className="flex max-h-[85vh] flex-col sm:max-w-125">
 				<DialogHeader className="shrink-0">
-					<DialogTitle>Tambah Tryout</DialogTitle>
+					<DialogTitle>Tambah tryout</DialogTitle>
 					<DialogDescription>Tambahkan tryout baru ke dalam sistem. Isi form di bawah ini.</DialogDescription>
 				</DialogHeader>
 				<form
@@ -276,7 +276,7 @@ export function AddTryoutDialog({
 						<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
 							{([canSubmit, isSubmitting]) => (
 								<Button isPending={isSubmitting} type="submit" disabled={!canSubmit || isSubmitting}>
-									{"Tambah Tryout"}
+									{"Tambah tryout"}
 								</Button>
 							)}
 						</form.Subscribe>

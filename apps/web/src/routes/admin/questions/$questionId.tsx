@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils";
 import { EditQuestionForm } from "./-components/edit-question-form";
 
 export const Route = createFileRoute("/admin/questions/$questionId")({
-	staticData: { breadcrumb: "Detail Soal", breadcrumbParent: { label: "Bank soal", to: "/admin/questions" } },
+	staticData: { breadcrumb: "Detail soal", breadcrumbParent: { label: "Bank soal", to: "/admin/questions" } },
 	component: QuestionDetailPage,
 });
 
@@ -75,7 +75,7 @@ function QuestionDetailPage() {
 						<Button variant="ghost" size="icon" aria-label="Kembali" onClick={() => router.history.back()}>
 							<ArrowLeftIcon className="size-4" />
 						</Button>
-						<Typography variant="title">Detail Soal #{question.id}</Typography>
+						<Typography variant="title">Detail soal #{question.id}</Typography>
 					</div>
 				</AdminPageHeaderContent>
 				<AdminPageHeaderActions>

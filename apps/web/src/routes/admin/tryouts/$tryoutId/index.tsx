@@ -70,7 +70,7 @@ function TryoutDetailPage() {
 							<TabsTrigger value="settings">Pengaturan</TabsTrigger>
 							<TabsTrigger value="subtests">
 								Subtest
-								<span className="bg-muted-foreground/15 text-foreground/80 rounded-full px-1.5 py-0.5 text-[11px] font-medium tabular-nums">
+								<span className="bg-muted-foreground/15 text-foreground/80 text-meta rounded-full px-1.5 py-0.5 font-medium tabular-nums">
 									{subtests.length}
 								</span>
 							</TabsTrigger>

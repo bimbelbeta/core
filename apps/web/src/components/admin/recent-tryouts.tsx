@@ -23,7 +23,7 @@ export function RecentTryouts() {
 		<section>
 			<header className="flex min-h-8 flex-wrap items-center justify-between gap-3 pb-4">
 				<h2 className="text-section-title">Tryout terbaru</h2>
-				<Button variant="ghost" size="sm" className="text-muted-foreground h-9 gap-1.5 px-2.5 text-[13px]" asChild>
+				<Button variant="ghost" size="sm" className="text-muted-foreground text-meta h-9 gap-1.5 px-2.5" asChild>
 					<Link to="/admin/tryouts">
 						Lihat semua tryout
 						<CaretRightIcon className="size-3" />
@@ -62,13 +62,13 @@ export function RecentTryouts() {
 										{tryout.title}
 									</Link>
 								</AdminTableCell>
-								<AdminTableCell className="text-muted-foreground hidden text-[13px] tracking-wide uppercase sm:table-cell">
+								<AdminTableCell className="text-muted-foreground text-meta hidden tracking-wide uppercase sm:table-cell">
 									{tryout.category}
 								</AdminTableCell>
 								<AdminTableCell>
 									<TryoutStatus status={tryout.status} />
 								</AdminTableCell>
-								<AdminTableCell className="text-muted-foreground hidden text-[13px] sm:table-cell">
+								<AdminTableCell className="text-muted-foreground text-meta hidden sm:table-cell">
 									{tryout.updatedAt ? formatDateMedium(new Date(tryout.updatedAt)) : "—"}
 								</AdminTableCell>
 							</AdminTableRow>

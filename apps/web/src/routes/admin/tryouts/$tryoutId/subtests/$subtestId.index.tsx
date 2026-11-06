@@ -117,7 +117,7 @@ function SubtestDetailPage() {
 					</Button>
 					<Button variant="outline" onClick={() => setIsBulkAddOpen(true)} className="gap-2">
 						<PlusIcon className="size-4" />
-						Tambah Soal Massal
+						Tambah soal Massal
 					</Button>
 				</AdminPageHeaderActions>
 			</AdminPageHeader>

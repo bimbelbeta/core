@@ -176,7 +176,7 @@ export function TryoutsListPage() {
 											{SUBJECT_CATEGORY_LABELS[tryout.category]}
 										</Typography>
 									</AdminTableCell>
-									<AdminTableCell className="text-muted-foreground hidden text-[13px] whitespace-nowrap sm:table-cell">
+									<AdminTableCell className="text-muted-foreground text-meta hidden whitespace-nowrap sm:table-cell">
 										{tryout.updatedAt ? formatDateMedium(new Date(tryout.updatedAt)) : "—"}
 									</AdminTableCell>
 									<AdminTableCell>

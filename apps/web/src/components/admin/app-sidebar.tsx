@@ -93,7 +93,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				<Link to="/admin/dashboard" className="flex items-center gap-2.5 overflow-hidden">
 					<div className="grid min-w-0 leading-tight group-data-[collapsible=icon]:hidden">
 						<span className="truncate font-sans text-sm font-semibold tracking-tight">bimbelbeta</span>
-						<span className="text-muted-foreground truncate text-[11px]">Konsol admin</span>
+						<span className="text-muted-foreground text-meta truncate">Konsol admin</span>
 					</div>
 				</Link>
 			</SidebarHeader>

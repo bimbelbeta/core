@@ -173,7 +173,7 @@ export function ReferralDetailPage() {
 															Premium
 														</Badge>
 													) : (
-														<Badge variant="secondary" className="text-[11px]">
+														<Badge variant="secondary" className="text-meta">
 															Non-Premium
 														</Badge>
 													)}

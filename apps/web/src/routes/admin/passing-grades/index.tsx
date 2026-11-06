@@ -127,7 +127,7 @@ function RouteComponent() {
 											</TableCell>
 											<TableCell>{uni.location ?? "-"}</TableCell>
 											<TableCell>
-												<Badge variant={uni.isActive ? "default" : "secondary"}>
+												<Badge variant={uni.isActive ? "info" : "secondary"}>
 													{uni.isActive ? "Aktif" : "Tidak Aktif"}
 												</Badge>
 											</TableCell>

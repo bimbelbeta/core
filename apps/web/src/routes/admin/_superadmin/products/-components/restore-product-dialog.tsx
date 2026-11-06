@@ -49,7 +49,7 @@ export function RestoreProductDialog({ productId, open, onOpenChange, onSuccess 
 					<Button
 						isPending={restoreMutation.isPending}
 						variant="outline"
-						className="text-green-700 hover:text-green-800"
+						className="text-green-800 hover:text-green-800"
 						onClick={() => restoreMutation.mutate({ productId })}
 						disabled={restoreMutation.isPending}
 					>

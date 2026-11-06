@@ -29,7 +29,7 @@ export function RecentQuestions() {
 		<section>
 			<header className="flex min-h-8 flex-wrap items-center justify-between gap-3 pb-4">
 				<h2 className="text-section-title">Soal terbaru</h2>
-				<Button variant="ghost" size="sm" className="text-muted-foreground h-9 gap-1.5 px-2.5 text-[13px]" asChild>
+				<Button variant="ghost" size="sm" className="text-muted-foreground text-meta h-9 gap-1.5 px-2.5" asChild>
 					<Link to="/admin/questions">
 						Lihat semua soal
 						<CaretRightIcon className="size-3" />
@@ -74,10 +74,10 @@ export function RecentQuestions() {
 										{question.createdAt && ` · ${formatDateMedium(new Date(question.createdAt))}`}
 									</p>
 								</AdminTableCell>
-								<AdminTableCell className="text-muted-foreground hidden text-[13px] sm:table-cell">
+								<AdminTableCell className="text-muted-foreground text-meta hidden sm:table-cell">
 									{TYPE_LABELS[question.type] ?? question.type}
 								</AdminTableCell>
-								<AdminTableCell className="text-muted-foreground hidden text-[13px] sm:table-cell">
+								<AdminTableCell className="text-muted-foreground text-meta hidden sm:table-cell">
 									{question.createdAt ? formatDateMedium(new Date(question.createdAt)) : "—"}
 								</AdminTableCell>
 							</AdminTableRow>

@@ -51,8 +51,8 @@ export function NavFooter() {
 							<AvatarFallback className="rounded-lg text-xs">{userInitials}</AvatarFallback>
 						</Avatar>
 						<div className="grid min-w-0 flex-1 leading-tight group-data-[collapsible=icon]:hidden">
-							<span className="truncate text-[13px] font-medium">{session?.user?.name || "Admin User"}</span>
-							<span className="text-muted-foreground text-[11px]">{roleLabel}</span>
+							<span className="text-meta truncate font-medium">{session?.user?.name || "Admin User"}</span>
+							<span className="text-muted-foreground text-meta">{roleLabel}</span>
 						</div>
 						<span className="flex size-7 shrink-0 items-center justify-center group-data-[collapsible=icon]:hidden">
 							<DotsThreeIcon className="text-muted-foreground size-4.5" />
@@ -63,7 +63,7 @@ export function NavFooter() {
 					<DropdownMenuLabel className="font-normal">
 						<p className="text-sm font-medium">{session?.user?.name || "Admin User"}</p>
 						<p className="text-muted-foreground mt-0.5 text-xs break-all">{session?.user?.email || ""}</p>
-						<p className="text-muted-foreground mt-1 text-[11px]">{roleLabel}</p>
+						<p className="text-muted-foreground text-meta mt-1">{roleLabel}</p>
 					</DropdownMenuLabel>
 					<DropdownMenuSeparator />
 					<DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={() => setOpen(true)}>

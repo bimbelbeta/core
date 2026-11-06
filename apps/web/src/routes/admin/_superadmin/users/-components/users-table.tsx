@@ -99,10 +99,7 @@ export function UsersTable() {
 									</AdminTableCell>
 
 									<AdminTableCell>
-										<Badge
-											variant="outline"
-											className={cn("gap-1 py-0.5 text-[11px] font-semibold", roleInfo.className)}
-										>
+										<Badge variant="outline" className={cn("text-meta gap-1 py-0.5 font-semibold", roleInfo.className)}>
 											<RoleIcon className="size-3" />
 											{roleInfo.label}
 										</Badge>
@@ -143,7 +140,7 @@ export function UsersTable() {
 														<TooltipTrigger asChild>
 															<span
 																className={cn(
-																	"flex items-center gap-1 text-[11px]",
+																	"text-meta flex items-center gap-1",
 																	isPremiumExpired ? "text-muted-foreground" : "text-muted-foreground/70",
 																)}
 															>

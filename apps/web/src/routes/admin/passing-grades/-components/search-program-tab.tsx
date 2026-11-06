@@ -74,7 +74,7 @@ export function SearchProgramTab({ onProgramSelect }: SearchProgramTabProps) {
 										</Typography>
 									)}
 								</div>
-								<Badge variant="outline" className="shrink-0 text-[11px]">
+								<Badge variant="outline" className="text-meta shrink-0">
 									{prog.category}
 								</Badge>
 							</button>

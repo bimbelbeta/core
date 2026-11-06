@@ -280,7 +280,7 @@ function RouteComponent() {
 				<AdminPageHeaderActions>
 					<Button size="sm" className="h-9" onClick={handleCreate}>
 						<PlusIcon className="size-4" />
-						Tambah Konten
+						Tambah konten
 					</Button>
 				</AdminPageHeaderActions>
 			</AdminPageHeader>
@@ -310,7 +310,7 @@ function RouteComponent() {
 			<Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Tambah Konten</DialogTitle>
+						<DialogTitle>Tambah konten</DialogTitle>
 						<DialogDescription>Buat konten baru</DialogDescription>
 					</DialogHeader>
 					<form
