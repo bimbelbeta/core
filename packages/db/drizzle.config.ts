@@ -17,10 +17,5 @@ export default defineConfig({
 	schemaFilter: ["app"],
 	dbCredentials: {
 		url: process.env.DATABASE_URL,
-		...(process.env.NODE_ENV !== "production"
-			? {
-					ssl: false,
-				}
-			: undefined),
 	},
 });
