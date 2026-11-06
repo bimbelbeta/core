@@ -111,7 +111,6 @@ function RouteComponent() {
 					<Table className="min-w-[800px]">
 						<TableHeader>
 							<TableRow>
-								<TableHead>No</TableHead>
 								<TableHead>Nama Program</TableHead>
 								<TableHead>Kategori</TableHead>
 								<TableHead>Biaya</TableHead>
@@ -124,17 +123,16 @@ function RouteComponent() {
 						</TableHeader>
 						<TableBody>
 							{isProgramsLoading ? (
-								<TableSkeleton columns={9} />
+								<TableSkeleton columns={8} />
 							) : !programs?.items || programs.items.length === 0 ? (
 								<TableRow>
-									<TableCell colSpan={9} className="text-muted-foreground h-24 text-center">
+									<TableCell colSpan={8} className="text-muted-foreground h-24 text-center">
 										Belum ada program studi yang ditautkan.
 									</TableCell>
 								</TableRow>
 							) : (
-								programs.items.map((prog, index) => (
+								programs.items.map((prog) => (
 									<TableRow key={prog.id}>
-										<TableCell>{index + 1}</TableCell>
 										<TableCell className="font-medium">
 											<Button type="button" variant="link" size="none" onClick={() => setEditProgram(prog)}>
 												{prog.studyProgram.name}

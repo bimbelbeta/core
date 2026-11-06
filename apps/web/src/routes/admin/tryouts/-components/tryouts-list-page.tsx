@@ -103,7 +103,6 @@ export function TryoutsListPage() {
 				<AdminTableRoot className="mt-3">
 					<AdminTable>
 						<AdminTableHeader>
-							<AdminTableHead className="w-12.5 text-center">No</AdminTableHead>
 							<AdminTableHead>Judul</AdminTableHead>
 							<AdminTableHead>Kategori</AdminTableHead>
 							<AdminTableHead>Status</AdminTableHead>
@@ -114,13 +113,10 @@ export function TryoutsListPage() {
 							isLoading={isLoading}
 							isEmpty={!isLoading && data?.items.length === 0}
 							emptyMessage="Tidak ada tryout ditemukan."
-							columns={6}
+							columns={5}
 						>
-							{data?.items.map((tryout, index) => (
+							{data?.items.map((tryout) => (
 								<AdminTableRow key={tryout.id}>
-									<AdminTableCell className="text-muted-foreground text-center font-mono text-sm">
-										{index + 1}
-									</AdminTableCell>
 									<AdminTableCell className="font-medium">
 										<Link
 											to="/admin/tryouts/$tryoutId"

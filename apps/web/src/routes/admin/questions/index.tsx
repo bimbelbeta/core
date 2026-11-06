@@ -213,7 +213,6 @@ function QuestionsListPage() {
 									aria-label="Pilih semua soal"
 								/>
 							</AdminTableHead>
-							<AdminTableHead className="w-16 text-center">ID</AdminTableHead>
 							<AdminTableHead>Konten Soal</AdminTableHead>
 							<AdminTableHead className="w-32">Tipe</AdminTableHead>
 							<AdminTableHead>Tags</AdminTableHead>
@@ -223,7 +222,7 @@ function QuestionsListPage() {
 							isLoading={isLoading}
 							isEmpty={!isLoading && data?.items.length === 0}
 							emptyMessage="Tidak ada soal ditemukan. Coba ubah filter atau buat soal baru."
-							columns={6}
+							columns={5}
 						>
 							{data?.items.map((q) => {
 								const contentPreview = truncateText(extractTextFromTiptap(q.content));
@@ -235,9 +234,6 @@ function QuestionsListPage() {
 												onCheckedChange={() => toggleSelectOne(q.id)}
 												aria-label={`Pilih soal #${q.id}`}
 											/>
-										</AdminTableCell>
-										<AdminTableCell className="text-muted-foreground text-center font-mono text-sm">
-											#{q.id}
 										</AdminTableCell>
 										<AdminTableCell>
 											<div className="max-w-md">

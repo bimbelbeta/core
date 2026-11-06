@@ -109,7 +109,6 @@ export function TryoutSubtestsTab({ tryoutId, subtests, onUpdate }: TryoutSubtes
 							<Table>
 								<TableHeader>
 									<TableRow className="bg-muted/50 hover:bg-muted/50">
-										<TableHead className="w-12 text-center">No</TableHead>
 										<TableHead>Nama Subtest</TableHead>
 										<TableHead className="w-24">Durasi</TableHead>
 										<TableHead className="w-32">Urutan Soal</TableHead>
@@ -117,13 +116,8 @@ export function TryoutSubtestsTab({ tryoutId, subtests, onUpdate }: TryoutSubtes
 									</TableRow>
 								</TableHeader>
 								<TableBody>
-									{subtests.map((subtest, index) => (
+									{subtests.map((subtest) => (
 										<TableRow key={subtest.id} className="group">
-											<TableCell className="text-center">
-												<div className="bg-muted mx-auto flex size-6 items-center justify-center rounded-full font-mono text-xs font-medium">
-													{index + 1}
-												</div>
-											</TableCell>
 											<TableCell>
 												<Link
 													to="/admin/tryouts/$tryoutId/subtests/$subtestId"

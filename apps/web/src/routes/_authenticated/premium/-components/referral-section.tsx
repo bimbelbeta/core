@@ -27,7 +27,7 @@ export function ReferralSection() {
 						<form onSubmit={handleSubmit} className="mt-4 flex gap-2">
 							<Input
 								id="referral-code-input"
-								className="max-w-xs font-mono tracking-widest uppercase"
+								className="max-w-xs tracking-widest uppercase tabular-nums"
 								placeholder="PREM30DAYS"
 								value={code}
 								onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""))}

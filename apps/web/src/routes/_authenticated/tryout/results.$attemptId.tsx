@@ -139,7 +139,6 @@ function RouteComponent() {
 					<Table>
 						<TableHeader className="bg-blue-50/50">
 							<TableRow className="hover:bg-blue-50/50">
-								<TableHead className="w-20 font-bold text-blue-900">No</TableHead>
 								<TableHead className="font-bold text-blue-900">Nama Subtes</TableHead>
 								<TableHead className="font-bold text-blue-900">Score</TableHead>
 								<TableHead className="font-bold text-blue-900">Durasi</TableHead>
@@ -147,12 +146,11 @@ function RouteComponent() {
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							{data.tryout.subtests.map((subtest, index) => {
+							{data.tryout.subtests.map((subtest) => {
 								const score = subtestScores.get(subtest.id);
 
 								return (
 									<TableRow key={subtest.id} className="hover:bg-blue-50/30">
-										<TableCell className="font-medium">{index + 1}</TableCell>
 										<TableCell className="font-medium">{subtest.name}</TableCell>
 										<TableCell className="font-semibold">{score ?? 0}</TableCell>
 										<TableCell>{subtest.duration} Menit</TableCell>

@@ -41,17 +41,16 @@ export function BulkQuestionsTable({
 									className="translate-y-0.5"
 								/>
 							</TableHead>
-							<TableHead className="text-center font-semibold">ID</TableHead>
 							<TableHead className="text-center font-semibold">Pertanyaan</TableHead>
 							<TableHead className="text-center font-semibold">Tipe</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
 						{isPending ? (
-							<TableSkeleton columns={5} />
+							<TableSkeleton columns={3} />
 						) : questions.length === 0 ? (
 							<TableRow>
-								<TableCell colSpan={4} className="text-muted-foreground h-48 text-center">
+								<TableCell colSpan={3} className="text-muted-foreground h-48 text-center">
 									<div className="flex flex-col items-center justify-center gap-2">
 										<ListMagnifyingGlassIcon className="size-8 opacity-50" />
 										<span>Tidak ada pertanyaan ditemukan</span>
@@ -77,7 +76,6 @@ export function BulkQuestionsTable({
 												className="translate-y-0.5"
 											/>
 										</TableCell>
-										<TableCell className="text-muted-foreground text-center font-mono text-sm">{item.order}</TableCell>
 										<TableCell className="max-w-125">
 											<Link
 												to="/admin/questions/$questionId"
@@ -96,9 +94,6 @@ export function BulkQuestionsTable({
 											<Badge variant={QUESTION_TYPE_BADGE[item.question.type]}>
 												{QUESTION_TYPE_LABELS[item.question.type]}
 											</Badge>
-										</TableCell>
-										<TableCell className="text-muted-foreground text-center font-mono text-xs">
-											#{item.question.id}
 										</TableCell>
 									</TableRow>
 								);

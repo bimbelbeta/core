@@ -77,7 +77,7 @@ export function PasteScoresDialog({ open, onOpenChange, expectedCount, onPaste }
 						onChange={(e) => setText(e.target.value)}
 						placeholder={"120\n200\n260\n..."}
 						rows={10}
-						className="font-mono"
+						className="tabular-nums"
 					/>
 					{error && (
 						<Typography variant="body" tone="destructive">

@@ -159,7 +159,7 @@ export function AccessCodeSection({ tryoutId }: { tryoutId: number }) {
 											</Badge>
 										</div>
 										<div className="flex items-center gap-1">
-											<Typography variant="caption" tone="default" className="font-mono">
+											<Typography variant="caption" tone="default" className="tabular-nums">
 												{accessCodeItem.codePreview}
 											</Typography>
 											<Button

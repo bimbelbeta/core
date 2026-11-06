@@ -244,7 +244,6 @@ export function QuestionPickerDialog({
 											<CheckboxIndicator checked={selectedQuestionIds.includes(question.id)} className="mt-0.5" />
 											<div className="min-w-0 flex-1 space-y-1">
 												<div className="flex items-start gap-2">
-													<span className="text-muted-foreground shrink-0 font-mono text-xs">#{question.id}</span>
 													<div className="prose prose-sm line-clamp-2 min-w-0 flex-1 text-sm [&_*]:!m-0 [&_p]:line-clamp-2">
 														<TiptapRenderer content={question.content} />
 													</div>

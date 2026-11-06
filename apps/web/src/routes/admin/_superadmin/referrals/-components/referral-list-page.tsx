@@ -154,7 +154,7 @@ export function ReferralListPage() {
 											)}
 										</AdminTableCell>
 										<AdminTableCell>
-											<code className="bg-muted rounded px-2 py-0.5 font-mono text-sm font-semibold tracking-wide">
+											<code className="bg-muted rounded px-2 py-0.5 text-sm font-semibold tracking-wide tabular-nums">
 												{item.code}
 											</code>
 										</AdminTableCell>

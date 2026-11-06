@@ -40,7 +40,7 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 	);
 
 	const pageInfo = data?.pageInfo;
-	const tableColumnCount = 6 + subtests.length;
+	const tableColumnCount = 5 + subtests.length;
 
 	const getStatusConfig = (status: string) => {
 		switch (status) {
@@ -87,7 +87,6 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 					<Table>
 						<TableHeader>
 							<TableRow className="bg-muted/30">
-								<TableHead className="w-12 pl-4 text-center">No</TableHead>
 								<TableHead>User</TableHead>
 								<TableHead className="w-28">Status</TableHead>
 								<TableHead className="w-24">Skor</TableHead>
@@ -119,7 +118,7 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 								</TableRow>
 							) : (
 								<TooltipProvider delayDuration={200}>
-									{data?.items.map(({ attempt, user, subtestAttempts }, index) => {
+									{data?.items.map(({ attempt, user, subtestAttempts }) => {
 										const statusConfig = getStatusConfig(attempt.status);
 										const startedAt = attempt.startedAt ? new Date(attempt.startedAt) : null;
 										const completedAt = attempt.completedAt ? new Date(attempt.completedAt) : null;
@@ -129,12 +128,6 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 
 										return (
 											<TableRow key={attempt.id} className="hover:bg-muted/30">
-												<TableCell className="pl-4 text-center">
-													<div className="bg-muted mx-auto flex size-6 items-center justify-center rounded-full font-mono text-xs font-medium">
-														{index + 1}
-													</div>
-												</TableCell>
-
 												<TableCell>
 													<div className="flex items-center gap-3">
 														<Avatar className="ring-border size-9 rounded-full ring-2">

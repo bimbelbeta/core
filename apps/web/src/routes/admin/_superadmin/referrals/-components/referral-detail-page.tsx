@@ -48,7 +48,7 @@ export function ReferralDetailPage() {
 				</Button>
 				<div>
 					<Typography variant="title">
-						<code className="bg-muted rounded px-3 py-1 font-mono text-xl tracking-widest">{referralCode.code}</code>
+						<code className="bg-muted rounded px-3 py-1 text-xl tracking-widest tabular-nums">{referralCode.code}</code>
 					</Typography>
 					<Typography tone="muted" className="mt-1">
 						Detail kode referal

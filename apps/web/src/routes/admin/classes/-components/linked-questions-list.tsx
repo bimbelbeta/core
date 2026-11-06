@@ -44,12 +44,10 @@ interface LinkedQuestionsListProps {
 
 function LinkedQuestionItem({
 	question,
-	index,
 	contentId,
 	onRemoveSuccess,
 }: {
 	question: LinkedQuestion;
-	index: number;
 	contentId: number;
 	onRemoveSuccess: () => void;
 }) {
@@ -83,7 +81,6 @@ function LinkedQuestionItem({
 
 			<div className="min-w-0 flex-1 space-y-2">
 				<div className="flex items-start gap-2">
-					<span className="bg-muted shrink-0 rounded px-1.5 py-0.5 font-mono text-xs">{index + 1}</span>
 					<div className="prose prose-sm line-clamp-2 min-w-0 flex-1 text-sm [&_*]:!m-0 [&_p]:line-clamp-2">
 						<TiptapRenderer content={question.content} />
 					</div>
@@ -198,11 +195,10 @@ export function LinkedQuestionsList({ contentId, questions }: LinkedQuestionsLis
 				className="space-y-2"
 				onPointerUp={handleReorderEnd}
 			>
-				{items.map((question, index) => (
+				{items.map((question) => (
 					<LinkedQuestionItem
 						key={question.questionId}
 						question={question}
-						index={index}
 						contentId={contentId}
 						onRemoveSuccess={handleRemoveSuccess}
 					/>

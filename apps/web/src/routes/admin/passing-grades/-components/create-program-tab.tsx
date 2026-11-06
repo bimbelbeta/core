@@ -126,7 +126,7 @@ export function CreateProgramTab({ onProgramCreate }: CreateProgramTabProps) {
 								onChange={(e) => field.handleChange(e.target.value)}
 								disabled={form.getFieldValue("autoGenerateSlug")}
 								placeholder="teknik-informatika"
-								className="font-mono text-sm"
+								className="text-sm tabular-nums"
 							/>
 							{field.state.meta.errors.map((error) => (
 								<Typography key={error?.message} variant="caption" tone="destructive">
