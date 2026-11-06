@@ -1,5352 +1,1908 @@
 {
-  "version": "8",
+  "type": "diff",
+  "version": "9",
   "dialect": "postgres",
   "id": "389e8096-6e64-42f3-9767-6d06b8da6a15",
   "prevIds": [
     "cecef4ca-2588-4b35-a102-81ee980ae8b8"
   ],
-  "ddl": [
+  "footprints": [
     {
-      "name": "app",
-      "entityType": "schemas"
-    },
-    {
-      "values": [
-        "multiple_choice",
-        "multiple_choice_complex",
-        "essay"
+      "statementType": "create_schema",
+      "statementTarget": [
+        "schema",
+        "app"
       ],
-      "name": "question_type",
-      "entityType": "enums",
-      "schema": "app"
+      "writes": [
+        "s|sch|app",
+        "n|sch|app",
+        "e|sch|app"
+      ]
     },
     {
-      "values": [
-        "sd",
-        "smp",
-        "sma",
-        "utbk"
+      "statementType": "create_enum",
+      "statementTarget": [
+        "enum",
+        "app",
+        "question_type"
       ],
-      "name": "subject_category",
-      "entityType": "enums",
-      "schema": "app"
-    },
-    {
-      "values": [
-        "insufficient_balance",
-        "limit_exceeded",
-        "card_declined",
-        "fraud_rejected",
-        "payment_expired",
-        "payment_cancelled",
-        "provider_error",
-        "unknown"
+      "writes": [
+        "s|enum|app.question_type",
+        "n|enum|app.question_type",
+        "e|enum|app.question_type",
+        "n|type|app.question_type"
       ],
-      "name": "payment_failure_code",
-      "entityType": "enums",
-      "schema": "app"
+      "reads": [
+        "n|sch|app"
+      ]
     },
     {
-      "values": [
-        "fixed_date",
-        "monthly",
-        "credits"
+      "statementType": "create_enum",
+      "statementTarget": [
+        "enum",
+        "app",
+        "subject_category"
       ],
-      "name": "product_variant_enum",
-      "entityType": "enums",
-      "schema": "app"
-    },
-    {
-      "values": [
-        "pending",
-        "success",
-        "failed"
+      "writes": [
+        "s|enum|app.subject_category",
+        "n|enum|app.subject_category",
+        "e|enum|app.subject_category",
+        "n|type|app.subject_category"
       ],
-      "name": "transaction_status_enum",
-      "entityType": "enums",
-      "schema": "app"
+      "reads": [
+        "n|sch|app"
+      ]
     },
     {
-      "values": [
-        "subscription",
+      "statementType": "create_enum",
+      "statementTarget": [
+        "enum",
+        "app",
+        "payment_failure_code"
+      ],
+      "writes": [
+        "s|enum|app.payment_failure_code",
+        "n|enum|app.payment_failure_code",
+        "e|enum|app.payment_failure_code",
+        "n|type|app.payment_failure_code"
+      ],
+      "reads": [
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "create_enum",
+      "statementTarget": [
+        "enum",
+        "app",
+        "product_variant_enum"
+      ],
+      "writes": [
+        "s|enum|app.product_variant_enum",
+        "n|enum|app.product_variant_enum",
+        "e|enum|app.product_variant_enum",
+        "n|type|app.product_variant_enum"
+      ],
+      "reads": [
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "create_enum",
+      "statementTarget": [
+        "enum",
+        "app",
+        "transaction_status_enum"
+      ],
+      "writes": [
+        "s|enum|app.transaction_status_enum",
+        "n|enum|app.transaction_status_enum",
+        "e|enum|app.transaction_status_enum",
+        "n|type|app.transaction_status_enum"
+      ],
+      "reads": [
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "create_enum",
+      "statementTarget": [
+        "enum",
+        "app",
+        "product_type_enum"
+      ],
+      "writes": [
+        "s|enum|app.product_type_enum",
+        "n|enum|app.product_type_enum",
+        "e|enum|app.product_type_enum",
+        "n|type|app.product_type_enum"
+      ],
+      "reads": [
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "create_enum",
+      "statementTarget": [
+        "enum",
+        "app",
+        "tryout_attempt_status"
+      ],
+      "writes": [
+        "s|enum|app.tryout_attempt_status",
+        "n|enum|app.tryout_attempt_status",
+        "e|enum|app.tryout_attempt_status",
+        "n|type|app.tryout_attempt_status"
+      ],
+      "reads": [
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "create_enum",
+      "statementTarget": [
+        "enum",
+        "app",
+        "tryout_category"
+      ],
+      "writes": [
+        "s|enum|app.tryout_category",
+        "n|enum|app.tryout_category",
+        "e|enum|app.tryout_category",
+        "n|type|app.tryout_category"
+      ],
+      "reads": [
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "create_enum",
+      "statementTarget": [
+        "enum",
+        "app",
+        "tryout_status"
+      ],
+      "writes": [
+        "s|enum|app.tryout_status",
+        "n|enum|app.tryout_status",
+        "e|enum|app.tryout_status",
+        "n|type|app.tryout_status"
+      ],
+      "reads": [
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "create_enum",
+      "statementTarget": [
+        "enum",
+        "app",
+        "study_program_category"
+      ],
+      "writes": [
+        "s|enum|app.study_program_category",
+        "n|enum|app.study_program_category",
+        "e|enum|app.study_program_category",
+        "n|type|app.study_program_category"
+      ],
+      "reads": [
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "move_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "account"
+      ],
+      "writes": [
+        "s|tbl|public.account",
+        "n|tbl|public.account",
+        "n|rel|public.account",
+        "n|type|public.account",
+        "s|tbl|app.account",
+        "n|tbl|app.account",
+        "n|rel|app.account",
+        "n|type|app.account",
+        "e|tbl|public.account",
+        "e|tbl|app.account",
+        "n|rel|public.account_pkey",
+        "n|rel|app.account_pkey",
+        "n|rel|public.account_userId_idx",
+        "n|rel|app.account_userId_idx"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "move_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "session"
+      ],
+      "writes": [
+        "s|tbl|public.session",
+        "n|tbl|public.session",
+        "n|rel|public.session",
+        "n|type|public.session",
+        "s|tbl|app.session",
+        "n|tbl|app.session",
+        "n|rel|app.session",
+        "n|type|app.session",
+        "e|tbl|public.session",
+        "e|tbl|app.session",
+        "n|rel|public.session_pkey",
+        "n|rel|app.session_pkey",
+        "n|rel|public.session_token_key",
+        "n|rel|app.session_token_key",
+        "n|rel|public.session_userId_idx",
+        "n|rel|app.session_userId_idx"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "move_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "user"
+      ],
+      "writes": [
+        "s|tbl|public.user",
+        "n|tbl|public.user",
+        "n|rel|public.user",
+        "n|type|public.user",
+        "s|tbl|app.user",
+        "n|tbl|app.user",
+        "n|rel|app.user",
+        "n|type|app.user",
+        "e|tbl|public.user",
+        "e|tbl|app.user",
+        "n|rel|public.user_email_key",
+        "n|rel|app.user_email_key",
+        "n|rel|public.user_name_key",
+        "n|rel|app.user_name_key",
+        "n|rel|public.user_pkey",
+        "n|rel|app.user_pkey"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "move_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "verification"
+      ],
+      "writes": [
+        "s|tbl|public.verification",
+        "n|tbl|public.verification",
+        "n|rel|public.verification",
+        "n|type|public.verification",
+        "s|tbl|app.verification",
+        "n|tbl|app.verification",
+        "n|rel|app.verification",
+        "n|type|app.verification",
+        "e|tbl|public.verification",
+        "e|tbl|app.verification",
+        "n|rel|public.verification_identifier_idx",
+        "n|rel|app.verification_identifier_idx",
+        "n|rel|public.verification_pkey",
+        "n|rel|app.verification_pkey"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "move_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "credit_transaction"
+      ],
+      "writes": [
+        "s|tbl|public.credit_transaction",
+        "n|tbl|public.credit_transaction",
+        "n|rel|public.credit_transaction",
+        "n|type|public.credit_transaction",
+        "s|tbl|app.credit_transaction",
+        "n|tbl|app.credit_transaction",
+        "n|rel|app.credit_transaction",
+        "n|type|app.credit_transaction",
+        "e|tbl|public.credit_transaction",
+        "e|tbl|app.credit_transaction",
+        "n|rel|public.credit_transaction_pkey",
+        "n|rel|app.credit_transaction_pkey",
+        "n|rel|public.idx_credit_transaction_user_id",
+        "n|rel|app.idx_credit_transaction_user_id"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "move_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "question"
+      ],
+      "writes": [
+        "s|tbl|public.question",
+        "n|tbl|public.question",
+        "n|rel|public.question",
+        "n|type|public.question",
+        "s|tbl|app.question",
+        "n|tbl|app.question",
+        "n|rel|app.question",
+        "n|type|app.question",
+        "e|tbl|public.question",
+        "e|tbl|app.question",
+        "n|rel|public.question_pkey",
+        "n|rel|app.question_pkey"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "move_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "question_choice"
+      ],
+      "writes": [
+        "s|tbl|public.question_choice",
+        "n|tbl|public.question_choice",
+        "n|rel|public.question_choice",
+        "n|type|public.question_choice",
+        "s|tbl|app.question_choice",
+        "n|tbl|app.question_choice",
+        "n|rel|app.question_choice",
+        "n|type|app.question_choice",
+        "e|tbl|public.question_choice",
+        "e|tbl|app.question_choice",
+        "n|rel|public.question_choice_pkey",
+        "n|rel|app.question_choice_pkey",
+        "n|rel|public.question_choice_unique",
+        "n|rel|app.question_choice_unique"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "move_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "referral_code"
+      ],
+      "writes": [
+        "s|tbl|public.referral_code",
+        "n|tbl|public.referral_code",
+        "n|rel|public.referral_code",
+        "n|type|public.referral_code",
+        "s|tbl|app.referral_code",
+        "n|tbl|app.referral_code",
+        "n|rel|app.referral_code",
+        "n|type|app.referral_code",
+        "e|tbl|public.referral_code",
+        "e|tbl|app.referral_code",
+        "n|rel|public.idx_referral_code_code",
+        "n|rel|app.idx_referral_code_code",
+        "n|rel|public.referral_code_code_key",
+        "n|rel|app.referral_code_code_key",
+        "n|rel|public.referral_code_pkey",
+        "n|rel|app.referral_code_pkey"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "move_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "referral_usage"
+      ],
+      "writes": [
+        "s|tbl|public.referral_usage",
+        "n|tbl|public.referral_usage",
+        "n|rel|public.referral_usage",
+        "n|type|public.referral_usage",
+        "s|tbl|app.referral_usage",
+        "n|tbl|app.referral_usage",
+        "n|rel|app.referral_usage",
+        "n|type|app.referral_usage",
+        "e|tbl|public.referral_usage",
+        "e|tbl|app.referral_usage",
+        "n|rel|public.idx_referral_usage_code_id",
+        "n|rel|app.idx_referral_usage_code_id",
+        "n|rel|public.idx_referral_usage_user_id",
+        "n|rel|app.idx_referral_usage_user_id",
+        "n|rel|public.referral_usage_pkey",
+        "n|rel|app.referral_usage_pkey",
+        "n|rel|public.referral_usage_user_code_idx",
+        "n|rel|app.referral_usage_user_code_idx"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "move_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "content_item"
+      ],
+      "writes": [
+        "s|tbl|public.content_item",
+        "n|tbl|public.content_item",
+        "n|rel|public.content_item",
+        "n|type|public.content_item",
+        "s|tbl|app.content_item",
+        "n|tbl|app.content_item",
+        "n|rel|app.content_item",
+        "n|type|app.content_item",
+        "e|tbl|public.content_item",
+        "e|tbl|app.content_item",
+        "n|rel|public.content_item_pkey",
+        "n|rel|app.content_item_pkey",
+        "n|rel|public.unique_content_order",
+        "n|rel|app.unique_content_order"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "move_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "content_practice_questions"
+      ],
+      "writes": [
+        "s|tbl|public.content_practice_questions",
+        "n|tbl|public.content_practice_questions",
+        "n|rel|public.content_practice_questions",
+        "n|type|public.content_practice_questions",
+        "s|tbl|app.content_practice_questions",
+        "n|tbl|app.content_practice_questions",
+        "n|rel|app.content_practice_questions",
+        "n|type|app.content_practice_questions",
+        "e|tbl|public.content_practice_questions",
+        "e|tbl|app.content_practice_questions",
+        "n|rel|public.unique_practice_questions_order",
+        "n|rel|app.unique_practice_questions_order"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "move_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "note_material"
+      ],
+      "writes": [
+        "s|tbl|public.note_material",
+        "n|tbl|public.note_material",
+        "n|rel|public.note_material",
+        "n|type|public.note_material",
+        "s|tbl|app.note_material",
+        "n|tbl|app.note_material",
+        "n|rel|app.note_material",
+        "n|type|app.note_material",
+        "e|tbl|public.note_material",
+        "e|tbl|app.note_material",
+        "n|rel|public.note_material_content_item_id_key",
+        "n|rel|app.note_material_content_item_id_key",
+        "n|rel|public.note_material_pkey",
+        "n|rel|app.note_material_pkey"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "move_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "recent_content_view"
+      ],
+      "writes": [
+        "s|tbl|public.recent_content_view",
+        "n|tbl|public.recent_content_view",
+        "n|rel|public.recent_content_view",
+        "n|type|public.recent_content_view",
+        "s|tbl|app.recent_content_view",
+        "n|tbl|app.recent_content_view",
+        "n|rel|app.recent_content_view",
+        "n|type|app.recent_content_view",
+        "e|tbl|public.recent_content_view",
+        "e|tbl|app.recent_content_view",
+        "n|rel|public.idx_recent_view_user_time",
+        "n|rel|app.idx_recent_view_user_time",
+        "n|rel|public.recent_content_view_pkey",
+        "n|rel|app.recent_content_view_pkey"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "move_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "subject"
+      ],
+      "writes": [
+        "s|tbl|public.subject",
+        "n|tbl|public.subject",
+        "n|rel|public.subject",
+        "n|type|public.subject",
+        "s|tbl|app.subject",
+        "n|tbl|app.subject",
+        "n|rel|app.subject",
+        "n|type|app.subject",
+        "e|tbl|public.subject",
+        "e|tbl|app.subject",
+        "n|rel|public.subject_pkey",
+        "n|rel|app.subject_pkey",
+        "n|rel|public.subject_short_name_key",
+        "n|rel|app.subject_short_name_key"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "move_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "user_progress"
+      ],
+      "writes": [
+        "s|tbl|public.user_progress",
+        "n|tbl|public.user_progress",
+        "n|rel|public.user_progress",
+        "n|type|public.user_progress",
+        "s|tbl|app.user_progress",
+        "n|tbl|app.user_progress",
+        "n|rel|app.user_progress",
+        "n|type|app.user_progress",
+        "e|tbl|public.user_progress",
+        "e|tbl|app.user_progress",
+        "n|rel|public.idx_user_progress_content",
+        "n|rel|app.idx_user_progress_content",
+        "n|rel|public.idx_user_progress_user",
+        "n|rel|app.idx_user_progress_user",
+        "n|rel|public.unique_user_content",
+        "n|rel|app.unique_user_content",
+        "n|rel|public.user_progress_pkey",
+        "n|rel|app.user_progress_pkey"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "move_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "user_subject_view"
+      ],
+      "writes": [
+        "s|tbl|public.user_subject_view",
+        "n|tbl|public.user_subject_view",
+        "n|rel|public.user_subject_view",
+        "n|type|public.user_subject_view",
+        "s|tbl|app.user_subject_view",
+        "n|tbl|app.user_subject_view",
+        "n|rel|app.user_subject_view",
+        "n|type|app.user_subject_view",
+        "e|tbl|public.user_subject_view",
+        "e|tbl|app.user_subject_view",
+        "n|rel|public.idx_user_subject_view_user",
+        "n|rel|app.idx_user_subject_view_user",
+        "n|rel|public.unique_user_subject",
+        "n|rel|app.unique_user_subject",
+        "n|rel|public.user_subject_view_pkey",
+        "n|rel|app.user_subject_view_pkey"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "move_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "video_material"
+      ],
+      "writes": [
+        "s|tbl|public.video_material",
+        "n|tbl|public.video_material",
+        "n|rel|public.video_material",
+        "n|type|public.video_material",
+        "s|tbl|app.video_material",
+        "n|tbl|app.video_material",
+        "n|rel|app.video_material",
+        "n|type|app.video_material",
+        "e|tbl|public.video_material",
+        "e|tbl|app.video_material",
+        "n|rel|public.video_material_content_item_id_key",
+        "n|rel|app.video_material_content_item_id_key",
+        "n|rel|public.video_material_pkey",
+        "n|rel|app.video_material_pkey"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "move_table",
+      "statementTarget": [
+        "table",
+        "public",
         "product"
       ],
-      "name": "product_type_enum",
-      "entityType": "enums",
-      "schema": "app"
-    },
-    {
-      "values": [
-        "not_started",
-        "ongoing",
-        "finished"
-      ],
-      "name": "tryout_attempt_status",
-      "entityType": "enums",
-      "schema": "app"
-    },
-    {
-      "values": [
-        "sd",
-        "smp",
-        "sma",
-        "utbk"
-      ],
-      "name": "tryout_category",
-      "entityType": "enums",
-      "schema": "app"
-    },
-    {
-      "values": [
-        "draft",
-        "published",
-        "archived"
-      ],
-      "name": "tryout_status",
-      "entityType": "enums",
-      "schema": "app"
-    },
-    {
-      "values": [
-        "SAINTEK",
-        "SOSHUM"
-      ],
-      "name": "study_program_category",
-      "entityType": "enums",
-      "schema": "app"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "account",
-      "entityType": "tables",
-      "schema": "app"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "session",
-      "entityType": "tables",
-      "schema": "app"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "user",
-      "entityType": "tables",
-      "schema": "app"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "verification",
-      "entityType": "tables",
-      "schema": "app"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "credit_transaction",
-      "entityType": "tables",
-      "schema": "app"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "question",
-      "entityType": "tables",
-      "schema": "app"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "question_choice",
-      "entityType": "tables",
-      "schema": "app"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "referral_code",
-      "entityType": "tables",
-      "schema": "app"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "referral_usage",
-      "entityType": "tables",
-      "schema": "app"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "content_item",
-      "entityType": "tables",
-      "schema": "app"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "content_practice_questions",
-      "entityType": "tables",
-      "schema": "app"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "note_material",
-      "entityType": "tables",
-      "schema": "app"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "recent_content_view",
-      "entityType": "tables",
-      "schema": "app"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "subject",
-      "entityType": "tables",
-      "schema": "app"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "user_progress",
-      "entityType": "tables",
-      "schema": "app"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "user_subject_view",
-      "entityType": "tables",
-      "schema": "app"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "video_material",
-      "entityType": "tables",
-      "schema": "app"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "product",
-      "entityType": "tables",
-      "schema": "app"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "transaction",
-      "entityType": "tables",
-      "schema": "app"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "tryout",
-      "entityType": "tables",
-      "schema": "app"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "tryout_access_code",
-      "entityType": "tables",
-      "schema": "app"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "tryout_attempt",
-      "entityType": "tables",
-      "schema": "app"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "tryout_subtest",
-      "entityType": "tables",
-      "schema": "app"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "tryout_subtest_attempt",
-      "entityType": "tables",
-      "schema": "app"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "tryout_subtest_question",
-      "entityType": "tables",
-      "schema": "app"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "tryout_user_answer",
-      "entityType": "tables",
-      "schema": "app"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "program_yearly_data",
-      "entityType": "tables",
-      "schema": "app"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "study_program",
-      "entityType": "tables",
-      "schema": "app"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "university",
-      "entityType": "tables",
-      "schema": "app"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "university_study_program",
-      "entityType": "tables",
-      "schema": "app"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "account"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "account_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "account"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "provider_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "account"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "user_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "account"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "access_token",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "account"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "refresh_token",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "account"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "id_token",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "account"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "access_token_expires_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "account"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "refresh_token_expires_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "account"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "scope",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "account"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "password",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "account"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "account"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "updated_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "account"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "session"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "expires_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "session"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "token",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "session"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "session"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "updated_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "session"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "ip_address",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "session"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "user_agent",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "session"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "user_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "session"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "user"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "name",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "user"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "email",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "user"
-    },
-    {
-      "type": "boolean",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "false",
-      "generated": null,
-      "identity": null,
-      "name": "email_verified",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "user"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "image",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "user"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "user"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "updated_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "user"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": "'user'",
-      "generated": null,
-      "identity": null,
-      "name": "role",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "user"
-    },
-    {
-      "type": "boolean",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": "false",
-      "generated": null,
-      "identity": null,
-      "name": "is_premium",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "user"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "premium_expires_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "user"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": "0",
-      "generated": null,
-      "identity": null,
-      "name": "tryout_credits",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "user"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "target_university_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "user"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "target_study_program_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "user"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "verification"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "identifier",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "verification"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "value",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "verification"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "expires_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "verification"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "verification"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "updated_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "verification"
-    },
-    {
-      "type": "uuid",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "gen_random_uuid()",
-      "generated": null,
-      "identity": null,
-      "name": "id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "credit_transaction"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "user_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "credit_transaction"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "transaction_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "credit_transaction"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "tryout_attempt_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "credit_transaction"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "amount",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "credit_transaction"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "balance_after",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "credit_transaction"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "note",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "credit_transaction"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "credit_transaction"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": {
-        "type": "always",
-        "name": "question_id_seq",
-        "increment": "1",
-        "startWith": "1",
-        "minValue": "1",
-        "maxValue": "2147483647",
-        "cache": 1,
-        "cycle": false
-      },
-      "name": "id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "question"
-    },
-    {
-      "type": "question_type",
-      "typeSchema": "app",
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'multiple_choice'",
-      "generated": null,
-      "identity": null,
-      "name": "type",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "question"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "content",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "question"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "discussion",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "question"
-    },
-    {
-      "type": "jsonb",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "content_json",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "question"
-    },
-    {
-      "type": "jsonb",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "discussion_json",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "question"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "essay_correct_answer",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "question"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 1,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "tags",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "question"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "question"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "updated_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "question"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": {
-        "type": "always",
-        "name": "question_choice_id_seq",
-        "increment": "1",
-        "startWith": "1",
-        "minValue": "1",
-        "maxValue": "2147483647",
-        "cache": 1,
-        "cycle": false
-      },
-      "name": "id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "question_choice"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "question_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "question_choice"
-    },
-    {
-      "type": "char(1)",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "code",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "question_choice"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "content",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "question_choice"
-    },
-    {
-      "type": "boolean",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "false",
-      "generated": null,
-      "identity": null,
-      "name": "is_correct",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "question_choice"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "question_choice"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "updated_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "question_choice"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "referral_code"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "code",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "referral_code"
-    },
-    {
-      "type": "boolean",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "true",
-      "generated": null,
-      "identity": null,
-      "name": "status",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "referral_code"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "0",
-      "generated": null,
-      "identity": null,
-      "name": "usage_count",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "referral_code"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "max_usages",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "referral_code"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "valid_until",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "referral_code"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "premium_days",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "referral_code"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "referral_code"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "updated_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "referral_code"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "created_by",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "referral_code"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "referral_usage"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "user_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "referral_usage"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "referral_code_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "referral_usage"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "referral_usage"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": {
-        "type": "always",
-        "name": "content_item_id_seq",
-        "increment": "1",
-        "startWith": "1",
-        "minValue": "1",
-        "maxValue": "2147483647",
-        "cache": 1,
-        "cycle": false
-      },
-      "name": "id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "content_item"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "subject_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "content_item"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "title",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "content_item"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "order",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "content_item"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "content_item"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "updated_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "content_item"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "content_item_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "content_practice_questions"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "question_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "content_practice_questions"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "1",
-      "generated": null,
-      "identity": null,
-      "name": "order",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "content_practice_questions"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": {
-        "type": "always",
-        "name": "note_material_id_seq",
-        "increment": "1",
-        "startWith": "1",
-        "minValue": "1",
-        "maxValue": "2147483647",
-        "cache": 1,
-        "cycle": false
-      },
-      "name": "id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "note_material"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "content_item_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "note_material"
-    },
-    {
-      "type": "jsonb",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "content",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "note_material"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "note_material"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "updated_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "note_material"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": {
-        "type": "always",
-        "name": "recent_content_view_id_seq",
-        "increment": "1",
-        "startWith": "1",
-        "minValue": "1",
-        "maxValue": "2147483647",
-        "cache": 1,
-        "cycle": false
-      },
-      "name": "id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "recent_content_view"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "user_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "recent_content_view"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "content_item_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "recent_content_view"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "viewed_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "recent_content_view"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": {
-        "type": "always",
-        "name": "subject_id_seq",
-        "increment": "1",
-        "startWith": "1",
-        "minValue": "1",
-        "maxValue": "2147483647",
-        "cache": 1,
-        "cycle": false
-      },
-      "name": "id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "subject"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "name",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "subject"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "short_name",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "subject"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "description",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "subject"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "1",
-      "generated": null,
-      "identity": null,
-      "name": "order",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "subject"
-    },
-    {
-      "type": "subject_category",
-      "typeSchema": "app",
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'utbk'",
-      "generated": null,
-      "identity": null,
-      "name": "category",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "subject"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "grade_level",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "subject"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "subject"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "updated_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "subject"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": {
-        "type": "always",
-        "name": "user_progress_id_seq",
-        "increment": "1",
-        "startWith": "1",
-        "minValue": "1",
-        "maxValue": "2147483647",
-        "cache": 1,
-        "cycle": false
-      },
-      "name": "id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "user_progress"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "user_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "user_progress"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "content_item_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "user_progress"
-    },
-    {
-      "type": "boolean",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "false",
-      "generated": null,
-      "identity": null,
-      "name": "video_completed",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "user_progress"
-    },
-    {
-      "type": "boolean",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "false",
-      "generated": null,
-      "identity": null,
-      "name": "note_completed",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "user_progress"
-    },
-    {
-      "type": "boolean",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "false",
-      "generated": null,
-      "identity": null,
-      "name": "practice_questions_completed",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "user_progress"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "last_viewed_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "user_progress"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "user_progress"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "updated_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "user_progress"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": {
-        "type": "always",
-        "name": "user_subject_view_id_seq",
-        "increment": "1",
-        "startWith": "1",
-        "minValue": "1",
-        "maxValue": "2147483647",
-        "cache": 1,
-        "cycle": false
-      },
-      "name": "id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "user_subject_view"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "user_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "user_subject_view"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "subject_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "user_subject_view"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "viewed_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "user_subject_view"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "user_subject_view"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "updated_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "user_subject_view"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": {
-        "type": "always",
-        "name": "video_material_id_seq",
-        "increment": "1",
-        "startWith": "1",
-        "minValue": "1",
-        "maxValue": "2147483647",
-        "cache": 1,
-        "cycle": false
-      },
-      "name": "id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "video_material"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "content_item_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "video_material"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "video_url",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "video_material"
-    },
-    {
-      "type": "jsonb",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "content",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "video_material"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "video_material"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "updated_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "video_material"
-    },
-    {
-      "type": "uuid",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "gen_random_uuid()",
-      "generated": null,
-      "identity": null,
-      "name": "id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "product"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "name",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "product"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "slug",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "product"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "description",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "product"
-    },
-    {
-      "type": "numeric",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "price",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "product"
-    },
-    {
-      "type": "product_type_enum",
-      "typeSchema": "app",
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "type",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "product"
-    },
-    {
-      "type": "product_variant_enum",
-      "typeSchema": "app",
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'credits'",
-      "generated": null,
-      "identity": null,
-      "name": "variant",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "product"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "fixed_expiry_month",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "product"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "fixed_expiry_day",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "product"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "duration_days",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "product"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "credits",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "product"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "product"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "updated_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "product"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "deleted_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "product"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "transaction"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "user_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "transaction"
-    },
-    {
-      "type": "uuid",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "product_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "transaction"
-    },
-    {
-      "type": "numeric",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "gross_amount",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "transaction"
-    },
-    {
-      "type": "numeric",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "amount_paid",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "transaction"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'midtrans'",
-      "generated": null,
-      "identity": null,
-      "name": "provider",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "transaction"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "provider_transaction_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "transaction"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "payment_method",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "transaction"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "expires_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "transaction"
-    },
-    {
-      "type": "transaction_status_enum",
-      "typeSchema": "app",
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'pending'",
-      "generated": null,
-      "identity": null,
-      "name": "status",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "transaction"
-    },
-    {
-      "type": "payment_failure_code",
-      "typeSchema": "app",
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "failure_code",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "transaction"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "failure_detail",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "transaction"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "paid_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "transaction"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "ordered_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "transaction"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "transaction"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "updated_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "transaction"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": {
-        "type": "always",
-        "name": "tryout_id_seq",
-        "increment": "1",
-        "startWith": "1",
-        "minValue": "1",
-        "maxValue": "2147483647",
-        "cache": 1,
-        "cycle": false
-      },
-      "name": "id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "title",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "description",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "600",
-      "generated": null,
-      "identity": null,
-      "name": "passing_grade",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout"
-    },
-    {
-      "type": "tryout_category",
-      "typeSchema": "app",
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'utbk'",
-      "generated": null,
-      "identity": null,
-      "name": "category",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout"
-    },
-    {
-      "type": "tryout_status",
-      "typeSchema": "app",
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'draft'",
-      "generated": null,
-      "identity": null,
-      "name": "status",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "starts_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "ends_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "updated_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": {
-        "type": "always",
-        "name": "tryout_access_code_id_seq",
-        "increment": "1",
-        "startWith": "1",
-        "minValue": "1",
-        "maxValue": "2147483647",
-        "cache": 1,
-        "cycle": false
-      },
-      "name": "id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_access_code"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "tryout_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_access_code"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "code_hash",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_access_code"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "code_preview",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_access_code"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "label",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_access_code"
-    },
-    {
-      "type": "boolean",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "true",
-      "generated": null,
-      "identity": null,
-      "name": "is_active",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_access_code"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "expires_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_access_code"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "max_uses",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_access_code"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "0",
-      "generated": null,
-      "identity": null,
-      "name": "used_count",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_access_code"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_access_code"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "updated_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_access_code"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": {
-        "type": "always",
-        "name": "tryout_attempt_id_seq",
-        "increment": "1",
-        "startWith": "1",
-        "minValue": "1",
-        "maxValue": "2147483647",
-        "cache": 1,
-        "cycle": false
-      },
-      "name": "id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_attempt"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "user_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_attempt"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "tryout_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_attempt"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "started_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_attempt"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "deadline",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_attempt"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "completed_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_attempt"
-    },
-    {
-      "type": "tryout_attempt_status",
-      "typeSchema": "app",
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'ongoing'",
-      "generated": null,
-      "identity": null,
-      "name": "status",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_attempt"
-    },
-    {
-      "type": "numeric(10,2)",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "score",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_attempt"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "submitted_image_url",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_attempt"
-    },
-    {
-      "type": "boolean",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "false",
-      "generated": null,
-      "identity": null,
-      "name": "is_revoked",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_attempt"
-    },
-    {
-      "type": "boolean",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "false",
-      "generated": null,
-      "identity": null,
-      "name": "used_credit",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_attempt"
-    },
-    {
-      "type": "boolean",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "false",
-      "generated": null,
-      "identity": null,
-      "name": "used_access_code",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_attempt"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "access_code_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_attempt"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": {
-        "type": "always",
-        "name": "tryout_subtest_id_seq",
-        "increment": "1",
-        "startWith": "1",
-        "minValue": "1",
-        "maxValue": "2147483647",
-        "cache": 1,
-        "cycle": false
-      },
-      "name": "id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_subtest"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "tryout_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_subtest"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "name",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_subtest"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "description",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_subtest"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "duration",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_subtest"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'sequential'",
-      "generated": null,
-      "identity": null,
-      "name": "question_order",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_subtest"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "1",
-      "generated": null,
-      "identity": null,
-      "name": "order",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_subtest"
-    },
-    {
-      "type": "jsonb",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "scoring_map",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_subtest"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": {
-        "type": "always",
-        "name": "tryout_subtest_attempt_id_seq",
-        "increment": "1",
-        "startWith": "1",
-        "minValue": "1",
-        "maxValue": "2147483647",
-        "cache": 1,
-        "cycle": false
-      },
-      "name": "id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_subtest_attempt"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "tryout_attempt_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_subtest_attempt"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "subtest_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_subtest_attempt"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "started_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_subtest_attempt"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "completed_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_subtest_attempt"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "deadline",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_subtest_attempt"
-    },
-    {
-      "type": "tryout_attempt_status",
-      "typeSchema": "app",
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'ongoing'",
-      "generated": null,
-      "identity": null,
-      "name": "status",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_subtest_attempt"
-    },
-    {
-      "type": "numeric(10,2)",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "score",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_subtest_attempt"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "subtest_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_subtest_question"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "question_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_subtest_question"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": "1",
-      "generated": null,
-      "identity": null,
-      "name": "order",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_subtest_question"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_subtest_question"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "updated_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_subtest_question"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "attempt_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_user_answer"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "question_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_user_answer"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "selected_choice_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_user_answer"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 1,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "selected_choice_ids",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_user_answer"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "essay_answer",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_user_answer"
-    },
-    {
-      "type": "boolean",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "false",
-      "generated": null,
-      "identity": null,
-      "name": "is_doubtful",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_user_answer"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_user_answer"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "updated_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "tryout_user_answer"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": {
-        "type": "always",
-        "name": "program_yearly_data_id_seq",
-        "increment": "1",
-        "startWith": "1",
-        "minValue": "1",
-        "maxValue": "2147483647",
-        "cache": 1,
-        "cycle": false
-      },
-      "name": "id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "program_yearly_data"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "university_study_program_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "program_yearly_data"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "year",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "program_yearly_data"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "average_grade",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "program_yearly_data"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "passing_grade",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "program_yearly_data"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "applicant_count",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "program_yearly_data"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "passed_count",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "program_yearly_data"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "program_yearly_data"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "updated_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "program_yearly_data"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": {
-        "type": "always",
-        "name": "study_program_id_seq",
-        "increment": "1",
-        "startWith": "1",
-        "minValue": "1",
-        "maxValue": "2147483647",
-        "cache": 1,
-        "cycle": false
-      },
-      "name": "id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "study_program"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "name",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "study_program"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "slug",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "study_program"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "description",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "study_program"
-    },
-    {
-      "type": "study_program_category",
-      "typeSchema": "app",
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "category",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "study_program"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "study_program"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "updated_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "study_program"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": {
-        "type": "always",
-        "name": "university_id_seq",
-        "increment": "1",
-        "startWith": "1",
-        "minValue": "1",
-        "maxValue": "2147483647",
-        "cache": 1,
-        "cycle": false
-      },
-      "name": "id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "university"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "name",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "university"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "slug",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "university"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "logo",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "university"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "description",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "university"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "location",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "university"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "website",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "university"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "rank",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "university"
-    },
-    {
-      "type": "boolean",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "true",
-      "generated": null,
-      "identity": null,
-      "name": "is_active",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "university"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "university"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "updated_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "university"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": {
-        "type": "always",
-        "name": "university_study_program_id_seq",
-        "increment": "1",
-        "startWith": "1",
-        "minValue": "1",
-        "maxValue": "2147483647",
-        "cache": 1,
-        "cycle": false
-      },
-      "name": "id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "university_study_program"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "university_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "university_study_program"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "study_program_id",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "university_study_program"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "tuition",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "university_study_program"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "capacity",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "university_study_program"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "accreditation",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "university_study_program"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "500",
-      "generated": null,
-      "identity": null,
-      "name": "average_score",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "university_study_program"
-    },
-    {
-      "type": "boolean",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "true",
-      "generated": null,
-      "identity": null,
-      "name": "is_active",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "university_study_program"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "university_study_program"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "updated_at",
-      "entityType": "columns",
-      "schema": "app",
-      "table": "university_study_program"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "user_id",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": false,
-      "where": null,
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "account_userId_idx",
-      "entityType": "indexes",
-      "schema": "app",
-      "table": "account"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "user_id",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": false,
-      "where": null,
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "session_userId_idx",
-      "entityType": "indexes",
-      "schema": "app",
-      "table": "session"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "identifier",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": false,
-      "where": null,
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "verification_identifier_idx",
-      "entityType": "indexes",
-      "schema": "app",
-      "table": "verification"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "user_id",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": false,
-      "where": null,
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "idx_credit_transaction_user_id",
-      "entityType": "indexes",
-      "schema": "app",
-      "table": "credit_transaction"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "code",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": false,
-      "where": null,
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "idx_referral_code_code",
-      "entityType": "indexes",
-      "schema": "app",
-      "table": "referral_code"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "user_id",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": false,
-      "where": null,
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "idx_referral_usage_user_id",
-      "entityType": "indexes",
-      "schema": "app",
-      "table": "referral_usage"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "referral_code_id",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": false,
-      "where": null,
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "idx_referral_usage_code_id",
-      "entityType": "indexes",
-      "schema": "app",
-      "table": "referral_usage"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "user_id",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        },
-        {
-          "value": "viewed_at",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": false,
-      "where": null,
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "idx_recent_view_user_time",
-      "entityType": "indexes",
-      "schema": "app",
-      "table": "recent_content_view"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "user_id",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": false,
-      "where": null,
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "idx_user_progress_user",
-      "entityType": "indexes",
-      "schema": "app",
-      "table": "user_progress"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "content_item_id",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": false,
-      "where": null,
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "idx_user_progress_content",
-      "entityType": "indexes",
-      "schema": "app",
-      "table": "user_progress"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "user_id",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": false,
-      "where": null,
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "idx_user_subject_view_user",
-      "entityType": "indexes",
-      "schema": "app",
-      "table": "user_subject_view"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "user_id",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": false,
-      "where": null,
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "idx_transaction_user_id",
-      "entityType": "indexes",
-      "schema": "app",
-      "table": "transaction"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "product_id",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": false,
-      "where": null,
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "idx_transaction_product_id",
-      "entityType": "indexes",
-      "schema": "app",
-      "table": "transaction"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "tryout_id",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": false,
-      "where": null,
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "idx_tryout_access_code_tryout_id",
-      "entityType": "indexes",
-      "schema": "app",
-      "table": "tryout_access_code"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "tryout_id",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": false,
-      "where": null,
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "idx_tryout_attempt_tryout_id",
-      "entityType": "indexes",
-      "schema": "app",
-      "table": "tryout_attempt"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "subtest_id",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": false,
-      "where": null,
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "idx_tryout_subtest_attempt_subtest_id",
-      "entityType": "indexes",
-      "schema": "app",
-      "table": "tryout_subtest_attempt"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "name": "account_user_id_user_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "account"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "name": "session_user_id_user_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "session"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "name": "credit_transaction_user_id_user_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "credit_transaction"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "transaction_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "transaction",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "SET NULL",
-      "name": "credit_transaction_transaction_id_transaction_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "credit_transaction"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "tryout_attempt_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "tryout_attempt",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "SET NULL",
-      "name": "credit_transaction_tryout_attempt_id_tryout_attempt_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "credit_transaction"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "question_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "question",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "name": "question_choice_question_id_question_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "question_choice"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "created_by"
-      ],
-      "schemaTo": "app",
-      "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "SET NULL",
-      "name": "referral_code_created_by_user_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "referral_code"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "name": "referral_usage_user_id_user_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "referral_usage"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "referral_code_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "referral_code",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "name": "referral_usage_referral_code_id_referral_code_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "referral_usage"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "subject_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "subject",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "name": "content_item_subject_id_subject_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "content_item"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "content_item_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "content_item",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "name": "content_practice_questions_content_item_id_content_item_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "content_practice_questions"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "question_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "question",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "name": "content_practice_questions_question_id_question_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "content_practice_questions"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "content_item_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "content_item",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "name": "note_material_content_item_id_content_item_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "note_material"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "name": "recent_content_view_user_id_user_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "recent_content_view"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "content_item_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "content_item",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "name": "recent_content_view_content_item_id_content_item_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "recent_content_view"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "name": "user_progress_user_id_user_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "user_progress"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "content_item_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "content_item",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "name": "user_progress_content_item_id_content_item_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "user_progress"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "name": "user_subject_view_user_id_user_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "user_subject_view"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "subject_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "subject",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "name": "user_subject_view_subject_id_subject_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "user_subject_view"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "content_item_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "content_item",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "name": "video_material_content_item_id_content_item_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "video_material"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "SET NULL",
-      "name": "transaction_user_id_user_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "transaction"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "product_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "product",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "SET NULL",
-      "name": "transaction_product_id_product_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "transaction"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "tryout_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "tryout",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "name": "tryout_access_code_tryout_id_tryout_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "tryout_access_code"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "SET NULL",
-      "name": "tryout_attempt_user_id_user_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "tryout_attempt"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "tryout_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "tryout",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "name": "tryout_attempt_tryout_id_tryout_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "tryout_attempt"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "access_code_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "tryout_access_code",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "SET NULL",
-      "name": "tryout_attempt_access_code_id_tryout_access_code_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "tryout_attempt"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "tryout_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "tryout",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "name": "tryout_subtest_tryout_id_tryout_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "tryout_subtest"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "tryout_attempt_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "tryout_attempt",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "name": "tryout_subtest_attempt_tryout_attempt_id_tryout_attempt_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "tryout_subtest_attempt"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "subtest_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "tryout_subtest",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "name": "tryout_subtest_attempt_subtest_id_tryout_subtest_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "tryout_subtest_attempt"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "subtest_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "tryout_subtest",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "name": "tryout_subtest_question_subtest_id_tryout_subtest_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "tryout_subtest_question"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "question_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "question",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "name": "tryout_subtest_question_question_id_question_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "tryout_subtest_question"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "attempt_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "tryout_attempt",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "name": "tryout_user_answer_attempt_id_tryout_attempt_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "tryout_user_answer"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "question_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "question",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "name": "tryout_user_answer_question_id_question_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "tryout_user_answer"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "selected_choice_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "question_choice",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "SET NULL",
-      "name": "tryout_user_answer_selected_choice_id_question_choice_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "tryout_user_answer"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "university_study_program_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "university_study_program",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "name": "program_yearly_data_vFNn2VxW2Vfe_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "program_yearly_data"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "university_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "university",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "name": "university_study_program_university_id_university_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "university_study_program"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "study_program_id"
-      ],
-      "schemaTo": "app",
-      "tableTo": "study_program",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "name": "university_study_program_study_program_id_study_program_id_fkey",
-      "entityType": "fks",
-      "schema": "app",
-      "table": "university_study_program"
-    },
-    {
-      "columns": [
-        "subtest_id",
-        "question_id"
-      ],
-      "nameExplicit": false,
-      "name": "tryout_subtest_question_pkey",
-      "entityType": "pks",
-      "schema": "app",
-      "table": "tryout_subtest_question"
-    },
-    {
-      "columns": [
-        "attempt_id",
-        "question_id"
-      ],
-      "nameExplicit": false,
-      "name": "tryout_user_answer_pkey",
-      "entityType": "pks",
-      "schema": "app",
-      "table": "tryout_user_answer"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "account_pkey",
-      "schema": "app",
-      "table": "account",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "session_pkey",
-      "schema": "app",
-      "table": "session",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "user_pkey",
-      "schema": "app",
-      "table": "user",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "verification_pkey",
-      "schema": "app",
-      "table": "verification",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "credit_transaction_pkey",
-      "schema": "app",
-      "table": "credit_transaction",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "question_pkey",
-      "schema": "app",
-      "table": "question",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "question_choice_pkey",
-      "schema": "app",
-      "table": "question_choice",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "referral_code_pkey",
-      "schema": "app",
-      "table": "referral_code",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "referral_usage_pkey",
-      "schema": "app",
-      "table": "referral_usage",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "content_item_pkey",
-      "schema": "app",
-      "table": "content_item",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "note_material_pkey",
-      "schema": "app",
-      "table": "note_material",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "recent_content_view_pkey",
-      "schema": "app",
-      "table": "recent_content_view",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "subject_pkey",
-      "schema": "app",
-      "table": "subject",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "user_progress_pkey",
-      "schema": "app",
-      "table": "user_progress",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "user_subject_view_pkey",
-      "schema": "app",
-      "table": "user_subject_view",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "video_material_pkey",
-      "schema": "app",
-      "table": "video_material",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "product_pkey",
-      "schema": "app",
-      "table": "product",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "transaction_pkey",
-      "schema": "app",
-      "table": "transaction",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "tryout_pkey",
-      "schema": "app",
-      "table": "tryout",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "tryout_access_code_pkey",
-      "schema": "app",
-      "table": "tryout_access_code",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "tryout_attempt_pkey",
-      "schema": "app",
-      "table": "tryout_attempt",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "tryout_subtest_pkey",
-      "schema": "app",
-      "table": "tryout_subtest",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "tryout_subtest_attempt_pkey",
-      "schema": "app",
-      "table": "tryout_subtest_attempt",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "program_yearly_data_pkey",
-      "schema": "app",
-      "table": "program_yearly_data",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "study_program_pkey",
-      "schema": "app",
-      "table": "study_program",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "university_pkey",
-      "schema": "app",
-      "table": "university",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "university_study_program_pkey",
-      "schema": "app",
-      "table": "university_study_program",
-      "entityType": "pks"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        "question_id",
-        "code"
-      ],
-      "nullsNotDistinct": false,
-      "name": "question_choice_unique",
-      "entityType": "uniques",
-      "schema": "app",
-      "table": "question_choice"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        "user_id",
-        "referral_code_id"
-      ],
-      "nullsNotDistinct": false,
-      "name": "referral_usage_user_code_idx",
-      "entityType": "uniques",
-      "schema": "app",
-      "table": "referral_usage"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        "subject_id",
-        "order"
-      ],
-      "nullsNotDistinct": false,
-      "name": "unique_content_order",
-      "entityType": "uniques",
-      "schema": "app",
-      "table": "content_item"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        "content_item_id",
-        "order"
-      ],
-      "nullsNotDistinct": false,
-      "name": "unique_practice_questions_order",
-      "entityType": "uniques",
-      "schema": "app",
-      "table": "content_practice_questions"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        "user_id",
-        "content_item_id"
-      ],
-      "nullsNotDistinct": false,
-      "name": "unique_user_content",
-      "entityType": "uniques",
-      "schema": "app",
-      "table": "user_progress"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        "user_id",
-        "subject_id"
-      ],
-      "nullsNotDistinct": false,
-      "name": "unique_user_subject",
-      "entityType": "uniques",
-      "schema": "app",
-      "table": "user_subject_view"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        "tryout_id",
-        "code_hash"
-      ],
-      "nullsNotDistinct": false,
-      "name": "uq_tryout_access_code_hash",
-      "entityType": "uniques",
-      "schema": "app",
-      "table": "tryout_access_code"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        "user_id",
-        "tryout_id"
-      ],
-      "nullsNotDistinct": false,
-      "name": "user_tryout_attempt",
-      "entityType": "uniques",
-      "schema": "app",
-      "table": "tryout_attempt"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        "tryout_id",
-        "order"
-      ],
-      "nullsNotDistinct": false,
-      "name": "tryout_subtest_order",
-      "entityType": "uniques",
-      "schema": "app",
-      "table": "tryout_subtest"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        "tryout_attempt_id",
-        "subtest_id"
-      ],
-      "nullsNotDistinct": false,
-      "name": "user_tryout_subtest_attempt",
-      "entityType": "uniques",
-      "schema": "app",
-      "table": "tryout_subtest_attempt"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        "university_study_program_id",
-        "year"
-      ],
-      "nullsNotDistinct": false,
-      "name": "program_yearly_data_unique",
-      "entityType": "uniques",
-      "schema": "app",
-      "table": "program_yearly_data"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        "slug"
-      ],
-      "nullsNotDistinct": false,
-      "name": "study_program_slug",
-      "entityType": "uniques",
-      "schema": "app",
-      "table": "study_program"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        "slug"
-      ],
-      "nullsNotDistinct": false,
-      "name": "university_slug",
-      "entityType": "uniques",
-      "schema": "app",
-      "table": "university"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        "university_id",
-        "study_program_id"
-      ],
-      "nullsNotDistinct": false,
-      "name": "university_study_program_unique",
-      "entityType": "uniques",
-      "schema": "app",
-      "table": "university_study_program"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "token"
-      ],
-      "nullsNotDistinct": false,
-      "name": "session_token_key",
-      "schema": "app",
-      "table": "session",
-      "entityType": "uniques"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "name"
-      ],
-      "nullsNotDistinct": false,
-      "name": "user_name_key",
-      "schema": "app",
-      "table": "user",
-      "entityType": "uniques"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "email"
-      ],
-      "nullsNotDistinct": false,
-      "name": "user_email_key",
-      "schema": "app",
-      "table": "user",
-      "entityType": "uniques"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "code"
-      ],
-      "nullsNotDistinct": false,
-      "name": "referral_code_code_key",
-      "schema": "app",
-      "table": "referral_code",
-      "entityType": "uniques"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "content_item_id"
-      ],
-      "nullsNotDistinct": false,
-      "name": "note_material_content_item_id_key",
-      "schema": "app",
-      "table": "note_material",
-      "entityType": "uniques"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "short_name"
-      ],
-      "nullsNotDistinct": false,
-      "name": "subject_short_name_key",
-      "schema": "app",
-      "table": "subject",
-      "entityType": "uniques"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "content_item_id"
-      ],
-      "nullsNotDistinct": false,
-      "name": "video_material_content_item_id_key",
-      "schema": "app",
-      "table": "video_material",
-      "entityType": "uniques"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "slug"
-      ],
-      "nullsNotDistinct": false,
-      "name": "product_slug_key",
-      "schema": "app",
-      "table": "product",
-      "entityType": "uniques"
+      "writes": [
+        "s|tbl|public.product",
+        "n|tbl|public.product",
+        "n|rel|public.product",
+        "n|type|public.product",
+        "s|tbl|app.product",
+        "n|tbl|app.product",
+        "n|rel|app.product",
+        "n|type|app.product",
+        "e|tbl|public.product",
+        "e|tbl|app.product",
+        "n|rel|public.product_pkey",
+        "n|rel|app.product_pkey",
+        "n|rel|public.product_slug_key",
+        "n|rel|app.product_slug_key"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "move_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "transaction"
+      ],
+      "writes": [
+        "s|tbl|public.transaction",
+        "n|tbl|public.transaction",
+        "n|rel|public.transaction",
+        "n|type|public.transaction",
+        "s|tbl|app.transaction",
+        "n|tbl|app.transaction",
+        "n|rel|app.transaction",
+        "n|type|app.transaction",
+        "e|tbl|public.transaction",
+        "e|tbl|app.transaction",
+        "n|rel|public.idx_transaction_product_id",
+        "n|rel|app.idx_transaction_product_id",
+        "n|rel|public.idx_transaction_user_id",
+        "n|rel|app.idx_transaction_user_id",
+        "n|rel|public.transaction_pkey",
+        "n|rel|app.transaction_pkey"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "move_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "tryout"
+      ],
+      "writes": [
+        "s|tbl|public.tryout",
+        "n|tbl|public.tryout",
+        "n|rel|public.tryout",
+        "n|type|public.tryout",
+        "s|tbl|app.tryout",
+        "n|tbl|app.tryout",
+        "n|rel|app.tryout",
+        "n|type|app.tryout",
+        "e|tbl|public.tryout",
+        "e|tbl|app.tryout",
+        "n|rel|public.tryout_pkey",
+        "n|rel|app.tryout_pkey"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "move_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "tryout_access_code"
+      ],
+      "writes": [
+        "s|tbl|public.tryout_access_code",
+        "n|tbl|public.tryout_access_code",
+        "n|rel|public.tryout_access_code",
+        "n|type|public.tryout_access_code",
+        "s|tbl|app.tryout_access_code",
+        "n|tbl|app.tryout_access_code",
+        "n|rel|app.tryout_access_code",
+        "n|type|app.tryout_access_code",
+        "e|tbl|public.tryout_access_code",
+        "e|tbl|app.tryout_access_code",
+        "n|rel|public.idx_tryout_access_code_tryout_id",
+        "n|rel|app.idx_tryout_access_code_tryout_id",
+        "n|rel|public.tryout_access_code_pkey",
+        "n|rel|app.tryout_access_code_pkey",
+        "n|rel|public.uq_tryout_access_code_hash",
+        "n|rel|app.uq_tryout_access_code_hash"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "move_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "tryout_attempt"
+      ],
+      "writes": [
+        "s|tbl|public.tryout_attempt",
+        "n|tbl|public.tryout_attempt",
+        "n|rel|public.tryout_attempt",
+        "n|type|public.tryout_attempt",
+        "s|tbl|app.tryout_attempt",
+        "n|tbl|app.tryout_attempt",
+        "n|rel|app.tryout_attempt",
+        "n|type|app.tryout_attempt",
+        "e|tbl|public.tryout_attempt",
+        "e|tbl|app.tryout_attempt",
+        "n|rel|public.idx_tryout_attempt_tryout_id",
+        "n|rel|app.idx_tryout_attempt_tryout_id",
+        "n|rel|public.tryout_attempt_pkey",
+        "n|rel|app.tryout_attempt_pkey",
+        "n|rel|public.user_tryout_attempt",
+        "n|rel|app.user_tryout_attempt"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "move_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "tryout_subtest"
+      ],
+      "writes": [
+        "s|tbl|public.tryout_subtest",
+        "n|tbl|public.tryout_subtest",
+        "n|rel|public.tryout_subtest",
+        "n|type|public.tryout_subtest",
+        "s|tbl|app.tryout_subtest",
+        "n|tbl|app.tryout_subtest",
+        "n|rel|app.tryout_subtest",
+        "n|type|app.tryout_subtest",
+        "e|tbl|public.tryout_subtest",
+        "e|tbl|app.tryout_subtest",
+        "n|rel|public.tryout_subtest_order",
+        "n|rel|app.tryout_subtest_order",
+        "n|rel|public.tryout_subtest_pkey",
+        "n|rel|app.tryout_subtest_pkey"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "move_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "tryout_subtest_attempt"
+      ],
+      "writes": [
+        "s|tbl|public.tryout_subtest_attempt",
+        "n|tbl|public.tryout_subtest_attempt",
+        "n|rel|public.tryout_subtest_attempt",
+        "n|type|public.tryout_subtest_attempt",
+        "s|tbl|app.tryout_subtest_attempt",
+        "n|tbl|app.tryout_subtest_attempt",
+        "n|rel|app.tryout_subtest_attempt",
+        "n|type|app.tryout_subtest_attempt",
+        "e|tbl|public.tryout_subtest_attempt",
+        "e|tbl|app.tryout_subtest_attempt",
+        "n|rel|public.idx_tryout_subtest_attempt_subtest_id",
+        "n|rel|app.idx_tryout_subtest_attempt_subtest_id",
+        "n|rel|public.tryout_subtest_attempt_pkey",
+        "n|rel|app.tryout_subtest_attempt_pkey",
+        "n|rel|public.user_tryout_subtest_attempt",
+        "n|rel|app.user_tryout_subtest_attempt"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "move_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "tryout_subtest_question"
+      ],
+      "writes": [
+        "s|tbl|public.tryout_subtest_question",
+        "n|tbl|public.tryout_subtest_question",
+        "n|rel|public.tryout_subtest_question",
+        "n|type|public.tryout_subtest_question",
+        "s|tbl|app.tryout_subtest_question",
+        "n|tbl|app.tryout_subtest_question",
+        "n|rel|app.tryout_subtest_question",
+        "n|type|app.tryout_subtest_question",
+        "e|tbl|public.tryout_subtest_question",
+        "e|tbl|app.tryout_subtest_question",
+        "n|rel|public.tryout_subtest_question_pkey",
+        "n|rel|app.tryout_subtest_question_pkey"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "move_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "tryout_user_answer"
+      ],
+      "writes": [
+        "s|tbl|public.tryout_user_answer",
+        "n|tbl|public.tryout_user_answer",
+        "n|rel|public.tryout_user_answer",
+        "n|type|public.tryout_user_answer",
+        "s|tbl|app.tryout_user_answer",
+        "n|tbl|app.tryout_user_answer",
+        "n|rel|app.tryout_user_answer",
+        "n|type|app.tryout_user_answer",
+        "e|tbl|public.tryout_user_answer",
+        "e|tbl|app.tryout_user_answer",
+        "n|rel|public.tryout_user_answer_pkey",
+        "n|rel|app.tryout_user_answer_pkey"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "move_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "program_yearly_data"
+      ],
+      "writes": [
+        "s|tbl|public.program_yearly_data",
+        "n|tbl|public.program_yearly_data",
+        "n|rel|public.program_yearly_data",
+        "n|type|public.program_yearly_data",
+        "s|tbl|app.program_yearly_data",
+        "n|tbl|app.program_yearly_data",
+        "n|rel|app.program_yearly_data",
+        "n|type|app.program_yearly_data",
+        "e|tbl|public.program_yearly_data",
+        "e|tbl|app.program_yearly_data",
+        "n|rel|public.program_yearly_data_pkey",
+        "n|rel|app.program_yearly_data_pkey",
+        "n|rel|public.program_yearly_data_unique",
+        "n|rel|app.program_yearly_data_unique"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "move_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "study_program"
+      ],
+      "writes": [
+        "s|tbl|public.study_program",
+        "n|tbl|public.study_program",
+        "n|rel|public.study_program",
+        "n|type|public.study_program",
+        "s|tbl|app.study_program",
+        "n|tbl|app.study_program",
+        "n|rel|app.study_program",
+        "n|type|app.study_program",
+        "e|tbl|public.study_program",
+        "e|tbl|app.study_program",
+        "n|rel|public.study_program_pkey",
+        "n|rel|app.study_program_pkey",
+        "n|rel|public.study_program_slug",
+        "n|rel|app.study_program_slug"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "move_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "university"
+      ],
+      "writes": [
+        "s|tbl|public.university",
+        "n|tbl|public.university",
+        "n|rel|public.university",
+        "n|type|public.university",
+        "s|tbl|app.university",
+        "n|tbl|app.university",
+        "n|rel|app.university",
+        "n|type|app.university",
+        "e|tbl|public.university",
+        "e|tbl|app.university",
+        "n|rel|public.university_pkey",
+        "n|rel|app.university_pkey",
+        "n|rel|public.university_slug",
+        "n|rel|app.university_slug"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "move_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "university_study_program"
+      ],
+      "writes": [
+        "s|tbl|public.university_study_program",
+        "n|tbl|public.university_study_program",
+        "n|rel|public.university_study_program",
+        "n|type|public.university_study_program",
+        "s|tbl|app.university_study_program",
+        "n|tbl|app.university_study_program",
+        "n|rel|app.university_study_program",
+        "n|type|app.university_study_program",
+        "e|tbl|public.university_study_program",
+        "e|tbl|app.university_study_program",
+        "n|rel|public.university_study_program_pkey",
+        "n|rel|app.university_study_program_pkey",
+        "n|rel|public.university_study_program_unique",
+        "n|rel|app.university_study_program_unique"
+      ],
+      "reads": [
+        "n|sch|public",
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "app",
+        "question",
+        "type"
+      ],
+      "writes": [
+        "s|colprop|app.question.type.type",
+        "s|colprop|app.question.type.default"
+      ],
+      "reads": [
+        "n|tbl|app.question",
+        "n|sch|app",
+        "n|col|app.question.type",
+        "n|enum|app.question_type"
+      ],
+      "sqlHash": "33eb28052e6e4ca3"
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "app",
+        "subject",
+        "category"
+      ],
+      "writes": [
+        "s|colprop|app.subject.category.type",
+        "s|colprop|app.subject.category.default"
+      ],
+      "reads": [
+        "n|tbl|app.subject",
+        "n|sch|app",
+        "n|col|app.subject.category",
+        "n|enum|app.subject_category"
+      ],
+      "sqlHash": "1fec2411d2c7fe68"
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "app",
+        "product",
+        "type"
+      ],
+      "writes": [
+        "s|colprop|app.product.type.type",
+        "s|colprop|app.product.type.default"
+      ],
+      "reads": [
+        "n|tbl|app.product",
+        "n|sch|app",
+        "n|col|app.product.type",
+        "n|enum|app.product_type_enum"
+      ],
+      "sqlHash": "77c57c68efae4426"
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "app",
+        "product",
+        "variant"
+      ],
+      "writes": [
+        "s|colprop|app.product.variant.type",
+        "s|colprop|app.product.variant.default"
+      ],
+      "reads": [
+        "n|tbl|app.product",
+        "n|sch|app",
+        "n|col|app.product.variant",
+        "n|enum|app.product_variant_enum"
+      ],
+      "sqlHash": "071f961a8c69c0c9"
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "app",
+        "transaction",
+        "status"
+      ],
+      "writes": [
+        "s|colprop|app.transaction.status.type",
+        "s|colprop|app.transaction.status.default"
+      ],
+      "reads": [
+        "n|tbl|app.transaction",
+        "n|sch|app",
+        "n|col|app.transaction.status",
+        "n|enum|app.transaction_status_enum"
+      ],
+      "sqlHash": "c2a77d0189327d43"
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "app",
+        "tryout",
+        "category"
+      ],
+      "writes": [
+        "s|colprop|app.tryout.category.type",
+        "s|colprop|app.tryout.category.default"
+      ],
+      "reads": [
+        "n|tbl|app.tryout",
+        "n|sch|app",
+        "n|col|app.tryout.category",
+        "n|enum|app.tryout_category"
+      ],
+      "sqlHash": "8d1a4800a2075b5c"
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "app",
+        "tryout",
+        "status"
+      ],
+      "writes": [
+        "s|colprop|app.tryout.status.type",
+        "s|colprop|app.tryout.status.default"
+      ],
+      "reads": [
+        "n|tbl|app.tryout",
+        "n|sch|app",
+        "n|col|app.tryout.status",
+        "n|enum|app.tryout_status"
+      ],
+      "sqlHash": "df093c82598e42f9"
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "app",
+        "tryout_attempt",
+        "status"
+      ],
+      "writes": [
+        "s|colprop|app.tryout_attempt.status.type",
+        "s|colprop|app.tryout_attempt.status.default"
+      ],
+      "reads": [
+        "n|tbl|app.tryout_attempt",
+        "n|sch|app",
+        "n|col|app.tryout_attempt.status",
+        "n|enum|app.tryout_attempt_status"
+      ],
+      "sqlHash": "817e6e203d8b3201"
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "app",
+        "tryout_subtest_attempt",
+        "status"
+      ],
+      "writes": [
+        "s|colprop|app.tryout_subtest_attempt.status.type",
+        "s|colprop|app.tryout_subtest_attempt.status.default"
+      ],
+      "reads": [
+        "n|tbl|app.tryout_subtest_attempt",
+        "n|sch|app",
+        "n|col|app.tryout_subtest_attempt.status",
+        "n|enum|app.tryout_attempt_status"
+      ],
+      "sqlHash": "6a363a51bf876009"
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "app",
+        "study_program",
+        "category"
+      ],
+      "writes": [
+        "s|colprop|app.study_program.category.type",
+        "s|colprop|app.study_program.category.default"
+      ],
+      "reads": [
+        "n|tbl|app.study_program",
+        "n|sch|app",
+        "n|col|app.study_program.category",
+        "n|enum|app.study_program_category"
+      ],
+      "sqlHash": "a9de0994dc688223"
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "app",
+        "transaction",
+        "failure_code"
+      ],
+      "writes": [
+        "s|colprop|app.transaction.failure_code.type",
+        "s|colprop|app.transaction.failure_code.default"
+      ],
+      "reads": [
+        "n|tbl|app.transaction",
+        "n|sch|app",
+        "n|col|app.transaction.failure_code",
+        "n|enum|app.payment_failure_code"
+      ],
+      "sqlHash": "4ec41f458a46cc87"
+    },
+    {
+      "statementType": "drop_enum",
+      "statementTarget": [
+        "enum",
+        "public",
+        "question_type"
+      ],
+      "writes": [
+        "s|enum|public.question_type",
+        "n|enum|public.question_type",
+        "e|enum|public.question_type",
+        "n|type|public.question_type"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "drop_enum",
+      "statementTarget": [
+        "enum",
+        "public",
+        "subject_category"
+      ],
+      "writes": [
+        "s|enum|public.subject_category",
+        "n|enum|public.subject_category",
+        "e|enum|public.subject_category",
+        "n|type|public.subject_category"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "drop_enum",
+      "statementTarget": [
+        "enum",
+        "public",
+        "product_variant_enum"
+      ],
+      "writes": [
+        "s|enum|public.product_variant_enum",
+        "n|enum|public.product_variant_enum",
+        "e|enum|public.product_variant_enum",
+        "n|type|public.product_variant_enum"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "drop_enum",
+      "statementTarget": [
+        "enum",
+        "public",
+        "transaction_status_enum"
+      ],
+      "writes": [
+        "s|enum|public.transaction_status_enum",
+        "n|enum|public.transaction_status_enum",
+        "e|enum|public.transaction_status_enum",
+        "n|type|public.transaction_status_enum"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "drop_enum",
+      "statementTarget": [
+        "enum",
+        "public",
+        "product_type_enum"
+      ],
+      "writes": [
+        "s|enum|public.product_type_enum",
+        "n|enum|public.product_type_enum",
+        "e|enum|public.product_type_enum",
+        "n|type|public.product_type_enum"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "drop_enum",
+      "statementTarget": [
+        "enum",
+        "public",
+        "tryout_attempt_status"
+      ],
+      "writes": [
+        "s|enum|public.tryout_attempt_status",
+        "n|enum|public.tryout_attempt_status",
+        "e|enum|public.tryout_attempt_status",
+        "n|type|public.tryout_attempt_status"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "drop_enum",
+      "statementTarget": [
+        "enum",
+        "public",
+        "tryout_category"
+      ],
+      "writes": [
+        "s|enum|public.tryout_category",
+        "n|enum|public.tryout_category",
+        "e|enum|public.tryout_category",
+        "n|type|public.tryout_category"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "drop_enum",
+      "statementTarget": [
+        "enum",
+        "public",
+        "tryout_status"
+      ],
+      "writes": [
+        "s|enum|public.tryout_status",
+        "n|enum|public.tryout_status",
+        "e|enum|public.tryout_status",
+        "n|type|public.tryout_status"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "drop_enum",
+      "statementTarget": [
+        "enum",
+        "public",
+        "study_program_category"
+      ],
+      "writes": [
+        "s|enum|public.study_program_category",
+        "n|enum|public.study_program_category",
+        "e|enum|public.study_program_category",
+        "n|type|public.study_program_category"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "drop_enum",
+      "statementTarget": [
+        "enum",
+        "public",
+        "payment_failure_code"
+      ],
+      "writes": [
+        "s|enum|public.payment_failure_code",
+        "n|enum|public.payment_failure_code",
+        "e|enum|public.payment_failure_code",
+        "n|type|public.payment_failure_code"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
     }
   ],
-  "renames": [
-    "public.account->app.account",
-    "public.session->app.session",
-    "public.user->app.user",
-    "public.verification->app.verification",
-    "public.credit_transaction->app.credit_transaction",
-    "public.question->app.question",
-    "public.question_choice->app.question_choice",
-    "public.referral_code->app.referral_code",
-    "public.referral_usage->app.referral_usage",
-    "public.content_item->app.content_item",
-    "public.content_practice_questions->app.content_practice_questions",
-    "public.note_material->app.note_material",
-    "public.recent_content_view->app.recent_content_view",
-    "public.subject->app.subject",
-    "public.user_progress->app.user_progress",
-    "public.user_subject_view->app.user_subject_view",
-    "public.video_material->app.video_material",
-    "public.product->app.product",
-    "public.transaction->app.transaction",
-    "public.tryout->app.tryout",
-    "public.tryout_access_code->app.tryout_access_code",
-    "public.tryout_attempt->app.tryout_attempt",
-    "public.tryout_subtest->app.tryout_subtest",
-    "public.tryout_subtest_attempt->app.tryout_subtest_attempt",
-    "public.tryout_subtest_question->app.tryout_subtest_question",
-    "public.tryout_user_answer->app.tryout_user_answer",
-    "public.program_yearly_data->app.program_yearly_data",
-    "public.study_program->app.study_program",
-    "public.university->app.university",
-    "public.university_study_program->app.university_study_program"
+  "deltas": [
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"account\"]",
+      "set": {
+        "schema": "app"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"session\"]",
+      "set": {
+        "schema": "app"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"user\"]",
+      "set": {
+        "schema": "app"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"verification\"]",
+      "set": {
+        "schema": "app"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"credit_transaction\"]",
+      "set": {
+        "schema": "app"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"question\"]",
+      "set": {
+        "schema": "app"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"question_choice\"]",
+      "set": {
+        "schema": "app"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"referral_code\"]",
+      "set": {
+        "schema": "app"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"referral_usage\"]",
+      "set": {
+        "schema": "app"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"content_item\"]",
+      "set": {
+        "schema": "app"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"content_practice_questions\"]",
+      "set": {
+        "schema": "app"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"note_material\"]",
+      "set": {
+        "schema": "app"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"recent_content_view\"]",
+      "set": {
+        "schema": "app"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"subject\"]",
+      "set": {
+        "schema": "app"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"user_progress\"]",
+      "set": {
+        "schema": "app"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"user_subject_view\"]",
+      "set": {
+        "schema": "app"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"video_material\"]",
+      "set": {
+        "schema": "app"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"product\"]",
+      "set": {
+        "schema": "app"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"transaction\"]",
+      "set": {
+        "schema": "app"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"tryout\"]",
+      "set": {
+        "schema": "app"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"tryout_access_code\"]",
+      "set": {
+        "schema": "app"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"tryout_attempt\"]",
+      "set": {
+        "schema": "app"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"tryout_subtest\"]",
+      "set": {
+        "schema": "app"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"tryout_subtest_attempt\"]",
+      "set": {
+        "schema": "app"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"tryout_subtest_question\"]",
+      "set": {
+        "schema": "app"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"tryout_user_answer\"]",
+      "set": {
+        "schema": "app"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"program_yearly_data\"]",
+      "set": {
+        "schema": "app"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"study_program\"]",
+      "set": {
+        "schema": "app"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"university\"]",
+      "set": {
+        "schema": "app"
+      }
+    },
+    {
+      "op": "rename",
+      "key": "tables\u0000[\"public\",\"university_study_program\"]",
+      "set": {
+        "schema": "app"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "name": "app",
+        "entityType": "schemas"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "app",
+        "name": "question_type",
+        "values": [
+          "multiple_choice",
+          "multiple_choice_complex",
+          "essay"
+        ],
+        "entityType": "enums"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "app",
+        "name": "subject_category",
+        "values": [
+          "sd",
+          "smp",
+          "sma",
+          "utbk"
+        ],
+        "entityType": "enums"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "app",
+        "name": "payment_failure_code",
+        "values": [
+          "insufficient_balance",
+          "limit_exceeded",
+          "card_declined",
+          "fraud_rejected",
+          "payment_expired",
+          "payment_cancelled",
+          "provider_error",
+          "unknown"
+        ],
+        "entityType": "enums"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "app",
+        "name": "product_variant_enum",
+        "values": [
+          "fixed_date",
+          "monthly",
+          "credits"
+        ],
+        "entityType": "enums"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "app",
+        "name": "transaction_status_enum",
+        "values": [
+          "pending",
+          "success",
+          "failed"
+        ],
+        "entityType": "enums"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "app",
+        "name": "product_type_enum",
+        "values": [
+          "subscription",
+          "product"
+        ],
+        "entityType": "enums"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "app",
+        "name": "tryout_attempt_status",
+        "values": [
+          "not_started",
+          "ongoing",
+          "finished"
+        ],
+        "entityType": "enums"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "app",
+        "name": "tryout_category",
+        "values": [
+          "sd",
+          "smp",
+          "sma",
+          "utbk"
+        ],
+        "entityType": "enums"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "app",
+        "name": "tryout_status",
+        "values": [
+          "draft",
+          "published",
+          "archived"
+        ],
+        "entityType": "enums"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "app",
+        "name": "study_program_category",
+        "values": [
+          "SAINTEK",
+          "SOSHUM"
+        ],
+        "entityType": "enums"
+      }
+    },
+    {
+      "op": "drop",
+      "key": "enums\u0000[\"public\",\"question_type\"]"
+    },
+    {
+      "op": "drop",
+      "key": "enums\u0000[\"public\",\"subject_category\"]"
+    },
+    {
+      "op": "drop",
+      "key": "enums\u0000[\"public\",\"product_variant_enum\"]"
+    },
+    {
+      "op": "drop",
+      "key": "enums\u0000[\"public\",\"transaction_status_enum\"]"
+    },
+    {
+      "op": "drop",
+      "key": "enums\u0000[\"public\",\"product_type_enum\"]"
+    },
+    {
+      "op": "drop",
+      "key": "enums\u0000[\"public\",\"tryout_attempt_status\"]"
+    },
+    {
+      "op": "drop",
+      "key": "enums\u0000[\"public\",\"tryout_category\"]"
+    },
+    {
+      "op": "drop",
+      "key": "enums\u0000[\"public\",\"tryout_status\"]"
+    },
+    {
+      "op": "drop",
+      "key": "enums\u0000[\"public\",\"study_program_category\"]"
+    },
+    {
+      "op": "drop",
+      "key": "enums\u0000[\"public\",\"payment_failure_code\"]"
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"app\",\"question\",\"type\"]",
+      "set": {
+        "typeSchema": "app"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"app\",\"subject\",\"category\"]",
+      "set": {
+        "typeSchema": "app"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"app\",\"product\",\"type\"]",
+      "set": {
+        "typeSchema": "app"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"app\",\"product\",\"variant\"]",
+      "set": {
+        "typeSchema": "app"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"app\",\"transaction\",\"status\"]",
+      "set": {
+        "typeSchema": "app"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"app\",\"tryout\",\"category\"]",
+      "set": {
+        "typeSchema": "app"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"app\",\"tryout\",\"status\"]",
+      "set": {
+        "typeSchema": "app"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"app\",\"tryout_attempt\",\"status\"]",
+      "set": {
+        "typeSchema": "app"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"app\",\"tryout_subtest_attempt\",\"status\"]",
+      "set": {
+        "typeSchema": "app"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"app\",\"study_program\",\"category\"]",
+      "set": {
+        "typeSchema": "app"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"app\",\"transaction\",\"failure_code\"]",
+      "set": {
+        "typeSchema": "app"
+      }
+    }
   ]
 }
