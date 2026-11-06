@@ -5,6 +5,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
+	AdminPageContent,
+	AdminPageHeader,
+	AdminPageHeaderActions,
+	AdminPageHeaderContent,
+	AdminPageRoot,
+} from "@/components/admin/admin-page";
+import { AdminTableBulkActions } from "@/components/admin/admin-table-toolbar";
+import {
 	AlertDialog,
 	AlertDialogAction,
 	AlertDialogCancel,
@@ -24,7 +32,7 @@ import { BulkQuestionsTable } from "../../-components/bulk-questions-table";
 import { ScoringMapEditor } from "../../-components/scoring-map-editor";
 
 export const Route = createFileRoute("/admin/tryouts/$tryoutId/subtests/$subtestId/")({
-	staticData: { breadcrumb: "Subtest" },
+	staticData: { breadcrumb: "Subtest", breadcrumbParent: { label: "Tryout", to: "/admin/tryouts/$tryoutId" } },
 	component: SubtestDetailPage,
 });
 
@@ -82,23 +90,23 @@ function SubtestDetailPage() {
 	};
 
 	return (
-		<div className="flex h-full flex-col gap-6 p-3 sm:p-6">
-			<div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-				<div className="flex items-start gap-4 sm:items-center">
-					<Button variant="ghost" size="icon" asChild>
-						<Link to="/admin/tryouts/$tryoutId" params={{ tryoutId: tId }} aria-label="Kembali">
-							<ArrowLeftIcon className="size-4" />
-						</Link>
-					</Button>
-					<div>
-						<Typography variant="title">Kelola Soal Subtest</Typography>
-						<Typography variant="body" tone="muted">
-							{questions.length} soal di subtest ini
-						</Typography>
+		<AdminPageRoot>
+			<AdminPageHeader>
+				<AdminPageHeaderContent>
+					<div className="flex items-center gap-2">
+						<Button variant="ghost" size="icon" asChild>
+							<Link to="/admin/tryouts/$tryoutId" params={{ tryoutId: tId }} aria-label="Kembali">
+								<ArrowLeftIcon className="size-4" />
+							</Link>
+						</Button>
+						<Typography variant="title">Soal Subtest</Typography>
 					</div>
-				</div>
-				<div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:flex lg:flex-wrap lg:justify-end">
-					<Button className="w-full gap-2 sm:w-auto" asChild>
+					<Typography variant="body" tone="muted">
+						{questions.length} soal di subtest ini
+					</Typography>
+				</AdminPageHeaderContent>
+				<AdminPageHeaderActions>
+					<Button className="gap-2" asChild>
 						<Link
 							to="/admin/tryouts/$tryoutId/subtests/$subtestId/questions/new"
 							params={{ tryoutId: tId, subtestId: subtestId.toString() }}
@@ -107,16 +115,21 @@ function SubtestDetailPage() {
 							Buat Soal
 						</Link>
 					</Button>
-					<Button variant="outline" onClick={() => setIsBulkAddOpen(true)} className="w-full gap-2 sm:w-auto">
+					<Button variant="outline" onClick={() => setIsBulkAddOpen(true)} className="gap-2">
 						<PlusIcon className="size-4" />
 						Tambah Soal Massal
 					</Button>
+				</AdminPageHeaderActions>
+			</AdminPageHeader>
+
+			<AdminPageContent>
+				<AdminTableBulkActions selectedCount={selectedIds.length}>
 					<AlertDialog open={isBulkDeleteOpen} onOpenChange={setIsBulkDeleteOpen}>
 						<Button
 							variant="destructive"
 							onClick={() => setIsBulkDeleteOpen(true)}
 							disabled={selectedIds.length === 0}
-							className="w-full gap-2 sm:w-auto"
+							className="gap-2"
 						>
 							<TrashIcon className="size-4" />
 							Hapus {selectedIds.length > 0 && `(${selectedIds.length})`}
@@ -137,24 +150,24 @@ function SubtestDetailPage() {
 							</AlertDialogFooter>
 						</AlertDialogContent>
 					</AlertDialog>
-				</div>
-			</div>
+				</AdminTableBulkActions>
 
-			<BulkQuestionsTable
-				questions={questions}
-				isPending={isPending}
-				selectedIds={selectedIds}
-				onToggleOne={toggleSelectOne}
-				onSelectAll={handleSelectAll}
-				isAllSelected={isAllSelected}
-			/>
+				<BulkQuestionsTable
+					questions={questions}
+					isPending={isPending}
+					selectedIds={selectedIds}
+					onToggleOne={toggleSelectOne}
+					onSelectAll={handleSelectAll}
+					isAllSelected={isAllSelected}
+				/>
 
-			<ScoringMapEditor
-				subtestId={subtestId}
-				questionCount={questions.length}
-				initialScoringMap={subtestData?.scoringMap}
-				onSaveSuccess={() => refetchSubtest()}
-			/>
+				<ScoringMapEditor
+					subtestId={subtestId}
+					questionCount={questions.length}
+					initialScoringMap={subtestData?.scoringMap}
+					onSaveSuccess={() => refetchSubtest()}
+				/>
+			</AdminPageContent>
 
 			<BulkAddQuestionsDialog
 				open={isBulkAddOpen}
@@ -162,6 +175,6 @@ function SubtestDetailPage() {
 				onSuccess={() => refetch()}
 				subtestId={subtestId}
 			/>
-		</div>
+		</AdminPageRoot>
 	);
 }

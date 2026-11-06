@@ -11,13 +11,22 @@ import {
 
 export function AdminBreadcrumb() {
 	const matches = useMatches();
+	const allParams: Record<string, string> = {};
+	for (const match of matches) {
+		Object.assign(allParams, match.params);
+	}
+	const resolve = (value: string) => value.replace(/\$(\w+)/g, (_, key) => allParams[key] ?? value);
 
 	const items = matches
 		.filter((match) => match.staticData?.breadcrumb)
 		.flatMap((match) => {
-			const leaf = { label: match.staticData.breadcrumb!, to: match.pathname };
-			const parent = match.staticData.breadcrumbParent;
-			return parent ? [parent, leaf] : [leaf];
+			const staticData = match.staticData;
+			const leaf = { label: resolve(staticData.breadcrumb!), to: resolve(match.pathname) };
+			const parents = [
+				...(staticData.breadcrumbParents ?? []),
+				...(staticData.breadcrumbParent ? [staticData.breadcrumbParent] : []),
+			];
+			return [...parents.map((parent) => ({ label: resolve(parent.label), to: resolve(parent.to) })), leaf];
 		});
 
 	if (items.length === 0) return null;

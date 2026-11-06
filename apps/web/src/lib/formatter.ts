@@ -13,6 +13,11 @@ export function formatCount(value: number) {
 	return new Intl.NumberFormat("id-ID").format(value);
 }
 
+export function gradeLabel(category: string, gradeLevel: number | null) {
+	if (category === "utbk") return "SMA Kelas 12";
+	return gradeLevel === null ? "-" : `${category.toUpperCase()} Kelas ${gradeLevel}`;
+}
+
 export function getInitials(name: string) {
 	return name
 		.trim()

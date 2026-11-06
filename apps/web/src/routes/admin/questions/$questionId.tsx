@@ -2,6 +2,13 @@ import { ArrowLeftIcon, PencilSimpleIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
+import {
+	AdminPageContent,
+	AdminPageHeader,
+	AdminPageHeaderActions,
+	AdminPageHeaderContent,
+	AdminPageRoot,
+} from "@/components/admin/admin-page";
 import { DetailPageSkeleton } from "@/components/admin/detail-page-skeleton";
 import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +23,7 @@ import { cn } from "@/lib/utils";
 import { EditQuestionForm } from "./-components/edit-question-form";
 
 export const Route = createFileRoute("/admin/questions/$questionId")({
-	staticData: { breadcrumb: "Detail Soal" },
+	staticData: { breadcrumb: "Detail Soal", breadcrumbParent: { label: "Bank soal", to: "/admin/questions" } },
 	component: QuestionDetailPage,
 });
 
@@ -61,21 +68,25 @@ function QuestionDetailPage() {
 	}
 
 	return (
-		<div className="flex h-full flex-col gap-6 p-6">
-			<div className="flex items-center justify-between">
-				<div className="flex items-center gap-4">
-					<Button variant="ghost" size="icon" aria-label="Kembali" onClick={() => router.history.back()}>
-						<ArrowLeftIcon className="size-4" />
+		<AdminPageRoot>
+			<AdminPageHeader>
+				<AdminPageHeaderContent>
+					<div className="flex items-center gap-2">
+						<Button variant="ghost" size="icon" aria-label="Kembali" onClick={() => router.history.back()}>
+							<ArrowLeftIcon className="size-4" />
+						</Button>
+						<Typography variant="title">Detail Soal #{question.id}</Typography>
+					</div>
+				</AdminPageHeaderContent>
+				<AdminPageHeaderActions>
+					<Button variant="outline" size="sm" className="h-9" onClick={() => setIsEditing(true)}>
+						<PencilSimpleIcon className="size-4" />
+						Edit
 					</Button>
-					<Typography variant="title">Detail Soal</Typography>
-				</div>
-				<Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
-					<PencilSimpleIcon className="mr-2 size-4" />
-					Edit
-				</Button>
-			</div>
+				</AdminPageHeaderActions>
+			</AdminPageHeader>
 
-			<div className="grid gap-6">
+			<AdminPageContent>
 				<Card>
 					<CardHeader>
 						<div className="flex items-center justify-between">
@@ -102,7 +113,7 @@ function QuestionDetailPage() {
 											key={choice.id}
 											className={cn(
 												"flex items-center gap-3 rounded-md border p-4 text-start",
-												choice.isCorrect ? "border-green-500 bg-green-50" : "border-border",
+												choice.isCorrect ? "border-green-300 bg-green-50" : "border-border",
 											)}
 										>
 											<span
@@ -197,7 +208,7 @@ function QuestionDetailPage() {
 						)}
 					</CardContent>
 				</Card>
-			</div>
-		</div>
+			</AdminPageContent>
+		</AdminPageRoot>
 	);
 }

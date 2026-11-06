@@ -4,6 +4,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type } from "arktype";
 import { useState } from "react";
 import { toast } from "sonner";
+import {
+	AdminPageContent,
+	AdminPageHeader,
+	AdminPageHeaderActions,
+	AdminPageHeaderContent,
+	AdminPageRoot,
+} from "@/components/admin/admin-page";
 import TiptapSimpleEditor from "@/components/tiptap/tiptap-simple-editor";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -84,15 +91,17 @@ export function EditQuestionForm({ question, initialChoices, onSuccess, onCancel
 	);
 
 	return (
-		<div className="flex h-full flex-col gap-6 p-6">
-			<div className="flex items-center justify-between">
-				<div className="flex items-center gap-4">
-					<Button variant="ghost" size="icon" aria-label="Batal" onClick={onCancel}>
-						<ArrowLeftIcon className="size-4" />
-					</Button>
-					<Typography variant="title">Edit Soal #{question.id}</Typography>
-				</div>
-				<div className="flex items-center gap-3">
+		<AdminPageRoot>
+			<AdminPageHeader>
+				<AdminPageHeaderContent>
+					<div className="flex items-center gap-2">
+						<Button variant="ghost" size="icon" aria-label="Batal" onClick={onCancel}>
+							<ArrowLeftIcon className="size-4" />
+						</Button>
+						<Typography variant="title">Edit Soal #{question.id}</Typography>
+					</div>
+				</AdminPageHeaderContent>
+				<AdminPageHeaderActions>
 					<Button type="button" variant="outline" onClick={onCancel}>
 						Batal
 					</Button>
@@ -108,84 +117,86 @@ export function EditQuestionForm({ question, initialChoices, onSuccess, onCancel
 							</Button>
 						)}
 					</form.Subscribe>
-				</div>
-			</div>
+				</AdminPageHeaderActions>
+			</AdminPageHeader>
 
-			<Card>
-				<CardHeader>
-					<CardTitle>Edit Konten Soal</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<form
-						onSubmit={(e) => {
-							e.preventDefault();
-							form.handleSubmit();
-						}}
-						className="grid gap-6"
-					>
-						<form.Field name="content">
-							{(field) => (
-								<div className="grid gap-2">
-									<Label>Konten Soal *</Label>
-									<TiptapSimpleEditor
-										label="Konten Soal"
-										content={field.state.value ?? undefined}
-										onChange={(content) => field.handleChange(content)}
-									/>
-								</div>
-							)}
-						</form.Field>
-
-						{question.type === "multiple_choice" ? (
-							<MultipleChoiceQuestionForm choices={choices} onChoicesChange={setChoices} />
-						) : question.type === "multiple_choice_complex" ? (
-							<MultipleChoiceComplexQuestionForm choices={choices} onChoicesChange={setChoices} />
-						) : (
-							<form.Field name="essayCorrectAnswer">
+			<AdminPageContent>
+				<Card>
+					<CardHeader>
+						<CardTitle>Edit Konten Soal</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<form
+							onSubmit={(e) => {
+								e.preventDefault();
+								form.handleSubmit();
+							}}
+							className="grid gap-6"
+						>
+							<form.Field name="content">
 								{(field) => (
 									<div className="grid gap-2">
-										<Label htmlFor={field.name}>Kunci Jawaban *</Label>
-										<Input
-											id={field.name}
-											value={field.state.value}
-											onChange={(e) => field.handleChange(e.target.value)}
-											placeholder="Masukkan kunci jawaban..."
-											required
+										<Label>Konten Soal *</Label>
+										<TiptapSimpleEditor
+											label="Konten Soal"
+											content={field.state.value ?? undefined}
+											onChange={(content) => field.handleChange(content)}
 										/>
 									</div>
 								)}
 							</form.Field>
-						)}
 
-						<form.Field name="discussion">
-							{(field) => (
-								<div className="grid gap-2">
-									<Label>Pembahasan</Label>
-									<TiptapSimpleEditor
-										label="Pembahasan"
-										content={field.state.value ?? undefined}
-										onChange={(content) => field.handleChange(content)}
-									/>
-								</div>
+							{question.type === "multiple_choice" ? (
+								<MultipleChoiceQuestionForm choices={choices} onChoicesChange={setChoices} />
+							) : question.type === "multiple_choice_complex" ? (
+								<MultipleChoiceComplexQuestionForm choices={choices} onChoicesChange={setChoices} />
+							) : (
+								<form.Field name="essayCorrectAnswer">
+									{(field) => (
+										<div className="grid gap-2">
+											<Label htmlFor={field.name}>Kunci Jawaban *</Label>
+											<Input
+												id={field.name}
+												value={field.state.value}
+												onChange={(e) => field.handleChange(e.target.value)}
+												placeholder="Masukkan kunci jawaban..."
+												required
+											/>
+										</div>
+									)}
+								</form.Field>
 							)}
-						</form.Field>
 
-						<form.Field name="tags">
-							{(field) => (
-								<div className="grid gap-2">
-									<Label>Tags</Label>
-									<TagInput
-										value={field.state.value}
-										onChange={(tags) => field.handleChange(tags)}
-										placeholder="Tambah tag..."
-										maxLength={10}
-									/>
-								</div>
-							)}
-						</form.Field>
-					</form>
-				</CardContent>
-			</Card>
-		</div>
+							<form.Field name="discussion">
+								{(field) => (
+									<div className="grid gap-2">
+										<Label>Pembahasan</Label>
+										<TiptapSimpleEditor
+											label="Pembahasan"
+											content={field.state.value ?? undefined}
+											onChange={(content) => field.handleChange(content)}
+										/>
+									</div>
+								)}
+							</form.Field>
+
+							<form.Field name="tags">
+								{(field) => (
+									<div className="grid gap-2">
+										<Label>Tags</Label>
+										<TagInput
+											value={field.state.value}
+											onChange={(tags) => field.handleChange(tags)}
+											placeholder="Tambah tag..."
+											maxLength={10}
+										/>
+									</div>
+								)}
+							</form.Field>
+						</form>
+					</CardContent>
+				</Card>
+			</AdminPageContent>
+		</AdminPageRoot>
 	);
 }

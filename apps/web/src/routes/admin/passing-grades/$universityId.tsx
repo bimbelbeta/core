@@ -2,9 +2,24 @@ import { ArrowLeftIcon, DotsThreeIcon, TrashIcon } from "@phosphor-icons/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import {
+	AdminPageContent,
+	AdminPageHeader,
+	AdminPageHeaderActions,
+	AdminPageHeaderContent,
+	AdminPageRoot,
+} from "@/components/admin/admin-page";
+import {
+	AdminTable,
+	AdminTableBody,
+	AdminTableCell,
+	AdminTableHead,
+	AdminTableHeader,
+	AdminTableRoot,
+	AdminTableRow,
+} from "@/components/admin/admin-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
 	DropdownMenu,
@@ -12,8 +27,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { TableSkeleton } from "@/components/ui/table-skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Typography } from "@/components/ui/typography";
 import { formatRupiah } from "@/lib/formatter";
 import { orpc } from "@/lib/orpc";
@@ -23,7 +37,7 @@ import { DeleteProgramAlert } from "./-components/delete-program-alert";
 import { EditProgramDialog } from "./-components/edit-program-dialog";
 
 export const Route = createFileRoute("/admin/passing-grades/$universityId")({
-	staticData: { breadcrumb: "Universitas" },
+	staticData: { breadcrumb: "Universitas", breadcrumbParent: { label: "Passing Grades", to: "/admin/passing-grades" } },
 	component: RouteComponent,
 });
 
@@ -66,113 +80,127 @@ function RouteComponent() {
 	);
 
 	if (isUniversityLoading) {
-		return <div className="p-6">Memuat...</div>;
+		return (
+			<AdminPageRoot>
+				<AdminPageContent>
+					<div className="flex items-center gap-2">
+						<Skeleton className="size-8 rounded-full" />
+						<div className="flex flex-col gap-1">
+							<Skeleton className="h-5 w-40" />
+							<Skeleton className="h-4 w-56" />
+						</div>
+					</div>
+				</AdminPageContent>
+			</AdminPageRoot>
+		);
 	}
 
 	if (!university) {
-		return <div className="p-6">Universitas tidak ditemukan</div>;
+		return (
+			<AdminPageRoot>
+				<AdminPageContent>
+					<Typography>Universitas tidak ditemukan</Typography>
+				</AdminPageContent>
+			</AdminPageRoot>
+		);
 	}
 
 	return (
-		<div className="flex h-full flex-col gap-6 p-6">
-			<div className="flex items-center gap-4">
-				<Button variant="ghost" size="icon" asChild>
-					<Link to="/admin/passing-grades" aria-label="Kembali">
-						<ArrowLeftIcon className="size-5" />
-					</Link>
-				</Button>
-				<div className="flex flex-col">
-					<Typography variant="title">{university.name}</Typography>
-					<span className="text-muted-foreground">{university.location}</span>
-				</div>
-			</div>
+		<AdminPageRoot>
+			<AdminPageHeader>
+				<AdminPageHeaderContent>
+					<div className="flex items-center gap-2">
+						<Button variant="ghost" size="icon" asChild>
+							<Link to="/admin/passing-grades" aria-label="Kembali">
+								<ArrowLeftIcon className="size-4" />
+							</Link>
+						</Button>
+						<Typography variant="title">{university.name}</Typography>
+					</div>
+					<Typography variant="body" tone="muted">
+						{university.location}
+					</Typography>
+				</AdminPageHeaderContent>
+				<AdminPageHeaderActions>
+					<AddProgramDialog
+						universityId={universityId}
+						onSuccess={() => {
+							setIsAddDialogOpen(false);
+							queryClient.invalidateQueries({
+								queryKey: orpc.admin.university.universityPrograms.list.queryKey({
+									input: {
+										universityId: universityId,
+									},
+								}),
+							});
+						}}
+						open={isAddDialogOpen}
+						onOpenChange={setIsAddDialogOpen}
+					/>
+				</AdminPageHeaderActions>
+			</AdminPageHeader>
 
-			<div className="flex items-center justify-between">
+			<AdminPageContent>
 				<Typography variant="subtitle1">Program Studi</Typography>
-				<AddProgramDialog
-					universityId={universityId}
-					onSuccess={() => {
-						setIsAddDialogOpen(false);
-						queryClient.invalidateQueries({
-							queryKey: orpc.admin.university.universityPrograms.list.queryKey({
-								input: {
-									universityId: universityId,
-								},
-							}),
-						});
-					}}
-					open={isAddDialogOpen}
-					onOpenChange={setIsAddDialogOpen}
-				/>
-			</div>
-
-			<Card variant="flush">
-				<div className="overflow-x-auto">
-					<Table className="min-w-[800px]">
-						<TableHeader>
-							<TableRow>
-								<TableHead>Nama Program</TableHead>
-								<TableHead>Kategori</TableHead>
-								<TableHead>Biaya</TableHead>
-								<TableHead>Kapasitas</TableHead>
-								<TableHead>Akreditasi</TableHead>
-								<TableHead>Skor Rata-rata</TableHead>
-								<TableHead>Status</TableHead>
-								<TableHead className="w-12" />
-							</TableRow>
-						</TableHeader>
-						<TableBody>
-							{isProgramsLoading ? (
-								<TableSkeleton columns={8} />
-							) : !programs?.items || programs.items.length === 0 ? (
-								<TableRow>
-									<TableCell colSpan={8} className="text-muted-foreground h-24 text-center">
-										Belum ada program studi yang ditautkan.
-									</TableCell>
-								</TableRow>
-							) : (
-								programs.items.map((prog) => (
-									<TableRow key={prog.id}>
-										<TableCell className="font-medium">
-											<Button type="button" variant="link" size="none" onClick={() => setEditProgram(prog)}>
-												{prog.studyProgram.name}
-											</Button>
-										</TableCell>
-										<TableCell>{prog.studyProgram.category}</TableCell>
-										<TableCell>{prog.tuition ? formatRupiah(prog.tuition) : "-"}</TableCell>
-										<TableCell>{prog.capacity ?? "-"}</TableCell>
-										<TableCell>{prog.accreditation ?? "-"}</TableCell>
-										<TableCell>
-											<Badge variant={prog.isActive ? "default" : "secondary"}>
-												{prog.isActive ? "Aktif" : "Tidak Aktif"}
-											</Badge>
-										</TableCell>
-										<TableCell>
-											<DropdownMenu>
-												<DropdownMenuTrigger asChild>
-													<Button
-														variant="ghost"
-														size="icon"
-														aria-label={`Aksi program studi ${prog.studyProgram.name}`}
-													>
-														<DotsThreeIcon className="size-4" />
-													</Button>
-												</DropdownMenuTrigger>
-												<DropdownMenuContent align="end">
-													<DropdownMenuItem variant="destructive" onClick={() => setDeleteProgramId(prog.id)}>
-														<TrashIcon className="mr-2 size-4" />
-														Hapus
-													</DropdownMenuItem>
-												</DropdownMenuContent>
-											</DropdownMenu>
-										</TableCell>
-									</TableRow>
-								))
-							)}
-						</TableBody>
-					</Table>
-				</div>
-			</Card>
+				<AdminTableRoot>
+					<AdminTable className="min-w-[800px]">
+						<AdminTableHeader>
+							<AdminTableHead>Nama Program</AdminTableHead>
+							<AdminTableHead>Kategori</AdminTableHead>
+							<AdminTableHead>Biaya</AdminTableHead>
+							<AdminTableHead>Kapasitas</AdminTableHead>
+							<AdminTableHead>Akreditasi</AdminTableHead>
+							<AdminTableHead>Skor Rata-rata</AdminTableHead>
+							<AdminTableHead>Status</AdminTableHead>
+							<AdminTableHead className="w-12">
+								<span className="sr-only">Aksi</span>
+							</AdminTableHead>
+						</AdminTableHeader>
+						<AdminTableBody
+							isLoading={isProgramsLoading}
+							isEmpty={!isProgramsLoading && (!programs?.items || programs.items.length === 0)}
+							emptyMessage="Belum ada program studi yang ditautkan."
+							columns={8}
+						>
+							{programs?.items.map((prog) => (
+								<AdminTableRow key={prog.id}>
+									<AdminTableCell>
+										<Button type="button" variant="link" size="none" onClick={() => setEditProgram(prog)}>
+											{prog.studyProgram.name}
+										</Button>
+									</AdminTableCell>
+									<AdminTableCell>{prog.studyProgram.category}</AdminTableCell>
+									<AdminTableCell className="tabular-nums">
+										{prog.tuition ? formatRupiah(prog.tuition) : "-"}
+									</AdminTableCell>
+									<AdminTableCell className="tabular-nums">{prog.capacity ?? "-"}</AdminTableCell>
+									<AdminTableCell>{prog.accreditation ?? "-"}</AdminTableCell>
+									<AdminTableCell>
+										<Badge variant={prog.isActive ? "default" : "secondary"}>
+											{prog.isActive ? "Aktif" : "Tidak Aktif"}
+										</Badge>
+									</AdminTableCell>
+									<AdminTableCell>
+										<DropdownMenu>
+											<DropdownMenuTrigger asChild>
+												<Button variant="ghost" size="icon" aria-label={`Aksi program studi ${prog.studyProgram.name}`}>
+													<DotsThreeIcon className="size-4" />
+												</Button>
+											</DropdownMenuTrigger>
+											<DropdownMenuContent align="end">
+												<DropdownMenuItem variant="destructive" onClick={() => setDeleteProgramId(prog.id)}>
+													<TrashIcon className="mr-2 size-4" />
+													Hapus
+												</DropdownMenuItem>
+											</DropdownMenuContent>
+										</DropdownMenu>
+									</AdminTableCell>
+								</AdminTableRow>
+							))}
+						</AdminTableBody>
+					</AdminTable>
+				</AdminTableRoot>
+			</AdminPageContent>
 
 			{editProgram && (
 				<Dialog
@@ -221,6 +249,6 @@ function RouteComponent() {
 					if (!open) setDeleteProgramId(null);
 				}}
 			/>
-		</div>
+		</AdminPageRoot>
 	);
 }
