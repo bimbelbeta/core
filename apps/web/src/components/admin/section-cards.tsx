@@ -57,7 +57,7 @@ function Stat({
 				<p className="text-muted-foreground text-xs leading-tight">{label}</p>
 				{trend !== undefined && <Trend value={trend} />}
 			</div>
-			<p className="text-foreground mt-2 text-2xl leading-none font-semibold tracking-tight tabular-nums">{value}</p>
+			<p className="text-foreground text-metric mt-2">{value}</p>
 			{meta && <p className="text-muted-foreground mt-1 text-xs tabular-nums">{meta}</p>}
 		</div>
 	);

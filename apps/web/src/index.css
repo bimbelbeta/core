@@ -193,29 +193,37 @@
 }
 
 @utility text-page-title {
-	font-size: 1.5rem;
+	font-size: 1.375rem;
 	line-height: 1.25;
 	font-weight: 600;
-	letter-spacing: -0.011em;
+	letter-spacing: -0.02em;
 }
 
 @utility text-section-title {
-	font-size: 1rem;
+	font-size: 0.9375rem;
 	line-height: 1.4;
 	font-weight: 600;
-	letter-spacing: -0.006em;
+	letter-spacing: -0.012em;
 }
 
 @utility text-row-title {
-	font-size: 0.9375rem;
+	font-size: 0.875rem;
 	line-height: 1.35;
 	font-weight: 500;
 	letter-spacing: -0.003em;
 }
 
 @utility text-meta {
-	font-size: 0.8125rem;
-	line-height: 1.45;
+	font-size: 0.78125rem;
+	line-height: 1.35;
+}
+
+@utility text-metric {
+	font-size: 1.5rem;
+	line-height: 1;
+	font-weight: 600;
+	letter-spacing: -0.02em;
+	font-variant-numeric: tabular-nums;
 }
 
 @utility admin-tables {
@@ -223,13 +231,13 @@
 		@apply rounded-none bg-card;
 	}
 	& [data-slot="table-head"] {
-		@apply bg-card sticky top-0 z-10 h-8 px-4 text-xs font-semibold text-foreground/60;
+		@apply bg-card sticky top-0 z-10 h-7 px-4 text-[11.5px] font-semibold text-foreground/65;
 	}
 	& [data-slot="table-cell"] {
 		@apply px-4 py-1.5 text-sm;
 	}
 	& [data-slot="table-cell"]:not([colspan]) {
-		@apply h-10;
+		@apply h-9;
 	}
 	& [data-slot="table-container"] {
 		@apply min-h-0 flex-1 overflow-auto;

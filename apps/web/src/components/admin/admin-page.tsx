@@ -6,7 +6,7 @@ const AdminPageRoot = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTML
 		<div
 			ref={ref}
 			className={cn(
-				"admin-tables mx-auto flex min-h-0 w-full max-w-[1400px] flex-1 flex-col gap-5 p-4 sm:gap-6 sm:p-6 lg:p-8",
+				"admin-tables mx-auto flex min-h-0 w-full max-w-[1400px] flex-1 flex-col gap-4 p-4 sm:gap-5 sm:p-5 lg:p-6",
 				className,
 			)}
 			{...props}
