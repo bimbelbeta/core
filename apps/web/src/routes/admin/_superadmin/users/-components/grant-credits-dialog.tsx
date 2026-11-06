@@ -79,10 +79,11 @@ export function GrantCreditsDialog({
 				</div>
 				<DialogFooter>
 					<Button
+						isPending={adjustCreditsMutation.isPending}
 						onClick={() => adjustCreditsMutation.mutate({ userId, amount })}
 						disabled={adjustCreditsMutation.isPending || !amount || amount < 1}
 					>
-						{adjustCreditsMutation.isPending ? "Memproses..." : "Add Credits"}
+						{"Add Credits"}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

@@ -13,7 +13,6 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { Spinner } from "@/components/ui/spinner";
 import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { useTryoutStore } from "../-hooks/use-tryout-store";
@@ -100,6 +99,7 @@ export function QuestionFooter() {
 				</Button>
 
 				<Button
+					isPending={toggleRaguRaguMutation.isPending}
 					variant={"warning"}
 					onClick={handleRaguRagu}
 					disabled={toggleRaguRaguMutation.isPending}
@@ -143,15 +143,12 @@ export function QuestionFooter() {
 						<DialogClose asChild>
 							<Button variant="outline">Batal</Button>
 						</DialogClose>
-						<Button onClick={handleConfirmSubmit} disabled={submitSubtestMutation.isPending}>
-							{submitSubtestMutation.isPending ? (
-								<>
-									<Spinner />
-									Memindahkan...
-								</>
-							) : (
-								"Ya, Lanjutkan"
-							)}
+						<Button
+							isPending={submitSubtestMutation.isPending}
+							onClick={handleConfirmSubmit}
+							disabled={submitSubtestMutation.isPending}
+						>
+							{"Ya, Lanjutkan"}
 						</Button>
 					</DialogFooter>
 				</DialogContent>

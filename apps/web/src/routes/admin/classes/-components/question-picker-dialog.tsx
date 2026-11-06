@@ -202,11 +202,12 @@ export function QuestionPickerDialog({
 							<span className="text-sm">Pilih yang Tampil ({selectedQuestionIds.length} dipilih)</span>
 						</div>
 						<Button
+							isPending={addMutation.isPending}
 							variant="default"
 							onClick={handleAdd}
 							disabled={selectedQuestionIds.length === 0 || addMutation.isPending}
 						>
-							{addMutation.isPending ? "Menambahkan..." : `Tambah ${selectedQuestionIds.length} Soal`}
+							{`Tambah ${selectedQuestionIds.length} Soal`}
 						</Button>
 					</div>
 

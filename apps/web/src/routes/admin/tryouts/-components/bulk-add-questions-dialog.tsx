@@ -158,19 +158,18 @@ export function BulkAddQuestionsDialog({
 							<span className="text-muted-foreground text-sm">({selectedQuestionIds.length} dipilih)</span>
 						</div>
 						<Button
+							isPending={bulkAddMutation.isPending}
 							variant="default"
 							onClick={handleAdd}
 							disabled={selectedQuestionIds.length === 0 || bulkAddMutation.isPending}
 							className="w-full sm:w-auto"
 						>
-							{bulkAddMutation.isPending ? (
-								"Menambahkan..."
-							) : (
+							{
 								<>
 									<PlusCircleIcon weight="fill" />
 									Tambah {selectedQuestionIds.length} Soal
 								</>
-							)}
+							}
 						</Button>
 					</div>
 				</div>

@@ -98,7 +98,13 @@ function RouteComponent() {
 					{hasQuestions && (
 						<AlertDialog>
 							<AlertDialogTrigger asChild>
-								<Button type="button" variant="destructive" disabled={unlinkAllMutation.isPending} size="sm">
+								<Button
+									isPending={unlinkAllMutation.isPending}
+									type="button"
+									variant="destructive"
+									disabled={unlinkAllMutation.isPending}
+									size="sm"
+								>
 									Hapus Semua
 								</Button>
 							</AlertDialogTrigger>

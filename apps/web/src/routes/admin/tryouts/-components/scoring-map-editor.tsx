@@ -175,8 +175,13 @@ export function ScoringMapEditor({
 				</div>
 
 				<div className="flex justify-end gap-2 pt-4">
-					<Button type="button" onClick={handleSave} disabled={!allScoresFilled || updateMutation.isPending}>
-						{updateMutation.isPending ? "Menyimpan..." : "Simpan Skoring"}
+					<Button
+						isPending={updateMutation.isPending}
+						type="button"
+						onClick={handleSave}
+						disabled={!allScoresFilled || updateMutation.isPending}
+					>
+						{"Simpan Skoring"}
 					</Button>
 				</div>
 			</CardContent>

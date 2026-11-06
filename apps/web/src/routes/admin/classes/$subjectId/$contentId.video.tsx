@@ -134,20 +134,27 @@ function RouteComponent() {
 					<form.Subscribe>
 						{(state) => (
 							<Button
+								isPending={saveMutation.isPending}
 								type="submit"
 								variant="default"
 								disabled={!state.canSubmit || saveMutation.isPending}
 								size="sm"
 								onClick={() => form.handleSubmit()}
 							>
-								{saveMutation.isPending ? "Menyimpan..." : "Simpan"}
+								{"Simpan"}
 							</Button>
 						)}
 					</form.Subscribe>
 					{hasVideo && (
 						<AlertDialog>
 							<AlertDialogTrigger asChild>
-								<Button type="button" variant="destructive" disabled={deleteMutation.isPending} size="sm">
+								<Button
+									isPending={deleteMutation.isPending}
+									type="button"
+									variant="destructive"
+									disabled={deleteMutation.isPending}
+									size="sm"
+								>
 									Hapus
 								</Button>
 							</AlertDialogTrigger>

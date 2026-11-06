@@ -121,11 +121,12 @@ function RouteComponent() {
 							<form.Subscribe>
 								{(state) => (
 									<Button
+										isPending={state.isSubmitting || isSubmitting}
 										type="submit"
 										className="w-full"
 										disabled={!state.canSubmit || state.isSubmitting || isSubmitting}
 									>
-										{state.isSubmitting || isSubmitting ? "Memuat..." : "Kirim Instruksi"}
+										{"Kirim Instruksi"}
 									</Button>
 								)}
 							</form.Subscribe>

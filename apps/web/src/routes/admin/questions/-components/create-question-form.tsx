@@ -16,7 +16,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TagInput } from "@/components/ui/tag-input";
 import { Typography } from "@/components/ui/typography";
@@ -118,15 +117,13 @@ export function CreateQuestionForm({
 					</Button>
 					<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
 						{([canSubmit, isSubmitting]) => (
-							<Button type="submit" disabled={!canSubmit || isSubmitting} onClick={() => form.handleSubmit()}>
-								{isSubmitting ? (
-									<>
-										<Spinner />
-										Membuat...
-									</>
-								) : (
-									"Simpan Soal"
-								)}
+							<Button
+								isPending={isSubmitting}
+								type="submit"
+								disabled={!canSubmit || isSubmitting}
+								onClick={() => form.handleSubmit()}
+							>
+								{"Simpan Soal"}
 							</Button>
 						)}
 					</form.Subscribe>

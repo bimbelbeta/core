@@ -196,18 +196,12 @@ export function TargetSelectionDialog() {
 						<form.Subscribe>
 							{(state) => (
 								<Button
+									isPending={updateMutation.isPending}
 									type="submit"
 									className={cn("sm:w-auto", updateMutation.isPending && "cursor-not-allowed")}
 									disabled={!state.canSubmit}
 								>
-									{updateMutation.isPending ? (
-										<>
-											<Spinner />
-											Menyimpan...
-										</>
-									) : (
-										"Simpan"
-									)}
+									{"Simpan"}
 								</Button>
 							)}
 						</form.Subscribe>

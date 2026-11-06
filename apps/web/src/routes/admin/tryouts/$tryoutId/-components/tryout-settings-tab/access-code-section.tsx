@@ -123,8 +123,12 @@ export function AccessCodeSection({ tryoutId }: { tryoutId: number }) {
 				</div>
 
 				<div className="flex justify-end">
-					<Button onClick={handleCreate} disabled={createAccessCodeMutation.isPending}>
-						{createAccessCodeMutation.isPending ? "Membuat..." : "Buat Kode Akses"}
+					<Button
+						isPending={createAccessCodeMutation.isPending}
+						onClick={handleCreate}
+						disabled={createAccessCodeMutation.isPending}
+					>
+						{"Buat Kode Akses"}
 					</Button>
 				</div>
 

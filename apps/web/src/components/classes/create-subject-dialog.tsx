@@ -237,8 +237,12 @@ export function CreateSubjectDialog({ open, onOpenChange, defaultCategory }: Cre
 						</Button>
 						<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
 							{([canSubmit, isSubmitting]) => (
-								<Button type="submit" disabled={!canSubmit || isSubmitting || createMutation.isPending}>
-									{isSubmitting || createMutation.isPending ? "Menyimpan..." : "Simpan"}
+								<Button
+									isPending={isSubmitting || createMutation.isPending}
+									type="submit"
+									disabled={!canSubmit || isSubmitting || createMutation.isPending}
+								>
+									{"Simpan"}
 								</Button>
 							)}
 						</form.Subscribe>

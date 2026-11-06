@@ -106,6 +106,7 @@ function LinkedQuestionItem({
 			<AlertDialog>
 				<AlertDialogTrigger asChild>
 					<Button
+						isPending={removeMutation.isPending}
 						variant="ghost"
 						size="icon"
 						aria-label={`Hapus soal ${question.questionId} dari paket`}

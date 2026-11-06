@@ -1,5 +1,4 @@
 import { ArrowRightIcon, ClockIcon } from "@phosphor-icons/react";
-import { CircleNotchIcon } from "@phosphor-icons/react/dist/ssr";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -95,6 +94,7 @@ export function TryoutGreeting({ countdownProps }: TryoutGreetingProps) {
 			</div>
 
 			<Button
+				isPending={startSubtestMutation.isPending || submitSubtestMutation.isPending}
 				size="lg"
 				onClick={() => {
 					if (isCompletedSubtest) {
@@ -116,12 +116,7 @@ export function TryoutGreeting({ countdownProps }: TryoutGreetingProps) {
 				disabled={startSubtestMutation.isPending || submitSubtestMutation.isPending || isOverallDeadlineExpired}
 				className="mt-8 ml-auto"
 			>
-				{startSubtestMutation.isPending || submitSubtestMutation.isPending ? (
-					<>
-						<CircleNotchIcon weight="bold" className="animate-spin" />
-						Memuat...
-					</>
-				) : isOverallDeadlineExpired ? (
+				{isOverallDeadlineExpired ? (
 					<>
 						<ClockIcon weight="bold" />
 						Tryout Berakhir

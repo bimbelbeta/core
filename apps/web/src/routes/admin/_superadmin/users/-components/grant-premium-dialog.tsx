@@ -104,6 +104,7 @@ export function GrantPremiumDialog({
 				</div>
 				<DialogFooter>
 					<Button
+						isPending={updateMutation.isPending}
 						onClick={() =>
 							updateMutation.mutate({
 								userId,
@@ -113,7 +114,7 @@ export function GrantPremiumDialog({
 						}
 						disabled={updateMutation.isPending || !date}
 					>
-						{updateMutation.isPending ? "Memproses..." : "Grant Premium"}
+						{"Grant Premium"}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

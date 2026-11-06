@@ -186,8 +186,13 @@ function SignInForm() {
 
 					<form.Subscribe>
 						{(state) => (
-							<Button type="submit" className="w-full" disabled={!state.canSubmit || state.isSubmitting}>
-								{state.isSubmitting ? "Memuat..." : "Masuk"}
+							<Button
+								isPending={state.isSubmitting}
+								type="submit"
+								className="w-full"
+								disabled={!state.canSubmit || state.isSubmitting}
+							>
+								{"Masuk"}
 							</Button>
 						)}
 					</form.Subscribe>

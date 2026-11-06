@@ -314,8 +314,12 @@ function RouteComponent() {
 							</Button>
 							<createForm.Subscribe>
 								{(state) => (
-									<Button type="submit" disabled={!state.canSubmit || createMutation.isPending}>
-										{createMutation.isPending ? "Menyimpan..." : "Simpan"}
+									<Button
+										isPending={createMutation.isPending}
+										type="submit"
+										disabled={!state.canSubmit || createMutation.isPending}
+									>
+										{"Simpan"}
 									</Button>
 								)}
 							</createForm.Subscribe>
@@ -370,8 +374,12 @@ function RouteComponent() {
 							</Button>
 							<editForm.Subscribe>
 								{(state) => (
-									<Button type="submit" disabled={!state.canSubmit || updateMutation.isPending}>
-										{updateMutation.isPending ? "Menyimpan..." : "Simpan"}
+									<Button
+										isPending={updateMutation.isPending}
+										type="submit"
+										disabled={!state.canSubmit || updateMutation.isPending}
+									>
+										{"Simpan"}
 									</Button>
 								)}
 							</editForm.Subscribe>
@@ -392,6 +400,7 @@ function RouteComponent() {
 					<AlertDialogFooter>
 						<AlertDialogCancel onClick={() => setDeleteDialogOpen(false)}>Batal</AlertDialogCancel>
 						<AlertDialogAction
+							isPending={deleteMutation.isPending}
 							onClick={() => {
 								if (deletingItem) {
 									deleteMutation.mutate({ id: deletingItem.id });
@@ -399,7 +408,7 @@ function RouteComponent() {
 							}}
 							disabled={deleteMutation.isPending}
 						>
-							{deleteMutation.isPending ? "Menghapus..." : "Hapus"}
+							Hapus
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>

@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
@@ -292,15 +291,8 @@ export function AddUniversityDialog({
 					<DialogFooter className="shrink-0">
 						<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
 							{([canSubmit, isSubmitting]) => (
-								<Button type="submit" disabled={!canSubmit || isSubmitting}>
-									{isSubmitting ? (
-										<>
-											<Spinner />
-											Menambahkan...
-										</>
-									) : (
-										"Tambah Universitas"
-									)}
+								<Button isPending={isSubmitting} type="submit" disabled={!canSubmit || isSubmitting}>
+									{"Tambah Universitas"}
 								</Button>
 							)}
 						</form.Subscribe>

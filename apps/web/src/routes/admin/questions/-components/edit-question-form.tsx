@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Spinner } from "@/components/ui/spinner";
 import { TagInput } from "@/components/ui/tag-input";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
@@ -99,15 +98,13 @@ export function EditQuestionForm({ question, initialChoices, onSuccess, onCancel
 					</Button>
 					<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
 						{([canSubmit, isSubmitting]) => (
-							<Button type="submit" disabled={!canSubmit || isSubmitting} onClick={() => form.handleSubmit()}>
-								{isSubmitting ? (
-									<>
-										<Spinner />
-										Memperbarui...
-									</>
-								) : (
-									"Simpan Perubahan"
-								)}
+							<Button
+								isPending={isSubmitting}
+								type="submit"
+								disabled={!canSubmit || isSubmitting}
+								onClick={() => form.handleSubmit()}
+							>
+								{"Simpan Perubahan"}
 							</Button>
 						)}
 					</form.Subscribe>

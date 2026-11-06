@@ -179,8 +179,8 @@ export function AddSubtestDialog({
 					<DialogFooter className="shrink-0">
 						<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
 							{([canSubmit, isSubmitting]) => (
-								<Button type="submit" disabled={!canSubmit || isSubmitting}>
-									{isSubmitting ? "Menambahkan..." : "Tambah Subtest"}
+								<Button isPending={isSubmitting} type="submit" disabled={!canSubmit || isSubmitting}>
+									{"Tambah Subtest"}
 								</Button>
 							)}
 						</form.Subscribe>

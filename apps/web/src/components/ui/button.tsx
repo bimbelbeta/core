@@ -2,6 +2,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Slot as SlotPrimitive } from "radix-ui";
 import type * as React from "react";
 
+import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
@@ -51,14 +52,53 @@ function Button({
 	variant,
 	size,
 	asChild = false,
+	isPending,
+	pendingText,
+	disabled,
+	children,
 	...props
 }: React.ComponentProps<"button"> &
 	VariantProps<typeof buttonVariants> & {
 		asChild?: boolean;
+		isPending?: boolean;
+		pendingText?: React.ReactNode;
 	}) {
 	const Comp = asChild ? SlotPrimitive.Slot : "button";
 
-	return <Comp data-slot="button" className={cn(buttonVariants({ variant, size, className }))} {...props} />;
+	return (
+		<Comp
+			data-slot="button"
+			className={cn(buttonVariants({ variant, size, className }))}
+			{...props}
+			disabled={disabled || isPending}
+			aria-busy={isPending || undefined}
+		>
+			{isPending === undefined || asChild ? (
+				children
+			) : (
+				<span className="grid items-center justify-items-center">
+					<span
+						className={cn(
+							"col-start-1 row-start-1 inline-flex items-center justify-center gap-2 transition-[opacity,transform] duration-200 ease-out motion-reduce:transition-none",
+							isPending ? "-translate-y-1.5 opacity-0" : "translate-y-0 opacity-100",
+						)}
+					>
+						{children}
+					</span>
+					<span
+						aria-hidden="true"
+						className={cn(
+							"pointer-events-none col-start-1 row-start-1 inline-flex items-center justify-center gap-2 transition-[opacity,transform] duration-200 ease-out motion-reduce:transition-none",
+							isPending ? "translate-y-0 opacity-100" : "translate-y-1.5 opacity-0",
+						)}
+					>
+						<Spinner className="motion-reduce:animate-none" />
+						{pendingText}
+					</span>
+				</span>
+			)}
+		</Comp>
+	);
 }
 
 export { Button, buttonVariants };

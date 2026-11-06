@@ -9,7 +9,6 @@ import { DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
@@ -184,15 +183,8 @@ export function CreateProgramTab({ onProgramCreate }: CreateProgramTabProps) {
 			<DialogFooter className="pt-2">
 				<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
 					{([canSubmit, isSubmitting]) => (
-						<Button type="submit" disabled={!canSubmit || isSubmitting} className="w-full">
-							{isSubmitting ? (
-								<>
-									<Spinner />
-									Membuat...
-								</>
-							) : (
-								"Buat Program Studi"
-							)}
+						<Button isPending={isSubmitting} type="submit" disabled={!canSubmit || isSubmitting} className="w-full">
+							{"Buat Program Studi"}
 						</Button>
 					)}
 				</form.Subscribe>

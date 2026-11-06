@@ -116,8 +116,13 @@ export function CreateReferralDialog({ onSuccess }: { onSuccess: () => void }) {
 							<Button type="button" variant="outline" onClick={() => setOpen(false)}>
 								Batal
 							</Button>
-							<Button type="submit" disabled={createMutation.isPending} id="submit-create-referral-btn">
-								{createMutation.isPending ? "Membuat..." : "Buat Kode"}
+							<Button
+								isPending={createMutation.isPending}
+								type="submit"
+								disabled={createMutation.isPending}
+								id="submit-create-referral-btn"
+							>
+								{"Buat Kode"}
 							</Button>
 						</DialogFooter>
 					</form>

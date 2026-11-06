@@ -12,7 +12,6 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import { Spinner } from "@/components/ui/spinner";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 import { AccessCodeInput } from "./access-code-input";
@@ -173,11 +172,12 @@ export function TryoutStartConfirmation({ children, disabled = false, tryoutId }
 							)}
 							<DialogFooter>
 								<Button
+									isPending={startTryoutMutation.isPending}
 									onClick={handleStart}
 									disabled={startTryoutMutation.isPending || !uploadedUrl}
 									className="w-full"
 								>
-									{startTryoutMutation.isPending ? "Memproses..." : "Mulai Tryout"}
+									{"Mulai Tryout"}
 								</Button>
 							</DialogFooter>
 						</div>
@@ -185,14 +185,13 @@ export function TryoutStartConfirmation({ children, disabled = false, tryoutId }
 				)}
 				{step === "premium" && (
 					<DialogFooter>
-						<Button onClick={handleStart} disabled={startTryoutMutation.isPending} className="w-full">
-							{startTryoutMutation.isPending ? (
-								<>
-									<Spinner /> Memulai...
-								</>
-							) : (
-								"Mulai Tryout"
-							)}
+						<Button
+							isPending={startTryoutMutation.isPending}
+							onClick={handleStart}
+							disabled={startTryoutMutation.isPending}
+							className="w-full"
+						>
+							{"Mulai Tryout"}
 						</Button>
 					</DialogFooter>
 				)}

@@ -7,7 +7,6 @@ import { DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
@@ -213,15 +212,8 @@ export function EditProgramDialog({ universityProgram, onSuccess, onOpenChange }
 				<DialogFooter className="pt-2">
 					<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
 						{([canSubmit, isSubmitting]) => (
-							<Button type="submit" disabled={!canSubmit || isSubmitting} className="w-full">
-								{isSubmitting ? (
-									<>
-										<Spinner />
-										Memperbarui...
-									</>
-								) : (
-									"Simpan Perubahan"
-								)}
+							<Button isPending={isSubmitting} type="submit" disabled={!canSubmit || isSubmitting} className="w-full">
+								{"Simpan Perubahan"}
 							</Button>
 						)}
 					</form.Subscribe>

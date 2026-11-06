@@ -238,8 +238,12 @@ export function EditSubjectDialog({ open, onOpenChange, subject }: EditSubjectDi
 						</Button>
 						<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
 							{([canSubmit, isSubmitting]) => (
-								<Button type="submit" disabled={!canSubmit || isSubmitting || updateMutation.isPending}>
-									{isSubmitting || updateMutation.isPending ? "Menyimpan..." : "Simpan"}
+								<Button
+									isPending={isSubmitting || updateMutation.isPending}
+									type="submit"
+									disabled={!canSubmit || isSubmitting || updateMutation.isPending}
+								>
+									{"Simpan"}
 								</Button>
 							)}
 						</form.Subscribe>

@@ -88,10 +88,11 @@ export function EditRoleDialog({ userId, userName, currentRole, open, onOpenChan
 				</div>
 				<DialogFooter>
 					<Button
+						isPending={updateMutation.isPending}
 						onClick={() => updateMutation.mutate({ userId, role })}
 						disabled={updateMutation.isPending || role === currentRole}
 					>
-						{updateMutation.isPending ? "Menyimpan..." : "Simpan"}
+						{"Simpan"}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

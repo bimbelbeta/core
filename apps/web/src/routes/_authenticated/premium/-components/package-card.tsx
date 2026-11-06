@@ -1,4 +1,4 @@
-import { CheckIcon, SpinnerIcon } from "@phosphor-icons/react";
+import { CheckIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Typography } from "@/components/ui/typography";
@@ -115,24 +115,14 @@ export function PackageCard({
 			)}
 
 			<Button
+				isPending={isPending}
 				size={isPremiumPackage ? "lg" : "default"}
 				variant={isPremiumPackage ? "default" : "outline"}
 				className="mt-auto w-full hover:cursor-pointer"
 				disabled={!PAYMENTS_ENABLED || isPurchased || isPending || disabled}
 				onClick={() => onPurchase(slug)}
 			>
-				{!PAYMENTS_ENABLED ? (
-					PAYMENTS_COMING_SOON_LABEL
-				) : isPurchased ? (
-					"Sudah Dimiliki"
-				) : isPending ? (
-					<>
-						<SpinnerIcon className="animate-spin" />
-						Memproses...
-					</>
-				) : (
-					"Beli Sekarang"
-				)}
+				{!PAYMENTS_ENABLED ? PAYMENTS_COMING_SOON_LABEL : isPurchased ? "Sudah Dimiliki" : "Beli Sekarang"}
 			</Button>
 		</Card>
 	);

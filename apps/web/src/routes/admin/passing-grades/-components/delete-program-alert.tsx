@@ -44,8 +44,13 @@ export function DeleteProgramAlert({ id, onSuccess, open, onOpenChange }: Delete
 				</AlertDialogHeader>
 				<AlertDialogFooter>
 					<AlertDialogCancel disabled={isDeleting}>Batal</AlertDialogCancel>
-					<Button variant="destructive" onClick={() => deleteProgram({ id: id })} disabled={isDeleting}>
-						{isDeleting ? "Menghapus..." : "Hapus"}
+					<Button
+						isPending={isDeleting}
+						variant="destructive"
+						onClick={() => deleteProgram({ id: id })}
+						disabled={isDeleting}
+					>
+						{"Hapus"}
 					</Button>
 				</AlertDialogFooter>
 			</AlertDialogContent>

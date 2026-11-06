@@ -392,14 +392,13 @@ export function ProductForm({ initialData, onSuccess, onCancel }: ProductFormPro
 			<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
 				{([canSubmit, isSubmitting]) => (
 					<div className="flex items-center gap-2">
-						<Button type="submit" disabled={!canSubmit || isSubmitting || isPending} size="lg">
-							{isSubmitting || isPending
-								? initialData
-									? "Menyimpan..."
-									: "Membuat..."
-								: initialData
-									? "Simpan Perubahan"
-									: "Buat Produk"}
+						<Button
+							isPending={isSubmitting || isPending}
+							type="submit"
+							disabled={!canSubmit || isSubmitting || isPending}
+							size="lg"
+						>
+							{initialData ? "Simpan Perubahan" : "Buat Produk"}
 						</Button>
 						{onCancel && (
 							<Button type="button" variant="outline" onClick={onCancel} size="lg">

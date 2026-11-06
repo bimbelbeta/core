@@ -7,7 +7,6 @@ import { DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Spinner } from "@/components/ui/spinner";
 import { orpc } from "@/lib/orpc";
 
 interface ProgramDetailsStepProps {
@@ -113,15 +112,8 @@ export function ProgramDetailsStep({ universityId, programId, onSuccess, onBack 
 					<ArrowLeftIcon className="size-3.5" />
 					Kembali
 				</Button>
-				<Button onClick={handleSubmit} disabled={isLinking}>
-					{isLinking ? (
-						<>
-							<Spinner />
-							Menambahkan...
-						</>
-					) : (
-						"Tambah Prodi"
-					)}
+				<Button isPending={isLinking} onClick={handleSubmit} disabled={isLinking}>
+					{"Tambah Prodi"}
 				</Button>
 			</DialogFooter>
 		</div>

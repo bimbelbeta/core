@@ -1,4 +1,4 @@
-import { SignOutIcon, SpinnerIcon } from "@phosphor-icons/react";
+import { SignOutIcon } from "@phosphor-icons/react";
 import {
 	AlertDialog,
 	AlertDialogCancel,
@@ -28,17 +28,12 @@ export function LogoutDialog({ open, onOpenChange }: LogoutDialogProps) {
 				</AlertDialogHeader>
 				<AlertDialogFooter>
 					<AlertDialogCancel>Kembali</AlertDialogCancel>
-					<Button onClick={logout} disabled={pending} variant="destructive">
-						{pending ? (
-							<>
-								<SpinnerIcon className="animate-spin" />
-								Memasak...
-							</>
-						) : (
+					<Button isPending={pending} onClick={logout} disabled={pending} variant="destructive">
+						{
 							<>
 								<SignOutIcon weight="bold" /> Keluar
 							</>
-						)}
+						}
 					</Button>
 				</AlertDialogFooter>
 			</AlertDialogContent>

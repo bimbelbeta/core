@@ -47,13 +47,14 @@ export function RestoreProductDialog({ productId, open, onOpenChange, onSuccess 
 						Batal
 					</Button>
 					<Button
+						isPending={restoreMutation.isPending}
 						variant="outline"
 						className="text-green-700 hover:text-green-800"
 						onClick={() => restoreMutation.mutate({ productId })}
 						disabled={restoreMutation.isPending}
 					>
 						<ArrowCounterClockwiseIcon className="size-4" />
-						{restoreMutation.isPending ? "Memulihkan..." : "Restore"}
+						{"Restore"}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

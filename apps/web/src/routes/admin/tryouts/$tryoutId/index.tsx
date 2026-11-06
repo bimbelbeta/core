@@ -111,6 +111,7 @@ function TryoutDetailPage() {
 				</AdminPageHeaderContent>
 				<AdminPageHeaderActions>
 					<Button
+						isPending={settingsFormState.isSubmitting}
 						type="submit"
 						form="tryout-settings-form"
 						variant="darkBlue"
@@ -118,14 +119,15 @@ function TryoutDetailPage() {
 							isPending || !settingsFormState.isDirty || !settingsFormState.canSubmit || settingsFormState.isSubmitting
 						}
 					>
-						{settingsFormState.isSubmitting ? "Menyimpan..." : "Simpan Perubahan"}
+						{"Simpan Perubahan"}
 					</Button>
 					<Button
+						isPending={publishMutation.isPending}
 						onClick={handlePublishToggle}
 						disabled={isPending || publishMutation.isPending}
 						variant={tryout?.status === "published" ? "outline" : "default"}
 					>
-						{publishMutation.isPending ? "Memproses..." : tryout?.status === "published" ? "Unpublish" : "Publish"}
+						{tryout?.status === "published" ? "Unpublish" : "Publish"}
 					</Button>
 				</AdminPageHeaderActions>
 			</AdminPageHeader>

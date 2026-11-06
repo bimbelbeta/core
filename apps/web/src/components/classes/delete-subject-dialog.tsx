@@ -56,15 +56,13 @@ export function DeleteSubjectDialog({ open, onOpenChange, subject }: DeleteSubje
 				</AlertDialogHeader>
 				<AlertDialogFooter>
 					<AlertDialogCancel disabled={pending}>Batal</AlertDialogCancel>
-					<Button variant="destructive" onClick={handleDelete} disabled={pending}>
-						{pending ? (
-							"Menghapus..."
-						) : (
+					<Button isPending={pending} variant="destructive" onClick={handleDelete} disabled={pending}>
+						{
 							<>
 								<TrashIcon weight="bold" className="mr-1" />
 								Hapus
 							</>
-						)}
+						}
 					</Button>
 				</AlertDialogFooter>
 			</AlertDialogContent>

@@ -34,8 +34,8 @@ export function AccessCodeInput({ onSubmit, isLoading = false }: AccessCodeInput
 					autoComplete="off"
 					disabled={isLoading}
 				/>
-				<Button onClick={handleSubmit} disabled={isLoading || !accessCode.trim()}>
-					{isLoading ? "Memproses..." : "Gunakan"}
+				<Button isPending={isLoading} onClick={handleSubmit} disabled={isLoading || !accessCode.trim()}>
+					{"Gunakan"}
 				</Button>
 			</div>
 		</div>

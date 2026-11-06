@@ -1,4 +1,4 @@
-import { SpinnerGapIcon, TicketIcon } from "@phosphor-icons/react";
+import { TicketIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -35,15 +35,8 @@ export function ReferralSection() {
 								autoComplete="off"
 								disabled={isPending}
 							/>
-							<Button id="referral-submit-btn" type="submit" disabled={isPending || !code.trim()}>
-								{isPending ? (
-									<>
-										<SpinnerGapIcon className="mr-2 size-4 animate-spin" />
-										Mengecek...
-									</>
-								) : (
-									"Tukarkan"
-								)}
+							<Button isPending={isPending} id="referral-submit-btn" type="submit" disabled={isPending || !code.trim()}>
+								{"Tukarkan"}
 							</Button>
 						</form>
 					</div>

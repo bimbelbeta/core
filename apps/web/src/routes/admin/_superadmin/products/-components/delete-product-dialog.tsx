@@ -45,12 +45,13 @@ export function DeleteProductDialog({ productId, open, onOpenChange, onSuccess }
 						Batal
 					</Button>
 					<Button
+						isPending={deleteMutation.isPending}
 						variant="destructive"
 						onClick={() => deleteMutation.mutate({ productId })}
 						disabled={deleteMutation.isPending}
 					>
 						<TrashIcon className="size-4" />
-						{deleteMutation.isPending ? "Menghapus..." : "Delete"}
+						{"Delete"}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

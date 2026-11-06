@@ -1,7 +1,6 @@
 import { CoinsIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 
@@ -33,20 +32,17 @@ export function CreditOption({ onUseCredit, isLoading = false }: CreditOptionPro
 				</div>
 			</div>
 			<Button
+				isPending={isLoading}
 				onClick={onUseCredit}
 				disabled={isLoading || isBalanceLoading}
 				className="mt-3 w-full bg-amber-700 hover:bg-amber-800"
 			>
-				{isLoading ? (
-					<>
-						<Spinner /> Memulai...
-					</>
-				) : (
+				{
 					<>
 						<CoinsIcon size={18} weight="fill" className="mr-1" />
 						Gunakan 1 Kredit
 					</>
-				)}
+				}
 			</Button>
 		</div>
 	);
