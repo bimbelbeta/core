@@ -18,20 +18,16 @@ function CreateQuestionPage() {
 			subtestId={subtestId}
 			onSuccess={() => {
 				navigate({
-					to: "/admin/tryouts/$tryoutId/subtests/$subtestId",
-					params: {
-						tryoutId,
-						subtestId: subtestId.toString(),
-					},
+					to: "/admin/tryouts/$tryoutId",
+					params: { tryoutId },
+					search: { tab: "subtests", subtest: subtestId },
 				});
 			}}
 			onCancel={() => {
 				navigate({
-					to: "/admin/tryouts/$tryoutId/subtests/$subtestId",
-					params: {
-						tryoutId,
-						subtestId: subtestId.toString(),
-					},
+					to: "/admin/tryouts/$tryoutId",
+					params: { tryoutId },
+					search: { tab: "subtests", subtest: subtestId },
 				});
 			}}
 		/>

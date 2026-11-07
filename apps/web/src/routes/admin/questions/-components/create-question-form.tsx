@@ -19,7 +19,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TagInput } from "@/components/ui/tag-input";
 import { Typography } from "@/components/ui/typography";
-import { orpc } from "@/lib/orpc";
+import { orpc, queryClient } from "@/lib/orpc";
 import { QUESTION_TYPE_SHORT_LABELS, type QuestionType, questionTypeSchema } from "@/lib/schemas";
 import { MultipleChoiceComplexQuestionForm } from "./multiple-choice-complex-question-form";
 import { MultipleChoiceQuestionForm } from "./multiple-choice-question-form";
@@ -44,6 +44,11 @@ export function CreateQuestionForm({
 		orpc.admin.tryout.questionsBulk.addQuestionToSubtest.mutationOptions({
 			onSuccess: () => {
 				toast.success("Soal berhasil ditambahkan ke subtest");
+				if (subtestId) {
+					queryClient.invalidateQueries({
+						queryKey: orpc.admin.tryout.questionsBulk.list.queryKey({ input: { subtestId } }),
+					});
+				}
 			},
 			onError: (err) => {
 				toast.error(err.message);

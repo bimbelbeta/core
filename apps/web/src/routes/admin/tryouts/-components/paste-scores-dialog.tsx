@@ -18,39 +18,40 @@ interface PasteScoresDialogProps {
 	onPaste: (scores: string[]) => void;
 }
 
+const parseScores = (value: string) =>
+	value
+		.split(/[\s,;]+/)
+		.map((token) => token.trim())
+		.filter((token) => token !== "");
+
 export function PasteScoresDialog({ open, onOpenChange, expectedCount, onPaste }: PasteScoresDialogProps) {
 	const [text, setText] = useState("");
 	const [error, setError] = useState<string | null>(null);
 
+	const parsedScores = parseScores(text);
+
 	const handlePaste = () => {
 		setError(null);
 
-		// Split by newlines and filter empty lines
-		const lines = text
-			.split(/\r?\n/)
-			.map((line) => line.trim())
-			.filter((line) => line !== "");
-
-		if (lines.length !== expectedCount) {
-			setError(`Jumlah baris tidak sesuai. Diharapkan ${expectedCount} baris, ditemukan ${lines.length} baris.`);
+		if (parsedScores.length > expectedCount) {
+			setError(`Maksimal ${expectedCount} skor, ditemukan ${parsedScores.length}.`);
 			return;
 		}
 
-		// Validate all lines are numbers
-		const invalidLines: number[] = [];
-		for (let i = 0; i < lines.length; i++) {
-			const num = Number(lines[i]);
-			if (Number.isNaN(num) || num < 0) {
-				invalidLines.push(i + 1);
+		const invalidScores: number[] = [];
+		for (let i = 0; i < parsedScores.length; i++) {
+			const score = Number(parsedScores[i]);
+			if (Number.isNaN(score) || score < 0) {
+				invalidScores.push(i + 1);
 			}
 		}
 
-		if (invalidLines.length > 0) {
-			setError(`Baris ${invalidLines.join(", ")} bukan angka valid.`);
+		if (invalidScores.length > 0) {
+			setError(`Skor ke-${invalidScores.join(", ")} bukan angka valid.`);
 			return;
 		}
 
-		onPaste(lines);
+		onPaste(parsedScores);
 		setText("");
 	};
 
@@ -66,19 +67,22 @@ export function PasteScoresDialog({ open, onOpenChange, expectedCount, onPaste }
 		<Dialog open={open} onOpenChange={handleClose}>
 			<DialogContent className="sm:max-w-md">
 				<DialogHeader>
-					<DialogTitle>Paste Skor</DialogTitle>
+					<DialogTitle>Tempel skor</DialogTitle>
 					<DialogDescription>
-						Paste {expectedCount} skor (satu per baris), dimulai dari skor untuk 1 benar sampai {expectedCount} benar.
+						Tempel skor mulai dari 1 jawaban benar, dipisah baris, spasi, atau koma. Sisanya memakai rumus linear.
 					</DialogDescription>
 				</DialogHeader>
 				<div className="space-y-2">
 					<Textarea
 						value={text}
 						onChange={(e) => setText(e.target.value)}
-						placeholder={"120\n200\n260\n..."}
+						placeholder={"167\n333\n500\n..."}
 						rows={10}
 						className="tabular-nums"
 					/>
+					<Typography variant="caption" className="tabular-nums">
+						{parsedScores.length} / {expectedCount} skor
+					</Typography>
 					{error && (
 						<Typography variant="body" tone="destructive">
 							{error}
@@ -89,7 +93,7 @@ export function PasteScoresDialog({ open, onOpenChange, expectedCount, onPaste }
 					<Button type="button" variant="outline" onClick={() => handleClose(false)}>
 						Batal
 					</Button>
-					<Button type="button" onClick={handlePaste} disabled={text.trim() === ""}>
+					<Button type="button" onClick={handlePaste} disabled={parsedScores.length === 0}>
 						Terapkan
 					</Button>
 				</DialogFooter>

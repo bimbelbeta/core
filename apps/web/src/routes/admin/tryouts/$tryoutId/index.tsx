@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, notFound } from "@tanstack/react-router";
+import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
+import { type } from "arktype";
 import {
 	AdminPageContent,
 	AdminPageHeader,
@@ -18,14 +19,26 @@ import { TryoutSettingsTab } from "./-components/tryout-settings-tab";
 import { AccessCodeSection } from "./-components/tryout-settings-tab/access-code-section";
 import { TryoutSubtestsTab } from "./-components/tryout-subtests-tab";
 
+const TRYOUT_TABS = ["settings", "subtests", "attempts", "access"] as const;
+
+const searchSchema = type({
+	"tab?": type.enumerated(...TRYOUT_TABS),
+	"subtest?": "number",
+});
+
+const isTryoutTab = (value: string): value is (typeof TRYOUT_TABS)[number] => TRYOUT_TABS.some((tab) => tab === value);
+
 export const Route = createFileRoute("/admin/tryouts/$tryoutId/")({
 	staticData: { breadcrumb: "Detail tryout", breadcrumbParent: { label: "Tryout", to: "/admin/tryouts" } },
+	validateSearch: searchSchema,
 	component: TryoutDetailPage,
 });
 
 function TryoutDetailPage() {
 	const { tryoutId: rawTryoutId } = Route.useParams();
 	const tryoutId = parseRouteParamToNumber(rawTryoutId);
+	const { tab = "settings", subtest } = Route.useSearch();
+	const navigate = useNavigate();
 
 	const { data, isPending, refetch } = useQuery(
 		orpc.admin.tryout.find.queryOptions({
@@ -37,6 +50,15 @@ function TryoutDetailPage() {
 
 	const tryout = data?.tryout;
 	const subtests = data?.subtests ?? [];
+
+	const handleTabChange = (value: string) => {
+		if (!isTryoutTab(value)) return;
+		navigate({
+			to: "/admin/tryouts/$tryoutId",
+			params: { tryoutId: rawTryoutId },
+			search: { tab: value, subtest: value === "subtests" ? subtest : undefined },
+		});
+	};
 
 	return (
 		<AdminPageRoot>
@@ -65,7 +87,7 @@ function TryoutDetailPage() {
 						<Skeleton className="h-48 w-full" />
 					</div>
 				) : (
-					<Tabs defaultValue="settings" className="w-full gap-4">
+					<Tabs value={tab} onValueChange={handleTabChange} className="w-full gap-4">
 						<TabsList>
 							<TabsTrigger value="settings">Pengaturan</TabsTrigger>
 							<TabsTrigger value="subtests">

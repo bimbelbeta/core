@@ -1,6 +1,6 @@
 import { ClockIcon, FileTextIcon, PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { Link, useSearch } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { AdminSection } from "@/components/admin/admin-page";
@@ -30,6 +30,7 @@ import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 import { AddSubtestDialog } from "./add-subtest-dialog";
+import { SubtestDetailPanel } from "./subtest-detail-panel";
 
 interface TryoutSubtestsTabProps {
 	tryoutId: number;
@@ -47,6 +48,7 @@ interface TryoutSubtestsTabProps {
 }
 
 export function TryoutSubtestsTab({ tryoutId, subtests, onUpdate }: TryoutSubtestsTabProps) {
+	const { subtest: selectedSubtestId } = useSearch({ from: "/admin/tryouts/$tryoutId/" });
 	const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState<number | null>(null);
 
@@ -68,6 +70,13 @@ export function TryoutSubtestsTab({ tryoutId, subtests, onUpdate }: TryoutSubtes
 	};
 
 	const totalDuration = subtests.reduce((acc, s) => acc + s.duration, 0);
+	const selectedSubtest = subtests.find((subtest) => subtest.id === selectedSubtestId);
+
+	if (selectedSubtest) {
+		return (
+			<SubtestDetailPanel key={selectedSubtest.id} tryoutId={tryoutId} subtest={selectedSubtest} onUpdate={onUpdate} />
+		);
+	}
 
 	return (
 		<div className="space-y-4">
@@ -118,11 +127,9 @@ export function TryoutSubtestsTab({ tryoutId, subtests, onUpdate }: TryoutSubtes
 									<AdminTableRow key={subtest.id} className="group">
 										<AdminTableCell>
 											<Link
-												to="/admin/tryouts/$tryoutId/subtests/$subtestId"
-												params={{
-													tryoutId: tryoutId.toString(),
-													subtestId: subtest.id.toString(),
-												}}
+												to="/admin/tryouts/$tryoutId"
+												params={{ tryoutId: tryoutId.toString() }}
+												search={{ tab: "subtests", subtest: subtest.id }}
 												className="group/link block"
 											>
 												<span className="text-row-title group-hover/link:underline">{subtest.name}</span>

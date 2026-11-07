@@ -52,7 +52,6 @@ import { Route as AuthenticatedTryoutReviewAttemptIdSubtestIdRouteImport } from 
 import { Route as AdminClassesSubjectIdContentIdLatihanSoalRouteImport } from './routes/admin/classes/$subjectId/$contentId.latihan-soal'
 import { Route as AdminClassesSubjectIdContentIdNotesRouteImport } from './routes/admin/classes/$subjectId/$contentId.notes'
 import { Route as AdminClassesSubjectIdContentIdVideoRouteImport } from './routes/admin/classes/$subjectId/$contentId.video'
-import { Route as AdminTryoutsTryoutIdSubtestsSubtestIdIndexRouteImport } from './routes/admin/tryouts/$tryoutId/subtests/$subtestId.index'
 import { Route as AdminTryoutsTryoutIdSubtestsSubtestIdQuestionsNewRouteImport } from './routes/admin/tryouts/$tryoutId/subtests/$subtestId.questions.new'
 
 const IndexRoute = IndexRouteImport.update({
@@ -293,12 +292,6 @@ const AdminClassesSubjectIdContentIdVideoRoute =
     path: '/video',
     getParentRoute: () => AdminClassesSubjectIdContentIdRoute,
   } as any)
-const AdminTryoutsTryoutIdSubtestsSubtestIdIndexRoute =
-  AdminTryoutsTryoutIdSubtestsSubtestIdIndexRouteImport.update({
-    id: '/tryouts/$tryoutId/subtests/$subtestId/',
-    path: '/tryouts/$tryoutId/subtests/$subtestId/',
-    getParentRoute: () => AdminRoute,
-  } as any)
 const AdminTryoutsTryoutIdSubtestsSubtestIdQuestionsNewRoute =
   AdminTryoutsTryoutIdSubtestsSubtestIdQuestionsNewRouteImport.update({
     id: '/tryouts/$tryoutId/subtests/$subtestId/questions/new',
@@ -347,7 +340,6 @@ export interface FileRoutesByFullPath {
   '/admin/classes/$subjectId/$contentId/latihan-soal': typeof AdminClassesSubjectIdContentIdLatihanSoalRoute
   '/admin/classes/$subjectId/$contentId/notes': typeof AdminClassesSubjectIdContentIdNotesRoute
   '/admin/classes/$subjectId/$contentId/video': typeof AdminClassesSubjectIdContentIdVideoRoute
-  '/admin/tryouts/$tryoutId/subtests/$subtestId/': typeof AdminTryoutsTryoutIdSubtestsSubtestIdIndexRoute
   '/admin/tryouts/$tryoutId/subtests/$subtestId/questions/new': typeof AdminTryoutsTryoutIdSubtestsSubtestIdQuestionsNewRoute
 }
 export interface FileRoutesByTo {
@@ -390,7 +382,6 @@ export interface FileRoutesByTo {
   '/admin/classes/$subjectId/$contentId/latihan-soal': typeof AdminClassesSubjectIdContentIdLatihanSoalRoute
   '/admin/classes/$subjectId/$contentId/notes': typeof AdminClassesSubjectIdContentIdNotesRoute
   '/admin/classes/$subjectId/$contentId/video': typeof AdminClassesSubjectIdContentIdVideoRoute
-  '/admin/tryouts/$tryoutId/subtests/$subtestId': typeof AdminTryoutsTryoutIdSubtestsSubtestIdIndexRoute
   '/admin/tryouts/$tryoutId/subtests/$subtestId/questions/new': typeof AdminTryoutsTryoutIdSubtestsSubtestIdQuestionsNewRoute
 }
 export interface FileRoutesById {
@@ -438,7 +429,6 @@ export interface FileRoutesById {
   '/admin/classes/$subjectId/$contentId/latihan-soal': typeof AdminClassesSubjectIdContentIdLatihanSoalRoute
   '/admin/classes/$subjectId/$contentId/notes': typeof AdminClassesSubjectIdContentIdNotesRoute
   '/admin/classes/$subjectId/$contentId/video': typeof AdminClassesSubjectIdContentIdVideoRoute
-  '/admin/tryouts/$tryoutId/subtests/$subtestId/': typeof AdminTryoutsTryoutIdSubtestsSubtestIdIndexRoute
   '/admin/tryouts/$tryoutId/subtests/$subtestId/questions/new': typeof AdminTryoutsTryoutIdSubtestsSubtestIdQuestionsNewRoute
 }
 export interface FileRouteTypes {
@@ -484,7 +474,6 @@ export interface FileRouteTypes {
     | '/admin/classes/$subjectId/$contentId/latihan-soal'
     | '/admin/classes/$subjectId/$contentId/notes'
     | '/admin/classes/$subjectId/$contentId/video'
-    | '/admin/tryouts/$tryoutId/subtests/$subtestId/'
     | '/admin/tryouts/$tryoutId/subtests/$subtestId/questions/new'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -527,7 +516,6 @@ export interface FileRouteTypes {
     | '/admin/classes/$subjectId/$contentId/latihan-soal'
     | '/admin/classes/$subjectId/$contentId/notes'
     | '/admin/classes/$subjectId/$contentId/video'
-    | '/admin/tryouts/$tryoutId/subtests/$subtestId'
     | '/admin/tryouts/$tryoutId/subtests/$subtestId/questions/new'
   id:
     | '__root__'
@@ -574,7 +562,6 @@ export interface FileRouteTypes {
     | '/admin/classes/$subjectId/$contentId/latihan-soal'
     | '/admin/classes/$subjectId/$contentId/notes'
     | '/admin/classes/$subjectId/$contentId/video'
-    | '/admin/tryouts/$tryoutId/subtests/$subtestId/'
     | '/admin/tryouts/$tryoutId/subtests/$subtestId/questions/new'
   fileRoutesById: FileRoutesById
 }
@@ -888,13 +875,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminClassesSubjectIdContentIdVideoRouteImport
       parentRoute: typeof AdminClassesSubjectIdContentIdRoute
     }
-    '/admin/tryouts/$tryoutId/subtests/$subtestId/': {
-      id: '/admin/tryouts/$tryoutId/subtests/$subtestId/'
-      path: '/tryouts/$tryoutId/subtests/$subtestId'
-      fullPath: '/admin/tryouts/$tryoutId/subtests/$subtestId/'
-      preLoaderRoute: typeof AdminTryoutsTryoutIdSubtestsSubtestIdIndexRouteImport
-      parentRoute: typeof AdminRoute
-    }
     '/admin/tryouts/$tryoutId/subtests/$subtestId/questions/new': {
       id: '/admin/tryouts/$tryoutId/subtests/$subtestId/questions/new'
       path: '/tryouts/$tryoutId/subtests/$subtestId/questions/new'
@@ -1033,7 +1013,6 @@ interface AdminRouteChildren {
   AdminClassesSubjectIdContentIdRoute: typeof AdminClassesSubjectIdContentIdRouteWithChildren
   AdminClassesSubjectIdIndexRoute: typeof AdminClassesSubjectIdIndexRoute
   AdminTryoutsTryoutIdIndexRoute: typeof AdminTryoutsTryoutIdIndexRoute
-  AdminTryoutsTryoutIdSubtestsSubtestIdIndexRoute: typeof AdminTryoutsTryoutIdSubtestsSubtestIdIndexRoute
   AdminTryoutsTryoutIdSubtestsSubtestIdQuestionsNewRoute: typeof AdminTryoutsTryoutIdSubtestsSubtestIdQuestionsNewRoute
 }
 
@@ -1052,8 +1031,6 @@ const AdminRouteChildren: AdminRouteChildren = {
     AdminClassesSubjectIdContentIdRouteWithChildren,
   AdminClassesSubjectIdIndexRoute: AdminClassesSubjectIdIndexRoute,
   AdminTryoutsTryoutIdIndexRoute: AdminTryoutsTryoutIdIndexRoute,
-  AdminTryoutsTryoutIdSubtestsSubtestIdIndexRoute:
-    AdminTryoutsTryoutIdSubtestsSubtestIdIndexRoute,
   AdminTryoutsTryoutIdSubtestsSubtestIdQuestionsNewRoute:
     AdminTryoutsTryoutIdSubtestsSubtestIdQuestionsNewRoute,
 }
