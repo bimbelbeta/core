@@ -33,7 +33,7 @@ export function SearchProgramTab({ onProgramSelect }: SearchProgramTabProps) {
 				className="shrink-0"
 				autoFocus
 			/>
-			<div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">
+			<div className="-m-1 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto p-1">
 				{isSearchLoading ? (
 					Array.from({ length: 8 }).map((_, i) => (
 						// biome-ignore lint/suspicious/noArrayIndexKey: skeleton items

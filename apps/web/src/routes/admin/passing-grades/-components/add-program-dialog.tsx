@@ -63,7 +63,7 @@ export function AddProgramDialog({ universityId, onSuccess, open, onOpenChange }
 				<Button size="xs">Tambah prodi</Button>
 			</DialogTrigger>
 			<DialogContent size="lg" className="flex max-h-[85vh] flex-col">
-				<DialogHeader>
+				<DialogHeader className="shrink-0">
 					<DialogTitle className="text-base">Tambah Program Studi</DialogTitle>
 					<DialogDescription className="sr-only">Tambah program studi ke universitas ini.</DialogDescription>
 
@@ -100,13 +100,13 @@ export function AddProgramDialog({ universityId, onSuccess, open, onOpenChange }
 						<TabsContent value="search" className="flex min-h-0 flex-1 flex-col">
 							<SearchProgramTab onProgramSelect={handleProgramSelect} />
 						</TabsContent>
-						<TabsContent value="create" className="min-h-0 flex-1 overflow-y-auto">
+						<TabsContent value="create" className="-m-1 min-h-0 flex-1 overflow-y-auto p-1">
 							<CreateProgramTab onProgramCreate={handleProgramSelect} />
 						</TabsContent>
 					</Tabs>
 				) : (
 					selectedProgram && (
-						<div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
+						<div className="-m-1 flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-1">
 							<div className="bg-muted/50 flex items-center gap-2.5 rounded-lg border px-3 py-2">
 								<div className="bg-primary/10 text-primary flex size-7 shrink-0 items-center justify-center rounded-md">
 									<MagnifyingGlassIcon className="size-3.5" />
