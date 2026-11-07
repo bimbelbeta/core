@@ -1,7 +1,7 @@
 import { defineConfig } from "tsdown";
 
 export default defineConfig({
-	entry: ["src/**/*.ts", "!src/**/*.test.ts", "!src/**/*.spec.ts", "!src/**/__tests__/**", "!src/**/__mocks__/**"],
+	entry: ["src/context.ts", "src/routers/index.ts"],
 	format: ["esm"],
 	sourcemap: true,
 	dts: true,
