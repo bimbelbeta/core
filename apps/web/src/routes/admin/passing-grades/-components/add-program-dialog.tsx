@@ -1,4 +1,4 @@
-import { MagnifyingGlassIcon, PlusIcon } from "@phosphor-icons/react";
+import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Typography } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
 import { CreateProgramTab } from "./create-program-tab";
@@ -23,10 +24,7 @@ interface AddProgramDialogProps {
 	onOpenChange: (open: boolean) => void;
 }
 
-const STEPS = [
-	{ label: "Pilih Program", description: "Cari atau buat program studi baru" },
-	{ label: "Detail", description: "Lengkapi data universitas untuk program ini" },
-] as const;
+const STEPS = ["Pilih Program", "Detail"] as const;
 
 export function AddProgramDialog({ universityId, onSuccess, open, onOpenChange }: AddProgramDialogProps) {
 	const [step, setStep] = useState<1 | 2>(1);
@@ -43,11 +41,6 @@ export function AddProgramDialog({ universityId, onSuccess, open, onOpenChange }
 	};
 
 	const handleProgramSelect = (program: { id: number; name: string }) => {
-		setSelectedProgram(program);
-		setStep(2);
-	};
-
-	const handleProgramCreate = (program: { id: number; name: string }) => {
 		setSelectedProgram(program);
 		setStep(2);
 	};
@@ -69,81 +62,52 @@ export function AddProgramDialog({ universityId, onSuccess, open, onOpenChange }
 			<DialogTrigger asChild>
 				<Button size="xs">Tambah prodi</Button>
 			</DialogTrigger>
-			<DialogContent className="sm:max-w-2xl">
+			<DialogContent size="lg" className="flex max-h-[85vh] flex-col">
 				<DialogHeader>
 					<DialogTitle className="text-base">Tambah Program Studi</DialogTitle>
 					<DialogDescription className="sr-only">Tambah program studi ke universitas ini.</DialogDescription>
 
-					{/* Step indicator */}
-					<div className="flex items-center gap-2 pt-1">
-						{STEPS.map((s, i) => {
-							const stepNum = i + 1;
-							const isActive = step === stepNum;
-							const isComplete = step > stepNum;
-							return (
-								<div key={s.label} className="flex items-center gap-2">
-									{i > 0 && <div className={cn("h-px w-4", isComplete ? "bg-primary" : "bg-border")} />}
-									<div className="flex items-center gap-1.5">
-										<div
-											className={cn(
-												"flex size-5 shrink-0 items-center justify-center rounded-full text-[11px] font-medium transition-all",
-												isActive && "bg-primary text-primary-foreground ring-primary/20 ring-2",
-												isComplete && "bg-primary text-primary-foreground",
-												!isActive && !isComplete && "bg-muted text-muted-foreground",
-											)}
-										>
-											{isComplete ? "✓" : stepNum}
-										</div>
-										<span
-											className={cn(
-												"text-meta leading-tight",
-												isActive ? "text-foreground font-medium" : "text-muted-foreground",
-											)}
-										>
-											{s.label}
-										</span>
-									</div>
-								</div>
-							);
-						})}
+					<div className="flex flex-col gap-1 pt-1 pb-1">
+						<div className="flex items-baseline justify-between gap-2">
+							<Typography variant="caption">
+								Langkah {step} dari {STEPS.length}
+							</Typography>
+							<Typography variant="caption" className="text-foreground font-medium">
+								{STEPS[step - 1]}
+							</Typography>
+						</div>
+						<div className="flex gap-1">
+							{STEPS.map((label, i) => (
+								<div
+									key={label}
+									className={cn("h-1 flex-1 rounded-full transition-colors", i < step ? "bg-primary" : "bg-muted")}
+								/>
+							))}
+						</div>
 					</div>
 				</DialogHeader>
 
 				{step === 1 ? (
-					<div>
-						{/* Tab switcher */}
-						<div className="mb-3 flex gap-2">
-							<Button
-								variant={activeTab === "search" ? "default" : "outline"}
-								size="xs"
-								onClick={() => setActiveTab("search")}
-								className="gap-1.5"
-							>
-								<MagnifyingGlassIcon className="size-3.5" />
-								Cari Program
-							</Button>
-							<Button
-								variant={activeTab === "create" ? "default" : "outline"}
-								size="xs"
-								onClick={() => setActiveTab("create")}
-								className="gap-1.5"
-							>
-								<PlusIcon className="size-3.5" />
-								Buat Baru
-							</Button>
-						</div>
-
-						{activeTab === "search" ? (
+					<Tabs
+						value={activeTab}
+						onValueChange={(value) => setActiveTab(value === "create" ? "create" : "search")}
+						className="flex min-h-0 flex-1 flex-col gap-4"
+					>
+						<TabsList className="shrink-0">
+							<TabsTrigger value="search">Cari Program</TabsTrigger>
+							<TabsTrigger value="create">Buat Baru</TabsTrigger>
+						</TabsList>
+						<TabsContent value="search" className="flex min-h-0 flex-1 flex-col">
 							<SearchProgramTab onProgramSelect={handleProgramSelect} />
-						) : (
-							<CreateProgramTab onProgramCreate={handleProgramCreate} />
-						)}
-					</div>
+						</TabsContent>
+						<TabsContent value="create" className="min-h-0 flex-1 overflow-y-auto">
+							<CreateProgramTab onProgramCreate={handleProgramSelect} />
+						</TabsContent>
+					</Tabs>
 				) : (
 					selectedProgram && (
-						<div>
-							{/* Selected program indicator */}
-							<div className="bg-muted/50 mb-3 flex items-center gap-2.5 rounded-lg border px-3 py-2">
+						<div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
+							<div className="bg-muted/50 flex items-center gap-2.5 rounded-lg border px-3 py-2">
 								<div className="bg-primary/10 text-primary flex size-7 shrink-0 items-center justify-center rounded-md">
 									<MagnifyingGlassIcon className="size-3.5" />
 								</div>
