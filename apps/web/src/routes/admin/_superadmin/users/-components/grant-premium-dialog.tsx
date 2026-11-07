@@ -62,10 +62,10 @@ export function GrantPremiumDialog({
 		>
 			<DialogContent className="sm:max-w-sm">
 				<DialogHeader>
-					<DialogTitle>Grant Premium</DialogTitle>
+					<DialogTitle className="text-base">Grant Premium</DialogTitle>
 					<DialogDescription>Berikan status premium untuk user "{userName}"</DialogDescription>
 				</DialogHeader>
-				<div className="flex flex-col gap-4 py-2">
+				<div className="flex flex-col gap-3">
 					{currentPremiumExpiry && (
 						<div className="bg-muted/50 flex items-center justify-between rounded-md border px-4 py-2.5">
 							<span className="text-muted-foreground text-sm">Premium expires</span>
@@ -77,6 +77,7 @@ export function GrantPremiumDialog({
 						<Popover>
 							<PopoverTrigger asChild>
 								<Button
+									size="xs"
 									variant="secondary"
 									className={cn("w-full justify-start text-left font-normal", !date && "text-muted-foreground")}
 								>
@@ -98,6 +99,7 @@ export function GrantPremiumDialog({
 				</div>
 				<DialogFooter>
 					<Button
+						size="xs"
 						isPending={updateMutation.isPending}
 						onClick={() =>
 							updateMutation.mutate({

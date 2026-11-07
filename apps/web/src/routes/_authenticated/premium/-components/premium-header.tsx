@@ -12,7 +12,7 @@ export function PremiumHeader() {
 		<div className="rounded-default bg-primary-800 relative overflow-hidden text-white">
 			<div className="grid grid-cols-1 gap-6 px-6 pt-8 pb-0 sm:grid-cols-2 sm:items-center sm:px-10 sm:py-10">
 				<div className="relative z-10 max-w-xl">
-					<Typography variant="title" className="text-white">
+					<Typography variant="subtitle1" className="text-white">
 						Premium & Paket Tryout
 					</Typography>
 					<Typography className="mt-2 text-white/90">

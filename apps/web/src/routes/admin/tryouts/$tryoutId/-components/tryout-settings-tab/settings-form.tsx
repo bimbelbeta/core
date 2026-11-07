@@ -125,7 +125,7 @@ export function TryoutSettingsTab({ tryout, onUpdate, onFormStateChange }: Tryou
 			</form.Subscribe>
 			<AdminSection title="Pengaturan tryout" description="Kelola informasi dasar, klasifikasi, dan jadwal tryout">
 				<AdminFormShell>
-					<div className="flex flex-col gap-5">
+					<div className="flex flex-col gap-4">
 						<form.Field name="title">
 							{(field) => (
 								<AdminFieldRow label="Judul" htmlFor={field.name}>

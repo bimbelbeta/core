@@ -21,7 +21,7 @@ export const Route = createFileRoute("/admin/dashboard/")({
 					</AdminPageHeaderContent>
 				</AdminPageHeader>
 
-				<AdminPageContent className="gap-5">
+				<AdminPageContent>
 					<SectionCards />
 					<RecentTryouts />
 					<RecentQuestions />

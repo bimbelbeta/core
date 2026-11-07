@@ -105,7 +105,7 @@ function LinkedQuestionItem({
 					<Button
 						isPending={removeMutation.isPending}
 						variant="ghost"
-						size="icon"
+						size="icon-xs"
 						aria-label={`Hapus soal ${question.questionId} dari paket`}
 						className="text-muted-foreground hover:text-destructive shrink-0"
 						disabled={removeMutation.isPending}
@@ -115,14 +115,15 @@ function LinkedQuestionItem({
 				</AlertDialogTrigger>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>Hapus Soal?</AlertDialogTitle>
+						<AlertDialogTitle className="text-base">Hapus Soal?</AlertDialogTitle>
 						<AlertDialogDescription>
 							Apakah Anda yakin ingin menghapus soal ini dari konten? Soal tidak akan dihapus dari bank soal.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel>Batal</AlertDialogCancel>
+						<AlertDialogCancel size="xs">Batal</AlertDialogCancel>
 						<AlertDialogAction
+							size="xs"
 							onClick={() => {
 								removeMutation.mutate({
 									id: contentId,

@@ -6,7 +6,6 @@ import { MotionFloat } from "@/components/motion/motion-components";
 import { Button } from "@/components/ui/button";
 import { Highlight } from "@/components/ui/highlight";
 import { Typography } from "@/components/ui/typography";
-import { bounce } from "@/lib/animation-variants";
 
 /*
   [clip-path:polygon(0_0,100%_0,100%_70%,50%_85%,0%_70%)]
@@ -60,18 +59,18 @@ export function Hero() {
 						transition={{ duration: 0.3, delay: 0.2 }}
 						className="flex w-full flex-wrap items-center justify-center gap-2 *:max-sm:text-xs"
 					>
-						<m.div variants={bounce} whileHover="whileHover">
+						<div>
 							<Button asChild size="lg" className="flex-1 px-3 sm:w-auto sm:flex-initial">
 								<Link to="/login">
 									Mulai Perjalananmu <ArrowRightIcon size={20} weight="bold" />
 								</Link>
 							</Button>
-						</m.div>
-						<m.div variants={bounce} whileHover="whileHover">
+						</div>
+						<div>
 							<Button variant="white" size="lg" className="flex-1 px-3 sm:w-auto sm:flex-initial">
 								<Link to="/dashboard">Pelajari Tentang Bimbel Beta</Link>
 							</Button>
-						</m.div>
+						</div>
 					</m.div>
 				</div>
 			</div>

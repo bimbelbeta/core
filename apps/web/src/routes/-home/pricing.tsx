@@ -13,7 +13,7 @@ export function Pricing() {
 	return (
 		<Container className="max-w-7xl items-center gap-8 py-30">
 			<div className="text-center *:text-pretty">
-				<Typography variant="subtitle1" as="p">
+				<Typography variant="subtitle2" as="p">
 					Jangan sampai menyesal pas UTBK.
 				</Typography>
 				<Typography variant="display" as="h2">
@@ -58,7 +58,7 @@ function ProgramPricingCard({
 	return (
 		<Card variant="flush" className="rounded-default h-full border-neutral-200 bg-neutral-100 p-6 shadow-none">
 			<div className="mb-6">
-				<Typography variant="subtitle2">{title}</Typography>
+				<Typography variant="subtitle4">{title}</Typography>
 
 				<div className="flex flex-wrap items-center gap-x-3">
 					{originalPrice && (

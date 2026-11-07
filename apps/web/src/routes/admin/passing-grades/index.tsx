@@ -129,8 +129,12 @@ function RouteComponent() {
 						</SelectTrigger>
 						<SelectContent>
 							<SelectItem value="all">Semua status</SelectItem>
-							<SelectItem value="true">Aktif</SelectItem>
-							<SelectItem value="false">Nonaktif</SelectItem>
+							<SelectItem value="true">
+								<AdminStatus tone="positive">Aktif</AdminStatus>
+							</SelectItem>
+							<SelectItem value="false">
+								<AdminStatus tone="neutral">Nonaktif</AdminStatus>
+							</SelectItem>
 						</SelectContent>
 					</Select>
 				</AdminTableToolbar>
@@ -156,7 +160,7 @@ function RouteComponent() {
 							}
 							emptyAction={
 								search ? (
-									<Button variant="outline" size="sm" onClick={handleReset}>
+									<Button variant="outline" size="xs" onClick={handleReset}>
 										Hapus filter
 									</Button>
 								) : undefined
@@ -177,10 +181,10 @@ function RouteComponent() {
 										</div>
 									</AdminTableCell>
 									<AdminTableCell className="text-right">
-										<span className="text-sm tabular-nums">{uni.programCount}</span>
+										<span className="tabular-nums">{uni.programCount}</span>
 									</AdminTableCell>
 									<AdminTableCell className="hidden text-right sm:table-cell">
-										<span className="text-sm tabular-nums">
+										<span className="tabular-nums">
 											{uni.scoreMin !== null && uni.scoreMax !== null
 												? uni.scoreMin === uni.scoreMax
 													? `${uni.scoreMin}`
@@ -199,8 +203,8 @@ function RouteComponent() {
 									<AdminTableCell className="relative z-10 pr-3 text-right">
 										<DropdownMenu>
 											<DropdownMenuTrigger asChild>
-												<Button variant="ghost" size="icon" className="size-9" aria-label={`Aksi untuk ${uni.name}`}>
-													<DotsThreeIcon className="size-5" weight="bold" />
+												<Button variant="ghost" size="icon-xs" aria-label={`Aksi untuk ${uni.name}`}>
+													<DotsThreeIcon className="size-4" weight="bold" />
 												</Button>
 											</DropdownMenuTrigger>
 											<DropdownMenuContent align="end">

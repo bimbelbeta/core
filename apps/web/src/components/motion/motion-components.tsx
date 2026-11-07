@@ -2,16 +2,13 @@ import type { HTMLMotionProps } from "motion/react";
 import * as m from "motion/react-m";
 import { useInView } from "@/hooks/use-animations";
 import {
-	bounce,
 	fadeInDown,
 	fadeInLeft,
 	fadeInRight,
 	fadeInUp,
-	pulse,
 	scaleIn,
 	staggerChild,
 	staggerContainer,
-	wiggle,
 } from "@/lib/animation-variants";
 
 export function MotionFadeUp({ children, className = "", ...props }: HTMLMotionProps<"div">) {
@@ -120,30 +117,6 @@ export function MotionFloat({
 	);
 }
 
-export function MotionBounce({ children, className = "", ...props }: HTMLMotionProps<"button">) {
-	return (
-		<m.button variants={bounce} className={className} {...props}>
-			{children}
-		</m.button>
-	);
-}
-
-export function MotionPulse({ children, className = "", ...props }: HTMLMotionProps<"div">) {
-	return (
-		<m.div variants={pulse} animate="animate" className={className} {...props}>
-			{children}
-		</m.div>
-	);
-}
-
-export function MotionWiggle({ children, className = "", ...props }: HTMLMotionProps<"div">) {
-	return (
-		<m.div variants={wiggle} className={className} {...props}>
-			{children}
-		</m.div>
-	);
-}
-
 export function MotionStagger({ children, className = "" }: { children: React.ReactNode; className?: string }) {
 	const [ref, isInView] = useInView();
 
@@ -177,18 +150,5 @@ export function MotionCard({ children, className = "", ...props }: HTMLMotionPro
 		>
 			{children}
 		</m.div>
-	);
-}
-
-export function MotionButton({ children, className = "", ...props }: HTMLMotionProps<"button">) {
-	return (
-		<m.button
-			whileHover={{ scale: 1.05, transition: { duration: 0.4, ease: [0.34, 1.3, 0.64, 1] } }}
-			whileTap={{ scale: 0.98 }}
-			className={className}
-			{...props}
-		>
-			{children}
-		</m.button>
 	);
 }

@@ -81,7 +81,7 @@ export function AttachQuestionsDialog({
 		<Dialog open={open} onOpenChange={handleOpenChange}>
 			<DialogContent className="flex max-h-[85vh] flex-col sm:max-w-2xl">
 				<DialogHeader className="shrink-0">
-					<DialogTitle>Tambah soal</DialogTitle>
+					<DialogTitle className="text-base">Tambah soal</DialogTitle>
 					<DialogDescription>
 						Klik soal untuk langsung menambahkannya ke subtest. Dialog tetap terbuka agar soal berikutnya bisa
 						ditambahkan.
@@ -118,7 +118,7 @@ export function AttachQuestionsDialog({
 											variant="outline"
 											selected={isAttached}
 											className={cn(
-												"flex-col items-stretch gap-3 p-3 text-left text-base",
+												"flex-col items-stretch gap-3 p-3 text-left",
 												isAttached ? "opacity-60" : "hover:bg-muted/50 hover:border-primary/40 cursor-pointer",
 											)}
 										>

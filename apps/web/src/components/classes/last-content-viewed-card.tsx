@@ -71,7 +71,7 @@ export function LastContentViewedCard({
 					</div>
 
 					<div className="flex h-full items-center pt-0.5">
-						<Typography variant="subtitle2" as="p" className="text-neutral-1000 mr-7">
+						<Typography variant="subtitle4" as="p" className="text-neutral-1000 mr-7">
 							{item.title}
 						</Typography>
 					</div>

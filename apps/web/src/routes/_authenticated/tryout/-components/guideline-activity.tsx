@@ -47,7 +47,7 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 
 			<section className="space-y-4">
 				<div className="space-y-1">
-					<Typography variant="subtitle1">Tryout yang tersedia</Typography>
+					<Typography variant="subtitle2">Tryout yang tersedia</Typography>
 					<Typography tone="muted">Pilih TO publik lalu masukkan kode akses seperti biasa.</Typography>
 				</div>
 				{(() => {
@@ -92,7 +92,7 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 										<div className="space-y-2">
 											<div className="flex items-start justify-between gap-3">
 												<div className="space-y-1">
-													<Typography variant="subtitle2" className="leading-tight">
+													<Typography variant="subtitle4" className="leading-tight">
 														{tryout.title}
 													</Typography>
 													<Typography tone="muted">{SUBJECT_CATEGORY_LABELS[category]}</Typography>
@@ -123,12 +123,12 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 
 			<Card>
 				<CardContent className="space-y-4 text-sm">
-					<Typography variant="subtitle1" className="mb-4">
+					<Typography variant="subtitle2" className="mb-4">
 						Petunjuk Pengerjaan Try Out
 					</Typography>
 
 					<div className="space-y-2">
-						<Typography variant="subtitle2" className="flex items-center gap-2">
+						<Typography variant="subtitle4" className="flex items-center gap-2">
 							<span>🔒</span> Aturan Pengerjaan
 						</Typography>
 						<ul className="list-disc space-y-1 pl-5">
@@ -143,7 +143,7 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 					</div>
 
 					<div className="space-y-2">
-						<Typography variant="subtitle2" className="flex items-center gap-2">
+						<Typography variant="subtitle4" className="flex items-center gap-2">
 							<span>💡</span> Tips
 						</Typography>
 						<ul className="list-disc space-y-1 pl-5">

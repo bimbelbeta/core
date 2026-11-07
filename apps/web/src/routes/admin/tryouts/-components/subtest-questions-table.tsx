@@ -88,8 +88,7 @@ export function SubtestQuestionsTable({
 									>
 										<Button
 											variant="ghost"
-											size="icon"
-											className="size-9"
+											size="icon-xs"
 											disabled={isRemoving}
 											aria-label={`Hapus soal nomor ${index + 1} dari subtest`}
 											onClick={() => setRemoveQuestionId(item.question.id)}
@@ -98,14 +97,15 @@ export function SubtestQuestionsTable({
 										</Button>
 										<AlertDialogContent onClick={(e) => e.stopPropagation()}>
 											<AlertDialogHeader>
-												<AlertDialogTitle>Hapus soal dari subtest</AlertDialogTitle>
+												<AlertDialogTitle className="text-base">Hapus soal dari subtest</AlertDialogTitle>
 												<AlertDialogDescription>
 													Soal nomor {index + 1} akan dilepas dari subtest ini. Soal tetap tersimpan di bank soal.
 												</AlertDialogDescription>
 											</AlertDialogHeader>
 											<AlertDialogFooter>
-												<AlertDialogCancel>Batal</AlertDialogCancel>
+												<AlertDialogCancel size="xs">Batal</AlertDialogCancel>
 												<AlertDialogAction
+													size="xs"
 													variant="destructive"
 													onClick={() => {
 														onRemove(item.question.id);

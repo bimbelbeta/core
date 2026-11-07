@@ -12,6 +12,8 @@ describe("typographyVariants", () => {
 			"overline",
 			"subtitle1",
 			"subtitle2",
+			"subtitle3",
+			"subtitle4",
 			"title",
 		]);
 	});
@@ -22,6 +24,8 @@ describe("typographyVariants", () => {
 		expect(typographyVariants.title.element).toBe("h1");
 		expect(typographyVariants.subtitle1.element).toBe("h2");
 		expect(typographyVariants.subtitle2.element).toBe("h3");
+		expect(typographyVariants.subtitle3.element).toBe("h4");
+		expect(typographyVariants.subtitle4.element).toBe("h5");
 		expect(typographyVariants.body.element).toBe("p");
 		expect(typographyVariants.caption.element).toBe("p");
 		expect(typographyVariants.overline.element).toBe("p");
@@ -49,6 +53,8 @@ describe("variant default tones", () => {
 				title: "default",
 				subtitle1: "default",
 				subtitle2: "default",
+				subtitle3: "default",
+				subtitle4: "default",
 				body: "default",
 				caption: "muted",
 				overline: "default",

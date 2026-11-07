@@ -44,7 +44,8 @@ export function NavFooter() {
 				<DropdownMenuTrigger asChild>
 					<Button
 						variant="ghost"
-						className="w-full gap-2.5 px-3.5 py-2 text-left group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
+						size="none"
+						className="h-auto w-full gap-2.5 px-2.5 py-2 text-left group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
 					>
 						<Avatar className="size-7 shrink-0">
 							{session?.user?.image && <AvatarImage src={session.user.image} alt={session.user.name || "Admin"} />}
@@ -61,8 +62,8 @@ export function NavFooter() {
 				</DropdownMenuTrigger>
 				<DropdownMenuContent side="top" align="start" className="w-64">
 					<DropdownMenuLabel className="font-normal">
-						<p className="text-sm font-medium">{session?.user?.name || "Admin User"}</p>
-						<p className="text-muted-foreground mt-0.5 text-xs break-all">{session?.user?.email || ""}</p>
+						<p className="text-meta font-medium">{session?.user?.name || "Admin User"}</p>
+						<p className="text-muted-foreground text-meta mt-0.5 break-all">{session?.user?.email || ""}</p>
 						<p className="text-muted-foreground text-meta mt-1">{roleLabel}</p>
 					</DropdownMenuLabel>
 					<DropdownMenuSeparator />

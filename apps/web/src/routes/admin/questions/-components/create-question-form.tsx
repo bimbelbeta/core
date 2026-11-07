@@ -1,12 +1,14 @@
-import { ArrowLeftIcon, FloppyDiskIcon } from "@phosphor-icons/react";
+import { FloppyDiskIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { type } from "arktype";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
+	AdminBackButton,
 	AdminPageContent,
 	AdminPageHeader,
+	AdminPageHeaderActions,
 	AdminPageHeaderContent,
 	AdminPageRoot,
 	AdminSection,
@@ -109,31 +111,44 @@ export function CreateQuestionForm({
 		<AdminPageRoot>
 			<AdminPageHeader>
 				<AdminPageHeaderContent>
-					<button
-						type="button"
-						onClick={onCancel}
-						className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 text-meta mb-0.5 inline-flex items-center gap-1 self-start rounded-sm outline-none focus-visible:ring-2"
-					>
-						<ArrowLeftIcon className="size-3" />
-						Kembali
-					</button>
+					<AdminBackButton onClick={onCancel}>Kembali</AdminBackButton>
 					<Typography variant="title">Buat soal</Typography>
 					<Typography variant="body" tone="muted">
 						{subtestId ? "Soal baru masuk ke bank soal dan subtest ini." : "Soal baru masuk ke bank soal."}
 					</Typography>
 				</AdminPageHeaderContent>
+				<AdminPageHeaderActions>
+					<Button type="button" variant="destructive" size="xs" onClick={onCancel}>
+						Batal
+					</Button>
+					<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+						{([canSubmit, isSubmitting]) => (
+							<Button
+								type="submit"
+								form="create-question-form"
+								size="xs"
+								isPending={isSubmitting}
+								disabled={!canSubmit || isSubmitting}
+							>
+								<FloppyDiskIcon className="size-3.5" />
+								Simpan soal
+							</Button>
+						)}
+					</form.Subscribe>
+				</AdminPageHeaderActions>
 			</AdminPageHeader>
 
 			<AdminPageContent>
 				<form
+					id="create-question-form"
 					onSubmit={(e) => {
 						e.preventDefault();
 						form.handleSubmit();
 					}}
-					className="flex flex-col gap-5"
+					className="flex flex-col gap-4"
 				>
-					<div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_14rem]">
-						<div className="flex min-w-0 flex-col gap-5">
+					<div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_14rem]">
+						<div className="flex min-w-0 flex-col gap-4">
 							<AdminSection title="Konten soal" description="Pertanyaan yang dibaca peserta.">
 								<form.Field name="content">
 									{(field) => (
@@ -234,7 +249,7 @@ export function CreateQuestionForm({
 							</AdminSection>
 						</div>
 
-						<aside className="flex min-w-0 flex-col gap-5">
+						<aside className="flex min-w-0 flex-col gap-4">
 							<AdminSection title="Tags" description="Memudahkan penyaringan di bank soal.">
 								<form.Field name="tags">
 									{(field) => (
@@ -248,17 +263,6 @@ export function CreateQuestionForm({
 								</form.Field>
 							</AdminSection>
 						</aside>
-					</div>
-
-					<div className="flex items-center justify-end gap-1">
-						<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
-							{([canSubmit, isSubmitting]) => (
-								<Button isPending={isSubmitting} size="xs" type="submit" disabled={!canSubmit || isSubmitting}>
-									<FloppyDiskIcon className="size-3.5" />
-									Simpan soal
-								</Button>
-							)}
-						</form.Subscribe>
 					</div>
 				</form>
 			</AdminPageContent>

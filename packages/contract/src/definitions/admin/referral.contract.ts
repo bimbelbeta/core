@@ -9,10 +9,12 @@ const ReferralCodeSchema = createSelectSchema(referralCode);
 
 const AlphanumericCodeSchema = type(/^[A-Z0-9]+$/).pipe((s) => s.toUpperCase());
 
+const ReferralListStateSchema = type("'aktif' | 'nonaktif' | 'kedaluwarsa' | 'kuota_habis'");
+
 const ReferralListInputSchema = type({
 	"...": PaginationInputSchema,
 	"search?": "string",
-	"status?": "boolean",
+	"status?": ReferralListStateSchema,
 });
 
 const ReferralListOutputSchema = type({

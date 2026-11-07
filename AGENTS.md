@@ -71,6 +71,9 @@ apps/web/src/routes/
 
 ## Lessons
 
+- When writing form labels, keep the bold text to the field name; optional markers, defaults, and explanations go in muted hints, never inside the label text.
+- When building admin dialogs, follow the form-dialog standard: no Batal (X/overlay closes), two-column label-left rows via AdminFieldRow, xs buttons, text-base title, and capped width (sizes carry sm:max-w defaults).
+- When moving form actions into the page header, only do it where an Edit toggle exists (save replaces Edit in place); forms without one (create pages, inline settings) keep their actions at the bottom.
 - When identifying a reference screenshot, read the selected tab and page content before correcting the user.
 
 ### Design constraints (do not violate)

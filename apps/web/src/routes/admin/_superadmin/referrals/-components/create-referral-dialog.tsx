@@ -1,18 +1,10 @@
-import { PlusIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
+import { AdminFieldRow } from "@/components/admin/admin-page";
 import { Button } from "@/components/ui/button";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { orpc } from "@/lib/orpc";
 
 export function CreateReferralDialog({ onSuccess }: { onSuccess: () => void }) {
@@ -58,30 +50,29 @@ export function CreateReferralDialog({ onSuccess }: { onSuccess: () => void }) {
 
 	return (
 		<>
-			<Button onClick={() => setOpen(true)} size="sm" id="create-referral-btn">
-				<PlusIcon className="mr-1 size-4" />
+			<Button size="xs" onClick={() => setOpen(true)} id="create-referral-btn">
 				Buat kode referal
 			</Button>
 			<Dialog open={open} onOpenChange={setOpen}>
-				<DialogContent className="max-w-md">
+				<DialogContent className="sm:max-w-2xl" aria-describedby={undefined}>
 					<DialogHeader>
-						<DialogTitle>Buat kode referal</DialogTitle>
-						<DialogDescription>
-							Kosongkan kolom "Kode" untuk auto-generate. Hanya huruf dan angka (A-Z, 0-9).
-						</DialogDescription>
+						<DialogTitle className="text-base">Buat kode referal</DialogTitle>
 					</DialogHeader>
-					<form onSubmit={handleSubmit} className="space-y-4">
-						<div className="space-y-1.5">
-							<Label htmlFor="ref-code">Kode (opsional — auto-generate jika kosong)</Label>
+					<form onSubmit={handleSubmit} className="space-y-3">
+						<AdminFieldRow
+							label="Kode"
+							htmlFor="ref-code"
+							optional
+							hint="Kosongkan untuk dibuat otomatis. Hanya huruf dan angka."
+						>
 							<Input
 								id="ref-code"
 								placeholder="Contoh: PREM30DAYS"
 								value={code}
 								onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""))}
 							/>
-						</div>
-						<div className="space-y-1.5">
-							<Label htmlFor="ref-premium-days">Durasi Premium (hari) *</Label>
+						</AdminFieldRow>
+						<AdminFieldRow label="Durasi Premium (hari) *" htmlFor="ref-premium-days">
 							<Input
 								id="ref-premium-days"
 								type="number"
@@ -91,9 +82,13 @@ export function CreateReferralDialog({ onSuccess }: { onSuccess: () => void }) {
 								onChange={(e) => setPremiumDays(e.target.value)}
 								required
 							/>
-						</div>
-						<div className="space-y-1.5">
-							<Label htmlFor="ref-max-usages">Maks. Penggunaan (kosong = tak terbatas)</Label>
+						</AdminFieldRow>
+						<AdminFieldRow
+							label="Maks. Penggunaan"
+							htmlFor="ref-max-usages"
+							optional
+							hint="Kosongkan untuk tak terbatas"
+						>
 							<Input
 								id="ref-max-usages"
 								type="number"
@@ -102,21 +97,23 @@ export function CreateReferralDialog({ onSuccess }: { onSuccess: () => void }) {
 								value={maxUsages}
 								onChange={(e) => setMaxUsages(e.target.value)}
 							/>
-						</div>
-						<div className="space-y-1.5">
-							<Label htmlFor="ref-valid-until">Berlaku Hingga (kosong = selamanya)</Label>
+						</AdminFieldRow>
+						<AdminFieldRow
+							label="Berlaku Hingga"
+							htmlFor="ref-valid-until"
+							optional
+							hint="Kosongkan untuk tanpa batas waktu"
+						>
 							<Input
 								id="ref-valid-until"
 								type="datetime-local"
 								value={validUntil}
 								onChange={(e) => setValidUntil(e.target.value)}
 							/>
-						</div>
+						</AdminFieldRow>
 						<DialogFooter>
-							<Button type="button" variant="outline" onClick={() => setOpen(false)}>
-								Batal
-							</Button>
 							<Button
+								size="xs"
 								isPending={createMutation.isPending}
 								type="submit"
 								disabled={createMutation.isPending}

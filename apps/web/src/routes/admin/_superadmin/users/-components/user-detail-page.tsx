@@ -1,19 +1,27 @@
-import { ArrowLeftIcon, CreditCardIcon } from "@phosphor-icons/react";
+import { CreditCardIcon } from "@phosphor-icons/react";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import {
+	AdminBackButton,
 	AdminPageContent,
 	AdminPageHeader,
 	AdminPageHeaderActions,
 	AdminPageHeaderContent,
 	AdminPageRoot,
+	AdminSection,
 } from "@/components/admin/admin-page";
+import {
+	AdminTable,
+	AdminTableBody,
+	AdminTableCell,
+	AdminTableHead,
+	AdminTableHeader,
+	AdminTableRoot,
+	AdminTableRow,
+} from "@/components/admin/admin-table";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Typography } from "@/components/ui/typography";
 import { formatDateTime } from "@/lib/format-date";
 import { useUserDetail } from "../-hooks/use-user-detail";
@@ -63,12 +71,8 @@ export function UserDetailPage() {
 		<AdminPageRoot>
 			<AdminPageHeader>
 				<AdminPageHeaderContent>
-					<div className="flex items-center gap-2">
-						<Button variant="ghost" size="icon" aria-label="Kembali" onClick={handleBack}>
-							<ArrowLeftIcon className="size-4" />
-						</Button>
-						<Typography variant="title">{user.name}</Typography>
-					</div>
+					<AdminBackButton onClick={handleBack}>Kembali ke pengguna</AdminBackButton>
+					<Typography variant="title">{user.name}</Typography>
 					<Typography variant="body" tone="muted">
 						{user.email}
 					</Typography>
@@ -102,12 +106,9 @@ export function UserDetailPage() {
 			</AdminPageHeader>
 
 			<AdminPageContent>
-				<div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-					<Card>
-						<CardHeader>
-							<CardTitle>Informasi pengguna</CardTitle>
-						</CardHeader>
-						<CardContent className="space-y-4">
+				<div className="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+					<AdminSection title="Informasi pengguna">
+						<div className="bg-card text-meta flex flex-col gap-2 rounded-lg border p-3">
 							<div className="flex justify-between">
 								<span className="text-muted-foreground">Role</span>
 								<Badge variant="outline">{user.role}</Badge>
@@ -142,55 +143,50 @@ export function UserDetailPage() {
 								<span className="text-muted-foreground">Diupdate</span>
 								<span className="tabular-nums">{user.updatedAt ? formatDateTime(user.updatedAt) : "-"}</span>
 							</div>
-						</CardContent>
-					</Card>
+						</div>
+					</AdminSection>
 
-					<Card className="md:col-span-1">
-						<CardHeader>
-							<CardTitle>Riwayat kredit</CardTitle>
-						</CardHeader>
-						<CardContent>
-							{creditHistory.length === 0 ? (
-								<Empty className="border-none py-8">
-									<EmptyHeader>
-										<EmptyMedia variant="icon">
-											<CreditCardIcon />
-										</EmptyMedia>
-										<EmptyTitle>Belum ada transaksi kredit</EmptyTitle>
-										<EmptyDescription>Kredit pembelian dan pemakaian tryout akan tampil di sini.</EmptyDescription>
-									</EmptyHeader>
-								</Empty>
-							) : (
-								<Table>
-									<TableHeader>
-										<TableRow>
-											<TableHead>Tanggal</TableHead>
-											<TableHead>Jumlah</TableHead>
-											<TableHead>Saldo Setelah</TableHead>
-											<TableHead>Catatan</TableHead>
-										</TableRow>
-									</TableHeader>
-									<TableBody>
+					<AdminSection title="Riwayat kredit">
+						{creditHistory.length === 0 ? (
+							<Empty className="bg-card min-h-48 rounded-lg border">
+								<EmptyHeader>
+									<EmptyMedia variant="icon">
+										<CreditCardIcon />
+									</EmptyMedia>
+									<EmptyTitle>Belum ada transaksi kredit</EmptyTitle>
+									<EmptyDescription>Kredit pembelian dan pemakaian tryout akan tampil di sini.</EmptyDescription>
+								</EmptyHeader>
+							</Empty>
+						) : (
+							<AdminTableRoot>
+								<AdminTable>
+									<AdminTableHeader>
+										<AdminTableHead>Tanggal</AdminTableHead>
+										<AdminTableHead>Jumlah</AdminTableHead>
+										<AdminTableHead>Saldo Setelah</AdminTableHead>
+										<AdminTableHead>Catatan</AdminTableHead>
+									</AdminTableHeader>
+									<AdminTableBody columns={4}>
 										{creditHistory.map((tx) => (
-											<TableRow key={tx.id}>
-												<TableCell className="text-muted-foreground whitespace-nowrap tabular-nums">
+											<AdminTableRow key={tx.id}>
+												<AdminTableCell className="text-muted-foreground whitespace-nowrap tabular-nums">
 													{formatDateTime(tx.createdAt)}
-												</TableCell>
-												<TableCell>
+												</AdminTableCell>
+												<AdminTableCell>
 													<span className={tx.amount < 0 ? "text-destructive font-medium" : "font-medium"}>
 														{tx.amount > 0 ? "+" : ""}
 														{tx.amount}
 													</span>
-												</TableCell>
-												<TableCell className="tabular-nums">{tx.balanceAfter}</TableCell>
-												<TableCell className="max-w-50 truncate">{tx.note || "-"}</TableCell>
-											</TableRow>
+												</AdminTableCell>
+												<AdminTableCell className="tabular-nums">{tx.balanceAfter}</AdminTableCell>
+												<AdminTableCell className="max-w-50 truncate">{tx.note || "-"}</AdminTableCell>
+											</AdminTableRow>
 										))}
-									</TableBody>
-								</Table>
-							)}
-						</CardContent>
-					</Card>
+									</AdminTableBody>
+								</AdminTable>
+							</AdminTableRoot>
+						)}
+					</AdminSection>
 				</div>
 			</AdminPageContent>
 		</AdminPageRoot>

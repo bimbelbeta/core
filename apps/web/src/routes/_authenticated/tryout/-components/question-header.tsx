@@ -42,7 +42,7 @@ export function QuestionHeader({ countdownProps }: QuestionHeaderProps) {
 		<>
 			<div className="flex justify-between gap-2 max-sm:flex-col lg:items-center">
 				<div className="flex flex-col">
-					<Typography variant="subtitle1" as="p">
+					<Typography variant="subtitle2" as="p">
 						Soal Nomor {currentQuestionIndex + 1} dari {totalQuestions}
 					</Typography>
 					<Typography tone="muted">{data?.currentSubtest?.name}</Typography>

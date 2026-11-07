@@ -119,7 +119,7 @@ export function QuestionPickerDialog({
 		<Dialog open={open} onOpenChange={handleOpenChange}>
 			<DialogContent className="flex max-h-[85vh] flex-col sm:max-w-2xl">
 				<DialogHeader className="shrink-0">
-					<DialogTitle>Tambah Latihan Soal</DialogTitle>
+					<DialogTitle className="text-base">Tambah Latihan Soal</DialogTitle>
 					<DialogDescription>
 						Klik soal untuk langsung menambahkannya ke konten ini. Dialog tetap terbuka agar soal berikutnya bisa
 						ditambahkan.
@@ -200,7 +200,7 @@ export function QuestionPickerDialog({
 											variant="outline"
 											selected={isAttached}
 											className={cn(
-												"flex-nowrap items-start gap-3 rounded-lg p-3 text-left text-base",
+												"flex-nowrap items-start gap-3 rounded-lg p-3 text-left",
 												isAttached ? "opacity-60" : "hover:bg-muted/50 hover:border-primary/40",
 											)}
 										>

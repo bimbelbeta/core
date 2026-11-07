@@ -57,10 +57,10 @@ export function GrantCreditsDialog({
 		>
 			<DialogContent className="sm:max-w-sm">
 				<DialogHeader>
-					<DialogTitle>Add Credits</DialogTitle>
+					<DialogTitle className="text-base">Add Credits</DialogTitle>
 					<DialogDescription>Tambahkan tryout credits untuk user "{userName}"</DialogDescription>
 				</DialogHeader>
-				<div className="flex flex-col gap-4 py-2">
+				<div className="flex flex-col gap-3">
 					<div className="bg-muted/50 flex items-center justify-between rounded-md border px-4 py-2.5">
 						<span className="text-muted-foreground text-sm">Saldo saat ini</span>
 						<span className="font-semibold">{currentCredits ?? 0} credits</span>
@@ -72,6 +72,7 @@ export function GrantCreditsDialog({
 				</div>
 				<DialogFooter>
 					<Button
+						size="xs"
 						isPending={adjustCreditsMutation.isPending}
 						onClick={() => adjustCreditsMutation.mutate({ userId, amount })}
 						disabled={adjustCreditsMutation.isPending || !amount || amount < 1}

@@ -1,4 +1,4 @@
-import { CaretRightIcon, PlusIcon } from "@phosphor-icons/react";
+import { CaretRightIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
@@ -11,6 +11,7 @@ import {
 	AdminTableRow,
 } from "@/components/admin/admin-table";
 import { Button } from "@/components/ui/button";
+import { Typography } from "@/components/ui/typography";
 import { extractTextFromTiptap } from "@/lib/content-text";
 import { formatDateMedium } from "@/lib/format-date";
 import { orpc } from "@/lib/orpc";
@@ -28,8 +29,10 @@ export function RecentQuestions() {
 	return (
 		<section>
 			<header className="flex min-h-8 flex-wrap items-center justify-between gap-3 pb-3">
-				<h2 className="text-section-title">Soal terbaru</h2>
-				<Button variant="ghost" size="sm" className="text-muted-foreground text-meta h-8 gap-1.5 px-2.5" asChild>
+				<Typography variant="subtitle4" as="h2">
+					Soal terbaru
+				</Typography>
+				<Button variant="ghost" size="xs" className="text-muted-foreground text-meta gap-1.5 px-2.5" asChild>
 					<Link to="/admin/questions">
 						Lihat semua soal
 						<CaretRightIcon className="size-3" />
@@ -51,11 +54,8 @@ export function RecentQuestions() {
 						isEmpty={!isLoading && !isError && questions.length === 0}
 						emptyMessage="Belum ada soal."
 						emptyAction={
-							<Button size="sm" className="h-9" asChild>
-								<Link to="/admin/questions/create">
-									<PlusIcon className="size-4" />
-									Tambah soal
-								</Link>
+							<Button size="xs" asChild>
+								<Link to="/admin/questions/create">Tambah soal</Link>
 							</Button>
 						}
 						columns={2}

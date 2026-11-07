@@ -1,4 +1,4 @@
-import { ArrowCounterClockwiseIcon, DotsThreeIcon, PackageIcon, TrashIcon } from "@phosphor-icons/react";
+import { ArrowCounterClockwiseIcon, DotsThreeIcon, TrashIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import {
 	AdminPageContent,
@@ -66,11 +66,8 @@ export function ProductsListPage() {
 					<Typography variant="title">Produk</Typography>
 				</AdminPageHeaderContent>
 				<AdminPageHeaderActions>
-					<Button asChild>
-						<Link to="/admin/products/create">
-							<PackageIcon className="size-4" />
-							Tambah produk
-						</Link>
+					<Button size="xs" asChild>
+						<Link to="/admin/products/create">Tambah produk</Link>
 					</Button>
 				</AdminPageHeaderActions>
 			</AdminPageHeader>
@@ -88,11 +85,17 @@ export function ProductsListPage() {
 						</SelectTrigger>
 						<SelectContent>
 							<SelectItem value="all">Semua varian</SelectItem>
-							{Object.entries(variantConfig).map(([value, config]) => (
-								<SelectItem key={value} value={value}>
-									{config.label}
-								</SelectItem>
-							))}
+							{Object.entries(variantConfig).map(([value, config]) => {
+								const VariantIcon = config.icon;
+								return (
+									<SelectItem key={value} value={value}>
+										<span className="text-muted-foreground inline-flex items-center gap-1.5">
+											<VariantIcon className="size-3.5 shrink-0" />
+											{config.label}
+										</span>
+									</SelectItem>
+								);
+							})}
 						</SelectContent>
 					</Select>
 					<Select value={includeDeleted ? "true" : "false"} onValueChange={handleIncludeDeletedChange}>
@@ -125,15 +128,12 @@ export function ProductsListPage() {
 							emptyMessage={hasFilters ? "Tidak ada produk yang cocok dengan filter ini." : "Belum ada produk."}
 							emptyAction={
 								hasFilters ? (
-									<Button variant="outline" size="sm" onClick={handleReset}>
+									<Button variant="outline" size="xs" onClick={handleReset}>
 										Hapus filter
 									</Button>
 								) : (
-									<Button asChild size="sm">
-										<Link to="/admin/products/create">
-											<PackageIcon className="size-4" />
-											Tambah produk
-										</Link>
+									<Button asChild size="xs">
+										<Link to="/admin/products/create">Tambah produk</Link>
 									</Button>
 								)
 							}
@@ -159,14 +159,14 @@ export function ProductsListPage() {
 										</AdminTableCell>
 
 										<AdminTableCell>
-											<span className="text-muted-foreground inline-flex items-center gap-1.5 text-sm">
+											<span className="text-muted-foreground inline-flex items-center gap-1.5">
 												<VariantIcon className="size-3.5 shrink-0" />
 												{variantInfo.label}
 											</span>
 										</AdminTableCell>
 
 										<AdminTableCell className="text-right">
-											<span className="text-sm tabular-nums">{formatRupiah(product.price)}</span>
+											<span className="tabular-nums">{formatRupiah(product.price)}</span>
 										</AdminTableCell>
 
 										<AdminTableCell>
@@ -184,13 +184,8 @@ export function ProductsListPage() {
 										<AdminTableCell className="relative z-10 pr-3 text-right">
 											<DropdownMenu>
 												<DropdownMenuTrigger asChild>
-													<Button
-														variant="ghost"
-														size="icon"
-														className="size-9"
-														aria-label={`Aksi untuk ${product.name}`}
-													>
-														<DotsThreeIcon className="size-5" weight="bold" />
+													<Button variant="ghost" size="icon-xs" aria-label={`Aksi untuk ${product.name}`}>
+														<DotsThreeIcon className="size-4" weight="bold" />
 													</Button>
 												</DropdownMenuTrigger>
 												<DropdownMenuContent align="end">

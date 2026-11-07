@@ -70,8 +70,8 @@ function RouteComponent() {
 
 			{/*<hr className="my-3 sm:my-4" />*/}
 
-			<div className="my-3 space-y-4 sm:my-4">
-				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+			<div className="my-3 space-y-3 sm:my-4">
+				<div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
 					<SubjectFilters
 						activeFilter={activeFilter}
 						onChange={(category) => updateSearch({ category: category === "all" ? undefined : category })}
@@ -84,9 +84,9 @@ function RouteComponent() {
 
 			<div>
 				{!subjectsQuery.data && subjectsQuery.isPending && (
-					<div className="flex h-full flex-col gap-2 sm:gap-5">
+					<div className="flex h-full flex-col gap-2">
 						{Array.from({ length: 9 }).map((_, i) => (
-							<Skeleton key={i.toString()} className="h-40 w-full" />
+							<Skeleton key={i.toString()} className="h-[5.25rem] w-full" />
 						))}
 					</div>
 				)}

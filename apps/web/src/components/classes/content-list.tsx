@@ -109,7 +109,7 @@ export function ContentList({
 		<div className="">
 			<div className="flex items-center justify-between">
 				{title && (
-					<Typography variant="subtitle1" as="h3">
+					<Typography variant="subtitle2" as="h3">
 						{title}
 					</Typography>
 				)}

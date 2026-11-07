@@ -127,9 +127,9 @@ function RouteComponent() {
 	const hasVideo = !!content.data.video;
 
 	return (
-		<div className="space-y-6">
-			<div className="flex flex-col items-start justify-between space-y-1 sm:flex-row sm:items-center">
-				<Typography variant="subtitle1">Edit Video Materi</Typography>
+		<div className="flex flex-col gap-3">
+			<div className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
+				<Typography variant="subtitle4">Edit Video Materi</Typography>
 				<div className="flex gap-2">
 					<form.Subscribe>
 						{(state) => (
@@ -138,7 +138,7 @@ function RouteComponent() {
 								type="submit"
 								variant="default"
 								disabled={!state.canSubmit || saveMutation.isPending}
-								size="sm"
+								size="xs"
 								onClick={() => form.handleSubmit()}
 							>
 								{"Simpan"}
@@ -153,21 +153,22 @@ function RouteComponent() {
 									type="button"
 									variant="destructive"
 									disabled={deleteMutation.isPending}
-									size="sm"
+									size="xs"
 								>
 									Hapus
 								</Button>
 							</AlertDialogTrigger>
 							<AlertDialogContent>
 								<AlertDialogHeader>
-									<AlertDialogTitle>Hapus Video?</AlertDialogTitle>
+									<AlertDialogTitle className="text-base">Hapus Video?</AlertDialogTitle>
 									<AlertDialogDescription>
 										Apakah Anda yakin ingin menghapus video ini? Tindakan ini tidak dapat dibatalkan.
 									</AlertDialogDescription>
 								</AlertDialogHeader>
 								<AlertDialogFooter>
-									<AlertDialogCancel>Batal</AlertDialogCancel>
+									<AlertDialogCancel size="xs">Batal</AlertDialogCancel>
 									<AlertDialogAction
+										size="xs"
 										onClick={() => {
 											deleteMutation.mutate({ id: contentId });
 										}}
@@ -186,7 +187,7 @@ function RouteComponent() {
 					e.preventDefault();
 					form.handleSubmit();
 				}}
-				className="space-y-4"
+				className="space-y-3"
 			>
 				<form.Field name="videoUrl">
 					{(field) => (

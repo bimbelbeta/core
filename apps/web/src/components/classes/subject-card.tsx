@@ -24,11 +24,7 @@ export function SubjectCard({ subject }: { subject: SubjectListItem }) {
 	const isLocked = !isAdmin && isPremiumSubject;
 
 	return (
-		<Card
-			className={cn(
-				"hover:border-primary-300 relative h-auto overflow-hidden border border-neutral-200 bg-white p-4 shadow-md transition-colors duration-500 hover:shadow-md/20",
-			)}
-		>
+		<Card className={cn("relative h-auto overflow-hidden border border-neutral-200 bg-white p-3 shadow-none")}>
 			{/* Lock overlay for premium content */}
 			{isLocked && (
 				<>
@@ -43,55 +39,57 @@ export function SubjectCard({ subject }: { subject: SubjectListItem }) {
 					</div>
 				</>
 			)}
-			<div className="flex h-full justify-between">
-				<div className="my-auto w-1/2">
-					<Typography variant="subtitle1" as="h3" className="text-pretty">
+			<div className="flex h-full items-center justify-between gap-4">
+				<div className="min-w-0">
+					<Typography variant="subtitle2" as="h3" className="truncate text-pretty">
 						{subject?.name}
 					</Typography>
 
-					{subject.category === "utbk" ? (
-						<Typography variant="body">SMA Kelas 12</Typography>
-					) : (
-						<Typography variant="body">
-							<span className="uppercase">{subject.category}</span> Kelas {subject.gradeLevel ?? "-"}
-						</Typography>
-					)}
+					<p className="text-muted-foreground text-meta mt-0.5">
+						{subject.category === "utbk" ? (
+							"SMA Kelas 12"
+						) : (
+							<>
+								<span className="uppercase">{subject.category}</span> Kelas {subject.gradeLevel ?? "-"}
+							</>
+						)}
+					</p>
 				</div>
 
 				{isLocked ? (
 					// Disabled button for locked subjects
-					<div className={cn(buttonVariants({ size: "icon" }), "z-10 mt-auto mb-0 cursor-not-allowed opacity-50")}>
-						<LockIcon size={18} weight="bold" />
+					<div className={cn(buttonVariants({ size: "icon-xs" }), "z-10 shrink-0 cursor-not-allowed opacity-50")}>
+						<LockIcon size={16} weight="bold" />
 					</div>
 				) : (
-					<div className="flex flex-col items-end justify-between gap-y-4.5">
-						<div className="space-x-3">
+					<div className="flex shrink-0 flex-col items-end gap-y-2">
+						<div className="space-x-2">
 							{subject?.category && <Badge className="font-normal uppercase">{subject?.category}</Badge>}
 							{subject.hasViewed && <Badge className="font-normal">Sudah Pernah Dibuka</Badge>}
 						</div>
 
-						<div className="flex items-center gap-2">
+						<div className="flex items-center gap-1.5">
 							{isAdmin && (
 								<>
 									<Button
 										type="button"
-										size="icon"
+										size="icon-xs"
 										variant="outline"
 										aria-label={`Edit ${subject.name}`}
 										onClick={() => setEditOpen(true)}
 										className="z-10"
 									>
-										<PencilSimpleIcon size={18} weight="bold" />
+										<PencilSimpleIcon size={16} weight="bold" />
 									</Button>
 									<Button
 										type="button"
-										size="icon"
+										size="icon-xs"
 										variant="destructive"
 										aria-label={`Hapus ${subject.name}`}
 										onClick={() => setDeleteOpen(true)}
 										className="z-10"
 									>
-										<TrashIcon size={18} weight="bold" />
+										<TrashIcon size={16} weight="bold" />
 									</Button>
 								</>
 							)}
@@ -101,7 +99,7 @@ export function SubjectCard({ subject }: { subject: SubjectListItem }) {
 								aria-label={`Buka ${subject.name}`}
 								className={cn(buttonVariants({ size: "icon" }), "z-10")}
 							>
-								<ArrowRightIcon size={18} weight="bold" />
+								<ArrowRightIcon size={16} weight="bold" />
 							</Link>
 						</div>
 					</div>

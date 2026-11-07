@@ -47,7 +47,7 @@ function AdminLayout() {
 		<SidebarProvider className="admin-shell [--sidebar-width:13.5rem]!">
 			<AppSidebar />
 			<SidebarInset className="bg-muted min-w-0">
-				<header className="bg-card/85 sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b px-4 backdrop-blur-md sm:px-6 lg:px-8">
+				<header className="bg-card/85 sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b px-4 backdrop-blur-md sm:px-5">
 					<SidebarTrigger
 						title="Buka/tutup navigasi"
 						className="text-muted-foreground hover:bg-muted hover:text-foreground size-8 rounded-md"
@@ -55,9 +55,9 @@ function AdminLayout() {
 					<AdminBreadcrumb />
 					<Button
 						variant="ghost"
-						size="sm"
+						size="xs"
 						asChild
-						className="text-muted-foreground hover:bg-muted hover:text-foreground ml-auto h-8 gap-1.5 px-2.5 text-[13px]"
+						className="text-muted-foreground hover:bg-muted hover:text-foreground ml-auto gap-1.5 px-2.5"
 					>
 						<Link to="/dashboard" aria-label="Buka dashboard pengguna">
 							<ArrowSquareInIcon className="size-4" />

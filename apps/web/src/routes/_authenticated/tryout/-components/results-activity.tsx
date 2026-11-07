@@ -23,7 +23,7 @@ export function ResultsActivity() {
 			) : attempts.data?.length === 0 || attempts.isError ? (
 				<div className="col-span-full flex flex-col items-center justify-center space-y-3 py-8 text-center">
 					<WarningCircleIcon size={80} />
-					<Typography variant="subtitle1" as="p">
+					<Typography variant="subtitle2" as="p">
 						Kamu belum mengikuti tryout apapun
 					</Typography>
 					<Button asChild>
@@ -64,7 +64,7 @@ type ResultCardProps = {
 const ResultCard = memo(function ResultCard({ attemptId, title, score }: ResultCardProps) {
 	return (
 		<Card className="flex flex-col gap-2 p-4">
-			<Typography variant="subtitle2">{title}</Typography>
+			<Typography variant="subtitle4">{title}</Typography>
 			<Separator className="my-0" />
 			<div className="text-muted-foreground translate-y-1 text-base">Total Score</div>
 			<div className="mt-auto flex items-center justify-between">

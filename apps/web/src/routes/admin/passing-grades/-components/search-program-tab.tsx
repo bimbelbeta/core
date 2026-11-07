@@ -58,7 +58,7 @@ export function SearchProgramTab({ onProgramSelect }: SearchProgramTabProps) {
 							key={prog.id}
 							variant="outline"
 							size="sm"
-							className="group hover:border-primary/30 hover:bg-primary/5 w-full flex-nowrap gap-3 rounded-lg text-left text-base"
+							className="group hover:border-primary/30 hover:bg-primary/5 w-full flex-nowrap gap-3 rounded-lg text-left"
 						>
 							<button type="button" onClick={() => onProgramSelect({ id: prog.id, name: prog.name })}>
 								<div className="bg-muted group-hover:bg-primary/10 flex size-8 shrink-0 items-center justify-center rounded-md transition-colors">

@@ -37,14 +37,15 @@ export function DeleteProductDialog({ productId, open, onOpenChange, onSuccess }
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="sm:max-w-sm">
 				<DialogHeader>
-					<DialogTitle>Delete Product</DialogTitle>
+					<DialogTitle className="text-base">Delete Product</DialogTitle>
 					<DialogDescription>Product akan dihapus secara soft delete dan dapat dipulihkan kembali.</DialogDescription>
 				</DialogHeader>
 				<DialogFooter className="">
-					<Button variant="outline" onClick={() => onOpenChange(false)}>
+					<Button size="xs" variant="outline" onClick={() => onOpenChange(false)}>
 						Batal
 					</Button>
 					<Button
+						size="xs"
 						isPending={deleteMutation.isPending}
 						variant="destructive"
 						onClick={() => deleteMutation.mutate({ productId })}

@@ -13,7 +13,7 @@ export const LastClasses = () => {
 	if (isPending) {
 		return (
 			<section>
-				<Typography variant="subtitle1" className="mb-2">
+				<Typography variant="subtitle2" className="mb-2">
 					Kelas terakhirmu
 				</Typography>
 				<div className="animate-pulse space-y-2">
@@ -27,10 +27,10 @@ export const LastClasses = () => {
 	if (!data || data.length === 0) {
 		return (
 			<section className="">
-				<Typography variant="subtitle1">Kelas terakhirmu</Typography>
+				<Typography variant="subtitle2">Kelas terakhirmu</Typography>
 				<div className="flex flex-col items-center justify-center space-y-3 py-8 text-center">
 					<WarningCircleIcon size={80} />
-					<Typography variant="subtitle1" as="p" className="text-black">
+					<Typography variant="subtitle2" as="p" className="text-black">
 						Kamu belum melihat kelas apapun
 					</Typography>
 					<Button asChild>
@@ -45,7 +45,7 @@ export const LastClasses = () => {
 
 	return (
 		<section>
-			<Typography variant="subtitle1" className="mb-4">
+			<Typography variant="subtitle2" className="mb-4">
 				Kelas Terakhir
 			</Typography>
 			<div className="space-y-6">

@@ -67,31 +67,26 @@ export function AddProgramDialog({ universityId, onSuccess, open, onOpenChange }
 	return (
 		<Dialog open={open} onOpenChange={handleOpenChange}>
 			<DialogTrigger asChild>
-				<Button>
-					<PlusIcon className="mr-2 size-4" />
-					Tambah prodi
-				</Button>
+				<Button size="xs">Tambah prodi</Button>
 			</DialogTrigger>
-			<DialogContent className="gap-0 p-0 sm:max-w-[540px]">
-				<DialogHeader className="px-6 pt-6 pb-4">
-					<DialogTitle>Tambah Program Studi</DialogTitle>
+			<DialogContent className="sm:max-w-2xl">
+				<DialogHeader>
+					<DialogTitle className="text-base">Tambah Program Studi</DialogTitle>
 					<DialogDescription className="sr-only">Tambah program studi ke universitas ini.</DialogDescription>
 
 					{/* Step indicator */}
-					<div className="flex items-center gap-3 pt-2">
+					<div className="flex items-center gap-2 pt-1">
 						{STEPS.map((s, i) => {
 							const stepNum = i + 1;
 							const isActive = step === stepNum;
 							const isComplete = step > stepNum;
 							return (
 								<div key={s.label} className="flex items-center gap-2">
-									{i > 0 && (
-										<div className={cn("h-px w-6 transition-colors", isComplete ? "bg-primary" : "bg-border")} />
-									)}
-									<div className="flex items-center gap-2">
+									{i > 0 && <div className={cn("h-px w-4", isComplete ? "bg-primary" : "bg-border")} />}
+									<div className="flex items-center gap-1.5">
 										<div
 											className={cn(
-												"flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-medium transition-all",
+												"flex size-5 shrink-0 items-center justify-center rounded-full text-[11px] font-medium transition-all",
 												isActive && "bg-primary text-primary-foreground ring-primary/20 ring-2",
 												isComplete && "bg-primary text-primary-foreground",
 												!isActive && !isComplete && "bg-muted text-muted-foreground",
@@ -99,16 +94,14 @@ export function AddProgramDialog({ universityId, onSuccess, open, onOpenChange }
 										>
 											{isComplete ? "✓" : stepNum}
 										</div>
-										<div className="flex flex-col">
-											<span
-												className={cn(
-													"text-sm leading-tight",
-													isActive ? "text-foreground font-medium" : "text-muted-foreground",
-												)}
-											>
-												{s.label}
-											</span>
-										</div>
+										<span
+											className={cn(
+												"text-meta leading-tight",
+												isActive ? "text-foreground font-medium" : "text-muted-foreground",
+											)}
+										>
+											{s.label}
+										</span>
 									</div>
 								</div>
 							);
@@ -116,15 +109,13 @@ export function AddProgramDialog({ universityId, onSuccess, open, onOpenChange }
 					</div>
 				</DialogHeader>
 
-				<div className="border-t" />
-
 				{step === 1 ? (
-					<div className="px-6 py-5">
+					<div>
 						{/* Tab switcher */}
-						<div className="mb-4 flex gap-2">
+						<div className="mb-3 flex gap-2">
 							<Button
 								variant={activeTab === "search" ? "default" : "outline"}
-								size="sm"
+								size="xs"
 								onClick={() => setActiveTab("search")}
 								className="gap-1.5"
 							>
@@ -133,7 +124,7 @@ export function AddProgramDialog({ universityId, onSuccess, open, onOpenChange }
 							</Button>
 							<Button
 								variant={activeTab === "create" ? "default" : "outline"}
-								size="sm"
+								size="xs"
 								onClick={() => setActiveTab("create")}
 								className="gap-1.5"
 							>
@@ -150,11 +141,11 @@ export function AddProgramDialog({ universityId, onSuccess, open, onOpenChange }
 					</div>
 				) : (
 					selectedProgram && (
-						<div className="px-6 py-5">
+						<div>
 							{/* Selected program indicator */}
-							<div className="bg-muted/50 mb-4 flex items-center gap-3 rounded-lg border px-4 py-3">
-								<div className="bg-primary/10 text-primary flex size-8 shrink-0 items-center justify-center rounded-md">
-									<MagnifyingGlassIcon className="size-4" />
+							<div className="bg-muted/50 mb-3 flex items-center gap-2.5 rounded-lg border px-3 py-2">
+								<div className="bg-primary/10 text-primary flex size-7 shrink-0 items-center justify-center rounded-md">
+									<MagnifyingGlassIcon className="size-3.5" />
 								</div>
 								<div className="min-w-0 flex-1">
 									<Typography variant="body" className="truncate font-medium">

@@ -1,13 +1,12 @@
-import { ArrowLeftIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, notFound, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, notFound, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import {
+	AdminBackLink,
 	AdminPageContent,
 	AdminPageHeader,
 	AdminPageHeaderContent,
 	AdminPageRoot,
 } from "@/components/admin/admin-page";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Typography } from "@/components/ui/typography";
@@ -63,22 +62,18 @@ function RouteComponent() {
 		<AdminPageRoot>
 			<AdminPageHeader>
 				<AdminPageHeaderContent>
-					<div className="flex items-center gap-2">
-						<Button variant="ghost" size="icon" aria-label="Kembali" asChild>
-							<Link to="/admin/classes/$subjectId" params={{ subjectId: subjectId.toString() }}>
-								<ArrowLeftIcon className="size-4" />
-							</Link>
-						</Button>
-						{content.isPending ? (
-							<Skeleton className="h-7 w-48" />
-						) : content.isError ? (
-							<Typography variant="title" tone="destructive">
-								Error: {content.error.message}
-							</Typography>
-						) : (
-							<Typography variant="title">{displayTitle}</Typography>
-						)}
-					</div>
+					<AdminBackLink to="/admin/classes/$subjectId" params={{ subjectId: subjectId.toString() }}>
+						Kembali ke subject
+					</AdminBackLink>
+					{content.isPending ? (
+						<Skeleton className="h-7 w-48" />
+					) : content.isError ? (
+						<Typography variant="title" tone="destructive">
+							Error: {content.error.message}
+						</Typography>
+					) : (
+						<Typography variant="title">{displayTitle}</Typography>
+					)}
 				</AdminPageHeaderContent>
 			</AdminPageHeader>
 

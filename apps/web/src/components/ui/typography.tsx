@@ -23,7 +23,13 @@ function Typography<T extends React.ElementType = "p">({
 	const config = typographyVariants[variant];
 	const Comp = as ?? config.element;
 
-	return <Comp className={cn(config.className, typographyTones[tone ?? config.tone], className)} {...props} />;
+	return (
+		<Comp
+			data-typography-variant={variant}
+			className={cn(config.className, typographyTones[tone ?? config.tone], className)}
+			{...props}
+		/>
+	);
 }
 
 export { Typography };

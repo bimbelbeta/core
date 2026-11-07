@@ -22,7 +22,7 @@ export function Features() {
 function FeatureOne() {
 	return (
 		<div className="via-primary-100 to-primary-300/80 relative h-70 w-full rounded-xl border border-neutral-200 bg-linear-to-t from-neutral-100 via-66% p-5 text-center min-[490px]:mx-auto min-[490px]:max-w-[420px] md:mx-0 md:max-w-none md:p-6">
-			<Typography variant="subtitle1" as="h3">
+			<Typography variant="subtitle2" as="h3">
 				{" "}
 				<span className="text-primary-900 font-semibold">Latihan Soal</span> dengan{" "}
 				<span className="text-primary-900 font-semibold">Feedback</span> Instan!
@@ -42,7 +42,7 @@ function FeatureOne() {
 function FeatureTwo() {
 	return (
 		<div className="via-primary-100 to-primary-300/80 relative h-70 w-full rounded-xl border border-neutral-200 bg-linear-to-t from-neutral-100 via-66% p-5 text-center min-[490px]:mx-auto min-[490px]:max-w-[420px] md:mx-0 md:max-w-none md:p-6">
-			<Typography variant="subtitle1" as="h3">
+			<Typography variant="subtitle2" as="h3">
 				Simulasi <span className="text-primary-900 font-semibold">UTBK & Ranking</span> Nasional{" "}
 				<span className="text-primary-900 font-semibold">Feedback</span> Instan!
 			</Typography>
@@ -63,7 +63,7 @@ function FeatureTwo() {
 function FeatureThree() {
 	return (
 		<div className="via-primary-100 to-primary-300/80 relative h-70 w-full rounded-xl border border-neutral-200 bg-linear-to-r from-neutral-100 via-66% p-5 text-center min-[490px]:mx-auto min-[490px]:max-w-[420px] md:mx-0 md:max-w-none md:p-6 last:md:col-span-2 last:md:text-left">
-			<Typography variant="subtitle1" as="h3" className="md:max-w-xs">
+			<Typography variant="subtitle2" as="h3" className="md:max-w-xs">
 				<span className="text-primary-900 font-semibold">Materi Video & Modul</span> yang Terstruktur Rapi
 			</Typography>
 			<Typography variant="body" className="md:mt-2 md:max-w-xs">

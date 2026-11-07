@@ -45,7 +45,7 @@ export function useReferralsList() {
 
 	const handleStatusChange = (value: string) => {
 		const rest = withoutSearchKey(baseSearchParams, "status");
-		navigate({ search: value === "all" ? rest : { ...rest, status: value === "true" } });
+		navigate({ search: value === "all" ? rest : { ...rest, status: value as typeof status } });
 	};
 
 	const handleToggleStatus = (codeId: string, status: boolean) => toggleStatusMutation.mutate({ codeId, status });

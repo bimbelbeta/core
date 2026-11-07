@@ -1,4 +1,4 @@
-import { DotsThreeIcon, PlusIcon, TrashIcon } from "@phosphor-icons/react";
+import { DotsThreeIcon, TrashIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import {
 	AdminPageContent,
@@ -39,7 +39,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Typography } from "@/components/ui/typography";
 import { formatDateMedium } from "@/lib/format-date";
-import { SUBJECT_CATEGORY_LABELS, TRYOUT_STATUS_BADGE } from "@/lib/schemas";
+import { SUBJECT_CATEGORY_LABELS, TRYOUT_STATUS_BADGE, tryoutStatusSchema } from "@/lib/schemas";
 import { useTryoutsList } from "../-hooks/use-tryouts-list";
 import { AddTryoutDialog } from "./add-tryout-dialog";
 
@@ -118,9 +118,9 @@ export function TryoutsListPage() {
 						</SelectTrigger>
 						<SelectContent>
 							<SelectItem value="all">Semua status</SelectItem>
-							{Object.entries(TRYOUT_STATUS_BADGE).map(([value, statusEntry]) => (
+							{Object.entries(TRYOUT_STATUS_BADGE).map(([value]) => (
 								<SelectItem key={value} value={value}>
-									{statusEntry.label}
+									<TryoutStatus status={tryoutStatusSchema.assert(value)} />
 								</SelectItem>
 							))}
 						</SelectContent>
@@ -145,12 +145,11 @@ export function TryoutsListPage() {
 							emptyMessage={hasFilters ? "Tidak ada tryout yang cocok dengan filter ini." : "Belum ada tryout."}
 							emptyAction={
 								hasFilters ? (
-									<Button variant="outline" size="sm" onClick={handleReset}>
+									<Button variant="outline" size="xs" onClick={handleReset}>
 										Hapus filter
 									</Button>
 								) : (
-									<Button size="sm" className="h-9" onClick={() => setIsAddDialogOpen(true)}>
-										<PlusIcon className="size-4" />
+									<Button size="xs" onClick={() => setIsAddDialogOpen(true)}>
 										Tambah tryout
 									</Button>
 								)
@@ -189,13 +188,8 @@ export function TryoutsListPage() {
 											>
 												<DropdownMenu>
 													<DropdownMenuTrigger asChild>
-														<Button
-															variant="ghost"
-															size="icon"
-															className="size-9"
-															aria-label={`Aksi untuk ${tryout.title}`}
-														>
-															<DotsThreeIcon className="size-5" weight="bold" />
+														<Button variant="ghost" size="icon-xs" aria-label={`Aksi untuk ${tryout.title}`}>
+															<DotsThreeIcon className="size-4" weight="bold" />
 														</Button>
 													</DropdownMenuTrigger>
 													<DropdownMenuContent align="end">
@@ -211,15 +205,15 @@ export function TryoutsListPage() {
 												</DropdownMenu>
 												<AlertDialogContent onClick={(e) => e.stopPropagation()}>
 													<AlertDialogHeader>
-														<AlertDialogTitle>Hapus Tryout</AlertDialogTitle>
+														<AlertDialogTitle className="text-base">Hapus Tryout</AlertDialogTitle>
 														<AlertDialogDescription>
 															Apakah Anda yakin ingin menghapus tryout &quot;{tryout.title}&quot;? Tindakan ini tidak
 															dapat dibatalkan.
 														</AlertDialogDescription>
 													</AlertDialogHeader>
 													<AlertDialogFooter>
-														<AlertDialogCancel>Batal</AlertDialogCancel>
-														<AlertDialogAction onClick={() => handleDelete(tryout.id)} variant="destructive">
+														<AlertDialogCancel size="xs">Batal</AlertDialogCancel>
+														<AlertDialogAction size="xs" onClick={() => handleDelete(tryout.id)} variant="destructive">
 															Hapus
 														</AlertDialogAction>
 													</AlertDialogFooter>

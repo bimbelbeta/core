@@ -101,6 +101,11 @@
 	body {
 		@apply bg-background text-foreground;
 	}
+	/* Tailwind v4 preflight no longer sets a pointer cursor on buttons */
+	button:not(:disabled),
+	[role="button"]:not(:disabled) {
+		cursor: pointer;
+	}
 }
 
 @theme {
@@ -190,6 +195,53 @@
 
 @utility admin-shell {
 	letter-spacing: -0.006em;
+
+	& .text-page-title {
+		font-size: 1.25rem;
+		letter-spacing: -0.018em;
+	}
+
+	& .text-section-title {
+		font-size: 0.875rem;
+		letter-spacing: -0.01em;
+	}
+
+	& [data-typography-variant="body"] {
+		font-size: 0.8125rem;
+		line-height: 1.5;
+	}
+
+	& [data-slot="button"],
+	& [data-slot="label"],
+	& [data-slot="input"],
+	& [data-slot="textarea"],
+	& [data-slot="select-trigger"],
+	& [data-slot="input-group-control"] {
+		font-size: 0.8125rem;
+	}
+
+	& .tiptap {
+		font-size: 0.8125rem;
+		line-height: 1.55;
+	}
+
+	& .tiptap p {
+		margin: 0.5em 0;
+	}
+
+	& .tiptap p:first-child {
+		margin-top: 0;
+	}
+
+	& .tiptap p:last-child {
+		margin-bottom: 0;
+	}
+
+	& .tiptap.ProseMirror p:not(:first-child):not(td p):not(th p) {
+		font-size: inherit;
+		line-height: inherit;
+		margin-top: 0.5em;
+	}
 }
 
 @utility text-page-title {
@@ -207,19 +259,19 @@
 }
 
 @utility text-row-title {
-	font-size: 0.9375rem;
+	font-size: 0.8125rem;
 	line-height: 1.35;
 	font-weight: 600;
-	letter-spacing: -0.011em;
+	letter-spacing: -0.008em;
 }
 
 @utility text-meta {
-	font-size: 0.78125rem;
+	font-size: 0.75rem;
 	line-height: 1.35;
 }
 
 @utility text-metric {
-	font-size: 1.5rem;
+	font-size: 1.375rem;
 	line-height: 1;
 	font-weight: 600;
 	letter-spacing: -0.02em;
@@ -231,13 +283,13 @@
 		@apply rounded-none bg-card;
 	}
 	& [data-slot="table-head"] {
-		@apply bg-neutral-100 sticky top-0 z-10 h-8 px-3 text-[11px] font-semibold tracking-[0.06em] text-foreground/55 uppercase;
+		@apply bg-neutral-100 sticky top-0 z-10 h-7 px-3 text-[11px] font-semibold tracking-[0.06em] text-foreground/55 uppercase;
 	}
 	& [data-slot="table-cell"] {
-		@apply px-3 py-1.5 text-sm;
+		@apply px-3 py-1 text-[0.8125rem];
 	}
 	& [data-slot="table-cell"]:not([colspan]) {
-		@apply h-9;
+		@apply h-8;
 	}
 	& [data-slot="table-container"] {
 		@apply min-h-0 flex-1 overflow-auto;

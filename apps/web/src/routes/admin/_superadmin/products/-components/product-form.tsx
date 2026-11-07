@@ -151,13 +151,13 @@ export function ProductForm({ initialData, onSuccess, onCancel }: ProductFormPro
 				e.preventDefault();
 				form.handleSubmit();
 			}}
-			className="flex flex-col gap-5"
+			className="flex flex-col gap-4"
 		>
 			<form.Subscribe selector={(state) => [state.values.type, state.values.variant] as const}>
 				{([productType, variant]) => <VariantEffect productType={productType} variant={variant} />}
 			</form.Subscribe>
 
-			<div className="flex flex-col gap-5">
+			<div className="flex flex-col gap-4">
 				<form.Field name="name">
 					{(field) => (
 						<AdminFieldRow label="Nama Product" htmlFor={field.name}>
@@ -232,7 +232,7 @@ export function ProductForm({ initialData, onSuccess, onCancel }: ProductFormPro
 
 				<Separator />
 
-				<div className="flex flex-col gap-5">
+				<div className="flex flex-col gap-4">
 					<form.Field name="type">
 						{(field) => (
 							<AdminFieldRow label="Tipe" htmlFor="product-type">
@@ -402,7 +402,7 @@ export function ProductForm({ initialData, onSuccess, onCancel }: ProductFormPro
 							type="submit"
 							disabled={!canSubmit || isSubmitting || isPending}
 						>
-							<FloppyDiskIcon className="size-3.5" />
+							{initialData && <FloppyDiskIcon className="size-3.5" />}
 							{initialData ? "Simpan Perubahan" : "Buat Produk"}
 						</Button>
 					</div>

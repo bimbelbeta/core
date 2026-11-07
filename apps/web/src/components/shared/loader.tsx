@@ -87,7 +87,7 @@ export default function Loader() {
 				<div className="h-8 min-w-50">
 					<AnimatePresence mode="wait">
 						<MotionTypography
-							variant="subtitle1"
+							variant="subtitle2"
 							as="p"
 							tone="muted"
 							key={currentText}

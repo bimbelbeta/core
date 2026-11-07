@@ -6,7 +6,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-	"focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all duration-300 outline-none focus-visible:ring-[3px] disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&>Link]:hover:cursor-pointer [&>a]:hover:cursor-pointer",
+	"focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all duration-300 outline-none focus-visible:ring-[3px] disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&>Link]:hover:cursor-pointer [&>a]:hover:cursor-pointer",
 	{
 		variants: {
 			variant: {
@@ -31,12 +31,13 @@ const buttonVariants = cva(
 			},
 			size: {
 				default: "h-10 px-4 py-2.5",
-				xs: "h-8 px-2 py-1",
+				xs: "h-8 px-2 py-1 text-[0.8125rem]",
 				sm: "h-9 px-3.5 py-2",
 				lg: "h-11 rounded-sm px-4.5 py-2.5",
 				xl: "h-12 rounded-md px-6 py-4",
 				"2xl": "h-[60px] px-7 py-4 text-base",
 				icon: "size-9",
+				"icon-xs": "size-8",
 				"icon-lg": "size-11",
 				"icon-xl": "size-12",
 				none: "",

@@ -106,7 +106,7 @@ export function UsersTable() {
 									</AdminTableCell>
 
 									<AdminTableCell className="hidden text-right sm:table-cell">
-										<span className={cn("text-sm tabular-nums", !user.tryoutCredits && "text-muted-foreground")}>
+										<span className={cn("tabular-nums", !user.tryoutCredits && "text-muted-foreground")}>
 											{user.tryoutCredits || "—"}
 										</span>
 									</AdminTableCell>
@@ -147,8 +147,8 @@ export function UsersTable() {
 										/>
 										<DropdownMenu>
 											<DropdownMenuTrigger asChild>
-												<Button variant="ghost" size="icon" className="size-9" aria-label={`Aksi untuk ${user.name}`}>
-													<DotsThreeIcon className="size-5" weight="bold" />
+												<Button variant="ghost" size="icon-xs" aria-label={`Aksi untuk ${user.name}`}>
+													<DotsThreeIcon className="size-4" weight="bold" />
 												</Button>
 											</DropdownMenuTrigger>
 											<DropdownMenuContent align="end">

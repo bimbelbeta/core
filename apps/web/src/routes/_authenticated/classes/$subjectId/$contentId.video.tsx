@@ -69,7 +69,7 @@ function RouteComponent() {
 	if (!video) {
 		return (
 			<div className="space-y-4">
-				<Typography variant="subtitle2" as="p" tone="accent">
+				<Typography variant="subtitle4" as="p" tone="accent">
 					Video Materi
 				</Typography>
 				<EmptyContentState />
@@ -81,7 +81,7 @@ function RouteComponent() {
 
 	return (
 		<div className="space-y-4">
-			<Typography variant="subtitle2" as="p" tone="accent">
+			<Typography variant="subtitle4" as="p" tone="accent">
 				Video Materi
 			</Typography>
 
@@ -94,7 +94,7 @@ function RouteComponent() {
 			</Typography>
 			<hr />
 
-			<Typography variant="subtitle1" as="h3">
+			<Typography variant="subtitle2" as="h3">
 				Tentang Video
 			</Typography>
 			<TiptapRenderer content={video.content} />

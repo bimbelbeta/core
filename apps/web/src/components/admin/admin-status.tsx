@@ -44,5 +44,5 @@ export function AdminChip({ children, icon, tone = "neutral" }: AdminChipProps) 
  * pills stay reserved for values that actually need the eye: exceptions and states.
  */
 export function AdminMeta({ children }: { children: React.ReactNode }) {
-	return <span className="text-muted-foreground text-sm">{children}</span>;
+	return <span className="text-muted-foreground text-meta">{children}</span>;
 }

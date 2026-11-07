@@ -52,20 +52,20 @@ function Stat({
 	trend?: number | null;
 }) {
 	return (
-		<div className="relative px-4 py-2.5">
+		<div className="relative px-4 py-2">
 			<div className="flex items-center justify-between gap-4 sm:block">
 				<div className="min-w-0">
-					<p className="text-muted-foreground text-xs leading-tight">{label}</p>
+					<p className="text-muted-foreground text-meta leading-tight">{label}</p>
 					{meta && <p className="text-muted-foreground text-meta mt-0.5 tabular-nums sm:hidden">{meta}</p>}
 				</div>
 				<p className="text-foreground text-metric shrink-0 sm:mt-2">{value}</p>
 			</div>
 			{trend !== undefined && (
-				<div className="absolute top-2.5 right-4 hidden sm:block">
+				<div className="absolute top-2 right-4 hidden sm:block">
 					<Trend value={trend} />
 				</div>
 			)}
-			{meta && <p className="text-muted-foreground mt-1 hidden text-xs tabular-nums sm:block">{meta}</p>}
+			{meta && <p className="text-muted-foreground text-meta mt-1 hidden tabular-nums sm:block">{meta}</p>}
 		</div>
 	);
 }

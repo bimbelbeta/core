@@ -37,14 +37,17 @@ export function DeleteProgramAlert({ id, onSuccess, open, onOpenChange }: Delete
 		<AlertDialog open={open} onOpenChange={onOpenChange}>
 			<AlertDialogContent>
 				<AlertDialogHeader>
-					<AlertDialogTitle>Hapus Program Studi?</AlertDialogTitle>
+					<AlertDialogTitle className="text-base">Hapus Program Studi?</AlertDialogTitle>
 					<AlertDialogDescription>
 						Anda yakin ingin menghapus program studi dari universitas ini? Tindakan ini tidak dapat dibatalkan.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
-					<AlertDialogCancel disabled={isDeleting}>Batal</AlertDialogCancel>
+					<AlertDialogCancel size="xs" disabled={isDeleting}>
+						Batal
+					</AlertDialogCancel>
 					<Button
+						size="xs"
 						isPending={isDeleting}
 						variant="destructive"
 						onClick={() => deleteProgram({ id: id })}

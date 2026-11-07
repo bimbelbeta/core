@@ -1,8 +1,9 @@
-import { ArrowLeftIcon, DotsThreeIcon, TrashIcon } from "@phosphor-icons/react";
+import { DotsThreeIcon, TrashIcon } from "@phosphor-icons/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import {
+	AdminBackLink,
 	AdminPageContent,
 	AdminPageHeader,
 	AdminPageHeaderActions,
@@ -21,7 +22,6 @@ import {
 } from "@/components/admin/admin-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -64,6 +64,7 @@ function RouteComponent() {
 		isActive: boolean;
 	};
 	const [editProgram, setEditProgram] = useState<ProgramData | null>(null);
+	const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 	const [deleteProgramId, setDeleteProgramId] = useState<number | null>(null);
 
 	const { data: university, isLoading: isUniversityLoading } = useQuery(
@@ -113,14 +114,8 @@ function RouteComponent() {
 		<AdminPageRoot>
 			<AdminPageHeader>
 				<AdminPageHeaderContent>
-					<div className="flex items-center gap-2">
-						<Button variant="ghost" size="icon" asChild>
-							<Link to="/admin/passing-grades" aria-label="Kembali">
-								<ArrowLeftIcon className="size-4" />
-							</Link>
-						</Button>
-						<Typography variant="title">{university.name}</Typography>
-					</div>
+					<AdminBackLink to="/admin/passing-grades">Kembali ke passing grade</AdminBackLink>
+					<Typography variant="title">{university.name}</Typography>
 					<Typography variant="body" tone="muted">
 						{university.location}
 					</Typography>
@@ -173,7 +168,10 @@ function RouteComponent() {
 												type="button"
 												variant="link"
 												size="none"
-												onClick={() => setEditProgram(prog)}
+												onClick={() => {
+													setEditProgram(prog);
+													setIsEditDialogOpen(true);
+												}}
 												className="focus-visible:ring-ring/50 after:absolute after:inset-0 after:content-[''] focus-visible:ring-2"
 											>
 												{prog.studyProgram.name}
@@ -181,13 +179,13 @@ function RouteComponent() {
 										</AdminTableCell>
 										<AdminTableCell className="text-meta">{prog.studyProgram.category ?? "—"}</AdminTableCell>
 										<AdminTableCell className="hidden text-right sm:table-cell">
-											<span className="text-sm font-semibold tabular-nums">{prog.averageScore}</span>
+											<span className="font-semibold tabular-nums">{prog.averageScore}</span>
 										</AdminTableCell>
 										<AdminTableCell className="hidden text-right md:table-cell">
-											<span className="text-sm tabular-nums">{prog.tuition ? formatRupiah(prog.tuition) : "—"}</span>
+											<span className="tabular-nums">{prog.tuition ? formatRupiah(prog.tuition) : "—"}</span>
 										</AdminTableCell>
 										<AdminTableCell className="hidden text-right md:table-cell">
-											<span className="text-sm tabular-nums">{prog.capacity ?? "—"}</span>
+											<span className="tabular-nums">{prog.capacity ?? "—"}</span>
 										</AdminTableCell>
 										<AdminTableCell className="text-meta hidden sm:table-cell">
 											{prog.accreditation ?? "—"}
@@ -202,7 +200,7 @@ function RouteComponent() {
 												<DropdownMenuTrigger asChild>
 													<Button
 														variant="ghost"
-														size="icon"
+														size="icon-xs"
 														aria-label={`Aksi program studi ${prog.studyProgram.name}`}
 													>
 														<DotsThreeIcon className="size-4" />
@@ -224,36 +222,21 @@ function RouteComponent() {
 				</AdminSection>
 			</AdminPageContent>
 
-			{editProgram && (
-				<Dialog
-					open={!!editProgram}
-					onOpenChange={(open) => {
-						if (!open) setEditProgram(null);
-					}}
-				>
-					<DialogContent className="sm:max-w-150">
-						<DialogHeader>
-							<DialogTitle>Edit Program Studi</DialogTitle>
-						</DialogHeader>
-						<EditProgramDialog
-							universityProgram={editProgram}
-							onSuccess={() => {
-								queryClient.invalidateQueries({
-									queryKey: orpc.admin.university.universityPrograms.list.queryKey({
-										input: {
-											universityId: universityId,
-										},
-									}),
-								});
-								setEditProgram(null);
-							}}
-							onOpenChange={(open) => {
-								if (!open) setEditProgram(null);
-							}}
-						/>
-					</DialogContent>
-				</Dialog>
-			)}
+			<EditProgramDialog
+				universityProgram={editProgram}
+				open={isEditDialogOpen}
+				onSuccess={() => {
+					queryClient.invalidateQueries({
+						queryKey: orpc.admin.university.universityPrograms.list.queryKey({
+							input: {
+								universityId: universityId,
+							},
+						}),
+					});
+					setIsEditDialogOpen(false);
+				}}
+				onOpenChange={setIsEditDialogOpen}
+			/>
 
 			<DeleteProgramAlert
 				id={deleteProgramId!}

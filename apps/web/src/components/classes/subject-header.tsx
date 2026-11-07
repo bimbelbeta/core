@@ -14,7 +14,7 @@ export function SubjectHeader() {
 		<div className="rounded-default from-secondary-800 to-primary-700 relative flex items-center justify-start overflow-hidden bg-linear-to-l p-6 sm:p-8">
 			{/* TEXT — mobile top, desktop LEFT */}
 			<div className="relative z-10">
-				<Typography variant="title" className="text-neutral-100">
+				<Typography variant="subtitle1" className="text-neutral-100">
 					{title}
 				</Typography>
 				<Typography variant="body" className="mt-2 text-neutral-100">

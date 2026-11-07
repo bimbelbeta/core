@@ -28,14 +28,26 @@ function AlertDialogOverlay({ className, ...props }: React.ComponentProps<typeof
 	);
 }
 
-function AlertDialogContent({ className, ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Content>) {
+const alertDialogSizes = {
+	default: "gap-3 p-4 sm:p-5",
+	sm: "gap-2.5 p-3 sm:p-4",
+} as const;
+
+function AlertDialogContent({
+	size = "default",
+	className,
+	...props
+}: React.ComponentProps<typeof AlertDialogPrimitive.Content> & {
+	size?: keyof typeof alertDialogSizes;
+}) {
 	return (
 		<AlertDialogPortal>
 			<AlertDialogOverlay />
 			<AlertDialogPrimitive.Content
 				data-slot="alert-dialog-content"
 				className={cn(
-					"data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 bg-background data-[state=closed]:animate-out data-[state=open]:animate-in fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg",
+					"data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 bg-background data-[state=closed]:animate-out data-[state=open]:animate-in fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] rounded-lg border shadow-lg duration-200 sm:max-w-lg",
+					alertDialogSizes[size],
 					className,
 				)}
 				{...props}
@@ -95,8 +107,16 @@ function AlertDialogAction({ className, variant, size, ...props }: React.Compone
 	);
 }
 
-function AlertDialogCancel({ className, ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Cancel>) {
-	return <AlertDialogPrimitive.Cancel className={cn(buttonVariants({ variant: "outline" }), className)} {...props} />;
+function AlertDialogCancel({
+	className,
+	size = "default",
+	...props
+}: React.ComponentProps<typeof AlertDialogPrimitive.Cancel> & {
+	size?: React.ComponentProps<typeof Button>["size"];
+}) {
+	return (
+		<AlertDialogPrimitive.Cancel className={cn(buttonVariants({ variant: "outline", size }), className)} {...props} />
+	);
 }
 
 export {

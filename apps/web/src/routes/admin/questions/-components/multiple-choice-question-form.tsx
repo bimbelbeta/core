@@ -1,4 +1,3 @@
-import { PlusIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { ChoiceEditItem } from "./choice-edit-item";
 import type { Choice } from "./types";
@@ -47,7 +46,6 @@ export function MultipleChoiceQuestionForm({ choices, onChoicesChange }: Multipl
 			</div>
 			{choices.length < 7 && (
 				<Button type="button" variant="outline" size="xs" onClick={addChoice} className="self-start">
-					<PlusIcon className="size-3.5" />
 					Tambah pilihan
 				</Button>
 			)}

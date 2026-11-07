@@ -76,10 +76,10 @@ export function AdminTableBody({
 		return (
 			<TableBody>
 				<TableRow>
-					<TableCell colSpan={colSpan} className="h-32 text-center text-sm">
+					<TableCell colSpan={colSpan} className="h-32 text-center">
 						<p className="text-destructive">Data gagal dimuat.</p>
 						<div className="mt-3 flex justify-center">
-							<Button variant="outline" size="sm" onClick={onRetry} disabled={!onRetry}>
+							<Button variant="outline" size="xs" onClick={onRetry} disabled={!onRetry}>
 								Coba lagi
 							</Button>
 						</div>
@@ -101,7 +101,7 @@ export function AdminTableBody({
 		return (
 			<TableBody>
 				<TableRow>
-					<TableCell colSpan={colSpan} className="text-muted-foreground h-32 text-center text-sm">
+					<TableCell colSpan={colSpan} className="text-muted-foreground h-32 text-center">
 						<p>{emptyMessage}</p>
 						{emptyAction && <div className="mt-3 flex justify-center">{emptyAction}</div>}
 					</TableCell>

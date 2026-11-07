@@ -1,8 +1,8 @@
-import { ArrowLeftIcon, PlusIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
+import { AdminBackLink } from "@/components/admin/admin-page";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -61,17 +61,15 @@ export function SubtestDetailPanel({ tryoutId, subtest, onUpdate }: SubtestDetai
 	return (
 		<div className="flex flex-col gap-4">
 			<div className="flex flex-wrap items-center gap-3">
-				<div className="min-w-0">
-					<Link
+				<div className="flex min-w-0 flex-col gap-1">
+					<AdminBackLink
 						to="/admin/tryouts/$tryoutId"
 						params={{ tryoutId: tryoutId.toString() }}
 						search={{ tab: "subtests" }}
-						className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 text-meta mb-0.5 inline-flex items-center gap-1 rounded-sm outline-none focus-visible:ring-2"
 					>
-						<ArrowLeftIcon className="size-3" />
 						Kembali ke subtest
-					</Link>
-					<Typography variant="subtitle1" className="truncate">
+					</AdminBackLink>
+					<Typography variant="subtitle2" className="truncate">
 						{detail.name}
 					</Typography>
 					<Typography variant="body" tone="muted">
@@ -82,7 +80,6 @@ export function SubtestDetailPanel({ tryoutId, subtest, onUpdate }: SubtestDetai
 				</div>
 				<div className="ml-auto flex flex-wrap items-center gap-1">
 					<Button variant="outline" size="xs" onClick={() => setIsAttachOpen(true)}>
-						<PlusIcon className="size-3.5" />
 						Tambah soal
 					</Button>
 					<Button size="xs" asChild>
@@ -90,7 +87,6 @@ export function SubtestDetailPanel({ tryoutId, subtest, onUpdate }: SubtestDetai
 							to="/admin/tryouts/$tryoutId/subtests/$subtestId/questions/new"
 							params={{ tryoutId: tryoutId.toString(), subtestId: subtestId.toString() }}
 						>
-							<PlusIcon className="size-3.5" />
 							Buat soal
 						</Link>
 					</Button>
@@ -100,7 +96,7 @@ export function SubtestDetailPanel({ tryoutId, subtest, onUpdate }: SubtestDetai
 			{isPending ? (
 				<Skeleton className="h-64 w-full" />
 			) : (
-				<Tabs orientation="vertical" defaultValue="soal" className="w-full gap-4 sm:flex-row sm:gap-6">
+				<Tabs orientation="vertical" defaultValue="soal" className="w-full gap-4 sm:flex-row">
 					<TabsList>
 						<TabsTrigger value="soal">Soal</TabsTrigger>
 						<TabsTrigger value="skoring">Skoring</TabsTrigger>

@@ -1,5 +1,5 @@
 import { PaginationInputSchema } from "@bimbelbeta/contract/common/pagination";
-import { DotsThreeIcon, PlusIcon, TrashIcon } from "@phosphor-icons/react";
+import { DotsThreeIcon, TrashIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { type } from "arktype";
@@ -34,7 +34,7 @@ import {
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -128,11 +128,8 @@ function QuestionsListPage() {
 					<Typography variant="title">Bank soal</Typography>
 				</AdminPageHeaderContent>
 				<AdminPageHeaderActions>
-					<Button asChild size="sm" className="h-9">
-						<Link to="/admin/questions/create">
-							<PlusIcon className="size-4" />
-							Tambah soal
-						</Link>
+					<Button asChild size="xs">
+						<Link to="/admin/questions/create">Tambah soal</Link>
 					</Button>
 				</AdminPageHeaderActions>
 			</AdminPageHeader>
@@ -193,15 +190,12 @@ function QuestionsListPage() {
 							emptyMessage={hasFilters ? "Tidak ada soal yang cocok dengan filter ini." : "Bank soal masih kosong."}
 							emptyAction={
 								hasFilters ? (
-									<Button variant="outline" size="sm" onClick={handleReset}>
+									<Button variant="outline" size="xs" onClick={handleReset}>
 										Hapus filter
 									</Button>
 								) : (
-									<Button asChild size="sm">
-										<Link to="/admin/questions/create">
-											<PlusIcon className="size-4" />
-											Tambah soal
-										</Link>
+									<Button asChild size="xs">
+										<Link to="/admin/questions/create">Tambah soal</Link>
 									</Button>
 								)
 							}
@@ -243,13 +237,8 @@ function QuestionsListPage() {
 												>
 													<DropdownMenu>
 														<DropdownMenuTrigger asChild>
-															<Button
-																variant="ghost"
-																size="icon"
-																className="m-1.5 p-2.5"
-																aria-label={`Aksi untuk soal ${q.id}`}
-															>
-																<DotsThreeIcon className="size-5" weight="bold" />
+															<Button variant="ghost" size="icon-xs" aria-label={`Aksi untuk soal ${q.id}`}>
+																<DotsThreeIcon className="size-4" weight="bold" />
 															</Button>
 														</DropdownMenuTrigger>
 														<DropdownMenuContent align="end">
@@ -265,17 +254,14 @@ function QuestionsListPage() {
 													</DropdownMenu>
 													<AlertDialogContent onClick={(e) => e.stopPropagation()}>
 														<AlertDialogHeader>
-															<AlertDialogTitle>Hapus Soal</AlertDialogTitle>
+															<AlertDialogTitle className="text-base">Hapus Soal</AlertDialogTitle>
 															<AlertDialogDescription>
 																Apakah Anda yakin ingin menghapus soal #{q.id}? Tindakan ini tidak dapat dibatalkan.
 															</AlertDialogDescription>
 														</AlertDialogHeader>
 														<AlertDialogFooter>
-															<AlertDialogCancel>Batal</AlertDialogCancel>
-															<AlertDialogAction
-																onClick={() => handleDelete(q.id)}
-																className={buttonVariants({ variant: "destructive" })}
-															>
+															<AlertDialogCancel size="xs">Batal</AlertDialogCancel>
+															<AlertDialogAction size="xs" variant="destructive" onClick={() => handleDelete(q.id)}>
 																Hapus
 															</AlertDialogAction>
 														</AlertDialogFooter>

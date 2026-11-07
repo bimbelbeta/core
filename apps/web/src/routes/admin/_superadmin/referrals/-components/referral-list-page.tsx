@@ -69,14 +69,24 @@ export function ReferralListPage() {
 					searchPlaceholder="Cari kode referral..."
 					onReset={hasFilters ? handleReset : undefined}
 				>
-					<Select value={status === undefined ? "all" : status ? "true" : "false"} onValueChange={handleStatusChange}>
+					<Select value={status} onValueChange={handleStatusChange}>
 						<SelectTrigger className="w-full sm:w-40">
 							<SelectValue placeholder="Semua status" />
 						</SelectTrigger>
 						<SelectContent>
 							<SelectItem value="all">Semua status</SelectItem>
-							<SelectItem value="true">Aktif</SelectItem>
-							<SelectItem value="false">Nonaktif</SelectItem>
+							<SelectItem value="aktif">
+								<AdminStatus tone="positive">Aktif</AdminStatus>
+							</SelectItem>
+							<SelectItem value="nonaktif">
+								<AdminStatus tone="neutral">Nonaktif</AdminStatus>
+							</SelectItem>
+							<SelectItem value="kedaluwarsa">
+								<AdminStatus tone="danger">Kedaluwarsa</AdminStatus>
+							</SelectItem>
+							<SelectItem value="kuota_habis">
+								<AdminStatus tone="warning">Kuota habis</AdminStatus>
+							</SelectItem>
 						</SelectContent>
 					</Select>
 				</AdminTableToolbar>
@@ -99,7 +109,7 @@ export function ReferralListPage() {
 							emptyMessage={search ? "Tidak ada kode yang cocok dengan pencarian ini." : "Belum ada kode referal."}
 							emptyAction={
 								search ? (
-									<Button variant="outline" size="sm" onClick={handleReset}>
+									<Button variant="outline" size="xs" onClick={handleReset}>
 										Hapus filter
 									</Button>
 								) : undefined
@@ -135,13 +145,13 @@ export function ReferralListPage() {
 											)}
 										</AdminTableCell>
 										<AdminTableCell className="text-right">
-											<span className="text-sm tabular-nums">
+											<span className="tabular-nums">
 												{item.usageCount}
 												{item.maxUsages !== null ? ` / ${item.maxUsages}` : " / ∞"}
 											</span>
 										</AdminTableCell>
 										<AdminTableCell className="hidden text-right sm:table-cell">
-											<span className="text-sm tabular-nums">{item.premiumDays} hari</span>
+											<span className="tabular-nums">{item.premiumDays} hari</span>
 										</AdminTableCell>
 										<AdminTableCell className="text-muted-foreground text-meta hidden text-right whitespace-nowrap sm:table-cell">
 											{formatDateMedium(new Date(item.updatedAt))}
@@ -149,8 +159,8 @@ export function ReferralListPage() {
 										<AdminTableCell className="relative z-10 pr-3 text-right">
 											<DropdownMenu>
 												<DropdownMenuTrigger asChild>
-													<Button variant="ghost" size="icon" className="size-9" aria-label={`Aksi untuk ${item.code}`}>
-														<DotsThreeIcon className="size-5" weight="bold" />
+													<Button variant="ghost" size="icon-xs" aria-label={`Aksi untuk ${item.code}`}>
+														<DotsThreeIcon className="size-4" weight="bold" />
 													</Button>
 												</DropdownMenuTrigger>
 												<DropdownMenuContent align="end">

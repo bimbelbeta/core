@@ -12,6 +12,7 @@ import {
 } from "@/components/admin/admin-table";
 import { TryoutStatus } from "@/components/admin/tryout-status";
 import { Button } from "@/components/ui/button";
+import { Typography } from "@/components/ui/typography";
 import { formatDateMedium } from "@/lib/format-date";
 import { orpc } from "@/lib/orpc";
 import { SUBJECT_CATEGORY_LABELS } from "@/lib/schemas";
@@ -23,8 +24,10 @@ export function RecentTryouts() {
 	return (
 		<section>
 			<header className="flex min-h-8 flex-wrap items-center justify-between gap-3 pb-3">
-				<h2 className="text-section-title">Tryout terbaru</h2>
-				<Button variant="ghost" size="sm" className="text-muted-foreground text-meta h-8 gap-1.5 px-2.5" asChild>
+				<Typography variant="subtitle4" as="h2">
+					Tryout terbaru
+				</Typography>
+				<Button variant="ghost" size="xs" className="text-muted-foreground text-meta gap-1.5 px-2.5" asChild>
 					<Link to="/admin/tryouts">
 						Lihat semua tryout
 						<CaretRightIcon className="size-3" />
@@ -48,7 +51,7 @@ export function RecentTryouts() {
 						isEmpty={!isLoading && !isError && tryouts.length === 0}
 						emptyMessage="Belum ada tryout."
 						emptyAction={
-							<Button size="sm" className="h-9" asChild>
+							<Button size="xs" asChild>
 								<Link to="/admin/tryouts">Buka daftar tryout</Link>
 							</Button>
 						}

@@ -1,4 +1,4 @@
-import { ClockIcon, FileTextIcon, PlusIcon, TrashIcon } from "@phosphor-icons/react";
+import { ClockIcon, FileTextIcon, TrashIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import { Link, useSearch } from "@tanstack/react-router";
 import { useState } from "react";
@@ -79,7 +79,7 @@ export function TryoutSubtestsTab({ tryoutId, subtests, onUpdate }: TryoutSubtes
 	}
 
 	return (
-		<div className="space-y-4">
+		<div className="flex flex-col gap-3">
 			<AdminSection
 				title="Daftar subtest"
 				description={
@@ -89,14 +89,14 @@ export function TryoutSubtestsTab({ tryoutId, subtests, onUpdate }: TryoutSubtes
 				}
 			>
 				{subtests.length > 0 && (
-					<div className="text-muted-foreground flex items-center gap-1.5 text-xs">
+					<div className="text-muted-foreground text-meta flex items-center gap-1.5">
 						<ClockIcon className="size-3.5" />
 						<span>Total durasi: {totalDuration} menit</span>
 					</div>
 				)}
 
 				{subtests.length === 0 ? (
-					<div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center">
+					<div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-10 text-center">
 						<div className="bg-muted mb-4 flex size-12 items-center justify-center rounded-full">
 							<FileTextIcon className="text-muted-foreground size-6" />
 						</div>
@@ -106,7 +106,6 @@ export function TryoutSubtestsTab({ tryoutId, subtests, onUpdate }: TryoutSubtes
 							pengerjaan.
 						</Typography>
 						<Button size="xs" onClick={() => setIsAddDialogOpen(true)}>
-							<PlusIcon className="size-3.5" />
 							Buat Subtest Pertama
 						</Button>
 					</div>
@@ -157,7 +156,7 @@ export function TryoutSubtestsTab({ tryoutId, subtests, onUpdate }: TryoutSubtes
 												<AlertDialogTrigger asChild>
 													<Button
 														variant="ghost"
-														size="icon"
+														size="icon-xs"
 														aria-label={`Hapus subtest ${subtest.name}`}
 														className="text-muted-foreground opacity-0 group-hover:opacity-100 focus-within:opacity-100 hover:text-red-600"
 													>
@@ -166,15 +165,16 @@ export function TryoutSubtestsTab({ tryoutId, subtests, onUpdate }: TryoutSubtes
 												</AlertDialogTrigger>
 												<AlertDialogContent>
 													<AlertDialogHeader>
-														<AlertDialogTitle>Hapus Subtest</AlertDialogTitle>
+														<AlertDialogTitle className="text-base">Hapus Subtest</AlertDialogTitle>
 														<AlertDialogDescription>
 															Apakah Anda yakin ingin menghapus subtest "{subtest.name}"? Tindakan ini tidak dapat
 															dibatalkan dan semua soal di dalamnya akan terhapus.
 														</AlertDialogDescription>
 													</AlertDialogHeader>
 													<AlertDialogFooter>
-														<AlertDialogCancel>Batal</AlertDialogCancel>
+														<AlertDialogCancel size="xs">Batal</AlertDialogCancel>
 														<AlertDialogAction
+															size="xs"
 															isPending={deleteMutation.isPending}
 															onClick={() => handleDelete(subtest.id)}
 															variant="destructive"
@@ -195,7 +195,6 @@ export function TryoutSubtestsTab({ tryoutId, subtests, onUpdate }: TryoutSubtes
 				{subtests.length > 0 && (
 					<div className="flex items-center justify-end gap-1">
 						<Button size="xs" onClick={() => setIsAddDialogOpen(true)}>
-							<PlusIcon className="size-3.5" />
 							Tambah subtest
 						</Button>
 					</div>

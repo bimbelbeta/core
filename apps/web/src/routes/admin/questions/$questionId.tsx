@@ -1,9 +1,10 @@
-import { ArrowLeftIcon, CheckIcon, PencilSimpleIcon, XIcon } from "@phosphor-icons/react";
+import { CheckIcon, PencilSimpleIcon, XIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import { type } from "arktype";
 import { useState } from "react";
 import {
+	AdminBackLink,
 	AdminPageContent,
 	AdminPageHeader,
 	AdminPageHeaderActions,
@@ -89,23 +90,15 @@ function QuestionDetailPage() {
 			<AdminPageHeader>
 				<AdminPageHeaderContent>
 					{tryoutId && subtestId ? (
-						<Link
+						<AdminBackLink
 							to="/admin/tryouts/$tryoutId"
 							params={{ tryoutId: tryoutId.toString() }}
 							search={{ tab: "subtests", subtest: subtestId }}
-							className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 text-meta mb-0.5 inline-flex items-center gap-1 self-start rounded-sm outline-none focus-visible:ring-2"
 						>
-							<ArrowLeftIcon className="size-3" />
 							Kembali ke subtest
-						</Link>
+						</AdminBackLink>
 					) : (
-						<Link
-							to="/admin/questions"
-							className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 text-meta mb-0.5 inline-flex items-center gap-1 self-start rounded-sm outline-none focus-visible:ring-2"
-						>
-							<ArrowLeftIcon className="size-3" />
-							Kembali ke bank soal
-						</Link>
+						<AdminBackLink to="/admin/questions">Kembali ke bank soal</AdminBackLink>
 					)}
 					<Typography variant="title">Soal #{question.id}</Typography>
 				</AdminPageHeaderContent>
@@ -118,8 +111,8 @@ function QuestionDetailPage() {
 			</AdminPageHeader>
 
 			<AdminPageContent>
-				<div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_14rem]">
-					<div className="flex min-w-0 flex-col gap-5">
+				<div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_14rem]">
+					<div className="flex min-w-0 flex-col gap-4">
 						<AdminSection title="Konten soal">
 							<TiptapRenderer content={question.content} className="prose prose-sm max-w-none rounded-md border p-4" />
 						</AdminSection>
@@ -208,7 +201,7 @@ function QuestionDetailPage() {
 						)}
 					</div>
 
-					<aside className="flex min-w-0 flex-col gap-5">
+					<aside className="flex min-w-0 flex-col gap-4">
 						<AdminSection title="Detail">
 							<dl className="flex flex-col gap-2.5">
 								<div className="flex items-baseline justify-between gap-3">

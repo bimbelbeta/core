@@ -82,8 +82,8 @@ function ContentRow({
 				<ItemActions>
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
-							<Button variant="ghost" size="icon" className="m-1.5 p-2.5" aria-label={`Aksi untuk ${item.title}`}>
-								<DotsThreeIcon className="size-5" weight="bold" />
+							<Button variant="ghost" size="icon-xs" aria-label={`Aksi untuk ${item.title}`}>
+								<DotsThreeIcon className="size-4" weight="bold" />
 							</Button>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end">
@@ -199,7 +199,7 @@ export function ContentsList({
 
 			{hasMore && onLoadMore && (
 				<div className="flex justify-center">
-					<Button type="button" variant="outline" onClick={onLoadMore}>
+					<Button size="xs" type="button" variant="outline" onClick={onLoadMore}>
 						Muat Lebih Banyak
 					</Button>
 				</div>

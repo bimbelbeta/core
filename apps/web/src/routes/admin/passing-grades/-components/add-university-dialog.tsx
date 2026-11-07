@@ -1,9 +1,9 @@
 import { generateSlug } from "@bimbelbeta/contract/utils";
-import { PlusIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { type } from "arktype";
 import { toast } from "sonner";
+import { AdminFieldRow } from "@/components/admin/admin-page";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -16,7 +16,6 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
@@ -80,14 +79,13 @@ export function AddUniversityDialog({
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogTrigger asChild>
-				<Button className="ml-auto">
-					<PlusIcon className="mr-2 size-4" />
+				<Button size="xs" className="ml-auto">
 					Tambah universitas
 				</Button>
 			</DialogTrigger>
-			<DialogContent className="flex max-h-[85vh] flex-col sm:max-w-125">
+			<DialogContent size="sm" className="flex max-h-[85vh] flex-col sm:max-w-2xl">
 				<DialogHeader className="shrink-0">
-					<DialogTitle>Tambah universitas</DialogTitle>
+					<DialogTitle className="text-base">Tambah universitas</DialogTitle>
 					<DialogDescription>Tambahkan universitas baru ke dalam sistem. Isi form di bawah ini.</DialogDescription>
 				</DialogHeader>
 				<form
@@ -95,10 +93,10 @@ export function AddUniversityDialog({
 						e.preventDefault();
 						form.handleSubmit();
 					}}
-					className="flex flex-1 flex-col gap-4 overflow-hidden"
+					className="flex flex-1 flex-col gap-3"
 				>
-					<div className="max-h-[calc(85vh-14rem)] flex-1 overflow-y-auto">
-						<div className="grid gap-4 py-4">
+					<div className="-m-1 min-h-0 flex-1 overflow-y-auto p-1">
+						<div className="grid gap-3">
 							<form.Field
 								name="name"
 								validators={{
@@ -114,12 +112,10 @@ export function AddUniversityDialog({
 								}}
 							>
 								{(field) => (
-									<div className="grid grid-cols-4 items-start gap-4">
-										<Label htmlFor={field.name} className="mt-2 text-right">
-											Nama
-										</Label>
-										<div className="col-span-3 space-y-1">
+									<AdminFieldRow label="Nama" htmlFor={field.name}>
+										<div className="space-y-1">
 											<Input
+												size="sm"
 												id={field.name}
 												value={field.state.value}
 												onBlur={field.handleBlur}
@@ -131,35 +127,32 @@ export function AddUniversityDialog({
 												</Typography>
 											))}
 										</div>
-									</div>
+									</AdminFieldRow>
 								)}
 							</form.Field>
 
 							<form.Field name="autoGenerateSlug">
 								{(field) => (
-									<div className="flex items-center justify-end gap-2">
-										<Label htmlFor={field.name} className="text-muted-foreground cursor-pointer text-xs">
-											Autogenerate Slug
-										</Label>
-										<Checkbox
-											id={field.name}
-											checked={field.state.value}
-											onCheckedChange={(checked: boolean) => {
-												field.handleChange(checked === true);
-											}}
-										/>
-									</div>
+									<AdminFieldRow label="Autogenerate Slug" htmlFor={field.name}>
+										<div className="flex h-8 items-center">
+											<Checkbox
+												id={field.name}
+												checked={field.state.value}
+												onCheckedChange={(checked: boolean) => {
+													field.handleChange(checked === true);
+												}}
+											/>
+										</div>
+									</AdminFieldRow>
 								)}
 							</form.Field>
 
 							<form.Field name="slug">
 								{(field) => (
-									<div className="grid grid-cols-4 items-start gap-4">
-										<Label htmlFor={field.name} className="mt-2 text-right">
-											Slug
-										</Label>
-										<div className="col-span-3 space-y-1">
+									<AdminFieldRow label="Slug" htmlFor={field.name}>
+										<div className="space-y-1">
 											<Input
+												size="sm"
 												id={field.name}
 												value={field.state.value}
 												onBlur={field.handleBlur}
@@ -172,18 +165,16 @@ export function AddUniversityDialog({
 												</Typography>
 											))}
 										</div>
-									</div>
+									</AdminFieldRow>
 								)}
 							</form.Field>
 
 							<form.Field name="logo">
 								{(field) => (
-									<div className="grid grid-cols-4 items-start gap-4">
-										<Label htmlFor={field.name} className="mt-2 text-right">
-											Logo URL
-										</Label>
-										<div className="col-span-3 space-y-1">
+									<AdminFieldRow label="Logo URL" htmlFor={field.name}>
+										<div className="space-y-1">
 											<Input
+												size="sm"
 												id={field.name}
 												value={field.state.value}
 												onBlur={field.handleBlur}
@@ -196,55 +187,47 @@ export function AddUniversityDialog({
 												</Typography>
 											))}
 										</div>
-									</div>
+									</AdminFieldRow>
 								)}
 							</form.Field>
 
 							<form.Field name="description">
 								{(field) => (
-									<div className="grid grid-cols-4 items-start gap-4">
-										<Label htmlFor={field.name} className="mt-2 text-right">
-											Deskripsi
-										</Label>
+									<AdminFieldRow label="Deskripsi" htmlFor={field.name}>
 										<Textarea
+											size="sm"
 											id={field.name}
 											value={field.state.value}
 											onBlur={field.handleBlur}
 											onChange={(e) => field.handleChange(e.target.value)}
 											placeholder="Deskripsi universitas..."
-											className="col-span-3"
 											rows={3}
 										/>
-									</div>
+									</AdminFieldRow>
 								)}
 							</form.Field>
 
 							<form.Field name="location">
 								{(field) => (
-									<div className="grid grid-cols-4 items-center gap-4">
-										<Label htmlFor={field.name} className="text-right">
-											Lokasi
-										</Label>
+									<AdminFieldRow label="Lokasi" htmlFor={field.name}>
 										<Input
+											size="sm"
 											id={field.name}
 											value={field.state.value}
 											onBlur={field.handleBlur}
 											onChange={(e) => field.handleChange(e.target.value)}
 											placeholder="Jakarta, Indonesia"
-											className="col-span-3"
 										/>
-									</div>
+									</AdminFieldRow>
 								)}
 							</form.Field>
 
 							<form.Field name="website">
 								{(field) => (
-									<div className="grid grid-cols-4 items-start gap-4">
-										<Label htmlFor={field.name} className="mt-2 text-right">
-											Website
-										</Label>
-										<div className="col-span-3 space-y-1">
+									<AdminFieldRow label="Website" htmlFor={field.name}>
+										<div className="space-y-1">
 											<Input
+												size="sm"
 												id={field.name}
 												value={field.state.value}
 												onBlur={field.handleBlur}
@@ -257,18 +240,16 @@ export function AddUniversityDialog({
 												</Typography>
 											))}
 										</div>
-									</div>
+									</AdminFieldRow>
 								)}
 							</form.Field>
 
 							<form.Field name="rank">
 								{(field) => (
-									<div className="grid grid-cols-4 items-start gap-4">
-										<Label htmlFor={field.name} className="mt-2 text-right">
-											Peringkat
-										</Label>
-										<div className="col-span-3 space-y-1">
+									<AdminFieldRow label="Peringkat" htmlFor={field.name}>
+										<div className="space-y-1">
 											<Input
+												size="sm"
 												id={field.name}
 												type="number"
 												value={field.state.value ?? ""}
@@ -282,7 +263,7 @@ export function AddUniversityDialog({
 												</Typography>
 											))}
 										</div>
-									</div>
+									</AdminFieldRow>
 								)}
 							</form.Field>
 						</div>
@@ -291,7 +272,7 @@ export function AddUniversityDialog({
 					<DialogFooter className="shrink-0">
 						<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
 							{([canSubmit, isSubmitting]) => (
-								<Button isPending={isSubmitting} type="submit" disabled={!canSubmit || isSubmitting}>
+								<Button size="xs" isPending={isSubmitting} type="submit" disabled={!canSubmit || isSubmitting}>
 									{"Tambah universitas"}
 								</Button>
 							)}

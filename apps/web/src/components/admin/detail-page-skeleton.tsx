@@ -7,12 +7,12 @@ export function DetailPageSkeleton() {
 			<AdminPageHeader>
 				<AdminPageHeaderContent>
 					<Skeleton className="h-4 w-32" />
-					<Skeleton className="h-7 w-48" />
+					<Skeleton className="h-5 w-48" />
 				</AdminPageHeaderContent>
 			</AdminPageHeader>
 			<AdminPageContent>
-				<div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_14rem]">
-					<div className="flex flex-col gap-5">
+				<div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_14rem]">
+					<div className="flex flex-col gap-4">
 						<div className="flex flex-col gap-4">
 							<Skeleton className="h-4 w-28" />
 							<Skeleton className="h-24 w-full" />
@@ -28,7 +28,7 @@ export function DetailPageSkeleton() {
 							<Skeleton className="h-20 w-full" />
 						</div>
 					</div>
-					<div className="flex flex-col gap-5">
+					<div className="flex flex-col gap-4">
 						<div className="flex flex-col gap-4">
 							<Skeleton className="h-4 w-16" />
 							<Skeleton className="h-16 w-full" />

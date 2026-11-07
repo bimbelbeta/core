@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type } from "arktype";
 import { useEffect } from "react";
 import { toast } from "sonner";
+import { AdminFieldRow } from "@/components/admin/admin-page";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -13,7 +14,6 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
@@ -111,9 +111,9 @@ export function CreateSubjectDialog({ open, onOpenChange, defaultCategory }: Cre
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent>
+			<DialogContent className="sm:max-w-2xl">
 				<DialogHeader>
-					<DialogTitle>Tambah Subject</DialogTitle>
+					<DialogTitle className="text-base">Tambah Subject</DialogTitle>
 					<DialogDescription>Buat kelas baru untuk ditampilkan di daftar subject.</DialogDescription>
 				</DialogHeader>
 
@@ -122,122 +122,118 @@ export function CreateSubjectDialog({ open, onOpenChange, defaultCategory }: Cre
 						e.preventDefault();
 						form.handleSubmit();
 					}}
-					className="space-y-4"
+					className="space-y-3"
 				>
 					<form.Field name="name">
 						{(field) => (
-							<div className="space-y-2">
-								<Label htmlFor={field.name}>Nama Kelas *</Label>
-								<Input
-									id={field.name}
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-									placeholder="Contoh: Matematika Wajib"
-								/>
-								{field.state.meta.errors.map((error) => (
-									<Typography variant="caption" tone="destructive" key={error?.message ?? String(error)}>
-										{error?.message ?? String(error)}
-									</Typography>
-								))}
-							</div>
+							<AdminFieldRow label="Nama Kelas *" htmlFor={field.name}>
+								<div className="space-y-1">
+									<Input
+										id={field.name}
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										placeholder="Contoh: Matematika Wajib"
+									/>
+									{field.state.meta.errors.map((error) => (
+										<Typography variant="caption" tone="destructive" key={error?.message ?? String(error)}>
+											{error?.message ?? String(error)}
+										</Typography>
+									))}
+								</div>
+							</AdminFieldRow>
 						)}
 					</form.Field>
 
 					<form.Field name="shortName">
 						{(field) => (
-							<div className="space-y-2">
-								<Label htmlFor={field.name}>Singkatan *</Label>
-								<Input
-									id={field.name}
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-									placeholder="Contoh: MAT W"
-								/>
-								{field.state.meta.errors.map((error) => (
-									<Typography variant="caption" tone="destructive" key={error?.message ?? String(error)}>
-										{error?.message ?? String(error)}
-									</Typography>
-								))}
-							</div>
+							<AdminFieldRow label="Singkatan *" htmlFor={field.name}>
+								<div className="space-y-1">
+									<Input
+										id={field.name}
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										placeholder="Contoh: MAT W"
+									/>
+									{field.state.meta.errors.map((error) => (
+										<Typography variant="caption" tone="destructive" key={error?.message ?? String(error)}>
+											{error?.message ?? String(error)}
+										</Typography>
+									))}
+								</div>
+							</AdminFieldRow>
 						)}
 					</form.Field>
 
 					<form.Field name="description">
 						{(field) => (
-							<div className="space-y-2">
-								<Label htmlFor={field.name}>Deskripsi</Label>
+							<AdminFieldRow label="Deskripsi" htmlFor={field.name} optional>
 								<Input
 									id={field.name}
 									value={field.state.value}
 									onBlur={field.handleBlur}
 									onChange={(e) => field.handleChange(e.target.value)}
-									placeholder="Deskripsi singkat kelas (opsional)"
+									placeholder="Deskripsi singkat kelas"
 								/>
-							</div>
+							</AdminFieldRow>
 						)}
 					</form.Field>
 
-					<div className="grid gap-4 sm:grid-cols-[30%_70%]">
-						<form.Field name="category">
-							{(field) => (
-								<div className="space-y-2">
-									<Label htmlFor={field.name}>Kategori</Label>
-									<Select
-										value={field.state.value || ""}
-										onValueChange={(value) => {
-											if (isValidCategory(value) || value === "") {
-												field.handleChange(value);
-											}
-											if (value === "utbk") {
-												form.setFieldValue("gradeLevel", "");
-											}
-										}}
-									>
-										<SelectTrigger id={field.name} className="w-full">
-											<SelectValue placeholder="Pilih kategori" />
-										</SelectTrigger>
-										<SelectContent>
-											{Object.entries(SUBJECT_CATEGORY_LABELS).map(([value, label]) => (
-												<SelectItem key={value} value={value}>
-													{label}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</div>
-							)}
-						</form.Field>
+					<form.Field name="category">
+						{(field) => (
+							<AdminFieldRow label="Kategori" htmlFor={field.name}>
+								<Select
+									value={field.state.value || ""}
+									onValueChange={(value) => {
+										if (isValidCategory(value) || value === "") {
+											field.handleChange(value);
+										}
+										if (value === "utbk") {
+											form.setFieldValue("gradeLevel", "");
+										}
+									}}
+								>
+									<SelectTrigger id={field.name} className="w-full">
+										<SelectValue placeholder="Pilih kategori" />
+									</SelectTrigger>
+									<SelectContent>
+										{Object.entries(SUBJECT_CATEGORY_LABELS).map(([value, label]) => (
+											<SelectItem key={value} value={value}>
+												{label}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							</AdminFieldRow>
+						)}
+					</form.Field>
 
-						<form.Field name="gradeLevel">
-							{(field) => (
-								<div className="space-y-2">
-									<Label htmlFor={field.name}>
-										Grade Level{" "}
-										{isUtbk && <span className="text-muted-foreground text-xs">(tidak berlaku untuk UTBK)</span>}
-									</Label>
-									<Input
-										id={field.name}
-										type="number"
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(e) => field.handleChange(e.target.value)}
-										placeholder={isUtbk ? "Tidak perlu diisi untuk UTBK" : "Contoh: 10, 11, 12"}
-										disabled={isUtbk}
-									/>
-								</div>
-							)}
-						</form.Field>
-					</div>
+					<form.Field name="gradeLevel">
+						{(field) => (
+							<AdminFieldRow
+								label="Grade Level"
+								htmlFor={field.name}
+								hint={isUtbk ? "Tidak berlaku untuk UTBK" : undefined}
+							>
+								<Input
+									id={field.name}
+									type="number"
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(e) => field.handleChange(e.target.value)}
+									placeholder={isUtbk ? "Tidak perlu diisi untuk UTBK" : "Contoh: 10, 11, 12"}
+									disabled={isUtbk}
+								/>
+							</AdminFieldRow>
+						)}
+					</form.Field>
 
 					<DialogFooter>
-						<Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-							Batal
-						</Button>
 						<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
 							{([canSubmit, isSubmitting]) => (
 								<Button
+									size="xs"
 									isPending={isSubmitting || createMutation.isPending}
 									type="submit"
 									disabled={!canSubmit || isSubmitting || createMutation.isPending}

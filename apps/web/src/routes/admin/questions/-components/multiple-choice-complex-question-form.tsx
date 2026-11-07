@@ -1,4 +1,3 @@
-import { PlusIcon } from "@phosphor-icons/react";
 import {
 	AdminTable,
 	AdminTableBody,
@@ -60,7 +59,6 @@ export function MultipleChoiceComplexQuestionForm({
 			</AdminTableRoot>
 			{choices.length < 7 && (
 				<Button type="button" variant="outline" size="xs" onClick={addChoice} className="self-start">
-					<PlusIcon className="size-3.5" />
 					Tambah pernyataan
 				</Button>
 			)}

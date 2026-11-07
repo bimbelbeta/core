@@ -1,5 +1,5 @@
 import { ROLES } from "@bimbelbeta/contract/common/roles";
-import { DotsThreeIcon, PencilSimpleIcon, PlusIcon, TrashIcon } from "@phosphor-icons/react";
+import { DotsThreeIcon, PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { type } from "arktype";
@@ -107,8 +107,7 @@ function RouteComponent() {
 				</AdminPageHeaderContent>
 				<AdminPageHeaderActions>
 					{isAdmin && (
-						<Button size="sm" className="h-9" onClick={() => setCreateOpen(true)}>
-							<PlusIcon className="size-4" />
+						<Button size="xs" onClick={() => setCreateOpen(true)}>
 							Tambah subject
 						</Button>
 					)}
@@ -135,7 +134,7 @@ function RouteComponent() {
 							<SelectItem value="all">Semua kelas</SelectItem>
 							{Object.entries(SUBJECT_CATEGORY_LABELS).map(([value, label]) => (
 								<SelectItem key={value} value={value}>
-									{label}
+									<AdminChip>{label}</AdminChip>
 								</SelectItem>
 							))}
 						</SelectContent>
@@ -160,8 +159,7 @@ function RouteComponent() {
 							emptyMessage={hasFilters ? "Tidak ada kelas yang cocok dengan filter ini." : "Belum ada kelas."}
 							emptyAction={
 								isAdmin && !hasFilters ? (
-									<Button size="sm" onClick={() => setCreateOpen(true)}>
-										<PlusIcon className="size-4" />
+									<Button size="xs" onClick={() => setCreateOpen(true)}>
 										Tambah subject
 									</Button>
 								) : undefined
@@ -187,15 +185,15 @@ function RouteComponent() {
 									<AdminTableCell className="hidden sm:table-cell">
 										<AdminChip>{subject.category}</AdminChip>
 									</AdminTableCell>
-									<AdminTableCell className="text-muted-foreground hidden text-sm sm:table-cell">
+									<AdminTableCell className="text-muted-foreground hidden sm:table-cell">
 										{subject.hasViewed ? "Sudah dibuka" : "—"}
 									</AdminTableCell>
 									<AdminTableCell className="relative z-10 pr-3 text-right">
 										<div className="flex items-center justify-end">
 											<DropdownMenu>
 												<DropdownMenuTrigger asChild>
-													<Button variant="ghost" size="icon" aria-label={`Aksi untuk ${subject.name}`}>
-														<DotsThreeIcon className="size-5" weight="bold" />
+													<Button variant="ghost" size="icon-xs" aria-label={`Aksi untuk ${subject.name}`}>
+														<DotsThreeIcon className="size-4" weight="bold" />
 													</Button>
 												</DropdownMenuTrigger>
 												<DropdownMenuContent align="end">

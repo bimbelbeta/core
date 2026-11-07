@@ -97,7 +97,7 @@ export function PremiumPage() {
 							<Coins size={28} weight="fill" className="text-amber-600" />
 						</div>
 						<div>
-							<Typography variant="subtitle2" className="text-amber-900">
+							<Typography variant="subtitle4" className="text-amber-900">
 								Kredit Tryout Kamu
 							</Typography>
 							<Typography className="text-amber-700">

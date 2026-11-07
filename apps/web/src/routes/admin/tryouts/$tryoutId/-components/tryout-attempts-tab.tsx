@@ -3,12 +3,19 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { useState } from "react";
 import { AdminSection } from "@/components/admin/admin-page";
-import { AdminTableRoot } from "@/components/admin/admin-table";
+import {
+	AdminTable,
+	AdminTableBody,
+	AdminTableCell,
+	AdminTableHead,
+	AdminTableHeader,
+	AdminTableRoot,
+	AdminTableRow,
+} from "@/components/admin/admin-table";
 import { PaginationButtons } from "@/components/admin/pagination-buttons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatDateTime, formatRelativeDate } from "@/lib/format-date";
@@ -94,22 +101,20 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 				</AdminTableRoot>
 			) : (
 				<AdminTableRoot>
-					<Table>
-						<TableHeader>
-							<TableRow className="bg-muted/30">
-								<TableHead>User</TableHead>
-								<TableHead className="w-28">Status</TableHead>
-								<TableHead className="w-24">Skor</TableHead>
-								{subtests.map((subtest) => (
-									<TableHead key={subtest.id} className="min-w-28">
-										{subtest.name}
-									</TableHead>
-								))}
-								<TableHead className="w-36">Mulai</TableHead>
-								<TableHead className="w-36 pr-4">Selesai</TableHead>
-							</TableRow>
-						</TableHeader>
-						<TableBody>
+					<AdminTable>
+						<AdminTableHeader>
+							<AdminTableHead>User</AdminTableHead>
+							<AdminTableHead className="w-28">Status</AdminTableHead>
+							<AdminTableHead className="w-24">Skor</AdminTableHead>
+							{subtests.map((subtest) => (
+								<AdminTableHead key={subtest.id} className="min-w-28">
+									{subtest.name}
+								</AdminTableHead>
+							))}
+							<AdminTableHead className="w-36">Mulai</AdminTableHead>
+							<AdminTableHead className="w-36 pr-3">Selesai</AdminTableHead>
+						</AdminTableHeader>
+						<AdminTableBody columns={tableColumnCount}>
 							{isPending ? (
 								<TableSkeleton columns={tableColumnCount} />
 							) : (
@@ -123,66 +128,66 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 										);
 
 										return (
-											<TableRow key={attempt.id} className="hover:bg-muted/30">
-												<TableCell>
+											<AdminTableRow key={attempt.id}>
+												<AdminTableCell>
 													<div className="flex items-center gap-3">
-														<Avatar className="ring-border size-9 rounded-full ring-2">
+														<Avatar className="ring-border size-8 rounded-full ring-2">
 															<AvatarImage src={user.image ?? undefined} alt={user.name} />
-															<AvatarFallback className="bg-primary-100 text-primary-800 text-xs font-semibold">
+															<AvatarFallback className="bg-primary-100 text-primary-800 text-meta font-semibold">
 																{getInitials(user.name)}
 															</AvatarFallback>
 														</Avatar>
 														<div className="flex flex-col">
 															<span className="text-foreground leading-tight font-semibold">{user.name}</span>
-															<span className="text-muted-foreground text-xs leading-tight">{user.email}</span>
+															<span className="text-muted-foreground text-meta leading-tight">{user.email}</span>
 														</div>
 													</div>
-												</TableCell>
+												</AdminTableCell>
 
-												<TableCell>
+												<AdminTableCell>
 													<Badge
 														variant={statusConfig.variant}
-														className={cn("text-xs font-medium", statusConfig.className)}
+														className={cn("text-meta font-medium", statusConfig.className)}
 													>
 														{statusConfig.label}
 													</Badge>
-												</TableCell>
+												</AdminTableCell>
 
-												<TableCell>
+												<AdminTableCell>
 													<div className="flex items-center gap-1.5">
 														<ChartBarIcon className="text-muted-foreground size-3.5" />
 														<span
 															className={cn(
-																"text-sm font-semibold tabular-nums",
+																"text-row-title tabular-nums",
 																attempt.score == null ? "text-muted-foreground" : "text-foreground",
 															)}
 														>
 															{attempt.score ?? "-"}
 														</span>
 													</div>
-												</TableCell>
+												</AdminTableCell>
 
 												{subtests.map((subtest) => {
 													const subtestScore = subtestScoreMap.get(subtest.id);
 													return (
-														<TableCell key={subtest.id}>
+														<AdminTableCell key={subtest.id}>
 															<span
 																className={cn(
-																	"text-sm font-semibold tabular-nums",
+																	"text-row-title tabular-nums",
 																	subtestScore == null ? "text-muted-foreground" : "text-foreground",
 																)}
 															>
 																{subtestScore ?? "-"}
 															</span>
-														</TableCell>
+														</AdminTableCell>
 													);
 												})}
 
-												<TableCell>
+												<AdminTableCell>
 													{startedAt ? (
 														<Tooltip>
 															<TooltipTrigger asChild>
-																<span className="text-muted-foreground flex items-center gap-1.5 text-xs">
+																<span className="text-muted-foreground text-meta flex items-center gap-1.5">
 																	<CalendarDotsIcon className="size-3.5" />
 																	{formatRelativeDate(startedAt)}
 																</span>
@@ -190,15 +195,15 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 															<TooltipContent>{formatDateTime(startedAt)}</TooltipContent>
 														</Tooltip>
 													) : (
-														<span className="text-muted-foreground text-xs">-</span>
+														<span className="text-muted-foreground text-meta">-</span>
 													)}
-												</TableCell>
+												</AdminTableCell>
 
-												<TableCell className="pr-4">
+												<AdminTableCell className="pr-3">
 													{completedAt ? (
 														<Tooltip>
 															<TooltipTrigger asChild>
-																<span className="text-muted-foreground flex items-center gap-1.5 text-xs">
+																<span className="text-muted-foreground text-meta flex items-center gap-1.5">
 																	<TimerIcon className="size-3.5" />
 																	{formatRelativeDate(completedAt)}
 																</span>
@@ -206,16 +211,16 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 															<TooltipContent>{formatDateTime(completedAt)}</TooltipContent>
 														</Tooltip>
 													) : (
-														<span className="text-muted-foreground text-xs">-</span>
+														<span className="text-muted-foreground text-meta">-</span>
 													)}
-												</TableCell>
-											</TableRow>
+												</AdminTableCell>
+											</AdminTableRow>
 										);
 									})}
 								</TooltipProvider>
 							)}
-						</TableBody>
-					</Table>
+						</AdminTableBody>
+					</AdminTable>
 				</AdminTableRoot>
 			)}
 

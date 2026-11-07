@@ -1,3 +1,4 @@
+import { buttonVariants } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { SUBJECT_CATEGORY_LABELS, subjectCategorySchema } from "@/lib/schemas";
 import type { SubjectFilter } from "./classes-types";
@@ -29,7 +30,11 @@ export function SubjectFilters({
 			className="justify-start overflow-x-auto pb-1 sm:overflow-visible sm:pb-0"
 		>
 			{FILTERS.map((filter) => (
-				<ToggleGroupItem key={filter.value} value={filter.value}>
+				<ToggleGroupItem
+					key={filter.value}
+					value={filter.value}
+					className={buttonVariants({ variant: activeFilter === filter.value ? "default" : "outline", size: "xs" })}
+				>
 					{filter.label}
 				</ToggleGroupItem>
 			))}

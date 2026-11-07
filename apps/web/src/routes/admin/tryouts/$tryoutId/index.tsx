@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
 import { type } from "arktype";
 import {
+	AdminBackLink,
 	AdminPageContent,
 	AdminPageHeader,
 	AdminPageHeaderContent,
@@ -64,6 +65,7 @@ function TryoutDetailPage() {
 		<AdminPageRoot>
 			<AdminPageHeader>
 				<AdminPageHeaderContent>
+					<AdminBackLink to="/admin/tryouts">Kembali ke tryout</AdminBackLink>
 					{isPending ? (
 						<Skeleton className="h-7 w-48" />
 					) : (
@@ -80,7 +82,7 @@ function TryoutDetailPage() {
 				</AdminPageHeaderContent>
 			</AdminPageHeader>
 
-			<AdminPageContent className="gap-6">
+			<AdminPageContent>
 				{isPending ? (
 					<div className="space-y-2">
 						<Skeleton className="h-10 w-64" />

@@ -1,4 +1,4 @@
-import { CopyIcon, KeyIcon, PlusIcon } from "@phosphor-icons/react";
+import { CopyIcon, KeyIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -126,7 +126,6 @@ export function AccessCodeSection({ tryoutId }: { tryoutId: number }) {
 							onClick={handleCreate}
 							disabled={createAccessCodeMutation.isPending}
 						>
-							<PlusIcon className="size-3.5" />
 							Buat kode akses
 						</Button>
 					</div>
@@ -157,7 +156,7 @@ export function AccessCodeSection({ tryoutId }: { tryoutId: number }) {
 												<span className="text-meta font-mono tabular-nums">{accessCodeItem.codePreview}</span>
 												<Button
 													type="button"
-													size="icon"
+													size="icon-xs"
 													variant="ghost"
 													className="size-6"
 													aria-label={`Salin pratinjau kode akses ${accessCodeItem.label ?? accessCodeItem.codePreview}`}

@@ -87,11 +87,11 @@ function RouteComponent() {
 	const excludeIds = questions.map((q) => q.questionId);
 
 	return (
-		<div className="space-y-4">
-			<div className="flex flex-col items-start justify-between space-y-1 sm:flex-row sm:items-center">
-				<Typography variant="subtitle1">Edit Latihan Soal</Typography>
+		<div className="flex flex-col gap-3">
+			<div className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
+				<Typography variant="subtitle4">Edit Latihan Soal</Typography>
 				<div className="flex items-center gap-2">
-					<Button type="button" variant="outline" size="sm" onClick={() => setPickerOpen(true)}>
+					<Button type="button" variant="outline" size="xs" onClick={() => setPickerOpen(true)}>
 						<Plus className="mr-1 size-4" />
 						Tambah soal
 					</Button>
@@ -103,22 +103,23 @@ function RouteComponent() {
 									type="button"
 									variant="destructive"
 									disabled={unlinkAllMutation.isPending}
-									size="sm"
+									size="xs"
 								>
 									Hapus Semua
 								</Button>
 							</AlertDialogTrigger>
 							<AlertDialogContent>
 								<AlertDialogHeader>
-									<AlertDialogTitle>Hapus Semua Latihan Soal?</AlertDialogTitle>
+									<AlertDialogTitle className="text-base">Hapus Semua Latihan Soal?</AlertDialogTitle>
 									<AlertDialogDescription>
 										Apakah Anda yakin ingin menghapus semua latihan soal dari konten ini? Soal tidak akan dihapus dari
 										bank soal.
 									</AlertDialogDescription>
 								</AlertDialogHeader>
 								<AlertDialogFooter>
-									<AlertDialogCancel>Batal</AlertDialogCancel>
+									<AlertDialogCancel size="xs">Batal</AlertDialogCancel>
 									<AlertDialogAction
+										size="xs"
 										onClick={() => {
 											unlinkAllMutation.mutate({ id: contentId });
 										}}
@@ -137,9 +138,9 @@ function RouteComponent() {
 			{hasQuestions ? (
 				<LinkedQuestionsList contentId={contentId} questions={questions} />
 			) : (
-				<div className="flex flex-col items-center justify-center gap-4 py-12">
+				<div className="flex flex-col items-center justify-center gap-3 py-10">
 					<EmptyContentState title="Belum ada latihan soal" desc="Tambahkan soal dari bank soal untuk konten ini" />
-					<Button type="button" onClick={() => setPickerOpen(true)}>
+					<Button size="xs" type="button" onClick={() => setPickerOpen(true)}>
 						<Plus className="mr-1 size-4" />
 						Tambah soal
 					</Button>

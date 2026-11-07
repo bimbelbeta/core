@@ -1,7 +1,7 @@
 import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { referralCode, referralUsage } from "@bimbelbeta/db/schema/referral";
-import { and, asc, desc, eq, gt, ilike, inArray, lt, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gt, ilike, inArray, isNotNull, isNull, lt, lte, or, sql } from "drizzle-orm";
 import { buildStringIdCursorPage, parseStringIdCursor } from "@/lib/pagination/cursor";
 import { superAdminImplementer } from "@/lib/router-definition";
 
@@ -19,10 +19,29 @@ const list = superadmin.admin.referral.list.handler(async ({ input }) => {
 	const cursor = input.before || input.after;
 	const cursorId = cursor ? parseStringIdCursor(cursor) : undefined;
 
-	const dataFilters = and(
-		input.search ? ilike(referralCode.code, `%${input.search}%`) : undefined,
-		input.status !== undefined ? eq(referralCode.status, input.status) : undefined,
-	);
+	const now = new Date();
+	const statusFilter = input.status
+		? {
+				aktif: and(
+					eq(referralCode.status, true),
+					or(isNull(referralCode.validUntil), gt(referralCode.validUntil, now)),
+					or(isNull(referralCode.maxUsages), gt(referralCode.maxUsages, referralCode.usageCount)),
+				),
+				nonaktif: eq(referralCode.status, false),
+				kedaluwarsa: and(
+					eq(referralCode.status, true),
+					isNotNull(referralCode.validUntil),
+					lte(referralCode.validUntil, now),
+				),
+				kuota_habis: and(
+					eq(referralCode.status, true),
+					isNotNull(referralCode.maxUsages),
+					lte(referralCode.maxUsages, referralCode.usageCount),
+				),
+			}[input.status]
+		: undefined;
+
+	const dataFilters = and(input.search ? ilike(referralCode.code, `%${input.search}%`) : undefined, statusFilter);
 
 	const rows = await db
 		.select()

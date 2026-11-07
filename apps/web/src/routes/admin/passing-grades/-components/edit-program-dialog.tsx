@@ -1,9 +1,11 @@
 import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { type } from "arktype";
+import { useEffect } from "react";
 import { toast } from "sonner";
+import { AdminFieldRow } from "@/components/admin/admin-page";
 import { Button } from "@/components/ui/button";
-import { DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -24,21 +26,23 @@ interface EditProgramDialogProps {
 		accreditation: string | null;
 		averageScore: number | null;
 		isActive: boolean;
-	};
+	} | null;
+	open: boolean;
 	onSuccess: () => void;
 	onOpenChange: (open: boolean) => void;
 }
 
-export function EditProgramDialog({ universityProgram, onSuccess, onOpenChange }: EditProgramDialogProps) {
+export function EditProgramDialog({ universityProgram, open, onSuccess, onOpenChange }: EditProgramDialogProps) {
 	const form = useForm({
 		defaultValues: {
-			tuition: universityProgram.tuition ?? "",
-			capacity: universityProgram.capacity ?? "",
-			accreditation: universityProgram.accreditation ?? "none",
-			averageScore: universityProgram.averageScore ?? "",
-			isActive: universityProgram.isActive,
+			tuition: "",
+			capacity: "",
+			accreditation: "none",
+			averageScore: "",
+			isActive: true,
 		},
 		onSubmit: async ({ value }) => {
+			if (!universityProgram) return;
 			updateMutation.mutate({
 				id: universityProgram.id,
 				tuition: value.tuition ? Number(value.tuition) : undefined,
@@ -59,6 +63,18 @@ export function EditProgramDialog({ universityProgram, onSuccess, onOpenChange }
 		},
 	});
 
+	useEffect(() => {
+		if (universityProgram) {
+			form.reset({
+				tuition: universityProgram.tuition != null ? String(universityProgram.tuition) : "",
+				capacity: universityProgram.capacity != null ? String(universityProgram.capacity) : "",
+				accreditation: universityProgram.accreditation ?? "none",
+				averageScore: universityProgram.averageScore != null ? String(universityProgram.averageScore) : "",
+				isActive: universityProgram.isActive,
+			});
+		}
+	}, [universityProgram, form]);
+
 	const updateMutation = useMutation(
 		orpc.admin.university.universityPrograms.update.mutationOptions({
 			onSuccess: () => {
@@ -73,152 +89,125 @@ export function EditProgramDialog({ universityProgram, onSuccess, onOpenChange }
 	);
 
 	return (
-		<div className="space-y-4">
-			{/* Program info header */}
-			<div className="bg-muted/50 rounded-lg border px-4 py-3">
-				<Typography variant="body" className="font-medium">
-					{universityProgram.studyProgram.name}
-				</Typography>
-				{universityProgram.studyProgram.category && (
-					<Typography variant="caption">{universityProgram.studyProgram.category}</Typography>
-				)}
-			</div>
+		<Dialog open={open} onOpenChange={onOpenChange}>
+			<DialogContent className="sm:max-w-2xl" aria-describedby={undefined}>
+				<DialogHeader>
+					<DialogTitle className="text-base">Edit Program Studi</DialogTitle>
+				</DialogHeader>
 
-			<form
-				onSubmit={(e) => {
-					e.preventDefault();
-					form.handleSubmit();
-				}}
-				className="space-y-4"
-			>
-				<div className="grid grid-cols-2 gap-3">
-					<form.Field name="tuition">
-						{(field) => (
-							<div className="space-y-1.5">
-								<Label htmlFor={field.name} className="text-sm font-medium">
-									Biaya (Rp)
-								</Label>
-								<Input
-									id={field.name}
-									type="number"
-									placeholder="5.000.000"
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-								/>
-								{field.state.meta.errors.map((error) => (
-									<Typography key={error?.message} variant="caption" tone="destructive">
-										{error?.message}
-									</Typography>
-								))}
-							</div>
-						)}
-					</form.Field>
-
-					<form.Field name="capacity">
-						{(field) => (
-							<div className="space-y-1.5">
-								<Label htmlFor={field.name} className="text-sm font-medium">
-									Kapasitas
-								</Label>
-								<Input
-									id={field.name}
-									type="number"
-									placeholder="100"
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-								/>
-								{field.state.meta.errors.map((error) => (
-									<Typography key={error?.message} variant="caption" tone="destructive">
-										{error?.message}
-									</Typography>
-								))}
-							</div>
-						)}
-					</form.Field>
-				</div>
-
-				<div className="grid grid-cols-2 gap-3">
-					<form.Field name="accreditation">
-						{(field) => (
-							<div className="space-y-1.5">
-								<Label htmlFor={field.name} className="text-sm font-medium">
-									Akreditasi
-								</Label>
-								<Select value={field.state.value} onValueChange={(val) => field.handleChange(val)}>
-									<SelectTrigger id={field.name} className="w-full">
-										<SelectValue placeholder="Pilih..." />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="none">-</SelectItem>
-										<SelectItem value="Unggul">Unggul</SelectItem>
-										<SelectItem value="A">A</SelectItem>
-										<SelectItem value="B">B</SelectItem>
-										<SelectItem value="C">C</SelectItem>
-										<SelectItem value="Baik Sekali">Baik Sekali</SelectItem>
-										<SelectItem value="Baik">Baik</SelectItem>
-									</SelectContent>
-								</Select>
-								{field.state.meta.errors.map((error) => (
-									<Typography key={error?.message} variant="caption" tone="destructive">
-										{error?.message}
-									</Typography>
-								))}
-							</div>
-						)}
-					</form.Field>
-
-					<form.Field name="averageScore">
-						{(field) => (
-							<div className="space-y-1.5">
-								<Label htmlFor={field.name} className="text-sm font-medium">
-									Skor Rata-rata
-								</Label>
-								<Input
-									id={field.name}
-									type="number"
-									placeholder="500"
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-								/>
-								{field.state.meta.errors.map((error) => (
-									<Typography key={error?.message} variant="caption" tone="destructive">
-										{error?.message}
-									</Typography>
-								))}
-							</div>
-						)}
-					</form.Field>
-				</div>
-
-				<form.Field name="isActive">
-					{(field) => (
-						<div className="flex items-center justify-between rounded-lg border px-4 py-3">
-							<div>
-								<Label htmlFor={field.name} className="cursor-pointer text-sm font-medium">
-									Status Aktif
-								</Label>
-								<Typography variant="caption">
-									{field.state.value ? "Program studi ini aktif" : "Program studi ini tidak aktif"}
-								</Typography>
-							</div>
-							<Switch id={field.name} checked={field.state.value} onCheckedChange={field.handleChange} />
+				{universityProgram && (
+					<div className="space-y-3">
+						<div className="bg-muted/50 rounded-lg border px-3 py-2.5">
+							<Typography variant="body" className="font-medium">
+								{universityProgram.studyProgram.name}
+							</Typography>
+							{universityProgram.studyProgram.category && (
+								<Typography variant="caption">{universityProgram.studyProgram.category}</Typography>
+							)}
 						</div>
-					)}
-				</form.Field>
 
-				<DialogFooter className="pt-2">
-					<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
-						{([canSubmit, isSubmitting]) => (
-							<Button isPending={isSubmitting} type="submit" disabled={!canSubmit || isSubmitting} className="w-full">
-								{"Simpan Perubahan"}
-							</Button>
-						)}
-					</form.Subscribe>
-				</DialogFooter>
-			</form>
-		</div>
+						<form
+							onSubmit={(e) => {
+								e.preventDefault();
+								form.handleSubmit();
+							}}
+							className="space-y-3"
+						>
+							<form.Field name="tuition">
+								{(field) => (
+									<AdminFieldRow label="Biaya (Rp)" htmlFor={field.name} optional>
+										<Input
+											id={field.name}
+											type="number"
+											placeholder="5.000.000"
+											value={field.state.value}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+										/>
+									</AdminFieldRow>
+								)}
+							</form.Field>
+
+							<form.Field name="capacity">
+								{(field) => (
+									<AdminFieldRow label="Kapasitas" htmlFor={field.name} optional>
+										<Input
+											id={field.name}
+											type="number"
+											placeholder="100"
+											value={field.state.value}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+										/>
+									</AdminFieldRow>
+								)}
+							</form.Field>
+
+							<form.Field name="accreditation">
+								{(field) => (
+									<AdminFieldRow label="Akreditasi" htmlFor={field.name} optional>
+										<Select value={field.state.value} onValueChange={(val) => field.handleChange(val)}>
+											<SelectTrigger id={field.name} className="w-full">
+												<SelectValue placeholder="Pilih..." />
+											</SelectTrigger>
+											<SelectContent>
+												<SelectItem value="none">-</SelectItem>
+												<SelectItem value="Unggul">Unggul</SelectItem>
+												<SelectItem value="A">A</SelectItem>
+												<SelectItem value="B">B</SelectItem>
+												<SelectItem value="C">C</SelectItem>
+												<SelectItem value="Baik Sekali">Baik Sekali</SelectItem>
+												<SelectItem value="Baik">Baik</SelectItem>
+											</SelectContent>
+										</Select>
+									</AdminFieldRow>
+								)}
+							</form.Field>
+
+							<form.Field name="averageScore">
+								{(field) => (
+									<AdminFieldRow label="Skor Rata-rata" htmlFor={field.name} optional>
+										<Input
+											id={field.name}
+											type="number"
+											placeholder="500"
+											value={field.state.value}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+										/>
+									</AdminFieldRow>
+								)}
+							</form.Field>
+
+							<form.Field name="isActive">
+								{(field) => (
+									<div className="flex items-center justify-between rounded-lg border px-3 py-2.5">
+										<div>
+											<Label htmlFor={field.name} className="cursor-pointer">
+												Status Aktif
+											</Label>
+											<Typography variant="caption">
+												{field.state.value ? "Program studi ini aktif" : "Program studi ini tidak aktif"}
+											</Typography>
+										</div>
+										<Switch id={field.name} checked={field.state.value} onCheckedChange={field.handleChange} />
+									</div>
+								)}
+							</form.Field>
+
+							<DialogFooter>
+								<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+									{([canSubmit, isSubmitting]) => (
+										<Button size="xs" isPending={isSubmitting} type="submit" disabled={!canSubmit || isSubmitting}>
+											{"Simpan Perubahan"}
+										</Button>
+									)}
+								</form.Subscribe>
+							</DialogFooter>
+						</form>
+					</div>
+				)}
+			</DialogContent>
+		</Dialog>
 	);
 }

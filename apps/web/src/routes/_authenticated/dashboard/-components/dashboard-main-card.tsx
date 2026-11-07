@@ -42,10 +42,10 @@ export function DashboardMainCard({ title, description, to, href, src }: Dashboa
 			</div>
 
 			<div className="text-secondary-800 space-y-1">
-				<Typography variant="title" as="h2" className="text-secondary-800">
+				<Typography variant="subtitle1" className="text-secondary-800">
 					{title}
 				</Typography>
-				<Typography>{description}</Typography>
+				<Typography variant="subtitle3">{description}</Typography>
 			</div>
 		</Card>
 	);

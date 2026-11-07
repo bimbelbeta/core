@@ -18,7 +18,7 @@ export function ReferralSection() {
 						<TicketIcon size={28} weight="duotone" className="text-primary" />
 					</div>
 					<div className="flex-1">
-						<Typography variant="subtitle2" className="text-foreground">
+						<Typography variant="subtitle4" className="text-foreground">
 							Punya kode referal?
 						</Typography>
 						<Typography tone="muted" className="mt-0.5">
@@ -57,7 +57,7 @@ export function ReferralSection() {
 					</div>
 					<DialogHeader className="text-center">
 						<DialogTitle asChild>
-							<Typography variant="subtitle1">Selamat! Kamu Sekarang Premium 🎉</Typography>
+							<Typography variant="subtitle2">Selamat! Kamu Sekarang Premium 🎉</Typography>
 						</DialogTitle>
 						<DialogDescription className="mt-2">
 							{successData && (

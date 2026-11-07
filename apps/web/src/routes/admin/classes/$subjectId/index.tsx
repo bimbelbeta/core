@@ -1,11 +1,11 @@
-import { ArrowLeftIcon, PlusIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import { type } from "arktype";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
+	AdminBackLink,
 	AdminPageContent,
 	AdminPageHeader,
 	AdminPageHeaderActions,
@@ -249,7 +249,7 @@ function RouteComponent() {
 				</AdminPageHeader>
 				<AdminPageContent>
 					<Typography tone="destructive">Error: {contents.error.message}</Typography>
-					<Button variant="outline" size="sm" onClick={() => contents.refetch()}>
+					<Button variant="outline" size="xs" onClick={() => contents.refetch()}>
 						Coba lagi
 					</Button>
 				</AdminPageContent>
@@ -265,21 +265,14 @@ function RouteComponent() {
 		<AdminPageRoot>
 			<AdminPageHeader>
 				<AdminPageHeaderContent>
-					<div className="flex items-center gap-2">
-						<Button variant="ghost" size="icon" aria-label="Kembali" asChild>
-							<Link to="/admin/classes">
-								<ArrowLeftIcon className="size-4" />
-							</Link>
-						</Button>
-						<Typography variant="title">{subject.name}</Typography>
-					</div>
+					<AdminBackLink to="/admin/classes">Kembali ke kelas</AdminBackLink>
+					<Typography variant="title">{subject.name}</Typography>
 					<Typography variant="body" tone="muted">
 						{gradeLabel(subject.category, subject.gradeLevel)}
 					</Typography>
 				</AdminPageHeaderContent>
 				<AdminPageHeaderActions>
-					<Button size="sm" className="h-9" onClick={handleCreate}>
-						<PlusIcon className="size-4" />
+					<Button size="xs" onClick={handleCreate}>
 						Tambah konten
 					</Button>
 				</AdminPageHeaderActions>
@@ -310,7 +303,7 @@ function RouteComponent() {
 			<Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Tambah konten</DialogTitle>
+						<DialogTitle className="text-base">Tambah konten</DialogTitle>
 						<DialogDescription>Buat konten baru</DialogDescription>
 					</DialogHeader>
 					<form
@@ -318,7 +311,7 @@ function RouteComponent() {
 							e.preventDefault();
 							createForm.handleSubmit();
 						}}
-						className="space-y-4"
+						className="space-y-3"
 					>
 						<createForm.Field name="title">
 							{(field) => (
@@ -348,21 +341,19 @@ function RouteComponent() {
 										checked={field.state.value}
 										onCheckedChange={(checked) => field.handleChange(Boolean(checked))}
 									/>
-									<Label htmlFor={field.name} className="text-sm font-normal">
+									<Label htmlFor={field.name} className="font-normal">
 										Buat catatan materi awal (minimal satu komponen per konten)
 									</Label>
 								</div>
 							)}
 						</createForm.Field>
 						<DialogFooter>
-							<Button type="button" variant="outline" onClick={() => setCreateDialogOpen(false)}>
-								Batal
-							</Button>
 							<createForm.Subscribe>
 								{(state) => (
 									<Button
 										isPending={createMutation.isPending}
 										type="submit"
+										size="xs"
 										disabled={!state.canSubmit || createMutation.isPending}
 									>
 										{"Simpan"}
@@ -377,7 +368,7 @@ function RouteComponent() {
 			<Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Edit Konten</DialogTitle>
+						<DialogTitle className="text-base">Edit Konten</DialogTitle>
 						<DialogDescription>Ubah judul konten</DialogDescription>
 					</DialogHeader>
 					<form
@@ -385,7 +376,7 @@ function RouteComponent() {
 							e.preventDefault();
 							editForm.handleSubmit();
 						}}
-						className="space-y-4"
+						className="space-y-3"
 					>
 						<editForm.Field name="title">
 							{(field) => (
@@ -408,21 +399,12 @@ function RouteComponent() {
 							)}
 						</editForm.Field>
 						<DialogFooter>
-							<Button
-								type="button"
-								variant="outline"
-								onClick={() => {
-									setEditDialogOpen(false);
-									setEditingItem(null);
-								}}
-							>
-								Batal
-							</Button>
 							<editForm.Subscribe>
 								{(state) => (
 									<Button
 										isPending={updateMutation.isPending}
 										type="submit"
+										size="xs"
 										disabled={!state.canSubmit || updateMutation.isPending}
 									>
 										{"Simpan"}
@@ -437,14 +419,17 @@ function RouteComponent() {
 			<AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>Hapus Konten?</AlertDialogTitle>
+						<AlertDialogTitle className="text-base">Hapus Konten?</AlertDialogTitle>
 						<AlertDialogDescription>
 							Apakah Anda yakin ingin menghapus konten "{deletingItem?.title}"? Tindakan ini tidak dapat dibatalkan.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel onClick={() => setDeleteDialogOpen(false)}>Batal</AlertDialogCancel>
+						<AlertDialogCancel size="xs" onClick={() => setDeleteDialogOpen(false)}>
+							Batal
+						</AlertDialogCancel>
 						<AlertDialogAction
+							size="xs"
 							isPending={deleteMutation.isPending}
 							onClick={() => {
 								if (deletingItem) {

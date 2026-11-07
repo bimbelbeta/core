@@ -67,7 +67,7 @@ export function PasteScoresDialog({ open, onOpenChange, expectedCount, onPaste }
 		<Dialog open={open} onOpenChange={handleClose}>
 			<DialogContent className="sm:max-w-md">
 				<DialogHeader>
-					<DialogTitle>Tempel skor</DialogTitle>
+					<DialogTitle className="text-base">Tempel skor</DialogTitle>
 					<DialogDescription>
 						Tempel skor mulai dari 1 jawaban benar, dipisah baris, spasi, atau koma. Sisanya memakai rumus linear.
 					</DialogDescription>
@@ -90,10 +90,7 @@ export function PasteScoresDialog({ open, onOpenChange, expectedCount, onPaste }
 					)}
 				</div>
 				<DialogFooter>
-					<Button type="button" variant="outline" onClick={() => handleClose(false)}>
-						Batal
-					</Button>
-					<Button type="button" onClick={handlePaste} disabled={parsedScores.length === 0}>
+					<Button size="xs" type="button" onClick={handlePaste} disabled={parsedScores.length === 0}>
 						Terapkan
 					</Button>
 				</DialogFooter>

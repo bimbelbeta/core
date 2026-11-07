@@ -1,17 +1,25 @@
-import { ArrowLeftIcon, CrownIcon, XCircleIcon } from "@phosphor-icons/react";
+import { CrownIcon, XCircleIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate, useParams } from "@tanstack/react-router";
 import {
+	AdminBackButton,
 	AdminPageContent,
 	AdminPageHeader,
 	AdminPageHeaderContent,
 	AdminPageRoot,
+	AdminSection,
 } from "@/components/admin/admin-page";
+import {
+	AdminTable,
+	AdminTableBody,
+	AdminTableCell,
+	AdminTableHead,
+	AdminTableHeader,
+	AdminTableRoot,
+	AdminTableRow,
+} from "@/components/admin/admin-table";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 import { formatTimestamp } from "../-utils";
@@ -62,12 +70,8 @@ export function ReferralDetailPage() {
 		<AdminPageRoot>
 			<AdminPageHeader>
 				<AdminPageHeaderContent>
-					<div className="flex items-center gap-2">
-						<Button aria-label="Kembali" variant="ghost" size="icon" onClick={handleBack}>
-							<ArrowLeftIcon className="size-4" />
-						</Button>
-						<code className="bg-muted rounded px-2 py-1 text-sm tracking-widest tabular-nums">{referralCode.code}</code>
-					</div>
+					<AdminBackButton onClick={handleBack}>Kembali ke referral</AdminBackButton>
+					<code className="bg-muted rounded px-2 py-1 text-sm tracking-widest tabular-nums">{referralCode.code}</code>
 					<Typography variant="body" tone="muted">
 						Detail kode referal
 					</Typography>
@@ -75,12 +79,9 @@ export function ReferralDetailPage() {
 			</AdminPageHeader>
 
 			<AdminPageContent>
-				<div className="grid gap-6 md:grid-cols-2">
-					<Card>
-						<CardHeader>
-							<CardTitle className="text-base">Informasi Kode</CardTitle>
-						</CardHeader>
-						<CardContent className="space-y-3 text-sm">
+				<div className="grid gap-4 md:grid-cols-2">
+					<AdminSection title="Informasi Kode">
+						<div className="bg-card text-meta flex flex-col gap-2 rounded-lg border p-3">
 							<div className="flex justify-between">
 								<span className="text-muted-foreground">Status</span>
 								{isActive ? (
@@ -112,14 +113,11 @@ export function ReferralDetailPage() {
 								<span className="text-muted-foreground">Dibuat</span>
 								<span className="tabular-nums">{formatTimestamp(referralCode.createdAt)}</span>
 							</div>
-						</CardContent>
-					</Card>
+						</div>
+					</AdminSection>
 
-					<Card>
-						<CardHeader>
-							<CardTitle className="text-base">Ringkasan</CardTitle>
-						</CardHeader>
-						<CardContent className="space-y-3 text-sm">
+					<AdminSection title="Ringkasan">
+						<div className="bg-card text-meta flex flex-col gap-2 rounded-lg border p-3">
 							<div className="flex justify-between">
 								<span className="text-muted-foreground">Total pengguna</span>
 								<span className="font-semibold tabular-nums">{items.length}</span>
@@ -128,70 +126,63 @@ export function ReferralDetailPage() {
 								<span className="text-muted-foreground">Pengguna premium aktif</span>
 								<span className="font-semibold tabular-nums">{items.filter((u) => u.isPremium).length}</span>
 							</div>
-						</CardContent>
-					</Card>
+						</div>
+					</AdminSection>
 				</div>
 
-				<Card>
-					<CardHeader>
-						<CardTitle className="text-base">Pengguna yang Menukarkan Kode</CardTitle>
-					</CardHeader>
-					<CardContent className="p-0">
-						{items.length === 0 ? (
-							<Typography tone="muted" className="py-10 text-center">
-								Belum ada pengguna yang menukarkan kode ini.
-							</Typography>
-						) : (
-							<div className="overflow-auto rounded-b-lg">
-								<Table>
-									<TableHeader>
-										<TableRow>
-											<TableHead className="pl-6">Nama</TableHead>
-											<TableHead>Email</TableHead>
-											<TableHead>Status Premium</TableHead>
-											<TableHead>Premium Berakhir</TableHead>
-											<TableHead className="pr-6">Ditukar Pada</TableHead>
-										</TableRow>
-									</TableHeader>
-									<TableBody>
-										{items.map((item) => (
-											<TableRow key={item.usageId}>
-												<TableCell className="pl-6">
-													<Link
-														to="/admin/users/$userId"
-														params={{ userId: item.userId }}
-														className="hover:text-primary font-medium hover:underline"
-													>
-														{item.userName}
-													</Link>
-												</TableCell>
-												<TableCell className="text-muted-foreground">{item.userEmail}</TableCell>
-												<TableCell>
-													{item.isPremium ? (
-														<Badge className="gap-1" variant="outline">
-															<CrownIcon className="size-3" weight="fill" />
-															Premium
-														</Badge>
-													) : (
-														<Badge variant="secondary" className="text-meta">
-															Non-Premium
-														</Badge>
-													)}
-												</TableCell>
-												<TableCell className="text-muted-foreground tabular-nums">
-													{formatTimestamp(item.premiumExpiresAt)}
-												</TableCell>
-												<TableCell className="text-muted-foreground pr-6 tabular-nums">
-													{formatTimestamp(item.claimedAt)}
-												</TableCell>
-											</TableRow>
-										))}
-									</TableBody>
-								</Table>
-							</div>
-						)}
-					</CardContent>
-				</Card>
+				<AdminSection title="Pengguna yang Menukarkan Kode">
+					{items.length === 0 ? (
+						<div className="bg-card flex min-h-48 items-center justify-center rounded-lg border">
+							<Typography tone="muted">Belum ada pengguna yang menukarkan kode ini.</Typography>
+						</div>
+					) : (
+						<AdminTableRoot>
+							<AdminTable>
+								<AdminTableHeader>
+									<AdminTableHead className="pl-3">Nama</AdminTableHead>
+									<AdminTableHead>Email</AdminTableHead>
+									<AdminTableHead>Status Premium</AdminTableHead>
+									<AdminTableHead>Premium Berakhir</AdminTableHead>
+									<AdminTableHead className="pr-3">Ditukar Pada</AdminTableHead>
+								</AdminTableHeader>
+								<AdminTableBody columns={5}>
+									{items.map((item) => (
+										<AdminTableRow key={item.usageId}>
+											<AdminTableCell className="pl-3">
+												<Link
+													to="/admin/users/$userId"
+													params={{ userId: item.userId }}
+													className="hover:text-primary font-medium hover:underline"
+												>
+													{item.userName}
+												</Link>
+											</AdminTableCell>
+											<AdminTableCell className="text-muted-foreground">{item.userEmail}</AdminTableCell>
+											<AdminTableCell>
+												{item.isPremium ? (
+													<Badge className="gap-1" variant="outline">
+														<CrownIcon className="size-3" weight="fill" />
+														Premium
+													</Badge>
+												) : (
+													<Badge variant="secondary" className="text-meta">
+														Non-Premium
+													</Badge>
+												)}
+											</AdminTableCell>
+											<AdminTableCell className="text-muted-foreground tabular-nums">
+												{formatTimestamp(item.premiumExpiresAt)}
+											</AdminTableCell>
+											<AdminTableCell className="text-muted-foreground pr-3 tabular-nums">
+												{formatTimestamp(item.claimedAt)}
+											</AdminTableCell>
+										</AdminTableRow>
+									))}
+								</AdminTableBody>
+							</AdminTable>
+						</AdminTableRoot>
+					)}
+				</AdminSection>
 			</AdminPageContent>
 		</AdminPageRoot>
 	);

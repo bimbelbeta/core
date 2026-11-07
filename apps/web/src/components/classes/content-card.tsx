@@ -92,9 +92,9 @@ export function ContentCard({
 	return (
 		<Card
 			className={cn(
-				"border-border/50 relative gap-3 rounded-xl border p-3 shadow-sm transition-all duration-300 sm:gap-6 sm:p-4 lg:p-5",
+				"border-border/50 relative gap-3 rounded-xl border p-3 shadow-sm transition-colors duration-300 sm:gap-6 sm:p-4 lg:p-5",
 				!isAdmin && completed && "bg-secondary-100 border-neutral-200",
-				isPremiumContent ? "overflow-hidden opacity-90" : "hover:border-primary/50 hover:shadow-md",
+				isPremiumContent && "overflow-hidden opacity-90",
 			)}
 		>
 			{/* Premium lock overlay */}
@@ -142,7 +142,7 @@ export function ContentCard({
 					</div>
 
 					<div className="flex h-full items-center pt-0.5">
-						<Typography variant="subtitle2" as="p" className="text-neutral-1000 mr-7">
+						<Typography variant="subtitle4" as="p" className="text-neutral-1000 mr-7">
 							{item.title}
 						</Typography>
 					</div>

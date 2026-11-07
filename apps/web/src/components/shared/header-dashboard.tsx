@@ -82,7 +82,7 @@ export function HeaderDashboard() {
 					<div className="hidden md:flex md:items-center md:gap-4">
 						<DropdownMenu>
 							<DropdownMenuTrigger className="outline-none">
-								<div className="rounded-default bg-secondary-800 flex size-10 items-center justify-center text-sm font-normal text-white transition-transform hover:scale-105 active:scale-95">
+								<div className="rounded-default bg-secondary-800 hover:bg-secondary-700 flex size-10 items-center justify-center text-sm font-normal text-white transition-colors">
 									{userInitials}
 								</div>
 							</DropdownMenuTrigger>

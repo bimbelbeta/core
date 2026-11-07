@@ -62,7 +62,7 @@ export function TryoutGreeting({ countdownProps }: TryoutGreetingProps) {
 	return (
 		<Card className="flex w-full flex-col gap-6 p-6">
 			<div className="flex items-center justify-between gap-4">
-				<Typography variant="subtitle1" as="p" tone="muted">
+				<Typography variant="subtitle2" as="p" tone="muted">
 					Subtest {data.currentSubtest.order}
 				</Typography>
 				{data.currentSubtest?.deadline && (
