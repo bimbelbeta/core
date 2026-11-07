@@ -8,6 +8,7 @@ import {
 	AdminPageHeaderActions,
 	AdminPageHeaderContent,
 	AdminPageRoot,
+	AdminSection,
 } from "@/components/admin/admin-page";
 import {
 	AdminTable,
@@ -37,7 +38,10 @@ import { DeleteProgramAlert } from "./-components/delete-program-alert";
 import { EditProgramDialog } from "./-components/edit-program-dialog";
 
 export const Route = createFileRoute("/admin/passing-grades/$universityId")({
-	staticData: { breadcrumb: "Universitas", breadcrumbParent: { label: "Passing grade", to: "/admin/passing-grades" } },
+	staticData: {
+		breadcrumb: "Detail universitas",
+		breadcrumbParent: { label: "Passing grade", to: "/admin/passing-grades" },
+	},
 	component: RouteComponent,
 });
 
@@ -141,65 +145,77 @@ function RouteComponent() {
 			</AdminPageHeader>
 
 			<AdminPageContent>
-				<Typography variant="subtitle1">Program Studi</Typography>
-				<AdminTableRoot>
-					<AdminTable className="min-w-[800px]">
-						<AdminTableHeader>
-							<AdminTableHead>Nama Program</AdminTableHead>
-							<AdminTableHead>Kategori</AdminTableHead>
-							<AdminTableHead>Biaya</AdminTableHead>
-							<AdminTableHead>Kapasitas</AdminTableHead>
-							<AdminTableHead>Akreditasi</AdminTableHead>
-							<AdminTableHead>Skor Rata-rata</AdminTableHead>
-							<AdminTableHead>Status</AdminTableHead>
-							<AdminTableHead className="w-12">
-								<span className="sr-only">Aksi</span>
-							</AdminTableHead>
-						</AdminTableHeader>
-						<AdminTableBody
-							isLoading={isProgramsLoading}
-							isEmpty={!isProgramsLoading && (!programs?.items || programs.items.length === 0)}
-							emptyMessage="Belum ada program studi yang ditautkan."
-							columns={8}
-						>
-							{programs?.items.map((prog) => (
-								<AdminTableRow key={prog.id}>
-									<AdminTableCell>
-										<Button type="button" variant="link" size="none" onClick={() => setEditProgram(prog)}>
-											{prog.studyProgram.name}
-										</Button>
-									</AdminTableCell>
-									<AdminTableCell>{prog.studyProgram.category}</AdminTableCell>
-									<AdminTableCell className="tabular-nums">
-										{prog.tuition ? formatRupiah(prog.tuition) : "-"}
-									</AdminTableCell>
-									<AdminTableCell className="tabular-nums">{prog.capacity ?? "-"}</AdminTableCell>
-									<AdminTableCell>{prog.accreditation ?? "-"}</AdminTableCell>
-									<AdminTableCell>
-										<Badge variant={prog.isActive ? "default" : "secondary"}>
-											{prog.isActive ? "Aktif" : "Tidak Aktif"}
-										</Badge>
-									</AdminTableCell>
-									<AdminTableCell>
-										<DropdownMenu>
-											<DropdownMenuTrigger asChild>
-												<Button variant="ghost" size="icon" aria-label={`Aksi program studi ${prog.studyProgram.name}`}>
-													<DotsThreeIcon className="size-4" />
-												</Button>
-											</DropdownMenuTrigger>
-											<DropdownMenuContent align="end">
-												<DropdownMenuItem variant="destructive" onClick={() => setDeleteProgramId(prog.id)}>
-													<TrashIcon className="mr-2 size-4" />
-													Hapus
-												</DropdownMenuItem>
-											</DropdownMenuContent>
-										</DropdownMenu>
-									</AdminTableCell>
-								</AdminTableRow>
-							))}
-						</AdminTableBody>
-					</AdminTable>
-				</AdminTableRoot>
+				<AdminSection title="Program studi">
+					<AdminTableRoot>
+						<AdminTable className="min-w-[800px]">
+							<AdminTableHeader>
+								<AdminTableHead className="pl-3">Program studi</AdminTableHead>
+								<AdminTableHead className="w-28">Kategori</AdminTableHead>
+								<AdminTableHead className="hidden w-24 text-right sm:table-cell">Skor rata-rata</AdminTableHead>
+								<AdminTableHead className="hidden w-32 text-right md:table-cell">Biaya</AdminTableHead>
+								<AdminTableHead className="hidden w-24 text-right md:table-cell">Kapasitas</AdminTableHead>
+								<AdminTableHead className="hidden w-28 sm:table-cell">Akreditasi</AdminTableHead>
+								<AdminTableHead className="w-24">Status</AdminTableHead>
+								<AdminTableHead className="w-16 pr-3 text-right">
+									<span className="sr-only">Aksi</span>
+								</AdminTableHead>
+							</AdminTableHeader>
+							<AdminTableBody
+								isLoading={isProgramsLoading}
+								isEmpty={!isProgramsLoading && (!programs?.items || programs.items.length === 0)}
+								emptyMessage="Belum ada program studi yang ditautkan."
+								columns={8}
+							>
+								{programs?.items.map((prog) => (
+									<AdminTableRow key={prog.id}>
+										<AdminTableCell className="pl-3">
+											<Button type="button" variant="link" size="none" onClick={() => setEditProgram(prog)}>
+												{prog.studyProgram.name}
+											</Button>
+										</AdminTableCell>
+										<AdminTableCell className="text-meta">{prog.studyProgram.category ?? "—"}</AdminTableCell>
+										<AdminTableCell className="hidden text-right sm:table-cell">
+											<span className="text-sm font-semibold tabular-nums">{prog.averageScore}</span>
+										</AdminTableCell>
+										<AdminTableCell className="hidden text-right md:table-cell">
+											<span className="text-sm tabular-nums">{prog.tuition ? formatRupiah(prog.tuition) : "—"}</span>
+										</AdminTableCell>
+										<AdminTableCell className="hidden text-right md:table-cell">
+											<span className="text-sm tabular-nums">{prog.capacity ?? "—"}</span>
+										</AdminTableCell>
+										<AdminTableCell className="text-meta hidden sm:table-cell">
+											{prog.accreditation ?? "—"}
+										</AdminTableCell>
+										<AdminTableCell>
+											<Badge variant={prog.isActive ? "info" : "secondary"}>
+												{prog.isActive ? "Aktif" : "Tidak Aktif"}
+											</Badge>
+										</AdminTableCell>
+										<AdminTableCell className="relative z-10 pr-3 text-right">
+											<DropdownMenu>
+												<DropdownMenuTrigger asChild>
+													<Button
+														variant="ghost"
+														size="icon"
+														aria-label={`Aksi program studi ${prog.studyProgram.name}`}
+													>
+														<DotsThreeIcon className="size-4" />
+													</Button>
+												</DropdownMenuTrigger>
+												<DropdownMenuContent align="end">
+													<DropdownMenuItem variant="destructive" onClick={() => setDeleteProgramId(prog.id)}>
+														<TrashIcon className="mr-2 size-4" />
+														Hapus
+													</DropdownMenuItem>
+												</DropdownMenuContent>
+											</DropdownMenu>
+										</AdminTableCell>
+									</AdminTableRow>
+								))}
+							</AdminTableBody>
+						</AdminTable>
+					</AdminTableRoot>
+				</AdminSection>
 			</AdminPageContent>
 
 			{editProgram && (

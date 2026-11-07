@@ -69,7 +69,7 @@ export function AddProgramDialog({ universityId, onSuccess, open, onOpenChange }
 			<DialogTrigger asChild>
 				<Button>
 					<PlusIcon className="mr-2 size-4" />
-					Tambah Prodi
+					Tambah prodi
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="gap-0 p-0 sm:max-w-[540px]">

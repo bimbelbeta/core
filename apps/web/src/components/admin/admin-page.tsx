@@ -19,14 +19,14 @@ AdminPageRoot.displayName = "AdminPageRoot";
 
 const AdminPageContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
 	({ className, ...props }, ref) => (
-		<div ref={ref} className={cn("flex min-h-0 flex-1 flex-col gap-4", className)} {...props} />
+		<div ref={ref} className={cn("flex min-h-0 flex-1 flex-col gap-3", className)} {...props} />
 	),
 );
 AdminPageContent.displayName = "AdminPageContent";
 
 const AdminPageHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
 	({ className, ...props }, ref) => (
-		<div ref={ref} className={cn("flex flex-wrap items-center justify-between gap-3", className)} {...props} />
+		<div ref={ref} className={cn("flex min-h-10 flex-wrap items-center justify-between gap-3", className)} {...props} />
 	),
 );
 AdminPageHeader.displayName = "AdminPageHeader";

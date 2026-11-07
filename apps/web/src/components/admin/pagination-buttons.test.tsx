@@ -11,10 +11,12 @@ function render(hasPrevious: boolean, hasNext: boolean) {
 }
 
 describe("PaginationButtons", () => {
-	test("hides the controls on a single page", () => {
+	test("renders both controls disabled on a single page", () => {
 		const html = render(false, false);
-		expect(html).not.toContain("Navigasi halaman");
-		expect(html).not.toContain("Sebelumnya");
+		expect(html).toContain("Navigasi halaman");
+		expect(html).toContain("Sebelumnya");
+		expect(html).toContain("Berikutnya");
+		expect(html.match(/disabled=""/g)).toHaveLength(2);
 	});
 
 	test("keeps forward navigation available on the first page", () => {

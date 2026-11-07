@@ -1,31 +1,24 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { useState } from "react";
 import { toast } from "sonner";
-import { useBulkSelection } from "@/hooks/use-bulk-selection";
 import { usePaginationNavigation } from "@/hooks/use-pagination-navigation";
 import { orpc } from "@/lib/orpc";
 import { withoutSearchKey } from "@/lib/tanstack-router-utils";
 
 export function useReferralsList() {
 	const navigate = useNavigate({ from: "/admin/referrals/" });
-	const { after, before, limit = 10, search } = useSearch({ from: "/admin/_superadmin/referrals/" });
-
-	const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
+	const { after, before, limit = 10, search, status } = useSearch({ from: "/admin/_superadmin/referrals/" });
 
 	const { data, isLoading, refetch } = useQuery(
 		orpc.admin.referral.list.queryOptions({
-			input: { after, before, limit, search },
+			input: { after, before, limit, search, status },
 		}),
-	);
-
-	const { selectedIds, toggleSelectAll, toggleSelectOne, clearSelection, allSelected, someSelected } = useBulkSelection(
-		data?.items,
 	);
 
 	const pageInfo = data?.pageInfo;
 	const baseSearchParams = {
 		...(search && { search }),
+		...(status !== undefined && { status }),
 		limit,
 	};
 
@@ -41,18 +34,6 @@ export function useReferralsList() {
 		}),
 	);
 
-	const bulkDeactivateMutation = useMutation(
-		orpc.admin.referral.bulkDeactivate.mutationOptions({
-			onSuccess: (res) => {
-				toast.success(res.message);
-				clearSelection();
-				setBulkDialogOpen(false);
-				refetch();
-			},
-			onError: (err) => toast.error(err.message),
-		}),
-	);
-
 	const handleSearch = (value: string) => {
 		const withoutSearch = withoutSearchKey(baseSearchParams, "search");
 		navigate({ search: value ? { search: value, limit } : withoutSearch });
@@ -62,9 +43,12 @@ export function useReferralsList() {
 		navigate({ search: { limit } });
 	};
 
-	const handleToggleStatus = (codeId: string, status: boolean) => toggleStatusMutation.mutate({ codeId, status });
+	const handleStatusChange = (value: string) => {
+		const rest = withoutSearchKey(baseSearchParams, "status");
+		navigate({ search: value === "all" ? rest : { ...rest, status: value === "true" } });
+	};
 
-	const handleBulkDeactivate = () => bulkDeactivateMutation.mutate({ codeIds: selectedIds });
+	const handleToggleStatus = (codeId: string, status: boolean) => toggleStatusMutation.mutate({ codeId, status });
 
 	return {
 		data,
@@ -72,18 +56,12 @@ export function useReferralsList() {
 		refetch,
 		pageInfo,
 		search,
-		selectedIds,
-		bulkDialogOpen,
-		setBulkDialogOpen,
+		status,
 		handleNext,
 		handlePrevious,
 		handleReset,
 		handleSearch,
+		handleStatusChange,
 		handleToggleStatus,
-		handleBulkDeactivate,
-		toggleSelectAll,
-		toggleSelectOne,
-		allSelected,
-		someSelected,
 	};
 }

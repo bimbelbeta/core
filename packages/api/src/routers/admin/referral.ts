@@ -1,7 +1,7 @@
 import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { referralCode, referralUsage } from "@bimbelbeta/db/schema/referral";
-import { and, asc, desc, eq, gt, ilike, inArray, lt } from "drizzle-orm";
+import { and, asc, desc, eq, gt, ilike, inArray, lt, sql } from "drizzle-orm";
 import { buildStringIdCursorPage, parseStringIdCursor } from "@/lib/pagination/cursor";
 import { superAdminImplementer } from "@/lib/router-definition";
 
@@ -19,6 +19,11 @@ const list = superadmin.admin.referral.list.handler(async ({ input }) => {
 	const cursor = input.before || input.after;
 	const cursorId = cursor ? parseStringIdCursor(cursor) : undefined;
 
+	const dataFilters = and(
+		input.search ? ilike(referralCode.code, `%${input.search}%`) : undefined,
+		input.status !== undefined ? eq(referralCode.status, input.status) : undefined,
+	);
+
 	const rows = await db
 		.select()
 		.from(referralCode)
@@ -29,16 +34,16 @@ const list = superadmin.admin.referral.list.handler(async ({ input }) => {
 						? lt(referralCode.id, cursorId)
 						: gt(referralCode.id, cursorId)
 					: undefined,
-				input.search ? ilike(referralCode.code, `%${input.search}%`) : undefined,
-				input.status !== undefined ? eq(referralCode.status, input.status) : undefined,
+				dataFilters,
 			),
 		)
 		.orderBy(isBackward ? desc(referralCode.id) : asc(referralCode.id))
 		.limit(limit + 1);
 
 	const { items, pageInfo } = buildStringIdCursorPage(rows, limit, isBackward, !!cursor);
+	const [totals] = await db.select({ count: sql<number>`count(*)::int` }).from(referralCode).where(dataFilters);
 
-	return { items, pageInfo };
+	return { items, pageInfo: { ...pageInfo, totalCount: totals?.count ?? 0 } };
 });
 
 const create = superadmin.admin.referral.create.handler(async ({ input, context, errors }) => {

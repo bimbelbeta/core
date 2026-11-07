@@ -113,7 +113,7 @@ export function ProgramDetailsStep({ universityId, programId, onSuccess, onBack 
 					Kembali
 				</Button>
 				<Button isPending={isLinking} onClick={handleSubmit} disabled={isLinking}>
-					{"Tambah Prodi"}
+					{"Tambah prodi"}
 				</Button>
 			</DialogFooter>
 		</div>

@@ -1,4 +1,4 @@
-import { CalendarDotsIcon, StarIcon } from "@phosphor-icons/react";
+import { CalendarDotsIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -12,7 +12,6 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -61,12 +60,6 @@ export function GrantPremiumDialog({
 				onOpenChange(value);
 			}}
 		>
-			<DialogTrigger asChild>
-				<Button variant="outline" size="sm" className="h-9 gap-2" aria-label={`Beri premium ${userName}`}>
-					<StarIcon className="size-4" />
-					<span>Premium</span>
-				</Button>
-			</DialogTrigger>
 			<DialogContent className="sm:max-w-sm">
 				<DialogHeader>
 					<DialogTitle>Grant Premium</DialogTitle>

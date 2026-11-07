@@ -1,31 +1,32 @@
-import { MagnifyingGlassIcon, PlusCircleIcon } from "@phosphor-icons/react";
+import { CheckCircleIcon, MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
 import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { CheckboxIndicator } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Item } from "@/components/ui/item";
 import { Spinner } from "@/components/ui/spinner";
-import { useBulkSelection } from "@/hooks/use-bulk-selection";
 import { orpc } from "@/lib/orpc";
 import { QUESTION_TYPE_BADGE, QUESTION_TYPE_LABELS } from "@/lib/schemas";
+import { cn } from "@/lib/utils";
 
-export function BulkAddQuestionsDialog({
+export function AttachQuestionsDialog({
 	open,
 	onOpenChange,
 	onSuccess,
 	subtestId,
+	attachedIds,
 }: {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	onSuccess: () => void;
 	subtestId: number;
+	attachedIds: number[];
 }) {
 	const [search, setSearch] = useState("");
+	const [addedIds, setAddedIds] = useState<number[]>([]);
 	const scrollRef = useRef<HTMLDivElement>(null);
 
 	const { data, isPending, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery(
@@ -41,13 +42,6 @@ export function BulkAddQuestionsDialog({
 	);
 
 	const questions = data?.pages.flatMap((page) => page.items) ?? [];
-	const {
-		selectedIds: selectedQuestionIds,
-		toggleSelectAll: handleSelectAll,
-		toggleSelectOne: handleQuestionToggle,
-		clearSelection,
-		allSelected,
-	} = useBulkSelection(questions, { keepSelection: true });
 
 	const handleScroll = useCallback(() => {
 		const el = scrollRef.current;
@@ -57,13 +51,12 @@ export function BulkAddQuestionsDialog({
 		}
 	}, [isFetchingNextPage, hasNextPage, fetchNextPage]);
 
-	const bulkAddMutation = useMutation(
+	const attachMutation = useMutation(
 		orpc.admin.tryout.questionsBulk.bulkAddQuestionsToSubtest.mutationOptions({
-			onSuccess: (result) => {
-				toast.success(`${result.addedCount} soal berhasil ditambahkan`);
-				clearSelection();
+			onSuccess: (result, variables) => {
+				toast.success(`${result.addedCount} soal ditambahkan ke subtest`);
+				setAddedIds((prev) => [...prev, ...variables.questionIds]);
 				onSuccess();
-				onOpenChange(false);
 			},
 			onError: (err) => {
 				toast.error(err.message);
@@ -71,21 +64,28 @@ export function BulkAddQuestionsDialog({
 		}),
 	);
 
-	const handleAdd = () => {
-		if (selectedQuestionIds.length > 0) {
-			bulkAddMutation.mutate({
-				subtestId,
-				questionIds: selectedQuestionIds,
-			});
+	const handleAttach = (questionId: number) => {
+		if (attachMutation.isPending) return;
+		attachMutation.mutate({ subtestId, questionIds: [questionId] });
+	};
+
+	const handleOpenChange = (nextOpen: boolean) => {
+		if (!nextOpen) {
+			setSearch("");
+			setAddedIds([]);
 		}
+		onOpenChange(nextOpen);
 	};
 
 	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
+		<Dialog open={open} onOpenChange={handleOpenChange}>
 			<DialogContent className="flex max-h-[85vh] flex-col sm:max-w-2xl">
 				<DialogHeader className="shrink-0">
-					<DialogTitle>Tambah soal Massal</DialogTitle>
-					<DialogDescription>Pilih soal dari bank soal untuk ditambahkan ke subtest.</DialogDescription>
+					<DialogTitle>Tambah soal</DialogTitle>
+					<DialogDescription>
+						Klik soal untuk langsung menambahkannya ke subtest. Dialog tetap terbuka agar soal berikutnya bisa
+						ditambahkan.
+					</DialogDescription>
 				</DialogHeader>
 				<div className="flex flex-1 flex-col gap-4">
 					<InputGroup className="min-h-10 bg-white">
@@ -111,33 +111,40 @@ export function BulkAddQuestionsDialog({
 						) : (
 							<div className="space-y-2 overflow-visible">
 								{questions.map((question) => {
-									const isSelected = selectedQuestionIds.includes(question.id);
+									const isAttached = attachedIds.includes(question.id) || addedIds.includes(question.id);
 									return (
 										<Item
-											asChild
 											key={question.id}
-											selected={isSelected}
 											variant="outline"
-											className="hover:bg-muted/50 focus-within:ring-primary relative cursor-pointer flex-col items-stretch gap-3 p-3 text-left text-base focus-within:ring-2"
+											selected={isAttached}
+											className={cn(
+												"flex-col items-stretch gap-3 p-3 text-left text-base",
+												isAttached ? "opacity-60" : "hover:bg-muted/50 hover:border-primary/40 cursor-pointer",
+											)}
 										>
-											<label>
-												<input
-													type="checkbox"
-													className="sr-only"
-													aria-label={`Pilih soal #${question.id}`}
-													checked={isSelected}
-													onChange={() => handleQuestionToggle(question.id)}
-												/>
-												<div className="pointer-events-none absolute top-3 right-3">
-													<CheckboxIndicator checked={isSelected} />
+											<button
+												type="button"
+												disabled={isAttached || attachMutation.isPending}
+												onClick={() => handleAttach(question.id)}
+												aria-label={
+													isAttached ? `Soal #${question.id} sudah ada di subtest` : `Tambah soal #${question.id}`
+												}
+												className="flex flex-col items-stretch gap-3 text-left disabled:cursor-default"
+											>
+												<div className="flex items-center gap-2">
+													<Badge variant={QUESTION_TYPE_BADGE[question.type]}>
+														{QUESTION_TYPE_LABELS[question.type]}
+													</Badge>
+													<span className="text-muted-foreground text-meta font-mono">#{question.id}</span>
+													{isAttached && (
+														<Badge variant="success" className="ml-auto gap-1">
+															<CheckCircleIcon className="size-3" weight="fill" />
+															Ditambahkan
+														</Badge>
+													)}
 												</div>
-												<Badge variant={QUESTION_TYPE_BADGE[question.type]} className="w-fit">
-													{QUESTION_TYPE_LABELS[question.type]}
-												</Badge>
-												<div className="pr-8">
-													<TiptapRenderer content={question.content} />
-												</div>
-											</label>
+												<TiptapRenderer content={question.content} className="prose-sm line-clamp-2 max-w-none" />
+											</button>
 										</Item>
 									);
 								})}
@@ -148,29 +155,6 @@ export function BulkAddQuestionsDialog({
 								)}
 							</div>
 						)}
-					</div>
-
-					<div className="flex flex-col gap-2 border-b pb-2 sm:flex-row sm:items-center sm:justify-between">
-						<div className="flex flex-wrap items-center gap-2">
-							<Button variant="tertiary" size="sm" onClick={handleSelectAll}>
-								{allSelected ? "Batal Pilih yang Tampil" : "Pilih Semua yang Tampil"}
-							</Button>
-							<span className="text-muted-foreground text-sm">({selectedQuestionIds.length} dipilih)</span>
-						</div>
-						<Button
-							isPending={bulkAddMutation.isPending}
-							variant="default"
-							onClick={handleAdd}
-							disabled={selectedQuestionIds.length === 0 || bulkAddMutation.isPending}
-							className="w-full sm:w-auto"
-						>
-							{
-								<>
-									<PlusCircleIcon weight="fill" />
-									Tambah {selectedQuestionIds.length} Soal
-								</>
-							}
-						</Button>
 					</div>
 				</div>
 			</DialogContent>

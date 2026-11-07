@@ -1,4 +1,5 @@
 import { PaginationInputSchema } from "@bimbelbeta/contract/common/pagination";
+import { ArrowSquareOutIcon, DotsThreeIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { type } from "arktype";
@@ -10,20 +11,37 @@ import {
 	AdminPageHeaderContent,
 	AdminPageRoot,
 } from "@/components/admin/admin-page";
+import { AdminStatus } from "@/components/admin/admin-status";
+import {
+	AdminTable,
+	AdminTableBody,
+	AdminTableCell,
+	AdminTableHead,
+	AdminTableHeader,
+	AdminTableRoot,
+	AdminTableRow,
+} from "@/components/admin/admin-table";
+import { AdminTablePaginationWrapper, AdminTableToolbar } from "@/components/admin/admin-table-toolbar";
 import { PaginationButtons } from "@/components/admin/pagination-buttons";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
-import { SearchInput } from "@/components/ui/search-input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { TableSkeleton } from "@/components/ui/table-skeleton";
+import { Button } from "@/components/ui/button";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Typography } from "@/components/ui/typography";
 import { usePaginationNavigation } from "@/hooks/use-pagination-navigation";
+import { formatDateMedium } from "@/lib/format-date";
 import { orpc } from "@/lib/orpc";
+import { withoutSearchKey } from "@/lib/tanstack-router-utils";
 import { AddUniversityDialog } from "./-components/add-university-dialog";
 
 const searchSchema = type({
 	"...": PaginationInputSchema,
 	"search?": "string",
+	"isActive?": "boolean",
 });
 
 export const Route = createFileRoute("/admin/passing-grades/")({
@@ -34,7 +52,7 @@ export const Route = createFileRoute("/admin/passing-grades/")({
 
 function RouteComponent() {
 	const navigate = Route.useNavigate();
-	const { after, before, limit = 10, search } = Route.useSearch();
+	const { after, before, limit = 10, search, isActive } = Route.useSearch();
 
 	const { data, isLoading, refetch } = useQuery(
 		orpc.admin.university.universities.list.queryOptions({
@@ -43,6 +61,7 @@ function RouteComponent() {
 				before,
 				limit,
 				search: search ?? undefined,
+				isActive,
 			},
 		}),
 	);
@@ -53,6 +72,7 @@ function RouteComponent() {
 
 	const baseSearchParams = {
 		...(search && { search }),
+		...(isActive !== undefined && { isActive }),
 		limit,
 	};
 
@@ -63,6 +83,15 @@ function RouteComponent() {
 				limit,
 			},
 		});
+	};
+
+	const handleReset = () => {
+		navigate({ search: { limit } });
+	};
+
+	const handleStatusChange = (value: string) => {
+		const rest = withoutSearchKey(baseSearchParams, "isActive");
+		navigate({ search: value === "all" ? rest : { ...rest, isActive: value === "true" } });
 	};
 
 	const { handleNext, handlePrevious } = usePaginationNavigation(navigate, pageInfo, baseSearchParams);
@@ -85,70 +114,121 @@ function RouteComponent() {
 			</AdminPageHeader>
 
 			<AdminPageContent>
-				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-					<SearchInput
-						value={search ?? ""}
-						onChange={handleSearch}
-						placeholder="Cari universitas..."
-						className="w-full sm:max-w-sm md:max-w-md"
-					/>
-				</div>
+				<AdminTableToolbar
+					searchValue={search ?? ""}
+					onSearchChange={handleSearch}
+					searchPlaceholder="Cari universitas..."
+					onReset={search || isActive !== undefined ? handleReset : undefined}
+				>
+					<Select
+						value={isActive === undefined ? "all" : isActive ? "true" : "false"}
+						onValueChange={handleStatusChange}
+					>
+						<SelectTrigger className="w-full sm:w-40">
+							<SelectValue placeholder="Semua status" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="all">Semua status</SelectItem>
+							<SelectItem value="true">Aktif</SelectItem>
+							<SelectItem value="false">Nonaktif</SelectItem>
+						</SelectContent>
+					</Select>
+				</AdminTableToolbar>
 
-				<Card variant="flush">
-					<div className="overflow-x-auto">
-						<Table>
-							<TableHeader>
-								<TableRow>
-									<TableHead>Nama Universitas</TableHead>
-									<TableHead>Lokasi</TableHead>
-									<TableHead>Status</TableHead>
-								</TableRow>
-							</TableHeader>
-							<TableBody>
-								{isLoading ? (
-									<TableSkeleton columns={3} />
-								) : data?.items?.length === 0 ? (
-									<TableRow>
-										<TableCell colSpan={3} className="text-muted-foreground h-24 text-center">
-											Tidak ada universitas ditemukan.
-										</TableCell>
-									</TableRow>
-								) : (
-									data?.items?.map((uni) => (
-										<TableRow key={uni.id} className="group hover:bg-muted/30">
-											<TableCell className="font-medium">
-												<Link
-													to="/admin/passing-grades/$universityId"
-													params={{ universityId: uni.id.toString() }}
-													className="hover:underline"
-												>
-													{uni.name}
-												</Link>
-											</TableCell>
-											<TableCell>{uni.location ?? "-"}</TableCell>
-											<TableCell>
-												<Badge variant={uni.isActive ? "info" : "secondary"}>
-													{uni.isActive ? "Aktif" : "Tidak Aktif"}
-												</Badge>
-											</TableCell>
-										</TableRow>
-									))
-								)}
-							</TableBody>
-						</Table>
-					</div>
+				<AdminTableRoot>
+					<AdminTable className="table-fixed">
+						<AdminTableHeader>
+							<AdminTableHead className="w-[36%] pl-3">Universitas</AdminTableHead>
+							<AdminTableHead className="w-[10%] text-right">Prodi</AdminTableHead>
+							<AdminTableHead className="hidden w-[13%] text-right sm:table-cell">Skor</AdminTableHead>
+							<AdminTableHead className="w-[13%]">Status</AdminTableHead>
+							<AdminTableHead className="hidden w-[22%] text-right sm:table-cell">Diperbarui</AdminTableHead>
+							<AdminTableHead className="w-[6%] pr-3 text-right">
+								<span className="sr-only">Aksi</span>
+							</AdminTableHead>
+						</AdminTableHeader>
+						<AdminTableBody
+							isLoading={isLoading}
+							isEmpty={!isLoading && data?.items.length === 0}
+							columns={6}
+							emptyMessage={
+								search ? "Tidak ada universitas yang cocok dengan pencarian ini." : "Belum ada universitas."
+							}
+							emptyAction={
+								search ? (
+									<Button variant="outline" size="sm" onClick={handleReset}>
+										Hapus filter
+									</Button>
+								) : undefined
+							}
+						>
+							{data?.items.map((uni) => (
+								<AdminTableRow key={uni.id}>
+									<AdminTableCell className="pl-3">
+										<div className="min-w-0">
+											<Link
+												to="/admin/passing-grades/$universityId"
+												params={{ universityId: uni.id.toString() }}
+												className="text-row-title text-foreground hover:text-primary focus-visible:ring-ring/50 block truncate rounded-sm underline-offset-4 outline-none after:absolute after:inset-0 after:content-[''] hover:underline focus-visible:ring-2"
+											>
+												{uni.name}
+											</Link>
+											<p className="text-muted-foreground text-meta truncate">{uni.location ?? "Lokasi belum diisi"}</p>
+										</div>
+									</AdminTableCell>
+									<AdminTableCell className="text-right">
+										<span className="text-sm tabular-nums">{uni.programCount}</span>
+									</AdminTableCell>
+									<AdminTableCell className="hidden text-right sm:table-cell">
+										<span className="text-sm tabular-nums">
+											{uni.scoreMin !== null && uni.scoreMax !== null
+												? uni.scoreMin === uni.scoreMax
+													? `${uni.scoreMin}`
+													: `${uni.scoreMin}–${uni.scoreMax}`
+												: "—"}
+										</span>
+									</AdminTableCell>
+									<AdminTableCell>
+										<AdminStatus tone={uni.isActive ? "positive" : "neutral"}>
+											{uni.isActive ? "Aktif" : "Nonaktif"}
+										</AdminStatus>
+									</AdminTableCell>
+									<AdminTableCell className="text-muted-foreground text-meta hidden text-right whitespace-nowrap sm:table-cell">
+										{uni.updatedAt ? formatDateMedium(new Date(uni.updatedAt)) : "—"}
+									</AdminTableCell>
+									<AdminTableCell className="relative z-10 pr-3 text-right">
+										<DropdownMenu>
+											<DropdownMenuTrigger asChild>
+												<Button variant="ghost" size="icon" className="size-9" aria-label={`Aksi untuk ${uni.name}`}>
+													<DotsThreeIcon className="size-5" weight="bold" />
+												</Button>
+											</DropdownMenuTrigger>
+											<DropdownMenuContent align="end">
+												<DropdownMenuItem asChild>
+													<Link to="/admin/passing-grades/$universityId" params={{ universityId: uni.id.toString() }}>
+														<ArrowSquareOutIcon className="size-4" /> Buka detail
+													</Link>
+												</DropdownMenuItem>
+											</DropdownMenuContent>
+										</DropdownMenu>
+									</AdminTableCell>
+								</AdminTableRow>
+							))}
+						</AdminTableBody>
+					</AdminTable>
 
 					{data && (
-						<div className="border-t p-4">
+						<AdminTablePaginationWrapper>
 							<PaginationButtons
 								onPrevious={handlePrevious}
 								onNext={handleNext}
 								hasPrevious={!!pageInfo?.hasPreviousPage}
 								hasNext={!!pageInfo?.hasNextPage}
+								totalCount={pageInfo?.totalCount}
 							/>
-						</div>
+						</AdminTablePaginationWrapper>
 					)}
-				</Card>
+				</AdminTableRoot>
 			</AdminPageContent>
 		</AdminPageRoot>
 	);

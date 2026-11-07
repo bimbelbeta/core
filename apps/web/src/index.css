@@ -207,10 +207,10 @@
 }
 
 @utility text-row-title {
-	font-size: 0.875rem;
+	font-size: 0.9375rem;
 	line-height: 1.35;
-	font-weight: 500;
-	letter-spacing: -0.003em;
+	font-weight: 600;
+	letter-spacing: -0.011em;
 }
 
 @utility text-meta {
@@ -231,10 +231,10 @@
 		@apply rounded-none bg-card;
 	}
 	& [data-slot="table-head"] {
-		@apply bg-card sticky top-0 z-10 h-7 px-4 text-[11.5px] font-semibold text-foreground/65;
+		@apply bg-neutral-100 sticky top-0 z-10 h-8 px-3 text-[11px] font-semibold tracking-[0.06em] text-foreground/55 uppercase;
 	}
 	& [data-slot="table-cell"] {
-		@apply px-4 py-1.5 text-sm;
+		@apply px-3 py-1.5 text-sm;
 	}
 	& [data-slot="table-cell"]:not([colspan]) {
 		@apply h-9;

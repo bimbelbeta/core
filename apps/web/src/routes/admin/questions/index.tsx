@@ -21,11 +21,7 @@ import {
 	AdminTableRoot,
 	AdminTableRow,
 } from "@/components/admin/admin-table";
-import {
-	AdminTableBulkActions,
-	AdminTablePaginationWrapper,
-	AdminTableToolbar,
-} from "@/components/admin/admin-table-toolbar";
+import { AdminTablePaginationWrapper, AdminTableToolbar } from "@/components/admin/admin-table-toolbar";
 import { PaginationButtons } from "@/components/admin/pagination-buttons";
 import {
 	AlertDialog,
@@ -36,11 +32,9 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
-	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -49,7 +43,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Typography } from "@/components/ui/typography";
-import { useBulkSelection } from "@/hooks/use-bulk-selection";
 import { extractTextFromTiptap } from "@/lib/content-text";
 import { formatDateMedium } from "@/lib/format-date";
 import { orpc } from "@/lib/orpc";
@@ -90,7 +83,6 @@ function QuestionsListPage() {
 	const hasFilters = Boolean(search || questionType || category || tag);
 
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState<number | null>(null);
-	const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
 
 	const { data, isLoading, isError, refetch } = useQuery(
 		orpc.admin.tryout.questions.list.queryOptions({
@@ -129,24 +121,6 @@ function QuestionsListPage() {
 		deleteMutation.mutate({ id });
 	};
 
-	const handleBulkDelete = async () => {
-		const results = await Promise.allSettled(selectedIds.map((id) => deleteMutation.mutateAsync({ id })));
-
-		const successCount = results.filter((r) => r.status === "fulfilled").length;
-		const errorCount = results.filter((r) => r.status === "rejected").length;
-
-		if (successCount > 0) toast.success(`${successCount} soal berhasil dihapus`);
-		if (errorCount > 0) toast.error(`${errorCount} soal gagal dihapus`);
-
-		setBulkDeleteDialogOpen(false);
-		clearSelection();
-		refetch();
-	};
-
-	const { selectedIds, toggleSelectAll, toggleSelectOne, clearSelection, allSelected, someSelected } = useBulkSelection(
-		data?.items,
-	);
-
 	return (
 		<AdminPageRoot>
 			<AdminPageHeader>
@@ -164,83 +138,48 @@ function QuestionsListPage() {
 			</AdminPageHeader>
 
 			<AdminPageContent>
-				{selectedIds.length === 0 && (
-					<AdminTableToolbar
-						searchValue={search ?? ""}
-						onSearchChange={onSearch}
-						searchPlaceholder="Cari soal..."
-						onReset={
-							hasFilters
-								? () => {
-										handleReset();
-									}
-								: undefined
-						}
-					>
-						<Select value={questionType ?? "all"} onValueChange={handleTypeChange}>
-							<SelectTrigger className="w-full sm:w-40">
-								<SelectValue placeholder="Semua Tipe" />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="all">Semua Tipe</SelectItem>
-								<SelectItem value="multiple_choice">{QUESTION_TYPE_LABELS.multiple_choice}</SelectItem>
-								<SelectItem value="multiple_choice_complex">{QUESTION_TYPE_LABELS.multiple_choice_complex}</SelectItem>
-								<SelectItem value="essay">{QUESTION_TYPE_LABELS.essay}</SelectItem>
-							</SelectContent>
-						</Select>
-						<Select value={category ?? "all"} onValueChange={handleCategoryChange}>
-							<SelectTrigger className="w-full sm:w-40">
-								<SelectValue placeholder="Semua Kategori" />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="all">Semua Kategori</SelectItem>
-								{Object.entries(SUBJECT_CATEGORY_LABELS).map(([value, label]) => (
-									<SelectItem key={value} value={value}>
-										{label}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					</AdminTableToolbar>
-				)}
-
-				<AdminTableBulkActions selectedCount={selectedIds.length}>
-					<AlertDialog open={bulkDeleteDialogOpen} onOpenChange={setBulkDeleteDialogOpen}>
-						<AlertDialogTrigger asChild>
-							<Button variant="destructive" size="xs">
-								<TrashIcon className="mr-2 size-4" />
-								Hapus Terpilih
-							</Button>
-						</AlertDialogTrigger>
-						<AlertDialogContent>
-							<AlertDialogHeader>
-								<AlertDialogTitle>Hapus Multiple Soal</AlertDialogTitle>
-								<AlertDialogDescription>
-									Apakah Anda yakin ingin menghapus {selectedIds.length} soal yang dipilih? Tindakan ini tidak dapat
-									dibatalkan.
-								</AlertDialogDescription>
-							</AlertDialogHeader>
-							<AlertDialogFooter>
-								<AlertDialogCancel>Batal</AlertDialogCancel>
-								<AlertDialogAction onClick={handleBulkDelete} variant="destructive">
-									Hapus
-								</AlertDialogAction>
-							</AlertDialogFooter>
-						</AlertDialogContent>
-					</AlertDialog>
-				</AdminTableBulkActions>
+				<AdminTableToolbar
+					searchValue={search ?? ""}
+					onSearchChange={onSearch}
+					searchPlaceholder="Cari soal..."
+					onReset={
+						hasFilters
+							? () => {
+									handleReset();
+								}
+							: undefined
+					}
+				>
+					<Select value={questionType ?? "all"} onValueChange={handleTypeChange}>
+						<SelectTrigger className="w-full sm:w-40">
+							<SelectValue placeholder="Semua tipe" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="all">Semua tipe</SelectItem>
+							<SelectItem value="multiple_choice">{QUESTION_TYPE_LABELS.multiple_choice}</SelectItem>
+							<SelectItem value="multiple_choice_complex">{QUESTION_TYPE_LABELS.multiple_choice_complex}</SelectItem>
+							<SelectItem value="essay">{QUESTION_TYPE_LABELS.essay}</SelectItem>
+						</SelectContent>
+					</Select>
+					<Select value={category ?? "all"} onValueChange={handleCategoryChange}>
+						<SelectTrigger className="w-full sm:w-40">
+							<SelectValue placeholder="Semua kategori" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="all">Semua kategori</SelectItem>
+							{Object.entries(SUBJECT_CATEGORY_LABELS).map(([value, label]) => (
+								<SelectItem key={value} value={value}>
+									{label}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+				</AdminTableToolbar>
 
 				<AdminTableRoot>
 					<AdminTable className="table-fixed">
 						<AdminTableHeader>
-							<AdminTableHead className="hidden w-8 px-4 sm:table-cell">
-								<Checkbox
-									checked={someSelected ? "indeterminate" : allSelected}
-									onCheckedChange={toggleSelectAll}
-									aria-label="Pilih semua soal"
-								/>
-							</AdminTableHead>
-							<AdminTableHead>Soal</AdminTableHead>
+							<AdminTableHead className="pl-3">Soal</AdminTableHead>
 							<AdminTableHead className="hidden w-32 text-right sm:table-cell">Dibuat</AdminTableHead>
 							<AdminTableHead className="w-16 text-right">
 								<span className="sr-only">Aksi</span>
@@ -266,20 +205,13 @@ function QuestionsListPage() {
 									</Button>
 								)
 							}
-							columns={4}
+							columns={3}
 						>
 							{data?.items.map((q) => {
 								const contentPreview = extractTextFromTiptap(q.content);
 								return (
 									<AdminTableRow key={q.id}>
-										<AdminTableCell className="hidden w-8 sm:table-cell">
-											<Checkbox
-												checked={selectedIds.includes(q.id)}
-												onCheckedChange={() => toggleSelectOne(q.id)}
-												aria-label={`Pilih soal #${q.id}`}
-											/>
-										</AdminTableCell>
-										<AdminTableCell>
+										<AdminTableCell className="pl-3">
 											<div className="min-w-0">
 												<Link
 													to="/admin/questions/$questionId"

@@ -46,9 +46,9 @@ export function NavFooter() {
 						variant="ghost"
 						className="w-full gap-2.5 px-3.5 py-2 text-left group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
 					>
-						<Avatar className="size-7 shrink-0 rounded-md">
+						<Avatar className="size-7 shrink-0">
 							{session?.user?.image && <AvatarImage src={session.user.image} alt={session.user.name || "Admin"} />}
-							<AvatarFallback className="rounded-lg text-xs">{userInitials}</AvatarFallback>
+							<AvatarFallback className="text-xs">{userInitials}</AvatarFallback>
 						</Avatar>
 						<div className="grid min-w-0 flex-1 leading-tight group-data-[collapsible=icon]:hidden">
 							<span className="text-meta truncate font-medium">{session?.user?.name || "Admin User"}</span>

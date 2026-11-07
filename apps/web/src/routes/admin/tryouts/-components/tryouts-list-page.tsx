@@ -101,10 +101,10 @@ export function TryoutsListPage() {
 				>
 					<Select value={category ?? "all"} onValueChange={handleCategoryChange}>
 						<SelectTrigger className="w-full sm:w-44">
-							<SelectValue placeholder="Semua Kategori" />
+							<SelectValue placeholder="Semua kategori" />
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value="all">Semua Kategori</SelectItem>
+							<SelectItem value="all">Semua kategori</SelectItem>
 							{Object.entries(SUBJECT_CATEGORY_LABELS).map(([value, label]) => (
 								<SelectItem key={value} value={value}>
 									{label}
@@ -114,10 +114,10 @@ export function TryoutsListPage() {
 					</Select>
 					<Select value={status ?? "all"} onValueChange={handleStatusChange}>
 						<SelectTrigger className="w-full sm:w-44">
-							<SelectValue placeholder="Semua Status" />
+							<SelectValue placeholder="Semua status" />
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value="all">Semua Status</SelectItem>
+							<SelectItem value="all">Semua status</SelectItem>
 							{Object.entries(TRYOUT_STATUS_BADGE).map(([value, statusEntry]) => (
 								<SelectItem key={value} value={value}>
 									{statusEntry.label}
@@ -128,12 +128,12 @@ export function TryoutsListPage() {
 				</AdminTableToolbar>
 
 				<AdminTableRoot>
-					<AdminTable>
+					<AdminTable className="table-fixed">
 						<AdminTableHeader>
-							<AdminTableHead>Tryout</AdminTableHead>
-							<AdminTableHead className="w-24">Status</AdminTableHead>
-							<AdminTableHead className="hidden w-32 text-right sm:table-cell">Diperbarui</AdminTableHead>
-							<AdminTableHead className="w-14 text-right">
+							<AdminTableHead className="w-[36%] pl-3">Tryout</AdminTableHead>
+							<AdminTableHead className="w-[16%]">Status</AdminTableHead>
+							<AdminTableHead className="hidden w-[42%] text-right sm:table-cell">Diperbarui</AdminTableHead>
+							<AdminTableHead className="w-[6%] pr-3 text-right">
 								<span className="sr-only">Aksi</span>
 							</AdminTableHead>
 						</AdminTableHeader>
@@ -159,7 +159,7 @@ export function TryoutsListPage() {
 						>
 							{data?.items.map((tryout) => (
 								<AdminTableRow key={tryout.id}>
-									<AdminTableCell>
+									<AdminTableCell className="pl-3">
 										<div className="min-w-0">
 											<Link
 												to="/admin/tryouts/$tryoutId"
@@ -181,7 +181,7 @@ export function TryoutsListPage() {
 									<AdminTableCell className="text-muted-foreground text-meta hidden text-right whitespace-nowrap sm:table-cell">
 										{tryout.updatedAt ? formatDateMedium(new Date(tryout.updatedAt)) : "—"}
 									</AdminTableCell>
-									<AdminTableCell className="relative z-10 text-right align-top">
+									<AdminTableCell className="relative z-10 pr-3 text-right">
 										<div className="flex items-center justify-end gap-2">
 											<AlertDialog
 												open={deleteDialogOpen === tryout.id}

@@ -16,10 +16,10 @@ export function UsersToolbar() {
 		>
 			<Select value={role ?? "all"} onValueChange={handleRoleChange}>
 				<SelectTrigger className="w-full sm:w-40">
-					<SelectValue placeholder="Semua Role" />
+					<SelectValue placeholder="Semua role" />
 				</SelectTrigger>
 				<SelectContent>
-					<SelectItem value="all">Semua Role</SelectItem>
+					<SelectItem value="all">Semua role</SelectItem>
 					<SelectItem value={ROLES.USER}>User</SelectItem>
 					<SelectItem value={ROLES.ADMIN}>Admin</SelectItem>
 					<SelectItem value={ROLES.SUPER_ADMIN}>Superadmin</SelectItem>
@@ -30,10 +30,10 @@ export function UsersToolbar() {
 				onValueChange={handlePremiumChange}
 			>
 				<SelectTrigger className="w-full sm:w-40">
-					<SelectValue placeholder="Semua Status" />
+					<SelectValue placeholder="Semua status" />
 				</SelectTrigger>
 				<SelectContent>
-					<SelectItem value="all">Semua Status</SelectItem>
+					<SelectItem value="all">Semua status</SelectItem>
 					<SelectItem value="true">Premium</SelectItem>
 					<SelectItem value="false">Non-Premium</SelectItem>
 				</SelectContent>

@@ -47,29 +47,6 @@ export function AdminTableToolbar({
 	);
 }
 
-interface AdminTableBulkActionsProps {
-	selectedCount: number;
-	children?: React.ReactNode;
-	trailing?: React.ReactNode;
-	className?: string;
-}
-
-export function AdminTableBulkActions({ selectedCount, children, className }: AdminTableBulkActionsProps) {
-	if (selectedCount === 0) return null;
-
-	return (
-		<div
-			className={cn(
-				"border-primary-navy-200 bg-primary-navy-50 flex h-9 items-center gap-2 rounded-md border px-2",
-				className,
-			)}
-		>
-			<span className="text-primary-navy-700 text-sm">{selectedCount} item dipilih</span>
-			<div className="ml-auto">{children}</div>
-		</div>
-	);
-}
-
 interface AdminTablePaginationWrapperProps {
 	children: React.ReactNode;
 	className?: string;

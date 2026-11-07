@@ -1,17 +1,13 @@
-import { MagnifyingGlassIcon } from "@phosphor-icons/react";
+import { CheckCircleIcon, MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
 import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Checkbox, CheckboxIndicator } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Item } from "@/components/ui/item";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Typography } from "@/components/ui/typography";
-import { useBulkSelection } from "@/hooks/use-bulk-selection";
 import { orpc } from "@/lib/orpc";
 import {
 	QUESTION_TYPE_BADGE,
@@ -22,6 +18,7 @@ import {
 	type SubjectCategory,
 	subjectCategorySchema,
 } from "@/lib/schemas";
+import { cn } from "@/lib/utils";
 
 type CategoryFilter = "all" | SubjectCategory;
 type TypeFilter = "all" | QuestionType;
@@ -50,6 +47,7 @@ export function QuestionPickerDialog({
 	const [search, setSearch] = useState("");
 	const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("all");
 	const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
+	const [addedIds, setAddedIds] = useState<number[]>([]);
 
 	const queryClient = useQueryClient();
 	const scrollRef = useRef<HTMLDivElement>(null);
@@ -70,13 +68,6 @@ export function QuestionPickerDialog({
 	);
 
 	const questions = data?.pages.flatMap((page) => page.items) ?? [];
-	const {
-		selectedIds: selectedQuestionIds,
-		toggleSelectAll: handleSelectAll,
-		toggleSelectOne: handleQuestionToggle,
-		clearSelection,
-		allSelected,
-	} = useBulkSelection(questions, { keepSelection: true });
 
 	const handleScroll = useCallback(() => {
 		const el = scrollRef.current;
@@ -85,11 +76,12 @@ export function QuestionPickerDialog({
 			fetchNextPage();
 		}
 	}, [isFetchingNextPage, hasNextPage, fetchNextPage]);
+
 	const addMutation = useMutation(
 		orpc.admin.content.addPracticeQuestions.mutationOptions({
-			onSuccess: (result) => {
+			onSuccess: (result, variables) => {
 				toast.success(result.message);
-				clearSelection();
+				setAddedIds((prev) => [...prev, ...variables.questionIds]);
 				queryClient.invalidateQueries({
 					queryKey: orpc.admin.content.listPracticeQuestions.queryKey({
 						input: { id: contentId },
@@ -101,7 +93,6 @@ export function QuestionPickerDialog({
 					}),
 				});
 				onSuccess();
-				onOpenChange(false);
 			},
 			onError: (err) => {
 				toast.error(err.message);
@@ -109,22 +100,17 @@ export function QuestionPickerDialog({
 		}),
 	);
 
-	const handleAdd = () => {
-		if (selectedQuestionIds.length > 0) {
-			addMutation.mutate({
-				id: contentId,
-				questionIds: selectedQuestionIds,
-			});
-		}
+	const handleAttach = (questionId: number) => {
+		if (addMutation.isPending) return;
+		addMutation.mutate({ id: contentId, questionIds: [questionId] });
 	};
 
 	const handleOpenChange = (newOpen: boolean) => {
 		if (!newOpen) {
-			// Reset state when closing
-			clearSelection();
 			setSearch("");
 			setCategoryFilter("all");
 			setTypeFilter("all");
+			setAddedIds([]);
 		}
 		onOpenChange(newOpen);
 	};
@@ -134,11 +120,13 @@ export function QuestionPickerDialog({
 			<DialogContent className="flex max-h-[85vh] flex-col sm:max-w-2xl">
 				<DialogHeader className="shrink-0">
 					<DialogTitle>Tambah Latihan Soal</DialogTitle>
-					<DialogDescription>Pilih soal dari bank soal untuk ditambahkan ke konten ini.</DialogDescription>
+					<DialogDescription>
+						Klik soal untuk langsung menambahkannya ke konten ini. Dialog tetap terbuka agar soal berikutnya bisa
+						ditambahkan.
+					</DialogDescription>
 				</DialogHeader>
 
 				<div className="flex flex-1 flex-col gap-4 overflow-hidden">
-					{/* Search and Filters */}
 					<div className="flex flex-wrap items-center gap-3">
 						<div className="flex-1">
 							<InputGroup className="w-full bg-white">
@@ -180,7 +168,7 @@ export function QuestionPickerDialog({
 								<SelectValue placeholder="Tipe" />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="all">Semua Tipe</SelectItem>
+								<SelectItem value="all">Semua tipe</SelectItem>
 								{Object.entries(QUESTION_TYPE_LABELS).map(([value, label]) => (
 									<SelectItem key={value} value={value}>
 										{label}
@@ -190,28 +178,6 @@ export function QuestionPickerDialog({
 						</Select>
 					</div>
 
-					{/* Select All and Add Button */}
-					<div className="flex items-center justify-between border-b pb-2">
-						<div className="flex items-center gap-2">
-							<Checkbox
-								checked={allSelected}
-								aria-label="Pilih semua soal"
-								onCheckedChange={handleSelectAll}
-								disabled={questions.length === 0}
-							/>
-							<span className="text-sm">Pilih yang Tampil ({selectedQuestionIds.length} dipilih)</span>
-						</div>
-						<Button
-							isPending={addMutation.isPending}
-							variant="default"
-							onClick={handleAdd}
-							disabled={selectedQuestionIds.length === 0 || addMutation.isPending}
-						>
-							{`Tambah ${selectedQuestionIds.length} Soal`}
-						</Button>
-					</div>
-
-					{/* Question List */}
 					<div ref={scrollRef} onScroll={handleScroll} className="flex-1 overflow-y-auto">
 						{isPending ? (
 							<div className="text-muted-foreground flex animate-pulse items-center justify-center py-8">
@@ -219,52 +185,57 @@ export function QuestionPickerDialog({
 							</div>
 						) : questions.length === 0 ? (
 							<div className="text-muted-foreground flex flex-col items-center justify-center py-8">
-								<Typography>Tidak ada soal ditemukan</Typography>
+								<p>Tidak ada soal ditemukan</p>
 								{excludeIds.length > 0 && (
-									<Typography variant="caption" className="mt-1">
-										({excludeIds.length} soal sudah ditambahkan)
-									</Typography>
+									<p className="text-meta mt-1">({excludeIds.length} soal sudah ditambahkan)</p>
 								)}
 							</div>
 						) : (
 							<div className="space-y-2">
-								{questions.map((question) => (
-									<Item
-										asChild
-										variant="outline"
-										selected={selectedQuestionIds.includes(question.id)}
-										key={question.id}
-										className="group hover:bg-muted/50 w-full cursor-pointer flex-nowrap items-start gap-3 rounded-lg p-3 text-left text-base"
-									>
-										<button
-											type="button"
-											aria-pressed={selectedQuestionIds.includes(question.id)}
-											onClick={() => handleQuestionToggle(question.id)}
+								{questions.map((question) => {
+									const isAttached = excludeIds.includes(question.id) || addedIds.includes(question.id);
+									return (
+										<Item
+											key={question.id}
+											variant="outline"
+											selected={isAttached}
+											className={cn(
+												"flex-nowrap items-start gap-3 rounded-lg p-3 text-left text-base",
+												isAttached ? "opacity-60" : "hover:bg-muted/50 hover:border-primary/40",
+											)}
 										>
-											<CheckboxIndicator checked={selectedQuestionIds.includes(question.id)} className="mt-0.5" />
-											<div className="min-w-0 flex-1 space-y-1">
-												<div className="flex items-start gap-2">
-													<div className="prose prose-sm line-clamp-2 min-w-0 flex-1 text-sm [&_*]:!m-0 [&_p]:line-clamp-2">
+											<button
+												type="button"
+												disabled={isAttached || addMutation.isPending}
+												onClick={() => handleAttach(question.id)}
+												aria-label={
+													isAttached ? `Soal #${question.id} sudah ada di konten ini` : `Tambah soal #${question.id}`
+												}
+												className="flex min-w-0 flex-1 items-start gap-3 text-left disabled:cursor-default"
+											>
+												<div className="min-w-0 flex-1 space-y-1">
+													<div className="prose prose-sm line-clamp-2 min-w-0 text-sm [&_*]:!m-0 [&_p]:line-clamp-2">
 														<TiptapRenderer content={question.content} />
 													</div>
-												</div>
-												<div className="flex flex-wrap items-center gap-1.5">
-													<Badge variant={QUESTION_TYPE_BADGE[question.type]} className="text-xs">
-														{QUESTION_TYPE_LABELS[question.type]}
-													</Badge>
-													{question.tags?.slice(0, 3).map((tag) => (
-														<Badge key={tag} variant="secondary" className="text-xs">
-															{tag}
+													<div className="flex flex-wrap items-center gap-1.5">
+														<Badge variant={QUESTION_TYPE_BADGE[question.type]} className="text-xs">
+															{QUESTION_TYPE_LABELS[question.type]}
 														</Badge>
-													))}
-													{question.tags && question.tags.length > 3 && (
-														<span className="text-muted-foreground text-xs">+{question.tags.length - 3}</span>
-													)}
+														{question.tags?.slice(0, 3).map((tag) => (
+															<Badge key={tag} variant="secondary" className="text-xs">
+																{tag}
+															</Badge>
+														))}
+														{question.tags && question.tags.length > 3 && (
+															<span className="text-muted-foreground text-xs">+{question.tags.length - 3}</span>
+														)}
+													</div>
 												</div>
-											</div>
-										</button>
-									</Item>
-								))}
+												{isAttached && <CheckCircleIcon className="size-4 shrink-0 text-green-800" weight="fill" />}
+											</button>
+										</Item>
+									);
+								})}
 								{isFetchingNextPage && (
 									<div className="text-muted-foreground flex animate-pulse items-center justify-center py-4 text-sm">
 										Memuat lebih banyak soal...

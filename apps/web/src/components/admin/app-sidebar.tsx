@@ -45,7 +45,7 @@ const allAdminNavLinks = [
 		title: "Passing grade",
 		url: "/admin/passing-grades",
 		icon: RankingIcon,
-		group: "Konten",
+		group: "Manajemen",
 	},
 	{
 		title: "Pengguna",

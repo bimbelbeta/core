@@ -1,5 +1,4 @@
 import { ROLES, type Role } from "@bimbelbeta/contract/common/roles";
-import { PencilSimpleIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -12,7 +11,6 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -52,12 +50,6 @@ export function EditRoleDialog({ userId, userName, currentRole, open, onOpenChan
 				onOpenChange(value);
 			}}
 		>
-			<DialogTrigger asChild>
-				<Button variant="outline" size="sm" className="h-9 gap-2" aria-label={`Edit role pengguna ${userName}`}>
-					<PencilSimpleIcon className="size-4" />
-					<span>Ubah role</span>
-				</Button>
-			</DialogTrigger>
 			<DialogContent className="sm:max-w-sm">
 				<DialogHeader>
 					<DialogTitle>Edit Role</DialogTitle>
