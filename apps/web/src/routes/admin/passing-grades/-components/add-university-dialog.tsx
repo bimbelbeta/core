@@ -83,7 +83,7 @@ export function AddUniversityDialog({
 					Tambah universitas
 				</Button>
 			</DialogTrigger>
-			<DialogContent size="sm" className="flex max-h-[85vh] flex-col sm:max-w-2xl">
+			<DialogContent size="lg" className="flex max-h-[85vh] flex-col">
 				<DialogHeader className="shrink-0">
 					<DialogTitle className="text-base">Tambah universitas</DialogTitle>
 					<DialogDescription>Tambahkan universitas baru ke dalam sistem. Isi form di bawah ini.</DialogDescription>

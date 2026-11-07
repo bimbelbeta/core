@@ -54,7 +54,7 @@ export function CreateReferralDialog({ onSuccess }: { onSuccess: () => void }) {
 				Buat kode referal
 			</Button>
 			<Dialog open={open} onOpenChange={setOpen}>
-				<DialogContent className="sm:max-w-2xl" aria-describedby={undefined}>
+				<DialogContent size="lg" aria-describedby={undefined}>
 					<DialogHeader>
 						<DialogTitle className="text-base">Buat kode referal</DialogTitle>
 					</DialogHeader>

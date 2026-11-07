@@ -112,7 +112,7 @@ export function EditSubjectDialog({ open, onOpenChange, subject }: EditSubjectDi
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="sm:max-w-2xl">
+			<DialogContent size="lg">
 				<DialogHeader>
 					<DialogTitle className="text-base">Edit Subject</DialogTitle>
 					<DialogDescription>Perbarui informasi kelas.</DialogDescription>

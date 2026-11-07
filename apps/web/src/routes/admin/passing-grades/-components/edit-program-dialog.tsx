@@ -7,10 +7,8 @@ import { AdminFieldRow } from "@/components/admin/admin-page";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 
 interface EditProgramDialogProps {
@@ -90,122 +88,106 @@ export function EditProgramDialog({ universityProgram, open, onSuccess, onOpenCh
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="sm:max-w-2xl" aria-describedby={undefined}>
+			<DialogContent size="lg" aria-describedby={undefined}>
 				<DialogHeader>
-					<DialogTitle className="text-base">Edit Program Studi</DialogTitle>
+					<DialogTitle className="text-base">
+						Edit {universityProgram?.studyProgram.name}
+						{universityProgram?.studyProgram.category && ` (${universityProgram.studyProgram.category})`}
+					</DialogTitle>
 				</DialogHeader>
 
 				{universityProgram && (
-					<div className="space-y-3">
-						<div className="bg-muted/50 rounded-lg border px-3 py-2.5">
-							<Typography variant="body" className="font-medium">
-								{universityProgram.studyProgram.name}
-							</Typography>
-							{universityProgram.studyProgram.category && (
-								<Typography variant="caption">{universityProgram.studyProgram.category}</Typography>
+					<form
+						onSubmit={(e) => {
+							e.preventDefault();
+							form.handleSubmit();
+						}}
+						className="space-y-3"
+					>
+						<form.Field name="tuition">
+							{(field) => (
+								<AdminFieldRow label="Biaya (Rp)" htmlFor={field.name} optional>
+									<Input
+										id={field.name}
+										type="number"
+										placeholder="5.000.000"
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+									/>
+								</AdminFieldRow>
 							)}
-						</div>
+						</form.Field>
 
-						<form
-							onSubmit={(e) => {
-								e.preventDefault();
-								form.handleSubmit();
-							}}
-							className="space-y-3"
-						>
-							<form.Field name="tuition">
-								{(field) => (
-									<AdminFieldRow label="Biaya (Rp)" htmlFor={field.name} optional>
-										<Input
-											id={field.name}
-											type="number"
-											placeholder="5.000.000"
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-										/>
-									</AdminFieldRow>
+						<form.Field name="capacity">
+							{(field) => (
+								<AdminFieldRow label="Kapasitas" htmlFor={field.name} optional>
+									<Input
+										id={field.name}
+										type="number"
+										placeholder="100"
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+									/>
+								</AdminFieldRow>
+							)}
+						</form.Field>
+
+						<form.Field name="accreditation">
+							{(field) => (
+								<AdminFieldRow label="Akreditasi" htmlFor={field.name} optional>
+									<Select value={field.state.value} onValueChange={(val) => field.handleChange(val)}>
+										<SelectTrigger id={field.name} className="w-full">
+											<SelectValue placeholder="Pilih..." />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="none">-</SelectItem>
+											<SelectItem value="Unggul">Unggul</SelectItem>
+											<SelectItem value="A">A</SelectItem>
+											<SelectItem value="B">B</SelectItem>
+											<SelectItem value="C">C</SelectItem>
+											<SelectItem value="Baik Sekali">Baik Sekali</SelectItem>
+											<SelectItem value="Baik">Baik</SelectItem>
+										</SelectContent>
+									</Select>
+								</AdminFieldRow>
+							)}
+						</form.Field>
+
+						<form.Field name="averageScore">
+							{(field) => (
+								<AdminFieldRow label="Skor Rata-rata" htmlFor={field.name} optional>
+									<Input
+										id={field.name}
+										type="number"
+										placeholder="500"
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+									/>
+								</AdminFieldRow>
+							)}
+						</form.Field>
+
+						<form.Field name="isActive">
+							{(field) => (
+								<AdminFieldRow label="Status aktif" htmlFor={field.name}>
+									<Switch id={field.name} checked={field.state.value} onCheckedChange={field.handleChange} />
+								</AdminFieldRow>
+							)}
+						</form.Field>
+
+						<DialogFooter>
+							<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+								{([canSubmit, isSubmitting]) => (
+									<Button size="xs" isPending={isSubmitting} type="submit" disabled={!canSubmit || isSubmitting}>
+										{"Simpan Perubahan"}
+									</Button>
 								)}
-							</form.Field>
-
-							<form.Field name="capacity">
-								{(field) => (
-									<AdminFieldRow label="Kapasitas" htmlFor={field.name} optional>
-										<Input
-											id={field.name}
-											type="number"
-											placeholder="100"
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-										/>
-									</AdminFieldRow>
-								)}
-							</form.Field>
-
-							<form.Field name="accreditation">
-								{(field) => (
-									<AdminFieldRow label="Akreditasi" htmlFor={field.name} optional>
-										<Select value={field.state.value} onValueChange={(val) => field.handleChange(val)}>
-											<SelectTrigger id={field.name} className="w-full">
-												<SelectValue placeholder="Pilih..." />
-											</SelectTrigger>
-											<SelectContent>
-												<SelectItem value="none">-</SelectItem>
-												<SelectItem value="Unggul">Unggul</SelectItem>
-												<SelectItem value="A">A</SelectItem>
-												<SelectItem value="B">B</SelectItem>
-												<SelectItem value="C">C</SelectItem>
-												<SelectItem value="Baik Sekali">Baik Sekali</SelectItem>
-												<SelectItem value="Baik">Baik</SelectItem>
-											</SelectContent>
-										</Select>
-									</AdminFieldRow>
-								)}
-							</form.Field>
-
-							<form.Field name="averageScore">
-								{(field) => (
-									<AdminFieldRow label="Skor Rata-rata" htmlFor={field.name} optional>
-										<Input
-											id={field.name}
-											type="number"
-											placeholder="500"
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-										/>
-									</AdminFieldRow>
-								)}
-							</form.Field>
-
-							<form.Field name="isActive">
-								{(field) => (
-									<div className="flex items-center justify-between rounded-lg border px-3 py-2.5">
-										<div>
-											<Label htmlFor={field.name} className="cursor-pointer">
-												Status Aktif
-											</Label>
-											<Typography variant="caption">
-												{field.state.value ? "Program studi ini aktif" : "Program studi ini tidak aktif"}
-											</Typography>
-										</div>
-										<Switch id={field.name} checked={field.state.value} onCheckedChange={field.handleChange} />
-									</div>
-								)}
-							</form.Field>
-
-							<DialogFooter>
-								<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
-									{([canSubmit, isSubmitting]) => (
-										<Button size="xs" isPending={isSubmitting} type="submit" disabled={!canSubmit || isSubmitting}>
-											{"Simpan Perubahan"}
-										</Button>
-									)}
-								</form.Subscribe>
-							</DialogFooter>
-						</form>
-					</div>
+							</form.Subscribe>
+						</DialogFooter>
+					</form>
 				)}
 			</DialogContent>
 		</Dialog>

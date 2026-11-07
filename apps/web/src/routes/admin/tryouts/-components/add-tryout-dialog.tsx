@@ -5,6 +5,7 @@ import { type } from "arktype";
 import { useState } from "react";
 import { toast } from "sonner";
 import { AdminFieldRow } from "@/components/admin/admin-page";
+import { TryoutStatus } from "@/components/admin/tryout-status";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -28,10 +29,9 @@ import {
 	type SubjectCategory,
 	subjectCategorySchema,
 	TRYOUT_STATUS_BADGE,
-	type TryoutStatus,
+	type TryoutStatus as TryoutStatusValue,
 	tryoutStatusSchema,
 } from "@/lib/schemas";
-import { cn } from "@/lib/utils";
 
 export function AddTryoutDialog({
 	open,
@@ -47,7 +47,7 @@ export function AddTryoutDialog({
 		description: string;
 		category: SubjectCategory;
 		duration: number;
-		status: TryoutStatus;
+		status: TryoutStatusValue;
 		startsAt: string;
 		endsAt: string;
 	};
@@ -111,7 +111,7 @@ export function AddTryoutDialog({
 					Tambah tryout
 				</Button>
 			</DialogTrigger>
-			<DialogContent className="flex max-h-[85vh] flex-col sm:max-w-2xl">
+			<DialogContent size="lg" className="flex max-h-[85vh] flex-col">
 				<DialogHeader className="shrink-0">
 					<DialogTitle className="text-base">Tambah tryout</DialogTitle>
 					<DialogDescription>Tambahkan tryout baru ke dalam sistem. Isi form di bawah ini.</DialogDescription>
@@ -191,15 +191,14 @@ export function AddTryoutDialog({
 											onValueChange={(val) => field.handleChange(tryoutStatusSchema.assert(val))}
 										>
 											<SelectTrigger id={field.name} className="w-full">
-												<SelectValue placeholder="Pilih status" />
+												<SelectValue placeholder="Pilih status">
+													<TryoutStatus status={field.state.value} />
+												</SelectValue>
 											</SelectTrigger>
 											<SelectContent>
-												{Object.entries(TRYOUT_STATUS_BADGE).map(([value, status]) => (
+												{Object.keys(TRYOUT_STATUS_BADGE).map((value) => (
 													<SelectItem key={value} value={value}>
-														<div className="flex items-center gap-2">
-															<status.icon className={cn("size-4", status.iconClassName)} />
-															<span>{status.label}</span>
-														</div>
+														<TryoutStatus status={tryoutStatusSchema.assert(value)} />
 													</SelectItem>
 												))}
 											</SelectContent>

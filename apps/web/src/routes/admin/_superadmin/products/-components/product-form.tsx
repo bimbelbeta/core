@@ -391,7 +391,7 @@ export function ProductForm({ initialData, onSuccess, onCancel }: ProductFormPro
 				{([canSubmit, isSubmitting]) => (
 					<div className="flex items-center justify-end gap-1">
 						{onCancel && (
-							<Button type="button" variant="ghost" size="xs" onClick={onCancel}>
+							<Button type="button" variant="outline" size="xs" onClick={onCancel}>
 								<XIcon className="size-3.5" />
 								Batal
 							</Button>

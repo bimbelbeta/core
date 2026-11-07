@@ -2,7 +2,7 @@ import { ROLES, type Role } from "@bimbelbeta/contract/common/roles";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
+import { AdminFieldRow } from "@/components/admin/admin-page";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -12,7 +12,6 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { orpc } from "@/lib/orpc";
 import { isValidRole } from "../-utils";
@@ -50,35 +49,28 @@ export function EditRoleDialog({ userId, userName, currentRole, open, onOpenChan
 				onOpenChange(value);
 			}}
 		>
-			<DialogContent className="sm:max-w-sm">
+			<DialogContent size="lg">
 				<DialogHeader>
 					<DialogTitle className="text-base">Edit Role</DialogTitle>
 					<DialogDescription>Ubah role untuk user "{userName}"</DialogDescription>
 				</DialogHeader>
-				<div className="flex flex-col gap-3">
-					<div className="bg-muted/50 flex items-center justify-between rounded-md border px-4 py-2.5">
-						<span className="text-muted-foreground text-sm">Role saat ini</span>
-						<Badge variant="outline">{currentRole ?? "user"}</Badge>
-					</div>
-					<div className="flex flex-col gap-2">
-						<Label>Role baru</Label>
-						<Select
-							value={role}
-							onValueChange={(val) => {
-								if (isValidRole(val)) setRole(val);
-							}}
-						>
-							<SelectTrigger>
-								<SelectValue placeholder="Pilih role" />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value={ROLES.USER}>User</SelectItem>
-								<SelectItem value={ROLES.ADMIN}>Admin</SelectItem>
-								<SelectItem value={ROLES.SUPER_ADMIN}>Superadmin</SelectItem>
-							</SelectContent>
-						</Select>
-					</div>
-				</div>
+				<AdminFieldRow label="Role baru" htmlFor="edit-role" hint={`Saat ini ${currentRole ?? "user"}`}>
+					<Select
+						value={role}
+						onValueChange={(val) => {
+							if (isValidRole(val)) setRole(val);
+						}}
+					>
+						<SelectTrigger id="edit-role" className="w-full">
+							<SelectValue placeholder="Pilih role" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value={ROLES.USER}>User</SelectItem>
+							<SelectItem value={ROLES.ADMIN}>Admin</SelectItem>
+							<SelectItem value={ROLES.SUPER_ADMIN}>Superadmin</SelectItem>
+						</SelectContent>
+					</Select>
+				</AdminFieldRow>
 				<DialogFooter>
 					<Button
 						size="xs"

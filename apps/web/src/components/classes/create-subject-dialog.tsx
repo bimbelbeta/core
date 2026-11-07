@@ -111,7 +111,7 @@ export function CreateSubjectDialog({ open, onOpenChange, defaultCategory }: Cre
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="sm:max-w-2xl">
+			<DialogContent size="lg">
 				<DialogHeader>
 					<DialogTitle className="text-base">Tambah Subject</DialogTitle>
 					<DialogDescription>Buat kelas baru untuk ditampilkan di daftar subject.</DialogDescription>

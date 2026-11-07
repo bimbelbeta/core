@@ -5,6 +5,7 @@ import { type } from "arktype";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AdminFieldRow, AdminFormShell, AdminSection } from "@/components/admin/admin-page";
+import { TryoutStatus } from "@/components/admin/tryout-status";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
@@ -19,7 +20,7 @@ import {
 	type SubjectCategory,
 	subjectCategorySchema,
 	TRYOUT_STATUS_BADGE,
-	type TryoutStatus,
+	type TryoutStatus as TryoutStatusValue,
 	tryoutStatusSchema,
 } from "@/lib/schemas";
 import { FormStateNotifier, type TryoutSettingsFormState } from "./form-state";
@@ -30,7 +31,7 @@ interface TryoutSettingsTabProps {
 		title: string;
 		description: string | null;
 		category: SubjectCategory;
-		status: TryoutStatus;
+		status: TryoutStatusValue;
 		startsAt: Date | null;
 		endsAt: Date | null;
 	};
@@ -216,13 +217,15 @@ export function TryoutSettingsTab({ tryout, onUpdate, onFormStateChange }: Tryou
 											value={field.state.value}
 											onValueChange={(val) => field.handleChange(tryoutStatusSchema.assert(val))}
 										>
-											<SelectTrigger id={field.name} className="w-full gap-2">
-												<SelectValue placeholder="Pilih status" />
+											<SelectTrigger id={field.name} className="w-full">
+												<SelectValue placeholder="Pilih status">
+													<TryoutStatus status={field.state.value} />
+												</SelectValue>
 											</SelectTrigger>
 											<SelectContent>
-												{Object.entries(TRYOUT_STATUS_BADGE).map(([value, status]) => (
+												{Object.keys(TRYOUT_STATUS_BADGE).map((value) => (
 													<SelectItem key={value} value={value}>
-														{status.label}
+														<TryoutStatus status={tryoutStatusSchema.assert(value)} />
 													</SelectItem>
 												))}
 											</SelectContent>
@@ -284,7 +287,7 @@ export function TryoutSettingsTab({ tryout, onUpdate, onFormStateChange }: Tryou
 						<div className="flex items-center justify-end gap-1">
 							<Button
 								type="button"
-								variant="ghost"
+								variant="outline"
 								size="xs"
 								disabled={!form.state.isDirty}
 								onClick={() => form.reset()}

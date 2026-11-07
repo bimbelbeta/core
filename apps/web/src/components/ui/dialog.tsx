@@ -36,6 +36,7 @@ function DialogOverlay({ className, ...props }: React.ComponentProps<typeof Dial
 const dialogSizes = {
 	default: "gap-3 p-4 sm:max-w-lg sm:p-5",
 	sm: "gap-2.5 p-3 sm:max-w-md sm:p-4",
+	lg: "gap-3 p-4 sm:max-w-2xl sm:p-5",
 } as const;
 
 function DialogContent({

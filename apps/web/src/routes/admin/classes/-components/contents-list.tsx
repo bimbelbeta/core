@@ -55,7 +55,7 @@ function ContentRow({
 
 	return (
 		<Reorder.Item as="div" value={item} dragListener={false} dragControls={dragControls}>
-			<Item variant="outline" size="sm" className="gap-3">
+			<Item variant="outline" size="sm" className="bg-card gap-3">
 				<ItemMedia
 					className="bg-muted/50 size-8 shrink-0 cursor-grab touch-none rounded-md border-none active:cursor-grabbing"
 					onPointerDown={(e) => dragControls.start(e)}

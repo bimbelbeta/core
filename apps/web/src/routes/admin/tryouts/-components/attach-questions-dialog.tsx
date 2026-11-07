@@ -79,7 +79,7 @@ export function AttachQuestionsDialog({
 
 	return (
 		<Dialog open={open} onOpenChange={handleOpenChange}>
-			<DialogContent className="flex max-h-[85vh] flex-col sm:max-w-2xl">
+			<DialogContent size="lg" className="flex max-h-[85vh] flex-col">
 				<DialogHeader className="shrink-0">
 					<DialogTitle className="text-base">Tambah soal</DialogTitle>
 					<DialogDescription>

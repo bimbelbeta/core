@@ -1,4 +1,4 @@
-import { CrownIcon, XCircleIcon } from "@phosphor-icons/react";
+import { CrownIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate, useParams } from "@tanstack/react-router";
 import {
@@ -9,6 +9,7 @@ import {
 	AdminPageRoot,
 	AdminSection,
 } from "@/components/admin/admin-page";
+import { AdminStatus } from "@/components/admin/admin-status";
 import {
 	AdminTable,
 	AdminTableBody,
@@ -22,7 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
-import { formatTimestamp } from "../-utils";
+import { formatDate, formatTimestamp } from "../-utils";
 
 export function ReferralDetailPage() {
 	const { codeId } = useParams({ from: "/admin/_superadmin/referrals/$codeId" });
@@ -71,9 +72,20 @@ export function ReferralDetailPage() {
 			<AdminPageHeader>
 				<AdminPageHeaderContent>
 					<AdminBackButton onClick={handleBack}>Kembali ke referral</AdminBackButton>
-					<code className="bg-muted rounded px-2 py-1 text-sm tracking-widest tabular-nums">{referralCode.code}</code>
+					<div className="flex flex-wrap items-center gap-2">
+						<Typography variant="title">{referralCode.code}</Typography>
+						{isActive ? (
+							<AdminStatus tone="positive">Aktif</AdminStatus>
+						) : !referralCode.status ? (
+							<AdminStatus tone="neutral">Nonaktif</AdminStatus>
+						) : isExpired ? (
+							<AdminStatus tone="danger">Kedaluwarsa</AdminStatus>
+						) : (
+							<AdminStatus tone="warning">Kuota habis</AdminStatus>
+						)}
+					</div>
 					<Typography variant="body" tone="muted">
-						Detail kode referal
+						Dibuat {formatDate(referralCode.createdAt)}
 					</Typography>
 				</AdminPageHeaderContent>
 			</AdminPageHeader>
@@ -82,19 +94,6 @@ export function ReferralDetailPage() {
 				<div className="grid gap-4 md:grid-cols-2">
 					<AdminSection title="Informasi Kode">
 						<div className="bg-card text-meta flex flex-col gap-2 rounded-lg border p-3">
-							<div className="flex justify-between">
-								<span className="text-muted-foreground">Status</span>
-								{isActive ? (
-									<Badge className="gap-1" variant="success">
-										Aktif
-									</Badge>
-								) : (
-									<Badge className="gap-1" variant="danger">
-										<XCircleIcon className="size-3" />
-										{!referralCode.status ? "Nonaktif" : isExpired ? "Kedaluwarsa" : "Kuota Habis"}
-									</Badge>
-								)}
-							</div>
 							<div className="flex justify-between">
 								<span className="text-muted-foreground">Penggunaan</span>
 								<span className="font-semibold tabular-nums">
@@ -108,10 +107,6 @@ export function ReferralDetailPage() {
 							<div className="flex justify-between">
 								<span className="text-muted-foreground">Berlaku Hingga</span>
 								<span className="tabular-nums">{formatTimestamp(referralCode.validUntil)}</span>
-							</div>
-							<div className="flex justify-between">
-								<span className="text-muted-foreground">Dibuat</span>
-								<span className="tabular-nums">{formatTimestamp(referralCode.createdAt)}</span>
 							</div>
 						</div>
 					</AdminSection>
