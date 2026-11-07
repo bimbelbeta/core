@@ -13,7 +13,6 @@ import {
 } from "@/components/admin/admin-table";
 import { AdminTablePaginationWrapper } from "@/components/admin/admin-table-toolbar";
 import { PaginationButtons } from "@/components/admin/pagination-buttons";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -23,7 +22,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatDateLong, formatDateMedium, formatDateTime } from "@/lib/format-date";
-import { getInitials } from "@/lib/formatter";
 import { cn } from "@/lib/utils";
 import { useUsersList } from "../-hooks/use-users-list";
 import { useUsersPagination } from "../-hooks/use-users-pagination";
@@ -44,11 +42,10 @@ export function UsersTable() {
 		<AdminTableRoot>
 			<AdminTable className="table-fixed">
 				<AdminTableHeader>
-					<AdminTableHead className="w-[36%] pl-3">Nama</AdminTableHead>
-					<AdminTableHead className="w-[14%]">Role</AdminTableHead>
-					<AdminTableHead className="w-[16%]">Premium</AdminTableHead>
-					<AdminTableHead className="hidden w-[9%] text-right sm:table-cell">Kredit</AdminTableHead>
-					<AdminTableHead className="hidden w-[19%] text-right sm:table-cell">Diperbarui</AdminTableHead>
+					<AdminTableHead className="w-[46%] pl-3">Nama</AdminTableHead>
+					<AdminTableHead className="w-[17%]">Role</AdminTableHead>
+					<AdminTableHead className="hidden w-[11%] text-right sm:table-cell">Kredit</AdminTableHead>
+					<AdminTableHead className="hidden w-[20%] text-right sm:table-cell">Diperbarui</AdminTableHead>
 					<AdminTableHead className="w-[6%] pr-3 text-right">
 						<span className="sr-only">Aksi</span>
 					</AdminTableHead>
@@ -57,7 +54,7 @@ export function UsersTable() {
 					isLoading={isLoading}
 					isEmpty={!isLoading && data?.items.length === 0}
 					emptyMessage="Tidak ada user ditemukan."
-					columns={6}
+					columns={5}
 				>
 					<TooltipProvider delayDuration={200}>
 						{data?.items.map((user) => {
@@ -69,23 +66,34 @@ export function UsersTable() {
 							return (
 								<AdminTableRow key={user.id}>
 									<AdminTableCell className="pl-3">
-										<div className="flex min-w-0 items-center gap-3">
-											<Avatar className="ring-border size-8 shrink-0 rounded-full ring-1">
-												<AvatarImage src={user.image ?? undefined} alt={user.name} />
-												<AvatarFallback className="bg-primary-100 text-primary-800 text-meta font-semibold">
-													{getInitials(user.name)}
-												</AvatarFallback>
-											</Avatar>
-											<div className="min-w-0">
-												<Link
-													to="/admin/users/$userId"
-													params={{ userId: user.id }}
-													className="text-row-title text-foreground hover:text-primary focus-visible:ring-ring/50 block truncate rounded-sm underline-offset-4 outline-none after:absolute after:inset-0 after:content-[''] hover:underline focus-visible:ring-2"
-												>
-													{user.name}
-												</Link>
-												<p className="text-muted-foreground text-meta truncate">{user.email}</p>
-											</div>
+										<div className="min-w-0">
+											<Link
+												to="/admin/users/$userId"
+												params={{ userId: user.id }}
+												className="text-row-title text-foreground hover:text-primary focus-visible:ring-ring/50 block truncate rounded-sm underline-offset-4 outline-none after:absolute after:inset-0 after:content-[''] hover:underline focus-visible:ring-2"
+											>
+												{user.name}
+											</Link>
+											<p className="text-muted-foreground text-meta mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1">
+												<span className="truncate">{user.email}</span>
+												{user.isPremium && (
+													<Tooltip>
+														<TooltipTrigger asChild>
+															<AdminStatus
+																tone="positive"
+																className={cn(isPremiumExpired && "line-through decoration-1")}
+															>
+																Premium
+															</AdminStatus>
+														</TooltipTrigger>
+														<TooltipContent>
+															{premiumDate
+																? `Berakhir ${formatPremiumExpiry(premiumDate)} · ${formatDateTime(premiumDate)}`
+																: "Premium aktif"}
+														</TooltipContent>
+													</Tooltip>
+												)}
+											</p>
 										</div>
 									</AdminTableCell>
 
@@ -94,25 +102,6 @@ export function UsersTable() {
 											<AdminMeta>{roleInfo.label}</AdminMeta>
 										) : (
 											<AdminChip tone="accent">{roleInfo.label}</AdminChip>
-										)}
-									</AdminTableCell>
-
-									<AdminTableCell>
-										{user.isPremium ? (
-											<Tooltip>
-												<TooltipTrigger asChild>
-													<AdminStatus tone="positive" className={cn(isPremiumExpired && "line-through decoration-1")}>
-														Premium
-													</AdminStatus>
-												</TooltipTrigger>
-												<TooltipContent>
-													{premiumDate
-														? `Berakhir ${formatPremiumExpiry(premiumDate)} · ${formatDateTime(premiumDate)}`
-														: "Premium aktif"}
-												</TooltipContent>
-											</Tooltip>
-										) : (
-											<AdminMeta>Non-premium</AdminMeta>
 										)}
 									</AdminTableCell>
 

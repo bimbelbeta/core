@@ -1,10 +1,10 @@
 import { cn } from "@/lib/utils";
 
 const statusTones = {
-	positive: { pill: "bg-green-100/60 text-green-900", dot: "bg-green-600" },
-	warning: { pill: "bg-amber-100/70 text-amber-900", dot: "bg-amber-600" },
-	danger: { pill: "bg-red-100/60 text-red-900", dot: "bg-red-600" },
-	neutral: { pill: "bg-neutral-200/70 text-neutral-800", dot: "bg-neutral-500" },
+	positive: "bg-green-100/60 text-green-900",
+	warning: "bg-amber-100/70 text-amber-900",
+	danger: "bg-red-100/60 text-red-900",
+	neutral: "bg-neutral-200/70 text-neutral-800",
 } as const;
 
 const chipTones = {
@@ -12,8 +12,7 @@ const chipTones = {
 	accent: "bg-primary-200/70 text-primary-900",
 } as const;
 
-const pillClassName =
-	"inline-flex w-fit items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap";
+const pillClassName = "inline-flex w-fit items-center rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap";
 
 interface AdminStatusProps {
 	tone: keyof typeof statusTones;
@@ -22,14 +21,7 @@ interface AdminStatusProps {
 }
 
 export function AdminStatus({ tone, children, className }: AdminStatusProps) {
-	const { pill, dot } = statusTones[tone];
-
-	return (
-		<span className={cn(pillClassName, pill, className)}>
-			<span className={cn("size-1.5 shrink-0 rounded-full", dot)} />
-			{children}
-		</span>
-	);
+	return <span className={cn(pillClassName, statusTones[tone], className)}>{children}</span>;
 }
 
 interface AdminChipProps {

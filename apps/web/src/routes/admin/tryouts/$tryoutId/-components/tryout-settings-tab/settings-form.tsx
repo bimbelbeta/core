@@ -222,10 +222,7 @@ export function TryoutSettingsTab({ tryout, onUpdate, onFormStateChange }: Tryou
 											<SelectContent>
 												{Object.entries(TRYOUT_STATUS_BADGE).map(([value, status]) => (
 													<SelectItem key={value} value={value}>
-														<div className="flex items-center gap-2">
-															<div className={`size-2 rounded-full ${status.dotClassName}`} />
-															{status.label}
-														</div>
+														{status.label}
 													</SelectItem>
 												))}
 											</SelectContent>

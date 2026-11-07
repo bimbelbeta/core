@@ -20,21 +20,18 @@ export const TRYOUT_STATUS_BADGE = {
 	draft: {
 		label: "Draf",
 		variant: "outline",
-		dotClassName: "bg-gray-400",
 		icon: FileIcon,
 		iconClassName: "text-muted-foreground",
 	},
 	published: {
 		label: "Terbit",
 		variant: "success",
-		dotClassName: "bg-green-500",
 		icon: EyeIcon,
 		iconClassName: "text-green-600",
 	},
 	archived: {
 		label: "Arsip",
 		variant: "danger",
-		dotClassName: "bg-red-500",
 		icon: ArchiveIcon,
 		iconClassName: "text-red-600",
 	},
@@ -43,7 +40,6 @@ export const TRYOUT_STATUS_BADGE = {
 	{
 		label: string;
 		variant: "outline" | "success" | "danger";
-		dotClassName: string;
 		icon: React.ComponentType<{ className?: string }>;
 		iconClassName: string;
 	}

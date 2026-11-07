@@ -75,7 +75,6 @@ describe("tryout statuses", () => {
 		expect(Object.keys(TRYOUT_STATUS_BADGE)).toHaveLength(3);
 		for (const entry of Object.values(TRYOUT_STATUS_BADGE)) {
 			expect(entry.label.length).toBeGreaterThan(0);
-			expect(entry.dotClassName).toMatch(/^bg-/);
 			expect(entry.iconClassName).toMatch(/^text-/);
 			expect(entry.icon).toBeDefined();
 		}
