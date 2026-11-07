@@ -108,6 +108,8 @@ export function SubtestDetailPanel({ tryoutId, subtest, onUpdate }: SubtestDetai
 					<TabsContent value="soal">
 						<SubtestQuestionsTable
 							questions={questions}
+							tryoutId={tryoutId}
+							subtestId={subtestId}
 							isRemoving={removeMutation.isPending}
 							onRemove={(questionId) => removeMutation.mutate({ subtestId, questionId })}
 						/>

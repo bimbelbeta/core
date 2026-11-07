@@ -1,11 +1,10 @@
-import { ArrowLeftIcon, FloppyDiskIcon, XIcon } from "@phosphor-icons/react";
+import { ArrowLeftIcon, FloppyDiskIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type } from "arktype";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
-	AdminFormShell,
 	AdminPageContent,
 	AdminPageHeader,
 	AdminPageHeaderContent,
@@ -95,112 +94,127 @@ export function EditQuestionForm({ question, initialChoices, onSuccess, onCancel
 		<AdminPageRoot>
 			<AdminPageHeader>
 				<AdminPageHeaderContent>
-					<div className="flex items-center gap-2">
-						<Button variant="ghost" size="icon" aria-label="Batal" onClick={onCancel}>
-							<ArrowLeftIcon className="size-4" />
-						</Button>
-						<Typography variant="title">Edit soal #{question.id}</Typography>
-					</div>
-					<Typography variant="body" tone="muted">
-						{question.type === "essay"
-							? QUESTION_TYPE_SHORT_LABELS[question.type]
-							: `${QUESTION_TYPE_SHORT_LABELS[question.type]} · ${choices.length} pilihan`}
-					</Typography>
+					<button
+						type="button"
+						onClick={onCancel}
+						className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 text-meta mb-0.5 inline-flex items-center gap-1 self-start rounded-sm outline-none focus-visible:ring-2"
+					>
+						<ArrowLeftIcon className="size-3" />
+						Kembali
+					</button>
+					<Typography variant="title">Edit soal #{question.id}</Typography>
 				</AdminPageHeaderContent>
 			</AdminPageHeader>
 
 			<AdminPageContent>
-				<AdminFormShell>
-					<form
-						onSubmit={(e) => {
-							e.preventDefault();
-							form.handleSubmit();
-						}}
-						className="flex flex-col gap-5"
-					>
-						<AdminSection title="Konten soal" description="Pertanyaan yang dibaca peserta.">
-							<form.Field name="content">
-								{(field) => (
-									<TiptapSimpleEditor
-										label="Konten soal"
-										content={field.state.value ?? undefined}
-										onChange={(content) => field.handleChange(content)}
-									/>
-								)}
-							</form.Field>
-						</AdminSection>
-
-						<AdminSection
-							title="Jawaban"
-							description={
-								question.type === "essay"
-									? "Kunci jawaban acuan penilaian esai."
-									: "Pilihan bertanda benar adalah kunci jawaban."
-							}
-						>
-							{question.type === "multiple_choice" ? (
-								<MultipleChoiceQuestionForm choices={choices} onChoicesChange={setChoices} />
-							) : question.type === "multiple_choice_complex" ? (
-								<MultipleChoiceComplexQuestionForm choices={choices} onChoicesChange={setChoices} />
-							) : (
-								<form.Field name="essayCorrectAnswer">
+				<form
+					onSubmit={(e) => {
+						e.preventDefault();
+						form.handleSubmit();
+					}}
+					className="flex flex-col gap-5"
+				>
+					<div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_14rem]">
+						<div className="flex min-w-0 flex-col gap-5">
+							<AdminSection title="Konten soal" description="Pertanyaan yang dibaca peserta.">
+								<form.Field name="content">
 									{(field) => (
-										<div className="flex flex-col gap-1.5">
-											<Label htmlFor={field.name}>Kunci jawaban</Label>
-											<Input
-												id={field.name}
-												value={field.state.value}
-												onChange={(e) => field.handleChange(e.target.value)}
-												placeholder="Masukkan kunci jawaban..."
-												required
-											/>
-										</div>
+										<TiptapSimpleEditor
+											label="Konten soal"
+											content={field.state.value ?? undefined}
+											onChange={(content) => field.handleChange(content)}
+										/>
 									)}
 								</form.Field>
-							)}
-						</AdminSection>
+							</AdminSection>
 
-						<AdminSection title="Pembahasan" description="Tampil untuk peserta setelah soal selesai.">
-							<form.Field name="discussion">
-								{(field) => (
-									<TiptapSimpleEditor
-										label="Pembahasan"
-										content={field.state.value ?? undefined}
-										onChange={(content) => field.handleChange(content)}
-									/>
+							<AdminSection
+								title="Jawaban"
+								description={
+									question.type === "essay"
+										? "Kunci jawaban acuan penilaian esai."
+										: "Pilihan bertanda benar adalah kunci jawaban."
+								}
+							>
+								{question.type === "multiple_choice" ? (
+									<MultipleChoiceQuestionForm choices={choices} onChoicesChange={setChoices} />
+								) : question.type === "multiple_choice_complex" ? (
+									<MultipleChoiceComplexQuestionForm choices={choices} onChoicesChange={setChoices} />
+								) : (
+									<form.Field name="essayCorrectAnswer">
+										{(field) => (
+											<div className="flex flex-col gap-1.5">
+												<Label htmlFor={field.name}>Kunci jawaban</Label>
+												<Input
+													id={field.name}
+													value={field.state.value}
+													onChange={(e) => field.handleChange(e.target.value)}
+													placeholder="Masukkan kunci jawaban..."
+													required
+												/>
+											</div>
+										)}
+									</form.Field>
 								)}
-							</form.Field>
-						</AdminSection>
+							</AdminSection>
 
-						<AdminSection title="Tags" description="Memudahkan penyaringan di bank soal.">
-							<form.Field name="tags">
-								{(field) => (
-									<TagInput
-										value={field.state.value}
-										onChange={(tags) => field.handleChange(tags)}
-										placeholder="Tambah tag..."
-										maxLength={10}
-									/>
-								)}
-							</form.Field>
-						</AdminSection>
-
-						<div className="flex items-center justify-end gap-1">
-							<Button type="button" variant="ghost" size="xs" onClick={onCancel}>
-								<XIcon className="size-3.5" />
-								Batal
-							</Button>
-							<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
-								{([canSubmit, isSubmitting]) => (
-									<Button isPending={isSubmitting} size="xs" type="submit" disabled={!canSubmit || isSubmitting}>
-										<FloppyDiskIcon className="size-3.5" />
-										Simpan perubahan
-									</Button>
-								)}
-							</form.Subscribe>
+							<AdminSection title="Pembahasan" description="Tampil untuk peserta setelah soal selesai.">
+								<form.Field name="discussion">
+									{(field) => (
+										<TiptapSimpleEditor
+											label="Pembahasan"
+											content={field.state.value ?? undefined}
+											onChange={(content) => field.handleChange(content)}
+										/>
+									)}
+								</form.Field>
+							</AdminSection>
 						</div>
-					</form>
-				</AdminFormShell>
+
+						<aside className="flex min-w-0 flex-col gap-5">
+							<AdminSection title="Detail">
+								<dl className="flex flex-col gap-2.5">
+									<div className="flex items-baseline justify-between gap-3">
+										<dt className="text-muted-foreground text-meta">Jenis</dt>
+										<dd className="text-meta text-right font-medium">
+											{QUESTION_TYPE_SHORT_LABELS[question.type] ?? question.type}
+										</dd>
+									</div>
+									{question.type !== "essay" && (
+										<div className="flex items-baseline justify-between gap-3">
+											<dt className="text-muted-foreground text-meta">Pilihan</dt>
+											<dd className="text-meta text-right font-medium tabular-nums">{choices.length}</dd>
+										</div>
+									)}
+								</dl>
+							</AdminSection>
+
+							<AdminSection title="Tags" description="Memudahkan penyaringan di bank soal.">
+								<form.Field name="tags">
+									{(field) => (
+										<TagInput
+											value={field.state.value}
+											onChange={(tags) => field.handleChange(tags)}
+											placeholder="Tambah tag..."
+											maxLength={10}
+										/>
+									)}
+								</form.Field>
+							</AdminSection>
+						</aside>
+					</div>
+
+					<div className="flex items-center justify-end gap-1">
+						<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+							{([canSubmit, isSubmitting]) => (
+								<Button isPending={isSubmitting} size="xs" type="submit" disabled={!canSubmit || isSubmitting}>
+									<FloppyDiskIcon className="size-3.5" />
+									Simpan perubahan
+								</Button>
+							)}
+						</form.Subscribe>
+					</div>
+				</form>
 			</AdminPageContent>
 		</AdminPageRoot>
 	);

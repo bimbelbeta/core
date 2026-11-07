@@ -169,7 +169,13 @@ function RouteComponent() {
 								{programs?.items.map((prog) => (
 									<AdminTableRow key={prog.id}>
 										<AdminTableCell className="pl-3">
-											<Button type="button" variant="link" size="none" onClick={() => setEditProgram(prog)}>
+											<Button
+												type="button"
+												variant="link"
+												size="none"
+												onClick={() => setEditProgram(prog)}
+												className="focus-visible:ring-ring/50 after:absolute after:inset-0 after:content-[''] focus-visible:ring-2"
+											>
 												{prog.studyProgram.name}
 											</Button>
 										</AdminTableCell>

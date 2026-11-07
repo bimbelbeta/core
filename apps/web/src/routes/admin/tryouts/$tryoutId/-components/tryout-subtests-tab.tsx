@@ -130,7 +130,7 @@ export function TryoutSubtestsTab({ tryoutId, subtests, onUpdate }: TryoutSubtes
 												to="/admin/tryouts/$tryoutId"
 												params={{ tryoutId: tryoutId.toString() }}
 												search={{ tab: "subtests", subtest: subtest.id }}
-												className="group/link block"
+												className="group/link focus-visible:ring-ring/50 block rounded-sm outline-none after:absolute after:inset-0 after:content-[''] focus-visible:underline focus-visible:ring-2"
 											>
 												<span className="text-row-title group-hover/link:underline">{subtest.name}</span>
 												{subtest.description && (

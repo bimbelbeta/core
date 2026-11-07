@@ -27,12 +27,21 @@ import { QUESTION_TYPE_SHORT_LABELS } from "@/lib/schemas";
 
 interface SubtestQuestionsTableProps {
 	questions: BodyOutputs["admin"]["tryout"]["questionsBulk"]["list"]["questions"];
+	tryoutId: number;
+	subtestId: number;
 	isPending?: boolean;
 	isRemoving?: boolean;
 	onRemove: (questionId: number) => void;
 }
 
-export function SubtestQuestionsTable({ questions, isPending, isRemoving, onRemove }: SubtestQuestionsTableProps) {
+export function SubtestQuestionsTable({
+	questions,
+	tryoutId,
+	subtestId,
+	isPending,
+	isRemoving,
+	onRemove,
+}: SubtestQuestionsTableProps) {
 	const [removeQuestionId, setRemoveQuestionId] = useState<number | null>(null);
 
 	return (
@@ -60,6 +69,7 @@ export function SubtestQuestionsTable({ questions, isPending, isRemoving, onRemo
 										<Link
 											to="/admin/questions/$questionId"
 											params={{ questionId: item.question.id.toString() }}
+											search={{ tryoutId, subtestId }}
 											className="text-row-title text-foreground hover:text-primary focus-visible:text-primary focus-visible:ring-ring/50 line-clamp-2 rounded-sm whitespace-normal underline-offset-4 outline-none after:absolute after:inset-0 after:content-[''] hover:underline focus-visible:underline focus-visible:ring-2"
 										>
 											{preview || "(Konten kosong)"}
