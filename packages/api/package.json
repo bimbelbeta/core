@@ -1,17 +1,9 @@
 {
 	"name": "@bimbelbeta/api",
 	"exports": {
-		".": {
-			"types": "./dist/index.d.mts",
-			"default": "./dist/index.mjs"
-		},
 		"./*": {
 			"types": "./dist/*.d.mts",
 			"default": "./dist/*.mjs"
-		},
-		"./*/*": {
-			"types": "./dist/*/*.d.mts",
-			"default": "./dist/*/*.mjs"
 		}
 	},
 	"type": "module",
