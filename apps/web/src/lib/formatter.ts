@@ -3,10 +3,27 @@ export function formatRupiah(value: number | string) {
 	return new Intl.NumberFormat("id-ID", {
 		style: "currency",
 		currency: "IDR",
-		minimumFractionDigits: 0,
 		maximumFractionDigits: 0,
 	})
 		.format(num)
-		.replace("IDR", "Rp")
 		.replace(/\s/g, "");
+}
+
+export function formatCount(value: number) {
+	return new Intl.NumberFormat("id-ID").format(value);
+}
+
+export function gradeLabel(category: string, gradeLevel: number | null) {
+	if (category === "utbk") return "SMA Kelas 12";
+	return gradeLevel === null ? "-" : `${category.toUpperCase()} Kelas ${gradeLevel}`;
+}
+
+export function getInitials(name: string) {
+	return name
+		.trim()
+		.split(/\s+/)
+		.slice(0, 2)
+		.map((part) => part[0])
+		.join("")
+		.toUpperCase();
 }

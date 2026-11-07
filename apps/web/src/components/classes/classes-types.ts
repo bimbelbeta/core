@@ -1,4 +1,5 @@
 import type { BodyOutputs } from "@/lib/orpc";
+import type { SubjectCategory } from "@/lib/schemas";
 
 export type SubjectListItem = BodyOutputs["subject"]["list"]["items"][number];
 
@@ -18,6 +19,5 @@ export type LastContentViewedItem = ContentActionItem & {
 	title: string;
 };
 
-export type SubjectCategory = SubjectListItem["category"];
 export type SubjectFilter = "all" | SubjectCategory;
 export type ContentFilter = "all" | "video" | "notes" | "quiz";

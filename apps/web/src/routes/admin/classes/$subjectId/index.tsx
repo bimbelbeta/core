@@ -1,12 +1,19 @@
+import { ArrowLeftIcon, PlusIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { type } from "arktype";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ClassHeader } from "@/components/classes/class-header";
+import {
+	AdminPageContent,
+	AdminPageHeader,
+	AdminPageHeaderActions,
+	AdminPageHeaderContent,
+	AdminPageRoot,
+} from "@/components/admin/admin-page";
+import { AdminTableToolbar } from "@/components/admin/admin-table-toolbar";
 import type { ContentListItem } from "@/components/classes/classes-types";
-import { ContentList } from "@/components/classes/content-list";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -19,7 +26,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Container } from "@/components/ui/container";
 import {
 	Dialog,
 	DialogContent,
@@ -30,9 +36,12 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { SearchInput } from "@/components/ui/search-input";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Typography } from "@/components/ui/typography";
+import { gradeLabel } from "@/lib/formatter";
 import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
+import { ContentsList } from "../-components/contents-list";
 
 const searchSchema = type({
 	"q?": "string",
@@ -40,7 +49,7 @@ const searchSchema = type({
 });
 
 export const Route = createFileRoute("/admin/classes/$subjectId/")({
-	staticData: { breadcrumb: "Subject" },
+	staticData: { breadcrumb: "Subject", breadcrumbParent: { label: "Kelas", to: "/admin/classes" } },
 	component: RouteComponent,
 	validateSearch: searchSchema,
 });
@@ -211,59 +220,97 @@ function RouteComponent() {
 		});
 	};
 
-	if (contents.isPending) {
+	if (contents.isPending && !contents.data) {
 		return (
-			<div className="mx-auto max-w-6xl">
-				<Container className="pt-12">
-					<p className="animate-pulse text-sm">Memuat kelas...</p>
-				</Container>
-			</div>
+			<AdminPageRoot>
+				<AdminPageHeader>
+					<AdminPageHeaderContent>
+						<Skeleton className="h-7 w-48" />
+					</AdminPageHeaderContent>
+				</AdminPageHeader>
+				<AdminPageContent>
+					<div className="flex flex-col gap-2">
+						{Array.from({ length: 5 }).map((_, i) => (
+							<Skeleton key={i.toString()} className="h-14 w-full" />
+						))}
+					</div>
+				</AdminPageContent>
+			</AdminPageRoot>
 		);
 	}
 
 	if (contents.isError) {
 		return (
-			<div className="mx-auto max-w-6xl">
-				<Container className="pt-12">
-					<p className="text-sm text-red-500">Error: {contents.error.message}</p>
-				</Container>
-			</div>
+			<AdminPageRoot>
+				<AdminPageHeader>
+					<AdminPageHeaderContent>
+						<Typography variant="title">Subject tidak ditemukan</Typography>
+					</AdminPageHeaderContent>
+				</AdminPageHeader>
+				<AdminPageContent>
+					<Typography tone="destructive">Error: {contents.error.message}</Typography>
+					<Button variant="outline" size="sm" onClick={() => contents.refetch()}>
+						Coba lagi
+					</Button>
+				</AdminPageContent>
+			</AdminPageRoot>
 		);
 	}
+
 	if (!contents.data) return notFound();
 
-	return (
-		<Container className="px-0 py-4">
-			<ClassHeader subject={contents.data.subject} />
-			<div className="bg-background/95 sticky top-0 z-10 space-y-4 border-b pb-4 backdrop-blur">
-				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-					<div className="w-full flex-1 sm:max-w-md">
-						<SearchInput value={searchQuery} onChange={(q) => updateSearch({ q })} placeholder="Cari konten..." />
-					</div>
-				</div>
-			</div>
+	const subject = contents.data.subject;
 
-			<div className="space-y-4">
-				<ContentList
+	return (
+		<AdminPageRoot>
+			<AdminPageHeader>
+				<AdminPageHeaderContent>
+					<div className="flex items-center gap-2">
+						<Button variant="ghost" size="icon" aria-label="Kembali" asChild>
+							<Link to="/admin/classes">
+								<ArrowLeftIcon className="size-4" />
+							</Link>
+						</Button>
+						<Typography variant="title">{subject.name}</Typography>
+					</div>
+					<Typography variant="body" tone="muted">
+						{gradeLabel(subject.category, subject.gradeLevel)}
+					</Typography>
+				</AdminPageHeaderContent>
+				<AdminPageHeaderActions>
+					<Button size="sm" className="h-9" onClick={handleCreate}>
+						<PlusIcon className="size-4" />
+						Tambah konten
+					</Button>
+				</AdminPageHeaderActions>
+			</AdminPageHeader>
+
+			<AdminPageContent>
+				<AdminTableToolbar
+					searchValue={searchQuery}
+					onSearchChange={(value) => updateSearch({ q: value })}
+					searchPlaceholder="Cari konten..."
+					onReset={searchQuery ? () => updateSearch({ q: "" }) : undefined}
+				/>
+
+				<ContentsList
 					items={contents.data.items}
-					isLoading={contents.isPending}
-					error={undefined}
+					isPending={contents.isPending}
+					subjectId={subjectId}
 					searchQuery={searchQuery}
 					showCount={Boolean(searchQuery)}
 					hasMore={!!contents.data.pageInfo?.hasNextPage}
 					onLoadMore={() => updateSearch({ after: contents.data?.pageInfo?.endCursor ?? undefined })}
-					onCreate={handleCreate}
 					onEdit={handleEdit}
 					onDelete={handleDelete}
 					onReorder={handleReorder}
-					subjectId={subjectId}
 				/>
-			</div>
+			</AdminPageContent>
 
 			<Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Tambah Konten</DialogTitle>
+						<DialogTitle>Tambah konten</DialogTitle>
 						<DialogDescription>Buat konten baru</DialogDescription>
 					</DialogHeader>
 					<form
@@ -286,9 +333,9 @@ function RouteComponent() {
 										placeholder="Masukkan judul konten"
 									/>
 									{field.state.meta.errors.map((error) => (
-										<p key={error?.message} className="text-sm text-red-500">
+										<Typography key={error?.message} tone="destructive">
 											{error?.message}
-										</p>
+										</Typography>
 									))}
 								</div>
 							)}
@@ -313,8 +360,12 @@ function RouteComponent() {
 							</Button>
 							<createForm.Subscribe>
 								{(state) => (
-									<Button type="submit" disabled={!state.canSubmit || createMutation.isPending}>
-										{createMutation.isPending ? "Menyimpan..." : "Simpan"}
+									<Button
+										isPending={createMutation.isPending}
+										type="submit"
+										disabled={!state.canSubmit || createMutation.isPending}
+									>
+										{"Simpan"}
 									</Button>
 								)}
 							</createForm.Subscribe>
@@ -349,9 +400,9 @@ function RouteComponent() {
 										placeholder="Masukkan judul konten"
 									/>
 									{field.state.meta.errors.map((error) => (
-										<p key={error?.message} className="text-sm text-red-500">
+										<Typography key={error?.message} tone="destructive">
 											{error?.message}
-										</p>
+										</Typography>
 									))}
 								</div>
 							)}
@@ -369,8 +420,12 @@ function RouteComponent() {
 							</Button>
 							<editForm.Subscribe>
 								{(state) => (
-									<Button type="submit" disabled={!state.canSubmit || updateMutation.isPending}>
-										{updateMutation.isPending ? "Menyimpan..." : "Simpan"}
+									<Button
+										isPending={updateMutation.isPending}
+										type="submit"
+										disabled={!state.canSubmit || updateMutation.isPending}
+									>
+										{"Simpan"}
 									</Button>
 								)}
 							</editForm.Subscribe>
@@ -384,13 +439,13 @@ function RouteComponent() {
 					<AlertDialogHeader>
 						<AlertDialogTitle>Hapus Konten?</AlertDialogTitle>
 						<AlertDialogDescription>
-							Apakah Anda yakin ingin menghapus konten "{deletingItem?.title}
-							"? Tindakan ini tidak dapat dibatalkan.
+							Apakah Anda yakin ingin menghapus konten "{deletingItem?.title}"? Tindakan ini tidak dapat dibatalkan.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
 						<AlertDialogCancel onClick={() => setDeleteDialogOpen(false)}>Batal</AlertDialogCancel>
 						<AlertDialogAction
+							isPending={deleteMutation.isPending}
 							onClick={() => {
 								if (deletingItem) {
 									deleteMutation.mutate({ id: deletingItem.id });
@@ -398,11 +453,11 @@ function RouteComponent() {
 							}}
 							disabled={deleteMutation.isPending}
 						>
-							{deleteMutation.isPending ? "Menghapus..." : "Hapus"}
+							Hapus
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>
-		</Container>
+		</AdminPageRoot>
 	);
 }

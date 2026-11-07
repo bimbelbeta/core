@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 
 export function AddSubtestDialog({
@@ -97,9 +98,9 @@ export function AddSubtestDialog({
 												onChange={(e) => field.handleChange(e.target.value)}
 											/>
 											{field.state.meta.errors.map((error) => (
-												<p key={error?.message} className="text-xs text-red-500">
+												<Typography variant="caption" tone="destructive" key={error?.message}>
 													{error?.message}
-												</p>
+												</Typography>
 											))}
 										</div>
 									</div>
@@ -140,9 +141,9 @@ export function AddSubtestDialog({
 												onChange={(e) => field.handleChange(e.target.valueAsNumber)}
 											/>
 											{field.state.meta.errors.map((error) => (
-												<p key={error?.message} className="text-xs text-red-500">
+												<Typography variant="caption" tone="destructive" key={error?.message}>
 													{error?.message}
-												</p>
+												</Typography>
 											))}
 										</div>
 									</div>
@@ -178,8 +179,8 @@ export function AddSubtestDialog({
 					<DialogFooter className="shrink-0">
 						<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
 							{([canSubmit, isSubmitting]) => (
-								<Button type="submit" disabled={!canSubmit || isSubmitting}>
-									{isSubmitting ? "Menambahkan..." : "Tambah Subtest"}
+								<Button isPending={isSubmitting} type="submit" disabled={!canSubmit || isSubmitting}>
+									{"Tambah Subtest"}
 								</Button>
 							)}
 						</form.Subscribe>

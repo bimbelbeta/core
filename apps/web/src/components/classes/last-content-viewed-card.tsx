@@ -1,6 +1,7 @@
 import { CaretRightIcon, NoteIcon, PlayCircleIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import { Card } from "@/components/ui/card";
+import { Typography } from "@/components/ui/typography";
 import { useIsAdmin } from "@/hooks/use-is-admin";
 import { cn } from "@/lib/utils";
 import type { ContentActionItem, LastContentViewedItem } from "./classes-types";
@@ -8,6 +9,7 @@ import type { ContentActionItem, LastContentViewedItem } from "./classes-types";
 const DASHBOARD_CONTENT_ACTIONS = [
 	{
 		key: "video",
+		completed: (i: ContentActionItem) => i.videoCompleted,
 		label: "Video Materi",
 		icon: PlayCircleIcon,
 		enabled: (i: ContentActionItem) => i.hasVideo,
@@ -17,20 +19,22 @@ const DASHBOARD_CONTENT_ACTIONS = [
 	},
 	{
 		key: "notes",
+		completed: (i: ContentActionItem) => i.noteCompleted,
 		label: "Catatan Materi",
 		icon: NoteIcon,
 		enabled: (i: ContentActionItem) => i.hasNote,
 		className: (completed?: boolean | null) =>
-			completed ? "bg-green-100 text-green-700" : "bg-tertiary-500 text-neutral-100",
+			completed ? "bg-green-50 text-green-700" : "bg-tertiary-500 text-neutral-100",
 		width: "w-fit",
 	},
 	{
 		key: "latihan-soal",
+		completed: (i: ContentActionItem) => i.practiceQuestionsCompleted,
 		label: "Latihan Soal",
 		icon: NoteIcon,
 		enabled: (i: ContentActionItem) => i.hasPracticeQuestions,
 		className: (completed?: boolean | null) =>
-			completed ? "bg-green-100 text-green-700" : "bg-primary-100 text-neutral-1000",
+			completed ? "bg-green-50 text-green-700" : "bg-primary-100 text-neutral-1000",
 		width: "w-fit",
 	},
 ] as const;
@@ -67,7 +71,9 @@ export function LastContentViewedCard({
 					</div>
 
 					<div className="flex h-full items-center pt-0.5">
-						<p className="text-neutral-1000 mr-7 text-sm font-bold sm:text-base lg:text-lg">{item.title}</p>
+						<Typography variant="subtitle2" as="p" className="text-neutral-1000 mr-7">
+							{item.title}
+						</Typography>
 					</div>
 				</div>
 
@@ -80,8 +86,8 @@ export function LastContentViewedCard({
 			{/* Actions */}
 			<div className="mt-2 flex gap-2 overflow-x-auto sm:gap-3">
 				{DASHBOARD_CONTENT_ACTIONS.filter(({ enabled }) => enabled(item)).map(
-					({ key, label, icon: Icon, className, width }) => {
-						const completed = item[`${key}Completed` as keyof ContentActionItem] as boolean | undefined;
+					({ key, label, icon: Icon, className, width, completed: getCompleted }) => {
+						const completed = getCompleted(item);
 
 						return (
 							<Link

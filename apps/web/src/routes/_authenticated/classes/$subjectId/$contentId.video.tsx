@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { EmptyContentState } from "@/components/classes/empty-content-state";
 import YouTubePlayer from "@/components/shared/youtube-player";
 import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { extractYouTubeId } from "@/lib/youtube";
@@ -55,11 +56,11 @@ function RouteComponent() {
 	}, [content.data?.video, contentId, updateProgressMutation]);
 
 	if (content.isPending) {
-		return <p className="animate-pulse text-sm">Memuat video...</p>;
+		return <Typography className="animate-pulse">Memuat video...</Typography>;
 	}
 
 	if (content.isError) {
-		return <p className="text-sm text-red-500">Error: {content.error.message}</p>;
+		return <Typography tone="destructive">Error: {content.error.message}</Typography>;
 	}
 
 	if (!content.data) return notFound();
@@ -68,7 +69,9 @@ function RouteComponent() {
 	if (!video) {
 		return (
 			<div className="space-y-4">
-				<p className="text-primary-300 text-base font-semibold">Video Materi</p>
+				<Typography variant="subtitle2" as="p" tone="accent">
+					Video Materi
+				</Typography>
 				<EmptyContentState />
 			</div>
 		);
@@ -78,16 +81,22 @@ function RouteComponent() {
 
 	return (
 		<div className="space-y-4">
-			<p className="text-primary-300 text-base font-semibold">Video Materi</p>
+			<Typography variant="subtitle2" as="p" tone="accent">
+				Video Materi
+			</Typography>
 
 			<div className="aspect-video w-full">
 				<YouTubePlayer videoId={videoId} />
 			</div>
 
-			<h2 className="text-2xl font-bold">{content.data.title}</h2>
+			<Typography variant="title" as="h2">
+				{content.data.title}
+			</Typography>
 			<hr />
 
-			<h3 className="text-lg font-semibold">Tentang Video</h3>
+			<Typography variant="subtitle1" as="h3">
+				Tentang Video
+			</Typography>
 			<TiptapRenderer content={video.content} />
 		</div>
 	);

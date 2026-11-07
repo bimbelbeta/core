@@ -2,6 +2,23 @@ import { ArrowLeftIcon, DotsThreeIcon, TrashIcon } from "@phosphor-icons/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import {
+	AdminPageContent,
+	AdminPageHeader,
+	AdminPageHeaderActions,
+	AdminPageHeaderContent,
+	AdminPageRoot,
+	AdminSection,
+} from "@/components/admin/admin-page";
+import {
+	AdminTable,
+	AdminTableBody,
+	AdminTableCell,
+	AdminTableHead,
+	AdminTableHeader,
+	AdminTableRoot,
+	AdminTableRow,
+} from "@/components/admin/admin-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -11,8 +28,9 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { TableSkeleton } from "@/components/ui/table-skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Typography } from "@/components/ui/typography";
+import { formatRupiah } from "@/lib/formatter";
 import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { AddProgramDialog } from "./-components/add-program-dialog";
@@ -20,7 +38,10 @@ import { DeleteProgramAlert } from "./-components/delete-program-alert";
 import { EditProgramDialog } from "./-components/edit-program-dialog";
 
 export const Route = createFileRoute("/admin/passing-grades/$universityId")({
-	staticData: { breadcrumb: "Universitas" },
+	staticData: {
+		breadcrumb: "Detail universitas",
+		breadcrumbParent: { label: "Passing grade", to: "/admin/passing-grades" },
+	},
 	component: RouteComponent,
 });
 
@@ -63,93 +84,127 @@ function RouteComponent() {
 	);
 
 	if (isUniversityLoading) {
-		return <div className="p-6">Memuat...</div>;
+		return (
+			<AdminPageRoot>
+				<AdminPageContent>
+					<div className="flex items-center gap-2">
+						<Skeleton className="size-8 rounded-full" />
+						<div className="flex flex-col gap-1">
+							<Skeleton className="h-5 w-40" />
+							<Skeleton className="h-4 w-56" />
+						</div>
+					</div>
+				</AdminPageContent>
+			</AdminPageRoot>
+		);
 	}
 
 	if (!university) {
-		return <div className="p-6">Universitas tidak ditemukan</div>;
+		return (
+			<AdminPageRoot>
+				<AdminPageContent>
+					<Typography>Universitas tidak ditemukan</Typography>
+				</AdminPageContent>
+			</AdminPageRoot>
+		);
 	}
 
 	return (
-		<div className="flex h-full flex-col gap-6 p-6">
-			<div className="flex items-center gap-4">
-				<Button variant="ghost" size="icon" asChild>
-					<Link to="/admin/passing-grades">
-						<ArrowLeftIcon className="size-5" />
-					</Link>
-				</Button>
-				<div className="flex flex-col">
-					<h1 className="text-primary-navy-900 text-2xl font-bold">{university.name}</h1>
-					<span className="text-muted-foreground">{university.location}</span>
-				</div>
-			</div>
+		<AdminPageRoot>
+			<AdminPageHeader>
+				<AdminPageHeaderContent>
+					<div className="flex items-center gap-2">
+						<Button variant="ghost" size="icon" asChild>
+							<Link to="/admin/passing-grades" aria-label="Kembali">
+								<ArrowLeftIcon className="size-4" />
+							</Link>
+						</Button>
+						<Typography variant="title">{university.name}</Typography>
+					</div>
+					<Typography variant="body" tone="muted">
+						{university.location}
+					</Typography>
+				</AdminPageHeaderContent>
+				<AdminPageHeaderActions>
+					<AddProgramDialog
+						universityId={universityId}
+						onSuccess={() => {
+							setIsAddDialogOpen(false);
+							queryClient.invalidateQueries({
+								queryKey: orpc.admin.university.universityPrograms.list.queryKey({
+									input: {
+										universityId: universityId,
+									},
+								}),
+							});
+						}}
+						open={isAddDialogOpen}
+						onOpenChange={setIsAddDialogOpen}
+					/>
+				</AdminPageHeaderActions>
+			</AdminPageHeader>
 
-			<div className="flex items-center justify-between">
-				<h2 className="text-lg font-semibold">Program Studi</h2>
-				<AddProgramDialog
-					universityId={universityId}
-					onSuccess={() => {
-						setIsAddDialogOpen(false);
-						queryClient.invalidateQueries({
-							queryKey: orpc.admin.university.universityPrograms.list.queryKey({
-								input: {
-									universityId: universityId,
-								},
-							}),
-						});
-					}}
-					open={isAddDialogOpen}
-					onOpenChange={setIsAddDialogOpen}
-				/>
-			</div>
-
-			<div className="overflow-hidden rounded-lg border bg-white shadow-sm">
-				<div className="overflow-x-auto">
-					<Table className="min-w-[800px]">
-						<TableHeader>
-							<TableRow>
-								<TableHead>No</TableHead>
-								<TableHead>Nama Program</TableHead>
-								<TableHead>Kategori</TableHead>
-								<TableHead>Biaya</TableHead>
-								<TableHead>Kapasitas</TableHead>
-								<TableHead>Akreditasi</TableHead>
-								<TableHead>Skor Rata-rata</TableHead>
-								<TableHead>Status</TableHead>
-								<TableHead className="w-12" />
-							</TableRow>
-						</TableHeader>
-						<TableBody>
-							{isProgramsLoading ? (
-								<TableSkeleton columns={9} />
-							) : !programs?.items || programs.items.length === 0 ? (
-								<TableRow>
-									<TableCell colSpan={9} className="text-muted-foreground h-24 text-center">
-										Belum ada program studi yang ditautkan.
-									</TableCell>
-								</TableRow>
-							) : (
-								programs.items.map((prog, index) => (
-									<TableRow key={prog.id}>
-										<TableCell>{index + 1}</TableCell>
-										<TableCell className="font-medium">
-											<button type="button" className="hover:underline" onClick={() => setEditProgram(prog)}>
+			<AdminPageContent>
+				<AdminSection title="Program studi">
+					<AdminTableRoot>
+						<AdminTable className="min-w-[800px]">
+							<AdminTableHeader>
+								<AdminTableHead className="pl-3">Program studi</AdminTableHead>
+								<AdminTableHead className="w-28">Kategori</AdminTableHead>
+								<AdminTableHead className="hidden w-24 text-right sm:table-cell">Skor rata-rata</AdminTableHead>
+								<AdminTableHead className="hidden w-32 text-right md:table-cell">Biaya</AdminTableHead>
+								<AdminTableHead className="hidden w-24 text-right md:table-cell">Kapasitas</AdminTableHead>
+								<AdminTableHead className="hidden w-28 sm:table-cell">Akreditasi</AdminTableHead>
+								<AdminTableHead className="w-24">Status</AdminTableHead>
+								<AdminTableHead className="w-16 pr-3 text-right">
+									<span className="sr-only">Aksi</span>
+								</AdminTableHead>
+							</AdminTableHeader>
+							<AdminTableBody
+								isLoading={isProgramsLoading}
+								isEmpty={!isProgramsLoading && (!programs?.items || programs.items.length === 0)}
+								emptyMessage="Belum ada program studi yang ditautkan."
+								columns={8}
+							>
+								{programs?.items.map((prog) => (
+									<AdminTableRow key={prog.id}>
+										<AdminTableCell className="pl-3">
+											<Button
+												type="button"
+												variant="link"
+												size="none"
+												onClick={() => setEditProgram(prog)}
+												className="focus-visible:ring-ring/50 after:absolute after:inset-0 after:content-[''] focus-visible:ring-2"
+											>
 												{prog.studyProgram.name}
-											</button>
-										</TableCell>
-										<TableCell>{prog.studyProgram.category}</TableCell>
-										<TableCell>{prog.tuition ? `Rp ${prog.tuition.toLocaleString("id-ID")}` : "-"}</TableCell>
-										<TableCell>{prog.capacity ?? "-"}</TableCell>
-										<TableCell>{prog.accreditation ?? "-"}</TableCell>
-										<TableCell>
-											<Badge variant={prog.isActive ? "default" : "secondary"}>
+											</Button>
+										</AdminTableCell>
+										<AdminTableCell className="text-meta">{prog.studyProgram.category ?? "—"}</AdminTableCell>
+										<AdminTableCell className="hidden text-right sm:table-cell">
+											<span className="text-sm font-semibold tabular-nums">{prog.averageScore}</span>
+										</AdminTableCell>
+										<AdminTableCell className="hidden text-right md:table-cell">
+											<span className="text-sm tabular-nums">{prog.tuition ? formatRupiah(prog.tuition) : "—"}</span>
+										</AdminTableCell>
+										<AdminTableCell className="hidden text-right md:table-cell">
+											<span className="text-sm tabular-nums">{prog.capacity ?? "—"}</span>
+										</AdminTableCell>
+										<AdminTableCell className="text-meta hidden sm:table-cell">
+											{prog.accreditation ?? "—"}
+										</AdminTableCell>
+										<AdminTableCell>
+											<Badge variant={prog.isActive ? "info" : "secondary"}>
 												{prog.isActive ? "Aktif" : "Tidak Aktif"}
 											</Badge>
-										</TableCell>
-										<TableCell>
+										</AdminTableCell>
+										<AdminTableCell className="relative z-10 pr-3 text-right">
 											<DropdownMenu>
 												<DropdownMenuTrigger asChild>
-													<Button variant="ghost" size="icon">
+													<Button
+														variant="ghost"
+														size="icon"
+														aria-label={`Aksi program studi ${prog.studyProgram.name}`}
+													>
 														<DotsThreeIcon className="size-4" />
 													</Button>
 												</DropdownMenuTrigger>
@@ -160,14 +215,14 @@ function RouteComponent() {
 													</DropdownMenuItem>
 												</DropdownMenuContent>
 											</DropdownMenu>
-										</TableCell>
-									</TableRow>
-								))
-							)}
-						</TableBody>
-					</Table>
-				</div>
-			</div>
+										</AdminTableCell>
+									</AdminTableRow>
+								))}
+							</AdminTableBody>
+						</AdminTable>
+					</AdminTableRoot>
+				</AdminSection>
+			</AdminPageContent>
 
 			{editProgram && (
 				<Dialog
@@ -216,6 +271,6 @@ function RouteComponent() {
 					if (!open) setDeleteProgramId(null);
 				}}
 			/>
-		</div>
+		</AdminPageRoot>
 	);
 }

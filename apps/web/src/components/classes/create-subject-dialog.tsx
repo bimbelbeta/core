@@ -15,8 +15,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
-import { categoryLabel, isValidCategory, type SubjectCategory, validateGradeLevel } from "./classes-constants";
+import { SUBJECT_CATEGORY_LABELS, type SubjectCategory, subjectCategorySchema } from "@/lib/schemas";
+import { isValidCategory, validateGradeLevel } from "./classes-constants";
 
 type CreateSubjectDialogProps = {
 	open: boolean;
@@ -73,7 +75,7 @@ export function CreateSubjectDialog({ open, onOpenChange, defaultCategory }: Cre
 				name: "string >= 1",
 				shortName: "string >= 1",
 				description: "string",
-				category: type("'sd' | 'smp' | 'sma' | 'utbk'").optional(),
+				category: subjectCategorySchema.optional(),
 				gradeLevel: "string",
 			}),
 		},
@@ -134,9 +136,9 @@ export function CreateSubjectDialog({ open, onOpenChange, defaultCategory }: Cre
 									placeholder="Contoh: Matematika Wajib"
 								/>
 								{field.state.meta.errors.map((error) => (
-									<p key={error?.message ?? String(error)} className="text-destructive text-xs">
+									<Typography variant="caption" tone="destructive" key={error?.message ?? String(error)}>
 										{error?.message ?? String(error)}
-									</p>
+									</Typography>
 								))}
 							</div>
 						)}
@@ -154,9 +156,9 @@ export function CreateSubjectDialog({ open, onOpenChange, defaultCategory }: Cre
 									placeholder="Contoh: MAT W"
 								/>
 								{field.state.meta.errors.map((error) => (
-									<p key={error?.message ?? String(error)} className="text-destructive text-xs">
+									<Typography variant="caption" tone="destructive" key={error?.message ?? String(error)}>
 										{error?.message ?? String(error)}
-									</p>
+									</Typography>
 								))}
 							</div>
 						)}
@@ -193,14 +195,15 @@ export function CreateSubjectDialog({ open, onOpenChange, defaultCategory }: Cre
 											}
 										}}
 									>
-										<SelectTrigger className="w-full">
+										<SelectTrigger id={field.name} className="w-full">
 											<SelectValue placeholder="Pilih kategori" />
 										</SelectTrigger>
 										<SelectContent>
-											<SelectItem value="sd">{categoryLabel.sd}</SelectItem>
-											<SelectItem value="smp">{categoryLabel.smp}</SelectItem>
-											<SelectItem value="sma">{categoryLabel.sma}</SelectItem>
-											<SelectItem value="utbk">{categoryLabel.utbk}</SelectItem>
+											{Object.entries(SUBJECT_CATEGORY_LABELS).map(([value, label]) => (
+												<SelectItem key={value} value={value}>
+													{label}
+												</SelectItem>
+											))}
 										</SelectContent>
 									</Select>
 								</div>
@@ -234,8 +237,12 @@ export function CreateSubjectDialog({ open, onOpenChange, defaultCategory }: Cre
 						</Button>
 						<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
 							{([canSubmit, isSubmitting]) => (
-								<Button type="submit" disabled={!canSubmit || isSubmitting || createMutation.isPending}>
-									{isSubmitting || createMutation.isPending ? "Menyimpan..." : "Simpan"}
+								<Button
+									isPending={isSubmitting || createMutation.isPending}
+									type="submit"
+									disabled={!canSubmit || isSubmitting || createMutation.isPending}
+								>
+									{"Simpan"}
 								</Button>
 							)}
 						</form.Subscribe>

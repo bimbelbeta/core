@@ -4,6 +4,7 @@ import { AnimatePresence } from "motion/react";
 import * as m from "motion/react-m";
 import { useState } from "react";
 import { LogoutDialog } from "@/components/shared/logout-dialog";
+import { getInitials } from "@/lib/formatter";
 import { Button } from "../ui/button";
 import {
 	DropdownMenu,
@@ -42,14 +43,7 @@ export function HeaderDashboard() {
 	const [open, setOpen] = useState(false);
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-	const userInitials = session?.user.name
-		? session.user.name
-				.split(" ")
-				.map((n) => n[0])
-				.join("")
-				.substring(0, 2)
-				.toUpperCase()
-		: "U";
+	const userInitials = session?.user.name ? getInitials(session.user.name) : "U";
 
 	return (
 		<header
@@ -88,7 +82,7 @@ export function HeaderDashboard() {
 					<div className="hidden md:flex md:items-center md:gap-4">
 						<DropdownMenu>
 							<DropdownMenuTrigger className="outline-none">
-								<div className="rounded-default bg-secondary-600 flex size-10 items-center justify-center text-sm font-normal text-white transition-transform hover:scale-105 active:scale-95">
+								<div className="rounded-default bg-secondary-800 flex size-10 items-center justify-center text-sm font-normal text-white transition-transform hover:scale-105 active:scale-95">
 									{userInitials}
 								</div>
 							</DropdownMenuTrigger>
@@ -103,7 +97,13 @@ export function HeaderDashboard() {
 					</div>
 
 					{/* Mobile Menu Button */}
-					<Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileMenuOpen(true)}>
+					<Button
+						variant="ghost"
+						size="icon"
+						aria-label="Buka menu"
+						className="md:hidden"
+						onClick={() => setMobileMenuOpen(true)}
+					>
 						<ListIcon className="size-6" />
 					</Button>
 				</div>
@@ -133,7 +133,7 @@ export function HeaderDashboard() {
 									<span className="text-secondary-900">Bimbel</span>
 									<span className="text-tertiary-1000">Beta</span>
 								</Link>
-								<Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
+								<Button variant="ghost" size="icon" aria-label="Tutup menu" onClick={() => setMobileMenuOpen(false)}>
 									<XIcon className="size-6" />
 								</Button>
 							</div>
@@ -167,7 +167,7 @@ export function HeaderDashboard() {
 											key={link.to}
 											to={link.to}
 											className={`hover:bg-accent rounded-md px-4 py-3 text-lg ${
-												isActive ? "bg-secondary-100/50 text-secondary-700 font-bold" : "text-secondary-900 font-medium"
+												isActive ? "bg-secondary-100/50 text-secondary-800 font-bold" : "text-secondary-900 font-medium"
 											}`}
 											onClick={() => setMobileMenuOpen(false)}
 										>
@@ -179,7 +179,7 @@ export function HeaderDashboard() {
 
 							<div className="mt-auto border-t border-neutral-200 pt-6">
 								<div className="mb-4 flex items-center gap-3">
-									<div className="rounded-default bg-secondary-600 flex size-10 items-center justify-center text-sm font-normal text-white">
+									<div className="rounded-default bg-secondary-800 flex size-10 items-center justify-center text-sm font-normal text-white">
 										{userInitials}
 									</div>
 									<span className="font-medium">{session?.user.name}</span>

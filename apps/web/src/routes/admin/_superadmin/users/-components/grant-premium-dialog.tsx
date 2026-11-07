@@ -1,4 +1,4 @@
-import { CalendarDotsIcon, StarIcon } from "@phosphor-icons/react";
+import { CalendarDotsIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -12,11 +12,10 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { formatDateLong } from "@/lib/format-date";
+import { formatDateLong, formatDateMedium } from "@/lib/format-date";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
 
@@ -61,11 +60,6 @@ export function GrantPremiumDialog({
 				onOpenChange(value);
 			}}
 		>
-			<DialogTrigger asChild>
-				<Button variant="ghost" size="icon">
-					<StarIcon className="size-4" />
-				</Button>
-			</DialogTrigger>
 			<DialogContent className="sm:max-w-sm">
 				<DialogHeader>
 					<DialogTitle>Grant Premium</DialogTitle>
@@ -75,7 +69,7 @@ export function GrantPremiumDialog({
 					{currentPremiumExpiry && (
 						<div className="bg-muted/50 flex items-center justify-between rounded-md border px-4 py-2.5">
 							<span className="text-muted-foreground text-sm">Premium expires</span>
-							<Badge variant="outline">{new Date(currentPremiumExpiry).toLocaleDateString("id-ID")}</Badge>
+							<Badge variant="outline">{formatDateMedium(currentPremiumExpiry)}</Badge>
 						</div>
 					)}
 					<div className="flex flex-col gap-2">
@@ -104,6 +98,7 @@ export function GrantPremiumDialog({
 				</div>
 				<DialogFooter>
 					<Button
+						isPending={updateMutation.isPending}
 						onClick={() =>
 							updateMutation.mutate({
 								userId,
@@ -113,7 +108,7 @@ export function GrantPremiumDialog({
 						}
 						disabled={updateMutation.isPending || !date}
 					>
-						{updateMutation.isPending ? "Memproses..." : "Grant Premium"}
+						{"Grant Premium"}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

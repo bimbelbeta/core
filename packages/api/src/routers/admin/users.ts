@@ -2,7 +2,7 @@ import type { Role } from "@bimbelbeta/contract/common/roles";
 import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { creditTransaction } from "@bimbelbeta/db/schema/credit";
-import { and, asc, desc, eq, gt, inArray, like, lt, or } from "drizzle-orm";
+import { and, asc, desc, eq, gt, inArray, like, lt, or, sql } from "drizzle-orm";
 import { requireFound } from "@/lib/crud-helpers";
 import { buildStringIdCursorPage, parseStringIdCursor } from "@/lib/pagination/cursor";
 import { superAdminImplementer } from "@/lib/router-definition";
@@ -15,23 +15,28 @@ const list = superadmin.admin.users.list.handler(async ({ input }) => {
 	const cursor = input.before || input.after;
 	const cursorId = cursor ? parseStringIdCursor(cursor) : undefined;
 
+	const dataFilters = and(
+		input.search ? or(like(user.name, `%${input.search}%`), like(user.email, `%${input.search}%`)) : undefined,
+		input.role ? eq(user.role, input.role) : undefined,
+		input.isPremium !== undefined ? eq(user.isPremium, input.isPremium) : undefined,
+	);
+
 	const rows = await db
 		.select()
 		.from(user)
 		.where(
 			and(
 				cursorId !== undefined ? (isBackward ? lt(user.id, cursorId) : gt(user.id, cursorId)) : undefined,
-				input.search ? or(like(user.name, `%${input.search}%`), like(user.email, `%${input.search}%`)) : undefined,
-				input.role ? eq(user.role, input.role) : undefined,
-				input.isPremium !== undefined ? eq(user.isPremium, input.isPremium) : undefined,
+				dataFilters,
 			),
 		)
 		.orderBy(isBackward ? desc(user.id) : asc(user.id))
 		.limit(limit + 1);
 
 	const { items, pageInfo } = buildStringIdCursorPage(rows, limit, isBackward, !!cursor);
+	const [totals] = await db.select({ count: sql<number>`count(*)::int` }).from(user).where(dataFilters);
 
-	return { items, pageInfo };
+	return { items, pageInfo: { ...pageInfo, totalCount: totals?.count ?? 0 } };
 });
 
 const find = superadmin.admin.users.find.handler(async ({ input, errors }) => {

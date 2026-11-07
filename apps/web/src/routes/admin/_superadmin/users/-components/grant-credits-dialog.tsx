@@ -1,4 +1,3 @@
-import { PlusIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -10,7 +9,6 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -57,11 +55,6 @@ export function GrantCreditsDialog({
 				onOpenChange(value);
 			}}
 		>
-			<DialogTrigger asChild>
-				<Button variant="ghost" size="icon">
-					<PlusIcon className="size-4" />
-				</Button>
-			</DialogTrigger>
 			<DialogContent className="sm:max-w-sm">
 				<DialogHeader>
 					<DialogTitle>Add Credits</DialogTitle>
@@ -79,10 +72,11 @@ export function GrantCreditsDialog({
 				</div>
 				<DialogFooter>
 					<Button
+						isPending={adjustCreditsMutation.isPending}
 						onClick={() => adjustCreditsMutation.mutate({ userId, amount })}
 						disabled={adjustCreditsMutation.isPending || !amount || amount < 1}
 					>
-						{adjustCreditsMutation.isPending ? "Memproses..." : "Add Credits"}
+						{"Add Credits"}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

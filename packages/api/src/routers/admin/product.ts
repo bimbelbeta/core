@@ -1,7 +1,7 @@
 import { generateSlug } from "@bimbelbeta/contract/utils";
 import { db } from "@bimbelbeta/db";
 import { product } from "@bimbelbeta/db/schema/transaction";
-import { and, asc, desc, eq, gt, ilike, isNotNull, isNull, lt } from "drizzle-orm";
+import { and, asc, desc, eq, gt, ilike, isNotNull, isNull, lt, sql } from "drizzle-orm";
 import { requireCreated, requireFound } from "@/lib/crud-helpers";
 import { buildStringIdCursorPage, parseStringIdCursor } from "@/lib/pagination/cursor";
 import { superAdminImplementer } from "@/lib/router-definition";
@@ -14,23 +14,28 @@ const list = superadmin.admin.products.list.handler(async ({ input }) => {
 	const cursor = input.before || input.after;
 	const cursorId = cursor ? parseStringIdCursor(cursor) : undefined;
 
+	const dataFilters = and(
+		input.search ? ilike(product.name, `%${input.search}%`) : undefined,
+		input.variant ? eq(product.variant, input.variant) : undefined,
+		!input.includeDeleted ? isNull(product.deletedAt) : undefined,
+	);
+
 	const rows = await db
 		.select()
 		.from(product)
 		.where(
 			and(
 				cursorId !== undefined ? (isBackward ? lt(product.id, cursorId) : gt(product.id, cursorId)) : undefined,
-				input.search ? ilike(product.name, `%${input.search}%`) : undefined,
-				input.variant ? eq(product.variant, input.variant) : undefined,
-				!input.includeDeleted ? isNull(product.deletedAt) : undefined,
+				dataFilters,
 			),
 		)
 		.orderBy(isBackward ? desc(product.id) : asc(product.id))
 		.limit(limit + 1);
 
 	const { items, pageInfo } = buildStringIdCursorPage(rows, limit, isBackward, !!cursor);
+	const [totals] = await db.select({ count: sql<number>`count(*)::int` }).from(product).where(dataFilters);
 
-	return { items, pageInfo };
+	return { items, pageInfo: { ...pageInfo, totalCount: totals?.count ?? 0 } };
 });
 
 const find = superadmin.admin.products.find.handler(async ({ input, errors }) => {

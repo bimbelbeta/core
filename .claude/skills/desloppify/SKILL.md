@@ -33,6 +33,7 @@ desloppify status              # check scores — are we at target?
 ```
 
 The scan will tell you if subjective dimensions need review. Follow its instructions. To trigger a review manually:
+
 ```bash
 desloppify review --prepare    # then follow your runner's review workflow
 ```
@@ -40,6 +41,7 @@ desloppify review --prepare    # then follow your runner's review workflow
 ### Phase 2: Plan — decide what to work on
 
 After reviews, triage stages and plan creation appear in the execution queue surfaced by `next`. Complete them in order — `next` tells you what each stage expects in the `--report`:
+
 ```bash
 desloppify next                                        # shows the next execution workflow step
 desloppify plan triage --stage observe --report "themes and root causes..."
@@ -66,12 +68,14 @@ desloppify plan skip <pat>              # defer — hide from next
 Trust the plan and execute. Don't rescan mid-queue — finish the queue first.
 
 **Branch first.** Create a dedicated branch — never commit health work directly to main:
+
 ```bash
 git checkout -b desloppify/code-health    # or desloppify/<focus-area>
 desloppify config set commit_pr 42        # link a PR for auto-updated descriptions
 ```
 
 **The loop:**
+
 ```bash
 # 1. Get the next item from the execution queue
 desloppify next
@@ -297,6 +301,7 @@ Run `desloppify review --prepare` first to generate review data, then use Claude
 ### Triage workflow
 
 Orchestrate triage with per-stage subagents:
+
 1. `desloppify plan triage --run-stages --runner claude` — prints orchestrator instructions
 2. For each stage (observe → reflect → organize → enrich):
    - Get prompt: `desloppify plan triage --stage-prompt <stage>`

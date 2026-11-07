@@ -14,6 +14,9 @@ export function SearchInput({ value, onChange, debounceMs = 500, className, ...p
 	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	useEffect(() => {
+		if (timeoutRef.current) {
+			clearTimeout(timeoutRef.current);
+		}
 		setLocalValue(value);
 	}, [value]);
 
@@ -39,6 +42,9 @@ export function SearchInput({ value, onChange, debounceMs = 500, className, ...p
 	};
 
 	const handleClear = () => {
+		if (timeoutRef.current) {
+			clearTimeout(timeoutRef.current);
+		}
 		setLocalValue("");
 		onChange("");
 	};
@@ -56,7 +62,7 @@ export function SearchInput({ value, onChange, debounceMs = 500, className, ...p
 			/>
 			{localValue && (
 				<InputGroupAddon align="inline-end">
-					<InputGroupButton onClick={handleClear} size="icon-xs" variant="ghost">
+					<InputGroupButton onClick={handleClear} size="icon-xs" variant="ghost" aria-label="Hapus pencarian">
 						<XIcon weight="bold" />
 					</InputGroupButton>
 				</InputGroupAddon>

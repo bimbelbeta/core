@@ -1,19 +1,21 @@
 {
 	"$schema": "https://turbo.build/schema.json",
 	"ui": "tui",
+	"globalDependencies": ["biome.json", "bunfig.toml", "scripts/**"],
 	"remoteCache": {
 		"enabled": true,
 		"teamSlug": "bimbelbeta-production"
 	},
 	"tasks": {
 		"build": {
-			"dependsOn": ["^build"],
+			"dependsOn": ["^build", "lint", "test"],
 			"inputs": ["$TURBO_DEFAULT$", ".env*"],
 			"env": ["VITE_SERVER_URL", "VITE_MIDTRANS_CLIENT_KEY", "VITE_PAYMENTS_ENABLED"],
 			"outputs": ["dist/**", ".output/**"]
 		},
 		"lint": {
-			"dependsOn": ["^lint"]
+			"dependsOn": ["^lint"],
+			"inputs": ["$TURBO_DEFAULT$", "../../**/*.tsx"]
 		},
 		"check-types": {
 			"cache": true,
@@ -69,6 +71,10 @@
 		},
 		"auth:generate": {
 			"cache": false
+		},
+		"test": {
+			"dependsOn": ["^build", "^test"],
+			"inputs": ["$TURBO_DEFAULT$"]
 		}
 	}
 }

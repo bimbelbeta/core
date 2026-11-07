@@ -1,4 +1,3 @@
-import { XIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouteContext } from "@tanstack/react-router";
@@ -11,6 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
 
@@ -73,15 +73,6 @@ export function TargetSelectionDialog() {
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogContent showCloseButton={true} className="max-h-[85vh] overflow-y-auto">
-				<button
-					type="button"
-					onClick={handleClose}
-					className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
-				>
-					<XIcon className="h-4 w-4" />
-					<span className="sr-only">Close</span>
-				</button>
-
 				<DialogHeader>
 					<DialogTitle>Set Target Universitas Kamu</DialogTitle>
 					<DialogDescription>
@@ -125,7 +116,7 @@ export function TargetSelectionDialog() {
 									}}
 									disabled={isPending || (universities?.items && universities.items.length < 1)}
 								>
-									<SelectTrigger>
+									<SelectTrigger id={field.name}>
 										<SelectValue placeholder="Pilih universitas" />
 									</SelectTrigger>
 									<SelectContent>
@@ -137,7 +128,9 @@ export function TargetSelectionDialog() {
 									</SelectContent>
 								</Select>
 								{universities?.items && universities.items.length < 1 && (
-									<p className="text-destructive text-xs">Belum ada data Universitas. Silahkan coba lagi nanti</p>
+									<Typography variant="caption" tone="destructive">
+										Belum ada data Universitas. Silahkan coba lagi nanti
+									</Typography>
 								)}
 							</div>
 						)}
@@ -171,7 +164,7 @@ export function TargetSelectionDialog() {
 												onValueChange={(value) => field.handleChange(Number.parseInt(value, 10))}
 												disabled={isFetching || !studyPrograms?.items}
 											>
-												<SelectTrigger>
+												<SelectTrigger id={field.name}>
 													<SelectValue
 														placeholder={!studyPrograms?.items ? "Pilih universitas dulu" : "Pilih program studi"}
 													/>
@@ -185,9 +178,9 @@ export function TargetSelectionDialog() {
 												</SelectContent>
 											</Select>
 											{studyPrograms?.items && studyPrograms.items.length < 1 && (
-												<p className="text-destructive text-xs">
+												<Typography variant="caption" tone="destructive">
 													Belum ada data Program Studi untuk Universitas ini. Silahkan coba lagi nanti
-												</p>
+												</Typography>
 											)}
 										</div>
 									)}
@@ -203,18 +196,12 @@ export function TargetSelectionDialog() {
 						<form.Subscribe>
 							{(state) => (
 								<Button
+									isPending={updateMutation.isPending}
 									type="submit"
 									className={cn("sm:w-auto", updateMutation.isPending && "cursor-not-allowed")}
 									disabled={!state.canSubmit}
 								>
-									{updateMutation.isPending ? (
-										<>
-											<Spinner />
-											Menyimpan...
-										</>
-									) : (
-										"Simpan"
-									)}
+									{"Simpan"}
 								</Button>
 							)}
 						</form.Subscribe>

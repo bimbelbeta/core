@@ -7,6 +7,17 @@ on:
       - "apps/web/**"
       - "apps/server/**"
       - "packages/**"
+      - "scripts/**"
+      - "turbo.json"
+      - "package.json"
+      - "biome.json"
+      - "bun.lock"
+      - "bunfig.toml"
+      - "apps/web/Dockerfile"
+      - "apps/server/Dockerfile"
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
 
 jobs:
   migrate:
@@ -29,7 +40,7 @@ jobs:
       - if: steps.changed.outputs.value == 'true'
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version-file: package.json
+          bun-version: "1.4.4"
       - if: steps.changed.outputs.value == 'true'
         run: bun install --frozen-lockfile
       - if: steps.changed.outputs.value == 'true'
@@ -48,6 +59,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Login to ghcr.io
+        if: github.ref == 'refs/heads/main'
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
@@ -59,7 +71,7 @@ jobs:
           context: .
           file: ./apps/web/Dockerfile
           platforms: linux/amd64
-          push: true
+          push: ${{ github.ref == 'refs/heads/main' }}
           tags: ghcr.io/bimbelbeta/web:latest
           build-args: |
             TURBO_TEAM=${{ secrets.TURBO_TEAM }}
@@ -68,6 +80,7 @@ jobs:
             VITE_MIDTRANS_CLIENT_KEY=${{ secrets.MIDTRANS_CLIENT_KEY }}
             VITE_PAYMENTS_ENABLED=${{ vars.VITE_PAYMENTS_ENABLED }}
       - name: Deploy to Coolify
+        if: github.ref == 'refs/heads/main'
         run: |
           curl --fail-with-body --request POST '${{ secrets.COOLIFY_WEB_WEBHOOK }}' \
             --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
@@ -81,6 +94,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Login to ghcr.io
+        if: github.ref == 'refs/heads/main'
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
@@ -92,12 +106,13 @@ jobs:
           context: .
           file: ./apps/server/Dockerfile
           platforms: linux/amd64
-          push: true
+          push: ${{ github.ref == 'refs/heads/main' }}
           tags: ghcr.io/bimbelbeta/server:latest
           build-args: |
             TURBO_TEAM=${{ secrets.TURBO_TEAM }}
             TURBO_TOKEN=${{ secrets.TURBO_TOKEN }}
       - name: Deploy to Coolify
+        if: github.ref == 'refs/heads/main'
         run: |
           curl --fail-with-body --request POST '${{ secrets.COOLIFY_SERVER_WEBHOOK }}' \
             --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'

@@ -1,5 +1,5 @@
 import type { UploadHookControl } from "@better-upload/client";
-import { CircleNotchIcon, UploadSimpleIcon } from "@phosphor-icons/react";
+import { UploadSimpleIcon } from "@phosphor-icons/react";
 import { useId } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -23,7 +23,7 @@ export function UploadButton({
 	const id = useId();
 
 	return (
-		<Button disabled={isPending} className="relative" type="button">
+		<Button isPending={isPending} disabled={isPending} className="relative" type="button">
 			<label htmlFor={_id || id} className="absolute inset-0 cursor-pointer">
 				<input
 					id={_id || id}
@@ -42,17 +42,12 @@ export function UploadButton({
 					}}
 				/>
 			</label>
-			{isPending ? (
-				<>
-					<CircleNotchIcon className="size-4 animate-spin" />
-					Upload file
-				</>
-			) : (
+			{
 				<>
 					<UploadSimpleIcon className="size-4" />
 					Upload file
 				</>
-			)}
+			}
 		</Button>
 	);
 }

@@ -9,8 +9,8 @@ import { DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 
 interface CreateProgramTabProps {
@@ -90,9 +90,9 @@ export function CreateProgramTab({ onProgramCreate }: CreateProgramTabProps) {
 							placeholder="Contoh: Teknik Informatika"
 						/>
 						{field.state.meta.errors.map((error) => (
-							<p key={error?.message} className="text-destructive text-xs">
+							<Typography key={error?.message} variant="caption" tone="destructive">
 								{error?.message}
-							</p>
+							</Typography>
 						))}
 					</div>
 				)}
@@ -126,12 +126,12 @@ export function CreateProgramTab({ onProgramCreate }: CreateProgramTabProps) {
 								onChange={(e) => field.handleChange(e.target.value)}
 								disabled={form.getFieldValue("autoGenerateSlug")}
 								placeholder="teknik-informatika"
-								className="font-mono text-sm"
+								className="text-sm tabular-nums"
 							/>
 							{field.state.meta.errors.map((error) => (
-								<p key={error?.message} className="text-destructive text-xs">
+								<Typography key={error?.message} variant="caption" tone="destructive">
 									{error?.message}
-								</p>
+								</Typography>
 							))}
 						</>
 					)}
@@ -145,7 +145,7 @@ export function CreateProgramTab({ onProgramCreate }: CreateProgramTabProps) {
 							Kategori <span className="text-destructive">*</span>
 						</Label>
 						<Select value={field.state.value} onValueChange={(val) => field.handleChange(val as "SAINTEK" | "SOSHUM")}>
-							<SelectTrigger>
+							<SelectTrigger id={field.name}>
 								<SelectValue placeholder="Pilih kategori" />
 							</SelectTrigger>
 							<SelectContent>
@@ -154,9 +154,9 @@ export function CreateProgramTab({ onProgramCreate }: CreateProgramTabProps) {
 							</SelectContent>
 						</Select>
 						{field.state.meta.errors.map((error) => (
-							<p key={error?.message} className="text-destructive text-xs">
+							<Typography key={error?.message} variant="caption" tone="destructive">
 								{error?.message}
-							</p>
+							</Typography>
 						))}
 					</div>
 				)}
@@ -183,15 +183,8 @@ export function CreateProgramTab({ onProgramCreate }: CreateProgramTabProps) {
 			<DialogFooter className="pt-2">
 				<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
 					{([canSubmit, isSubmitting]) => (
-						<Button type="submit" disabled={!canSubmit || isSubmitting} className="w-full">
-							{isSubmitting ? (
-								<>
-									<Spinner />
-									Membuat...
-								</>
-							) : (
-								"Buat Program Studi"
-							)}
+						<Button isPending={isSubmitting} type="submit" disabled={!canSubmit || isSubmitting} className="w-full">
+							{"Buat Program Studi"}
 						</Button>
 					)}
 				</form.Subscribe>

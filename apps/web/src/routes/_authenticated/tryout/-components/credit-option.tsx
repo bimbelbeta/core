@@ -1,7 +1,7 @@
 import { CoinsIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 
 interface CreditOptionProps {
@@ -23,27 +23,26 @@ export function CreditOption({ onUseCredit, isLoading = false }: CreditOptionPro
 					<CoinsIcon size={20} weight="fill" className="text-amber-600" />
 				</div>
 				<div className="flex-1">
-					<p className="font-medium text-amber-900">Gunakan Kredit Tryout</p>
-					<p className="text-sm text-amber-700">
+					<Typography variant="body" className="font-medium text-amber-900">
+						Gunakan Kredit Tryout
+					</Typography>
+					<Typography className="text-amber-700">
 						Kamu punya <strong>{balance}</strong> kredit
-					</p>
+					</Typography>
 				</div>
 			</div>
 			<Button
+				isPending={isLoading}
 				onClick={onUseCredit}
 				disabled={isLoading || isBalanceLoading}
-				className="mt-3 w-full bg-amber-600 hover:bg-amber-700"
+				className="mt-3 w-full bg-amber-700 hover:bg-amber-800"
 			>
-				{isLoading ? (
-					<>
-						<Spinner /> Memulai...
-					</>
-				) : (
+				{
 					<>
 						<CoinsIcon size={18} weight="fill" className="mr-1" />
 						Gunakan 1 Kredit
 					</>
-				)}
+				}
 			</Button>
 		</div>
 	);

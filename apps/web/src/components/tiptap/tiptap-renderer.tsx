@@ -33,7 +33,7 @@ export function TiptapRenderer({ content, className }: TiptapRendererProps) {
 			Link.configure({
 				openOnClick: true,
 				HTMLAttributes: {
-					class: "text-blue-600 underline hover:text-blue-800",
+					class: "text-primary-700 underline hover:text-blue-800",
 				},
 			}),
 			Image.configure({

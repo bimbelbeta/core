@@ -1,4 +1,4 @@
-import { ArrowLeftIcon } from "@phosphor-icons/react";
+import { ArrowLeftIcon, FloppyDiskIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { type } from "arktype";
@@ -7,20 +7,19 @@ import { toast } from "sonner";
 import {
 	AdminPageContent,
 	AdminPageHeader,
-	AdminPageHeaderActions,
 	AdminPageHeaderContent,
 	AdminPageRoot,
-	AdminPageTitle,
+	AdminSection,
 } from "@/components/admin/admin-page";
 import TiptapSimpleEditor from "@/components/tiptap/tiptap-simple-editor";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TagInput } from "@/components/ui/tag-input";
-import { orpc } from "@/lib/orpc";
+import { Typography } from "@/components/ui/typography";
+import { orpc, queryClient } from "@/lib/orpc";
+import { QUESTION_TYPE_SHORT_LABELS, type QuestionType, questionTypeSchema } from "@/lib/schemas";
 import { MultipleChoiceComplexQuestionForm } from "./multiple-choice-complex-question-form";
 import { MultipleChoiceQuestionForm } from "./multiple-choice-question-form";
 import type { Choice } from "./types";
@@ -32,24 +31,23 @@ interface CreateQuestionFormProps {
 	onCancel: () => void;
 }
 
-function isValidQuestionType(v: string): v is "multiple_choice" | "multiple_choice_complex" | "essay" {
-	return v === "multiple_choice" || v === "multiple_choice_complex" || v === "essay";
-}
-
 export function CreateQuestionForm({
 	questionType: initialType,
 	subtestId,
 	onSuccess,
 	onCancel,
 }: CreateQuestionFormProps) {
-	const [questionType, setQuestionType] = useState<"multiple_choice" | "multiple_choice_complex" | "essay">(
-		initialType,
-	);
+	const [questionType, setQuestionType] = useState<QuestionType>(initialType);
 
 	const addQuestionToSubtestMutation = useMutation(
 		orpc.admin.tryout.questionsBulk.addQuestionToSubtest.mutationOptions({
 			onSuccess: () => {
 				toast.success("Soal berhasil ditambahkan ke subtest");
+				if (subtestId) {
+					queryClient.invalidateQueries({
+						queryKey: orpc.admin.tryout.questionsBulk.list.queryKey({ input: { subtestId } }),
+					});
+				}
 			},
 			onError: (err) => {
 				toast.error(err.message);
@@ -93,6 +91,7 @@ export function CreateQuestionForm({
 		orpc.admin.tryout.questions.create.mutationOptions({
 			onSuccess: async (result) => {
 				toast.success("Soal berhasil dibuat");
+				queryClient.invalidateQueries();
 
 				if (subtestId) {
 					addQuestionToSubtestMutation.mutate({ subtestId, questionId: result.id });
@@ -110,247 +109,158 @@ export function CreateQuestionForm({
 		<AdminPageRoot>
 			<AdminPageHeader>
 				<AdminPageHeaderContent>
-					<div className="flex items-center gap-3">
-						<Button variant="ghost" size="icon" onClick={onCancel}>
-							<ArrowLeftIcon className="size-4" />
-						</Button>
-						<AdminPageTitle>Buat Soal</AdminPageTitle>
-					</div>
+					<button
+						type="button"
+						onClick={onCancel}
+						className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 text-meta mb-0.5 inline-flex items-center gap-1 self-start rounded-sm outline-none focus-visible:ring-2"
+					>
+						<ArrowLeftIcon className="size-3" />
+						Kembali
+					</button>
+					<Typography variant="title">Buat soal</Typography>
+					<Typography variant="body" tone="muted">
+						{subtestId ? "Soal baru masuk ke bank soal dan subtest ini." : "Soal baru masuk ke bank soal."}
+					</Typography>
 				</AdminPageHeaderContent>
-				<AdminPageHeaderActions>
-					<Button type="button" variant="outline" onClick={onCancel}>
-						Batal
-					</Button>
-					<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
-						{([canSubmit, isSubmitting]) => (
-							<Button type="submit" disabled={!canSubmit || isSubmitting} onClick={() => form.handleSubmit()}>
-								{isSubmitting ? (
-									<>
-										<Spinner />
-										Membuat...
-									</>
-								) : (
-									"Simpan Soal"
-								)}
-							</Button>
-						)}
-					</form.Subscribe>
-				</AdminPageHeaderActions>
 			</AdminPageHeader>
 
 			<AdminPageContent>
-				<Card>
-					<CardHeader>
-						<CardTitle>Konten Soal</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<Tabs
-							defaultValue={questionType}
-							value={questionType}
-							onValueChange={(val) => {
-								if (isValidQuestionType(val)) setQuestionType(val);
-							}}
-						>
-							<TabsList>
-								<TabsTrigger value="multiple_choice">Pilihan Ganda</TabsTrigger>
-								<TabsTrigger value="multiple_choice_complex">Pilihan Ganda Kompleks</TabsTrigger>
-								<TabsTrigger value="essay">Esai</TabsTrigger>
-							</TabsList>
+				<form
+					onSubmit={(e) => {
+						e.preventDefault();
+						form.handleSubmit();
+					}}
+					className="flex flex-col gap-5"
+				>
+					<div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_14rem]">
+						<div className="flex min-w-0 flex-col gap-5">
+							<AdminSection title="Konten soal" description="Pertanyaan yang dibaca peserta.">
+								<form.Field name="content">
+									{(field) => (
+										<TiptapSimpleEditor
+											label="Konten soal"
+											content={field.state.value ?? undefined}
+											onChange={(content) => field.handleChange(content)}
+										/>
+									)}
+								</form.Field>
+							</AdminSection>
 
-							<TabsContent value="multiple_choice" className="mt-6">
-								<form
-									onSubmit={(e) => {
-										e.preventDefault();
-										form.handleSubmit();
+							<AdminSection title="Jawaban" description="Tipe soal menentukan bentuk kunci jawaban.">
+								<Tabs
+									value={questionType}
+									onValueChange={(val) => {
+										if (questionTypeSchema.allows(val)) setQuestionType(val);
 									}}
-									className="grid gap-6"
 								>
-									<form.Field name="content">
-										{(field) => (
-											<div className="grid gap-2">
-												<Label htmlFor={field.name}>Konten Soal *</Label>
-												<TiptapSimpleEditor
-													content={field.state.value ?? undefined}
-													onChange={(content) => field.handleChange(content)}
+									<TabsList>
+										<TabsTrigger value="multiple_choice">{QUESTION_TYPE_SHORT_LABELS.multiple_choice}</TabsTrigger>
+										<TabsTrigger value="multiple_choice_complex">
+											{QUESTION_TYPE_SHORT_LABELS.multiple_choice_complex}
+										</TabsTrigger>
+										<TabsTrigger value="essay">{QUESTION_TYPE_SHORT_LABELS.essay}</TabsTrigger>
+									</TabsList>
+
+									<TabsContent value="multiple_choice" className="mt-4">
+										<form.Field name="choices">
+											{(field) => (
+												<MultipleChoiceQuestionForm
+													choices={field.state.value}
+													onChoicesChange={(newChoices) => field.handleChange(newChoices)}
 												/>
-											</div>
-										)}
-									</form.Field>
+											)}
+										</form.Field>
+									</TabsContent>
 
-									<form.Field name="choices">
-										{(field) => (
-											<MultipleChoiceQuestionForm
-												choices={field.state.value}
-												onChoicesChange={(newChoices) => field.handleChange(newChoices)}
-											/>
-										)}
-									</form.Field>
-
-									<form.Field name="discussion">
-										{(field) => (
-											<div className="grid gap-2">
-												<Label htmlFor={field.name}>Pembahasan</Label>
-												<TiptapSimpleEditor
-													content={field.state.value ?? undefined}
-													onChange={(content) => field.handleChange(content)}
+									<TabsContent value="multiple_choice_complex" className="mt-4">
+										<form.Field name="choices">
+											{(field) => (
+												<MultipleChoiceComplexQuestionForm
+													choices={field.state.value}
+													onChoicesChange={(newChoices) => field.handleChange(newChoices)}
 												/>
-											</div>
-										)}
-									</form.Field>
+											)}
+										</form.Field>
+									</TabsContent>
 
-									<form.Field name="tags">
-										{(field) => (
-											<div className="grid gap-2">
-												<Label htmlFor={field.name}>Tags</Label>
-												<TagInput
-													value={field.state.value}
-													onChange={(tags) => field.handleChange(tags)}
-													placeholder="Tambah tag..."
-													maxLength={10}
-												/>
-											</div>
-										)}
-									</form.Field>
-								</form>
-							</TabsContent>
+									<TabsContent value="essay" className="mt-4">
+										<form.Field
+											name="essayCorrectAnswer"
+											validators={{
+												onChange: ({ value }: { value: string }) => {
+													if (value.length > 15) {
+														return "Kunci jawaban maksimal 15 karakter";
+													}
+													return undefined;
+												},
+											}}
+										>
+											{(field) => (
+												<div className="flex flex-col gap-1.5">
+													<Label htmlFor={field.name}>Kunci jawaban</Label>
+													<Input
+														id={field.name}
+														value={field.state.value}
+														onChange={(e) => field.handleChange(e.target.value)}
+														placeholder="Masukkan kunci jawaban..."
+														maxLength={15}
+													/>
+													{field.state.meta.errors.map((error, idx) => (
+														<Typography
+															key={typeof error === "string" ? error : `error-${idx}`}
+															variant="caption"
+															tone="destructive"
+														>
+															{typeof error === "string" ? error : (error as { message: string })?.message}
+														</Typography>
+													))}
+												</div>
+											)}
+										</form.Field>
+									</TabsContent>
+								</Tabs>
+							</AdminSection>
 
-							<TabsContent value="multiple_choice_complex" className="mt-6">
-								<form
-									onSubmit={(e) => {
-										e.preventDefault();
-										form.handleSubmit();
-									}}
-									className="grid gap-6"
-								>
-									<form.Field name="content">
-										{(field) => (
-											<div className="grid gap-2">
-												<Label htmlFor={field.name}>Konten Soal *</Label>
-												<TiptapSimpleEditor
-													content={field.state.value ?? undefined}
-													onChange={(content) => field.handleChange(content)}
-												/>
-											</div>
-										)}
-									</form.Field>
+							<AdminSection title="Pembahasan" description="Tampil untuk peserta setelah soal selesai.">
+								<form.Field name="discussion">
+									{(field) => (
+										<TiptapSimpleEditor
+											label="Pembahasan"
+											content={field.state.value ?? undefined}
+											onChange={(content) => field.handleChange(content)}
+										/>
+									)}
+								</form.Field>
+							</AdminSection>
+						</div>
 
-									<form.Field name="choices">
-										{(field) => (
-											<MultipleChoiceComplexQuestionForm
-												choices={field.state.value}
-												onChoicesChange={(newChoices) => field.handleChange(newChoices)}
-											/>
-										)}
-									</form.Field>
+						<aside className="flex min-w-0 flex-col gap-5">
+							<AdminSection title="Tags" description="Memudahkan penyaringan di bank soal.">
+								<form.Field name="tags">
+									{(field) => (
+										<TagInput
+											value={field.state.value}
+											onChange={(tags) => field.handleChange(tags)}
+											placeholder="Tambah tag..."
+											maxLength={10}
+										/>
+									)}
+								</form.Field>
+							</AdminSection>
+						</aside>
+					</div>
 
-									<form.Field name="discussion">
-										{(field) => (
-											<div className="grid gap-2">
-												<Label htmlFor={field.name}>Pembahasan</Label>
-												<TiptapSimpleEditor
-													content={field.state.value ?? undefined}
-													onChange={(content) => field.handleChange(content)}
-												/>
-											</div>
-										)}
-									</form.Field>
-
-									<form.Field name="tags">
-										{(field) => (
-											<div className="grid gap-2">
-												<Label htmlFor={field.name}>Tags</Label>
-												<TagInput
-													value={field.state.value}
-													onChange={(tags) => field.handleChange(tags)}
-													placeholder="Tambah tag..."
-													maxLength={10}
-												/>
-											</div>
-										)}
-									</form.Field>
-								</form>
-							</TabsContent>
-
-							<TabsContent value="essay" className="mt-6">
-								<form
-									onSubmit={(e) => {
-										e.preventDefault();
-										form.handleSubmit();
-									}}
-									className="grid gap-6"
-								>
-									<form.Field name="content">
-										{(field) => (
-											<div className="grid gap-2">
-												<Label htmlFor={field.name}>Konten Soal *</Label>
-												<TiptapSimpleEditor
-													content={field.state.value ?? undefined}
-													onChange={(content) => field.handleChange(content)}
-												/>
-											</div>
-										)}
-									</form.Field>
-
-									<form.Field
-										name="essayCorrectAnswer"
-										validators={{
-											onChange: ({ value }: { value: string }) => {
-												if (value.length > 15) {
-													return "Kunci jawaban maksimal 15 karakter";
-												}
-												return undefined;
-											},
-										}}
-									>
-										{(field) => (
-											<div className="grid gap-2">
-												<Label htmlFor={field.name}>Kunci Jawaban *</Label>
-												<Input
-													id={field.name}
-													value={field.state.value}
-													onChange={(e) => field.handleChange(e.target.value)}
-													placeholder="Masukkan kunci jawaban..."
-													maxLength={15}
-												/>
-												{field.state.meta.errors.map((error, idx) => (
-													<p key={typeof error === "string" ? error : `error-${idx}`} className="text-xs text-red-500">
-														{typeof error === "string" ? error : (error as { message: string })?.message}
-													</p>
-												))}
-											</div>
-										)}
-									</form.Field>
-
-									<form.Field name="discussion">
-										{(field) => (
-											<div className="grid gap-2">
-												<Label htmlFor={field.name}>Pembahasan</Label>
-												<TiptapSimpleEditor
-													content={field.state.value ?? undefined}
-													onChange={(content) => field.handleChange(content)}
-												/>
-											</div>
-										)}
-									</form.Field>
-
-									<form.Field name="tags">
-										{(field) => (
-											<div className="grid gap-2">
-												<Label htmlFor={field.name}>Tags</Label>
-												<TagInput
-													value={field.state.value}
-													onChange={(tags) => field.handleChange(tags)}
-													placeholder="Tambah tag..."
-													maxLength={10}
-												/>
-											</div>
-										)}
-									</form.Field>
-								</form>
-							</TabsContent>
-						</Tabs>
-					</CardContent>
-				</Card>
+					<div className="flex items-center justify-end gap-1">
+						<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+							{([canSubmit, isSubmitting]) => (
+								<Button isPending={isSubmitting} size="xs" type="submit" disabled={!canSubmit || isSubmitting}>
+									<FloppyDiskIcon className="size-3.5" />
+									Simpan soal
+								</Button>
+							)}
+						</form.Subscribe>
+					</div>
+				</form>
 			</AdminPageContent>
 		</AdminPageRoot>
 	);

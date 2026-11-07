@@ -1,5 +1,7 @@
 import { Card } from "@/components/ui/card";
+import { Typography } from "@/components/ui/typography";
 import { useIsAdmin } from "@/hooks/use-is-admin";
+import type { SubjectCategory } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import { BackButton } from "../shared/back-button";
 import { Badge } from "../ui/badge";
@@ -7,7 +9,7 @@ import { Badge } from "../ui/badge";
 type SubjectHeaderProps = {
 	id: number;
 	name: string;
-	category: "sd" | "sma" | "smp" | "utbk";
+	category: SubjectCategory;
 	gradeLevel: number | null;
 	hasViewed?: boolean;
 };
@@ -22,15 +24,16 @@ export function ClassHeader({ subject }: { subject: SubjectHeaderProps }) {
 				<div className="my-auto space-y-4">
 					<BackButton to={backPath} />
 					<div>
-						<h3 className="text-2xl leading-tight font-semibold text-pretty xl:text-2xl">{subject?.name}</h3>
-						{/*<p className="font-light text-sm"> {subject?.totalContent} Konten</p>*/}
+						<Typography variant="title" as="h3" className="text-pretty">
+							{subject?.name}
+						</Typography>
 
 						{subject.category === "utbk" ? (
-							<p className="text-sm font-light">SMA Kelas 12</p>
+							<Typography variant="body">SMA Kelas 12</Typography>
 						) : (
-							<p className="text-sm font-medium">
+							<Typography variant="body">
 								<span className="uppercase">{subject.category}</span> Kelas {subject.gradeLevel ?? "-"}
-							</p>
+							</Typography>
 						)}
 					</div>
 				</div>

@@ -17,8 +17,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 
 export function AddUniversityDialog({
@@ -82,12 +82,12 @@ export function AddUniversityDialog({
 			<DialogTrigger asChild>
 				<Button className="ml-auto">
 					<PlusIcon className="mr-2 size-4" />
-					Tambah Universitas
+					Tambah universitas
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="flex max-h-[85vh] flex-col sm:max-w-125">
 				<DialogHeader className="shrink-0">
-					<DialogTitle>Tambah Universitas</DialogTitle>
+					<DialogTitle>Tambah universitas</DialogTitle>
 					<DialogDescription>Tambahkan universitas baru ke dalam sistem. Isi form di bawah ini.</DialogDescription>
 				</DialogHeader>
 				<form
@@ -126,9 +126,9 @@ export function AddUniversityDialog({
 												onChange={(e) => field.handleChange(e.target.value)}
 											/>
 											{field.state.meta.errors.map((error) => (
-												<p key={error?.message} className="text-xs text-red-500">
+												<Typography key={error?.message} variant="caption" tone="destructive">
 													{error?.message}
-												</p>
+												</Typography>
 											))}
 										</div>
 									</div>
@@ -167,9 +167,9 @@ export function AddUniversityDialog({
 												disabled={form.getFieldValue("autoGenerateSlug")}
 											/>
 											{field.state.meta.errors.map((error) => (
-												<p key={error?.message} className="text-xs text-red-500">
+												<Typography key={error?.message} variant="caption" tone="destructive">
 													{error?.message}
-												</p>
+												</Typography>
 											))}
 										</div>
 									</div>
@@ -191,9 +191,9 @@ export function AddUniversityDialog({
 												placeholder="https://example.com/logo.png"
 											/>
 											{field.state.meta.errors.map((error) => (
-												<p key={error?.message} className="text-xs text-red-500">
+												<Typography key={error?.message} variant="caption" tone="destructive">
 													{error?.message}
-												</p>
+												</Typography>
 											))}
 										</div>
 									</div>
@@ -252,9 +252,9 @@ export function AddUniversityDialog({
 												placeholder="https://www.university.ac.id"
 											/>
 											{field.state.meta.errors.map((error) => (
-												<p key={error?.message} className="text-xs text-red-500">
+												<Typography key={error?.message} variant="caption" tone="destructive">
 													{error?.message}
-												</p>
+												</Typography>
 											))}
 										</div>
 									</div>
@@ -277,9 +277,9 @@ export function AddUniversityDialog({
 												placeholder="1"
 											/>
 											{field.state.meta.errors.map((error) => (
-												<p key={error?.message} className="text-xs text-red-500">
+												<Typography key={error?.message} variant="caption" tone="destructive">
 													{error?.message}
-												</p>
+												</Typography>
 											))}
 										</div>
 									</div>
@@ -291,15 +291,8 @@ export function AddUniversityDialog({
 					<DialogFooter className="shrink-0">
 						<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
 							{([canSubmit, isSubmitting]) => (
-								<Button type="submit" disabled={!canSubmit || isSubmitting}>
-									{isSubmitting ? (
-										<>
-											<Spinner />
-											Menambahkan...
-										</>
-									) : (
-										"Tambah Universitas"
-									)}
+								<Button isPending={isSubmitting} type="submit" disabled={!canSubmit || isSubmitting}>
+									{"Tambah universitas"}
 								</Button>
 							)}
 						</form.Subscribe>

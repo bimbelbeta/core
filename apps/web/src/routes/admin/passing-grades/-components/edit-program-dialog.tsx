@@ -7,8 +7,8 @@ import { DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 
 interface EditProgramDialogProps {
@@ -76,9 +76,11 @@ export function EditProgramDialog({ universityProgram, onSuccess, onOpenChange }
 		<div className="space-y-4">
 			{/* Program info header */}
 			<div className="bg-muted/50 rounded-lg border px-4 py-3">
-				<p className="text-sm font-medium">{universityProgram.studyProgram.name}</p>
+				<Typography variant="body" className="font-medium">
+					{universityProgram.studyProgram.name}
+				</Typography>
 				{universityProgram.studyProgram.category && (
-					<p className="text-muted-foreground text-xs">{universityProgram.studyProgram.category}</p>
+					<Typography variant="caption">{universityProgram.studyProgram.category}</Typography>
 				)}
 			</div>
 
@@ -105,9 +107,9 @@ export function EditProgramDialog({ universityProgram, onSuccess, onOpenChange }
 									onChange={(e) => field.handleChange(e.target.value)}
 								/>
 								{field.state.meta.errors.map((error) => (
-									<p key={error?.message} className="text-destructive text-xs">
+									<Typography key={error?.message} variant="caption" tone="destructive">
 										{error?.message}
-									</p>
+									</Typography>
 								))}
 							</div>
 						)}
@@ -128,9 +130,9 @@ export function EditProgramDialog({ universityProgram, onSuccess, onOpenChange }
 									onChange={(e) => field.handleChange(e.target.value)}
 								/>
 								{field.state.meta.errors.map((error) => (
-									<p key={error?.message} className="text-destructive text-xs">
+									<Typography key={error?.message} variant="caption" tone="destructive">
 										{error?.message}
-									</p>
+									</Typography>
 								))}
 							</div>
 						)}
@@ -145,7 +147,7 @@ export function EditProgramDialog({ universityProgram, onSuccess, onOpenChange }
 									Akreditasi
 								</Label>
 								<Select value={field.state.value} onValueChange={(val) => field.handleChange(val)}>
-									<SelectTrigger className="w-full">
+									<SelectTrigger id={field.name} className="w-full">
 										<SelectValue placeholder="Pilih..." />
 									</SelectTrigger>
 									<SelectContent>
@@ -159,9 +161,9 @@ export function EditProgramDialog({ universityProgram, onSuccess, onOpenChange }
 									</SelectContent>
 								</Select>
 								{field.state.meta.errors.map((error) => (
-									<p key={error?.message} className="text-destructive text-xs">
+									<Typography key={error?.message} variant="caption" tone="destructive">
 										{error?.message}
-									</p>
+									</Typography>
 								))}
 							</div>
 						)}
@@ -182,9 +184,9 @@ export function EditProgramDialog({ universityProgram, onSuccess, onOpenChange }
 									onChange={(e) => field.handleChange(e.target.value)}
 								/>
 								{field.state.meta.errors.map((error) => (
-									<p key={error?.message} className="text-destructive text-xs">
+									<Typography key={error?.message} variant="caption" tone="destructive">
 										{error?.message}
-									</p>
+									</Typography>
 								))}
 							</div>
 						)}
@@ -198,9 +200,9 @@ export function EditProgramDialog({ universityProgram, onSuccess, onOpenChange }
 								<Label htmlFor={field.name} className="cursor-pointer text-sm font-medium">
 									Status Aktif
 								</Label>
-								<p className="text-muted-foreground text-xs">
+								<Typography variant="caption">
 									{field.state.value ? "Program studi ini aktif" : "Program studi ini tidak aktif"}
-								</p>
+								</Typography>
 							</div>
 							<Switch id={field.name} checked={field.state.value} onCheckedChange={field.handleChange} />
 						</div>
@@ -210,15 +212,8 @@ export function EditProgramDialog({ universityProgram, onSuccess, onOpenChange }
 				<DialogFooter className="pt-2">
 					<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
 						{([canSubmit, isSubmitting]) => (
-							<Button type="submit" disabled={!canSubmit || isSubmitting} className="w-full">
-								{isSubmitting ? (
-									<>
-										<Spinner />
-										Memperbarui...
-									</>
-								) : (
-									"Simpan Perubahan"
-								)}
+							<Button isPending={isSubmitting} type="submit" disabled={!canSubmit || isSubmitting} className="w-full">
+								{"Simpan Perubahan"}
 							</Button>
 						)}
 					</form.Subscribe>

@@ -6,29 +6,22 @@ import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
+import { SUBJECT_CATEGORY_LABELS, type SubjectCategory, subjectCategorySchema } from "@/lib/schemas";
 import { TryoutStartConfirmation } from "./tryout-start-confirmation";
 
-const CATEGORY_LABELS = {
-	sd: "SD",
-	smp: "SMP",
-	sma: "SMA",
-	utbk: "UTBK",
-} as const;
-
-type TryoutCategory = keyof typeof CATEGORY_LABELS;
-
-const LEVEL_CATEGORIES: Record<"tka" | "utbk", readonly TryoutCategory[]> = {
+const LEVEL_CATEGORIES: Record<"tka" | "utbk", readonly SubjectCategory[]> = {
 	tka: ["sd", "smp", "sma"],
 	utbk: ["utbk"],
 };
 
 type TryoutLevel = keyof typeof LEVEL_CATEGORIES;
 
-function normalizeTryoutCategory(category: string | null | undefined): TryoutCategory | null {
+function normalizeTryoutCategory(category: string | null | undefined): SubjectCategory | null {
 	if (!category) return null;
 	const normalized = category.trim().toLowerCase();
-	return normalized in CATEGORY_LABELS ? (normalized as TryoutCategory) : null;
+	return subjectCategorySchema.allows(normalized) ? normalized : null;
 }
 
 interface GuidelineActivityProps {
@@ -54,8 +47,8 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 
 			<section className="space-y-4">
 				<div className="space-y-1">
-					<h2 className="text-lg font-semibold">Tryout yang tersedia</h2>
-					<p className="text-muted-foreground text-sm">Pilih TO publik lalu masukkan kode akses seperti biasa.</p>
+					<Typography variant="subtitle1">Tryout yang tersedia</Typography>
+					<Typography tone="muted">Pilih TO publik lalu masukkan kode akses seperti biasa.</Typography>
 				</div>
 				{(() => {
 					const allowedCategories = LEVEL_CATEGORIES[level];
@@ -79,10 +72,12 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 						return (
 							<Card className="flex items-center justify-between gap-3 p-4">
 								<div>
-									<p className="font-medium">Belum ada Try Out publik</p>
-									<p className="text-muted-foreground text-sm">
+									<Typography variant="body" className="font-medium">
+										Belum ada Try Out publik
+									</Typography>
+									<Typography tone="muted">
 										Saat admin mempublikasikan TO baru, judul dan kategorinya akan muncul di sini.
-									</p>
+									</Typography>
 								</div>
 							</Card>
 						);
@@ -97,19 +92,21 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 										<div className="space-y-2">
 											<div className="flex items-start justify-between gap-3">
 												<div className="space-y-1">
-													<h3 className="text-base leading-tight font-semibold">{tryout.title}</h3>
-													<p className="text-muted-foreground text-sm">{CATEGORY_LABELS[category]}</p>
+													<Typography variant="subtitle2" className="leading-tight">
+														{tryout.title}
+													</Typography>
+													<Typography tone="muted">{SUBJECT_CATEGORY_LABELS[category]}</Typography>
 												</div>
 												<Badge variant={tryout.isOpen ? "default" : "secondary"} className="shrink-0">
-													{tryout.isOpen ? "Published" : "Belum dibuka"}
+													{tryout.isOpen ? "Dibuka" : "Belum dibuka"}
 												</Badge>
 											</div>
 											<Separator />
-											<p className="text-muted-foreground text-sm">
+											<Typography tone="muted">
 												{tryout.isOpen
 													? "Siap dipilih dan dimulai dengan kode akses."
 													: "Tryout ini sudah dipublikasikan, tetapi jadwalnya belum dibuka."}
-											</p>
+											</Typography>
 										</div>
 										<TryoutStartConfirmation tryoutId={tryout.id} disabled={!tryout.isOpen}>
 											<Button className="w-full" disabled={!tryout.isOpen}>
@@ -126,12 +123,14 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 
 			<Card>
 				<CardContent className="space-y-4 text-sm">
-					<h2 className="mb-4 text-lg font-bold">Petunjuk Pengerjaan Try Out</h2>
+					<Typography variant="subtitle1" className="mb-4">
+						Petunjuk Pengerjaan Try Out
+					</Typography>
 
 					<div className="space-y-2">
-						<h3 className="flex items-center gap-2 font-bold">
+						<Typography variant="subtitle2" className="flex items-center gap-2">
 							<span>🔒</span> Aturan Pengerjaan
-						</h3>
+						</Typography>
 						<ul className="list-disc space-y-1 pl-5">
 							<li>Setiap subtes hanya bisa dikerjakan sekali selama masa aktif tryout berlangsung.</li>
 							<li>Setelah kamu menekan “Selesai / Kumpulkan” atau timer habis, subtes tersebut nggak bisa diulang.</li>
@@ -144,9 +143,9 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 					</div>
 
 					<div className="space-y-2">
-						<h3 className="flex items-center gap-2 font-bold">
+						<Typography variant="subtitle2" className="flex items-center gap-2">
 							<span>💡</span> Tips
-						</h3>
+						</Typography>
 						<ul className="list-disc space-y-1 pl-5">
 							<li>Pastikan baterai perangkat dan koneksi internet dalam kondisi aman dan stabil.</li>
 							<li>Cek dulu jumlah soal & durasi, biar kamu bisa ngatur ritme ngerjainnya.</li>
@@ -158,7 +157,9 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 						</ul>
 					</div>
 
-					<p className="pt-2 font-medium">Siap? Yuk mulai tryoutnya! Semangat 💪🔥</p>
+					<Typography variant="body" className="pt-2 font-medium">
+						Siap? Yuk mulai tryoutnya! Semangat 💪🔥
+					</Typography>
 				</CardContent>
 			</Card>
 
@@ -168,8 +169,8 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 						Akses Pembahasan Dengan <span className="font-semibold">Tryout Premium</span>
 					</CardTitle>
 					<CardAction className="mt-auto">
-						<Button size={"icon"} asChild>
-							<Link to="/premium">
+						<Button size="icon" asChild>
+							<Link to="/premium" aria-label="Lihat Tryout Premium">
 								<ArrowUpRightIcon weight="bold" />
 							</Link>
 						</Button>

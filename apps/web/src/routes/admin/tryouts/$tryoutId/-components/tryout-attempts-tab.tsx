@@ -2,43 +2,19 @@ import { CalendarDotsIcon, ChartBarIcon, TimerIcon, UserIcon } from "@phosphor-i
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { useState } from "react";
+import { AdminSection } from "@/components/admin/admin-page";
+import { AdminTableRoot } from "@/components/admin/admin-table";
 import { PaginationButtons } from "@/components/admin/pagination-buttons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { formatDateTime, formatRelativeDate } from "@/lib/format-date";
+import { getInitials } from "@/lib/formatter";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
-
-function getInitials(name: string) {
-	return name
-		.split(" ")
-		.map((n) => n[0])
-		.join("")
-		.toUpperCase()
-		.slice(0, 2);
-}
-
-function formatRelativeDate(date: Date) {
-	const now = new Date();
-	const diff = now.getTime() - date.getTime();
-	const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-
-	if (days === 0) {
-		const hours = Math.floor(diff / (1000 * 60 * 60));
-		if (hours === 0) {
-			const minutes = Math.floor(diff / (1000 * 60));
-			return minutes === 0 ? "Baru saja" : `${minutes} menit lalu`;
-		}
-		return `${hours} jam lalu`;
-	}
-	if (days === 1) return "Kemarin";
-	if (days < 7) return `${days} hari lalu`;
-	return date.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
-}
 
 interface TryoutAttemptsTabProps {
 	subtests: {
@@ -65,7 +41,7 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 	);
 
 	const pageInfo = data?.pageInfo;
-	const tableColumnCount = 6 + subtests.length;
+	const tableColumnCount = 5 + subtests.length;
 
 	const getStatusConfig = (status: string) => {
 		switch (status) {
@@ -79,7 +55,7 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 				return {
 					variant: "secondary" as const,
 					label: "Berlangsung",
-					className: "bg-amber-100 text-amber-800 border-amber-200",
+					className: "bg-yellow-100 text-yellow-800 border-yellow-300/70",
 				};
 			default:
 				return { variant: "outline" as const, label: "Belum Mulai", className: "" };
@@ -98,21 +74,29 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 		setAfter(undefined);
 	};
 
+	const isEmpty = !isPending && data?.items.length === 0;
+
 	return (
-		<Card>
-			<CardHeader className="pb-3">
-				<div className="flex items-center gap-2">
-					<UserIcon className="text-muted-foreground size-4" />
-					<CardTitle className="text-base">Daftar Attempts</CardTitle>
-				</div>
-				<CardDescription>Riwayat pengerjaan tryout oleh user</CardDescription>
-			</CardHeader>
-			<CardContent>
-				<div className="overflow-clip rounded-lg border bg-white shadow-sm">
+		<AdminSection title="Daftar percobaan" description="Riwayat pengerjaan tryout oleh peserta">
+			{isEmpty ? (
+				<AdminTableRoot>
+					<Empty className="min-h-48">
+						<EmptyHeader>
+							<EmptyMedia variant="icon">
+								<UserIcon />
+							</EmptyMedia>
+							<EmptyTitle>Belum ada percobaan</EmptyTitle>
+							<EmptyDescription>
+								Belum ada peserta yang mengerjakan tryout ini. Bagikan kode akses agar peserta bisa mulai.
+							</EmptyDescription>
+						</EmptyHeader>
+					</Empty>
+				</AdminTableRoot>
+			) : (
+				<AdminTableRoot>
 					<Table>
 						<TableHeader>
 							<TableRow className="bg-muted/30">
-								<TableHead className="w-12 pl-4 text-center">No</TableHead>
 								<TableHead>User</TableHead>
 								<TableHead className="w-28">Status</TableHead>
 								<TableHead className="w-24">Skor</TableHead>
@@ -128,23 +112,9 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 						<TableBody>
 							{isPending ? (
 								<TableSkeleton columns={tableColumnCount} />
-							) : data?.items.length === 0 ? (
-								<TableRow>
-									<TableCell colSpan={tableColumnCount} className="h-48">
-										<Empty>
-											<EmptyHeader>
-												<EmptyMedia variant="icon">
-													<UserIcon />
-												</EmptyMedia>
-												<EmptyTitle>Belum ada attempt</EmptyTitle>
-												<EmptyDescription>Belum ada user yang mengerjakan tryout ini.</EmptyDescription>
-											</EmptyHeader>
-										</Empty>
-									</TableCell>
-								</TableRow>
 							) : (
 								<TooltipProvider delayDuration={200}>
-									{data?.items.map(({ attempt, user, subtestAttempts }, index) => {
+									{data?.items.map(({ attempt, user, subtestAttempts }) => {
 										const statusConfig = getStatusConfig(attempt.status);
 										const startedAt = attempt.startedAt ? new Date(attempt.startedAt) : null;
 										const completedAt = attempt.completedAt ? new Date(attempt.completedAt) : null;
@@ -154,17 +124,11 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 
 										return (
 											<TableRow key={attempt.id} className="hover:bg-muted/30">
-												<TableCell className="pl-4 text-center">
-													<div className="bg-muted mx-auto flex size-6 items-center justify-center rounded-full font-mono text-xs font-medium">
-														{index + 1}
-													</div>
-												</TableCell>
-
 												<TableCell>
 													<div className="flex items-center gap-3">
 														<Avatar className="ring-border size-9 rounded-full ring-2">
 															<AvatarImage src={user.image ?? undefined} alt={user.name} />
-															<AvatarFallback className="bg-primary-100 text-primary-700 text-xs font-semibold">
+															<AvatarFallback className="bg-primary-100 text-primary-800 text-xs font-semibold">
 																{getInitials(user.name)}
 															</AvatarFallback>
 														</Avatar>
@@ -223,15 +187,7 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 																	{formatRelativeDate(startedAt)}
 																</span>
 															</TooltipTrigger>
-															<TooltipContent>
-																{startedAt.toLocaleString("id-ID", {
-																	day: "numeric",
-																	month: "long",
-																	year: "numeric",
-																	hour: "2-digit",
-																	minute: "2-digit",
-																})}
-															</TooltipContent>
+															<TooltipContent>{formatDateTime(startedAt)}</TooltipContent>
 														</Tooltip>
 													) : (
 														<span className="text-muted-foreground text-xs">-</span>
@@ -247,15 +203,7 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 																	{formatRelativeDate(completedAt)}
 																</span>
 															</TooltipTrigger>
-															<TooltipContent>
-																{completedAt.toLocaleString("id-ID", {
-																	day: "numeric",
-																	month: "long",
-																	year: "numeric",
-																	hour: "2-digit",
-																	minute: "2-digit",
-																})}
-															</TooltipContent>
+															<TooltipContent>{formatDateTime(completedAt)}</TooltipContent>
 														</Tooltip>
 													) : (
 														<span className="text-muted-foreground text-xs">-</span>
@@ -268,19 +216,17 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 							)}
 						</TableBody>
 					</Table>
-				</div>
+				</AdminTableRoot>
+			)}
 
-				{data && (
-					<div className="mt-4">
-						<PaginationButtons
-							onPrevious={handlePrevious}
-							onNext={handleNext}
-							hasPrevious={!!pageInfo?.hasPreviousPage}
-							hasNext={!!pageInfo?.hasNextPage}
-						/>
-					</div>
-				)}
-			</CardContent>
-		</Card>
+			{data && (
+				<PaginationButtons
+					onPrevious={handlePrevious}
+					onNext={handleNext}
+					hasPrevious={!!pageInfo?.hasPreviousPage}
+					hasNext={!!pageInfo?.hasNextPage}
+				/>
+			)}
+		</AdminSection>
 	);
 };

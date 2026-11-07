@@ -1,18 +1,10 @@
 # Agent Guidelines — bimbelbeta
 
-## Agent skills
+### Docs
 
-### Issue tracker
-
-Issues and specs live in GitHub Issues for `bimbelbeta/core`. See `docs/agents/issue-tracker.md`.
-
-### Triage labels
-
-Triage uses the five default labels. See `docs/agents/triage-labels.md`.
-
-### Domain docs
-
-This repo uses a single-context layout. See `docs/agents/domain.md`.
+- Issues and specs live in GitHub Issues for `bimbelbeta/core`. See `docs/agents/issue-tracker.md`.
+- Triage uses the five default labels. See `docs/agents/triage-labels.md`.
+- This repo uses a single-context layout. See `docs/agents/domain.md`.
 
 ### Workflow
 
@@ -30,7 +22,7 @@ This repo uses a single-context layout. See `docs/agents/domain.md`.
 bun lint              # Check (Biome)
 bun lint:fix --unsafe # Auto-fix incl unsafe
 bun check-types       # Type check all (build packages first)
-bun run build         # Build all packages + apps
+bun build             # Build all packages + apps
 bun build:packages    # Build packages only
 bun db:push           # Push schema to DB
 bun db:reset          # Reset DB + seed
@@ -76,3 +68,11 @@ apps/web/src/routes/
   _authenticated/    # Protected routes
   -components/       # Shared route components
 ```
+
+## Lessons
+
+- When identifying a reference screenshot, read the selected tab and page content before correcting the user.
+
+### Design constraints (do not violate)
+
+- Admin font is **Lexend** (`@fontsource-variable/lexend`, `--font-sans`). Never override the admin font stack (e.g. via `admin-shell`); font-family changes are out of bounds for any UI iteration.

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Typography } from "@/components/ui/typography";
 import { createMeta } from "@/lib/seo-utils";
 import { LastClasses } from "../-components/last-classes";
 import { DashboardMainCard } from "./-components/dashboard-main-card";
@@ -23,8 +24,10 @@ function RouteComponent() {
 			<section className="flex items-center gap-2">
 				<div className="text-5xl">🔥</div>
 				<div className="space-y-1">
-					<h1 className="text-tertiary-1000 text-3xl leading-tight font-semibold sm:text-4xl">Halo, {firstName}!</h1>
-					<p className="text-sm sm:text-base">Kembali belajar bersama bimbel-beta</p>
+					<Typography variant="display" className="text-tertiary-1000">
+						Halo, {firstName}!
+					</Typography>
+					<Typography>Kembali belajar bersama bimbel-beta</Typography>
 				</div>
 			</section>
 

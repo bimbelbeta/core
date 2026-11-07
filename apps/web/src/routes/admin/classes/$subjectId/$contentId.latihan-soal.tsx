@@ -16,6 +16,7 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { LinkedQuestionsList } from "../-components/linked-questions-list";
@@ -72,11 +73,11 @@ function RouteComponent() {
 	};
 
 	if (content.isPending || practiceQuestions.isPending) {
-		return <p className="animate-pulse text-sm">Memuat latihan soal...</p>;
+		return <Typography className="animate-pulse">Memuat latihan soal...</Typography>;
 	}
 
 	if (content.isError) {
-		return <p className="text-sm text-red-500">Error: {content.error.message}</p>;
+		return <Typography tone="destructive">Error: {content.error.message}</Typography>;
 	}
 
 	if (!content.data) return notFound();
@@ -88,16 +89,22 @@ function RouteComponent() {
 	return (
 		<div className="space-y-4">
 			<div className="flex flex-col items-start justify-between space-y-1 sm:flex-row sm:items-center">
-				<h2 className="text-lg font-semibold">Edit Catatan Materi</h2>
+				<Typography variant="subtitle1">Edit Latihan Soal</Typography>
 				<div className="flex items-center gap-2">
 					<Button type="button" variant="outline" size="sm" onClick={() => setPickerOpen(true)}>
 						<Plus className="mr-1 size-4" />
-						Tambah Soal
+						Tambah soal
 					</Button>
 					{hasQuestions && (
 						<AlertDialog>
 							<AlertDialogTrigger asChild>
-								<Button type="button" variant="destructive" disabled={unlinkAllMutation.isPending} size="sm">
+								<Button
+									isPending={unlinkAllMutation.isPending}
+									type="button"
+									variant="destructive"
+									disabled={unlinkAllMutation.isPending}
+									size="sm"
+								>
 									Hapus Semua
 								</Button>
 							</AlertDialogTrigger>
@@ -134,7 +141,7 @@ function RouteComponent() {
 					<EmptyContentState title="Belum ada latihan soal" desc="Tambahkan soal dari bank soal untuk konten ini" />
 					<Button type="button" onClick={() => setPickerOpen(true)}>
 						<Plus className="mr-1 size-4" />
-						Tambah Soal
+						Tambah soal
 					</Button>
 				</div>
 			)}

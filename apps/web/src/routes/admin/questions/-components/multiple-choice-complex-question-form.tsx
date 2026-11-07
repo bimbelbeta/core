@@ -1,7 +1,12 @@
 import { PlusIcon } from "@phosphor-icons/react";
+import {
+	AdminTable,
+	AdminTableBody,
+	AdminTableHead,
+	AdminTableHeader,
+	AdminTableRoot,
+} from "@/components/admin/admin-table";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ComplexChoiceEditRow } from "./complex-choice-edit-row";
 import type { Choice } from "./types";
 
@@ -33,18 +38,15 @@ export function MultipleChoiceComplexQuestionForm({
 	};
 
 	return (
-		<div className="space-y-4">
-			<Label>Pilihan Jawaban (Kompleks)</Label>
-			<div className="rounded-lg border">
-				<Table>
-					<TableHeader>
-						<TableRow>
-							<TableHead>Jawaban</TableHead>
-							<TableHead className="w-32 text-center">Kunci</TableHead>
-							<TableHead className="w-16" />
-						</TableRow>
-					</TableHeader>
-					<TableBody>
+		<div className="flex flex-col gap-3">
+			<AdminTableRoot>
+				<AdminTable>
+					<AdminTableHeader className="hidden sm:table-row">
+						<AdminTableHead>Pernyataan</AdminTableHead>
+						<AdminTableHead className="w-36">Kunci</AdminTableHead>
+						<AdminTableHead className="w-12" />
+					</AdminTableHeader>
+					<AdminTableBody columns={3}>
 						{choices.map((choice) => (
 							<ComplexChoiceEditRow
 								key={choice.id}
@@ -53,13 +55,13 @@ export function MultipleChoiceComplexQuestionForm({
 								onDelete={() => deleteChoice(choice.id)}
 							/>
 						))}
-					</TableBody>
-				</Table>
-			</div>
+					</AdminTableBody>
+				</AdminTable>
+			</AdminTableRoot>
 			{choices.length < 7 && (
-				<Button type="button" variant="outline" onClick={addChoice}>
-					<PlusIcon className="mr-2 size-4" />
-					Tambah Pilihan
+				<Button type="button" variant="outline" size="xs" onClick={addChoice} className="self-start">
+					<PlusIcon className="size-3.5" />
+					Tambah pernyataan
 				</Button>
 			)}
 		</div>

@@ -286,3 +286,15 @@ Do not reset or push the database. Generate and review a migration and back up p
 5. Update `patch_notes.md` when a change affects deployment, user behavior, or operational workflows.
 
 For repository-specific conventions, read [AGENTS.md](AGENTS.md) before making substantial changes.
+
+## Admin design-review protocol
+
+When iterating on the admin UI with review subagents, every reviewer brief **must** attach the reference
+screenshots of the caliber bar, alongside the current build's screenshots:
+
+- `/.review-shots/references/github-issues.png` — GitHub issues (reference B)
+- `/.review-shots/references/linear-members.png` — Linear members (reference A)
+
+Reviewers score the admin console 0–10 against that bar, blind to prior rounds and scores.
+Standing constraints: the admin typeface is **Lexend** (never propose a font change), one accent hue,
+tokens only — nested under `AGENTS.md → Design constraints`.

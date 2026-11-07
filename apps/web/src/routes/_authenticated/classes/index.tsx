@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { type } from "arktype";
 import { useState } from "react";
-import type { SubjectCategory, SubjectFilter } from "@/components/classes/classes-types";
+import type { SubjectFilter } from "@/components/classes/classes-types";
 import { CreateSubjectDialog } from "@/components/classes/create-subject-dialog";
 import { NotFoundContentState } from "@/components/classes/not-found-content-state";
 import { SubjectFilters } from "@/components/classes/subject-filters";
@@ -11,12 +11,14 @@ import { SubjectHeader } from "@/components/classes/subject-header";
 import { SubjectList } from "@/components/classes/subject-list";
 import { SearchInput } from "@/components/ui/search-input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
+import { type SubjectCategory, subjectCategorySchema } from "@/lib/schemas";
 import { createMeta } from "@/lib/seo-utils";
 
 const searchSchema = type({
 	"q?": "string",
-	"category?": "'sd' | 'smp' | 'sma' | 'utbk'",
+	"category?": subjectCategorySchema,
 });
 
 export const Route = createFileRoute("/_authenticated/classes/")({
@@ -43,7 +45,12 @@ function RouteComponent() {
 
 	const navigate = Route.useNavigate();
 	const updateSearch = (updates: { q?: string; category?: SubjectCategory }) => {
-		navigate({ search: { q: updates.q ?? undefined, category: updates.category ?? undefined } });
+		navigate({
+			search: {
+				q: "q" in updates ? updates.q || undefined : q || undefined,
+				category: "category" in updates ? updates.category : category,
+			},
+		});
 	};
 
 	const subjectsQuery = useQuery({
@@ -84,7 +91,7 @@ function RouteComponent() {
 					</div>
 				)}
 
-				{subjectsQuery.isError && <p className="text-red-500">Error: {subjectsQuery.error.message}</p>}
+				{subjectsQuery.isError && <Typography tone="destructive">Error: {subjectsQuery.error.message}</Typography>}
 
 				{subjectsQuery.data && subjectsQuery.data.items.length === 0 && (
 					<NotFoundContentState

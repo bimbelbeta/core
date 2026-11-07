@@ -10,6 +10,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
+import { Typography } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
 import { CreateProgramTab } from "./create-program-tab";
 import { ProgramDetailsStep } from "./program-details-step";
@@ -68,7 +69,7 @@ export function AddProgramDialog({ universityId, onSuccess, open, onOpenChange }
 			<DialogTrigger asChild>
 				<Button>
 					<PlusIcon className="mr-2 size-4" />
-					Tambah Prodi
+					Tambah prodi
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="gap-0 p-0 sm:max-w-[540px]">
@@ -156,8 +157,10 @@ export function AddProgramDialog({ universityId, onSuccess, open, onOpenChange }
 									<MagnifyingGlassIcon className="size-4" />
 								</div>
 								<div className="min-w-0 flex-1">
-									<p className="truncate text-sm font-medium">{selectedProgram.name}</p>
-									<p className="text-muted-foreground text-xs">Program studi terpilih</p>
+									<Typography variant="body" className="truncate font-medium">
+										{selectedProgram.name}
+									</Typography>
+									<Typography variant="caption">Program studi terpilih</Typography>
 								</div>
 								<Badge variant="outline" className="shrink-0">
 									Langkah 2

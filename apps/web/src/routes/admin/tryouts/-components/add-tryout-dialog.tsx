@@ -1,4 +1,4 @@
-import { ArchiveIcon, CalendarIcon, EyeIcon, FileIcon, PlusIcon } from "@phosphor-icons/react";
+import { CalendarIcon, PlusIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { type } from "arktype";
@@ -20,8 +20,18 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Typography } from "@/components/ui/typography";
 import { formatDateMedium } from "@/lib/format-date";
 import { orpc } from "@/lib/orpc";
+import {
+	SUBJECT_CATEGORY_LABELS,
+	type SubjectCategory,
+	subjectCategorySchema,
+	TRYOUT_STATUS_BADGE,
+	type TryoutStatus,
+	tryoutStatusSchema,
+} from "@/lib/schemas";
+import { cn } from "@/lib/utils";
 
 export function AddTryoutDialog({
 	open,
@@ -32,21 +42,33 @@ export function AddTryoutDialog({
 	onOpenChange: (open: boolean) => void;
 	onSuccess: () => void;
 }) {
+	type TryoutFormValues = {
+		title: string;
+		description: string;
+		category: SubjectCategory;
+		duration: number;
+		status: TryoutStatus;
+		startsAt: string;
+		endsAt: string;
+	};
+
 	const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
 		from: undefined,
 		to: undefined,
 	});
 
+	const defaultValues: TryoutFormValues = {
+		title: "",
+		description: "",
+		category: "utbk",
+		duration: 60,
+		status: "draft",
+		startsAt: "",
+		endsAt: "",
+	};
+
 	const form = useForm({
-		defaultValues: {
-			title: "",
-			description: "",
-			category: "utbk" as "sd" | "smp" | "sma" | "utbk",
-			duration: 60,
-			status: "draft" as "draft" | "published" | "archived",
-			startsAt: "",
-			endsAt: "",
-		},
+		defaultValues,
 		onSubmit: async ({ value }) => {
 			createMutation.mutate({
 				title: value.title,
@@ -60,9 +82,9 @@ export function AddTryoutDialog({
 		validators: {
 			onChange: type({
 				title: "string >= 1",
-				category: "'sd' | 'smp' | 'sma' | 'utbk'",
+				category: subjectCategorySchema,
 				duration: "1 <= number <= 500",
-				status: "'draft' | 'published' | 'archived'",
+				status: tryoutStatusSchema,
 			}),
 		},
 	});
@@ -85,14 +107,14 @@ export function AddTryoutDialog({
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogTrigger asChild>
-				<Button className="ml-auto">
-					<PlusIcon className="mr-2 size-4" />
-					Tambah Tryout
+				<Button className="bg-primary text-primary-foreground hover:bg-primary/90 ml-auto h-9">
+					<PlusIcon className="size-4" />
+					Tambah tryout
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="flex max-h-[85vh] flex-col sm:max-w-125">
 				<DialogHeader className="shrink-0">
-					<DialogTitle>Tambah Tryout</DialogTitle>
+					<DialogTitle>Tambah tryout</DialogTitle>
 					<DialogDescription>Tambahkan tryout baru ke dalam sistem. Isi form di bawah ini.</DialogDescription>
 				</DialogHeader>
 				<form
@@ -119,9 +141,9 @@ export function AddTryoutDialog({
 												onChange={(e) => field.handleChange(e.target.value)}
 											/>
 											{field.state.meta.errors.map((error) => (
-												<p key={error?.message} className="text-xs text-red-500">
+												<Typography variant="caption" tone="destructive" key={error?.message}>
 													{error?.message}
-												</p>
+												</Typography>
 											))}
 										</div>
 									</div>
@@ -156,16 +178,17 @@ export function AddTryoutDialog({
 										<div className="col-span-3">
 											<Select
 												value={field.state.value}
-												onValueChange={(val) => field.handleChange(val as typeof field.state.value)}
+												onValueChange={(val) => field.handleChange(subjectCategorySchema.assert(val))}
 											>
 												<SelectTrigger id={field.name} className="w-full">
 													<SelectValue placeholder="Pilih kategori" />
 												</SelectTrigger>
 												<SelectContent>
-													<SelectItem value="sd">SD</SelectItem>
-													<SelectItem value="smp">SMP</SelectItem>
-													<SelectItem value="sma">SMA</SelectItem>
-													<SelectItem value="utbk">UTBK</SelectItem>
+													{Object.entries(SUBJECT_CATEGORY_LABELS).map(([value, label]) => (
+														<SelectItem key={value} value={value}>
+															{label}
+														</SelectItem>
+													))}
 												</SelectContent>
 											</Select>
 										</div>
@@ -182,30 +205,20 @@ export function AddTryoutDialog({
 										<div className="col-span-3">
 											<Select
 												value={field.state.value}
-												onValueChange={(val) => field.handleChange(val as typeof field.state.value)}
+												onValueChange={(val) => field.handleChange(tryoutStatusSchema.assert(val))}
 											>
 												<SelectTrigger id={field.name} className="w-full">
 													<SelectValue placeholder="Pilih status" />
 												</SelectTrigger>
 												<SelectContent>
-													<SelectItem value="draft">
-														<div className="flex items-center gap-2">
-															<FileIcon className="text-muted-foreground size-4" />
-															<span>Draft</span>
-														</div>
-													</SelectItem>
-													<SelectItem value="published">
-														<div className="flex items-center gap-2">
-															<EyeIcon className="size-4 text-green-600" />
-															<span>Published</span>
-														</div>
-													</SelectItem>
-													<SelectItem value="archived">
-														<div className="flex items-center gap-2">
-															<ArchiveIcon className="size-4 text-orange-600" />
-															<span>Archived</span>
-														</div>
-													</SelectItem>
+													{Object.entries(TRYOUT_STATUS_BADGE).map(([value, status]) => (
+														<SelectItem key={value} value={value}>
+															<div className="flex items-center gap-2">
+																<status.icon className={cn("size-4", status.iconClassName)} />
+																<span>{status.label}</span>
+															</div>
+														</SelectItem>
+													))}
 												</SelectContent>
 											</Select>
 										</div>
@@ -262,8 +275,8 @@ export function AddTryoutDialog({
 					<DialogFooter className="shrink-0">
 						<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
 							{([canSubmit, isSubmitting]) => (
-								<Button type="submit" disabled={!canSubmit || isSubmitting}>
-									{isSubmitting ? "Menambahkan..." : "Tambah Tryout"}
+								<Button isPending={isSubmitting} type="submit" disabled={!canSubmit || isSubmitting}>
+									{"Tambah tryout"}
 								</Button>
 							)}
 						</form.Subscribe>

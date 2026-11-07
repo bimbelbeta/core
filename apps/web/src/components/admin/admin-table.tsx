@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { cn } from "@/lib/utils";
@@ -8,7 +9,11 @@ interface AdminTableRootProps {
 }
 
 export function AdminTableRoot({ children, className }: AdminTableRootProps) {
-	return <div className={cn("overflow-clip rounded-lg border bg-white shadow-sm", className)}>{children}</div>;
+	return (
+		<div className={cn("bg-card flex min-h-0 flex-col overflow-clip rounded-lg border max-sm:flex-none", className)}>
+			{children}
+		</div>
+	);
 }
 
 interface AdminTableProps {
@@ -28,13 +33,13 @@ interface AdminTableHeaderProps {
 export function AdminTableHeader({ children, className }: AdminTableHeaderProps) {
 	return (
 		<TableHeader>
-			<TableRow className={cn("bg-muted/30", className)}>{children}</TableRow>
+			<TableRow className={className}>{children}</TableRow>
 		</TableHeader>
 	);
 }
 
 interface AdminTableHeadProps {
-	children: React.ReactNode;
+	children?: React.ReactNode;
 	className?: string;
 }
 
@@ -46,7 +51,10 @@ interface AdminTableBodyProps {
 	children: React.ReactNode;
 	isLoading?: boolean;
 	isEmpty?: boolean;
+	isError?: boolean;
+	onRetry?: () => void;
 	emptyMessage?: string;
+	emptyAction?: React.ReactNode;
 	columns?: number;
 	className?: string;
 }
@@ -55,11 +63,31 @@ export function AdminTableBody({
 	children,
 	isLoading,
 	isEmpty,
+	isError,
+	onRetry,
 	emptyMessage = "Tidak ada data ditemukan.",
+	emptyAction,
 	columns = 6,
 	className,
 }: AdminTableBodyProps) {
 	const colSpan = columns;
+
+	if (isError) {
+		return (
+			<TableBody>
+				<TableRow>
+					<TableCell colSpan={colSpan} className="h-32 text-center text-sm">
+						<p className="text-destructive">Data gagal dimuat.</p>
+						<div className="mt-3 flex justify-center">
+							<Button variant="outline" size="sm" onClick={onRetry} disabled={!onRetry}>
+								Coba lagi
+							</Button>
+						</div>
+					</TableCell>
+				</TableRow>
+			</TableBody>
+		);
+	}
 
 	if (isLoading) {
 		return (
@@ -73,8 +101,9 @@ export function AdminTableBody({
 		return (
 			<TableBody>
 				<TableRow>
-					<TableCell colSpan={colSpan} className="text-muted-foreground h-24 text-center">
-						{emptyMessage}
+					<TableCell colSpan={colSpan} className="text-muted-foreground h-32 text-center text-sm">
+						<p>{emptyMessage}</p>
+						{emptyAction && <div className="mt-3 flex justify-center">{emptyAction}</div>}
 					</TableCell>
 				</TableRow>
 			</TableBody>
@@ -90,7 +119,7 @@ interface AdminTableRowProps {
 }
 
 export function AdminTableRow({ children, className }: AdminTableRowProps) {
-	return <TableRow className={cn("group hover:bg-muted/30", className)}>{children}</TableRow>;
+	return <TableRow className={cn("group hover:bg-muted/70 relative", className)}>{children}</TableRow>;
 }
 
 interface AdminTableCellProps {

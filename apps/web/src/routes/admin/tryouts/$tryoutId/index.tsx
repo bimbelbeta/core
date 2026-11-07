@@ -1,64 +1,48 @@
-import { ArrowLeftIcon, GearIcon, ListIcon } from "@phosphor-icons/react";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useCallback, useState } from "react";
-import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
+import { type } from "arktype";
 import {
 	AdminPageContent,
 	AdminPageHeader,
-	AdminPageHeaderActions,
 	AdminPageHeaderContent,
 	AdminPageRoot,
-	AdminPageTitle,
 } from "@/components/admin/admin-page";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { TryoutStatus } from "@/components/admin/tryout-status";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Typography } from "@/components/ui/typography";
+import { formatDateMedium } from "@/lib/format-date";
 import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
-import { cn } from "@/lib/utils";
 import { TryoutAttemptsTab } from "./-components/tryout-attempts-tab";
-import { type TryoutSettingsFormState, TryoutSettingsTab } from "./-components/tryout-settings-tab";
+import { TryoutSettingsTab } from "./-components/tryout-settings-tab";
+import { AccessCodeSection } from "./-components/tryout-settings-tab/access-code-section";
 import { TryoutSubtestsTab } from "./-components/tryout-subtests-tab";
-import { CATEGORY_LABELS } from "./-constants";
+
+const TRYOUT_TABS = ["settings", "subtests", "attempts", "access"] as const;
+
+const searchSchema = type({
+	"tab?": type.enumerated(...TRYOUT_TABS),
+	"subtest?": "number",
+});
+
+const isTryoutTab = (value: string): value is (typeof TRYOUT_TABS)[number] => TRYOUT_TABS.some((tab) => tab === value);
 
 export const Route = createFileRoute("/admin/tryouts/$tryoutId/")({
-	staticData: { breadcrumb: "Detail Tryout" },
+	staticData: { breadcrumb: "Detail tryout", breadcrumbParent: { label: "Tryout", to: "/admin/tryouts" } },
+	validateSearch: searchSchema,
 	component: TryoutDetailPage,
 });
 
 function TryoutDetailPage() {
 	const { tryoutId: rawTryoutId } = Route.useParams();
 	const tryoutId = parseRouteParamToNumber(rawTryoutId);
+	const { tab = "settings", subtest } = Route.useSearch();
+	const navigate = useNavigate();
 
 	const { data, isPending, refetch } = useQuery(
 		orpc.admin.tryout.find.queryOptions({
 			input: { id: tryoutId },
-		}),
-	);
-
-	const [settingsFormState, setSettingsFormState] = useState<TryoutSettingsFormState>({
-		isDirty: false,
-		canSubmit: false,
-		isSubmitting: false,
-	});
-
-	const handleFormStateChange = useCallback((state: TryoutSettingsFormState) => {
-		setSettingsFormState(state);
-	}, []);
-
-	const publishMutation = useMutation(
-		orpc.admin.tryout.update.mutationOptions({
-			onSuccess: () => {
-				toast.success("Status tryout berhasil diperbarui");
-				refetch();
-			},
-			onError: (err) => {
-				toast.error(err.message);
-			},
 		}),
 	);
 
@@ -67,166 +51,66 @@ function TryoutDetailPage() {
 	const tryout = data?.tryout;
 	const subtests = data?.subtests ?? [];
 
-	const handlePublishToggle = () => {
-		if (!tryout) return;
-		const newStatus = tryout.status === "published" ? "draft" : "published";
-		publishMutation.mutate({
-			id: tryoutId,
-			status: newStatus,
+	const handleTabChange = (value: string) => {
+		if (!isTryoutTab(value)) return;
+		navigate({
+			to: "/admin/tryouts/$tryoutId",
+			params: { tryoutId: rawTryoutId },
+			search: { tab: value, subtest: value === "subtests" ? subtest : undefined },
 		});
-	};
-
-	const formatDateRange = () => {
-		if (!tryout) return "Tidak dijadwalkan";
-		if (!tryout.startsAt && !tryout.endsAt) return "Tidak dijadwalkan";
-		if (tryout.startsAt && !tryout.endsAt) {
-			return `Mulai ${new Date(tryout.startsAt).toLocaleDateString("id-ID")}`;
-		}
-		if (!tryout.startsAt && tryout.endsAt) {
-			return `Sampai ${new Date(tryout.endsAt).toLocaleDateString("id-ID")}`;
-		}
-		const start = new Date(tryout.startsAt!).toLocaleDateString("id-ID");
-		const end = new Date(tryout.endsAt!).toLocaleDateString("id-ID");
-		return `${start} - ${end}`;
 	};
 
 	return (
 		<AdminPageRoot>
 			<AdminPageHeader>
 				<AdminPageHeaderContent>
-					<div className="flex items-center gap-3">
-						<Button variant="ghost" size="icon" asChild>
-							<Link to="/admin/tryouts">
-								<ArrowLeftIcon className="size-4" />
-							</Link>
-						</Button>
-						<div className="flex flex-col gap-1">
-							{isPending ? (
-								<Skeleton className="h-7 w-48" />
-							) : (
-								<div className="flex items-center gap-2">
-									<AdminPageTitle className="text-xl">{tryout!.title}</AdminPageTitle>
-									<Badge variant="outline">{CATEGORY_LABELS[tryout!.category]}</Badge>
-								</div>
-							)}
-						</div>
-					</div>
+					{isPending ? (
+						<Skeleton className="h-7 w-48" />
+					) : (
+						<>
+							<div className="flex flex-wrap items-center gap-2">
+								<Typography variant="title">{tryout!.title}</Typography>
+								<TryoutStatus status={tryout!.status} />
+							</div>
+							<Typography variant="body" tone="muted">
+								Dibuat {tryout!.createdAt ? formatDateMedium(new Date(tryout!.createdAt)) : "—"}
+							</Typography>
+						</>
+					)}
 				</AdminPageHeaderContent>
-				<AdminPageHeaderActions>
-					<Button
-						type="submit"
-						form="tryout-settings-form"
-						variant="darkBlue"
-						disabled={
-							isPending || !settingsFormState.isDirty || !settingsFormState.canSubmit || settingsFormState.isSubmitting
-						}
-					>
-						{settingsFormState.isSubmitting ? "Menyimpan..." : "Simpan Perubahan"}
-					</Button>
-					<Button
-						onClick={handlePublishToggle}
-						disabled={isPending || publishMutation.isPending}
-						variant={tryout?.status === "published" ? "outline" : "default"}
-					>
-						{publishMutation.isPending ? "Memproses..." : tryout?.status === "published" ? "Unpublish" : "Publish"}
-					</Button>
-				</AdminPageHeaderActions>
 			</AdminPageHeader>
 
 			<AdminPageContent className="gap-6">
-				<Card>
-					<CardHeader className="pb-3">
-						<CardTitle className="text-base">Ringkasan</CardTitle>
-					</CardHeader>
-					<CardContent>
-						{isPending ? (
-							<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-								{Array.from({ length: 4 }).map((_, i) => (
-									// biome-ignore lint/suspicious/noArrayIndexKey: simple skeleton loader
-									<div key={i} className="space-y-1">
-										<Skeleton className="h-3 w-16" />
-										<Skeleton className="h-5 w-24" />
-									</div>
-								))}
-							</div>
-						) : (
-							<>
-								<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-									<div className="space-y-1">
-										<p className="text-muted-foreground text-xs tracking-wide uppercase">Status</p>
-										<div className="flex items-center gap-2">
-											<div
-												className={cn("size-2 rounded-full", {
-													"bg-green-500": tryout!.status === "published",
-													"bg-gray-400": tryout!.status === "draft",
-													"bg-red-500": tryout!.status === "archived",
-												})}
-											/>
-											<span className="font-medium capitalize">{tryout!.status}</span>
-										</div>
-									</div>
-									<div className="space-y-1">
-										<p className="text-muted-foreground text-xs tracking-wide uppercase">Kategori</p>
-										<p className="font-medium">{CATEGORY_LABELS[tryout!.category]}</p>
-									</div>
-									<div className="space-y-1">
-										<p className="text-muted-foreground text-xs tracking-wide uppercase">Jumlah Subtest</p>
-										<p className="font-medium">{subtests.length}</p>
-									</div>
-									<div className="space-y-1">
-										<p className="text-muted-foreground text-xs tracking-wide uppercase">Jadwal</p>
-										<p className="text-sm font-medium">{formatDateRange()}</p>
-									</div>
-								</div>
-								{tryout!.description && (
-									<>
-										<Separator className="my-4" />
-										<p className="text-muted-foreground text-sm">{tryout!.description}</p>
-									</>
-								)}
-							</>
-						)}
-					</CardContent>
-				</Card>
-
 				{isPending ? (
 					<div className="space-y-2">
 						<Skeleton className="h-10 w-64" />
 						<Skeleton className="h-48 w-full" />
 					</div>
 				) : (
-					<Tabs defaultValue="settings" className="w-full">
+					<Tabs value={tab} onValueChange={handleTabChange} className="w-full gap-4">
 						<TabsList>
-							<TabsTrigger value="settings" className="inline-flex gap-2">
-								<GearIcon className="size-4" />
-								Pengaturan
-							</TabsTrigger>
-							<TabsTrigger value="subtests" className="inline-flex gap-2">
-								<ListIcon className="size-4" />
+							<TabsTrigger value="settings">Pengaturan</TabsTrigger>
+							<TabsTrigger value="subtests">
 								Subtest
-								{subtests.length > 0 && (
-									<span className="bg-primary/10 text-primary ml-1 rounded-full px-1.5 py-0.5 text-xs font-medium">
-										{subtests.length}
-									</span>
-								)}
+								<span className="bg-muted-foreground/15 text-foreground/80 text-meta rounded-full px-1.5 py-0.5 font-medium tabular-nums">
+									{subtests.length}
+								</span>
 							</TabsTrigger>
-							<TabsTrigger value="attempts">Attempts</TabsTrigger>
+							<TabsTrigger value="attempts">Percobaan</TabsTrigger>
+							<TabsTrigger value="access">Kode akses</TabsTrigger>
 						</TabsList>
-						<div className="mt-2">
-							<TabsContent value="settings" className="mt-0">
-								<TryoutSettingsTab
-									tryout={tryout!}
-									onUpdate={() => refetch()}
-									onFormStateChange={handleFormStateChange}
-								/>
-							</TabsContent>
-							<TabsContent value="subtests" className="mt-0">
-								<TryoutSubtestsTab tryoutId={tryoutId} subtests={subtests} onUpdate={() => refetch()} />
-							</TabsContent>
-							<TabsContent value="attempts">
-								<TryoutAttemptsTab subtests={subtests} />
-							</TabsContent>
-						</div>
+						<TabsContent value="settings">
+							<TryoutSettingsTab tryout={tryout!} onUpdate={() => refetch()} />
+						</TabsContent>
+						<TabsContent value="subtests">
+							<TryoutSubtestsTab tryoutId={tryoutId} subtests={subtests} onUpdate={() => refetch()} />
+						</TabsContent>
+						<TabsContent value="attempts">
+							<TryoutAttemptsTab subtests={subtests} />
+						</TabsContent>
+						<TabsContent value="access">
+							<AccessCodeSection tryoutId={tryoutId} />
+						</TabsContent>
 					</Tabs>
 				)}
 			</AdminPageContent>

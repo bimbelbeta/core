@@ -2,6 +2,7 @@ import { CaretUpIcon, CheckCircleIcon, CheckSquare, Square, XCircleIcon } from "
 import { useState } from "react";
 import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Typography } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
 
 type QuestionReviewItemProps = {
@@ -35,16 +36,16 @@ export function QuestionReviewItem({ index, question, isCorrect }: QuestionRevie
 	const icon = isCorrect ? (
 		<CheckCircleIcon className="size-4 text-black" weight="bold" />
 	) : (
-		<XCircleIcon className="size-4 text-white" weight="bold" />
+		<XCircleIcon className="size-4 text-slate-900" weight="bold" />
 	);
-
-	const textColor = isCorrect ? "text-slate-900" : "text-white";
 
 	return (
 		<Collapsible open={isOpen} onOpenChange={setIsOpen}>
 			<CollapsibleTrigger asChild>
-				<div className="flex w-full flex-col items-center">
-					<div className={cn("flex w-full items-center gap-4 rounded-lg p-4 transition-colors", bgColor, textColor)}>
+				<button type="button" className="flex w-full flex-col items-center">
+					<div
+						className={cn("flex w-full items-center gap-4 rounded-lg p-4 transition-colors", bgColor, "text-slate-900")}
+					>
 						<div className="flex items-center gap-4 overflow-hidden">
 							<div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-white font-semibold text-slate-900 shadow-sm">
 								{index + 1}
@@ -62,7 +63,7 @@ export function QuestionReviewItem({ index, question, isCorrect }: QuestionRevie
 							<CaretUpIcon className={`text-muted-foreground size-4 transition-transform ${!isOpen && "rotate-180"}`} />
 						</div>
 					</div>
-				</div>
+				</button>
 			</CollapsibleTrigger>
 
 			<CollapsibleContent className="mx-auto w-full max-w-[95%]">
@@ -71,7 +72,9 @@ export function QuestionReviewItem({ index, question, isCorrect }: QuestionRevie
 
 					<div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
 						<div className="space-y-4">
-							<p className="text-muted-foreground text-sm font-medium">Jawaban Kamu</p>
+							<Typography variant="body" tone="muted" className="font-medium">
+								Jawaban Kamu
+							</Typography>
 							{question.choices.map((choice) => {
 								const isSelected =
 									question.userAnswer.selectedChoiceId === choice.id ||
@@ -86,8 +89,8 @@ export function QuestionReviewItem({ index, question, isCorrect }: QuestionRevie
 
 								const iconColor = isSelected
 									? isChoiceCorrect
-										? "border-green-500 bg-green-500 text-white"
-										: "border-red-500 bg-red-500 text-white"
+										? "border-green-700 bg-green-700 text-white"
+										: "border-red-700 bg-red-700 text-white"
 									: "border-gray-300 bg-gray-100";
 
 								return (
@@ -118,14 +121,16 @@ export function QuestionReviewItem({ index, question, isCorrect }: QuestionRevie
 
 						{question.discussion != null && (
 							<div className="space-y-4">
-								<p className="text-muted-foreground text-sm font-medium">Kunci Jawaban & Pembahasan</p>
+								<Typography variant="body" tone="muted" className="font-medium">
+									Kunci Jawaban & Pembahasan
+								</Typography>
 								<div className="rounded-lg border bg-blue-50/30 p-4">
 									<div className="mb-4">
 										{question.choices
 											.filter((c) => c.isCorrect)
 											.map((c) => (
 												<div key={c.id} className="flex items-center gap-2 text-green-700">
-													<span className="flex size-6 items-center justify-center rounded-full bg-green-100 text-xs">
+													<span className="flex size-6 items-center justify-center rounded-full bg-green-50 text-xs">
 														{c.code}
 													</span>
 													<TiptapRenderer content={c.content} />
@@ -133,7 +138,9 @@ export function QuestionReviewItem({ index, question, isCorrect }: QuestionRevie
 											))}
 									</div>
 									<div className="prose-sm">
-										<p className="text-muted-foregroun mb-2 text-sm font-medium">Pembahasan:</p>
+										<Typography variant="body" className="mb-2 font-medium">
+											Pembahasan:
+										</Typography>
 										<TiptapRenderer content={question.discussion} />
 									</div>
 								</div>

@@ -2,6 +2,9 @@ import { BookOpenIcon, SparkleIcon } from "@phosphor-icons/react";
 import { AnimatePresence } from "motion/react";
 import * as m from "motion/react-m";
 import { useEffect, useState } from "react";
+import { Typography } from "@/components/ui/typography";
+
+const MotionTypography = m.create(Typography);
 
 const LOADING_TEXTS = [
 	"Sharpening pencils...",
@@ -83,16 +86,19 @@ export default function Loader() {
 			<div className="flex flex-col items-center gap-3">
 				<div className="h-8 min-w-50">
 					<AnimatePresence mode="wait">
-						<m.p
+						<MotionTypography
+							variant="subtitle1"
+							as="p"
+							tone="muted"
 							key={currentText}
 							initial={{ opacity: 0, y: 10 }}
 							animate={{ opacity: 1, y: 0 }}
 							exit={{ opacity: 0, y: -10 }}
 							transition={{ duration: 0.3 }}
-							className="text-muted-foreground text-center text-lg font-medium"
+							className="text-center"
 						>
 							{currentText}
-						</m.p>
+						</MotionTypography>
 					</AnimatePresence>
 				</div>
 

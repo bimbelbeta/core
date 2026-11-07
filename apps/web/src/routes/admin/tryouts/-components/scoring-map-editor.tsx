@@ -1,11 +1,10 @@
-import { ClipboardTextIcon, TrashSimpleIcon } from "@phosphor-icons/react";
+import { ArrowCounterClockwiseIcon, ArrowRightIcon, ClipboardTextIcon, FloppyDiskIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
+import { AdminSection } from "@/components/admin/admin-page";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { orpc } from "@/lib/orpc";
 import { PasteScoresDialog } from "./paste-scores-dialog";
 
@@ -44,6 +43,13 @@ export function ScoringMapEditor({
 		}),
 	);
 
+	const linearScore = (correctCount: number) => Math.round((correctCount / questionCount) * 1000);
+
+	const effectiveScore = (key: string) => {
+		const value = scores[key]?.trim();
+		return value ? Number(value) : linearScore(Number(key));
+	};
+
 	const handleScoreChange = (key: string, value: string) => {
 		setScores((prev) => ({ ...prev, [key]: value }));
 	};
@@ -59,18 +65,21 @@ export function ScoringMapEditor({
 	};
 
 	const handleSave = () => {
-		const emptyKeys = Object.entries(scores)
-			.filter(([_, value]) => value.trim() === "")
-			.map(([key]) => key);
+		const scoringMap: Record<string, number> = {};
+		const invalidKeys: string[] = [];
 
-		if (emptyKeys.length > 0) {
-			toast.error(`Skor untuk benar ${emptyKeys.join(", ")} masih kosong`);
-			return;
+		for (const [key, value] of Object.entries(scores)) {
+			const trimmed = value.trim();
+			if (trimmed === "") continue;
+
+			const score = Number(trimmed);
+			if (Number.isNaN(score) || score < 0) {
+				invalidKeys.push(key);
+				continue;
+			}
+
+			scoringMap[key] = score;
 		}
-
-		const invalidKeys = Object.entries(scores)
-			.filter(([_, value]) => Number.isNaN(Number(value)) || Number(value) < 0)
-			.map(([key]) => key);
 
 		if (invalidKeys.length > 0) {
 			toast.error(`Skor untuk benar ${invalidKeys.join(", ")} tidak valid`);
@@ -79,9 +88,7 @@ export function ScoringMapEditor({
 
 		const descendingKeys: string[] = [];
 		for (let i = 2; i <= questionCount; i++) {
-			const prevScore = Number(scores[String(i - 1)]);
-			const currScore = Number(scores[String(i)]);
-			if (currScore < prevScore) {
+			if (effectiveScore(String(i)) < effectiveScore(String(i - 1))) {
 				descendingKeys.push(String(i));
 			}
 		}
@@ -91,14 +98,9 @@ export function ScoringMapEditor({
 			return;
 		}
 
-		const scoringMap: Record<string, number> = {};
-		for (const [key, value] of Object.entries(scores)) {
-			scoringMap[key] = Number(value);
-		}
-
 		updateMutation.mutate({
 			id: subtestId,
-			scoringMap,
+			scoringMap: Object.keys(scoringMap).length > 0 ? scoringMap : null,
 		});
 	};
 
@@ -114,72 +116,77 @@ export function ScoringMapEditor({
 		setScores(empty);
 	};
 
-	const hasAnyScore = Object.values(scores).some((v) => v.trim() !== "");
-	const allScoresFilled = Object.values(scores).every((v) => v.trim() !== "");
+	const hasAnyScore = Object.values(scores).some((value) => value.trim() !== "");
 
 	if (questionCount === 0) {
 		return (
-			<Card>
-				<CardHeader>
-					<CardTitle>Skoring Manual</CardTitle>
-					<CardDescription>Tambahkan soal ke subtest terlebih dahulu sebelum mengatur scoring map.</CardDescription>
-				</CardHeader>
-			</Card>
+			<AdminSection
+				title="Skoring manual"
+				description="Tambahkan soal ke subtest terlebih dahulu sebelum mengatur scoring map."
+			/>
 		);
 	}
 
 	return (
-		<Card>
-			<CardHeader>
-				<CardTitle>Skoring Manual</CardTitle>
-				<CardDescription>
-					Atur skor berdasarkan jumlah jawaban benar. Jika tidak diatur, akan menggunakan rumus linear (benar/total *
-					1000).
-				</CardDescription>
-			</CardHeader>
-			<CardContent className="space-y-4">
-				<div className="flex items-center gap-2">
-					<Button type="button" variant="outline" size="sm" onClick={() => setIsPasteDialogOpen(true)}>
-						<ClipboardTextIcon className="mr-2 size-4" />
-						JSON
+		<AdminSection
+			title="Skoring manual"
+			description="Atur skor untuk tiap jumlah jawaban benar. Kosongkan untuk memakai rumus linear (benar/total × 1000)."
+		>
+			<div className="flex w-full max-w-[880px] flex-col gap-3">
+				<div className="flex flex-wrap items-center justify-between gap-2">
+					<div className="text-muted-foreground text-meta flex items-center gap-1.5">
+						<span>Jumlah benar</span>
+						<ArrowRightIcon className="size-3" />
+						<span>Skor</span>
+					</div>
+					<Button type="button" variant="outline" size="xs" onClick={() => setIsPasteDialogOpen(true)}>
+						<ClipboardTextIcon className="size-3.5" />
+						Tempel skor
 					</Button>
-					{hasAnyScore && (
-						<Button type="button" variant="destructive" size="sm" onClick={handleClear}>
-							<TrashSimpleIcon />
-							Hapus Semua
-						</Button>
-					)}
 				</div>
 
-				<div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+				<div className="grid grid-cols-[repeat(auto-fit,minmax(6rem,1fr))] gap-2">
 					{Array.from({ length: questionCount }, (_, i) => i + 1).map((num) => {
 						const key = String(num);
 						return (
-							<div key={key} className="flex items-center gap-2">
-								<Label htmlFor={`score-${key}`} className="w-16 shrink-0 text-sm">
-									Benar {num}:
-								</Label>
-								<Input
-									id={`score-${key}`}
+							<InputGroup key={key} className="h-8">
+								<InputGroupAddon className="text-muted-foreground pr-1 pl-2 text-xs font-normal tabular-nums">
+									{num}
+								</InputGroupAddon>
+								<InputGroupInput
 									type="number"
 									min="0"
 									max="1000"
-									value={scores[key]}
+									value={scores[key] ?? ""}
 									onChange={(e) => handleScoreChange(key, e.target.value)}
-									className="h-8 w-20"
-									placeholder="0"
+									placeholder={String(linearScore(num))}
+									aria-label={`Skor untuk ${num} jawaban benar`}
+									className="h-8 tabular-nums"
 								/>
-							</div>
+							</InputGroup>
 						);
 					})}
 				</div>
 
-				<div className="flex justify-end gap-2 pt-4">
-					<Button type="button" onClick={handleSave} disabled={!allScoresFilled || updateMutation.isPending}>
-						{updateMutation.isPending ? "Menyimpan..." : "Simpan Skoring"}
+				<div className="flex items-center justify-end gap-1">
+					{hasAnyScore && (
+						<Button type="button" variant="ghost" size="xs" onClick={handleClear}>
+							<ArrowCounterClockwiseIcon className="size-3.5" />
+							Kembalikan ke linear
+						</Button>
+					)}
+					<Button
+						isPending={updateMutation.isPending}
+						type="button"
+						size="xs"
+						onClick={handleSave}
+						disabled={updateMutation.isPending}
+					>
+						<FloppyDiskIcon className="size-3.5" />
+						Simpan skoring
 					</Button>
 				</div>
-			</CardContent>
+			</div>
 
 			<PasteScoresDialog
 				open={isPasteDialogOpen}
@@ -187,6 +194,6 @@ export function ScoringMapEditor({
 				expectedCount={questionCount}
 				onPaste={handlePasteScores}
 			/>
-		</Card>
+		</AdminSection>
 	);
 }

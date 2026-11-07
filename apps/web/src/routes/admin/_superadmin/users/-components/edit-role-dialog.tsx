@@ -1,5 +1,4 @@
 import { ROLES, type Role } from "@bimbelbeta/contract/common/roles";
-import { PencilSimpleIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -12,11 +11,11 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { orpc } from "@/lib/orpc";
+import { isValidRole } from "../-utils";
 
 interface EditRoleDialogProps {
 	userId: string;
@@ -26,9 +25,6 @@ interface EditRoleDialogProps {
 	onOpenChange: (open: boolean) => void;
 	onSuccess: () => void;
 }
-
-const isValidRole = (v: string | null): v is Role =>
-	v !== null && (Object.values(ROLES) as readonly string[]).includes(v);
 
 export function EditRoleDialog({ userId, userName, currentRole, open, onOpenChange, onSuccess }: EditRoleDialogProps) {
 	const [role, setRole] = useState<Role>(isValidRole(currentRole) ? currentRole : ROLES.USER);
@@ -54,11 +50,6 @@ export function EditRoleDialog({ userId, userName, currentRole, open, onOpenChan
 				onOpenChange(value);
 			}}
 		>
-			<DialogTrigger asChild>
-				<Button variant="ghost" size="icon">
-					<PencilSimpleIcon className="size-4" />
-				</Button>
-			</DialogTrigger>
 			<DialogContent className="sm:max-w-sm">
 				<DialogHeader>
 					<DialogTitle>Edit Role</DialogTitle>
@@ -90,10 +81,11 @@ export function EditRoleDialog({ userId, userName, currentRole, open, onOpenChan
 				</div>
 				<DialogFooter>
 					<Button
+						isPending={updateMutation.isPending}
 						onClick={() => updateMutation.mutate({ userId, role })}
 						disabled={updateMutation.isPending || role === currentRole}
 					>
-						{updateMutation.isPending ? "Menyimpan..." : "Simpan"}
+						{"Simpan"}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

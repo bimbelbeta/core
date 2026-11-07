@@ -11,6 +11,7 @@ export const PageInfoSchema = type({
 	hasPreviousPage: "boolean",
 	startCursor: "string | null",
 	endCursor: "string | null",
+	"totalCount?": "number",
 });
 
 // Type exports
