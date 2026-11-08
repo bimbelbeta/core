@@ -1,9 +1,8 @@
 import { ROLES, type Role } from "@bimbelbeta/contract/common/roles";
-import { PencilSimpleIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
+import { AdminFieldRow } from "@/components/admin/admin-page";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -12,11 +11,10 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { orpc } from "@/lib/orpc";
+import { isValidRole } from "../-utils";
 
 interface EditRoleDialogProps {
 	userId: string;
@@ -26,9 +24,6 @@ interface EditRoleDialogProps {
 	onOpenChange: (open: boolean) => void;
 	onSuccess: () => void;
 }
-
-const isValidRole = (v: string | null): v is Role =>
-	v !== null && (Object.values(ROLES) as readonly string[]).includes(v);
 
 export function EditRoleDialog({ userId, userName, currentRole, open, onOpenChange, onSuccess }: EditRoleDialogProps) {
 	const [role, setRole] = useState<Role>(isValidRole(currentRole) ? currentRole : ROLES.USER);
@@ -54,46 +49,36 @@ export function EditRoleDialog({ userId, userName, currentRole, open, onOpenChan
 				onOpenChange(value);
 			}}
 		>
-			<DialogTrigger asChild>
-				<Button variant="ghost" size="icon">
-					<PencilSimpleIcon className="size-4" />
-				</Button>
-			</DialogTrigger>
-			<DialogContent className="sm:max-w-sm">
+			<DialogContent size="lg">
 				<DialogHeader>
-					<DialogTitle>Edit Role</DialogTitle>
+					<DialogTitle className="text-base">Edit Role</DialogTitle>
 					<DialogDescription>Ubah role untuk user "{userName}"</DialogDescription>
 				</DialogHeader>
-				<div className="flex flex-col gap-4 py-2">
-					<div className="bg-muted/50 flex items-center justify-between rounded-md border px-4 py-2.5">
-						<span className="text-muted-foreground text-sm">Role saat ini</span>
-						<Badge variant="outline">{currentRole ?? "user"}</Badge>
-					</div>
-					<div className="flex flex-col gap-2">
-						<Label>Role baru</Label>
-						<Select
-							value={role}
-							onValueChange={(val) => {
-								if (isValidRole(val)) setRole(val);
-							}}
-						>
-							<SelectTrigger>
-								<SelectValue placeholder="Pilih role" />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value={ROLES.USER}>User</SelectItem>
-								<SelectItem value={ROLES.ADMIN}>Admin</SelectItem>
-								<SelectItem value={ROLES.SUPER_ADMIN}>Superadmin</SelectItem>
-							</SelectContent>
-						</Select>
-					</div>
-				</div>
+				<AdminFieldRow label="Role baru" htmlFor="edit-role" hint={`Saat ini ${currentRole ?? "user"}`}>
+					<Select
+						value={role}
+						onValueChange={(val) => {
+							if (isValidRole(val)) setRole(val);
+						}}
+					>
+						<SelectTrigger id="edit-role" className="w-full">
+							<SelectValue placeholder="Pilih role" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value={ROLES.USER}>User</SelectItem>
+							<SelectItem value={ROLES.ADMIN}>Admin</SelectItem>
+							<SelectItem value={ROLES.SUPER_ADMIN}>Superadmin</SelectItem>
+						</SelectContent>
+					</Select>
+				</AdminFieldRow>
 				<DialogFooter>
 					<Button
+						size="xs"
+						isPending={updateMutation.isPending}
 						onClick={() => updateMutation.mutate({ userId, role })}
 						disabled={updateMutation.isPending || role === currentRole}
 					>
-						{updateMutation.isPending ? "Menyimpan..." : "Simpan"}
+						{"Simpan"}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

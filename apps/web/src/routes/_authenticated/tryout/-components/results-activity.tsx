@@ -1,11 +1,13 @@
-import { ArrowRightIcon, WarningCircleIcon } from "@phosphor-icons/react";
+import { ArrowRightIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { memo } from "react";
+import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 
 export function ResultsActivity() {
@@ -20,14 +22,18 @@ export function ResultsActivity() {
 					<ResultsActivitySkeleton />
 				</>
 			) : attempts.data?.length === 0 || attempts.isError ? (
-				<div className="col-span-full flex flex-col items-center justify-center space-y-3 py-8 text-center">
-					<WarningCircleIcon size={80} />
-					<p className="text-xl">Kamu belum mengikuti tryout apapun</p>
-					<Button asChild>
-						<Link to="/tryout">
-							Mulai Tryout <ArrowRightIcon className="" />
-						</Link>
-					</Button>
+				<div className="col-span-full">
+					<EmptyState
+						title="Kamu belum mengikuti tryout apapun"
+						desc={null}
+						action={
+							<Button asChild>
+								<Link to="/tryout">
+									Mulai Tryout <ArrowRightIcon />
+								</Link>
+							</Button>
+						}
+					/>
 				</div>
 			) : (
 				attempts.data?.map((result) => (
@@ -61,7 +67,7 @@ type ResultCardProps = {
 const ResultCard = memo(function ResultCard({ attemptId, title, score }: ResultCardProps) {
 	return (
 		<Card className="flex flex-col gap-2 p-4">
-			<h3 className="text-base">{title}</h3>
+			<Typography variant="subtitle4">{title}</Typography>
 			<Separator className="my-0" />
 			<div className="text-muted-foreground translate-y-1 text-base">Total Score</div>
 			<div className="mt-auto flex items-center justify-between">

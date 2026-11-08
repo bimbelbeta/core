@@ -5,8 +5,9 @@ import { createDashboardService } from "./service";
 function makeRepository(overrides: Partial<DashboardRepository> = {}): DashboardRepository {
 	return {
 		userCounts: async () => undefined,
-		subjectCount: async () => undefined,
+		questionCounts: async () => ({ total: 0, essay: 0 }),
 		successfulRevenueSince: async () => undefined,
+		recentTryouts: async () => [],
 		...overrides,
 	};
 }
@@ -33,17 +34,17 @@ describe("dashboard service", () => {
 
 		const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 		const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-		expect(userCountsSince).toEqual([lastMonthStart]);
+		expect(userCountsSince).toEqual([currentMonthStart]);
 		expect(revenueSince).toEqual([currentMonthStart, lastMonthStart]);
 		expect(stats).toEqual({
 			totalUsers: 0,
 			premiumUsers: 0,
-			activeSubjects: 0,
 			monthlyRevenue: 0,
-			usersTrend: 0,
-			premiumTrend: 0,
-			subjectsTrend: 0,
-			revenueTrend: 0,
+			usersTrend: null,
+			revenueTrend: null,
+			totalQuestions: 0,
+			essayQuestions: 0,
+			recentTryouts: [],
 		});
 	});
 
@@ -51,8 +52,8 @@ describe("dashboard service", () => {
 		const revenueCalls: Date[] = [];
 		const service = createDashboardService({
 			repository: makeRepository({
-				userCounts: async () => ({ total: 150, premium: 50, createdSince: 100, premiumExpiringSince: 25 }),
-				subjectCount: async () => ({ count: 12 }),
+				userCounts: async () => ({ total: 150, premium: 50, createdSince: 100 }),
+				questionCounts: async () => ({ total: 12, essay: 4 }),
 				successfulRevenueSince: async () => {
 					revenueCalls.push(new Date());
 					return { total: revenueCalls.length === 1 ? 150000 : 100000 };
@@ -65,12 +66,12 @@ describe("dashboard service", () => {
 		expect(stats).toEqual({
 			totalUsers: 150,
 			premiumUsers: 50,
-			activeSubjects: 12,
 			monthlyRevenue: 150000,
-			usersTrend: 50,
-			premiumTrend: 100,
-			subjectsTrend: 0,
+			usersTrend: 200,
 			revenueTrend: 50,
+			totalQuestions: 12,
+			essayQuestions: 4,
+			recentTryouts: [],
 		});
 	});
 });

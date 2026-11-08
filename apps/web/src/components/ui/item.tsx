@@ -13,7 +13,7 @@ function ItemSeparator({ className, ...props }: React.ComponentProps<typeof Sepa
 }
 
 const itemVariants = cva(
-	"group/item focus-visible:border-ring focus-visible:ring-ring/50 [a]:hover:bg-accent/50 flex flex-wrap items-center rounded-md border border-transparent text-sm transition-colors duration-100 outline-none focus-visible:ring-[3px] [a]:transition-colors",
+	"group/item focus-visible:border-ring focus-visible:ring-ring/50 [a]:hover:bg-accent/50 data-[selected=true]:border-primary data-[selected=true]:bg-primary/5 flex flex-wrap items-center rounded-md border border-transparent text-sm transition-colors duration-100 outline-none focus-visible:ring-[3px] [a]:transition-colors",
 	{
 		variants: {
 			variant: {
@@ -38,15 +38,17 @@ function Item({
 	className,
 	variant = "default",
 	size = "default",
+	selected,
 	asChild = false,
 	...props
-}: React.ComponentProps<"div"> & VariantProps<typeof itemVariants> & { asChild?: boolean }) {
+}: React.ComponentProps<"div"> & VariantProps<typeof itemVariants> & { asChild?: boolean; selected?: boolean }) {
 	const Comp = asChild ? Slot.Root : "div";
 	return (
 		<Comp
 			data-slot="item"
 			data-variant={variant}
 			data-size={size}
+			data-selected={selected || undefined}
 			className={cn(itemVariants({ variant, size, className }))}
 			{...props}
 		/>

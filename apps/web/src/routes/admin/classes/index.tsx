@@ -1,22 +1,48 @@
 import { ROLES } from "@bimbelbeta/contract/common/roles";
+import { DotsThreeIcon, PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { type } from "arktype";
 import { useState } from "react";
-import type { SubjectCategory, SubjectFilter } from "@/components/classes/classes-types";
+import {
+	AdminPageContent,
+	AdminPageHeader,
+	AdminPageHeaderActions,
+	AdminPageHeaderContent,
+	AdminPageRoot,
+} from "@/components/admin/admin-page";
+import { AdminChip } from "@/components/admin/admin-status";
+import {
+	AdminTable,
+	AdminTableBody,
+	AdminTableCell,
+	AdminTableHead,
+	AdminTableHeader,
+	AdminTableRoot,
+	AdminTableRow,
+} from "@/components/admin/admin-table";
+import { AdminTableToolbar } from "@/components/admin/admin-table-toolbar";
+import type { SubjectFilter, SubjectListItem } from "@/components/classes/classes-types";
 import { CreateSubjectDialog } from "@/components/classes/create-subject-dialog";
-import { SubjectFilters } from "@/components/classes/subject-filters";
-import { SubjectHeader } from "@/components/classes/subject-header";
-import { SubjectList } from "@/components/classes/subject-list";
-import { Container } from "@/components/ui/container";
-import { SearchInput } from "@/components/ui/search-input";
-import { Skeleton } from "@/components/ui/skeleton";
+import { DeleteSubjectDialog } from "@/components/classes/delete-subject-dialog";
+import { EditSubjectDialog } from "@/components/classes/edit-subject-dialog";
+import { Button } from "@/components/ui/button";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Typography } from "@/components/ui/typography";
+import { gradeLabel } from "@/lib/formatter";
 import { orpc } from "@/lib/orpc";
+import { SUBJECT_CATEGORY_LABELS, type SubjectCategory, subjectCategorySchema } from "@/lib/schemas";
 import { createMeta } from "@/lib/seo-utils";
 
 const searchSchema = type({
 	"q?": "string",
-	"category?": "'sd' | 'smp' | 'sma' | 'utbk'",
+	"category?": subjectCategorySchema,
 });
 
 export const Route = createFileRoute("/admin/classes/")({
@@ -34,6 +60,8 @@ export const Route = createFileRoute("/admin/classes/")({
 
 function RouteComponent() {
 	const [createOpen, setCreateOpen] = useState(false);
+	const [editingSubject, setEditingSubject] = useState<SubjectListItem | null>(null);
+	const [deletingSubject, setDeletingSubject] = useState<SubjectListItem | null>(null);
 	const { session } = Route.useRouteContext();
 	const userRole = session?.user?.role;
 	const isAdmin = userRole === ROLES.ADMIN || userRole === ROLES.SUPER_ADMIN;
@@ -41,10 +69,16 @@ function RouteComponent() {
 	const { q = "", category } = Route.useSearch();
 	const searchQuery = q;
 	const activeFilter: SubjectFilter = category ?? "all";
+	const hasFilters = Boolean(searchQuery || category);
 
 	const navigate = Route.useNavigate();
 	const updateSearch = (updates: { q?: string; category?: SubjectCategory }) => {
-		navigate({ search: { q: updates.q ?? undefined, category: updates.category ?? undefined } });
+		navigate({
+			search: {
+				q: "q" in updates ? updates.q || undefined : q || undefined,
+				category: "category" in updates ? updates.category : category,
+			},
+		});
 	};
 
 	const subjectsQuery = useQuery({
@@ -58,52 +92,164 @@ function RouteComponent() {
 		staleTime: 1000 * 60 * 5,
 	});
 
+	const items = subjectsQuery.data?.items ?? [];
+
 	return (
-		<Container className="-mt-5 sm:-mt-3">
-			<SubjectHeader />
+		<AdminPageRoot>
+			<AdminPageHeader>
+				<AdminPageHeaderContent>
+					<Typography variant="title">Kelas</Typography>
+					{subjectsQuery.data && (
+						<Typography variant="body" tone="muted">
+							{items.length} subject
+						</Typography>
+					)}
+				</AdminPageHeaderContent>
+				<AdminPageHeaderActions>
+					{isAdmin && (
+						<Button size="xs" onClick={() => setCreateOpen(true)}>
+							Tambah subject
+						</Button>
+					)}
+				</AdminPageHeaderActions>
+			</AdminPageHeader>
 
-			{/*<hr className="my-3 sm:my-4" />*/}
+			<AdminPageContent>
+				<AdminTableToolbar
+					searchValue={searchQuery}
+					onSearchChange={(value) => updateSearch({ q: value })}
+					searchPlaceholder="Cari kelas..."
+					onReset={hasFilters ? () => updateSearch({ q: undefined, category: undefined }) : undefined}
+				>
+					<Select
+						value={activeFilter}
+						onValueChange={(value) =>
+							updateSearch({ category: value === "all" ? undefined : (value as SubjectCategory) })
+						}
+					>
+						<SelectTrigger className="w-full sm:w-40">
+							<SelectValue placeholder="Semua kelas" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="all">Semua kelas</SelectItem>
+							{Object.entries(SUBJECT_CATEGORY_LABELS).map(([value, label]) => (
+								<SelectItem key={value} value={value}>
+									<AdminChip>{label}</AdminChip>
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+				</AdminTableToolbar>
 
-			<div className="my-3 space-y-4 sm:my-4">
-				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-					<SubjectFilters
-						activeFilter={activeFilter}
-						onChange={(category) => updateSearch({ category: category === "all" ? undefined : category })}
-					/>
-					<div className="max-w-md flex-1">
-						<SearchInput value={searchQuery} onChange={(q) => updateSearch({ q })} placeholder="Cari kelas..." />
-					</div>
-				</div>
-			</div>
+				<AdminTableRoot>
+					<AdminTable>
+						<AdminTableHeader>
+							<AdminTableHead className="pl-3">Subject</AdminTableHead>
+							<AdminTableHead className="hidden w-32 sm:table-cell">Kategori</AdminTableHead>
+							<AdminTableHead className="hidden w-36 sm:table-cell">Dibuka</AdminTableHead>
+							<AdminTableHead className="pr-3 text-right">
+								<span className="sr-only">Aksi</span>
+							</AdminTableHead>
+						</AdminTableHeader>
+						<AdminTableBody
+							isLoading={subjectsQuery.isPending && !subjectsQuery.data}
+							isError={subjectsQuery.isError}
+							onRetry={() => subjectsQuery.refetch()}
+							isEmpty={!subjectsQuery.isPending && !subjectsQuery.isError && items.length === 0}
+							emptyMessage={hasFilters ? "Tidak ada kelas yang cocok dengan filter ini." : "Belum ada kelas."}
+							emptyAction={
+								isAdmin && !hasFilters ? (
+									<Button size="xs" onClick={() => setCreateOpen(true)}>
+										Tambah subject
+									</Button>
+								) : undefined
+							}
+							columns={4}
+						>
+							{items.map((subject) => (
+								<AdminTableRow key={subject.id}>
+									<AdminTableCell className="pl-3">
+										<div className="min-w-0">
+											<Link
+												to={isAdmin ? "/admin/classes/$subjectId" : "/classes/$subjectId"}
+												params={{ subjectId: subject.id.toString() }}
+												className="text-row-title text-foreground hover:text-primary focus-visible:text-primary focus-visible:ring-ring/50 line-clamp-2 rounded-sm whitespace-normal underline-offset-4 outline-none after:absolute after:inset-0 after:content-[''] hover:underline focus-visible:underline focus-visible:ring-2"
+											>
+												{subject.name}
+											</Link>
+											<div className="text-muted-foreground text-meta mt-1">
+												{gradeLabel(subject.category, subject.gradeLevel)}
+											</div>
+										</div>
+									</AdminTableCell>
+									<AdminTableCell className="hidden sm:table-cell">
+										<AdminChip>{subject.category}</AdminChip>
+									</AdminTableCell>
+									<AdminTableCell className="text-muted-foreground hidden sm:table-cell">
+										{subject.hasViewed ? "Sudah dibuka" : "—"}
+									</AdminTableCell>
+									<AdminTableCell className="relative z-10 pr-3 text-right">
+										<div className="flex items-center justify-end">
+											<DropdownMenu>
+												<DropdownMenuTrigger asChild>
+													<Button variant="ghost" size="icon-xs" aria-label={`Aksi untuk ${subject.name}`}>
+														<DotsThreeIcon className="size-4" weight="bold" />
+													</Button>
+												</DropdownMenuTrigger>
+												<DropdownMenuContent align="end">
+													<DropdownMenuItem asChild>
+														<Link to="/admin/classes/$subjectId" params={{ subjectId: subject.id.toString() }}>
+															Buka subject
+														</Link>
+													</DropdownMenuItem>
+													{isAdmin && (
+														<DropdownMenuItem onSelect={() => setEditingSubject(subject)}>
+															<PencilSimpleIcon className="size-4" /> Edit subject
+														</DropdownMenuItem>
+													)}
+													{isAdmin && (
+														<DropdownMenuItem variant="destructive" onSelect={() => setDeletingSubject(subject)}>
+															<TrashIcon className="size-4" /> Hapus subject
+														</DropdownMenuItem>
+													)}
+												</DropdownMenuContent>
+											</DropdownMenu>
+										</div>
+									</AdminTableCell>
+								</AdminTableRow>
+							))}
+						</AdminTableBody>
+					</AdminTable>
+				</AdminTableRoot>
+			</AdminPageContent>
 
-			<div>
-				{!subjectsQuery.data && subjectsQuery.isPending && (
-					<div className="flex h-full flex-col gap-2 sm:gap-5">
-						{Array.from({ length: 9 }).map((_, i) => (
-							<Skeleton key={i.toString()} className="h-40 w-full" />
-						))}
-					</div>
-				)}
-
-				{subjectsQuery.isError && <p className="text-red-500">Error: {subjectsQuery.error.message}</p>}
-
-				{subjectsQuery.data && (
-					<SubjectList
-						items={subjectsQuery.data.items}
-						isLoading={subjectsQuery.isPending}
-						error={subjectsQuery.isError ? subjectsQuery.error.message : undefined}
-						searchQuery={searchQuery}
-						onCreate={isAdmin ? () => setCreateOpen(true) : undefined}
-					/>
-				)}
-			</div>
 			{isAdmin && (
-				<CreateSubjectDialog
-					open={createOpen}
-					onOpenChange={setCreateOpen}
-					defaultCategory={activeFilter === "all" ? undefined : activeFilter}
-				/>
+				<>
+					<CreateSubjectDialog
+						open={createOpen}
+						onOpenChange={setCreateOpen}
+						defaultCategory={activeFilter === "all" ? undefined : activeFilter}
+					/>
+					{editingSubject && (
+						<EditSubjectDialog
+							open={!!editingSubject}
+							onOpenChange={(open) => {
+								if (!open) setEditingSubject(null);
+							}}
+							subject={editingSubject}
+						/>
+					)}
+					{deletingSubject && (
+						<DeleteSubjectDialog
+							open={!!deletingSubject}
+							onOpenChange={(open) => {
+								if (!open) setDeletingSubject(null);
+							}}
+							subject={deletingSubject}
+						/>
+					)}
+				</>
 			)}
-		</Container>
+		</AdminPageRoot>
 	);
 }

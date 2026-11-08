@@ -1,7 +1,9 @@
 import { useUploadFile } from "@better-upload/client";
 import { UploadSimpleIcon, XIcon } from "@phosphor-icons/react";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { Typography } from "@/components/ui/typography";
 import { getApiUrl } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
 
@@ -87,13 +89,16 @@ export function UploadPaymentProof({ onUploadComplete, onError, onRemove, disabl
 					<div className="relative overflow-hidden rounded-lg border">
 						<img src={previewUrl} alt="Preview bukti pembayaran" className="h-48 w-full object-cover" />
 						{!isUploading && (
-							<button
+							<Button
 								type="button"
+								variant="ghost"
+								size="icon"
+								aria-label="Hapus bukti pembayaran"
 								onClick={handleRemoveFile}
-								className="bg-background/80 hover:bg-background absolute top-2 right-2 rounded-full p-1"
+								className="bg-background/80 hover:bg-background absolute top-2 right-2 rounded-full"
 							>
 								<XIcon className="size-4" />
-							</button>
+							</Button>
 						)}
 						{isUploading && (
 							<div className="bg-background/60 absolute inset-0 flex items-center justify-center">
@@ -109,10 +114,10 @@ export function UploadPaymentProof({ onUploadComplete, onError, onRemove, disabl
 							<div className="bg-primary h-full transition-all duration-300" style={{ width: `${progress * 100}%` }} />
 						</div>
 					)}
-					{isComplete && <p className="mt-2 text-center text-sm text-green-600">Upload berhasil!</p>}
+					{isComplete && <Typography className="mt-2 text-center text-green-700">Upload berhasil!</Typography>}
 				</div>
 			)}
-			{error && <p className="text-destructive text-sm">{error}</p>}
+			{error && <Typography tone="destructive">{error}</Typography>}
 		</div>
 	);
 }

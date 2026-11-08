@@ -1,10 +1,10 @@
 import { ArrowRightIcon, ClockIcon } from "@phosphor-icons/react";
-import { CircleNotchIcon } from "@phosphor-icons/react/dist/ssr";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { useTryoutStore } from "../-hooks/use-tryout-store";
@@ -62,7 +62,9 @@ export function TryoutGreeting({ countdownProps }: TryoutGreetingProps) {
 	return (
 		<Card className="flex w-full flex-col gap-6 p-6">
 			<div className="flex items-center justify-between gap-4">
-				<p className="text-muted-foreground text-lg font-semibold">Subtest {data.currentSubtest.order}</p>
+				<Typography variant="subtitle2" as="p" tone="muted">
+					Subtest {data.currentSubtest.order}
+				</Typography>
 				{data.currentSubtest?.deadline && (
 					<div className={buttonVariants({ variant: "outline", size: "sm" })}>
 						Sisa Waktu:
@@ -76,18 +78,23 @@ export function TryoutGreeting({ countdownProps }: TryoutGreetingProps) {
 			<Separator />
 
 			<div className="space-y-2">
-				<h1 className="text-4xl font-bold">{data.currentSubtest?.name}</h1>
+				<Typography variant="display" as="h2">
+					{data.currentSubtest?.name}
+				</Typography>
 				{data.currentSubtest.description && (
-					<div className="text-muted-foreground text-lg font-bold">{data.currentSubtest.description}</div>
+					<Typography variant="body" tone="muted">
+						{data.currentSubtest.description}
+					</Typography>
 				)}
 				<div className="text-muted-foreground">
-					<p>
+					<Typography>
 						{data.currentSubtest.questions.length} Soal - {data.currentSubtest.duration} Menit
-					</p>
+					</Typography>
 				</div>
 			</div>
 
 			<Button
+				isPending={startSubtestMutation.isPending || submitSubtestMutation.isPending}
 				size="lg"
 				onClick={() => {
 					if (isCompletedSubtest) {
@@ -109,12 +116,7 @@ export function TryoutGreeting({ countdownProps }: TryoutGreetingProps) {
 				disabled={startSubtestMutation.isPending || submitSubtestMutation.isPending || isOverallDeadlineExpired}
 				className="mt-8 ml-auto"
 			>
-				{startSubtestMutation.isPending || submitSubtestMutation.isPending ? (
-					<>
-						<CircleNotchIcon weight="bold" className="animate-spin" />
-						Memuat...
-					</>
-				) : isOverallDeadlineExpired ? (
+				{isOverallDeadlineExpired ? (
 					<>
 						<ClockIcon weight="bold" />
 						Tryout Berakhir

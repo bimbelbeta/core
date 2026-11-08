@@ -12,7 +12,6 @@ export default defineConfig({
 		tanstackStart({
 			prerender: {
 				enabled: true,
-				filter: (page) => page.path === "/",
 			},
 		}),
 		viteReact(),

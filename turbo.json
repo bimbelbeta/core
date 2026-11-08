@@ -1,6 +1,7 @@
 {
 	"$schema": "https://turbo.build/schema.json",
 	"ui": "tui",
+	"globalDependencies": ["biome.json", "bunfig.toml", "scripts/**"],
 	"remoteCache": {
 		"enabled": true,
 		"teamSlug": "bimbelbeta-production"
@@ -13,11 +14,11 @@
 			"outputs": ["dist/**", ".output/**"]
 		},
 		"lint": {
-			"dependsOn": ["^lint"]
+			"inputs": ["$TURBO_DEFAULT$", "../../**/*.tsx"]
 		},
 		"check-types": {
 			"cache": true,
-			"dependsOn": ["^check-types"]
+			"dependsOn": ["^build"]
 		},
 		"dev": {
 			"cache": false,
@@ -69,6 +70,10 @@
 		},
 		"auth:generate": {
 			"cache": false
+		},
+		"test": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$"]
 		}
 	}
 }

@@ -17,7 +17,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
+import { QUESTION_TYPE_BADGE, QUESTION_TYPE_LABELS } from "@/lib/schemas";
 
 interface LinkedQuestion {
 	questionId: number;
@@ -42,12 +44,10 @@ interface LinkedQuestionsListProps {
 
 function LinkedQuestionItem({
 	question,
-	index,
 	contentId,
 	onRemoveSuccess,
 }: {
 	question: LinkedQuestion;
-	index: number;
 	contentId: number;
 	onRemoveSuccess: () => void;
 }) {
@@ -81,27 +81,13 @@ function LinkedQuestionItem({
 
 			<div className="min-w-0 flex-1 space-y-2">
 				<div className="flex items-start gap-2">
-					<span className="bg-muted shrink-0 rounded px-1.5 py-0.5 font-mono text-xs">{index + 1}</span>
 					<div className="prose prose-sm line-clamp-2 min-w-0 flex-1 text-sm [&_*]:!m-0 [&_p]:line-clamp-2">
 						<TiptapRenderer content={question.content} />
 					</div>
 				</div>
 				<div className="flex flex-wrap items-center gap-1.5">
-					<Badge
-						variant={
-							question.type === "multiple_choice"
-								? "default"
-								: question.type === "multiple_choice_complex"
-									? "secondary"
-									: "outline"
-						}
-						className="text-xs"
-					>
-						{question.type === "multiple_choice"
-							? "Pilihan Ganda"
-							: question.type === "multiple_choice_complex"
-								? "Pilihan Ganda Kompleks"
-								: "Esai"}
+					<Badge variant={QUESTION_TYPE_BADGE[question.type]} className="text-xs">
+						{QUESTION_TYPE_LABELS[question.type]}
 					</Badge>
 					{question.tags?.slice(0, 3).map((tag) => (
 						<Badge key={tag} variant="secondary" className="text-xs">
@@ -117,8 +103,10 @@ function LinkedQuestionItem({
 			<AlertDialog>
 				<AlertDialogTrigger asChild>
 					<Button
+						isPending={removeMutation.isPending}
 						variant="ghost"
-						size="icon"
+						size="icon-xs"
+						aria-label={`Hapus soal ${question.questionId} dari paket`}
 						className="text-muted-foreground hover:text-destructive shrink-0"
 						disabled={removeMutation.isPending}
 					>
@@ -127,14 +115,15 @@ function LinkedQuestionItem({
 				</AlertDialogTrigger>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>Hapus Soal?</AlertDialogTitle>
+						<AlertDialogTitle className="text-base">Hapus Soal?</AlertDialogTitle>
 						<AlertDialogDescription>
 							Apakah Anda yakin ingin menghapus soal ini dari konten? Soal tidak akan dihapus dari bank soal.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel>Batal</AlertDialogCancel>
+						<AlertDialogCancel size="xs">Batal</AlertDialogCancel>
 						<AlertDialogAction
+							size="xs"
 							onClick={() => {
 								removeMutation.mutate({
 									id: contentId,
@@ -199,7 +188,7 @@ export function LinkedQuestionsList({ contentId, questions }: LinkedQuestionsLis
 
 	return (
 		<div className="space-y-2">
-			<p className="text-muted-foreground text-xs">Seret untuk mengubah urutan soal</p>
+			<Typography variant="caption">Seret untuk mengubah urutan soal</Typography>
 			<Reorder.Group
 				axis="y"
 				values={items}
@@ -207,11 +196,10 @@ export function LinkedQuestionsList({ contentId, questions }: LinkedQuestionsLis
 				className="space-y-2"
 				onPointerUp={handleReorderEnd}
 			>
-				{items.map((question, index) => (
+				{items.map((question) => (
 					<LinkedQuestionItem
 						key={question.questionId}
 						question={question}
-						index={index}
 						contentId={contentId}
 						onRemoveSuccess={handleRemoveSuccess}
 					/>

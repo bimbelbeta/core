@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import { EmptyContentState } from "@/components/classes/empty-content-state";
+import { EmptyState } from "@/components/shared/empty-state";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -16,6 +16,7 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { LinkedQuestionsList } from "../-components/linked-questions-list";
@@ -72,11 +73,11 @@ function RouteComponent() {
 	};
 
 	if (content.isPending || practiceQuestions.isPending) {
-		return <p className="animate-pulse text-sm">Memuat latihan soal...</p>;
+		return <Typography className="animate-pulse">Memuat latihan soal...</Typography>;
 	}
 
 	if (content.isError) {
-		return <p className="text-sm text-red-500">Error: {content.error.message}</p>;
+		return <Typography tone="destructive">Error: {content.error.message}</Typography>;
 	}
 
 	if (!content.data) return notFound();
@@ -86,32 +87,39 @@ function RouteComponent() {
 	const excludeIds = questions.map((q) => q.questionId);
 
 	return (
-		<div className="space-y-4">
-			<div className="flex flex-col items-start justify-between space-y-1 sm:flex-row sm:items-center">
-				<h2 className="text-lg font-semibold">Edit Catatan Materi</h2>
+		<div className="flex flex-col gap-3">
+			<div className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
+				<Typography variant="subtitle4">Edit Latihan Soal</Typography>
 				<div className="flex items-center gap-2">
-					<Button type="button" variant="outline" size="sm" onClick={() => setPickerOpen(true)}>
+					<Button type="button" variant="outline" size="xs" onClick={() => setPickerOpen(true)}>
 						<Plus className="mr-1 size-4" />
-						Tambah Soal
+						Tambah soal
 					</Button>
 					{hasQuestions && (
 						<AlertDialog>
 							<AlertDialogTrigger asChild>
-								<Button type="button" variant="destructive" disabled={unlinkAllMutation.isPending} size="sm">
+								<Button
+									isPending={unlinkAllMutation.isPending}
+									type="button"
+									variant="destructive"
+									disabled={unlinkAllMutation.isPending}
+									size="xs"
+								>
 									Hapus Semua
 								</Button>
 							</AlertDialogTrigger>
 							<AlertDialogContent>
 								<AlertDialogHeader>
-									<AlertDialogTitle>Hapus Semua Latihan Soal?</AlertDialogTitle>
+									<AlertDialogTitle className="text-base">Hapus Semua Latihan Soal?</AlertDialogTitle>
 									<AlertDialogDescription>
 										Apakah Anda yakin ingin menghapus semua latihan soal dari konten ini? Soal tidak akan dihapus dari
 										bank soal.
 									</AlertDialogDescription>
 								</AlertDialogHeader>
 								<AlertDialogFooter>
-									<AlertDialogCancel>Batal</AlertDialogCancel>
+									<AlertDialogCancel size="xs">Batal</AlertDialogCancel>
 									<AlertDialogAction
+										size="xs"
 										onClick={() => {
 											unlinkAllMutation.mutate({ id: contentId });
 										}}
@@ -130,11 +138,11 @@ function RouteComponent() {
 			{hasQuestions ? (
 				<LinkedQuestionsList contentId={contentId} questions={questions} />
 			) : (
-				<div className="flex flex-col items-center justify-center gap-4 py-12">
-					<EmptyContentState title="Belum ada latihan soal" desc="Tambahkan soal dari bank soal untuk konten ini" />
-					<Button type="button" onClick={() => setPickerOpen(true)}>
+				<div className="flex flex-col items-center justify-center gap-3 py-10">
+					<EmptyState title="Belum ada latihan soal" desc="Tambahkan soal dari bank soal untuk konten ini" />
+					<Button size="xs" type="button" onClick={() => setPickerOpen(true)}>
 						<Plus className="mr-1 size-4" />
-						Tambah Soal
+						Tambah soal
 					</Button>
 				</div>
 			)}

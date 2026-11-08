@@ -12,6 +12,7 @@ import { Link, useLocation } from "@tanstack/react-router";
 import type { useDragControls } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Typography } from "@/components/ui/typography";
 import { useIsAdmin } from "@/hooks/use-is-admin";
 import { canAccessContent } from "@/lib/premium-config";
 import { cn } from "@/lib/utils";
@@ -20,6 +21,7 @@ import type { ContentActionItem, ContentListItem } from "./classes-types";
 const CONTENT_ACTIONS = [
 	{
 		key: "video",
+		completed: (i: ContentActionItem) => i.videoCompleted,
 		label: "Video Materi",
 		icon: PlayCircleIcon,
 		enabled: (i: ContentActionItem) => i.hasVideo,
@@ -29,20 +31,22 @@ const CONTENT_ACTIONS = [
 	},
 	{
 		key: "notes",
+		completed: (i: ContentActionItem) => i.noteCompleted,
 		label: "Catatan Materi",
 		icon: NoteIcon,
 		enabled: (i: ContentActionItem) => i.hasNote,
 		className: (completed?: boolean | null) =>
-			completed ? "bg-green-100 text-green-700" : "bg-tertiary-500 text-neutral-100",
+			completed ? "bg-green-50 text-green-700" : "bg-tertiary-500 text-neutral-100",
 		width: "w-fit",
 	},
 	{
 		key: "latihan-soal",
+		completed: (i: ContentActionItem) => i.practiceQuestionsCompleted,
 		label: "Latihan Soal",
 		icon: NoteIcon,
 		enabled: (i: ContentActionItem) => i.hasPracticeQuestions,
 		className: (completed?: boolean | null) =>
-			completed ? "bg-green-100 text-green-700" : "bg-primary-100 text-neutral-1000",
+			completed ? "bg-green-50 text-green-700" : "bg-primary-100 text-neutral-1000",
 		width: "w-fit",
 	},
 ] as const;
@@ -88,9 +92,9 @@ export function ContentCard({
 	return (
 		<Card
 			className={cn(
-				"border-border/50 relative gap-3 rounded-xl border p-3 shadow-sm transition-all duration-300 sm:gap-6 sm:p-4 lg:p-5",
+				"border-border/50 relative gap-3 rounded-xl border p-3 shadow-sm transition-colors duration-300 sm:gap-6 sm:p-4 lg:p-5",
 				!isAdmin && completed && "bg-secondary-100 border-neutral-200",
-				isPremiumContent ? "overflow-hidden opacity-90" : "hover:border-primary/50 hover:shadow-md",
+				isPremiumContent && "overflow-hidden opacity-90",
 			)}
 		>
 			{/* Premium lock overlay */}
@@ -111,7 +115,7 @@ export function ContentCard({
 			{/* Completed indicator */}
 			{!isAdmin && completed && !isPremiumContent && (
 				<div className="absolute top-2 right-2 sm:top-3 sm:right-3">
-					<CheckCircleIcon className="size-5 text-green-200 sm:size-6" weight="fill" />
+					<CheckCircleIcon className="size-5 text-green-700 sm:size-6" weight="fill" />
 				</div>
 			)}
 
@@ -138,7 +142,9 @@ export function ContentCard({
 					</div>
 
 					<div className="flex h-full items-center pt-0.5">
-						<p className="text-neutral-1000 mr-7 text-sm font-bold sm:text-base lg:text-lg">{item.title}</p>
+						<Typography variant="subtitle4" as="p" className="text-neutral-1000 mr-7">
+							{item.title}
+						</Typography>
 					</div>
 				</div>
 
@@ -147,7 +153,14 @@ export function ContentCard({
 					{isAdmin && (onEdit || onDelete) && (
 						<div className="flex items-center gap-1">
 							{onEdit && (
-								<Button type="button" variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={onEdit}>
+								<Button
+									type="button"
+									variant="ghost"
+									size="icon"
+									aria-label={`Edit ${item.title}`}
+									className="h-8 w-8 rounded-lg"
+									onClick={onEdit}
+								>
 									<PencilSimpleIcon className="size-4 lg:size-5" />
 								</Button>
 							)}
@@ -157,6 +170,7 @@ export function ContentCard({
 									type="button"
 									variant="ghost"
 									size="icon"
+									aria-label={`Hapus ${item.title}`}
 									className="text-destructive hover:text-destructive h-8 w-8 rounded-lg"
 									onClick={onDelete}
 								>
@@ -170,27 +184,29 @@ export function ContentCard({
 
 			{/* Actions - Links still work but will be caught by route guard */}
 			<div className="mt-2 flex gap-2 overflow-x-auto sm:gap-3">
-				{CONTENT_ACTIONS.filter(({ enabled }) => enabled(item)).map(({ key, label, icon: Icon, className, width }) => {
-					const completed = item[`${key}Completed` as keyof ContentActionItem] as boolean | undefined;
-					return (
-						<Link
-							key={key}
-							to={`${basePath}/$subjectId/$contentId/${key}`}
-							params={params}
-							className={cn(
-								"flex items-center gap-1.5 rounded-lg px-3 py-2 sm:gap-2 sm:px-4 sm:py-2.5",
-								"w-full sm:w-auto",
-								className(completed),
-								width,
-								isPremiumContent && "pointer-events-none opacity-60",
-							)}
-						>
-							<Icon className="size-4 sm:size-[18px]" weight="bold" />
-							<span className="text-xs font-medium whitespace-nowrap sm:text-[14px]">{label}</span>
-							<CaretRightIcon className="ml-auto size-4 sm:size-[18px]" weight="bold" />
-						</Link>
-					);
-				})}
+				{CONTENT_ACTIONS.filter(({ enabled }) => enabled(item)).map(
+					({ key, label, icon: Icon, className, width, completed: getCompleted }) => {
+						const completed = getCompleted(item);
+						return (
+							<Link
+								key={key}
+								to={`${basePath}/$subjectId/$contentId/${key}`}
+								params={params}
+								className={cn(
+									"flex items-center gap-1.5 rounded-lg px-3 py-2 sm:gap-2 sm:px-4 sm:py-2.5",
+									"w-full sm:w-auto",
+									className(completed),
+									width,
+									isPremiumContent && "pointer-events-none opacity-60",
+								)}
+							>
+								<Icon className="size-4 sm:size-[18px]" weight="bold" />
+								<span className="text-xs font-medium whitespace-nowrap sm:text-[14px]">{label}</span>
+								<CaretRightIcon className="ml-auto size-4 sm:size-[18px]" weight="bold" />
+							</Link>
+						);
+					},
+				)}
 			</div>
 		</Card>
 	);

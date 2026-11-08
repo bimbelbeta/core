@@ -8,11 +8,18 @@ const UniversitySchema = createSelectSchema(university)
 	.pick("name", "slug", "logo", "description", "location", "website", "rank", "isActive")
 	.merge({ id: "number" });
 
+const UniversityListItemSchema = UniversitySchema.merge({
+	updatedAt: "Date | null",
+	programCount: "number",
+	scoreMin: "number | null",
+	scoreMax: "number | null",
+});
+
 export const adminUniversitiesContract = {
 	list: oc
 		.route({ path: "/admin/universities", method: "GET", tags: ["Admin - Universities"] })
-		.input(type({ "...": PaginationInputSchema, search: "string?" }))
-		.output(type({ items: UniversitySchema.array(), pageInfo: PageInfoSchema })),
+		.input(type({ "...": PaginationInputSchema, search: "string?", isActive: "boolean?" }))
+		.output(type({ items: UniversityListItemSchema.array(), pageInfo: PageInfoSchema })),
 	find: oc
 		.route({ path: "/admin/universities/{id}", method: "GET", tags: ["Admin - Universities"] })
 		.input(type({ id: "number" }))

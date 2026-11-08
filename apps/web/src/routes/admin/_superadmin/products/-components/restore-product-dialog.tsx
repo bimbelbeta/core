@@ -37,23 +37,25 @@ export function RestoreProductDialog({ productId, open, onOpenChange, onSuccess 
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="sm:max-w-sm">
 				<DialogHeader>
-					<DialogTitle>Restore Product</DialogTitle>
+					<DialogTitle className="text-base">Restore Product</DialogTitle>
 					<DialogDescription>
 						Product ini akan dipulihkan dan akan muncul kembali di daftar product aktif.
 					</DialogDescription>
 				</DialogHeader>
 				<DialogFooter className="gap-2 sm:gap-0">
-					<Button variant="outline" onClick={() => onOpenChange(false)}>
+					<Button size="xs" variant="outline" onClick={() => onOpenChange(false)}>
 						Batal
 					</Button>
 					<Button
+						size="xs"
+						isPending={restoreMutation.isPending}
 						variant="outline"
-						className="text-green-600 hover:text-green-700"
+						className="text-green-800 hover:text-green-800"
 						onClick={() => restoreMutation.mutate({ productId })}
 						disabled={restoreMutation.isPending}
 					>
 						<ArrowCounterClockwiseIcon className="size-4" />
-						{restoreMutation.isPending ? "Memulihkan..." : "Restore"}
+						{"Restore"}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

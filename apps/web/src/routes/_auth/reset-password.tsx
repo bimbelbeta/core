@@ -5,8 +5,10 @@ import { type } from "arktype";
 import { toast } from "sonner";
 import Loader from "@/components/shared/loader";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Typography } from "@/components/ui/typography";
 import { authClient } from "@/lib/auth-client";
 import { createMeta } from "@/lib/seo-utils";
 
@@ -79,14 +81,14 @@ function ResetPasswordForm() {
 	return (
 		<div className="w-full max-w-md">
 			<Image src="/avatar/study-avatar.webp" alt="Study Avatar" width={128} height={128} className="mx-auto" />
-			<div className="border-primary/50 w-full rounded-sm border bg-white p-8 shadow-lg">
+			<Card variant="unpadded" className="border-primary/50 w-full rounded-sm p-8 shadow-lg">
 				<div className="flex flex-col items-center gap-2 text-center">
 					{" "}
-					<h1 className="text-primary text-3xl">
+					<Typography variant="display" className="text-primary">
 						<span className="font-bold">Reset </span>
 						Password
-					</h1>
-					<p className="text-sm">Masukkan password baru anda</p>
+					</Typography>
+					<Typography>Masukkan password baru anda</Typography>
 				</div>
 
 				<form
@@ -112,9 +114,9 @@ function ResetPasswordForm() {
 										onChange={(e) => field.handleChange(e.target.value)}
 									/>
 									{field.state.meta.errors.map((error) => (
-										<p key={error?.message} className="text-xs text-red-500">
+										<Typography key={error?.message} variant="caption" tone="destructive">
 											{error?.message}
-										</p>
+										</Typography>
 									))}
 								</div>
 							)}
@@ -135,9 +137,9 @@ function ResetPasswordForm() {
 										onChange={(e) => field.handleChange(e.target.value)}
 									/>
 									{field.state.meta.errors.map((error) => (
-										<p key={error?.message} className="text-xs text-red-500">
+										<Typography key={error?.message} variant="caption" tone="destructive">
 											{error?.message}
-										</p>
+										</Typography>
 									))}
 								</div>
 							)}
@@ -146,20 +148,25 @@ function ResetPasswordForm() {
 
 					<form.Subscribe>
 						{(state) => (
-							<Button type="submit" className="w-full" disabled={!state.canSubmit || state.isSubmitting}>
-								{state.isSubmitting ? "Memuat..." : "Ubah Password"}
+							<Button
+								isPending={state.isSubmitting}
+								type="submit"
+								className="w-full"
+								disabled={!state.canSubmit || state.isSubmitting}
+							>
+								{"Ubah Password"}
 							</Button>
 						)}
 					</form.Subscribe>
 				</form>
-			</div>
+			</Card>
 
-			<p className="mt-4 text-center text-sm">
+			<Typography className="mt-4 text-center">
 				Sudah punya akun?{" "}
 				<Link to="/login" className="text-primary font-bold">
 					Masuk
 				</Link>
-			</p>
+			</Typography>
 		</div>
 	);
 }

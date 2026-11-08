@@ -10,6 +10,7 @@ export type AdminServiceRepository = Pick<
 	TryoutRepository,
 	| "insertTryout"
 	| "listForAdmin"
+	| "countForAdmin"
 	| "findTryoutById"
 	| "findTryoutId"
 	| "listSubtestsForTryout"
@@ -66,6 +67,7 @@ export type ListTryoutInput = {
 	search?: string;
 	category?: TryoutCategory;
 	status?: TryoutStatusValue;
+	sort?: "terbaru" | "terlama";
 };
 
 export type ListAccessCodeInput = { id: number };
@@ -119,17 +121,28 @@ export function createTryoutAdminService({ repository }: { repository: AdminServ
 
 		async list(input: ListTryoutInput) {
 			const { limit, backward: isBackward, cursorId, hasCursor } = decodeIdPage(input, 10);
+			const newestFirst = input.sort !== "terlama";
 
-			const rows = await repository.listForAdmin({
-				limit,
-				backward: isBackward,
-				cursorId,
-				search: input.search,
-				category: input.category,
-				status: input.status,
-			});
+			const [rows, totalCount] = await Promise.all([
+				repository.listForAdmin({
+					limit,
+					backward: isBackward,
+					cursorId,
+					search: input.search,
+					category: input.category,
+					status: input.status,
+					newestFirst,
+				}),
+				repository.countForAdmin({
+					search: input.search,
+					category: input.category,
+					status: input.status,
+				}),
+			]);
 
-			return buildIdCursorPage(rows, limit, isBackward, hasCursor);
+			const { items, pageInfo } = buildIdCursorPage(rows, limit, isBackward, hasCursor);
+
+			return { items, pageInfo: { ...pageInfo, totalCount } };
 		},
 
 		async find(input: { id: number }) {

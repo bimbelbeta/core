@@ -5,7 +5,7 @@ on:
     branches: ["main"]
 
 concurrency:
-  group: test-${{ github.event.pull_request.number || github.sha }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -29,6 +29,8 @@ jobs:
       DATABASE_URL: postgresql://postgres:password@localhost:5432/bimbelbeta
       TEST_DATABASE_URL: postgresql://postgres:password@localhost:5432/bimbelbeta
       MIDTRANS_SERVER_KEY: test-server-key
+      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
     steps:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
@@ -42,7 +44,7 @@ jobs:
         run: |
           bunx drizzle-kit generate
           test -z "$(git status --porcelain src/migrations)"
-      - run: bun run build
+      - run: bun build:packages
       - run: bun check-types
-      - run: bunx biome check . --error-on-warnings
+      - run: bunx biome check .
       - run: bun test

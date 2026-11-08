@@ -1,19 +1,14 @@
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { CreateQuestionForm } from "./-components/create-question-form";
 
 export const Route = createFileRoute("/admin/questions/create")({
-	staticData: { breadcrumb: "Buat Soal" },
+	staticData: { breadcrumb: "Buat soal" },
 	component: CreateQuestionPage,
 });
 
 function CreateQuestionPage() {
-	const router = useRouter();
+	const navigate = useNavigate();
+	const goToQuestions = () => navigate({ to: "/admin/questions" });
 
-	return (
-		<CreateQuestionForm
-			questionType="multiple_choice"
-			onSuccess={() => router.history.back()}
-			onCancel={() => router.history.back()}
-		/>
-	);
+	return <CreateQuestionForm questionType="multiple_choice" onSuccess={goToQuestions} onCancel={goToQuestions} />;
 }

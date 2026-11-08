@@ -4,7 +4,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 
 import ErrorComponent from "@/components/shared/error";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 
@@ -50,13 +52,9 @@ function RouteComponent() {
 	return (
 		<div className="flex flex-col gap-8 p-4 md:p-8">
 			{/* Header */}
-			<div className="space-y-6 rounded-xl border bg-white p-6 shadow-sm">
+			<Card variant="unpadded" className="space-y-6 rounded-xl p-6">
 				<Button variant="default" size="sm" className="bg-[#009CA6] hover:bg-[#008a93]" asChild>
-					<Link
-						to="/tryout/results/$attemptId"
-						params={{ attemptId: attemptId.toString() }}
-						search={{ tab: "results" }}
-					>
+					<Link to="/tryout/results/$attemptId" params={{ attemptId: attemptId.toString() }}>
 						<div className="flex items-center">
 							<ArrowLeftIcon className="mr-2 size-4" />
 							Kembali
@@ -65,10 +63,12 @@ function RouteComponent() {
 				</Button>
 
 				<div className="space-y-1">
-					<p className="text-muted-foreground font-semibold">Review Hasil Subtes</p>
-					<h1 className="text-3xl font-bold">{data.subtest?.name}</h1>
+					<Typography variant="body" tone="muted" className="font-medium">
+						Review Hasil Subtes
+					</Typography>
+					<Typography variant="display">{data.subtest?.name}</Typography>
 				</div>
-			</div>
+			</Card>
 
 			{/* Questions List */}
 			<div className="space-y-4">

@@ -8,10 +8,12 @@ import { type } from "arktype";
 import { useState } from "react";
 import Loader from "@/components/shared/loader";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Item, ItemContent, ItemDescription, ItemMedia } from "@/components/ui/item";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Typography } from "@/components/ui/typography";
 import { authClient } from "@/lib/auth-client";
 import { createMeta } from "@/lib/seo-utils";
 
@@ -113,13 +115,13 @@ function SignInForm() {
 			<div className="absolute left-1/2 z-50 -translate-x-1/2 -translate-y-full">
 				<Image src="/images/main-card-kelas.webp" alt="Study Avatar" width={200} height={200} />
 			</div>
-			<div className="border-primary/50 relative z-10 w-full rounded-sm border bg-white p-8 shadow-lg">
+			<Card variant="unpadded" className="border-primary/50 relative z-10 w-full rounded-sm p-8 shadow-lg">
 				<div className="flex flex-col items-center gap-2 text-center">
-					<h1 className="text-primary text-3xl">
+					<Typography variant="display" className="text-primary">
 						<span className="font-bold">Selamat Datang </span>
 						Kembali
-					</h1>
-					<p className="text-sm">Masuk kembali untuk memulai belajar lagi!</p>
+					</Typography>
+					<Typography>Masuk kembali untuk memulai belajar lagi!</Typography>
 				</div>
 
 				<form
@@ -147,9 +149,9 @@ function SignInForm() {
 										onChange={(e) => field.handleChange(e.target.value)}
 									/>
 									{field.state.meta.errors.map((error) => (
-										<p key={error?.message} className="text-xs text-red-500">
+										<Typography key={error?.message} variant="caption" tone="destructive">
 											{error?.message}
-										</p>
+										</Typography>
 									))}
 								</div>
 							)}
@@ -170,9 +172,9 @@ function SignInForm() {
 										onChange={(e) => field.handleChange(e.target.value)}
 									/>
 									{field.state.meta.errors.map((error) => (
-										<p key={error?.message} className="text-xs text-red-500">
+										<Typography key={error?.message} variant="caption" tone="destructive">
 											{error?.message}
-										</p>
+										</Typography>
 									))}
 								</div>
 							)}
@@ -184,8 +186,13 @@ function SignInForm() {
 
 					<form.Subscribe>
 						{(state) => (
-							<Button type="submit" className="w-full" disabled={!state.canSubmit || state.isSubmitting}>
-								{state.isSubmitting ? "Memuat..." : "Masuk"}
+							<Button
+								isPending={state.isSubmitting}
+								type="submit"
+								className="w-full"
+								disabled={!state.canSubmit || state.isSubmitting}
+							>
+								{"Masuk"}
 							</Button>
 						)}
 					</form.Subscribe>
@@ -210,7 +217,7 @@ function SignInForm() {
 					<GoogleLogoIcon weight="bold" />
 					Masuk dengan Google
 				</Button>
-			</div>
+			</Card>
 
 			{error && (
 				<Item variant="destructive" size="sm" className="mt-3">
@@ -223,12 +230,12 @@ function SignInForm() {
 				</Item>
 			)}
 
-			<p className="mt-4 text-center text-sm">
+			<Typography className="mt-4 text-center">
 				Belum punya akun?{" "}
 				<Link to="/register" className="text-primary font-bold">
 					Daftar Sekarang
 				</Link>
-			</p>
+			</Typography>
 		</div>
 	);
 }

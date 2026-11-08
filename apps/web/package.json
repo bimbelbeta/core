@@ -6,7 +6,9 @@
 		"dev": "bun vite dev --port=3000",
 		"build": "bun --bun vite build",
 		"start": "bun --bun .output/server/index.mjs --port=3000",
-		"check-types": "tsc --noEmit"
+		"check-types": "tsc --noEmit",
+		"lint": "bunx biome check . && bun ../../scripts/check-tsx-lines.ts",
+		"test": "bun test src"
 	},
 	"dependencies": {
 		"@better-upload/client": "^3.0.20",
@@ -65,6 +67,7 @@
 		"@tanstack/react-router-devtools": "^1.167.2",
 		"@testing-library/dom": "^10.4.2",
 		"@testing-library/react": "^16.3.3",
+		"@types/jsdom": "^30.0.0",
 		"@types/react": "~19.3.0",
 		"@types/react-dom": "^19.3.0",
 		"@vitejs/plugin-react": "^6.2.1",

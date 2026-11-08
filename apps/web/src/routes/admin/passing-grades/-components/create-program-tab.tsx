@@ -3,14 +3,15 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { type } from "arktype";
 import { toast } from "sonner";
+import { AdminFieldRow } from "@/components/admin/admin-page";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 
 interface CreateProgramTabProps {
@@ -61,7 +62,7 @@ export function CreateProgramTab({ onProgramCreate }: CreateProgramTabProps) {
 				e.preventDefault();
 				form.handleSubmit();
 			}}
-			className="space-y-4"
+			className="space-y-3"
 		>
 			<form.Field
 				name="name"
@@ -78,32 +79,34 @@ export function CreateProgramTab({ onProgramCreate }: CreateProgramTabProps) {
 				}}
 			>
 				{(field) => (
-					<div className="space-y-1.5">
-						<Label htmlFor={field.name} className="text-sm font-medium">
-							Nama Program Studi <span className="text-destructive">*</span>
-						</Label>
-						<Input
-							id={field.name}
-							value={field.state.value}
-							onBlur={field.handleBlur}
-							onChange={(e) => field.handleChange(e.target.value)}
-							placeholder="Contoh: Teknik Informatika"
-						/>
-						{field.state.meta.errors.map((error) => (
-							<p key={error?.message} className="text-destructive text-xs">
-								{error?.message}
-							</p>
-						))}
-					</div>
+					<AdminFieldRow label="Nama Program Studi *" htmlFor={field.name}>
+						<div className="space-y-1">
+							<Input
+								id={field.name}
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(e) => field.handleChange(e.target.value)}
+								placeholder="Contoh: Teknik Informatika"
+							/>
+							{field.state.meta.errors.map((error) => (
+								<Typography key={error?.message} variant="caption" tone="destructive">
+									{error?.message}
+								</Typography>
+							))}
+						</div>
+					</AdminFieldRow>
 				)}
 			</form.Field>
 
-			<div className="space-y-1.5">
-				<div className="flex items-center justify-between">
-					<Label className="text-sm font-medium">Slug</Label>
+			<div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] md:items-start md:gap-8">
+				<div className="flex min-w-0 items-center gap-2">
+					<Label htmlFor="slug">Slug</Label>
 					<form.Field name="autoGenerateSlug">
 						{(field) => (
-							<label className="flex cursor-pointer items-center gap-1.5" htmlFor="autoSlug">
+							<label
+								className="text-muted-foreground flex cursor-pointer items-center gap-1.5 text-xs"
+								htmlFor="autoSlug"
+							>
 								<Checkbox
 									id="autoSlug"
 									checked={field.state.value}
@@ -111,41 +114,40 @@ export function CreateProgramTab({ onProgramCreate }: CreateProgramTabProps) {
 										field.handleChange(checked === true);
 									}}
 								/>
-								<span className="text-muted-foreground text-xs">Auto</span>
+								Auto
 							</label>
 						)}
 					</form.Field>
 				</div>
-				<form.Field name="slug">
-					{(field) => (
-						<>
-							<Input
-								id={field.name}
-								value={field.state.value}
-								onBlur={field.handleBlur}
-								onChange={(e) => field.handleChange(e.target.value)}
-								disabled={form.getFieldValue("autoGenerateSlug")}
-								placeholder="teknik-informatika"
-								className="font-mono text-sm"
-							/>
-							{field.state.meta.errors.map((error) => (
-								<p key={error?.message} className="text-destructive text-xs">
-									{error?.message}
-								</p>
-							))}
-						</>
-					)}
-				</form.Field>
+				<div className="min-w-0">
+					<form.Field name="slug">
+						{(field) => (
+							<>
+								<Input
+									id={field.name}
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(e) => field.handleChange(e.target.value)}
+									disabled={form.getFieldValue("autoGenerateSlug")}
+									placeholder="teknik-informatika"
+									className="tabular-nums"
+								/>
+								{field.state.meta.errors.map((error) => (
+									<Typography key={error?.message} variant="caption" tone="destructive">
+										{error?.message}
+									</Typography>
+								))}
+							</>
+						)}
+					</form.Field>
+				</div>
 			</div>
 
 			<form.Field name="category">
 				{(field) => (
-					<div className="space-y-1.5">
-						<Label htmlFor={field.name} className="text-sm font-medium">
-							Kategori <span className="text-destructive">*</span>
-						</Label>
+					<AdminFieldRow label="Kategori *" htmlFor={field.name}>
 						<Select value={field.state.value} onValueChange={(val) => field.handleChange(val as "SAINTEK" | "SOSHUM")}>
-							<SelectTrigger>
+							<SelectTrigger id={field.name} className="w-full">
 								<SelectValue placeholder="Pilih kategori" />
 							</SelectTrigger>
 							<SelectContent>
@@ -153,45 +155,30 @@ export function CreateProgramTab({ onProgramCreate }: CreateProgramTabProps) {
 								<SelectItem value="SOSHUM">SOSHUM</SelectItem>
 							</SelectContent>
 						</Select>
-						{field.state.meta.errors.map((error) => (
-							<p key={error?.message} className="text-destructive text-xs">
-								{error?.message}
-							</p>
-						))}
-					</div>
+					</AdminFieldRow>
 				)}
 			</form.Field>
 
 			<form.Field name="description">
 				{(field) => (
-					<div className="space-y-1.5">
-						<Label htmlFor={field.name} className="text-sm font-medium">
-							Deskripsi
-						</Label>
+					<AdminFieldRow label="Deskripsi" htmlFor={field.name} optional>
 						<Textarea
 							id={field.name}
 							value={field.state.value}
 							onBlur={field.handleBlur}
 							onChange={(e) => field.handleChange(e.target.value)}
-							placeholder="Deskripsi singkat program studi... (opsional)"
+							placeholder="Deskripsi singkat program studi..."
 							rows={2}
 						/>
-					</div>
+					</AdminFieldRow>
 				)}
 			</form.Field>
 
-			<DialogFooter className="pt-2">
+			<DialogFooter className="pt-1">
 				<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
 					{([canSubmit, isSubmitting]) => (
-						<Button type="submit" disabled={!canSubmit || isSubmitting} className="w-full">
-							{isSubmitting ? (
-								<>
-									<Spinner />
-									Membuat...
-								</>
-							) : (
-								"Buat Program Studi"
-							)}
+						<Button size="xs" isPending={isSubmitting} type="submit" disabled={!canSubmit || isSubmitting}>
+							{"Buat Program Studi"}
 						</Button>
 					)}
 				</form.Subscribe>

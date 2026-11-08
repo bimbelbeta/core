@@ -1,8 +1,9 @@
 import { TrashIcon } from "@phosphor-icons/react";
 import type { ChangeEvent } from "react";
+import { AdminTableCell, AdminTableRow } from "@/components/admin/admin-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { TableCell, TableRow } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
 interface ComplexChoiceEditRowProps {
 	choice: {
@@ -17,43 +18,50 @@ interface ComplexChoiceEditRowProps {
 
 export function ComplexChoiceEditRow({ choice, onUpdate, onDelete }: ComplexChoiceEditRowProps) {
 	return (
-		<TableRow>
-			<TableCell>
+		<AdminTableRow className={cn(choice.isCorrect && "bg-green-100/40")}>
+			<AdminTableCell>
 				<Input
 					value={choice.content}
 					onChange={(e: ChangeEvent<HTMLInputElement>) => onUpdate(e.target.value, choice.isCorrect)}
 					placeholder="Isi jawaban..."
 				/>
-			</TableCell>
-			<TableCell>
+			</AdminTableCell>
+			<AdminTableCell>
 				<div className="flex items-center justify-center gap-2">
 					<Button
 						type="button"
 						variant={choice.isCorrect ? "default" : "outline"}
-						size="sm"
+						size="xs"
 						onClick={() => onUpdate(choice.content, true)}
+						aria-pressed={choice.isCorrect}
+						aria-label={`Tandai pilihan ${choice.code} benar`}
 					>
 						Benar
 					</Button>
 					<Button
 						type="button"
 						variant={!choice.isCorrect ? "default" : "outline"}
-						size="sm"
+						size="xs"
 						onClick={() => onUpdate(choice.content, false)}
+						aria-pressed={!choice.isCorrect}
+						aria-label={`Tandai pilihan ${choice.code} salah`}
 					>
 						Salah
 					</Button>
 				</div>
-			</TableCell>
-			<TableCell>
-				<button
+			</AdminTableCell>
+			<AdminTableCell>
+				<Button
 					type="button"
+					variant="ghost"
+					size="icon-xs"
 					onClick={onDelete}
-					className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex items-center justify-center rounded p-1 transition-colors"
+					aria-label={`Hapus pilihan ${choice.code}`}
+					className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive rounded"
 				>
 					<TrashIcon className="size-4" />
-				</button>
-			</TableCell>
-		</TableRow>
+				</Button>
+			</AdminTableCell>
+		</AdminTableRow>
 	);
 }

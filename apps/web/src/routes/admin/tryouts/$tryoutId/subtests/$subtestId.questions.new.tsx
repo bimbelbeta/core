@@ -3,7 +3,7 @@ import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { CreateQuestionForm } from "@/routes/admin/questions/-components/create-question-form";
 
 export const Route = createFileRoute("/admin/tryouts/$tryoutId/subtests/$subtestId/questions/new")({
-	staticData: { breadcrumb: "Buat Soal" },
+	staticData: { breadcrumb: "Buat soal" },
 	component: CreateQuestionPage,
 });
 
@@ -18,20 +18,16 @@ function CreateQuestionPage() {
 			subtestId={subtestId}
 			onSuccess={() => {
 				navigate({
-					to: "/admin/tryouts/$tryoutId/subtests/$subtestId",
-					params: {
-						tryoutId,
-						subtestId: subtestId.toString(),
-					},
+					to: "/admin/tryouts/$tryoutId",
+					params: { tryoutId },
+					search: { tab: "subtests", subtest: subtestId },
 				});
 			}}
 			onCancel={() => {
 				navigate({
-					to: "/admin/tryouts/$tryoutId/subtests/$subtestId",
-					params: {
-						tryoutId,
-						subtestId: subtestId.toString(),
-					},
+					to: "/admin/tryouts/$tryoutId",
+					params: { tryoutId },
+					search: { tab: "subtests", subtest: subtestId },
 				});
 			}}
 		/>

@@ -9,7 +9,15 @@ function Tabs({ className, ...props }: React.ComponentProps<typeof TabsPrimitive
 
 function TabsList({ className, ...props }: React.ComponentProps<typeof TabsPrimitive.List>) {
 	return (
-		<TabsPrimitive.List data-slot="tabs-list" className={cn("flex w-full gap-3 md:w-fit", className)} {...props} />
+		<TabsPrimitive.List
+			data-slot="tabs-list"
+			className={cn(
+				"border-border flex w-full [scrollbar-width:none] gap-2 overflow-x-auto border-b sm:gap-5 [&::-webkit-scrollbar]:hidden",
+				"sm:data-[orientation=vertical]:w-36 sm:data-[orientation=vertical]:shrink-0 sm:data-[orientation=vertical]:flex-col sm:data-[orientation=vertical]:gap-0 sm:data-[orientation=vertical]:overflow-visible sm:data-[orientation=vertical]:border-b-0 sm:data-[orientation=vertical]:border-l",
+				className,
+			)}
+			{...props}
+		/>
 	);
 }
 
@@ -18,9 +26,9 @@ function TabsTrigger({ className, ...props }: React.ComponentProps<typeof TabsPr
 		<TabsPrimitive.Trigger
 			data-slot="tabs-trigger"
 			className={cn(
-				"border-primary-300 flex-1 items-center justify-center rounded-lg border px-3.5 py-2 text-xs font-normal whitespace-nowrap shadow-[0px_1px_2px_0px_rgba(16,24,40,0.05)] transition-all focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 sm:h-9.25 md:flex-none",
-				"text-primary-300 bg-white",
-				"data-[state=active]:bg-primary-300 data-[state=active]:text-white",
+				"focus-visible:ring-ring/50 text-muted-foreground hover:text-foreground -mb-px inline-flex items-center justify-center gap-2 rounded-none border-b-[3px] border-transparent pt-1 pb-1.5 text-sm font-normal whitespace-nowrap transition-colors outline-none focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50",
+				"data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:font-medium",
+				"sm:data-[orientation=vertical]:mb-0 sm:data-[orientation=vertical]:-ml-px sm:data-[orientation=vertical]:justify-start sm:data-[orientation=vertical]:border-b-0 sm:data-[orientation=vertical]:border-l-2 sm:data-[orientation=vertical]:py-2 sm:data-[orientation=vertical]:pr-3 sm:data-[orientation=vertical]:pl-3",
 				"[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
 				className,
 			)}

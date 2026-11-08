@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Typography } from "@/components/ui/typography";
 import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
@@ -75,13 +76,13 @@ function RouteComponent() {
 			{/* Header Section */}
 			<div className="space-y-6">
 				<Button variant="default" className="bg-[#009CA6] hover:bg-[#008a93]" asChild>
-					<Link to="/tryout" search={{ tab: "results" }}>
+					<Link to="/tryout">
 						<ArrowLeftIcon className="mr-2 size-4" />
 						Kembali
 					</Link>
 				</Button>
 
-				<h1 className="text-3xl font-semibold">Berikut Hasil Tryoutmu!</h1>
+				<Typography variant="display">Berikut Hasil Tryoutmu!</Typography>
 			</div>
 
 			{/* Score Cards */}
@@ -106,23 +107,16 @@ function RouteComponent() {
 							<CardTitle className="text-muted-foreground text-sm font-medium">
 								Passing Grade
 								{target.data?.studyProgram && (
-									<p className="text-xs">
+									<Typography variant="caption">
 										{target.data.studyProgram.name} {target.data.university.name}
-									</p>
+									</Typography>
 								)}
 							</CardTitle>
-							<Badge
-								variant="secondary"
-								className={cn(
-									isPassed ? "bg-green-500 text-white hover:bg-green-600" : "bg-red-500 text-white hover:bg-red-600",
-								)}
-							>
-								{isPassed ? "Lulus" : "Tidak Lulus"}
-							</Badge>
+							<Badge variant={isPassed ? "success" : "danger"}>{isPassed ? "Lulus" : "Tidak Lulus"}</Badge>
 						</CardHeader>
 						<CardContent className="mt-auto">
 							<div className="flex items-baseline gap-2">
-								<span className={cn("text-5xl font-semibold", isPassed ? "text-green-600" : "text-red-500")}>
+								<span className={cn("text-5xl font-semibold", isPassed ? "text-green-700" : "text-destructive")}>
 									{passingGrade}
 								</span>
 								<span className="text-muted-foreground text-xl font-medium">/ 1000</span>
@@ -135,15 +129,16 @@ function RouteComponent() {
 			{/* Details Section */}
 			<div className="space-y-6">
 				<div className="space-y-1">
-					<h2 className="text-2xl font-semibold">Lihat Lebih Detail</h2>
-					<p className="text-muted-foreground">Buka untuk melihat setiap jawabanmu</p>
+					<Typography variant="title" as="h2">
+						Lihat Lebih Detail
+					</Typography>
+					<Typography tone="muted">Buka untuk melihat setiap jawabanmu</Typography>
 				</div>
 
-				<div className="overflow-hidden rounded-lg border bg-white shadow-sm">
+				<Card variant="flush">
 					<Table>
 						<TableHeader className="bg-blue-50/50">
 							<TableRow className="hover:bg-blue-50/50">
-								<TableHead className="w-20 font-bold text-blue-900">No</TableHead>
 								<TableHead className="font-bold text-blue-900">Nama Subtes</TableHead>
 								<TableHead className="font-bold text-blue-900">Score</TableHead>
 								<TableHead className="font-bold text-blue-900">Durasi</TableHead>
@@ -151,18 +146,18 @@ function RouteComponent() {
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							{data.tryout.subtests.map((subtest, index) => {
+							{data.tryout.subtests.map((subtest) => {
 								const score = subtestScores.get(subtest.id);
 
 								return (
 									<TableRow key={subtest.id} className="hover:bg-blue-50/30">
-										<TableCell className="font-medium">{index + 1}</TableCell>
 										<TableCell className="font-medium">{subtest.name}</TableCell>
 										<TableCell className="font-semibold">{score ?? 0}</TableCell>
 										<TableCell>{subtest.duration} Menit</TableCell>
 										<TableCell className="text-right">
 											<Button
 												size="icon"
+												aria-label={`Lihat pembahasan ${subtest.name}`}
 												className="h-8 w-8 rounded-md bg-[#009CA6] hover:cursor-pointer hover:bg-[#008a93]"
 												onClick={() => {
 													if (session.data?.user.isPremium || data.usedCredit || data.usedAccessCode) {
@@ -186,7 +181,7 @@ function RouteComponent() {
 							})}
 						</TableBody>
 					</Table>
-				</div>
+				</Card>
 			</div>
 
 			<Dialog open={showPremiumDialog} onOpenChange={setShowPremiumDialog}>

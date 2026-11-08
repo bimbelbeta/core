@@ -79,7 +79,7 @@ export function TagInput({
 				<Button
 					type="button"
 					variant="secondary"
-					size="sm"
+					size="xs"
 					onClick={handleAddTag}
 					disabled={
 						!inputValue.trim() ||
@@ -91,7 +91,7 @@ export function TagInput({
 				</Button>
 			</div>
 			{maxLength !== undefined && (
-				<p className="text-muted-foreground text-xs">
+				<p className="text-muted-foreground text-meta">
 					{value.length} / {maxLength} tag
 				</p>
 			)}

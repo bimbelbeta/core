@@ -2,43 +2,26 @@ import { CalendarDotsIcon, ChartBarIcon, TimerIcon, UserIcon } from "@phosphor-i
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { useState } from "react";
+import { AdminSection } from "@/components/admin/admin-page";
+import {
+	AdminTable,
+	AdminTableBody,
+	AdminTableCell,
+	AdminTableHead,
+	AdminTableHeader,
+	AdminTableRoot,
+	AdminTableRow,
+} from "@/components/admin/admin-table";
 import { PaginationButtons } from "@/components/admin/pagination-buttons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { formatDateTime, formatRelativeDate } from "@/lib/format-date";
+import { getInitials } from "@/lib/formatter";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
-
-function getInitials(name: string) {
-	return name
-		.split(" ")
-		.map((n) => n[0])
-		.join("")
-		.toUpperCase()
-		.slice(0, 2);
-}
-
-function formatRelativeDate(date: Date) {
-	const now = new Date();
-	const diff = now.getTime() - date.getTime();
-	const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-
-	if (days === 0) {
-		const hours = Math.floor(diff / (1000 * 60 * 60));
-		if (hours === 0) {
-			const minutes = Math.floor(diff / (1000 * 60));
-			return minutes === 0 ? "Baru saja" : `${minutes} menit lalu`;
-		}
-		return `${hours} jam lalu`;
-	}
-	if (days === 1) return "Kemarin";
-	if (days < 7) return `${days} hari lalu`;
-	return date.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
-}
 
 interface TryoutAttemptsTabProps {
 	subtests: {
@@ -65,7 +48,7 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 	);
 
 	const pageInfo = data?.pageInfo;
-	const tableColumnCount = 6 + subtests.length;
+	const tableColumnCount = 5 + subtests.length;
 
 	const getStatusConfig = (status: string) => {
 		switch (status) {
@@ -79,7 +62,7 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 				return {
 					variant: "secondary" as const,
 					label: "Berlangsung",
-					className: "bg-amber-100 text-amber-800 border-amber-200",
+					className: "bg-yellow-100 text-yellow-800 border-yellow-300/70",
 				};
 			default:
 				return { variant: "outline" as const, label: "Belum Mulai", className: "" };
@@ -98,53 +81,45 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 		setAfter(undefined);
 	};
 
+	const isEmpty = !isPending && data?.items.length === 0;
+
 	return (
-		<Card>
-			<CardHeader className="pb-3">
-				<div className="flex items-center gap-2">
-					<UserIcon className="text-muted-foreground size-4" />
-					<CardTitle className="text-base">Daftar Attempts</CardTitle>
-				</div>
-				<CardDescription>Riwayat pengerjaan tryout oleh user</CardDescription>
-			</CardHeader>
-			<CardContent>
-				<div className="overflow-clip rounded-lg border bg-white shadow-sm">
-					<Table>
-						<TableHeader>
-							<TableRow className="bg-muted/30">
-								<TableHead className="w-12 pl-4 text-center">No</TableHead>
-								<TableHead>User</TableHead>
-								<TableHead className="w-28">Status</TableHead>
-								<TableHead className="w-24">Skor</TableHead>
-								{subtests.map((subtest) => (
-									<TableHead key={subtest.id} className="min-w-28">
-										{subtest.name}
-									</TableHead>
-								))}
-								<TableHead className="w-36">Mulai</TableHead>
-								<TableHead className="w-36 pr-4">Selesai</TableHead>
-							</TableRow>
-						</TableHeader>
-						<TableBody>
+		<AdminSection title="Daftar percobaan" description="Riwayat pengerjaan tryout oleh peserta">
+			{isEmpty ? (
+				<AdminTableRoot>
+					<Empty className="min-h-48">
+						<EmptyHeader>
+							<EmptyMedia variant="icon">
+								<UserIcon />
+							</EmptyMedia>
+							<EmptyTitle>Belum ada percobaan</EmptyTitle>
+							<EmptyDescription>
+								Belum ada peserta yang mengerjakan tryout ini. Bagikan kode akses agar peserta bisa mulai.
+							</EmptyDescription>
+						</EmptyHeader>
+					</Empty>
+				</AdminTableRoot>
+			) : (
+				<AdminTableRoot>
+					<AdminTable>
+						<AdminTableHeader>
+							<AdminTableHead>User</AdminTableHead>
+							<AdminTableHead className="w-28">Status</AdminTableHead>
+							<AdminTableHead className="w-24">Skor</AdminTableHead>
+							{subtests.map((subtest) => (
+								<AdminTableHead key={subtest.id} className="min-w-28">
+									{subtest.name}
+								</AdminTableHead>
+							))}
+							<AdminTableHead className="w-36">Mulai</AdminTableHead>
+							<AdminTableHead className="w-36 pr-3">Selesai</AdminTableHead>
+						</AdminTableHeader>
+						<AdminTableBody columns={tableColumnCount}>
 							{isPending ? (
 								<TableSkeleton columns={tableColumnCount} />
-							) : data?.items.length === 0 ? (
-								<TableRow>
-									<TableCell colSpan={tableColumnCount} className="h-48">
-										<Empty>
-											<EmptyHeader>
-												<EmptyMedia variant="icon">
-													<UserIcon />
-												</EmptyMedia>
-												<EmptyTitle>Belum ada attempt</EmptyTitle>
-												<EmptyDescription>Belum ada user yang mengerjakan tryout ini.</EmptyDescription>
-											</EmptyHeader>
-										</Empty>
-									</TableCell>
-								</TableRow>
 							) : (
 								<TooltipProvider delayDuration={200}>
-									{data?.items.map(({ attempt, user, subtestAttempts }, index) => {
+									{data?.items.map(({ attempt, user, subtestAttempts }) => {
 										const statusConfig = getStatusConfig(attempt.status);
 										const startedAt = attempt.startedAt ? new Date(attempt.startedAt) : null;
 										const completedAt = attempt.completedAt ? new Date(attempt.completedAt) : null;
@@ -153,134 +128,110 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 										);
 
 										return (
-											<TableRow key={attempt.id} className="hover:bg-muted/30">
-												<TableCell className="pl-4 text-center">
-													<div className="bg-muted mx-auto flex size-6 items-center justify-center rounded-full font-mono text-xs font-medium">
-														{index + 1}
-													</div>
-												</TableCell>
-
-												<TableCell>
+											<AdminTableRow key={attempt.id}>
+												<AdminTableCell>
 													<div className="flex items-center gap-3">
-														<Avatar className="ring-border size-9 rounded-full ring-2">
+														<Avatar className="ring-border size-8 rounded-full ring-2">
 															<AvatarImage src={user.image ?? undefined} alt={user.name} />
-															<AvatarFallback className="bg-primary-100 text-primary-700 text-xs font-semibold">
+															<AvatarFallback className="bg-primary-100 text-primary-800 text-meta font-semibold">
 																{getInitials(user.name)}
 															</AvatarFallback>
 														</Avatar>
 														<div className="flex flex-col">
 															<span className="text-foreground leading-tight font-semibold">{user.name}</span>
-															<span className="text-muted-foreground text-xs leading-tight">{user.email}</span>
+															<span className="text-muted-foreground text-meta leading-tight">{user.email}</span>
 														</div>
 													</div>
-												</TableCell>
+												</AdminTableCell>
 
-												<TableCell>
+												<AdminTableCell>
 													<Badge
 														variant={statusConfig.variant}
-														className={cn("text-xs font-medium", statusConfig.className)}
+														className={cn("text-meta font-medium", statusConfig.className)}
 													>
 														{statusConfig.label}
 													</Badge>
-												</TableCell>
+												</AdminTableCell>
 
-												<TableCell>
+												<AdminTableCell>
 													<div className="flex items-center gap-1.5">
 														<ChartBarIcon className="text-muted-foreground size-3.5" />
 														<span
 															className={cn(
-																"text-sm font-semibold tabular-nums",
+																"text-row-title tabular-nums",
 																attempt.score == null ? "text-muted-foreground" : "text-foreground",
 															)}
 														>
 															{attempt.score ?? "-"}
 														</span>
 													</div>
-												</TableCell>
+												</AdminTableCell>
 
 												{subtests.map((subtest) => {
 													const subtestScore = subtestScoreMap.get(subtest.id);
 													return (
-														<TableCell key={subtest.id}>
+														<AdminTableCell key={subtest.id}>
 															<span
 																className={cn(
-																	"text-sm font-semibold tabular-nums",
+																	"text-row-title tabular-nums",
 																	subtestScore == null ? "text-muted-foreground" : "text-foreground",
 																)}
 															>
 																{subtestScore ?? "-"}
 															</span>
-														</TableCell>
+														</AdminTableCell>
 													);
 												})}
 
-												<TableCell>
+												<AdminTableCell>
 													{startedAt ? (
 														<Tooltip>
 															<TooltipTrigger asChild>
-																<span className="text-muted-foreground flex items-center gap-1.5 text-xs">
+																<span className="text-muted-foreground text-meta flex items-center gap-1.5">
 																	<CalendarDotsIcon className="size-3.5" />
 																	{formatRelativeDate(startedAt)}
 																</span>
 															</TooltipTrigger>
-															<TooltipContent>
-																{startedAt.toLocaleString("id-ID", {
-																	day: "numeric",
-																	month: "long",
-																	year: "numeric",
-																	hour: "2-digit",
-																	minute: "2-digit",
-																})}
-															</TooltipContent>
+															<TooltipContent>{formatDateTime(startedAt)}</TooltipContent>
 														</Tooltip>
 													) : (
-														<span className="text-muted-foreground text-xs">-</span>
+														<span className="text-muted-foreground text-meta">-</span>
 													)}
-												</TableCell>
+												</AdminTableCell>
 
-												<TableCell className="pr-4">
+												<AdminTableCell className="pr-3">
 													{completedAt ? (
 														<Tooltip>
 															<TooltipTrigger asChild>
-																<span className="text-muted-foreground flex items-center gap-1.5 text-xs">
+																<span className="text-muted-foreground text-meta flex items-center gap-1.5">
 																	<TimerIcon className="size-3.5" />
 																	{formatRelativeDate(completedAt)}
 																</span>
 															</TooltipTrigger>
-															<TooltipContent>
-																{completedAt.toLocaleString("id-ID", {
-																	day: "numeric",
-																	month: "long",
-																	year: "numeric",
-																	hour: "2-digit",
-																	minute: "2-digit",
-																})}
-															</TooltipContent>
+															<TooltipContent>{formatDateTime(completedAt)}</TooltipContent>
 														</Tooltip>
 													) : (
-														<span className="text-muted-foreground text-xs">-</span>
+														<span className="text-muted-foreground text-meta">-</span>
 													)}
-												</TableCell>
-											</TableRow>
+												</AdminTableCell>
+											</AdminTableRow>
 										);
 									})}
 								</TooltipProvider>
 							)}
-						</TableBody>
-					</Table>
-				</div>
+						</AdminTableBody>
+					</AdminTable>
+				</AdminTableRoot>
+			)}
 
-				{data && (
-					<div className="mt-4">
-						<PaginationButtons
-							onPrevious={handlePrevious}
-							onNext={handleNext}
-							hasPrevious={!!pageInfo?.hasPreviousPage}
-							hasNext={!!pageInfo?.hasNextPage}
-						/>
-					</div>
-				)}
-			</CardContent>
-		</Card>
+			{data && (
+				<PaginationButtons
+					onPrevious={handlePrevious}
+					onNext={handleNext}
+					hasPrevious={!!pageInfo?.hasPreviousPage}
+					hasNext={!!pageInfo?.hasNextPage}
+				/>
+			)}
+		</AdminSection>
 	);
 };

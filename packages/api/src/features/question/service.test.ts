@@ -46,6 +46,7 @@ function makeRepository(overrides: Partial<QuestionRepository> = {}): QuestionRe
 	};
 	const repository: QuestionRepository = {
 		listQuestions: unused,
+		countQuestions: unused,
 		findQuestion: unused,
 		listChoices: unused,
 		listQuestionsWithChoices: unused,

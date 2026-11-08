@@ -1,27 +1,33 @@
-import { MagnifyingGlassIcon } from "@phosphor-icons/react";
+import { CheckCircleIcon, MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
 import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
-import { Label } from "@/components/ui/label";
+import { Item } from "@/components/ui/item";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { orpc } from "@/lib/orpc";
+import {
+	QUESTION_TYPE_BADGE,
+	QUESTION_TYPE_LABELS,
+	type QuestionType,
+	questionTypeSchema,
+	SUBJECT_CATEGORY_LABELS,
+	type SubjectCategory,
+	subjectCategorySchema,
+} from "@/lib/schemas";
+import { cn } from "@/lib/utils";
 
-type CategoryFilter = "all" | "sd" | "smp" | "sma" | "utbk";
-type TypeFilter = "all" | "multiple_choice" | "essay";
+type CategoryFilter = "all" | SubjectCategory;
+type TypeFilter = "all" | QuestionType;
 
 function isCategoryFilter(v: string): v is CategoryFilter {
-	return ["all", "sd", "smp", "sma", "utbk"].includes(v);
+	return v === "all" || subjectCategorySchema.allows(v);
 }
 
-function isTypeFilter(v: string): v is TypeFilter {
-	return ["all", "multiple_choice", "essay"].includes(v);
-}
+const isTypeFilter = (v: string): v is TypeFilter => v === "all" || questionTypeSchema.allows(v);
 
 interface QuestionPickerDialogProps {
 	open: boolean;
@@ -41,7 +47,7 @@ export function QuestionPickerDialog({
 	const [search, setSearch] = useState("");
 	const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("all");
 	const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
-	const [selectedQuestionIds, setSelectedQuestionIds] = useState<Set<number>>(new Set());
+	const [addedIds, setAddedIds] = useState<number[]>([]);
 
 	const queryClient = useQueryClient();
 	const scrollRef = useRef<HTMLDivElement>(null);
@@ -70,11 +76,12 @@ export function QuestionPickerDialog({
 			fetchNextPage();
 		}
 	}, [isFetchingNextPage, hasNextPage, fetchNextPage]);
+
 	const addMutation = useMutation(
 		orpc.admin.content.addPracticeQuestions.mutationOptions({
-			onSuccess: (result) => {
+			onSuccess: (result, variables) => {
 				toast.success(result.message);
-				setSelectedQuestionIds(new Set());
+				setAddedIds((prev) => [...prev, ...variables.questionIds]);
 				queryClient.invalidateQueries({
 					queryKey: orpc.admin.content.listPracticeQuestions.queryKey({
 						input: { id: contentId },
@@ -86,7 +93,6 @@ export function QuestionPickerDialog({
 					}),
 				});
 				onSuccess();
-				onOpenChange(false);
 			},
 			onError: (err) => {
 				toast.error(err.message);
@@ -94,54 +100,33 @@ export function QuestionPickerDialog({
 		}),
 	);
 
-	const handleSelectAll = () => {
-		if (selectedQuestionIds.size === questions.length) {
-			setSelectedQuestionIds(new Set());
-		} else {
-			setSelectedQuestionIds(new Set(questions.map((q) => q.id)));
-		}
-	};
-
-	const handleQuestionToggle = (id: number) => {
-		const newSelectedIds = new Set(selectedQuestionIds);
-		if (newSelectedIds.has(id)) {
-			newSelectedIds.delete(id);
-		} else {
-			newSelectedIds.add(id);
-		}
-		setSelectedQuestionIds(newSelectedIds);
-	};
-
-	const handleAdd = () => {
-		if (selectedQuestionIds.size > 0) {
-			addMutation.mutate({
-				id: contentId,
-				questionIds: Array.from(selectedQuestionIds),
-			});
-		}
+	const handleAttach = (questionId: number) => {
+		if (addMutation.isPending) return;
+		addMutation.mutate({ id: contentId, questionIds: [questionId] });
 	};
 
 	const handleOpenChange = (newOpen: boolean) => {
 		if (!newOpen) {
-			// Reset state when closing
-			setSelectedQuestionIds(new Set());
 			setSearch("");
 			setCategoryFilter("all");
 			setTypeFilter("all");
+			setAddedIds([]);
 		}
 		onOpenChange(newOpen);
 	};
 
 	return (
 		<Dialog open={open} onOpenChange={handleOpenChange}>
-			<DialogContent className="flex max-h-[85vh] flex-col sm:max-w-2xl">
+			<DialogContent size="lg" className="flex max-h-[85vh] flex-col">
 				<DialogHeader className="shrink-0">
-					<DialogTitle>Tambah Latihan Soal</DialogTitle>
-					<DialogDescription>Pilih soal dari bank soal untuk ditambahkan ke konten ini.</DialogDescription>
+					<DialogTitle className="text-base">Tambah Latihan Soal</DialogTitle>
+					<DialogDescription>
+						Klik soal untuk langsung menambahkannya ke konten ini. Dialog tetap terbuka agar soal berikutnya bisa
+						ditambahkan.
+					</DialogDescription>
 				</DialogHeader>
 
 				<div className="flex flex-1 flex-col gap-4 overflow-hidden">
-					{/* Search and Filters */}
 					<div className="flex flex-wrap items-center gap-3">
 						<div className="flex-1">
 							<InputGroup className="w-full bg-white">
@@ -166,10 +151,11 @@ export function QuestionPickerDialog({
 							</SelectTrigger>
 							<SelectContent>
 								<SelectItem value="all">Semua</SelectItem>
-								<SelectItem value="sd">SD</SelectItem>
-								<SelectItem value="smp">SMP</SelectItem>
-								<SelectItem value="sma">SMA</SelectItem>
-								<SelectItem value="utbk">UTBK</SelectItem>
+								{Object.entries(SUBJECT_CATEGORY_LABELS).map(([value, label]) => (
+									<SelectItem key={value} value={value}>
+										{label}
+									</SelectItem>
+								))}
 							</SelectContent>
 						</Select>
 						<Select
@@ -182,33 +168,16 @@ export function QuestionPickerDialog({
 								<SelectValue placeholder="Tipe" />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="all">Semua Tipe</SelectItem>
-								<SelectItem value="multiple_choice">Pilihan Ganda</SelectItem>
-								<SelectItem value="essay">Esai</SelectItem>
+								<SelectItem value="all">Semua tipe</SelectItem>
+								{Object.entries(QUESTION_TYPE_LABELS).map(([value, label]) => (
+									<SelectItem key={value} value={value}>
+										{label}
+									</SelectItem>
+								))}
 							</SelectContent>
 						</Select>
 					</div>
 
-					{/* Select All and Add Button */}
-					<div className="flex items-center justify-between border-b pb-2">
-						<div className="flex items-center gap-2">
-							<Checkbox
-								checked={questions.length > 0 && selectedQuestionIds.size === questions.length}
-								onCheckedChange={handleSelectAll}
-								disabled={questions.length === 0}
-							/>
-							<Label className="cursor-pointer text-sm">Pilih Semua ({selectedQuestionIds.size} dipilih)</Label>
-						</div>
-						<Button
-							variant="default"
-							onClick={handleAdd}
-							disabled={selectedQuestionIds.size === 0 || addMutation.isPending}
-						>
-							{addMutation.isPending ? "Menambahkan..." : `Tambah ${selectedQuestionIds.size} Soal`}
-						</Button>
-					</div>
-
-					{/* Question List */}
 					<div ref={scrollRef} onScroll={handleScroll} className="flex-1 overflow-y-auto">
 						{isPending ? (
 							<div className="text-muted-foreground flex animate-pulse items-center justify-center py-8">
@@ -217,54 +186,56 @@ export function QuestionPickerDialog({
 						) : questions.length === 0 ? (
 							<div className="text-muted-foreground flex flex-col items-center justify-center py-8">
 								<p>Tidak ada soal ditemukan</p>
-								{excludeIds.length > 0 && <p className="mt-1 text-xs">({excludeIds.length} soal sudah ditambahkan)</p>}
+								{excludeIds.length > 0 && (
+									<p className="text-meta mt-1">({excludeIds.length} soal sudah ditambahkan)</p>
+								)}
 							</div>
 						) : (
 							<div className="space-y-2">
-								{questions.map((question) => (
-									<button
-										type="button"
-										key={question.id}
-										className="group hover:bg-muted/50 flex w-full cursor-pointer items-start gap-3 rounded-lg border p-3 text-left transition-colors"
-										onClick={() => handleQuestionToggle(question.id)}
-										onKeyDown={(e) => {
-											if (e.key === "Enter" || e.key === " ") {
-												e.preventDefault();
-												handleQuestionToggle(question.id);
-											}
-										}}
-									>
-										<Checkbox
-											checked={selectedQuestionIds.has(question.id)}
-											onCheckedChange={() => handleQuestionToggle(question.id)}
-											className="mt-0.5"
-										/>
-										<div className="min-w-0 flex-1 space-y-1">
-											<div className="flex items-start gap-2">
-												<span className="text-muted-foreground shrink-0 font-mono text-xs">#{question.id}</span>
-												<div className="prose prose-sm line-clamp-2 min-w-0 flex-1 text-sm [&_*]:!m-0 [&_p]:line-clamp-2">
-													<TiptapRenderer content={question.content} />
+								{questions.map((question) => {
+									const isAttached = excludeIds.includes(question.id) || addedIds.includes(question.id);
+									return (
+										<Item
+											key={question.id}
+											variant="outline"
+											selected={isAttached}
+											className={cn(
+												"flex-nowrap items-start gap-3 rounded-lg p-3 text-left",
+												isAttached ? "opacity-60" : "hover:bg-muted/50 hover:border-primary/40",
+											)}
+										>
+											<button
+												type="button"
+												disabled={isAttached || addMutation.isPending}
+												onClick={() => handleAttach(question.id)}
+												aria-label={
+													isAttached ? `Soal #${question.id} sudah ada di konten ini` : `Tambah soal #${question.id}`
+												}
+												className="flex min-w-0 flex-1 items-start gap-3 text-left disabled:cursor-default"
+											>
+												<div className="min-w-0 flex-1 space-y-1">
+													<div className="prose prose-sm line-clamp-2 min-w-0 text-sm [&_*]:!m-0 [&_p]:line-clamp-2">
+														<TiptapRenderer content={question.content} />
+													</div>
+													<div className="flex flex-wrap items-center gap-1.5">
+														<Badge variant={QUESTION_TYPE_BADGE[question.type]} className="text-xs">
+															{QUESTION_TYPE_LABELS[question.type]}
+														</Badge>
+														{question.tags?.slice(0, 3).map((tag) => (
+															<Badge key={tag} variant="secondary" className="text-xs">
+																{tag}
+															</Badge>
+														))}
+														{question.tags && question.tags.length > 3 && (
+															<span className="text-muted-foreground text-xs">+{question.tags.length - 3}</span>
+														)}
+													</div>
 												</div>
-											</div>
-											<div className="flex flex-wrap items-center gap-1.5">
-												<Badge
-													variant={question.type === "multiple_choice" ? "default" : "outline"}
-													className="text-xs"
-												>
-													{question.type === "multiple_choice" ? "PG" : "Esai"}
-												</Badge>
-												{question.tags?.slice(0, 3).map((tag) => (
-													<Badge key={tag} variant="secondary" className="text-xs">
-														{tag}
-													</Badge>
-												))}
-												{question.tags && question.tags.length > 3 && (
-													<span className="text-muted-foreground text-xs">+{question.tags.length - 3}</span>
-												)}
-											</div>
-										</div>
-									</button>
-								))}
+												{isAttached && <CheckCircleIcon className="size-4 shrink-0 text-green-800" weight="fill" />}
+											</button>
+										</Item>
+									);
+								})}
 								{isFetchingNextPage && (
 									<div className="text-muted-foreground flex animate-pulse items-center justify-center py-4 text-sm">
 										Memuat lebih banyak soal...

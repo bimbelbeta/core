@@ -3,20 +3,22 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { type } from "arktype";
 import { useState } from "react";
-import type { SubjectCategory, SubjectFilter } from "@/components/classes/classes-types";
+import type { SubjectFilter } from "@/components/classes/classes-types";
 import { CreateSubjectDialog } from "@/components/classes/create-subject-dialog";
-import { NotFoundContentState } from "@/components/classes/not-found-content-state";
 import { SubjectFilters } from "@/components/classes/subject-filters";
 import { SubjectHeader } from "@/components/classes/subject-header";
 import { SubjectList } from "@/components/classes/subject-list";
+import { EmptyState } from "@/components/shared/empty-state";
 import { SearchInput } from "@/components/ui/search-input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
+import { type SubjectCategory, subjectCategorySchema } from "@/lib/schemas";
 import { createMeta } from "@/lib/seo-utils";
 
 const searchSchema = type({
 	"q?": "string",
-	"category?": "'sd' | 'smp' | 'sma' | 'utbk'",
+	"category?": subjectCategorySchema,
 });
 
 export const Route = createFileRoute("/_authenticated/classes/")({
@@ -43,7 +45,12 @@ function RouteComponent() {
 
 	const navigate = Route.useNavigate();
 	const updateSearch = (updates: { q?: string; category?: SubjectCategory }) => {
-		navigate({ search: { q: updates.q ?? undefined, category: updates.category ?? undefined } });
+		navigate({
+			search: {
+				q: "q" in updates ? updates.q || undefined : q || undefined,
+				category: "category" in updates ? updates.category : category,
+			},
+		});
 	};
 
 	const subjectsQuery = useQuery({
@@ -63,8 +70,8 @@ function RouteComponent() {
 
 			{/*<hr className="my-3 sm:my-4" />*/}
 
-			<div className="my-3 space-y-4 sm:my-4">
-				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+			<div className="my-3 space-y-3 sm:my-4">
+				<div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
 					<SubjectFilters
 						activeFilter={activeFilter}
 						onChange={(category) => updateSearch({ category: category === "all" ? undefined : category })}
@@ -77,17 +84,17 @@ function RouteComponent() {
 
 			<div>
 				{!subjectsQuery.data && subjectsQuery.isPending && (
-					<div className="flex h-full flex-col gap-2 sm:gap-5">
+					<div className="flex h-full flex-col gap-2">
 						{Array.from({ length: 9 }).map((_, i) => (
-							<Skeleton key={i.toString()} className="h-40 w-full" />
+							<Skeleton key={i.toString()} className="h-[5.25rem] w-full" />
 						))}
 					</div>
 				)}
 
-				{subjectsQuery.isError && <p className="text-red-500">Error: {subjectsQuery.error.message}</p>}
+				{subjectsQuery.isError && <Typography tone="destructive">Error: {subjectsQuery.error.message}</Typography>}
 
 				{subjectsQuery.data && subjectsQuery.data.items.length === 0 && (
-					<NotFoundContentState
+					<EmptyState
 						title="Tidak ada kelas yang ditemukan"
 						desc="Coba cari dengan kata kunci lain atau hubungi admin."
 					/>

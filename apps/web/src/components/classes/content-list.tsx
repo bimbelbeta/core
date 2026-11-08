@@ -1,11 +1,12 @@
 import { PlusIcon } from "@phosphor-icons/react";
 import { Reorder } from "motion/react";
 import { useEffect, useRef, useState } from "react";
+import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
+import { Typography } from "@/components/ui/typography";
 import { useIsAdmin } from "@/hooks/use-is-admin";
 import type { ContentFilter, ContentListItem } from "./classes-types";
 import { ContentCard } from "./content-card";
-import { EmptyContentState } from "./empty-content-state";
 import { ReorderableContentCard } from "./reorderable-content-card";
 
 /**
@@ -107,25 +108,33 @@ export function ContentList({
 	return (
 		<div className="">
 			<div className="flex items-center justify-between">
-				{title && <h3 className="text-lg font-semibold">{title}</h3>}
+				{title && (
+					<Typography variant="subtitle2" as="h3">
+						{title}
+					</Typography>
+				)}
 				{isAdmin && onCreate && activeFilter !== "all" && (
 					<Button type="button" variant="destructive" size="sm" onClick={onCreate} className="mb-4">
 						<PlusIcon size={16} className="mr-2" weight="bold" />
 						Tambah Konten
 					</Button>
 				)}
-				{isLoading && !title && <p className="text-muted-foreground text-xs">Memuat...</p>}
+				{isLoading && !title && <Typography variant="caption">Memuat...</Typography>}
 			</div>
 
 			{showCount && searchQuery && items && (
-				<p className="text-muted-foreground mb-4 text-sm">
+				<Typography variant="body" tone="muted" className="mb-4">
 					{items.length} hasil untuk "{searchQuery}"
-				</p>
+				</Typography>
 			)}
 
-			{error && <p className="text-sm text-red-500">{error}</p>}
+			{error && (
+				<Typography variant="body" tone="destructive">
+					{error}
+				</Typography>
+			)}
 
-			{!isLoading && !error && (!localItems || localItems.length === 0) && <EmptyContentState />}
+			{!isLoading && !error && (!localItems || localItems.length === 0) && <EmptyState />}
 
 			{localItems &&
 				localItems.length > 0 &&

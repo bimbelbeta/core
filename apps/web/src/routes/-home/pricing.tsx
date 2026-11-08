@@ -1,22 +1,24 @@
 import { CheckIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import { buttonVariants } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { Highlight } from "@/components/ui/highlight";
+import { Typography } from "@/components/ui/typography";
 import { formatRupiah } from "@/lib/formatter";
 import { cn } from "@/lib/utils";
-import { Heading } from "./-components/heading";
-import { Subheading } from "./-components/subheading";
 import { HOME_PAGE_CONTENT } from "./data";
 
 export function Pricing() {
 	return (
 		<Container className="max-w-7xl items-center gap-8 py-30">
 			<div className="text-center *:text-pretty">
-				<Subheading>Jangan sampai menyesal pas UTBK.</Subheading>
-				<Heading>
+				<Typography variant="subtitle2" as="p">
+					Jangan sampai menyesal pas UTBK.
+				</Typography>
+				<Typography variant="display" as="h2">
 					Mulai Simulasi dari <Highlight variant="secondary">Sekarang</Highlight>
-				</Heading>
+				</Typography>
 			</div>
 
 			<div className="space-y-6">
@@ -54,23 +56,27 @@ function ProgramPricingCard({
 	variant = "default",
 }: ProgramPricingProps) {
 	return (
-		<div className={cn("rounded-default flex h-full flex-col border border-neutral-200 bg-neutral-100 p-6")}>
+		<Card variant="flush" className="rounded-default h-full border-neutral-200 bg-neutral-100 p-6 shadow-none">
 			<div className="mb-6">
-				<h3 className="text-base font-medium">{title}</h3>
+				<Typography variant="subtitle4">{title}</Typography>
 
 				<div className="flex flex-wrap items-center gap-x-3">
 					{originalPrice && (
-						<div className="relative inline-block text-3xl font-bold text-neutral-400">
+						<Typography variant="display" as="span" className="relative inline-block text-neutral-600">
 							{formatRupiah(originalPrice)}
 
 							<span className="-origin-center pointer-events-none absolute top-1/2 left-0 h-1 w-full rotate-6 bg-red-400" />
-						</div>
+						</Typography>
 					)}
 
-					<p className={cn("text-3xl font-bold", variant === "highlight" ? "text-secondary-700" : "text-neutral-900")}>
+					<Typography
+						variant="display"
+						as="p"
+						className={variant === "highlight" ? "text-secondary-700" : "text-neutral-900"}
+					>
 						{formatRupiah(price)}
 						{period && <span className="text-base font-normal">{period}</span>}
-					</p>
+					</Typography>
 				</div>
 			</div>
 
@@ -88,7 +94,7 @@ function ProgramPricingCard({
 					Daftar Akun
 				</Link>
 			</div>
-		</div>
+		</Card>
 	);
 }
 
@@ -100,10 +106,14 @@ type TryoutPricingProps = {
 
 function TryoutPricingCard({ title, price, features }: TryoutPricingProps) {
 	return (
-		<div className="rounded-default space-y-4 border border-neutral-200 bg-neutral-100 p-5">
+		<Card variant="flush" className="rounded-default space-y-4 border-neutral-200 bg-neutral-100 p-5 shadow-none">
 			<div>
-				<h3 className="text-sm font-medium">{title}</h3>
-				<p className="text-xl font-bold">{formatRupiah(price)}</p>
+				<Typography variant="body" as="h3" className="font-medium">
+					{title}
+				</Typography>
+				<Typography variant="title" as="p">
+					{formatRupiah(price)}
+				</Typography>
 			</div>
 
 			<ul className="space-y-1">
@@ -118,6 +128,6 @@ function TryoutPricingCard({ title, price, features }: TryoutPricingProps) {
 			<Link to="/register" className={cn(buttonVariants({ size: "sm" }), "w-full")}>
 				Daftar Akun
 			</Link>
-		</div>
+		</Card>
 	);
 }

@@ -1,7 +1,7 @@
-import { PlusIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
+import { AdminFieldRow } from "@/components/admin/admin-page";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -10,10 +10,8 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { orpc } from "@/lib/orpc";
 
 interface GrantCreditsDialogProps {
@@ -57,32 +55,32 @@ export function GrantCreditsDialog({
 				onOpenChange(value);
 			}}
 		>
-			<DialogTrigger asChild>
-				<Button variant="ghost" size="icon">
-					<PlusIcon className="size-4" />
-				</Button>
-			</DialogTrigger>
-			<DialogContent className="sm:max-w-sm">
+			<DialogContent size="lg">
 				<DialogHeader>
-					<DialogTitle>Add Credits</DialogTitle>
+					<DialogTitle className="text-base">Add Credits</DialogTitle>
 					<DialogDescription>Tambahkan tryout credits untuk user "{userName}"</DialogDescription>
 				</DialogHeader>
-				<div className="flex flex-col gap-4 py-2">
-					<div className="bg-muted/50 flex items-center justify-between rounded-md border px-4 py-2.5">
-						<span className="text-muted-foreground text-sm">Saldo saat ini</span>
-						<span className="font-semibold">{currentCredits ?? 0} credits</span>
-					</div>
-					<div className="flex flex-col gap-2">
-						<Label>Jumlah credits</Label>
-						<Input type="number" min={1} value={amount} onChange={(e) => setAmount(e.target.valueAsNumber)} />
-					</div>
-				</div>
+				<AdminFieldRow
+					label="Jumlah credits"
+					htmlFor="grant-credits"
+					hint={`Saldo saat ini ${currentCredits ?? 0} credits`}
+				>
+					<Input
+						id="grant-credits"
+						type="number"
+						min={1}
+						value={amount}
+						onChange={(e) => setAmount(e.target.valueAsNumber)}
+					/>
+				</AdminFieldRow>
 				<DialogFooter>
 					<Button
+						size="xs"
+						isPending={adjustCreditsMutation.isPending}
 						onClick={() => adjustCreditsMutation.mutate({ userId, amount })}
 						disabled={adjustCreditsMutation.isPending || !amount || amount < 1}
 					>
-						{adjustCreditsMutation.isPending ? "Memproses..." : "Add Credits"}
+						{"Add Credits"}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

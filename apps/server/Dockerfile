@@ -29,7 +29,6 @@ WORKDIR /usr/src/app
 
 COPY --from=installer /usr/src/app/ .
 COPY . .
-RUN turbo prune server
 RUN turbo build --filter=server
 
 FROM configs AS runner

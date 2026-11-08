@@ -16,6 +16,7 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 
@@ -91,11 +92,11 @@ function RouteComponent() {
 	}
 
 	if (content.isPending) {
-		return <p className="animate-pulse text-sm">Memuat catatan...</p>;
+		return <Typography className="animate-pulse">Memuat catatan...</Typography>;
 	}
 
 	if (content.isError) {
-		return <p className="text-sm text-red-500">Error: {content.error.message}</p>;
+		return <Typography tone="destructive">Error: {content.error.message}</Typography>;
 	}
 
 	if (!content.data) return notFound();
@@ -103,40 +104,48 @@ function RouteComponent() {
 	const hasNote = !!content.data.note;
 
 	return (
-		<div className="space-y-6">
-			<div className="flex flex-col items-start justify-between space-y-1 sm:flex-row sm:items-center">
-				<h2 className="text-lg font-semibold">Edit Catatan Materi</h2>
+		<div className="flex flex-col gap-3">
+			<div className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
+				<Typography variant="subtitle4">Edit Catatan Materi</Typography>
 				<div className="flex gap-2">
 					<form.Subscribe>
 						{(state) => (
 							<Button
+								isPending={saveMutation.isPending}
 								type="submit"
 								variant="default"
 								disabled={!state.canSubmit || saveMutation.isPending}
-								size="sm"
+								size="xs"
 								onClick={() => form.handleSubmit()}
 							>
-								{saveMutation.isPending ? "Menyimpan..." : "Simpan"}
+								{"Simpan"}
 							</Button>
 						)}
 					</form.Subscribe>
 					{hasNote && (
 						<AlertDialog>
 							<AlertDialogTrigger asChild>
-								<Button type="button" variant="destructive" disabled={deleteMutation.isPending} size="sm">
+								<Button
+									isPending={deleteMutation.isPending}
+									type="button"
+									variant="destructive"
+									disabled={deleteMutation.isPending}
+									size="xs"
+								>
 									Hapus
 								</Button>
 							</AlertDialogTrigger>
 							<AlertDialogContent>
 								<AlertDialogHeader>
-									<AlertDialogTitle>Hapus Catatan?</AlertDialogTitle>
+									<AlertDialogTitle className="text-base">Hapus Catatan?</AlertDialogTitle>
 									<AlertDialogDescription>
 										Apakah Anda yakin ingin menghapus catatan ini? Tindakan ini tidak dapat dibatalkan.
 									</AlertDialogDescription>
 								</AlertDialogHeader>
 								<AlertDialogFooter>
-									<AlertDialogCancel>Batal</AlertDialogCancel>
+									<AlertDialogCancel size="xs">Batal</AlertDialogCancel>
 									<AlertDialogAction
+										size="xs"
 										onClick={() => {
 											deleteMutation.mutate({ id: contentId });
 										}}
@@ -155,16 +164,20 @@ function RouteComponent() {
 					e.preventDefault();
 					form.handleSubmit();
 				}}
-				className="space-y-4"
+				className="space-y-3"
 			>
 				<form.Field name="content">
 					{(field) => (
 						<div className="space-y-2">
-							<TiptapSimpleEditor content={field.state.value} onChange={(c) => field.handleChange(c)} />
+							<TiptapSimpleEditor
+								label="Catatan Materi"
+								content={field.state.value}
+								onChange={(c) => field.handleChange(c)}
+							/>
 							{field.state.meta.errors.map((error) => (
-								<p key={error?.message} className="text-sm text-red-500">
+								<Typography key={error?.message} tone="destructive">
 									{error?.message}
-								</p>
+								</Typography>
 							))}
 						</div>
 					)}

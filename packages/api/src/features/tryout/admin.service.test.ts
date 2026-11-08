@@ -95,9 +95,11 @@ function makeRepository(rows: AdminRows): AdminServiceRepository {
 			rows.writes.insertedTryouts.push(values);
 			return { ...tryoutRow, ...values, id: 42 };
 		},
-		listForAdmin: async () => [tryoutRow],
+		listForAdmin: async () => [{ ...tryoutRow, subtestCount: 0, attemptCount: 0 }],
+		countForAdmin: async () => 1,
 		findTryoutById: async () => rows.tryout,
-		listSubtestsForTryout: async () => rows.attemptRowSubtests ?? [subtestRow],
+		listSubtestsForTryout: async () =>
+			rows.attemptRowSubtests?.map((row) => ({ ...row, questionCount: 0 })) ?? [{ ...subtestRow, questionCount: 0 }],
 		updateTryout: async (id: number, changes: Record<string, unknown>) => {
 			rows.writes.updatedTryouts.push({ id, changes });
 			return rows.tryout ? { ...tryoutRow, id } : undefined;
@@ -242,7 +244,7 @@ describe("admin tryout service", () => {
 		const { service } = makeService(baseRows());
 		const found = await service.find({ id: 1 });
 		expect(found.tryout).toEqual(tryoutRow);
-		expect(found.subtests).toEqual([subtestRow]);
+		expect(found.subtests).toEqual([{ ...subtestRow, questionCount: 0 }]);
 	});
 
 	test("still reports a bad tryout id as NOT_FOUND on the admin surface", async () => {

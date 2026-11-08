@@ -4,12 +4,23 @@ import { oc } from "@/lib/contract-definition";
 const DashboardStatsSchema = type({
 	totalUsers: "number",
 	premiumUsers: "number",
-	activeSubjects: "number",
 	monthlyRevenue: "number",
-	usersTrend: "number",
-	premiumTrend: "number",
-	subjectsTrend: "number",
-	revenueTrend: "number",
+	usersTrend: "number | null",
+	revenueTrend: "number | null",
+	totalQuestions: "number",
+	essayQuestions: "number",
+	recentTryouts: type(
+		{
+			id: "number",
+			title: "string",
+			status: "'draft' | 'published' | 'archived'",
+			category: "'sd' | 'smp' | 'sma' | 'utbk'",
+			updatedAt: "string | null",
+			subtestCount: "number",
+			attemptCount: "number",
+		},
+		"[]",
+	),
 });
 
 export const adminDashboardContract = {

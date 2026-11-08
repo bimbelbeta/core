@@ -7,8 +7,10 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Typography } from "@/components/ui/typography";
 import { authClient } from "@/lib/auth-client";
 import { createMeta } from "@/lib/seo-utils";
 
@@ -62,10 +64,12 @@ function RouteComponent() {
 		<main className="flex min-h-screen w-full flex-col items-center pt-32">
 			<div className="w-full max-w-md">
 				<Image src="/avatar/study-avatar.webp" alt="Study Avatar" width={128} height={128} className="mx-auto" />
-				<div className="border-primary/50 w-full rounded-sm border bg-white p-8 shadow-lg">
+				<Card variant="unpadded" className="border-primary/50 w-full rounded-sm p-8 shadow-lg">
 					<div className="flex flex-col items-center gap-2 text-center">
 						{" "}
-						<h1 className="text-primary text-3xl font-bold">Lupa Password</h1>
+						<Typography variant="display" className="text-primary">
+							Lupa Password
+						</Typography>
 					</div>
 
 					{hasSubmitted ? (
@@ -117,25 +121,26 @@ function RouteComponent() {
 							<form.Subscribe>
 								{(state) => (
 									<Button
+										isPending={state.isSubmitting || isSubmitting}
 										type="submit"
 										className="w-full"
 										disabled={!state.canSubmit || state.isSubmitting || isSubmitting}
 									>
-										{state.isSubmitting || isSubmitting ? "Memuat..." : "Kirim Instruksi"}
+										{"Kirim Instruksi"}
 									</Button>
 								)}
 							</form.Subscribe>
 						</form>
 					)}
-				</div>
+				</Card>
 
 				{!hasSubmitted && (
-					<p className="mt-4 text-center text-sm">
+					<Typography className="mt-4 text-center">
 						Ingat password?{" "}
 						<Link type="button" to="/login" className="text-primary font-bold hover:underline">
 							Masuk
 						</Link>
-					</p>
+					</Typography>
 				)}
 			</div>
 		</main>

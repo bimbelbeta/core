@@ -80,16 +80,6 @@ export const float: Variants = {
 	},
 };
 
-export const bounce: Variants = {
-	whileHover: {
-		scale: 1.05,
-		transition: BOUNCE_TRANSITION,
-	},
-	whileTap: {
-		scale: 0.98,
-	},
-};
-
 export const pulse: Variants = {
 	animate: {
 		scale: [1, 1.05, 1],
@@ -128,16 +118,6 @@ export const staggerChild: Variants = {
 		opacity: 1,
 		y: 0,
 		transition: TRANSITION,
-	},
-};
-
-export const buttonHover = {
-	whileHover: {
-		scale: 1.05,
-		transition: BOUNCE_TRANSITION,
-	},
-	whileTap: {
-		scale: 0.98,
 	},
 };
 

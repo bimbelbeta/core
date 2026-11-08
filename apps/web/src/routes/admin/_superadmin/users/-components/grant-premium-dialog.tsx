@@ -1,8 +1,8 @@
-import { CalendarDotsIcon, StarIcon } from "@phosphor-icons/react";
+import { CalendarDotsIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
+import { AdminFieldRow } from "@/components/admin/admin-page";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -12,13 +12,10 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { formatDateLong } from "@/lib/format-date";
+import { formatDateLong, formatDateMedium } from "@/lib/format-date";
 import { orpc } from "@/lib/orpc";
-import { cn } from "@/lib/utils";
 
 interface GrantPremiumDialogProps {
 	userId: string;
@@ -61,49 +58,47 @@ export function GrantPremiumDialog({
 				onOpenChange(value);
 			}}
 		>
-			<DialogTrigger asChild>
-				<Button variant="ghost" size="icon">
-					<StarIcon className="size-4" />
-				</Button>
-			</DialogTrigger>
-			<DialogContent className="sm:max-w-sm">
+			<DialogContent size="lg">
 				<DialogHeader>
-					<DialogTitle>Grant Premium</DialogTitle>
+					<DialogTitle className="text-base">Grant Premium</DialogTitle>
 					<DialogDescription>Berikan status premium untuk user "{userName}"</DialogDescription>
 				</DialogHeader>
-				<div className="flex flex-col gap-4 py-2">
-					{currentPremiumExpiry && (
-						<div className="bg-muted/50 flex items-center justify-between rounded-md border px-4 py-2.5">
-							<span className="text-muted-foreground text-sm">Premium expires</span>
-							<Badge variant="outline">{new Date(currentPremiumExpiry).toLocaleDateString("id-ID")}</Badge>
-						</div>
-					)}
-					<div className="flex flex-col gap-2">
-						<Label>Tanggal expired</Label>
-						<Popover>
-							<PopoverTrigger asChild>
-								<Button
-									variant="secondary"
-									className={cn("w-full justify-start text-left font-normal", !date && "text-muted-foreground")}
-								>
-									<CalendarDotsIcon className="size-4" />
-									{date ? formatDateLong(date) : "Pilih tanggal"}
-								</Button>
-							</PopoverTrigger>
-							<PopoverContent className="w-auto p-0" align="start">
-								<Calendar
-									mode="single"
-									selected={date}
-									onSelect={setDate}
-									disabled={(d) => d < new Date()}
-									initialFocus
-								/>
-							</PopoverContent>
-						</Popover>
-					</div>
-				</div>
+				<AdminFieldRow
+					label="Tanggal expired"
+					htmlFor="grant-premium-date"
+					hint={
+						currentPremiumExpiry
+							? `Saat ini berakhir ${formatDateMedium(currentPremiumExpiry)}`
+							: "User belum berstatus premium"
+					}
+				>
+					<Popover>
+						<PopoverTrigger asChild>
+							<Button
+								id="grant-premium-date"
+								variant="input"
+								data-empty={!date}
+								className="data-[empty=true]:text-muted-foreground w-full"
+							>
+								<CalendarDotsIcon className="mr-2 size-4" />
+								{date ? formatDateLong(date) : "Pilih tanggal"}
+							</Button>
+						</PopoverTrigger>
+						<PopoverContent className="w-auto p-0" align="start">
+							<Calendar
+								mode="single"
+								selected={date}
+								onSelect={setDate}
+								disabled={(d) => d < new Date()}
+								initialFocus
+							/>
+						</PopoverContent>
+					</Popover>
+				</AdminFieldRow>
 				<DialogFooter>
 					<Button
+						size="xs"
+						isPending={updateMutation.isPending}
 						onClick={() =>
 							updateMutation.mutate({
 								userId,
@@ -113,7 +108,7 @@ export function GrantPremiumDialog({
 						}
 						disabled={updateMutation.isPending || !date}
 					>
-						{updateMutation.isPending ? "Memproses..." : "Grant Premium"}
+						{"Grant Premium"}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

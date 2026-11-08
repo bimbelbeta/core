@@ -1,27 +1,52 @@
-import { ArrowLeftIcon, PencilSimpleIcon } from "@phosphor-icons/react";
+import { CheckIcon, PencilSimpleIcon, XIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, notFound, useRouter } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
+import { type } from "arktype";
 import { useState } from "react";
+import {
+	AdminBackLink,
+	AdminPageContent,
+	AdminPageHeader,
+	AdminPageHeaderActions,
+	AdminPageHeaderContent,
+	AdminPageRoot,
+	AdminSection,
+} from "@/components/admin/admin-page";
+import {
+	AdminTable,
+	AdminTableBody,
+	AdminTableCell,
+	AdminTableHead,
+	AdminTableHeader,
+	AdminTableRoot,
+	AdminTableRow,
+} from "@/components/admin/admin-table";
 import { DetailPageSkeleton } from "@/components/admin/detail-page-skeleton";
 import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
+import { QUESTION_TYPE_SHORT_LABELS } from "@/lib/schemas";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { cn } from "@/lib/utils";
 import { EditQuestionForm } from "./-components/edit-question-form";
 
+const searchSchema = type({
+	"tryoutId?": "number",
+	"subtestId?": "number",
+});
+
 export const Route = createFileRoute("/admin/questions/$questionId")({
-	staticData: { breadcrumb: "Detail Soal" },
+	staticData: { breadcrumb: "Detail soal", breadcrumbParent: { label: "Bank soal", to: "/admin/questions" } },
+	validateSearch: searchSchema,
 	component: QuestionDetailPage,
 });
 
 function QuestionDetailPage() {
 	const { questionId: rawQuestionId } = Route.useParams();
 	const questionId = parseRouteParamToNumber(rawQuestionId);
-	const router = useRouter();
+	const { tryoutId, subtestId } = Route.useSearch();
 	const [isEditing, setIsEditing] = useState(false);
 
 	const { data, isPending } = useQuery(
@@ -31,7 +56,7 @@ function QuestionDetailPage() {
 	);
 
 	if (isPending) {
-		return <DetailPageSkeleton variant="question" />;
+		return <DetailPageSkeleton />;
 	}
 
 	if (!data) {
@@ -58,146 +83,160 @@ function QuestionDetailPage() {
 		);
 	}
 
-	return (
-		<div className="flex h-full flex-col gap-6 p-6">
-			<div className="flex items-center justify-between">
-				<div className="flex items-center gap-4">
-					<Button variant="ghost" size="icon" onClick={() => router.history.back()}>
-						<ArrowLeftIcon className="size-4" />
-					</Button>
-					<h1 className="text-primary-navy-900 text-2xl font-bold">Detail Soal</h1>
-				</div>
-				<Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
-					<PencilSimpleIcon className="mr-2 size-4" />
-					Edit
-				</Button>
-			</div>
+	const hasChoices = (question.type === "multiple_choice" || question.type === "multiple_choice_complex") && choices;
 
-			<div className="grid gap-6">
-				<Card>
-					<CardHeader>
-						<div className="flex items-center justify-between">
-							<CardTitle>Informasi Soal #{question.id}</CardTitle>
-							<Badge
-								variant={
-									question.type === "multiple_choice" || question.type === "multiple_choice_complex"
-										? "default"
-										: "secondary"
-								}
-							>
-								{question.type === "multiple_choice"
-									? "Pilihan Ganda"
-									: question.type === "multiple_choice_complex"
-										? "Pilihan Ganda Kompleks"
-										: "Esai"}
-							</Badge>
-						</div>
-					</CardHeader>
-					<CardContent className="space-y-6">
-						<div>
-							<h3 className="text-muted-foreground mb-2 text-sm font-medium">Konten Soal</h3>
+	return (
+		<AdminPageRoot>
+			<AdminPageHeader>
+				<AdminPageHeaderContent>
+					{tryoutId && subtestId ? (
+						<AdminBackLink
+							to="/admin/tryouts/$tryoutId"
+							params={{ tryoutId: tryoutId.toString() }}
+							search={{ tab: "subtests", subtest: subtestId }}
+						>
+							Kembali ke subtest
+						</AdminBackLink>
+					) : (
+						<AdminBackLink to="/admin/questions">Kembali ke bank soal</AdminBackLink>
+					)}
+					<Typography variant="title">Soal #{question.id}</Typography>
+				</AdminPageHeaderContent>
+				<AdminPageHeaderActions>
+					<Button variant="outline" size="xs" onClick={() => setIsEditing(true)}>
+						<PencilSimpleIcon className="size-3.5" />
+						Edit
+					</Button>
+				</AdminPageHeaderActions>
+			</AdminPageHeader>
+
+			<AdminPageContent>
+				<div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_14rem]">
+					<div className="flex min-w-0 flex-col gap-4">
+						<AdminSection title="Konten soal">
 							<TiptapRenderer content={question.content} className="prose prose-sm max-w-none rounded-md border p-4" />
-						</div>
+						</AdminSection>
 
 						{question.type === "multiple_choice" && choices && (
-							<div>
-								<h3 className="text-muted-foreground mb-2 text-sm font-medium">Pilihan Jawaban</h3>
+							<AdminSection title="Pilihan jawaban" description="Pilihan bertanda benar adalah kunci jawaban.">
 								<div className="flex flex-col gap-2">
 									{choices.map((choice) => (
 										<div
 											key={choice.id}
 											className={cn(
-												"flex items-center gap-3 rounded-md border p-4 text-start",
-												choice.isCorrect ? "border-green-500 bg-green-50" : "border-border",
+												"flex items-center gap-3 rounded-md border p-3",
+												choice.isCorrect ? "border-green-200 bg-green-100/40" : "border-border",
 											)}
 										>
 											<span
 												className={cn(
-													"border-foreground/20 rounded-xs border px-2.5 py-0.5 text-sm font-medium",
-													choice.isCorrect && "border-green-500 bg-green-500 text-white",
+													"border-foreground/20 text-meta rounded-xs border px-2 py-0.5 font-medium",
+													choice.isCorrect && "border-green-800 bg-green-800 text-white",
 												)}
 											>
 												{choice.code}
 											</span>
-											<span className="flex-1 text-sm">{choice.content}</span>
-											{choice.isCorrect && (
-												<Badge variant="outline" className="ml-auto border-green-200 bg-green-100 text-green-700">
-													Benar
-												</Badge>
-											)}
+											<span className="text-row-title flex-1">{choice.content}</span>
+											{choice.isCorrect && <Badge variant="success">Benar</Badge>}
 										</div>
 									))}
 								</div>
-							</div>
+							</AdminSection>
 						)}
 
 						{question.type === "multiple_choice_complex" && choices && (
-							<div>
-								<h3 className="text-muted-foreground mb-2 text-sm font-medium">Pilihan Jawaban</h3>
-								<div className="rounded-lg border">
-									<Table>
-										<TableHeader>
-											<TableRow>
-												<TableHead>Pernyataan</TableHead>
-												<TableHead className="w-32 text-center">Benar</TableHead>
-											</TableRow>
-										</TableHeader>
-										<TableBody>
+							<AdminSection title="Pilihan jawaban" description="Setiap pernyataan dinilai benar atau salah.">
+								<AdminTableRoot>
+									<AdminTable>
+										<AdminTableHeader className="hidden sm:table-row">
+											<AdminTableHead>Pernyataan</AdminTableHead>
+											<AdminTableHead className="w-24">Kunci</AdminTableHead>
+										</AdminTableHeader>
+										<AdminTableBody columns={2}>
 											{choices.map((choice) => (
-												<TableRow key={choice.id}>
-													<TableCell>{choice.content}</TableCell>
-													<TableCell className="text-center">
-														<div
-															className={cn(
-																"mx-auto flex size-8 items-center justify-center rounded-full border-2",
-																choice.isCorrect ? "border-green-500 bg-green-500 text-white" : "border-border",
-															)}
-														>
-															{choice.isCorrect && (
-																<svg className="size-4" fill="currentColor" viewBox="0 0 20 20">
-																	<title>Benar</title>
-																	<path
-																		fillRule="evenodd"
-																		d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-																		clipRule="evenodd"
-																	/>
-																</svg>
-															)}
-														</div>
-													</TableCell>
-												</TableRow>
+												<AdminTableRow key={choice.id}>
+													<AdminTableCell>
+														<span className="text-row-title">{choice.content}</span>
+													</AdminTableCell>
+													<AdminTableCell>
+														{choice.isCorrect ? (
+															<Badge variant="success">
+																<CheckIcon className="size-3" weight="bold" />
+																Benar
+															</Badge>
+														) : (
+															<Badge variant="outline" className="text-muted-foreground">
+																<XIcon className="size-3" weight="bold" />
+																Salah
+															</Badge>
+														)}
+													</AdminTableCell>
+												</AdminTableRow>
 											))}
-										</TableBody>
-									</Table>
-								</div>
-							</div>
+										</AdminTableBody>
+									</AdminTable>
+								</AdminTableRoot>
+							</AdminSection>
+						)}
+
+						{question.type === "essay" && (
+							<AdminSection title="Jawaban benar" description="Acuan penilaian jawaban esai.">
+								{question.essayCorrectAnswer ? (
+									<p className="text-row-title rounded-md border p-3">{question.essayCorrectAnswer}</p>
+								) : (
+									<Typography variant="body" tone="muted">
+										Belum diisi.
+									</Typography>
+								)}
+							</AdminSection>
 						)}
 
 						{Boolean(question.discussion) && (
-							<div>
-								<h3 className="text-muted-foreground mb-2 text-sm font-medium">Pembahasan</h3>
+							<AdminSection title="Pembahasan">
 								<TiptapRenderer
 									content={question.discussion}
 									className="prose prose-sm bg-muted/30 max-w-none rounded-md border p-4"
 								/>
-							</div>
+							</AdminSection>
 						)}
+					</div>
 
-						{question.tags && question.tags.length > 0 && (
-							<div>
-								<h3 className="text-muted-foreground mb-2 text-sm font-medium">Tags</h3>
-								<div className="flex flex-wrap gap-2">
+					<aside className="flex min-w-0 flex-col gap-4">
+						<AdminSection title="Detail">
+							<dl className="flex flex-col gap-2.5">
+								<div className="flex items-baseline justify-between gap-3">
+									<dt className="text-muted-foreground text-meta">Jenis</dt>
+									<dd className="text-meta text-right font-medium">
+										{QUESTION_TYPE_SHORT_LABELS[question.type] ?? question.type}
+									</dd>
+								</div>
+								{hasChoices && (
+									<div className="flex items-baseline justify-between gap-3">
+										<dt className="text-muted-foreground text-meta">Pilihan</dt>
+										<dd className="text-meta text-right font-medium tabular-nums">{choices.length}</dd>
+									</div>
+								)}
+							</dl>
+						</AdminSection>
+
+						<AdminSection title="Tags">
+							{question.tags && question.tags.length > 0 ? (
+								<div className="flex flex-wrap gap-1.5">
 									{question.tags.map((tag) => (
 										<Badge key={tag} variant="outline">
 											{tag}
 										</Badge>
 									))}
 								</div>
-							</div>
-						)}
-					</CardContent>
-				</Card>
-			</div>
-		</div>
+							) : (
+								<Typography variant="body" tone="muted">
+									Belum ada tag.
+								</Typography>
+							)}
+						</AdminSection>
+					</aside>
+				</div>
+			</AdminPageContent>
+		</AdminPageRoot>
 	);
 }

@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
-import { EmptyContentState } from "@/components/classes/empty-content-state";
+import { EmptyState } from "@/components/shared/empty-state";
 import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
+import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 
@@ -45,11 +46,11 @@ function RouteComponent() {
 	}, [content.data?.note, contentId]);
 
 	if (content.isPending) {
-		return <p className="animate-pulse text-sm">Memuat catatan...</p>;
+		return <Typography className="animate-pulse">Memuat catatan...</Typography>;
 	}
 
 	if (content.isError) {
-		return <p className="text-sm text-red-500">Error: {content.error.message}</p>;
+		return <Typography tone="destructive">Error: {content.error.message}</Typography>;
 	}
 
 	if (!content.data) return notFound();
@@ -58,17 +59,23 @@ function RouteComponent() {
 	if (!note) {
 		return (
 			<div className="space-y-4">
-				<p className="text-primary-300 text-base font-semibold">Catatan Materi</p>
-				<EmptyContentState />
+				<Typography variant="subtitle4" as="p" tone="accent">
+					Catatan Materi
+				</Typography>
+				<EmptyState />
 			</div>
 		);
 	}
 
 	return (
 		<div className="space-y-4">
-			<p className="text-primary-300 text-base font-semibold">Catatan Materi</p>
+			<Typography variant="subtitle4" as="p" tone="accent">
+				Catatan Materi
+			</Typography>
 
-			<h2 className="text-2xl font-bold">{content.data.title}</h2>
+			<Typography variant="title" as="h2">
+				{content.data.title}
+			</Typography>
 
 			<hr />
 

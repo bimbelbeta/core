@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Container } from "@/components/ui/container";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Typography } from "@/components/ui/typography";
 import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
@@ -86,7 +87,7 @@ function RouteComponent() {
 	if (contents.isError) {
 		return (
 			<Container className="pt-12">
-				<p className="text-sm text-red-500">Error: {contents.error.message}</p>
+				<Typography tone="destructive">Error: {contents.error.message}</Typography>
 			</Container>
 		);
 	}

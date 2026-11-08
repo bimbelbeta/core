@@ -3,7 +3,7 @@ import type { DbClient } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { creditTransaction } from "@bimbelbeta/db/schema/credit";
 
-import { and, asc, count, desc, eq, gt, gte, inArray, like, lt, or } from "drizzle-orm";
+import { and, asc, count, desc, eq, gt, inArray, like, lt, or, sql } from "drizzle-orm";
 
 export type UserRow = typeof user.$inferSelect;
 
@@ -13,7 +13,6 @@ export type DashboardUserCounts = {
 	total: number;
 	premium: number;
 	createdSince: number;
-	premiumExpiringSince: number;
 };
 
 export type ListUsersParams = {
@@ -103,9 +102,8 @@ export function createUserRepository(client: DbClient) {
 			const [row] = await client
 				.select({
 					total: count(),
-					premium: count(eq(user.isPremium, true)),
-					createdSince: count(gte(user.createdAt, since)),
-					premiumExpiringSince: count(and(eq(user.isPremium, true), gte(user.premiumExpiresAt, since))),
+					premium: sql<number>`count(*) filter (where ${user.isPremium})`.mapWith(Number),
+					createdSince: sql<number>`count(*) filter (where ${user.createdAt} >= ${since})`.mapWith(Number),
 				})
 				.from(user);
 			return row;

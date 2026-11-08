@@ -79,6 +79,11 @@
 			}
 		}
 	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "double"
+		}
+	},
 	"overrides": [
 		{
 			"includes": ["apps/web/src/components/tiptap*/**"],
@@ -91,15 +96,13 @@
 			}
 		}
 	],
-	"javascript": {
-		"formatter": {
-			"quoteStyle": "double"
-		}
-	},
 	"css": {
 		"parser": {
 			"tailwindDirectives": true
 		}
 	},
-	"tailwind": { "mergeFunctions": ["clsx", "cn"], "variantFunctions": ["cva"] }
+	"tailwind": {
+		"mergeFunctions": ["clsx", "cn"],
+		"variantFunctions": ["cva"]
+	}
 }

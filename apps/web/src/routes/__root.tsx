@@ -70,13 +70,17 @@ function RootDocument() {
 				<HeadContent />
 				<meta name="google-site-verification" content="ZkAuVBNm-RdzlikU-7NR9WHgzplwakbRHIhwqwySNXg" />
 			</head>
-			<body className="via-primary-100 to-primary-300/80 min-h-screen bg-radial from-neutral-100 via-66%">
+			<body className="via-primary-100 to-primary-300/80 min-h-screen bg-radial from-neutral-100 via-66% bg-fixed">
 				<MotionProvider>
 					<Outlet />
 					<Toaster richColors />
 				</MotionProvider>
-				<TanStackRouterDevtools position="bottom-right" />
-				<ReactQueryDevtools position="bottom" buttonPosition="bottom-right" />
+				{import.meta.env.DEV && (
+					<>
+						<TanStackRouterDevtools position="bottom-right" />
+						<ReactQueryDevtools position="bottom" buttonPosition="bottom-right" />
+					</>
+				)}
 				<Scripts />
 			</body>
 		</html>

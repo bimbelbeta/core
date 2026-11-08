@@ -14,9 +14,14 @@ const TryoutSchema = createSelectSchema(tryout)
 		updatedAt: "Date | null",
 	});
 
+const TryoutListSchema = TryoutSchema.merge({
+	subtestCount: "number",
+	attemptCount: "number",
+});
+
 const TryoutSubtestSchema = createSelectSchema(tryoutSubtest)
 	.pick("tryoutId", "name", "description", "duration", "questionOrder", "order", "scoringMap")
-	.merge({ id: "number" });
+	.merge({ id: "number", questionCount: "number" });
 
 const TryoutAttemptSchema = createSelectSchema(tryoutAttempt)
 	.pick(
@@ -90,9 +95,10 @@ export const adminTryoutContract = {
 				search: "string?",
 				category: "'sd' | 'smp' | 'sma' | 'utbk'?",
 				status: "'draft' | 'published' | 'archived'?",
+				sort: "'terbaru' | 'terlama'?",
 			}),
 		)
-		.output(type({ items: TryoutSchema.array(), pageInfo: PageInfoSchema })),
+		.output(type({ items: TryoutListSchema.array(), pageInfo: PageInfoSchema })),
 	find: oc
 		.route({ path: "/admin/tryouts/{id}", method: "GET", tags: ["Admin - Tryouts"] })
 		.input(type({ id: "number" }))

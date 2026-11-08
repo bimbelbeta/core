@@ -12,7 +12,7 @@ const highlightVariants = cva("inline-block", {
 			"primary-dark": "text-primary-900",
 			secondary: "text-secondary-700",
 			"secondary-light": "text-secondary-200",
-			blue: "text-blue-600",
+			blue: "text-primary-700",
 			darkBlue: "text-primary-800",
 		},
 		weight: {
