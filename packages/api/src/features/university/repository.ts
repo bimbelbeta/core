@@ -482,6 +482,32 @@ export function createUniversityRepository(db: DbClient) {
 				.orderBy(desc(programYearlyData.year));
 		},
 
+		async findUniversityProgramDetail(universityId: number, studyProgramId: number) {
+			const [data] = await db
+				.select({
+					university: {
+						id: university.id,
+						name: university.name,
+						slug: university.slug,
+						logo: university.logo,
+					},
+					studyProgram: {
+						id: studyProgram.id,
+						name: studyProgram.name,
+						slug: studyProgram.slug,
+						category: studyProgram.category,
+						accreditation: universityStudyProgram.accreditation,
+						averageScore: universityStudyProgram.averageScore,
+					},
+				})
+				.from(university)
+				.innerJoin(universityStudyProgram, eq(universityStudyProgram.universityId, university.id))
+				.innerJoin(studyProgram, eq(studyProgram.id, universityStudyProgram.studyProgramId))
+				.where(and(eq(university.id, universityId), eq(studyProgram.id, studyProgramId)));
+
+			return data;
+		},
+
 		async findUniversityProgramByPair(
 			universityId: number,
 			studyProgramId: number,

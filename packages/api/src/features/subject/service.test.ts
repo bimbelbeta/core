@@ -132,6 +132,7 @@ function makeQuestionRepository(overrides: Partial<QuestionRepository> = {}): Qu
 		listQuestions: unused,
 		findQuestion: unused,
 		listChoices: unused,
+		listQuestionsWithChoices: unused,
 		insertQuestion: unused,
 		insertChoices: unused,
 		insertChoice: unused,
@@ -268,16 +269,22 @@ describe("subject service findContent", () => {
 				],
 			}),
 			makeQuestionRepository({
-				findQuestion: async (id) =>
-					id === 31
-						? questionRow
-						: {
-								...questionRow,
-								id: 32,
-								type: "essay",
-								essayCorrectAnswer: "Jawaban esai",
-							},
-				listChoices: async (id) => (id === 31 ? choiceRows : []),
+				listQuestionsWithChoices: async (ids) =>
+					ids
+						.map((id) =>
+							id === 31
+								? { question: questionRow, choices: choiceRows }
+								: {
+										question: {
+											...questionRow,
+											id: 32,
+											type: "essay" as const,
+											essayCorrectAnswer: "Jawaban esai",
+										},
+										choices: [],
+									},
+						)
+						.filter(Boolean),
 			}),
 		);
 

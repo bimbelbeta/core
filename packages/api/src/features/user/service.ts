@@ -1,6 +1,7 @@
 import type { Role } from "@bimbelbeta/contract/common/roles";
 import { db } from "@bimbelbeta/db";
 import type { Session } from "@/context";
+import { createUniversityRepository, type UniversityRepository } from "@/features/university/repository";
 import { DomainError } from "@/lib/domain-error";
 import { buildStringIdCursorPage, decodePageInput, parseStringIdCursor } from "@/lib/pagination/cursor";
 import { createUserRepository, type UserRepository } from "./repository";
@@ -25,13 +26,22 @@ type UpdateUserInput = {
 	premiumExpiresAt?: Date | null | undefined;
 };
 
-export const createUserService = ({ repository }: { repository: UserRepository }) => ({
+export const createUserService = ({
+	repository,
+	universityRepository,
+}: {
+	repository: UserRepository;
+	universityRepository: Pick<UniversityRepository, "findUniversityProgramDetail" | "findUniversityProgramByPair">;
+}) => ({
 	async getTarget(user: Session["user"]) {
 		if (!user.targetUniversityId || !user.targetStudyProgramId) {
 			return { university: null, studyProgram: null };
 		}
 
-		const data = await repository.findTarget(user.targetUniversityId, user.targetStudyProgramId);
+		const data = await universityRepository.findUniversityProgramDetail(
+			user.targetUniversityId,
+			user.targetStudyProgramId,
+		);
 		if (!data) throw new DomainError("NOT_FOUND");
 
 		return data;
@@ -40,7 +50,7 @@ export const createUserService = ({ repository }: { repository: UserRepository }
 	async updateTarget(user: Session["user"], input: UpdateTargetInput) {
 		const { universityId, studyProgramId } = input;
 
-		const existing = await repository.findUniversityStudyProgram(universityId, studyProgramId);
+		const existing = await universityRepository.findUniversityProgramByPair(universityId, studyProgramId);
 		if (!existing) {
 			throw new DomainError("BAD_REQUEST", "Kombinasi universitas dan program studi tidak valid");
 		}
@@ -113,4 +123,7 @@ export const createUserService = ({ repository }: { repository: UserRepository }
 	},
 });
 
-export const userService = createUserService({ repository: createUserRepository(db) });
+export const userService = createUserService({
+	repository: createUserRepository(db),
+	universityRepository: createUniversityRepository(db),
+});

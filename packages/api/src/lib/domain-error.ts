@@ -18,3 +18,16 @@ export class DomainError extends Error {
 		this.name = "DomainError";
 	}
 }
+
+export function rethrowAsInternal(error: unknown, message: string): never {
+	console.error(error);
+	throw new DomainError("INTERNAL_SERVER_ERROR", message);
+}
+
+export async function withErrorFallback<T>(message: string, run: () => Promise<T>): Promise<T> {
+	try {
+		return await run();
+	} catch (error) {
+		rethrowAsInternal(error, message);
+	}
+}

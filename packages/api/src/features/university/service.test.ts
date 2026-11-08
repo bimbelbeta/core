@@ -19,6 +19,7 @@ type FakeRepository = { [M in keyof UniversityRepository]: Stub<UniversityReposi
 function createFakeRepository(): FakeRepository {
 	return {
 		findUniversityDetail: mock(async () => undefined),
+		findUniversityProgramDetail: mock(async () => undefined),
 		listProgramYearlyRowsByUniversity: mock(async () => []),
 		findUniversity: mock(async () => undefined),
 		createUniversity: mock(async () => undefined),

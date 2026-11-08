@@ -2,7 +2,7 @@ import type { Role } from "@bimbelbeta/contract/common/roles";
 import type { DbClient } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { creditTransaction } from "@bimbelbeta/db/schema/credit";
-import { studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
+
 import { and, asc, count, desc, eq, gt, gte, inArray, like, lt, or } from "drizzle-orm";
 
 export type UserRow = typeof user.$inferSelect;
@@ -27,47 +27,6 @@ export type ListUsersParams = {
 
 export function createUserRepository(client: DbClient) {
 	return {
-		async findTarget(universityId: number, studyProgramId: number) {
-			const [data] = await client
-				.select({
-					university: {
-						id: university.id,
-						name: university.name,
-						slug: university.slug,
-						logo: university.logo,
-					},
-					studyProgram: {
-						id: studyProgram.id,
-						name: studyProgram.name,
-						slug: studyProgram.slug,
-						category: studyProgram.category,
-						accreditation: universityStudyProgram.accreditation,
-						averageScore: universityStudyProgram.averageScore,
-					},
-				})
-				.from(university)
-				.innerJoin(universityStudyProgram, eq(universityStudyProgram.universityId, university.id))
-				.innerJoin(studyProgram, eq(studyProgram.id, universityStudyProgram.studyProgramId))
-				.where(and(eq(university.id, universityId), eq(studyProgram.id, studyProgramId)));
-
-			return data;
-		},
-
-		async findUniversityStudyProgram(universityId: number, studyProgramId: number) {
-			const [existing] = await client
-				.select()
-				.from(universityStudyProgram)
-				.where(
-					and(
-						eq(universityStudyProgram.universityId, universityId),
-						eq(universityStudyProgram.studyProgramId, studyProgramId),
-					),
-				)
-				.limit(1);
-
-			return existing;
-		},
-
 		async updateUserTarget(userId: string, universityId: number, studyProgramId: number) {
 			const [updated] = await client
 				.update(user)

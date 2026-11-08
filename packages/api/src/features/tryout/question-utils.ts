@@ -1,4 +1,4 @@
-import { readTiptapContent } from "@/features/question/content-utils";
+import { readTiptapContent } from "@/lib/content-utils";
 import type { ReviewQuestion, TryoutQuestion } from "@/types/question";
 
 export type SubtestQuestionRow = {

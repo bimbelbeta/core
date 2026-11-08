@@ -1,4 +1,4 @@
-import type { DbClient } from "@bimbelbeta/db";
+import { type DbClient, db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { question, questionChoice } from "@bimbelbeta/db/schema/question";
 import {
@@ -12,6 +12,7 @@ import {
 } from "@bimbelbeta/db/schema/tryout";
 import { and, asc, desc, eq, gt, ilike, inArray, isNull, lt, or, sql } from "drizzle-orm";
 import type { CreditRepository } from "@/features/credit/repository";
+import { createCreditRepository } from "@/features/credit/repository";
 import type { SubtestQuestionRow } from "./question-utils";
 import type { TryoutScoreResult } from "./scoring";
 
@@ -802,3 +803,6 @@ export type TryoutTransaction<R = TryoutRepository> = {
 	repository: R;
 	credit: Pick<CreditRepository, "deductCreditForTryoutAttempt">;
 };
+
+export const runInTransaction = <T>(fn: (transaction: TryoutTransaction) => Promise<T>): Promise<T> =>
+	db.transaction((trx) => fn({ repository: createTryoutRepository(trx), credit: createCreditRepository(trx) }));

@@ -59,9 +59,7 @@ export function createProductService({ repository }: { repository: ProductReposi
 		},
 
 		async listForAdmin(input: AdminListInput) {
-			const limit = input.limit ?? 10;
-			const backward = !!input.before;
-			const cursor = input.before || input.after;
+			const { limit, backward, cursor, hasCursor } = decodePageInput(input, 10);
 			const rows = await repository.listForAdmin({
 				limit,
 				cursorId: cursor ? parseStringIdCursor(cursor) : null,
@@ -70,7 +68,7 @@ export function createProductService({ repository }: { repository: ProductReposi
 				variant: input.variant,
 				includeDeleted: !!input.includeDeleted,
 			});
-			return buildStringIdCursorPage(rows, limit, backward, !!cursor);
+			return buildStringIdCursorPage(rows, limit, backward, hasCursor);
 		},
 
 		async find(productId: string) {

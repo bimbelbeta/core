@@ -48,6 +48,7 @@ function makeRepository(overrides: Partial<QuestionRepository> = {}): QuestionRe
 		listQuestions: unused,
 		findQuestion: unused,
 		listChoices: unused,
+		listQuestionsWithChoices: unused,
 		insertQuestion: unused,
 		insertChoices: unused,
 		updateQuestion: unused,

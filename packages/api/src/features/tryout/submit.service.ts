@@ -1,8 +1,8 @@
 import { db } from "@bimbelbeta/db";
-import { createCreditRepository } from "@/features/credit/repository";
-import { DomainError } from "@/lib/domain-error";
+
+import { DomainError, rethrowAsInternal } from "@/lib/domain-error";
 import { computeSubtestDeadline } from "./deadline";
-import { createTryoutRepository, type TryoutRepository, type TryoutTransaction } from "./repository";
+import { createTryoutRepository, runInTransaction, type TryoutRepository, type TryoutTransaction } from "./repository";
 import {
 	calcTotalScore,
 	getScoreFromMap,
@@ -126,10 +126,7 @@ export function createSubmitService(deps: SubmitServiceDependencies) {
 				await repo.finishAttempt(attemptId);
 				await repo.saveScores(attemptId, scores);
 			})
-			.catch(async (error: unknown) => {
-				console.error(error);
-				throw new DomainError("INTERNAL_SERVER_ERROR", "Gagal menyimpan skor tryout.");
-			});
+			.catch((error: unknown) => rethrowAsInternal(error, "Gagal menyimpan skor tryout."));
 	}
 
 	return {
@@ -167,10 +164,7 @@ export function createSubmitService(deps: SubmitServiceDependencies) {
 							deadline: nextDeadline,
 						});
 					})
-					.catch(async (error: unknown) => {
-						console.error(error);
-						throw new DomainError("INTERNAL_SERVER_ERROR", "Gagal menyimpan progres subtest.");
-					});
+					.catch((error: unknown) => rethrowAsInternal(error, "Gagal menyimpan progres subtest."));
 				return { success: true as const, tryoutCompleted: false as const, nextSubtestId: nextSubtest.id };
 			}
 
@@ -182,10 +176,7 @@ export function createSubmitService(deps: SubmitServiceDependencies) {
 					await repo.finishAttempt(attempt.id);
 					await repo.saveScores(attempt.id, scores);
 				})
-				.catch(async (error: unknown) => {
-					console.error(error);
-					throw new DomainError("INTERNAL_SERVER_ERROR", "Gagal menyimpan skor tryout.");
-				});
+				.catch((error: unknown) => rethrowAsInternal(error, "Gagal menyimpan skor tryout."));
 
 			return { success: true as const, tryoutCompleted: true as const, score: scores.totalScore };
 		},
@@ -201,10 +192,7 @@ export function createSubmitService(deps: SubmitServiceDependencies) {
 					await repo.finishAttempt(attempt.id);
 					await repo.saveScores(attempt.id, scores);
 				})
-				.catch(async (error: unknown) => {
-					console.error(error);
-					throw new DomainError("INTERNAL_SERVER_ERROR", "Gagal menyimpan skor tryout.");
-				});
+				.catch((error: unknown) => rethrowAsInternal(error, "Gagal menyimpan skor tryout."));
 
 			return { success: true as const, score: scores.totalScore };
 		},
@@ -213,6 +201,5 @@ export function createSubmitService(deps: SubmitServiceDependencies) {
 
 export const submitService = createSubmitService({
 	repository: createTryoutRepository(db),
-	withTransaction: (fn) =>
-		db.transaction(async (trx) => fn({ repository: createTryoutRepository(trx), credit: createCreditRepository(trx) })),
+	withTransaction: runInTransaction,
 });

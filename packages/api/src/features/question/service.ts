@@ -1,7 +1,7 @@
 import { db } from "@bimbelbeta/db";
+import { normalizeQuestionContent, readTiptapContent } from "@/lib/content-utils";
 import { DomainError } from "@/lib/domain-error";
-import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
-import { normalizeQuestionContent, readTiptapContent } from "./content-utils";
+import { buildIdCursorPage, decodePageInput, parseIdCursor } from "@/lib/pagination/cursor";
 import { createQuestionRepository, type QuestionRepository, type QuestionRow } from "./repository";
 
 const CHOICE_CODES = ["A", "B", "C", "D", "E", "F", "G"] as const;
@@ -133,10 +133,8 @@ export function createQuestionService({ repository }: { repository: QuestionRepo
 		},
 
 		async list(input: ListQuestionsInput) {
-			const limit = input.limit ?? 10;
-			const isBackward = Boolean(input.before);
-			const cursorStr = input.before || input.after;
-			const cursorId = cursorStr ? parseIdCursor(cursorStr) : undefined;
+			const { limit, backward: isBackward, cursor, hasCursor } = decodePageInput(input, 10);
+			const cursorId = cursor ? parseIdCursor(cursor) : undefined;
 
 			const rows = await repository.listQuestions({
 				limit,
@@ -149,7 +147,7 @@ export function createQuestionService({ repository }: { repository: QuestionRepo
 				excludeIds: input.excludeIds,
 			});
 
-			const { items, pageInfo } = buildIdCursorPage(rows, limit, isBackward, Boolean(cursorStr));
+			const { items, pageInfo } = buildIdCursorPage(rows, limit, isBackward, hasCursor);
 			return {
 				items: items.map((row) => ({
 					...row,

@@ -45,10 +45,10 @@ export interface PageInput {
 	before?: string | undefined;
 }
 
-export function decodePageInput(input: PageInput | undefined) {
+export function decodePageInput(input: PageInput | undefined, defaultLimit = 20) {
 	const cursor = input?.after ?? input?.before;
 	return {
-		limit: Math.min(input?.limit ?? 20, 100),
+		limit: Math.min(input?.limit ?? defaultLimit, 100),
 		backward: !!input?.before,
 		cursor,
 		hasCursor: !!cursor,

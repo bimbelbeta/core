@@ -1,10 +1,10 @@
 import { db } from "@bimbelbeta/db";
 import type { Session } from "@/context";
-import { createCreditRepository } from "@/features/credit/repository";
+
 import { DomainError } from "@/lib/domain-error";
 import { parseNullableInt } from "@/lib/utils";
 import { hashAccessCode } from "./access-code";
-import { createTryoutRepository, type TryoutRepository, type TryoutTransaction } from "./repository";
+import { createTryoutRepository, runInTransaction, type TryoutRepository, type TryoutTransaction } from "./repository";
 
 export type StartTryoutRepository = Pick<
 	TryoutRepository,
@@ -151,6 +151,5 @@ export function createStartTryoutService(deps: StartTryoutDependencies) {
 
 export const startTryoutService = createStartTryoutService({
 	repository: createTryoutRepository(db),
-	withTransaction: (fn) =>
-		db.transaction(async (trx) => fn({ repository: createTryoutRepository(trx), credit: createCreditRepository(trx) })),
+	withTransaction: runInTransaction,
 });

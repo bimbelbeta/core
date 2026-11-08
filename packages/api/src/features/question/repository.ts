@@ -24,6 +24,7 @@ export type QuestionRepository = {
 	listQuestions: (query: ListQuestionsQuery) => Promise<QuestionRow[]>;
 	findQuestion: (id: number) => Promise<QuestionRow | undefined>;
 	listChoices: (questionId: number) => Promise<ChoiceRow[]>;
+	listQuestionsWithChoices: (questionIds: number[]) => Promise<{ question: QuestionRow; choices: ChoiceRow[] }[]>;
 	insertQuestion: (data: QuestionInsertData) => Promise<QuestionRow | undefined>;
 	insertChoices: (rows: ChoiceInsertData[]) => Promise<void>;
 	insertChoice: (data: ChoiceInsertData) => Promise<ChoiceRow | undefined>;
@@ -81,6 +82,26 @@ export function createQuestionRepository(client: DbClient): QuestionRepository {
 				.from(questionChoice)
 				.where(eq(questionChoice.questionId, questionId))
 				.orderBy(questionChoice.code);
+		},
+
+		async listQuestionsWithChoices(questionIds: number[]): Promise<{ question: QuestionRow; choices: ChoiceRow[] }[]> {
+			if (questionIds.length === 0) return [];
+
+			const rows = await client
+				.select({ question, choice: questionChoice })
+				.from(question)
+				.leftJoin(questionChoice, eq(questionChoice.questionId, question.id))
+				.where(inArray(question.id, questionIds))
+				.orderBy(question.id, questionChoice.code);
+
+			const byId = new Map<number, { question: QuestionRow; choices: ChoiceRow[] }>();
+			for (const row of rows) {
+				const entry = byId.get(row.question.id) ?? { question: row.question, choices: [] };
+				if (row.choice) entry.choices.push(row.choice);
+				byId.set(row.question.id, entry);
+			}
+
+			return [...byId.values()];
 		},
 
 		async insertQuestion(data: QuestionInsertData): Promise<QuestionRow | undefined> {

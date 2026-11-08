@@ -1,7 +1,7 @@
 import { db } from "@bimbelbeta/db";
 import type { Session } from "@/context";
 import { DomainError } from "@/lib/domain-error";
-import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
+import { buildIdCursorPage, decodePageInput, parseIdCursor } from "@/lib/pagination/cursor";
 import { parseNullableInt } from "@/lib/utils";
 import { flattenReviewQuestions, flattenTryoutQuestions } from "./question-utils";
 import { createTryoutRepository, type TryoutRepository } from "./repository";
@@ -31,10 +31,8 @@ export function createTryoutReadService(deps: ReadServiceDependencies) {
 	return {
 		async list(input: { limit?: number; after?: string; before?: string } | undefined, caller: Session["user"]) {
 			const now = new Date();
-			const limit = input?.limit ?? 20;
-			const isBackward = !!input?.before;
-			const cursorStr = input?.after ?? input?.before;
-			const cursorId = cursorStr ? parseIdCursor(cursorStr) : null;
+			const { limit, backward: isBackward, cursor, hasCursor } = decodePageInput(input);
+			const cursorId = cursor ? parseIdCursor(cursor) : null;
 
 			const rows = await repository.listForMember({
 				userId: caller.id,
@@ -43,7 +41,7 @@ export function createTryoutReadService(deps: ReadServiceDependencies) {
 				cursorId,
 			});
 
-			const { items, pageInfo } = buildIdCursorPage(rows, limit, isBackward, !!cursorStr);
+			const { items, pageInfo } = buildIdCursorPage(rows, limit, isBackward, hasCursor);
 
 			return {
 				items: items.map((t) => ({

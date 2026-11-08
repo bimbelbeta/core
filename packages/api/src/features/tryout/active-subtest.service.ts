@@ -1,5 +1,5 @@
 import { db } from "@bimbelbeta/db";
-import { DomainError } from "@/lib/domain-error";
+import { DomainError, rethrowAsInternal } from "@/lib/domain-error";
 import { type AnswerFields, createTryoutRepository, type TryoutRepository } from "./repository";
 
 export type ActiveSubtestRepository = Pick<
@@ -39,8 +39,7 @@ export function createActiveSubtestService({ repository }: { repository: ActiveS
 			try {
 				await repository.upsertAnswer(attemptId, input.questionId, answerFields);
 			} catch (error) {
-				console.error(error);
-				throw new DomainError("INTERNAL_SERVER_ERROR", "Gagal menyimpan jawaban.");
+				throw rethrowAsInternal(error, "Gagal menyimpan jawaban.");
 			}
 			return { success: true as const };
 		},
@@ -50,8 +49,7 @@ export function createActiveSubtestService({ repository }: { repository: ActiveS
 			try {
 				await repository.toggleAnswerDoubtful(attemptId, input.questionId);
 			} catch (error) {
-				console.error(error);
-				throw new DomainError("INTERNAL_SERVER_ERROR", "Gagal menyimpan status ragu-ragu.");
+				throw rethrowAsInternal(error, "Gagal menyimpan status ragu-ragu.");
 			}
 			return { success: true as const };
 		},

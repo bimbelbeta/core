@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { convertToTiptap } from "./convert-to-tiptap";
+import { convertToTiptap } from "@/lib/convert-to-tiptap";
 
 describe("convertToTiptap", () => {
 	test("wraps plain text in paragraph node", () => {

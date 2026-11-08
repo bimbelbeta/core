@@ -412,7 +412,7 @@ describe("product service", () => {
 		expect(pages[1]).toEqual({ limit: 100, cursorId: "prod-9", backward: true });
 	});
 
-	test("listForAdmin forwards filters and caps nothing at twenty", async () => {
+	test("listForAdmin forwards filters and caps the page size", async () => {
 		const pages: {
 			limit: number;
 			cursorId: string | null;
@@ -442,6 +442,6 @@ describe("product service", () => {
 
 		await service.listForAdmin({ limit: 350, variant: "monthly" });
 
-		expect(pages[1]).toMatchObject({ limit: 350, variant: "monthly" });
+		expect(pages[1]).toMatchObject({ limit: 100, variant: "monthly" });
 	});
 });

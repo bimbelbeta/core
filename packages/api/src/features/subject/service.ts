@@ -1,11 +1,11 @@
 import { canAccessContent } from "@bimbelbeta/contract/common/content-access";
 import { db } from "@bimbelbeta/db";
 import type { Session } from "@/context";
-import { readTiptapContent } from "@/features/question/content-utils";
-import type { QuestionRepository, QuestionRow } from "@/features/question/repository";
+import type { QuestionRepository } from "@/features/question/repository";
 import { createQuestionRepository } from "@/features/question/repository";
-import { DomainError } from "@/lib/domain-error";
-import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
+import { readTiptapContent } from "@/lib/content-utils";
+import { DomainError, withErrorFallback } from "@/lib/domain-error";
+import { buildIdCursorPage, decodePageInput, parseIdCursor } from "@/lib/pagination/cursor";
 import { pickDefined } from "@/lib/utils";
 import { createSubjectRepository, type SubjectChanges, type SubjectRepository, type SubjectRow } from "./repository";
 import { validateGradeLevel } from "./utils";
@@ -72,36 +72,32 @@ function classNotFound() {
 export function createSubjectService(deps: SubjectServiceDependencies) {
 	return {
 		async list(input: MemberListInput | undefined, caller: Session["user"]) {
-			const limit = input?.limit ?? 20;
-			const backward = !!input?.before;
-			const cursorStr = input?.after ?? input?.before;
+			const { limit, backward, cursor, hasCursor } = decodePageInput(input);
 			const rows = await deps.repository.listSubjects({
 				limit,
-				cursorId: cursorStr ? parseIdCursor(cursorStr) : null,
+				cursorId: cursor ? parseIdCursor(cursor) : null,
 				backward,
 				category: input?.category,
 				search: input?.search,
 				userId: caller.id,
 			});
-			return buildIdCursorPage(rows, limit, backward, !!cursorStr);
+			return buildIdCursorPage(rows, limit, backward, hasCursor);
 		},
 
 		async listContent(input: ListContentInput, caller: Session["user"]) {
 			const targetSubject = await deps.repository.findSubjectSummary(input.subjectId);
 			if (!targetSubject) throw subjectNotFound();
 
-			const limit = input.limit ?? 20;
-			const backward = !!input.before;
-			const cursorStr = input.after ?? input.before;
+			const { limit, backward, cursor, hasCursor } = decodePageInput(input);
 			const rows = await deps.repository.listContentItems({
 				subjectId: input.subjectId,
 				limit,
-				cursorId: cursorStr ? parseIdCursor(cursorStr) : null,
+				cursorId: cursor ? parseIdCursor(cursor) : null,
 				backward,
 				search: input.search,
 				userId: caller.id,
 			});
-			const { items, pageInfo } = buildIdCursorPage(rows, limit, backward, !!cursorStr);
+			const { items, pageInfo } = buildIdCursorPage(rows, limit, backward, hasCursor);
 
 			return {
 				subject: targetSubject,
@@ -119,39 +115,38 @@ export function createSubjectService(deps: SubjectServiceDependencies) {
 			}
 
 			const links = await deps.repository.listPracticeQuestionLinks(input.contentId);
-			const questions: {
-				questionId: number;
-				order: number;
-				question: Record<string, unknown>;
-				discussion: Record<string, unknown>;
-				type: QuestionRow["type"];
-				essayCorrectAnswer: string | null;
-				answers: { id: number; content: string; code: string; isCorrect: boolean }[];
-			}[] = [];
+			const questionsById = new Map(
+				(links.length > 0
+					? await deps.questionRepository.listQuestionsWithChoices(links.map((link) => link.questionId))
+					: []
+				).map((entry) => [entry.question.id, entry]),
+			);
 
-			for (const link of links) {
-				const questionRow = await deps.questionRepository.findQuestion(link.questionId);
-				if (!questionRow) continue;
-				const choices = await deps.questionRepository.listChoices(link.questionId);
-				questions.push({
-					questionId: link.questionId,
-					order: link.order,
-					question: readTiptapContent(questionRow.contentJson, questionRow.content),
-					discussion: readTiptapContent(questionRow.discussionJson, questionRow.discussion),
-					type: questionRow.type,
-					essayCorrectAnswer: questionRow.essayCorrectAnswer ?? null,
-					answers: choices
-						.map((choice) => ({
-							id: choice.id,
-							content: choice.content,
-							code: choice.code,
-							isCorrect: choice.isCorrect,
-						}))
-						.sort((a, b) => a.code.localeCompare(b.code)),
-				});
-			}
+			const questions = links
+				.flatMap((link) => {
+					const entry = questionsById.get(link.questionId);
+					if (!entry) return [];
 
-			questions.sort((a, b) => a.order - b.order);
+					return [
+						{
+							questionId: link.questionId,
+							order: link.order,
+							question: readTiptapContent(entry.question.contentJson, entry.question.content),
+							discussion: readTiptapContent(entry.question.discussionJson, entry.question.discussion),
+							type: entry.question.type,
+							essayCorrectAnswer: entry.question.essayCorrectAnswer ?? null,
+							answers: entry.choices
+								.map((choice) => ({
+									id: choice.id,
+									content: choice.content,
+									code: choice.code,
+									isCorrect: choice.isCorrect,
+								}))
+								.sort((a, b) => a.code.localeCompare(b.code)),
+						},
+					];
+				})
+				.sort((a, b) => a.order - b.order);
 
 			return {
 				id: row.id,
@@ -209,18 +204,15 @@ export function createSubjectService(deps: SubjectServiceDependencies) {
 			const item = await deps.repository.findContentRef(input.contentId);
 			if (!item) throw contentNotFound();
 
-			try {
-				await deps.repository.upsertProgress({
+			await withErrorFallback("Gagal menyimpan progres.", () =>
+				deps.repository.upsertProgress({
 					userId: caller.id,
 					contentItemId: input.contentId,
 					videoCompleted: input.videoCompleted,
 					noteCompleted: input.noteCompleted,
 					practiceQuestionsCompleted: input.practiceQuestionsCompleted,
-				});
-			} catch (error) {
-				console.error(error);
-				throw new DomainError("INTERNAL_SERVER_ERROR", "Gagal menyimpan progres.");
-			}
+				}),
+			);
 
 			return { message: "Progress berhasil disimpan" };
 		},
