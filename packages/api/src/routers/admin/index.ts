@@ -1,9 +1,9 @@
 import { adminContentRouter } from "@/features/content/admin-router";
 import { adminCreditRouter } from "@/features/credit/admin-router";
 import { adminProductRouter } from "@/features/product/admin-router";
-import { questionAdminRouter } from "@/features/question/admin-router";
 import { adminDashboardRouter } from "@/routers/admin/dashboard";
-import { adminReferralRouter } from "@/routers/admin/referral";
+import { adminReferralRouter } from "@/features/referral/admin-router";
+import { questionAdminRouter } from "@/features/question/admin-router";
 import { adminSubjectRouter } from "@/routers/admin/subject";
 import { subtestRouter } from "@/routers/admin/subtest";
 import { subtestQuestionRouter } from "@/routers/admin/subtest-question";
