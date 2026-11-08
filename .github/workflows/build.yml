@@ -73,6 +73,8 @@ jobs:
           platforms: linux/amd64
           push: ${{ github.ref == 'refs/heads/main' }}
           tags: ghcr.io/bimbelbeta/web:latest
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,mode=max,scope=web
           build-args: |
             TURBO_TEAM=${{ secrets.TURBO_TEAM }}
             TURBO_TOKEN=${{ secrets.TURBO_TOKEN }}
@@ -108,6 +110,8 @@ jobs:
           platforms: linux/amd64
           push: ${{ github.ref == 'refs/heads/main' }}
           tags: ghcr.io/bimbelbeta/server:latest
+          cache-from: type=gha,scope=server
+          cache-to: type=gha,mode=max,scope=server
           build-args: |
             TURBO_TEAM=${{ secrets.TURBO_TEAM }}
             TURBO_TOKEN=${{ secrets.TURBO_TOKEN }}

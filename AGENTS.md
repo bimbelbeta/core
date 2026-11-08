@@ -13,7 +13,7 @@
 - No prop drilling — use context (Tanstack Query/Router) or zustand
   - NEVER prop drill useQuery results. Call useQuery in child again — auto-cached, no duplicate requests
 - NEVER add comments — code self-documenting
-- **CRITICAL**: Run `bun build:packages` after API route changes (packages/api/src/routers/*) — regenerates type defs for web/server apps
+- **CRITICAL**: Run `bun build:packages` after API route changes (packages/api/src/features/*) — regenerates type defs for web/server apps
 - Run `bun lint:fix` and `bun check-types` when done
 
 ## Build Commands
@@ -40,7 +40,17 @@ bun test              # Run all tests
 - `db.select()` for complex joins, aggregations, multi-table queries
 - `db.query` (relational API) for simple nested-relation fetches (tree of related data)
 - Batch updates: SQL `CASE` expressions for reorder/batch-update, not loops with individual UPDATEs
-- Shared DB logic → `packages/api/src/lib/`, not router files. Only route handlers in `routers/`
+
+### API Layers
+
+See `docs/adr/0001-feature-sliced-api-layers.md`.
+
+- One folder per domain feature holding its router handlers, its service, and its repository. `lib/` is cross-cutting only
+- **Repository**: the only layer that touches the DB. A factory bound to a client (`db` or a transaction), so a transaction is threaded by construction. Returns rows or `undefined`; never throws a domain error
+- **Service**: the only layer that holds business rules. Receives its repository as a dependency, throws the domain error
+- **Router handler**: the only layer that knows oRPC. Calls a service and holds no error handling
+- Cross-feature: import another feature's repository, never its service
+- Middleware is router layer: may import repositories, never services, and holds no business rules
 
 ### Error Messages
 
@@ -56,8 +66,13 @@ bun test              # Run all tests
 ### File Structure
 
 ```
+packages/api/src/features/
+  feature-name/
+    router.ts        # Member-facing handlers
+    admin-router.ts  # Admin-facing handlers
+    service.ts       # Business rules + wired singleton
+    repository.ts    # DB access, client-bound factory
 packages/api/src/routers/
-  feature-name.ts    # Router
   index.ts           # appRouter exports
 packages/db/src/schema/
   feature-name.ts    # Schema defs
@@ -70,6 +85,9 @@ apps/web/src/routes/
 ```
 
 ## Lessons
+
+- When optimizing package builds, keep generated dts: the team prefers it for faster type inference and LSP performance when editing files.
+- When restructuring package imports, keep the `@/` alias; relative file paths are bad for code structure.
 
 - When writing form labels, keep the bold text to the field name; optional markers, defaults, and explanations go in muted hints, never inside the label text.
 - When building admin dialogs, follow the form-dialog standard: no Batal (X/overlay closes), two-column label-left rows via AdminFieldRow, xs buttons, text-base title, and capped width (sizes carry sm:max-w defaults).

@@ -8,18 +8,17 @@
 	},
 	"tasks": {
 		"build": {
-			"dependsOn": ["^build", "lint", "test"],
+			"dependsOn": ["^build"],
 			"inputs": ["$TURBO_DEFAULT$", ".env*"],
 			"env": ["VITE_SERVER_URL", "VITE_MIDTRANS_CLIENT_KEY", "VITE_PAYMENTS_ENABLED"],
 			"outputs": ["dist/**", ".output/**"]
 		},
 		"lint": {
-			"dependsOn": ["^lint"],
 			"inputs": ["$TURBO_DEFAULT$", "../../**/*.tsx"]
 		},
 		"check-types": {
 			"cache": true,
-			"dependsOn": ["^check-types"]
+			"dependsOn": ["^build"]
 		},
 		"dev": {
 			"cache": false,
@@ -73,7 +72,7 @@
 			"cache": false
 		},
 		"test": {
-			"dependsOn": ["^build", "^test"],
+			"dependsOn": ["^build"],
 			"inputs": ["$TURBO_DEFAULT$"]
 		}
 	}

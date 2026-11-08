@@ -42,7 +42,6 @@ WORKDIR /usr/src/app
 
 COPY --from=installer /usr/src/app ./
 COPY . .
-RUN turbo prune web
 RUN turbo build --filter=web
 
 FROM configs AS runner
