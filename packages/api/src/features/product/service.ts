@@ -1,7 +1,7 @@
 import { generateSlug } from "@bimbelbeta/contract/utils";
 import { db } from "@bimbelbeta/db";
 import { DomainError } from "@/lib/domain-error";
-import { buildStringIdCursorPage, decodePageInput, parseStringIdCursor } from "@/lib/pagination/cursor";
+import { buildStringIdCursorPage, decodeStringIdPage } from "@/lib/pagination/cursor";
 import { createProductRepository, type ProductChanges, type ProductRepository, type ProductRow } from "./repository";
 
 export type MemberListInput = { limit?: number; after?: string; before?: string };
@@ -49,20 +49,20 @@ function productNotFound() {
 export function createProductService({ repository }: { repository: ProductRepository }) {
 	return {
 		async listForMember(input: MemberListInput | undefined) {
-			const { limit, backward, cursor, hasCursor } = decodePageInput(input);
+			const { limit, backward, cursorId, hasCursor } = decodeStringIdPage(input);
 			const rows = await repository.listForMember({
 				limit,
-				cursorId: cursor ? parseStringIdCursor(cursor) : null,
+				cursorId: cursorId ?? null,
 				backward,
 			});
 			return buildStringIdCursorPage(rows, limit, backward, hasCursor);
 		},
 
 		async listForAdmin(input: AdminListInput) {
-			const { limit, backward, cursor, hasCursor } = decodePageInput(input, 10);
+			const { limit, backward, cursorId, hasCursor } = decodeStringIdPage(input, 10);
 			const rows = await repository.listForAdmin({
 				limit,
-				cursorId: cursor ? parseStringIdCursor(cursor) : null,
+				cursorId: cursorId ?? null,
 				backward,
 				search: input.search,
 				variant: input.variant,

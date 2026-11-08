@@ -1,7 +1,7 @@
 import { db } from "@bimbelbeta/db";
 import type { Session } from "@/context";
 import { DomainError } from "@/lib/domain-error";
-import { buildStringIdCursorPage, decodePageInput, parseStringIdCursor } from "@/lib/pagination/cursor";
+import { buildStringIdCursorPage, decodeStringIdPage } from "@/lib/pagination/cursor";
 import { type CreditRepository, createCreditRepository } from "./repository";
 
 export type CreditServiceDependencies = {
@@ -52,10 +52,9 @@ export const createCreditService = (deps: CreditServiceDependencies) => ({
 	},
 
 	async packages(input: { limit?: number; after?: string; before?: string } | undefined) {
-		const { limit, backward, cursor, hasCursor } = decodePageInput(input);
-		const cursorId = cursor ? parseStringIdCursor(cursor) : null;
+		const { limit, backward, cursorId, hasCursor } = decodeStringIdPage(input);
 
-		const rows = await deps.repository.listCreditPackages({ cursorId, isBackward: backward, limit });
+		const rows = await deps.repository.listCreditPackages({ cursorId: cursorId ?? null, isBackward: backward, limit });
 
 		return buildStringIdCursorPage(rows, limit, backward, hasCursor);
 	},

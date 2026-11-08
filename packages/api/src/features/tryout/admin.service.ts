@@ -1,7 +1,7 @@
 import { db } from "@bimbelbeta/db";
 import { readTiptapContent } from "@/lib/content-utils";
 import { DomainError } from "@/lib/domain-error";
-import { buildIdCursorPage, decodePageInput, parseIdCursor } from "@/lib/pagination/cursor";
+import { buildIdCursorPage, decodeIdPage } from "@/lib/pagination/cursor";
 import { parseNullableInt, pickDefined } from "@/lib/utils";
 import { generateAccessCode, hashAccessCode } from "./access-code";
 import { createTryoutRepository, type TryoutRepository } from "./repository";
@@ -118,8 +118,7 @@ export function createTryoutAdminService({ repository }: { repository: AdminServ
 		},
 
 		async list(input: ListTryoutInput) {
-			const { limit, backward: isBackward, cursor, hasCursor } = decodePageInput(input, 10);
-			const cursorId = cursor ? parseIdCursor(cursor) : undefined;
+			const { limit, backward: isBackward, cursorId, hasCursor } = decodeIdPage(input, 10);
 
 			const rows = await repository.listForAdmin({
 				limit,
@@ -211,8 +210,7 @@ export function createTryoutAdminService({ repository }: { repository: AdminServ
 		},
 
 		async listAttempts(input: PaginatedByTryoutInput) {
-			const { limit, backward: isBackward, cursor, hasCursor } = decodePageInput(input, 10);
-			const cursorId = cursor ? parseIdCursor(cursor) : undefined;
+			const { limit, backward: isBackward, cursorId, hasCursor } = decodeIdPage(input, 10);
 
 			const rows = await repository.listAttemptsWithUsers(input.id, {
 				limit,

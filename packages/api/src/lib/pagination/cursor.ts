@@ -55,6 +55,16 @@ export function decodePageInput(input: PageInput | undefined, defaultLimit = 20)
 	};
 }
 
+export function decodeIdPage(input: PageInput | undefined, defaultLimit = 20) {
+	const { limit, backward, cursor, hasCursor } = decodePageInput(input, defaultLimit);
+	return { limit, backward, cursorId: cursor ? parseIdCursor(cursor) : undefined, hasCursor };
+}
+
+export function decodeStringIdPage(input: PageInput | undefined, defaultLimit = 20) {
+	const { limit, backward, cursor, hasCursor } = decodePageInput(input, defaultLimit);
+	return { limit, backward, cursorId: cursor ? parseStringIdCursor(cursor) : undefined, hasCursor };
+}
+
 export interface IdCursorPageInfo {
 	hasNextPage: boolean;
 	hasPreviousPage: boolean;

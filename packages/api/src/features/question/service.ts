@@ -1,7 +1,7 @@
 import { db } from "@bimbelbeta/db";
 import { normalizeQuestionContent, readTiptapContent } from "@/lib/content-utils";
 import { DomainError } from "@/lib/domain-error";
-import { buildIdCursorPage, decodePageInput, parseIdCursor } from "@/lib/pagination/cursor";
+import { buildIdCursorPage, decodeIdPage } from "@/lib/pagination/cursor";
 import { createQuestionRepository, type QuestionRepository, type QuestionRow } from "./repository";
 
 const CHOICE_CODES = ["A", "B", "C", "D", "E", "F", "G"] as const;
@@ -133,8 +133,7 @@ export function createQuestionService({ repository }: { repository: QuestionRepo
 		},
 
 		async list(input: ListQuestionsInput) {
-			const { limit, backward: isBackward, cursor, hasCursor } = decodePageInput(input, 10);
-			const cursorId = cursor ? parseIdCursor(cursor) : undefined;
+			const { limit, backward: isBackward, cursorId, hasCursor } = decodeIdPage(input, 10);
 
 			const rows = await repository.listQuestions({
 				limit,

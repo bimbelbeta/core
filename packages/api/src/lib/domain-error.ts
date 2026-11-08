@@ -20,6 +20,8 @@ export class DomainError extends Error {
 }
 
 function rethrowAsInternal(error: unknown, message: string): never {
+	if (error instanceof DomainError) throw error;
+
 	console.error(error);
 	throw new DomainError("INTERNAL_SERVER_ERROR", message);
 }

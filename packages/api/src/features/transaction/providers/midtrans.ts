@@ -211,7 +211,7 @@ async function fetchStatus(orderId: string): Promise<PaymentEvent> {
 	const detail = [channelMessage, statusMessage].find(
 		(message) => message && message !== "midtrans payment notification",
 	);
-	const settled = settlementOf(body as Record<string, unknown>);
+	const settled = settlementOf(body);
 	if (status !== "failed") return { status, ...settled };
 
 	return {
@@ -228,9 +228,9 @@ async function fetchStatus(orderId: string): Promise<PaymentEvent> {
  * Everything is optional because Midtrans omits what does not apply to the payment channel, and a
  * missing field must never be mistaken for a value.
  */
-function settlementOf(body: Record<string, unknown>): Omit<PaymentEvent, "status" | "failure" | "detail"> {
+function settlementOf(body: object): Omit<PaymentEvent, "status" | "failure" | "detail"> {
 	const read = (key: string) => {
-		const value = body[key];
+		const value: unknown = Reflect.get(body, key);
 		return typeof value === "string" ? value : undefined;
 	};
 	return {

@@ -3,7 +3,7 @@ import { db } from "@bimbelbeta/db";
 import type { Session } from "@/context";
 import { createUniversityRepository, type UniversityRepository } from "@/features/university/repository";
 import { DomainError } from "@/lib/domain-error";
-import { buildStringIdCursorPage, decodePageInput, parseStringIdCursor } from "@/lib/pagination/cursor";
+import { buildStringIdCursorPage, decodeStringIdPage } from "@/lib/pagination/cursor";
 import { createUserRepository, type UserRepository } from "./repository";
 
 type UpdateTargetInput = {
@@ -62,8 +62,7 @@ export const createUserService = ({
 	},
 
 	async listUsers(input: ListUsersInput) {
-		const { limit, backward, cursor, hasCursor } = decodePageInput(input);
-		const cursorId = cursor ? parseStringIdCursor(cursor) : undefined;
+		const { limit, backward, cursorId, hasCursor } = decodeStringIdPage(input);
 
 		const rows = await repository.listUsers({
 			limit,

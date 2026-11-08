@@ -1,7 +1,7 @@
 import { db } from "@bimbelbeta/db";
 import type { Session } from "@/context";
 import { DomainError } from "@/lib/domain-error";
-import { buildIdCursorPage, decodePageInput, parseIdCursor } from "@/lib/pagination/cursor";
+import { buildIdCursorPage, decodeIdPage } from "@/lib/pagination/cursor";
 import { parseNullableInt } from "@/lib/utils";
 import { flattenReviewQuestions, flattenTryoutQuestions } from "./question-utils";
 import { createTryoutRepository, type TryoutRepository } from "./repository";
@@ -31,14 +31,13 @@ export function createTryoutReadService(deps: ReadServiceDependencies) {
 	return {
 		async list(input: { limit?: number; after?: string; before?: string } | undefined, caller: Session["user"]) {
 			const now = new Date();
-			const { limit, backward: isBackward, cursor, hasCursor } = decodePageInput(input);
-			const cursorId = cursor ? parseIdCursor(cursor) : null;
+			const { limit, backward: isBackward, cursorId, hasCursor } = decodeIdPage(input);
 
 			const rows = await repository.listForMember({
 				userId: caller.id,
 				limit,
 				backward: isBackward,
-				cursorId,
+				cursorId: cursorId ?? null,
 			});
 
 			const { items, pageInfo } = buildIdCursorPage(rows, limit, isBackward, hasCursor);

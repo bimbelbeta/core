@@ -5,7 +5,7 @@ import type { QuestionRepository } from "@/features/question/repository";
 import { createQuestionRepository } from "@/features/question/repository";
 import { readTiptapContent } from "@/lib/content-utils";
 import { DomainError, withErrorFallback } from "@/lib/domain-error";
-import { buildIdCursorPage, decodePageInput, parseIdCursor } from "@/lib/pagination/cursor";
+import { buildIdCursorPage, decodeIdPage } from "@/lib/pagination/cursor";
 import { pickDefined } from "@/lib/utils";
 import { createSubjectRepository, type SubjectChanges, type SubjectRepository, type SubjectRow } from "./repository";
 import { validateGradeLevel } from "./utils";
@@ -72,10 +72,10 @@ function classNotFound() {
 export function createSubjectService(deps: SubjectServiceDependencies) {
 	return {
 		async list(input: MemberListInput | undefined, caller: Session["user"]) {
-			const { limit, backward, cursor, hasCursor } = decodePageInput(input);
+			const { limit, backward, cursorId, hasCursor } = decodeIdPage(input);
 			const rows = await deps.repository.listSubjects({
 				limit,
-				cursorId: cursor ? parseIdCursor(cursor) : null,
+				cursorId: cursorId ?? null,
 				backward,
 				category: input?.category,
 				search: input?.search,
@@ -88,11 +88,11 @@ export function createSubjectService(deps: SubjectServiceDependencies) {
 			const targetSubject = await deps.repository.findSubjectSummary(input.subjectId);
 			if (!targetSubject) throw subjectNotFound();
 
-			const { limit, backward, cursor, hasCursor } = decodePageInput(input);
+			const { limit, backward, cursorId, hasCursor } = decodeIdPage(input);
 			const rows = await deps.repository.listContentItems({
 				subjectId: input.subjectId,
 				limit,
-				cursorId: cursor ? parseIdCursor(cursor) : null,
+				cursorId: cursorId ?? null,
 				backward,
 				search: input.search,
 				userId: caller.id,

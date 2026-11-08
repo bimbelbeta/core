@@ -1,7 +1,7 @@
 import { db } from "@bimbelbeta/db";
 import type { Session } from "@/context";
 import { DomainError } from "@/lib/domain-error";
-import { buildStringIdCursorPage, decodePageInput, parseStringIdCursor } from "@/lib/pagination/cursor";
+import { buildStringIdCursorPage, decodeStringIdPage } from "@/lib/pagination/cursor";
 import { createReferralRepository, type ReferralRepository } from "./repository";
 
 export type ReferralServiceDependencies = {
@@ -40,8 +40,7 @@ export const createReferralService = (deps: ReferralServiceDependencies) => ({
 	},
 
 	async list(input: { after?: string; before?: string; limit?: number; search?: string; status?: boolean }) {
-		const { limit, backward, cursor, hasCursor } = decodePageInput(input);
-		const cursorId = cursor ? parseStringIdCursor(cursor) : undefined;
+		const { limit, backward, cursorId, hasCursor } = decodeStringIdPage(input);
 
 		const rows = await deps.repository.listCodes({
 			limit,
@@ -75,8 +74,7 @@ export const createReferralService = (deps: ReferralServiceDependencies) => ({
 		const codeData = await deps.repository.findCodeById(input.codeId);
 		if (!codeData) throw new DomainError("NOT_FOUND", "Kode referal tidak ditemukan.");
 
-		const { limit, backward, cursor, hasCursor } = decodePageInput(input);
-		const cursorId = cursor ? parseStringIdCursor(cursor) : undefined;
+		const { limit, backward, cursorId, hasCursor } = decodeStringIdPage(input);
 
 		const rows = await deps.repository.listUsages({
 			referralCodeId: input.codeId,
