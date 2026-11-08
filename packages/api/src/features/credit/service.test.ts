@@ -28,6 +28,7 @@ const emptyRepository = {
 	listCreditHistory: async () => [],
 	applyCreditAdjustment: async () => ({ newBalance: 0 }),
 	deductCreditForTryoutAttempt: async () => ({ balanceAfter: 0 }),
+	grantPurchasedCredits: async () => ({ balanceAfter: 0 }),
 };
 
 function makeRepository(overrides: Partial<CreditRepository> = {}): CreditRepository {
@@ -39,6 +40,7 @@ function makeRepository(overrides: Partial<CreditRepository> = {}): CreditReposi
 		applyCreditAdjustment: overrides.applyCreditAdjustment ?? emptyRepository.applyCreditAdjustment,
 		deductCreditForTryoutAttempt:
 			overrides.deductCreditForTryoutAttempt ?? emptyRepository.deductCreditForTryoutAttempt,
+		grantPurchasedCredits: overrides.grantPurchasedCredits ?? emptyRepository.grantPurchasedCredits,
 		transaction: async (fn) => fn(repository),
 		...overrides,
 	};

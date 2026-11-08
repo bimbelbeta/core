@@ -1,5 +1,7 @@
 import { db } from "@bimbelbeta/db";
+import { createCreditRepository } from "@/features/credit/repository";
 import { createProductRepository } from "@/features/product/repository";
+import { createUserRepository } from "@/features/user/repository";
 import { createNotificationService } from "./notification.service";
 import { processSuccessfulTransaction } from "./processor";
 import { midtransProvider } from "./providers/midtrans";
@@ -24,7 +26,15 @@ export const notificationService = createNotificationService({
 	fetchStatus: midtransProvider.fetchStatus,
 	find: paymentRepository.findTransactionWithProduct,
 	updateStatus: paymentRepository.updateStatus,
-	process: (options) => db.transaction((trx) => processSuccessfulTransaction({ ...options, trx })),
+	process: (options) =>
+		db.transaction((trx) =>
+			processSuccessfulTransaction({
+				...options,
+				repository: createTransactionRepository(trx),
+				userRepository: createUserRepository(trx),
+				creditRepository: createCreditRepository(trx),
+			}),
+		),
 });
 
 export const transactionService = createTransactionService({

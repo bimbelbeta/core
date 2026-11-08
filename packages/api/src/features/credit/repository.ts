@@ -128,6 +128,36 @@ export const createCreditRepository = (db: DbClient) => {
 			return { balanceAfter };
 		},
 
+		async grantPurchasedCredits({
+			userId,
+			transactionId,
+			amount,
+			note,
+		}: {
+			userId: string;
+			transactionId: string;
+			amount: number;
+			note: string;
+		}) {
+			const [updated] = await db
+				.update(user)
+				.set({ tryoutCredits: sql`COALESCE(${user.tryoutCredits}, 0) + ${amount}` })
+				.where(eq(user.id, userId))
+				.returning({ tryoutCredits: user.tryoutCredits });
+
+			const balanceAfter = updated?.tryoutCredits ?? 0;
+
+			await db.insert(creditTransaction).values({
+				userId,
+				transactionId,
+				amount,
+				balanceAfter,
+				note,
+			});
+
+			return { balanceAfter };
+		},
+
 		transaction,
 	};
 };

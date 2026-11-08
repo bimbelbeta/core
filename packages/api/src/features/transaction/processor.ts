@@ -1,12 +1,12 @@
-import type { DbClient } from "@bimbelbeta/db";
-import { user } from "@bimbelbeta/db/schema/auth";
-import { creditTransaction } from "@bimbelbeta/db/schema/credit";
-import { transaction } from "@bimbelbeta/db/schema/transaction";
-import { and, eq, isNull, sql } from "drizzle-orm";
+import type { CreditRepository } from "@/features/credit/repository";
+import type { UserRepository } from "@/features/user/repository";
+import type { TransactionRepository } from "./repository";
 import type { PurchaseBenefits, Settlement, TransactionWithProduct } from "./types";
 
 export interface ProcessSuccessfulTransactionOpts {
-	trx: DbClient;
+	repository: Pick<TransactionRepository, "claimOrder">;
+	userRepository: Pick<UserRepository, "grantPremium">;
+	creditRepository: Pick<CreditRepository, "grantPurchasedCredits">;
 	orderId: string;
 	userId: string;
 	existingTransaction: TransactionWithProduct;
@@ -29,7 +29,9 @@ export interface ProcessSuccessfulTransactionOpts {
  * already had.
  */
 export async function processSuccessfulTransaction({
-	trx,
+	repository,
+	userRepository,
+	creditRepository,
 	orderId,
 	userId,
 	existingTransaction,
@@ -37,37 +39,19 @@ export async function processSuccessfulTransaction({
 	benefits,
 	settlement,
 }: ProcessSuccessfulTransactionOpts): Promise<boolean> {
-	const claimed = await trx
-		.update(transaction)
-		.set({ status: "success", paidAt: purchaseDate, ...settlement })
-		.where(and(eq(transaction.id, orderId), isNull(transaction.paidAt)))
-		.returning({ id: transaction.id });
+	const claimed = await repository.claimOrder(orderId, { purchaseDate, settlement });
 
-	if (claimed.length === 0) return false;
+	if (!claimed) return false;
 
 	if (benefits.grantsPremium && benefits.premiumExpiry) {
-		await trx
-			.update(user)
-			.set({ isPremium: true, premiumExpiresAt: benefits.premiumExpiry })
-			.where(eq(user.id, userId));
+		await userRepository.grantPremium(userId, benefits.premiumExpiry);
 	}
 
 	if (benefits.grantsCredits && benefits.creditsToAdd) {
-		const creditsToAdd = benefits.creditsToAdd;
-
-		const updatedUser = (
-			await trx
-				.update(user)
-				.set({ tryoutCredits: sql`COALESCE(${user.tryoutCredits}, 0) + ${creditsToAdd}` })
-				.where(eq(user.id, userId))
-				.returning({ tryoutCredits: user.tryoutCredits })
-		)[0]!;
-
-		await trx.insert(creditTransaction).values({
-			userId: userId,
+		await creditRepository.grantPurchasedCredits({
+			userId,
 			transactionId: orderId,
-			amount: creditsToAdd,
-			balanceAfter: updatedUser.tryoutCredits!,
+			amount: benefits.creditsToAdd,
 			note: `Purchased ${existingTransaction.prodSlug}`,
 		});
 	}

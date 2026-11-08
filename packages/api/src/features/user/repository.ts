@@ -136,6 +136,10 @@ export function createUserRepository(client: DbClient) {
 			await client.update(user).set({ isPremium: false }).where(eq(user.id, userId));
 		},
 
+		async grantPremium(userId: string, expiresAt: Date) {
+			await client.update(user).set({ isPremium: true, premiumExpiresAt: expiresAt }).where(eq(user.id, userId));
+		},
+
 		async countDashboardStats(since: Date): Promise<DashboardUserCounts | undefined> {
 			const [row] = await client
 				.select({

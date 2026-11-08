@@ -9,7 +9,12 @@ export type NotificationServiceDependencies = {
 	fetchStatus: PaymentProvider<unknown>["fetchStatus"];
 	find: TransactionRepository["findTransactionWithProduct"];
 	updateStatus: TransactionRepository["updateStatus"];
-	process: (options: Omit<Parameters<typeof processSuccessfulTransaction>[0], "trx">) => Promise<boolean>;
+	process: (
+		options: Omit<
+			Parameters<typeof processSuccessfulTransaction>[0],
+			"repository" | "userRepository" | "creditRepository"
+		>,
+	) => Promise<boolean>;
 };
 
 export const createNotificationService = (deps: NotificationServiceDependencies) => ({

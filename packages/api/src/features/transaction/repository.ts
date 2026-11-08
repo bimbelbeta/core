@@ -68,7 +68,27 @@ export function createTransactionRepository(client: DbClient) {
 		return row;
 	}
 
-	return { findForMember, createTransaction, findTransactionWithProduct, updateStatus, sumSuccessfulGrossSince };
+	async function claimOrder(
+		orderId: string,
+		{ purchaseDate, settlement }: { purchaseDate: Date; settlement: Settlement },
+	): Promise<boolean> {
+		const claimed = await client
+			.update(transaction)
+			.set({ status: "success", paidAt: purchaseDate, ...settlement })
+			.where(and(eq(transaction.id, orderId), isNull(transaction.paidAt)))
+			.returning({ id: transaction.id });
+
+		return claimed.length > 0;
+	}
+
+	return {
+		findForMember,
+		createTransaction,
+		findTransactionWithProduct,
+		updateStatus,
+		sumSuccessfulGrossSince,
+		claimOrder,
+	};
 }
 
 export type TransactionRepository = ReturnType<typeof createTransactionRepository>;
