@@ -315,10 +315,17 @@ export function createUniversityService({ repository }: { repository: University
 			return { items };
 		},
 
-		async listAdminUniversities(input: PageServiceInput & { search?: string }) {
+		async listAdminUniversities(input: PageServiceInput & { search?: string; isActive?: boolean }) {
 			const { limit, isBackward, cursorId, hasCursor } = parseIdPage(input);
-			const rows = await repository.listAdminUniversities({ limit, cursorId, isBackward, search: input.search });
-			return buildIdCursorPage(rows, limit, isBackward, hasCursor);
+			const { rows, totalCount } = await repository.listAdminUniversities({
+				limit,
+				cursorId,
+				isBackward,
+				search: input.search,
+				isActive: input.isActive,
+			});
+			const { items, pageInfo } = buildIdCursorPage(rows, limit, isBackward, hasCursor);
+			return { items, pageInfo: { ...pageInfo, totalCount } };
 		},
 
 		async listStudyPrograms(input: PageServiceInput & { search?: string; category?: "SAINTEK" | "SOSHUM" }) {

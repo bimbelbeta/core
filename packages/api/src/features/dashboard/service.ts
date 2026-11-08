@@ -5,10 +5,6 @@ function monthStart(now: Date, monthOffset: number) {
 	return new Date(now.getFullYear(), now.getMonth() - monthOffset, 1);
 }
 
-function trend(current: number, previous: number) {
-	return previous > 0 ? ((current - previous) / previous) * 100 : 0;
-}
-
 export function createDashboardService({ repository }: { repository: DashboardRepository }) {
 	return {
 		async stats() {
@@ -16,23 +12,32 @@ export function createDashboardService({ repository }: { repository: DashboardRe
 			const currentMonthStart = monthStart(now, 0);
 			const lastMonthStart = monthStart(now, 1);
 
-			const userCounts = await repository.userCounts(lastMonthStart);
-			const subjectCount = await repository.subjectCount();
-			const monthlyRevenue = await repository.successfulRevenueSince(currentMonthStart);
-			const lastMonthRevenue = await repository.successfulRevenueSince(lastMonthStart);
+			const [userCounts, questionCounts, monthlyRevenue, lastMonthRevenue, recentTryouts] = await Promise.all([
+				repository.userCounts(lastMonthStart),
+				repository.questionCounts(),
+				repository.successfulRevenueSince(currentMonthStart),
+				repository.successfulRevenueSince(lastMonthStart, currentMonthStart),
+				repository.recentTryouts(6),
+			]);
 
 			const totalUsers = userCounts?.total ?? 0;
-			const premiumUsers = userCounts?.premium ?? 0;
+			const currentRevenue = monthlyRevenue?.total ?? 0;
+			const previousRevenue = lastMonthRevenue?.total ?? 0;
+			const usersBeforeThisMonth = totalUsers - (userCounts?.createdSince ?? 0);
 
 			return {
 				totalUsers,
-				premiumUsers,
-				activeSubjects: subjectCount?.count ?? 0,
-				monthlyRevenue: monthlyRevenue?.total ?? 0,
-				usersTrend: trend(totalUsers, userCounts?.createdSince ?? 0),
-				premiumTrend: trend(premiumUsers, userCounts?.premiumExpiringSince ?? 0),
-				subjectsTrend: 0,
-				revenueTrend: trend(monthlyRevenue?.total ?? 0, lastMonthRevenue?.total ?? 0),
+				premiumUsers: userCounts?.premium ?? 0,
+				monthlyRevenue: currentRevenue,
+				usersTrend:
+					usersBeforeThisMonth > 0 ? ((totalUsers - usersBeforeThisMonth) / usersBeforeThisMonth) * 100 : null,
+				revenueTrend: previousRevenue > 0 ? ((currentRevenue - previousRevenue) / previousRevenue) * 100 : null,
+				totalQuestions: questionCounts.total,
+				essayQuestions: questionCounts.essay,
+				recentTryouts: recentTryouts.map((tryout) => ({
+					...tryout,
+					updatedAt: tryout.updatedAt?.toISOString() ?? null,
+				})),
 			};
 		},
 	};

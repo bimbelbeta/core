@@ -111,11 +111,17 @@ function makeRepository(state: ReturnType<typeof makeState>) {
 			cursorId?: string;
 			isBackward: boolean;
 			search?: string;
-			status?: boolean;
+			filter?: { status: boolean; notExpired?: boolean; hasQuota?: boolean; expired?: boolean; quotaReached?: boolean };
 		}) {
+			const now = new Date();
+			const filter = query.filter;
 			const matches = state.codes
 				.filter((row) => (query.search ? row.code.toLowerCase().includes(query.search.toLowerCase()) : true))
-				.filter((row) => (query.status !== undefined ? row.status === query.status : true))
+				.filter((row) => (filter ? row.status === filter.status : true))
+				.filter((row) => (filter?.notExpired ? !row.validUntil || row.validUntil > now : true))
+				.filter((row) => (filter?.hasQuota ? row.maxUsages === null || row.maxUsages > row.usageCount : true))
+				.filter((row) => (filter?.expired ? row.validUntil !== null && row.validUntil <= now : true))
+				.filter((row) => (filter?.quotaReached ? row.maxUsages !== null && row.maxUsages <= row.usageCount : true))
 				.sort((a, b) => (a.id < b.id ? -1 : 1));
 			const cursorId = query.cursorId;
 			const scoped = cursorId
@@ -125,6 +131,21 @@ function makeRepository(state: ReturnType<typeof makeState>) {
 				: matches;
 			const ordered = query.isBackward ? scoped.slice().reverse() : scoped;
 			return ordered.slice(0, query.limit + 1);
+		},
+		async countCodes(query: {
+			search?: string;
+			filter?: { status: boolean; notExpired?: boolean; hasQuota?: boolean; expired?: boolean; quotaReached?: boolean };
+		}) {
+			const now = new Date();
+			const filter = query.filter;
+			return state.codes
+				.filter((row) => (query.search ? row.code.toLowerCase().includes(query.search.toLowerCase()) : true))
+				.filter((row) => (filter ? row.status === filter.status : true))
+				.filter((row) => (filter?.notExpired ? !row.validUntil || row.validUntil > now : true))
+				.filter((row) => (filter?.hasQuota ? row.maxUsages === null || row.maxUsages > row.usageCount : true))
+				.filter((row) => (filter?.expired ? row.validUntil !== null && row.validUntil <= now : true))
+				.filter((row) => (filter?.quotaReached ? row.maxUsages !== null && row.maxUsages <= row.usageCount : true))
+				.length;
 		},
 		async recordUsage(values: ReferralUsageRow) {
 			state.usages.push(values);
@@ -356,6 +377,7 @@ describe("list", () => {
 			hasPreviousPage: false,
 			startCursor: createStringIdCursor("code-a"),
 			endCursor: createStringIdCursor("code-c"),
+			totalCount: 3,
 		});
 	});
 
@@ -368,7 +390,7 @@ describe("list", () => {
 		];
 		const service = makeService(state);
 
-		const result = await service.list({ search: "aa", status: true });
+		const result = await service.list({ search: "aa", status: "aktif" });
 
 		expect(result.items.map((item) => item.code)).toEqual(["PREMAAA"]);
 	});
@@ -397,6 +419,7 @@ describe("list", () => {
 			hasPreviousPage: true,
 			startCursor: createStringIdCursor("code-b"),
 			endCursor: createStringIdCursor("code-c"),
+			totalCount: 4,
 		});
 	});
 });

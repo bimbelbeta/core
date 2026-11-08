@@ -39,20 +39,36 @@ export const createReferralService = (deps: ReferralServiceDependencies) => ({
 		return created;
 	},
 
-	async list(input: { after?: string; before?: string; limit?: number; search?: string; status?: boolean }) {
+	async list(input: {
+		after?: string;
+		before?: string;
+		limit?: number;
+		search?: string;
+		status?: "aktif" | "nonaktif" | "kedaluwarsa" | "kuota_habis";
+	}) {
 		const { limit, backward, cursorId, hasCursor } = decodeStringIdPage(input);
+
+		const filter = input.status
+			? {
+					aktif: { status: true, notExpired: true, hasQuota: true },
+					nonaktif: { status: false },
+					kedaluwarsa: { status: true, expired: true },
+					kuota_habis: { status: true, quotaReached: true },
+				}[input.status]
+			: undefined;
 
 		const rows = await deps.repository.listCodes({
 			limit,
 			cursorId,
 			isBackward: backward,
 			search: input.search,
-			status: input.status,
+			filter,
 		});
 
 		const { items, pageInfo } = buildStringIdCursorPage(rows, limit, backward, hasCursor);
+		const totalCount = await deps.repository.countCodes({ search: input.search, filter });
 
-		return { items, pageInfo };
+		return { items, pageInfo: { ...pageInfo, totalCount } };
 	},
 
 	async updateStatus(input: { codeId: string; status: boolean }) {
@@ -133,6 +149,7 @@ export const createReferralService = (deps: ReferralServiceDependencies) => ({
 			return {
 				message: `Selamat! Akun Premium Anda aktif hingga ${claimedDate}.`,
 				premiumExpiresAt: newPremiumExpiresAt,
+				premiumDays: codeRow.premiumDays,
 			};
 		});
 	},

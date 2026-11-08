@@ -1,6 +1,6 @@
 import type { DbClient } from "@bimbelbeta/db";
 import { product, transaction } from "@bimbelbeta/db/schema/transaction";
-import { and, eq, gte, isNull, sql } from "drizzle-orm";
+import { and, eq, gte, isNull, lt, sql } from "drizzle-orm";
 import type { PaymentFailureCode } from "./failures";
 import type { Settlement, TransactionWithProduct } from "./types";
 
@@ -58,13 +58,19 @@ export function createTransactionRepository(client: DbClient) {
 			.where(and(eq(transaction.id, orderId), isNull(transaction.paidAt)));
 	}
 
-	async function sumSuccessfulGrossSince(since: Date): Promise<{ total: number } | undefined> {
+	async function sumSuccessfulGrossSince(since: Date, untilBefore?: Date): Promise<{ total: number } | undefined> {
 		const [row] = await client
 			.select({
 				total: sql<number>`COALESCE(CAST(SUM(${transaction.grossAmount}) AS FLOAT), 0)`,
 			})
 			.from(transaction)
-			.where(and(eq(transaction.status, "success"), gte(transaction.paidAt, since)));
+			.where(
+				and(
+					eq(transaction.status, "success"),
+					gte(transaction.paidAt, since),
+					untilBefore ? lt(transaction.paidAt, untilBefore) : undefined,
+				),
+			);
 		return row;
 	}
 

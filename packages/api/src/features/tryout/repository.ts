@@ -10,7 +10,7 @@ import {
 	tryoutSubtestQuestion,
 	tryoutUserAnswer,
 } from "@bimbelbeta/db/schema/tryout";
-import { and, asc, desc, eq, gt, ilike, inArray, isNull, lt, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, getTableColumns, gt, ilike, inArray, isNull, lt, or, sql } from "drizzle-orm";
 import type { CreditRepository } from "@/features/credit/repository";
 import type { SubtestQuestionRow } from "./question-utils";
 import type { TryoutScoreResult } from "./scoring";
@@ -141,6 +141,7 @@ export type AdminListQuery = {
 	search?: string;
 	category?: TryoutRow["category"];
 	status?: TryoutStatus;
+	newestFirst: boolean;
 };
 
 export function createTryoutRepository(client: DbClient) {
@@ -356,8 +357,16 @@ export function createTryoutRepository(client: DbClient) {
 		});
 	}
 
-	async function listSubtestsForTryout(tryoutId: number): Promise<SubtestRow[]> {
-		return client.select().from(tryoutSubtest).where(eq(tryoutSubtest.tryoutId, tryoutId)).orderBy(tryoutSubtest.order);
+	async function listSubtestsForTryout(tryoutId: number): Promise<(SubtestRow & { questionCount: number })[]> {
+		const questionCount =
+			sql<number>`(select count(*) from ${tryoutSubtestQuestion} where ${tryoutSubtestQuestion.subtestId} = ${tryoutSubtest.id})`.mapWith(
+				Number,
+			);
+		return client
+			.select({ ...getTableColumns(tryoutSubtest), questionCount })
+			.from(tryoutSubtest)
+			.where(eq(tryoutSubtest.tryoutId, tryoutId))
+			.orderBy(tryoutSubtest.order);
 	}
 
 	async function insertAttempt(values: AttemptInsert): Promise<AttemptRow | undefined> {
@@ -505,20 +514,55 @@ export function createTryoutRepository(client: DbClient) {
 		search,
 		category,
 		status,
-	}: AdminListQuery): Promise<TryoutRow[]> {
+		newestFirst,
+	}: AdminListQuery): Promise<(TryoutRow & { subtestCount: number; attemptCount: number })[]> {
+		const subtestCount =
+			sql<number>`(select count(*) from ${tryoutSubtest} where ${tryoutSubtest.tryoutId} = ${tryout.id})`.mapWith(
+				Number,
+			);
+		const attemptCount =
+			sql<number>`(select count(*) from ${tryoutAttempt} where ${tryoutAttempt.tryoutId} = ${tryout.id})`.mapWith(
+				Number,
+			);
 		return client
-			.select()
+			.select({ ...getTableColumns(tryout), subtestCount, attemptCount })
 			.from(tryout)
 			.where(
 				and(
 					search ? ilike(tryout.title, `%${search}%`) : undefined,
 					category ? eq(tryout.category, category) : undefined,
 					status ? eq(tryout.status, status) : undefined,
-					cursorId !== undefined ? (backward ? lt(tryout.id, cursorId) : gt(tryout.id, cursorId)) : undefined,
+					cursorId !== undefined
+						? newestFirst
+							? backward
+								? gt(tryout.id, cursorId)
+								: lt(tryout.id, cursorId)
+							: backward
+								? lt(tryout.id, cursorId)
+								: gt(tryout.id, cursorId)
+						: undefined,
 				),
 			)
-			.orderBy(backward ? desc(tryout.id) : asc(tryout.id))
+			.orderBy(backward ? (newestFirst ? asc : desc)(tryout.id) : (newestFirst ? desc : asc)(tryout.id))
 			.limit(limit + 1);
+	}
+
+	async function countForAdmin(filters: {
+		search?: string;
+		category?: TryoutRow["category"];
+		status?: TryoutStatus;
+	}): Promise<number> {
+		const [row] = await client
+			.select({ count: sql<number>`count(*)::int` })
+			.from(tryout)
+			.where(
+				and(
+					filters.search ? ilike(tryout.title, `%${filters.search}%`) : undefined,
+					filters.category ? eq(tryout.category, filters.category) : undefined,
+					filters.status ? eq(tryout.status, filters.status) : undefined,
+				),
+			);
+		return row?.count ?? 0;
 	}
 
 	async function updateTryout(id: number, changes: TryoutChanges): Promise<TryoutRow | undefined> {
@@ -739,6 +783,40 @@ export function createTryoutRepository(client: DbClient) {
 			.returning();
 	}
 
+	async function listRecentWithCounts(limit: number): Promise<
+		{
+			id: number;
+			title: string;
+			status: TryoutStatus;
+			category: TryoutRow["category"];
+			updatedAt: Date | null;
+			subtestCount: number;
+			attemptCount: number;
+		}[]
+	> {
+		const subtestCount =
+			sql<number>`(select count(*) from ${tryoutSubtest} where ${tryoutSubtest.tryoutId} = ${tryout.id})`.mapWith(
+				Number,
+			);
+		const attemptCount =
+			sql<number>`(select count(*) from ${tryoutAttempt} where ${tryoutAttempt.tryoutId} = ${tryout.id})`.mapWith(
+				Number,
+			);
+		return client
+			.select({
+				id: tryout.id,
+				title: tryout.title,
+				status: tryout.status,
+				category: tryout.category,
+				updatedAt: tryout.updatedAt,
+				subtestCount,
+				attemptCount,
+			})
+			.from(tryout)
+			.orderBy(desc(tryout.updatedAt))
+			.limit(limit);
+	}
+
 	return {
 		findPublishedTryoutWithSubtests,
 		findTryoutById,
@@ -756,6 +834,8 @@ export function createTryoutRepository(client: DbClient) {
 		findAttemptForSubmission,
 		findAttemptForSubtestStart,
 		listSubtestsForTryout,
+		countForAdmin,
+		listRecentWithCounts,
 		insertAttempt,
 		insertSubtestAttempt,
 		consumeAccessCodeQuota,

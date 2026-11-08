@@ -4,6 +4,7 @@ import type {
 	ProgramYearlyRow,
 	StudyProgramRecord,
 	UniversityDetailRow,
+	UniversityListItemRow,
 	UniversityProgramRecord,
 	UniversityProgramRow,
 	UniversityRecord,
@@ -40,7 +41,7 @@ function createFakeRepository(): FakeRepository {
 		listUniversityCards: mock(async () => []),
 		listProgramCards: mock(async () => []),
 		listStudyProgramsByUniversity: mock(async () => []),
-		listAdminUniversities: mock(async () => []),
+		listAdminUniversities: mock(async () => ({ rows: [universityListItemRow], totalCount: 1 })),
 		listStudyPrograms: mock(async () => []),
 		listUniversityPrograms: mock(async () => []),
 	};
@@ -70,6 +71,14 @@ const universityRecordRow: UniversityRecordRow = {
 	website: null,
 	rank: 2,
 	isActive: true,
+};
+
+const universityListItemRow: UniversityListItemRow = {
+	...universityRecordRow,
+	updatedAt: new Date("2025-01-01T00:00:00Z"),
+	programCount: 0,
+	scoreMin: null,
+	scoreMax: null,
 };
 
 const studyProgramRecord: StudyProgramRecord = {

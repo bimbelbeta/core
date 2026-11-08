@@ -40,19 +40,21 @@ describe.skipIf(!enabled)("dashboard feature slice", () => {
 		const stats = await call(appRouter.admin.dashboard.stats, undefined, options);
 
 		expect(Object.keys(stats).sort()).toEqual([
-			"activeSubjects",
+			"essayQuestions",
 			"monthlyRevenue",
-			"premiumTrend",
-			"premiumUsers",
+			"recentTryouts",
 			"revenueTrend",
-			"subjectsTrend",
+			"totalQuestions",
 			"totalUsers",
 			"usersTrend",
 		]);
-		expect(Object.values(stats).every((value) => Number.isFinite(value))).toBe(true);
+		expect(stats.revenueTrend === null || Number.isFinite(stats.revenueTrend)).toBe(true);
+		expect(stats.usersTrend === null || Number.isFinite(stats.usersTrend)).toBe(true);
+		expect(stats.recentTryouts.every((tryout) => Array.isArray(tryout) === false && "subtestCount" in tryout)).toBe(
+			true,
+		);
 		expect(stats.totalUsers).toBeGreaterThanOrEqual(0);
 		expect(stats.premiumUsers).toBeGreaterThanOrEqual(0);
-		expect(stats.activeSubjects).toBeGreaterThanOrEqual(0);
 		expect(stats.monthlyRevenue).toBeGreaterThanOrEqual(0);
 		expect(stats.totalUsers).toBeGreaterThanOrEqual(stats.premiumUsers);
 	});

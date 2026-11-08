@@ -1,6 +1,6 @@
 import type { DbClient } from "@bimbelbeta/db";
 import { question, questionChoice } from "@bimbelbeta/db/schema/question";
-import { and, asc, desc, eq, gt, inArray, like, lt, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, gt, inArray, like, lt, sql } from "drizzle-orm";
 
 export type QuestionRow = typeof question.$inferSelect;
 export type ChoiceRow = typeof questionChoice.$inferSelect;
@@ -22,6 +22,7 @@ export type ListQuestionsQuery = {
 
 export type QuestionRepository = {
 	listQuestions: (query: ListQuestionsQuery) => Promise<QuestionRow[]>;
+	countQuestions: () => Promise<{ total: number; essay: number }>;
 	findQuestion: (id: number) => Promise<QuestionRow | undefined>;
 	listChoices: (questionId: number) => Promise<ChoiceRow[]>;
 	listQuestionsWithChoices: (questionIds: number[]) => Promise<{ question: QuestionRow; choices: ChoiceRow[] }[]>;
@@ -38,6 +39,16 @@ export type QuestionRepository = {
 
 export function createQuestionRepository(client: DbClient): QuestionRepository {
 	return {
+		async countQuestions(): Promise<{ total: number; essay: number }> {
+			const [row] = await client
+				.select({
+					total: count(),
+					essay: count(eq(question.type, "essay")),
+				})
+				.from(question);
+			return { total: row?.total ?? 0, essay: row?.essay ?? 0 };
+		},
+
 		async listQuestions(query: ListQuestionsQuery): Promise<QuestionRow[]> {
 			return await client
 				.select()
