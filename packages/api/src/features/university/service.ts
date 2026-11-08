@@ -1,6 +1,6 @@
 import { db } from "@bimbelbeta/db";
 import { DomainError } from "@/lib/domain-error";
-import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
+import { buildIdCursorPage, decodePageInput, parseIdCursor } from "@/lib/pagination/cursor";
 import { pickDefined } from "@/lib/utils";
 import { createUniversityRepository, type UniversityProgramData, type UniversityRepository } from "./repository";
 
@@ -11,14 +11,12 @@ export type PageServiceInput = {
 };
 
 function parseIdPage(input: PageServiceInput) {
-	const limit = Math.min(input.limit ?? 20, 100);
-	const isBackward = !!input.before;
-	const cursor = input.before || input.after;
+	const page = decodePageInput(input);
 	return {
-		limit,
-		isBackward,
-		cursorId: cursor ? parseIdCursor(cursor) : undefined,
-		hasCursor: !!cursor,
+		limit: page.limit,
+		isBackward: page.backward,
+		cursorId: page.cursor ? parseIdCursor(page.cursor) : undefined,
+		hasCursor: page.hasCursor,
 	};
 }
 

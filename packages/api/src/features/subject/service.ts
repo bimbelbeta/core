@@ -209,13 +209,18 @@ export function createSubjectService(deps: SubjectServiceDependencies) {
 			const item = await deps.repository.findContentRef(input.contentId);
 			if (!item) throw contentNotFound();
 
-			await deps.repository.upsertProgress({
-				userId: caller.id,
-				contentItemId: input.contentId,
-				videoCompleted: input.videoCompleted,
-				noteCompleted: input.noteCompleted,
-				practiceQuestionsCompleted: input.practiceQuestionsCompleted,
-			});
+			try {
+				await deps.repository.upsertProgress({
+					userId: caller.id,
+					contentItemId: input.contentId,
+					videoCompleted: input.videoCompleted,
+					noteCompleted: input.noteCompleted,
+					practiceQuestionsCompleted: input.practiceQuestionsCompleted,
+				});
+			} catch (error) {
+				console.error(error);
+				throw new DomainError("INTERNAL_SERVER_ERROR", "Gagal menyimpan progres.");
+			}
 
 			return { message: "Progress berhasil disimpan" };
 		},

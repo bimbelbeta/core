@@ -1,12 +1,11 @@
 import { db } from "@bimbelbeta/db";
 import type { Session } from "@/context";
 import { DomainError } from "@/lib/domain-error";
-import { buildStringIdCursorPage, parseStringIdCursor } from "@/lib/pagination/cursor";
+import { buildStringIdCursorPage, decodePageInput, parseStringIdCursor } from "@/lib/pagination/cursor";
 import { type CreditRepository, createCreditRepository } from "./repository";
 
 export type CreditServiceDependencies = {
 	repository: CreditRepository;
-	withTransactionalRepository: <T>(fn: (repository: CreditRepository) => Promise<T>) => Promise<T>;
 };
 
 export const createCreditService = (deps: CreditServiceDependencies) => ({
@@ -26,7 +25,7 @@ export const createCreditService = (deps: CreditServiceDependencies) => ({
 
 		const note = input.note || (input.amount > 0 ? "Admin grant" : "Admin adjustment");
 
-		const write = await deps.withTransactionalRepository((repository) =>
+		const write = await deps.repository.transaction(async (repository) =>
 			repository.applyCreditAdjustment({
 				userId: input.userId,
 				amount: input.amount,
@@ -53,18 +52,15 @@ export const createCreditService = (deps: CreditServiceDependencies) => ({
 	},
 
 	async packages(input: { limit?: number; after?: string; before?: string } | undefined) {
-		const limit = Math.min(input?.limit ?? 20, 100);
-		const isBackward = !!input?.before;
-		const cursorStr = input?.after ?? input?.before;
-		const cursorId = cursorStr ? parseStringIdCursor(cursorStr) : null;
+		const { limit, backward, cursor, hasCursor } = decodePageInput(input);
+		const cursorId = cursor ? parseStringIdCursor(cursor) : null;
 
-		const rows = await deps.repository.listCreditPackages({ cursorId, isBackward, limit: limit + 1 });
+		const rows = await deps.repository.listCreditPackages({ cursorId, isBackward: backward, limit });
 
-		return buildStringIdCursorPage(rows, limit, isBackward, !!cursorStr);
+		return buildStringIdCursorPage(rows, limit, backward, hasCursor);
 	},
 });
 
 export const creditService = createCreditService({
 	repository: createCreditRepository(db),
-	withTransactionalRepository: (fn) => db.transaction((trx) => fn(createCreditRepository(trx))),
 });

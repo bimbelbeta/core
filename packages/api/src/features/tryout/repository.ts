@@ -145,14 +145,10 @@ export type AdminListQuery = {
 
 export function createTryoutRepository(client: DbClient) {
 	async function findPublishedTryoutWithSubtests(id: number): Promise<TryoutWithSubtests | undefined> {
-		const [row] = await client
-			.select()
-			.from(tryout)
-			.where(and(eq(tryout.id, id), eq(tryout.status, "published")))
-			.limit(1);
-		if (!row) return undefined;
-		const subtests = await listSubtestsForTryout(row.id);
-		return { ...row, subtests };
+		return client.query.tryout.findFirst({
+			where: { id: { eq: id }, status: { eq: "published" } },
+			with: { subtests: { orderBy: (subtests, { asc }) => [asc(subtests.order)] } },
+		});
 	}
 
 	async function findTryoutById(id: number): Promise<TryoutRow | undefined> {
@@ -216,77 +212,53 @@ export function createTryoutRepository(client: DbClient) {
 	}
 
 	async function listHistory(userId: string): Promise<HistoryRow[]> {
-		return client
-			.select({
-				id: tryoutAttempt.id,
-				score: tryoutAttempt.score,
-				status: tryoutAttempt.status,
-				startedAt: tryoutAttempt.startedAt,
-				completedAt: tryoutAttempt.completedAt,
-				tryout: { id: tryout.id, title: tryout.title },
-			})
-			.from(tryoutAttempt)
-			.innerJoin(tryout, eq(tryout.id, tryoutAttempt.tryoutId))
-			.where(and(eq(tryoutAttempt.userId, userId), eq(tryoutAttempt.status, "finished")))
-			.orderBy(desc(tryoutAttempt.startedAt));
+		const rows = await client.query.tryoutAttempt.findMany({
+			columns: { id: true, score: true, status: true, startedAt: true, completedAt: true },
+			where: { userId: { eq: userId }, status: { eq: "finished" } },
+			orderBy: { startedAt: "desc" },
+			with: { tryout: { columns: { id: true, title: true } } },
+		});
+		return rows.map((row) => ({ ...row, tryout: row.tryout! }));
 	}
 
 	async function findFinishedAttemptResult(attemptId: number, userId: string): Promise<ResultRow | undefined> {
-		const [base] = await client
-			.select({
-				id: tryoutAttempt.id,
-				startedAt: tryoutAttempt.startedAt,
-				score: tryoutAttempt.score,
-				deadline: tryoutAttempt.deadline,
-				completedAt: tryoutAttempt.completedAt,
-				status: tryoutAttempt.status,
-				usedCredit: tryoutAttempt.usedCredit,
-				usedAccessCode: tryoutAttempt.usedAccessCode,
+		const attempt = await client.query.tryoutAttempt.findFirst({
+			columns: {
+				id: true,
+				startedAt: true,
+				score: true,
+				deadline: true,
+				completedAt: true,
+				status: true,
+				usedCredit: true,
+				usedAccessCode: true,
+			},
+			where: { id: { eq: attemptId }, userId: { eq: userId }, status: { eq: "finished" } },
+			with: {
 				tryout: {
-					id: tryout.id,
-					title: tryout.title,
-					category: tryout.category,
-					passingGrade: tryout.passingGrade,
+					columns: { id: true, title: true, category: true, passingGrade: true },
+					with: {
+						subtests: {
+							orderBy: (subtests, { asc }) => [asc(subtests.order)],
+							columns: { id: true, name: true, duration: true },
+						},
+					},
 				},
-			})
-			.from(tryoutAttempt)
-			.innerJoin(tryout, eq(tryout.id, tryoutAttempt.tryoutId))
-			.where(
-				and(eq(tryoutAttempt.id, attemptId), eq(tryoutAttempt.userId, userId), eq(tryoutAttempt.status, "finished")),
-			)
-			.limit(1);
-		if (!base) return undefined;
-		const subtests = await client
-			.select({ id: tryoutSubtest.id, name: tryoutSubtest.name, duration: tryoutSubtest.duration })
-			.from(tryoutSubtest)
-			.where(eq(tryoutSubtest.tryoutId, base.tryout.id))
-			.orderBy(asc(tryoutSubtest.order));
-		const subtestAttempts = await client
-			.select({
-				id: tryoutSubtestAttempt.id,
-				subtestId: tryoutSubtestAttempt.subtestId,
-				status: tryoutSubtestAttempt.status,
-				completedAt: tryoutSubtestAttempt.completedAt,
-				score: tryoutSubtestAttempt.score,
-			})
-			.from(tryoutSubtestAttempt)
-			.where(eq(tryoutSubtestAttempt.tryoutAttemptId, attemptId));
-		return { ...base, tryout: { ...base.tryout, subtests }, subtestAttempts };
+				subtestAttempts: {
+					columns: { id: true, subtestId: true, status: true, completedAt: true, score: true },
+				},
+			},
+		});
+		if (!attempt?.tryout) return undefined;
+		return { ...attempt, tryout: attempt.tryout };
 	}
 
 	async function findAttemptForReview(attemptId: number, userId: string): Promise<ReviewAttemptRow | undefined> {
-		const [base] = await client
-			.select({
-				id: tryoutAttempt.id,
-				usedCredit: tryoutAttempt.usedCredit,
-				usedAccessCode: tryoutAttempt.usedAccessCode,
-			})
-			.from(tryoutAttempt)
-			.where(and(eq(tryoutAttempt.id, attemptId), eq(tryoutAttempt.userId, userId)))
-			.limit(1);
-		if (!base) return undefined;
-		const subtestAttempts = await listSubtestAttempts(base.id);
-		return { ...base, subtestAttempts };
+		return client.query.tryoutAttempt.findFirst({
+			columns: { id: true, usedCredit: true, usedAccessCode: true },
+			where: { id: { eq: attemptId }, userId: { eq: userId } },
+			with: { subtestAttempts: true },
+		});
 	}
 
 	async function findSubtestName(subtestId: number): Promise<Pick<SubtestRow, "name"> | undefined> {
@@ -340,74 +312,48 @@ export function createTryoutRepository(client: DbClient) {
 		tryoutId: number,
 		userId: string,
 	): Promise<AttemptWithSubtestAttempts | undefined> {
-		const row = await findAttempt(tryoutId, userId);
-		if (!row) return undefined;
-		const subtestAttempts = await listSubtestAttempts(row.id);
-		return { ...row, subtestAttempts };
+		return client.query.tryoutAttempt.findFirst({
+			where: { tryoutId: { eq: tryoutId }, userId: { eq: userId } },
+			with: { subtestAttempts: true },
+		});
 	}
 
 	async function findOngoingAttemptForSession(
 		tryoutId: number,
 		userId: string,
 	): Promise<ActiveSessionAttempt | undefined> {
-		const [row] = await client
-			.select({ id: tryoutAttempt.id })
-			.from(tryoutAttempt)
-			.where(
-				and(
-					eq(tryoutAttempt.tryoutId, tryoutId),
-					eq(tryoutAttempt.userId, userId),
-					eq(tryoutAttempt.status, "ongoing"),
-				),
-			)
-			.limit(1);
-		if (!row) return undefined;
-		const subtestAttempts = await client
-			.select({ status: tryoutSubtestAttempt.status, deadline: tryoutSubtestAttempt.deadline })
-			.from(tryoutSubtestAttempt)
-			.where(eq(tryoutSubtestAttempt.tryoutAttemptId, row.id));
-		return { ...row, subtestAttempts };
+		return client.query.tryoutAttempt.findFirst({
+			columns: { id: true },
+			where: { tryoutId: { eq: tryoutId }, userId: { eq: userId }, status: { eq: "ongoing" } },
+			with: { subtestAttempts: { columns: { status: true, deadline: true } } },
+		});
 	}
 
 	async function findAttemptForSubmission(tryoutId: number, userId: string): Promise<SubmissionAttempt | undefined> {
-		const [row] = await client
-			.select()
-			.from(tryoutAttempt)
-			.where(
-				and(
-					eq(tryoutAttempt.tryoutId, tryoutId),
-					eq(tryoutAttempt.userId, userId),
-					eq(tryoutAttempt.status, "ongoing"),
-				),
-			)
-			.limit(1);
-		if (!row) return undefined;
-		const subtestAttempts = await listSubtestAttempts(row.id);
-		const [tryoutRow] = await client.select().from(tryout).where(eq(tryout.id, row.tryoutId)).limit(1);
-		if (!tryoutRow) return { ...row, subtestAttempts, tryout: null };
-		const subtests = await listSubtestsForTryout(tryoutRow.id);
-		return { ...row, subtestAttempts, tryout: { ...tryoutRow, subtests } };
+		return client.query.tryoutAttempt.findFirst({
+			where: { tryoutId: { eq: tryoutId }, userId: { eq: userId }, status: { eq: "ongoing" } },
+			with: {
+				subtestAttempts: true,
+				tryout: { with: { subtests: { orderBy: (subtests, { asc }) => [asc(subtests.order)] } } },
+			},
+		});
 	}
 
 	async function findAttemptForSubtestStart(
 		tryoutId: number,
 		userId: string,
 	): Promise<SubtestStartAttempt | undefined> {
-		const [row] = await client
-			.select({ id: tryoutAttempt.id, deadline: tryoutAttempt.deadline })
-			.from(tryoutAttempt)
-			.where(and(eq(tryoutAttempt.tryoutId, tryoutId), eq(tryoutAttempt.userId, userId)))
-			.limit(1);
-		if (!row) return undefined;
-		const subtestAttempts = await listSubtestAttempts(row.id);
-		const [tryoutRow] = await client.select({ id: tryout.id }).from(tryout).where(eq(tryout.id, tryoutId)).limit(1);
-		if (!tryoutRow) return { ...row, subtestAttempts, tryout: null };
-		const subtests = await listSubtestsForTryout(tryoutRow.id);
-		return { ...row, subtestAttempts, tryout: { ...tryoutRow, subtests } };
-	}
-
-	async function listSubtestAttempts(tryoutAttemptId: number): Promise<SubtestAttemptRow[]> {
-		return client.select().from(tryoutSubtestAttempt).where(eq(tryoutSubtestAttempt.tryoutAttemptId, tryoutAttemptId));
+		return client.query.tryoutAttempt.findFirst({
+			columns: { id: true, deadline: true },
+			where: { tryoutId: { eq: tryoutId }, userId: { eq: userId } },
+			with: {
+				subtestAttempts: true,
+				tryout: {
+					columns: { id: true },
+					with: { subtests: { orderBy: (subtests, { asc }) => [asc(subtests.order)] } },
+				},
+			},
+		});
 	}
 
 	async function listSubtestsForTryout(tryoutId: number): Promise<SubtestRow[]> {
@@ -473,17 +419,17 @@ export function createTryoutRepository(client: DbClient) {
 	}
 
 	async function listAnswersWithSelectedChoice(attemptId: number): Promise<ScoringAnswerRow[]> {
-		return client
-			.select({
-				questionId: tryoutUserAnswer.questionId,
-				selectedChoiceId: tryoutUserAnswer.selectedChoiceId,
-				selectedChoiceIds: tryoutUserAnswer.selectedChoiceIds,
-				essayAnswer: tryoutUserAnswer.essayAnswer,
-				selectedChoiceCorrect: questionChoice.isCorrect,
-			})
-			.from(tryoutUserAnswer)
-			.leftJoin(questionChoice, eq(questionChoice.id, tryoutUserAnswer.selectedChoiceId))
-			.where(eq(tryoutUserAnswer.attemptId, attemptId));
+		const rows = await client.query.tryoutUserAnswer.findMany({
+			where: { attemptId: { eq: attemptId } },
+			with: { selectedChoice: { columns: { isCorrect: true } } },
+		});
+		return rows.map((row) => ({
+			questionId: row.questionId,
+			selectedChoiceId: row.selectedChoiceId,
+			selectedChoiceIds: row.selectedChoiceIds,
+			essayAnswer: row.essayAnswer,
+			selectedChoiceCorrect: row.selectedChoice ? row.selectedChoice.isCorrect : null,
+		}));
 	}
 
 	async function listSubtestQuestionPairs(
@@ -809,7 +755,6 @@ export function createTryoutRepository(client: DbClient) {
 		findOngoingAttemptForSession,
 		findAttemptForSubmission,
 		findAttemptForSubtestStart,
-		listSubtestAttempts,
 		listSubtestsForTryout,
 		insertAttempt,
 		insertSubtestAttempt,

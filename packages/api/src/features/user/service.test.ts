@@ -99,13 +99,13 @@ describe("user service", () => {
 		expect(result).toEqual(targetRow);
 	});
 
-	test("reports a NOT_FOUND domain error for a dangling target", async () => {
+	test("reports a bare NOT_FOUND domain error for a dangling target", async () => {
 		const service = createUserService(fakeRepository());
 		const call = service.getTarget({ ...memberUser, targetUniversityId: 1, targetStudyProgramId: 2 });
 		await expect(call).rejects.toMatchObject({
 			name: "DomainError",
 			code: "NOT_FOUND",
-			message: "Gagal menemukan resource yang diminta.",
+			message: "",
 		});
 	});
 

@@ -55,7 +55,7 @@ function makeState(
 }
 
 function makeRepository(state: ReturnType<typeof makeState>) {
-	const repository = {
+	const repository: ReferralRepository = {
 		async lockCodeByCode(code: string) {
 			return state.codes.find((row) => row.code === code);
 		},
@@ -104,7 +104,7 @@ function makeRepository(state: ReturnType<typeof makeState>) {
 					: sorted.filter((row) => row.usageId > cursorId)
 				: sorted;
 			const ordered = query.isBackward ? scoped.slice().reverse() : scoped;
-			return ordered.slice(0, query.limit);
+			return ordered.slice(0, query.limit + 1);
 		},
 		async listCodes(query: {
 			limit: number;
@@ -124,7 +124,7 @@ function makeRepository(state: ReturnType<typeof makeState>) {
 					: matches.filter((row) => row.id > cursorId)
 				: matches;
 			const ordered = query.isBackward ? scoped.slice().reverse() : scoped;
-			return ordered.slice(0, query.limit);
+			return ordered.slice(0, query.limit + 1);
 		},
 		async recordUsage(values: ReferralUsageRow) {
 			state.usages.push(values);
@@ -140,15 +140,17 @@ function makeRepository(state: ReturnType<typeof makeState>) {
 			if (userId !== sessionUser.id) return;
 			state.premium = { isPremium: true, premiumExpiresAt };
 		},
-	} satisfies ReferralRepository;
+		async transaction<T>(fn: (repository: ReferralRepository) => Promise<T>) {
+			return fn(repository);
+		},
+	};
 
 	return repository;
 }
 
 function makeService(state: ReturnType<typeof makeState>) {
 	const repository = makeRepository(state);
-	const runInTransaction = <T>(fn: (repository: ReferralRepository) => Promise<T>) => fn(repository);
-	return createReferralService({ repository, runInTransaction } satisfies ReferralServiceDependencies);
+	return createReferralService({ repository } satisfies ReferralServiceDependencies);
 }
 
 async function expectDomainError(promise: Promise<unknown>, expectedCode: string, message: string) {
@@ -210,8 +212,7 @@ describe("create", () => {
 			...makeRepository(makeState()),
 			insertCode: async () => undefined,
 		} satisfies ReferralRepository;
-		const runInTransaction = <T>(fn: (repository: ReferralRepository) => Promise<T>) => fn(repository);
-		const service = createReferralService({ repository, runInTransaction } satisfies ReferralServiceDependencies);
+		const service = createReferralService({ repository } satisfies ReferralServiceDependencies);
 
 		await expectDomainError(
 			service.create({ premiumDays: 7, code: "PREMLAIN" }, sessionUser),

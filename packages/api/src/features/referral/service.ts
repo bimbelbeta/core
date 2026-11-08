@@ -1,12 +1,11 @@
 import { db } from "@bimbelbeta/db";
 import type { Session } from "@/context";
 import { DomainError } from "@/lib/domain-error";
-import { buildStringIdCursorPage, createStringIdCursor, parseStringIdCursor } from "@/lib/pagination/cursor";
+import { buildStringIdCursorPage, decodePageInput, parseStringIdCursor } from "@/lib/pagination/cursor";
 import { createReferralRepository, type ReferralRepository } from "./repository";
 
 export type ReferralServiceDependencies = {
 	repository: ReferralRepository;
-	runInTransaction: <T>(fn: (repository: ReferralRepository) => Promise<T>) => Promise<T>;
 };
 
 function generateReferralCode(): string {
@@ -41,20 +40,18 @@ export const createReferralService = (deps: ReferralServiceDependencies) => ({
 	},
 
 	async list(input: { after?: string; before?: string; limit?: number; search?: string; status?: boolean }) {
-		const limit = Math.min(input.limit ?? 20, 100);
-		const isBackward = !!input.before;
-		const cursor = input.before || input.after;
+		const { limit, backward, cursor, hasCursor } = decodePageInput(input);
 		const cursorId = cursor ? parseStringIdCursor(cursor) : undefined;
 
 		const rows = await deps.repository.listCodes({
-			limit: limit + 1,
+			limit,
 			cursorId,
-			isBackward,
+			isBackward: backward,
 			search: input.search,
 			status: input.status,
 		});
 
-		const { items, pageInfo } = buildStringIdCursorPage(rows, limit, isBackward, !!cursor);
+		const { items, pageInfo } = buildStringIdCursorPage(rows, limit, backward, hasCursor);
 
 		return { items, pageInfo };
 	},
@@ -78,41 +75,25 @@ export const createReferralService = (deps: ReferralServiceDependencies) => ({
 		const codeData = await deps.repository.findCodeById(input.codeId);
 		if (!codeData) throw new DomainError("NOT_FOUND", "Kode referal tidak ditemukan.");
 
-		const limit = Math.min(input.limit ?? 20, 100);
-		const isBackward = !!input.before;
-		const cursor = input.before || input.after;
+		const { limit, backward, cursor, hasCursor } = decodePageInput(input);
 		const cursorId = cursor ? parseStringIdCursor(cursor) : undefined;
 
 		const rows = await deps.repository.listUsages({
 			referralCodeId: input.codeId,
-			limit: limit + 1,
+			limit,
 			cursorId,
-			isBackward,
+			isBackward: backward,
 		});
 
-		const hasExtra = rows.length > limit;
-		let items = hasExtra ? rows.slice(0, limit) : rows;
-		if (isBackward) items = items.slice().reverse();
+		const { items, pageInfo } = buildStringIdCursorPage(rows, limit, backward, hasCursor, "usageId");
 
-		const firstItem = items[0];
-		const lastItem = items[items.length - 1];
-
-		return {
-			referralCode: codeData,
-			items,
-			pageInfo: {
-				hasNextPage: isBackward ? !!cursor : hasExtra,
-				hasPreviousPage: isBackward ? hasExtra : !!cursor,
-				startCursor: firstItem ? createStringIdCursor(firstItem.usageId) : null,
-				endCursor: lastItem ? createStringIdCursor(lastItem.usageId) : null,
-			},
-		};
+		return { referralCode: codeData, items, pageInfo };
 	},
 
 	async redeem(input: { code: string }, user: Session["user"]) {
 		const code = input.code.toUpperCase();
 
-		return deps.runInTransaction(async (repository) => {
+		return deps.repository.transaction(async (repository) => {
 			const codeRow = await repository.lockCodeByCode(code);
 			if (!codeRow) throw new DomainError("NOT_FOUND", "Kode tidak ditemukan / salah.");
 
@@ -161,8 +142,6 @@ export const createReferralService = (deps: ReferralServiceDependencies) => ({
 
 const dependencies = {
 	repository: createReferralRepository(db),
-	runInTransaction: <T>(fn: (repository: ReferralRepository) => Promise<T>) =>
-		db.transaction(async (tx) => fn(createReferralRepository(tx))),
 } satisfies ReferralServiceDependencies;
 
 export const referralService = createReferralService(dependencies);
