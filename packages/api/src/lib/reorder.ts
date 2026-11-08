@@ -13,6 +13,8 @@ export async function reorderRows(
 	},
 ): Promise<void> {
 	const { table, idColumn, where, items, touchUpdatedAt } = options;
+	if (items.length === 0) return;
+
 	const caseExpr = sql.join(
 		items.map((item) => sql`WHEN ${idColumn} = ${item.id} THEN ${item.order}::int`),
 		sql` `,

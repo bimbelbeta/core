@@ -1,6 +1,6 @@
 import { db } from "@bimbelbeta/db";
 
-import { DomainError, rethrowAsInternal } from "@/lib/domain-error";
+import { DomainError, withErrorFallback } from "@/lib/domain-error";
 import { computeSubtestDeadline } from "./deadline";
 import { createTryoutRepository, runInTransaction, type TryoutRepository, type TryoutTransaction } from "./repository";
 import {
@@ -121,12 +121,12 @@ export function createSubmitService(deps: SubmitServiceDependencies) {
 	async function finalizeExpiredAttempt(attemptId: number): Promise<void> {
 		const scores = await calculateScores(repository, attemptId);
 
-		await deps
-			.withTransaction(async ({ repository: repo }) => {
+		await withErrorFallback("Gagal menyimpan skor tryout.", () =>
+			deps.withTransaction(async ({ repository: repo }) => {
 				await repo.finishAttempt(attemptId);
 				await repo.saveScores(attemptId, scores);
-			})
-			.catch((error: unknown) => rethrowAsInternal(error, "Gagal menyimpan skor tryout."));
+			}),
+		);
 	}
 
 	return {
@@ -155,28 +155,28 @@ export function createSubmitService(deps: SubmitServiceDependencies) {
 			const nextSubtest = tryoutData.subtests[currentIndex + 1];
 			if (nextSubtest) {
 				const nextDeadline = computeSubtestDeadline(nextSubtest.duration, attempt.deadline);
-				await deps
-					.withTransaction(async ({ repository: repo }) => {
+				await withErrorFallback("Gagal menyimpan progres subtest.", () =>
+					deps.withTransaction(async ({ repository: repo }) => {
 						await repo.finishSubtestAttempt(currentSubtestAttempt.id);
 						await repo.insertSubtestAttempt({
 							tryoutAttemptId: attempt.id,
 							subtestId: nextSubtest.id,
 							deadline: nextDeadline,
 						});
-					})
-					.catch((error: unknown) => rethrowAsInternal(error, "Gagal menyimpan progres subtest."));
+					}),
+				);
 				return { success: true as const, tryoutCompleted: false as const, nextSubtestId: nextSubtest.id };
 			}
 
 			const scores = await calculateScores(repository, attempt.id);
 
-			await deps
-				.withTransaction(async ({ repository: repo }) => {
+			await withErrorFallback("Gagal menyimpan skor tryout.", () =>
+				deps.withTransaction(async ({ repository: repo }) => {
 					await repo.finishSubtestAttempt(currentSubtestAttempt.id);
 					await repo.finishAttempt(attempt.id);
 					await repo.saveScores(attempt.id, scores);
-				})
-				.catch((error: unknown) => rethrowAsInternal(error, "Gagal menyimpan skor tryout."));
+				}),
+			);
 
 			return { success: true as const, tryoutCompleted: true as const, score: scores.totalScore };
 		},
@@ -187,12 +187,12 @@ export function createSubmitService(deps: SubmitServiceDependencies) {
 
 			const scores = await calculateScores(repository, attempt.id);
 
-			await deps
-				.withTransaction(async ({ repository: repo }) => {
+			await withErrorFallback("Gagal menyimpan skor tryout.", () =>
+				deps.withTransaction(async ({ repository: repo }) => {
 					await repo.finishAttempt(attempt.id);
 					await repo.saveScores(attempt.id, scores);
-				})
-				.catch((error: unknown) => rethrowAsInternal(error, "Gagal menyimpan skor tryout."));
+				}),
+			);
 
 			return { success: true as const, score: scores.totalScore };
 		},

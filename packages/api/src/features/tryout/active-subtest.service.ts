@@ -1,5 +1,5 @@
 import { db } from "@bimbelbeta/db";
-import { DomainError, rethrowAsInternal } from "@/lib/domain-error";
+import { DomainError, withErrorFallback } from "@/lib/domain-error";
 import { type AnswerFields, createTryoutRepository, type TryoutRepository } from "./repository";
 
 export type ActiveSubtestRepository = Pick<
@@ -36,21 +36,17 @@ export function createActiveSubtestService({ repository }: { repository: ActiveS
 				selectedChoiceIds: input.answerType === "complex" ? input.selectedChoiceIds : null,
 				essayAnswer: input.answerType === "essay" ? input.essayAnswer : null,
 			};
-			try {
-				await repository.upsertAnswer(attemptId, input.questionId, answerFields);
-			} catch (error) {
-				throw rethrowAsInternal(error, "Gagal menyimpan jawaban.");
-			}
+			await withErrorFallback("Gagal menyimpan jawaban.", () =>
+				repository.upsertAnswer(attemptId, input.questionId, answerFields),
+			);
 			return { success: true as const };
 		},
 
 		async toggleRaguRagu(input: { tryoutId: number; questionId: number }, userId: string) {
 			const attemptId = await require(input.tryoutId, userId);
-			try {
-				await repository.toggleAnswerDoubtful(attemptId, input.questionId);
-			} catch (error) {
-				throw rethrowAsInternal(error, "Gagal menyimpan status ragu-ragu.");
-			}
+			await withErrorFallback("Gagal menyimpan status ragu-ragu.", () =>
+				repository.toggleAnswerDoubtful(attemptId, input.questionId),
+			);
 			return { success: true as const };
 		},
 	};
