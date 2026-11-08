@@ -3,7 +3,7 @@ import { user } from "@bimbelbeta/db/schema/auth";
 import { createRatelimitMiddleware } from "@orpc/experimental-ratelimit";
 import { eq } from "drizzle-orm";
 import { ROLES } from "@/lib/roles";
-import { baseImplementer } from "@/lib/router-definition/base";
+import { bareImplementer } from "@/lib/router-definition/base";
 import { assertAdmin, assertSuperAdmin, isPremiumExpired } from "@/lib/router-definition/guards";
 import { getFreeRatelimiter, getNoOpRatelimiter, getPremiumRatelimiter } from "@/lib/router-definition/rate-limiter";
 
@@ -16,19 +16,19 @@ export const rateLimit = createRatelimitMiddleware({
 	key: ({ context }) => context.session.user.id,
 });
 
-export const requireAdmin = baseImplementer.middleware(async ({ context, next, errors }) => {
+export const requireAdmin = bareImplementer.middleware(async ({ context, next, errors }) => {
 	assertAdmin(context.session?.user.role, errors);
 
 	return next();
 });
 
-export const requireSuperAdmin = baseImplementer.middleware(async ({ context, next, errors }) => {
+export const requireSuperAdmin = bareImplementer.middleware(async ({ context, next, errors }) => {
 	assertSuperAdmin(context.session?.user.role, errors);
 
 	return next();
 });
 
-export const requireAuth = baseImplementer.middleware(async ({ context, next, errors }) => {
+export const requireAuth = bareImplementer.middleware(async ({ context, next, errors }) => {
 	const session = context.session;
 	if (!session?.user) throw errors.UNAUTHORIZED();
 
@@ -39,7 +39,7 @@ export const requireAuth = baseImplementer.middleware(async ({ context, next, er
 	});
 });
 
-export const revokeExpiredPremium = baseImplementer.middleware(async ({ context, next }) => {
+export const revokeExpiredPremium = bareImplementer.middleware(async ({ context, next }) => {
 	const sess = context.session;
 	if (sess && isPremiumExpired(sess.user, Date.now())) {
 		await db.update(user).set({ isPremium: false }).where(eq(user.id, sess.user.id));

@@ -71,3 +71,5 @@ export const db = drizzle({
 		...university.universityRelations,
 	},
 });
+
+export type DbClient = typeof db | Parameters<Parameters<typeof db.transaction>[0]>[0];

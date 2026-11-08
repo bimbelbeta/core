@@ -1,5 +1,5 @@
 import type { auth } from "@bimbelbeta/auth";
-import { db } from "@bimbelbeta/db";
+import { type DbClient, db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { creditTransaction } from "@bimbelbeta/db/schema/credit";
 import { tryoutAccessCode, tryoutAttempt, tryoutSubtestAttempt } from "@bimbelbeta/db/schema/tryout";
@@ -23,8 +23,7 @@ const dependencies = {
 		db.query.tryoutAttempt.findFirst({
 			where: { tryoutId: { eq: tryoutId }, userId: { eq: userId } },
 		}),
-	runInTransaction: <T>(fn: (trx: Parameters<Parameters<typeof db.transaction>[0]>[0]) => Promise<T>) =>
-		db.transaction(fn),
+	runInTransaction: <T>(fn: (trx: DbClient) => Promise<T>) => db.transaction(fn),
 };
 
 export type StartTryoutDependencies = typeof dependencies;

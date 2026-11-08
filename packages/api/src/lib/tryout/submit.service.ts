@@ -1,4 +1,4 @@
-import { db } from "@bimbelbeta/db";
+import { type DbClient, db } from "@bimbelbeta/db";
 import { tryoutAttempt, tryoutSubtestAttempt } from "@bimbelbeta/db/schema/tryout";
 import { eq } from "drizzle-orm";
 import { calculateTryoutScores, saveScoresToDatabase } from "@/lib/calculate-score";
@@ -14,8 +14,7 @@ const dependencies = {
 				tryout: { with: { subtests: { orderBy: (subtests, { asc }) => [asc(subtests.order)] } } },
 			},
 		}),
-	runInTransaction: <T>(fn: (trx: Parameters<Parameters<typeof db.transaction>[0]>[0]) => Promise<T>) =>
-		db.transaction(fn),
+	runInTransaction: <T>(fn: (trx: DbClient) => Promise<T>) => db.transaction(fn),
 	calculateScores: calculateTryoutScores,
 	saveScores: saveScoresToDatabase,
 };

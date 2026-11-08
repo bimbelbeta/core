@@ -1,4 +1,4 @@
-import { db } from "@bimbelbeta/db";
+import { type DbClient, db } from "@bimbelbeta/db";
 import {
 	tryoutAttempt,
 	tryoutSubtest,
@@ -213,16 +213,14 @@ export async function calculateTryoutScores(attemptId: number): Promise<TryoutSc
 	};
 }
 
-type DbTx = Parameters<Parameters<typeof db.transaction>[0]>[0];
-
 /**
  * Saves calculated scores to the database.
  * Updates both subtest attempt scores and the total tryout attempt score.
  * Pass an existing transaction `tx` to participate in a caller-managed transaction,
  * or omit it to run in its own transaction.
  */
-export async function saveScoresToDatabase(attemptId: number, scores: TryoutScoreResult, tx?: DbTx): Promise<void> {
-	const persist = async (t: DbTx) => {
+export async function saveScoresToDatabase(attemptId: number, scores: TryoutScoreResult, tx?: DbClient): Promise<void> {
+	const persist = async (t: DbClient) => {
 		if (scores.subtests.length > 0) {
 			const caseExpr = sql.join(
 				scores.subtests.map(
