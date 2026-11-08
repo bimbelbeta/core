@@ -1,7 +1,6 @@
 import { db } from "@bimbelbeta/db";
-import { user } from "@bimbelbeta/db/schema/auth";
 import { createRatelimitMiddleware } from "@orpc/experimental-ratelimit";
-import { eq } from "drizzle-orm";
+import { createUserRepository } from "@/features/user/repository";
 import { ROLES } from "@/lib/roles";
 import { bareImplementer } from "@/lib/router-definition/base";
 import { assertAdmin, assertSuperAdmin, isPremiumExpired } from "@/lib/router-definition/guards";
@@ -42,7 +41,7 @@ export const requireAuth = bareImplementer.middleware(async ({ context, next, er
 export const revokeExpiredPremium = bareImplementer.middleware(async ({ context, next }) => {
 	const sess = context.session;
 	if (sess && isPremiumExpired(sess.user, Date.now())) {
-		await db.update(user).set({ isPremium: false }).where(eq(user.id, sess.user.id));
+		await createUserRepository(db).revokePremium(sess.user.id);
 
 		return next({
 			context: {

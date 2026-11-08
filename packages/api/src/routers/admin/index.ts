@@ -1,3 +1,4 @@
+import { usersRouter } from "@/features/user/admin-router";
 import { adminContentRouter } from "@/routers/admin/content";
 import { adminCreditRouter } from "@/routers/admin/credit";
 import { adminDashboardRouter } from "@/routers/admin/dashboard";
@@ -9,7 +10,6 @@ import { subtestRouter } from "@/routers/admin/subtest";
 import { subtestQuestionRouter } from "@/routers/admin/subtest-question";
 import { tryoutRouter } from "@/routers/admin/tryout";
 import { adminUniversityRouter } from "@/routers/admin/university";
-import { usersRouter } from "@/routers/admin/users";
 
 export const adminRouter = {
 	dashboard: adminDashboardRouter,
