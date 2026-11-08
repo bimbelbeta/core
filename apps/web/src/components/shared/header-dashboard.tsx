@@ -46,10 +46,7 @@ export function HeaderDashboard() {
 	const userInitials = session?.user.name ? getInitials(session.user.name) : "U";
 
 	return (
-		<m.header
-			layoutScroll
-			className={`fixed inset-x-0 top-0 z-50 backdrop-blur-md transition-colors ${mobileMenuOpen ? "bg-white" : "bg-transparent"}`}
-		>
+		<m.header layoutScroll className="bg-background/85 fixed inset-x-0 top-0 z-50 backdrop-blur-md">
 			<div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 md:px-8">
 				<Link to="/" className="leading-none font-bold">
 					<span className="text-secondary-900">Bimbel</span>
@@ -136,7 +133,7 @@ export function HeaderDashboard() {
 							initial={{ y: "-100%" }}
 							animate={{ y: 0 }}
 							exit={{ y: "-100%" }}
-							transition={{ type: "spring", damping: 30, stiffness: 300 }}
+							transition={{ duration: 0.25, ease: "easeOut" }}
 						>
 							<div className="flex items-center justify-between">
 								<Link to="/" className="text-2xl leading-none font-bold" onClick={() => setMobileMenuOpen(false)}>
