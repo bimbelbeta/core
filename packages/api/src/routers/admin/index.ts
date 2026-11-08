@@ -3,10 +3,10 @@ import { adminCreditRouter } from "@/features/credit/admin-router";
 import { adminProductRouter } from "@/features/product/admin-router";
 import { questionAdminRouter } from "@/features/question/admin-router";
 import { adminReferralRouter } from "@/features/referral/admin-router";
+import { adminSubjectRouter } from "@/features/subject/admin-router";
 import { adminUniversityRouter } from "@/features/university/admin-router";
 import { usersRouter } from "@/features/user/admin-router";
 import { adminDashboardRouter } from "@/routers/admin/dashboard";
-import { adminSubjectRouter } from "@/routers/admin/subject";
 import { subtestRouter } from "@/routers/admin/subtest";
 import { subtestQuestionRouter } from "@/routers/admin/subtest-question";
 import { tryoutRouter } from "@/routers/admin/tryout";
@@ -31,4 +31,4 @@ export const adminRouter = {
 export type { adminContentRouter } from "@/features/content/admin-router";
 export type { adminUniversityRouter } from "@/features/university/admin-router";
 export type { adminDashboardRouter } from "@/routers/admin/dashboard";
-export type { adminSubjectRouter } from "@/routers/admin/subject";
+export type { adminSubjectRouter };
