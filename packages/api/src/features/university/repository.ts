@@ -274,7 +274,7 @@ export function createUniversityRepository(db: DbClient) {
 			const [totals] = await db.select({ count: sql<number>`count(*)::int` }).from(university).where(filters);
 
 			return {
-				rows: rows.map((row) => ({ ...row, programCount: row.programCount ?? 0 })),
+				rows,
 				totalCount: totals?.count ?? 0,
 			};
 		},

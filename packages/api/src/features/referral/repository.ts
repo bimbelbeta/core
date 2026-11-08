@@ -2,6 +2,7 @@ import type { DbClient } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { referralCode, referralUsage } from "@bimbelbeta/db/schema/referral";
 import { and, asc, desc, eq, gt, ilike, inArray, isNotNull, isNull, lt, lte, or, sql } from "drizzle-orm";
+import { escapeLikePattern } from "@/lib/utils";
 
 export type ReferralCodeFilter = {
 	status: boolean;
@@ -11,20 +12,20 @@ export type ReferralCodeFilter = {
 	quotaReached?: boolean;
 };
 
-function codeFilter(filter: ReferralCodeFilter | undefined, now: Date) {
-	return filter
-		? and(
-				eq(referralCode.status, filter.status),
-				filter.notExpired ? or(isNull(referralCode.validUntil), gt(referralCode.validUntil, now)) : undefined,
-				filter.hasQuota
-					? or(isNull(referralCode.maxUsages), gt(referralCode.maxUsages, referralCode.usageCount))
-					: undefined,
-				filter.expired ? and(isNotNull(referralCode.validUntil), lte(referralCode.validUntil, now)) : undefined,
-				filter.quotaReached
-					? and(isNotNull(referralCode.maxUsages), lte(referralCode.maxUsages, referralCode.usageCount))
-					: undefined,
-			)
-		: undefined;
+function codeWhere(query: { search?: string; filter?: ReferralCodeFilter }, now: Date) {
+	const filter = query.filter;
+	return and(
+		query.search ? ilike(referralCode.code, `%${escapeLikePattern(query.search)}%`) : undefined,
+		filter ? eq(referralCode.status, filter.status) : undefined,
+		filter?.notExpired ? or(isNull(referralCode.validUntil), gt(referralCode.validUntil, now)) : undefined,
+		filter?.hasQuota
+			? or(isNull(referralCode.maxUsages), gt(referralCode.maxUsages, referralCode.usageCount))
+			: undefined,
+		filter?.expired ? and(isNotNull(referralCode.validUntil), lte(referralCode.validUntil, now)) : undefined,
+		filter?.quotaReached
+			? and(isNotNull(referralCode.maxUsages), lte(referralCode.maxUsages, referralCode.usageCount))
+			: undefined,
+	);
 }
 
 export function createReferralRepository(client: DbClient) {
@@ -82,7 +83,6 @@ export function createReferralRepository(client: DbClient) {
 			search?: string;
 			filter?: ReferralCodeFilter;
 		}) {
-			const statusFilter = codeFilter(query.filter, new Date());
 			return client
 				.select()
 				.from(referralCode)
@@ -93,19 +93,17 @@ export function createReferralRepository(client: DbClient) {
 								? lt(referralCode.id, query.cursorId)
 								: gt(referralCode.id, query.cursorId)
 							: undefined,
-						query.search ? ilike(referralCode.code, `%${query.search}%`) : undefined,
-						statusFilter,
+						codeWhere(query, new Date()),
 					),
 				)
 				.orderBy(query.isBackward ? desc(referralCode.id) : asc(referralCode.id))
 				.limit(query.limit + 1);
 		},
 		async countCodes(query: { search?: string; filter?: ReferralCodeFilter }) {
-			const statusFilter = codeFilter(query.filter, new Date());
 			const [row] = await client
 				.select({ count: sql<number>`count(*)::int` })
 				.from(referralCode)
-				.where(and(query.search ? ilike(referralCode.code, `%${query.search}%`) : undefined, statusFilter));
+				.where(codeWhere(query, new Date()));
 			return row?.count ?? 0;
 		},
 		async findUsage(userId: string, referralCodeId: string) {

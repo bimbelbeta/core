@@ -57,16 +57,18 @@ export const createReferralService = (deps: ReferralServiceDependencies) => ({
 				}[input.status]
 			: undefined;
 
-		const rows = await deps.repository.listCodes({
-			limit,
-			cursorId,
-			isBackward: backward,
-			search: input.search,
-			filter,
-		});
+		const [rows, totalCount] = await Promise.all([
+			deps.repository.listCodes({
+				limit,
+				cursorId,
+				isBackward: backward,
+				search: input.search,
+				filter,
+			}),
+			deps.repository.countCodes({ search: input.search, filter }),
+		]);
 
 		const { items, pageInfo } = buildStringIdCursorPage(rows, limit, backward, hasCursor);
-		const totalCount = await deps.repository.countCodes({ search: input.search, filter });
 
 		return { items, pageInfo: { ...pageInfo, totalCount } };
 	},

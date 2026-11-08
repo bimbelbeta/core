@@ -12,6 +12,7 @@ import {
 } from "@bimbelbeta/db/schema/tryout";
 import { and, asc, desc, eq, getTableColumns, gt, ilike, inArray, isNull, lt, or, sql } from "drizzle-orm";
 import type { CreditRepository } from "@/features/credit/repository";
+import { escapeLikePattern } from "@/lib/utils";
 import type { SubtestQuestionRow } from "./question-utils";
 import type { TryoutScoreResult } from "./scoring";
 
@@ -148,7 +149,7 @@ type AdminFilters = { search?: string; category?: TryoutRow["category"]; status?
 
 function adminFilters({ search, category, status }: AdminFilters) {
 	return and(
-		search ? ilike(tryout.title, `%${search}%`) : undefined,
+		search ? ilike(tryout.title, `%${escapeLikePattern(search)}%`) : undefined,
 		category ? eq(tryout.category, category) : undefined,
 		status ? eq(tryout.status, status) : undefined,
 	);
