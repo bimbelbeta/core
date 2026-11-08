@@ -1,3 +1,4 @@
+import { adminUniversityRouter } from "@/features/university/admin-router";
 import { adminContentRouter } from "@/routers/admin/content";
 import { adminCreditRouter } from "@/routers/admin/credit";
 import { adminDashboardRouter } from "@/routers/admin/dashboard";
@@ -8,7 +9,6 @@ import { adminSubjectRouter } from "@/routers/admin/subject";
 import { subtestRouter } from "@/routers/admin/subtest";
 import { subtestQuestionRouter } from "@/routers/admin/subtest-question";
 import { tryoutRouter } from "@/routers/admin/tryout";
-import { adminUniversityRouter } from "@/routers/admin/university";
 import { usersRouter } from "@/routers/admin/users";
 
 export const adminRouter = {
@@ -28,7 +28,7 @@ export const adminRouter = {
 	referral: adminReferralRouter,
 };
 
+export type { adminUniversityRouter } from "@/features/university/admin-router";
 export type { adminContentRouter } from "@/routers/admin/content";
 export type { adminDashboardRouter } from "@/routers/admin/dashboard";
 export type { adminSubjectRouter } from "@/routers/admin/subject";
-export type { adminUniversityRouter } from "@/routers/admin/university";
