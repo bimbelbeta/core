@@ -4,12 +4,12 @@ import { adminProductRouter } from "@/features/product/admin-router";
 import { questionAdminRouter } from "@/features/question/admin-router";
 import { adminReferralRouter } from "@/features/referral/admin-router";
 import { adminUniversityRouter } from "@/features/university/admin-router";
+import { usersRouter } from "@/features/user/admin-router";
 import { adminDashboardRouter } from "@/routers/admin/dashboard";
 import { adminSubjectRouter } from "@/routers/admin/subject";
 import { subtestRouter } from "@/routers/admin/subtest";
 import { subtestQuestionRouter } from "@/routers/admin/subtest-question";
 import { tryoutRouter } from "@/routers/admin/tryout";
-import { usersRouter } from "@/routers/admin/users";
 
 export const adminRouter = {
 	dashboard: adminDashboardRouter,
