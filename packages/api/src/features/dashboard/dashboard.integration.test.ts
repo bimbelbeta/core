@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
+import { db } from "@bimbelbeta/db";
+import { user } from "@bimbelbeta/db/schema/auth";
+import { question } from "@bimbelbeta/db/schema/question";
 import { call } from "@orpc/server";
+import { count, eq } from "drizzle-orm";
 import type { Session } from "@/context";
 import { appRouter } from "@/routers";
 
@@ -56,5 +60,10 @@ describe.skipIf(!enabled)("dashboard feature slice", () => {
 		expect(stats.premiumUsers).toBeGreaterThanOrEqual(0);
 		expect(stats.monthlyRevenue).toBeGreaterThanOrEqual(0);
 		expect(stats.totalUsers).toBeGreaterThanOrEqual(stats.premiumUsers);
+
+		const [premium] = await db.select({ count: count() }).from(user).where(eq(user.isPremium, true));
+		const [essays] = await db.select({ count: count() }).from(question).where(eq(question.type, "essay"));
+		expect(stats.premiumUsers).toBe(premium?.count ?? 0);
+		expect(stats.essayQuestions).toBe(essays?.count ?? 0);
 	});
 });

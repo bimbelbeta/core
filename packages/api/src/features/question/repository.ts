@@ -43,7 +43,7 @@ export function createQuestionRepository(client: DbClient): QuestionRepository {
 			const [row] = await client
 				.select({
 					total: count(),
-					essay: count(eq(question.type, "essay")),
+					essay: sql<number>`count(*) filter (where ${question.type} = 'essay')`.mapWith(Number),
 				})
 				.from(question);
 			return { total: row?.total ?? 0, essay: row?.essay ?? 0 };

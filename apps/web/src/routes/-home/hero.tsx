@@ -75,13 +75,12 @@ export function Hero() {
 				</div>
 			</div>
 
-			<MotionFloat delay={0.3}>
+			<MotionFloat delay={0.3} className="w-full">
 				<Image
 					src="/images/home/Hero Image.png"
 					alt="Hero Illustration"
 					layout="fullWidth"
-					aspectRatio={1355 / 610}
-					className=""
+					className="aspect-[1355/610] w-full"
 				/>
 			</MotionFloat>
 		</section>
