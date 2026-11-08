@@ -4,6 +4,10 @@ import { referralCode, referralUsage } from "@bimbelbeta/db/schema/referral";
 import { and, asc, desc, eq, gt, ilike, inArray, lt, sql } from "drizzle-orm";
 
 export function createReferralRepository(client: DbClient) {
+	async function transaction<T>(fn: (repository: ReferralRepository) => Promise<T>): Promise<T> {
+		return await client.transaction((tx) => fn(createReferralRepository(tx)));
+	}
+
 	return {
 		async lockCodeByCode(code: string) {
 			const [row] = await client.select().from(referralCode).where(eq(referralCode.code, code)).for("update").limit(1);
@@ -41,7 +45,7 @@ export function createReferralRepository(client: DbClient) {
 					),
 				)
 				.orderBy(query.isBackward ? desc(referralUsage.id) : asc(referralUsage.id))
-				.limit(query.limit);
+				.limit(query.limit + 1);
 		},
 		async insertCode(values: typeof referralCode.$inferInsert) {
 			const [row] = await client.insert(referralCode).values(values).returning();
@@ -69,7 +73,7 @@ export function createReferralRepository(client: DbClient) {
 					),
 				)
 				.orderBy(query.isBackward ? desc(referralCode.id) : asc(referralCode.id))
-				.limit(query.limit);
+				.limit(query.limit + 1);
 		},
 		async findUsage(userId: string, referralCodeId: string) {
 			const [row] = await client
@@ -116,6 +120,7 @@ export function createReferralRepository(client: DbClient) {
 				.set({ isPremium: true, premiumExpiresAt, updatedAt: new Date() })
 				.where(eq(user.id, userId));
 		},
+		transaction,
 	};
 }
 

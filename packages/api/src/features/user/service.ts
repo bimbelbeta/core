@@ -2,7 +2,7 @@ import type { Role } from "@bimbelbeta/contract/common/roles";
 import { db } from "@bimbelbeta/db";
 import type { Session } from "@/context";
 import { DomainError } from "@/lib/domain-error";
-import { buildStringIdCursorPage, parseStringIdCursor } from "@/lib/pagination/cursor";
+import { buildStringIdCursorPage, decodePageInput, parseStringIdCursor } from "@/lib/pagination/cursor";
 import { createUserRepository, type UserRepository } from "./repository";
 
 type UpdateTargetInput = {
@@ -32,7 +32,7 @@ export const createUserService = (repository: UserRepository) => ({
 		}
 
 		const data = await repository.findTarget(user.targetUniversityId, user.targetStudyProgramId);
-		if (!data) throw new DomainError("NOT_FOUND", "Gagal menemukan resource yang diminta.");
+		if (!data) throw new DomainError("NOT_FOUND");
 
 		return data;
 	},
@@ -52,21 +52,19 @@ export const createUserService = (repository: UserRepository) => ({
 	},
 
 	async listUsers(input: ListUsersInput) {
-		const limit = Math.min(input.limit ?? 20, 100);
-		const isBackward = !!input.before;
-		const cursor = input.before || input.after;
+		const { limit, backward, cursor, hasCursor } = decodePageInput(input);
 		const cursorId = cursor ? parseStringIdCursor(cursor) : undefined;
 
 		const rows = await repository.listUsers({
 			limit,
 			cursorId,
-			isBackward,
+			isBackward: backward,
 			search: input.search,
 			role: input.role,
 			isPremium: input.isPremium,
 		});
 
-		return buildStringIdCursorPage(rows, limit, isBackward, !!cursor);
+		return buildStringIdCursorPage(rows, limit, backward, hasCursor);
 	},
 
 	async findUser(userId: string) {

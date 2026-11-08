@@ -16,3 +16,5 @@ The API package had no layer boundaries: router files held SQL, business rules, 
 - Services throw a domain error carrying an oRPC error code; a single middleware translates it. Handlers contain no error handling, and `crud-helpers` and `TryoutError` are deleted.
 - Every handler calls a service, including rule-free reads. A one-line delegate is cheaper than a per-procedure judgement about which layer to use.
 - Middleware belongs to the router layer: it may import repositories, never services, and it may not hold business rules.
+
+The domain error code set carries six codes, not the five the spec enumerated. `UNPROCESSABLE_CONTENT` was added because eight pre-existing failures were already surfaced as 422 responses, and without that code the constraint that no error code changed for any existing failure could not be met at those sites.

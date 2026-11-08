@@ -510,5 +510,26 @@ describe.skipIf(!enabled)("API persistence workflows", () => {
 		} catch (error) {
 			expect(error).toBe(unexpected);
 		}
+
+		const bareDomain = baseImplementer.healthCheck.handler(() => {
+			throw new DomainError("NOT_FOUND");
+		});
+		const bareHandler = baseImplementer.healthCheck.handler(({ errors }) => {
+			throw errors.NOT_FOUND();
+		});
+		const rendered: unknown[] = [];
+		for (const throwing of [bareDomain, bareHandler]) {
+			try {
+				await call(throwing, undefined, options);
+				expect.unreachable();
+			} catch (error) {
+				expect(error).toBeInstanceOf(ORPCError);
+				expect(error).toHaveProperty("code", "NOT_FOUND");
+				rendered.push(error);
+			}
+		}
+		expect(rendered[0]).toHaveProperty("message", "Gagal menemukan resource yang diminta.");
+		const handlerMessage = rendered[1] instanceof Error ? rendered[1].message : undefined;
+		expect(rendered[0]).toHaveProperty("message", handlerMessage);
 	});
 });

@@ -10,7 +10,7 @@ export const domainErrorMiddleware = bareImplementer.middleware(async function t
 		return await next();
 	} catch (error) {
 		if (error instanceof DomainError) {
-			throw errors[error.code]({ message: error.message });
+			throw error.message ? errors[error.code]({ message: error.message }) : errors[error.code]();
 		}
 		throw error;
 	}

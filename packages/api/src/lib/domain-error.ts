@@ -12,7 +12,7 @@ export type DomainErrorCode = (typeof DOMAIN_ERROR_CODES)[number];
 export class DomainError extends Error {
 	constructor(
 		readonly code: DomainErrorCode,
-		message: string,
+		message?: string,
 	) {
 		super(message);
 		this.name = "DomainError";

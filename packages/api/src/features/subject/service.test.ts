@@ -383,6 +383,23 @@ describe("subject service updateProgress", () => {
 		);
 	});
 
+	test("translates a failed write into INTERNAL_SERVER_ERROR", async () => {
+		const service = makeService(
+			makeRepository({
+				findContentRef: async () => ({ id: 12 }),
+				upsertProgress: async () => {
+					throw new Error("write failed");
+				},
+			}),
+		);
+
+		await expectDomainError(
+			service.updateProgress({ contentId: 12, videoCompleted: true }, caller),
+			"INTERNAL_SERVER_ERROR",
+			"Gagal menyimpan progres.",
+		);
+	});
+
 	test("stores the completed flags for the caller", async () => {
 		const upserts: UpsertProgressInput[] = [];
 		const service = makeService(

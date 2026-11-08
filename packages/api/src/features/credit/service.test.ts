@@ -31,7 +31,7 @@ const emptyRepository = {
 };
 
 function makeRepository(overrides: Partial<CreditRepository> = {}): CreditRepository {
-	return {
+	const repository: CreditRepository = {
 		findUserCreditBalance: overrides.findUserCreditBalance ?? emptyRepository.findUserCreditBalance,
 		listCreditPackages: overrides.listCreditPackages ?? emptyRepository.listCreditPackages,
 		findUserCreditSummary: overrides.findUserCreditSummary ?? emptyRepository.findUserCreditSummary,
@@ -39,14 +39,14 @@ function makeRepository(overrides: Partial<CreditRepository> = {}): CreditReposi
 		applyCreditAdjustment: overrides.applyCreditAdjustment ?? emptyRepository.applyCreditAdjustment,
 		deductCreditForTryoutAttempt:
 			overrides.deductCreditForTryoutAttempt ?? emptyRepository.deductCreditForTryoutAttempt,
+		transaction: async (fn) => fn(repository),
+		...overrides,
 	};
+	return repository;
 }
 
 function makeService(repository: CreditRepository) {
-	return createCreditService({
-		repository,
-		withTransactionalRepository: (fn) => fn(repository),
-	});
+	return createCreditService({ repository });
 }
 
 describe("credit service balance", () => {
@@ -98,17 +98,17 @@ describe("credit service adjust", () => {
 
 	test("grants credits through a transactional write, labelling an unnoted grant", async () => {
 		const writes: Parameters<CreditRepository["applyCreditAdjustment"]>[0][] = [];
-		const repository = makeRepository({ findUserCreditBalance: async () => ({ tryoutCredits: 5 }) });
 		const transactional = makeRepository({
 			applyCreditAdjustment: async (params) => {
 				writes.push(params);
 				return { newBalance: 8 };
 			},
 		});
-		const service = createCreditService({
-			repository,
-			withTransactionalRepository: (fn) => fn(transactional),
+		const repository = makeRepository({
+			findUserCreditBalance: async () => ({ tryoutCredits: 5 }),
+			transaction: async (fn) => fn(transactional),
 		});
+		const service = createCreditService({ repository });
 
 		expect(await service.adjust({ userId: "user-2", amount: 3 })).toEqual({
 			userId: "user-2",
@@ -229,7 +229,7 @@ describe("credit service packages", () => {
 		const service = makeService(
 			makeRepository({
 				listCreditPackages: async ({ isBackward, limit }) =>
-					(isBackward ? [...universe].reverse() : universe).slice(0, limit),
+					(isBackward ? [...universe].reverse() : universe).slice(0, limit + 1),
 			}),
 		);
 
@@ -249,7 +249,7 @@ describe("credit service packages", () => {
 		const service = makeService(
 			makeRepository({
 				listCreditPackages: async ({ isBackward, limit }) =>
-					(isBackward ? [...universe].reverse() : universe).slice(0, limit),
+					(isBackward ? [...universe].reverse() : universe).slice(0, limit + 1),
 			}),
 		);
 
@@ -264,7 +264,7 @@ describe("credit service packages", () => {
 		const service = makeService(
 			makeRepository({
 				listCreditPackages: async ({ isBackward, limit }) =>
-					(isBackward ? [...universe].reverse() : universe).slice(0, limit),
+					(isBackward ? [...universe].reverse() : universe).slice(0, limit + 1),
 			}),
 		);
 
