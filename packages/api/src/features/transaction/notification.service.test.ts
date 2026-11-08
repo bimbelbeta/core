@@ -35,7 +35,7 @@ const transaction: TransactionWithProduct = {
 function setup() {
 	const deps = {
 		fetchStatus: mock(async (): Promise<PaymentEvent> => ({ status: "pending" })),
-		find: mock(async (): Promise<TransactionWithProduct | null> => transaction),
+		find: mock(async (): Promise<TransactionWithProduct | undefined> => transaction),
 		updateStatus: mock(async (_orderId: string, _update: { status: "pending" | "failed" }) => {}),
 		process: mock(async (): Promise<boolean> => true),
 	};
@@ -85,7 +85,7 @@ describe("notification service", () => {
 
 	test("returns not_found for unknown transactions without calling the provider", async () => {
 		const { deps, service } = setup();
-		deps.find.mockResolvedValueOnce(null);
+		deps.find.mockResolvedValueOnce(undefined);
 		expect(await service.process("missing", date)).toEqual({ status: "not_found" });
 		expect(deps.fetchStatus).not.toHaveBeenCalled();
 		expect(deps.updateStatus).not.toHaveBeenCalled();

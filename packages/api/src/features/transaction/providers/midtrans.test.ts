@@ -1,13 +1,8 @@
 import { afterAll, describe, expect, spyOn, test } from "bun:test";
 import { createHash } from "node:crypto";
 import { Snap } from "midtrans-client";
-import { PaymentError } from "@/lib/transactions/errors";
-import {
-	midtransProvider,
-	signatureMatches,
-	toFailureCode,
-	toPaymentStatus,
-} from "@/lib/transactions/providers/midtrans";
+import { PaymentError } from "../errors";
+import { midtransProvider, signatureMatches, toFailureCode, toPaymentStatus } from "./midtrans";
 
 const SERVER_KEY = "test-server-key-abc123";
 const originalServerKey = process.env.MIDTRANS_SERVER_KEY;

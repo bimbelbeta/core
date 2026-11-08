@@ -1,14 +1,14 @@
-import { calculatePurchaseBenefits } from "@/lib/transactions/benefits";
-import type { PaymentEvent } from "@/lib/transactions/failures";
-import { resolveNotificationOutcome } from "@/lib/transactions/notification-routing";
-import type { processSuccessfulTransaction } from "@/lib/transactions/processor";
-import type { paymentRepository } from "@/lib/transactions/repository";
-import { type PaymentProvider, settlementColumns } from "@/lib/transactions/types";
+import { calculatePurchaseBenefits } from "./benefits";
+import type { PaymentEvent } from "./failures";
+import { resolveNotificationOutcome } from "./notification-routing";
+import type { processSuccessfulTransaction } from "./processor";
+import type { TransactionRepository } from "./repository";
+import { type PaymentProvider, settlementColumns } from "./types";
 
 export type NotificationServiceDependencies = {
 	fetchStatus: PaymentProvider<unknown>["fetchStatus"];
-	find: typeof paymentRepository.findTransactionWithProduct;
-	updateStatus: typeof paymentRepository.updateStatus;
+	find: TransactionRepository["findTransactionWithProduct"];
+	updateStatus: TransactionRepository["updateStatus"];
 	process: (options: Omit<Parameters<typeof processSuccessfulTransaction>[0], "trx">) => Promise<boolean>;
 };
 

@@ -2,7 +2,22 @@ import { describe, expect, mock, spyOn, test } from "bun:test";
 import { PaymentError } from "./errors";
 import { createSubscriptionService } from "./subscription.service";
 
-const user = { id: "user-1", name: "User", email: "user@example.com", isPremium: false };
+const now = new Date();
+const user = {
+	id: "user-1",
+	name: "User",
+	email: "user@example.com",
+	emailVerified: false,
+	image: null,
+	createdAt: now,
+	updatedAt: now,
+	role: "user" as const,
+	isPremium: false,
+	premiumExpiresAt: null,
+	tryoutCredits: 0,
+	targetUniversityId: null,
+	targetStudyProgramId: null,
+};
 const plan = {
 	id: "product-1",
 	name: "Premium",
@@ -41,8 +56,10 @@ const checkout = { provider: "midtrans", token: "token", redirectUrl: "url" };
 
 function setup() {
 	const deps = {
+		productRepository: {
+			findBySlug: mock(async (): Promise<typeof plan | undefined> => plan),
+		},
 		repository: {
-			findProduct: mock(async (): Promise<typeof plan | undefined> => plan),
 			createTransaction: mock(async (): Promise<typeof transaction | undefined> => transaction),
 		},
 		createCheckout: mock(async () => checkout),
@@ -64,7 +81,7 @@ describe("subscription service", () => {
 
 	test("rejects missing products and existing premium memberships", async () => {
 		const { deps, service } = setup();
-		deps.repository.findProduct.mockResolvedValueOnce(undefined);
+		deps.productRepository.findBySlug.mockResolvedValueOnce(undefined);
 		expect(await service.subscribe("missing", user)).toEqual({ status: "not_found" });
 		expect(await service.subscribe("premium", { ...user, isPremium: true })).toEqual({ status: "already_premium" });
 		expect(deps.repository.createTransaction).not.toHaveBeenCalled();
