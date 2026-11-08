@@ -1,8 +1,8 @@
 import type { RouterClient } from "@orpc/server";
+import { productRouter } from "@/features/product/router";
 import { baseImplementer } from "@/lib/router-definition/base";
 import { adminRouter } from "@/routers/admin";
 import { creditRouter } from "@/routers/credit";
-import { productRouter } from "@/routers/product";
 import { referralRouter } from "@/routers/referral";
 import { subjectRouter } from "@/routers/subject";
 import { transactionRouter } from "@/routers/transaction";
