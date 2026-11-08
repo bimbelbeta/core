@@ -159,8 +159,8 @@ function makeRepository(rows: AdminRows): AdminServiceRepository {
 	};
 }
 
-function makeService(rows: AdminRows) {
-	return { service: createTryoutAdminService({ repository: makeRepository(rows) }), rows };
+function makeService(rows: AdminRows, overrides: Partial<AdminServiceRepository> = {}) {
+	return { service: createTryoutAdminService({ repository: { ...makeRepository(rows), ...overrides } }), rows };
 }
 
 function baseRows(overrides: Partial<AdminRows> = {}): AdminRows {
@@ -305,6 +305,18 @@ describe("admin tryout service", () => {
 			message: "Kode akses sudah ada untuk tryout ini",
 		});
 		expect(rows.writes.insertedAccessCodes).toEqual([]);
+	});
+
+	test("reports a failed insert as a server error, not as a duplicate code", async () => {
+		const rows = baseRows();
+		rows.writes.insertedAccessCodes = [];
+		const { service } = makeService(rows, {
+			insertAccessCode: async () => undefined,
+		});
+		await expect(service.createAccessCode({ id: 1, code: "baru", maxUses: 2 })).rejects.toMatchObject({
+			code: "INTERNAL_SERVER_ERROR",
+			message: "Gagal membuat kode akses",
+		});
 	});
 
 	test("creates an access code with a generated code and returns the plain code", async () => {
