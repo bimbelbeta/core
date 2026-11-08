@@ -46,7 +46,8 @@ export function HeaderDashboard() {
 	const userInitials = session?.user.name ? getInitials(session.user.name) : "U";
 
 	return (
-		<header
+		<m.header
+			layoutScroll
 			className={`fixed inset-x-0 top-0 z-50 backdrop-blur-md transition-colors ${mobileMenuOpen ? "bg-white" : "bg-transparent"}`}
 		>
 			<div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 md:px-8">
@@ -211,6 +212,6 @@ export function HeaderDashboard() {
 			</AnimatePresence>
 
 			<LogoutDialog open={open} onOpenChange={setOpen} />
-		</header>
+		</m.header>
 	);
 }
