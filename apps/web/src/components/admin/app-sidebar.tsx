@@ -10,7 +10,7 @@ import {
 	UserIcon,
 } from "@phosphor-icons/react";
 import { Link, useLocation, useRouteContext } from "@tanstack/react-router";
-import { Sidebar, SidebarContent, SidebarHeader, SidebarRail } from "@/components/ui/sidebar";
+import { Sidebar, SidebarContent, SidebarHeader, SidebarRail, useSidebar } from "@/components/ui/sidebar";
 import { NavFooter } from "./nav-footer";
 import { NavMain } from "./nav-main";
 
@@ -73,6 +73,7 @@ const allAdminNavLinks = [
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const location = useLocation();
 	const { session } = useRouteContext({ from: "/admin" });
+	const { setOpenMobile } = useSidebar();
 
 	const navGroups = NAV_GROUPS.map((label) => ({
 		label,
@@ -90,7 +91,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	return (
 		<Sidebar collapsible="icon" {...props}>
 			<SidebarHeader className="h-14 justify-center border-b py-0 pr-3 pl-[1.375rem]">
-				<Link to="/admin/dashboard" className="flex items-center gap-2.5 overflow-hidden">
+				<Link
+					to="/admin/dashboard"
+					onClick={() => setOpenMobile(false)}
+					className="flex items-center gap-2.5 overflow-hidden"
+				>
 					<div className="grid min-w-0 leading-tight group-data-[collapsible=icon]:hidden">
 						<span className="truncate font-sans text-[0.8125rem] font-semibold tracking-tight">bimbelbeta</span>
 						<span className="text-muted-foreground text-meta truncate">Konsol admin</span>

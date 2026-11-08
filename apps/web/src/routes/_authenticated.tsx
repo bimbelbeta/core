@@ -52,7 +52,7 @@ function AuthedLayout() {
 			<HeaderDashboard />
 
 			{/^\/classes\/[^/]+\/[^/]+\/(video|notes|latihan-soal)/.test(pathname) ? (
-				<Container className="flex flex-col gap-6 py-0">
+				<Container className="flex flex-col gap-6 py-0 md:py-0">
 					<Outlet />
 				</Container>
 			) : (
