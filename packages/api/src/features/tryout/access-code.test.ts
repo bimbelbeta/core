@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { hashAccessCode } from "./access-code";
+import { generateAccessCode, hashAccessCode } from "./access-code";
 
 describe("hashAccessCode", () => {
 	test("hashes consistently for the same input", () => {
@@ -20,5 +20,11 @@ describe("hashAccessCode", () => {
 	test("produces a 64-character hex string", () => {
 		const result = hashAccessCode("test");
 		expect(result).toMatch(/^[0-9a-f]{64}$/);
+	});
+});
+
+describe("generateAccessCode", () => {
+	test("produces an uppercase code within the base64url alphabet", () => {
+		expect(generateAccessCode()).toMatch(/^[A-Z0-9_-]{8}$/);
 	});
 });

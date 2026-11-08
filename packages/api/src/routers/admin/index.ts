@@ -4,22 +4,18 @@ import { adminProductRouter } from "@/features/product/admin-router";
 import { questionAdminRouter } from "@/features/question/admin-router";
 import { adminReferralRouter } from "@/features/referral/admin-router";
 import { adminSubjectRouter } from "@/features/subject/admin-router";
+import { adminTryoutRouter } from "@/features/tryout/admin-router";
 import { adminUniversityRouter } from "@/features/university/admin-router";
 import { usersRouter } from "@/features/user/admin-router";
 import { adminDashboardRouter } from "@/routers/admin/dashboard";
-import { subtestRouter } from "@/routers/admin/subtest";
-import { subtestQuestionRouter } from "@/routers/admin/subtest-question";
-import { tryoutRouter } from "@/routers/admin/tryout";
 
 export const adminRouter = {
 	dashboard: adminDashboardRouter,
 	subject: adminSubjectRouter,
 	content: adminContentRouter,
 	tryout: {
-		...tryoutRouter,
-		subtest: subtestRouter,
+		...adminTryoutRouter,
 		questions: questionAdminRouter,
-		questionsBulk: subtestQuestionRouter,
 	},
 	university: adminUniversityRouter,
 	credit: adminCreditRouter,

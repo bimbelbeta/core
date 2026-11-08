@@ -1,13 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import {
-	calcTotalScore,
-	getScoreFromMap,
-	scoreComplexChoice,
-	scoreEssay,
-	scoreMultipleChoice,
-} from "./calculate-score";
+import { calcTotalScore, getScoreFromMap, scoreComplexChoice, scoreEssay, scoreMultipleChoice } from "./scoring";
 
-// ─── scoring map lookup ────────────────────────────────────────────────────────
 describe("getScoreFromMap", () => {
 	test("returns mapped score when key exists", () => {
 		const map = { "0": 100, "3": 450, "5": 700 };
@@ -21,24 +14,19 @@ describe("getScoreFromMap", () => {
 
 	test("falls back to linear scale when key missing from map", () => {
 		const map = { "5": 700 };
-		// 3/10 * 1000 = 300
 		expect(getScoreFromMap(map, 3, 10)).toBe(300);
 	});
 
 	test("falls back to linear scale when map is null", () => {
-		// 2/4 * 1000 = 500
 		expect(getScoreFromMap(null, 2, 4)).toBe(500);
 	});
 
 	test("falls back to linear scale when map is undefined", () => {
-		// 1/3 * 1000 = 333
 		expect(getScoreFromMap(undefined, 1, 3)).toBe(333);
 	});
 
 	test("linear scale rounds correctly", () => {
-		// 1/3 * 1000 = 333.33... → 333
 		expect(getScoreFromMap(null, 1, 3)).toBe(333);
-		// 2/3 * 1000 = 666.66... → 667
 		expect(getScoreFromMap(null, 2, 3)).toBe(667);
 	});
 
@@ -55,7 +43,6 @@ describe("getScoreFromMap", () => {
 	});
 });
 
-// ─── multiple_choice scoring ───────────────────────────────────────────────────
 describe("scoreMultipleChoice", () => {
 	test("correct answer scores a point", () => {
 		expect(scoreMultipleChoice(true)).toBe(true);
@@ -71,7 +58,6 @@ describe("scoreMultipleChoice", () => {
 	});
 });
 
-// ─── multiple_choice_complex scoring ─────────────────────────────────────────
 describe("scoreComplexChoice", () => {
 	const choices = [
 		{ id: 1, isCorrect: true },
@@ -109,7 +95,6 @@ describe("scoreComplexChoice", () => {
 	});
 });
 
-// ─── essay scoring ─────────────────────────────────────────────────────────────
 describe("scoreEssay", () => {
 	test("exact match → correct", () => {
 		expect(scoreEssay("photosynthesis", "photosynthesis")).toBe(true);
@@ -140,7 +125,6 @@ describe("scoreEssay", () => {
 	});
 });
 
-// ─── total score averaging ─────────────────────────────────────────────────────
 describe("calcTotalScore", () => {
 	test("average of subtest scores", () => {
 		expect(calcTotalScore([500, 750, 250])).toBe(500);
@@ -155,7 +139,6 @@ describe("calcTotalScore", () => {
 	});
 
 	test("rounds to nearest integer", () => {
-		// (500 + 501) / 2 = 500.5 → 501
 		expect(calcTotalScore([500, 501])).toBe(501);
 	});
 });

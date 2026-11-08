@@ -4,11 +4,11 @@ import { productRouter } from "@/features/product/router";
 import { referralRouter } from "@/features/referral/router";
 import { subjectRouter } from "@/features/subject/router";
 import { transactionRouter } from "@/features/transaction/router";
+import { tryoutRouter } from "@/features/tryout/router";
 import { universityRouter } from "@/features/university/router";
 import { userSettingsRouter } from "@/features/user/router";
 import { baseImplementer } from "@/lib/router-definition/base";
 import { adminRouter } from "@/routers/admin";
-import { tryoutRouter } from "@/routers/tryout";
 
 const pub = baseImplementer;
 
