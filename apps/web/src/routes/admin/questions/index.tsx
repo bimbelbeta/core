@@ -42,6 +42,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { TableRowStack, tableRowLinkClass } from "@/components/ui/table-row-stack";
 import { Typography } from "@/components/ui/typography";
 import { extractTextFromTiptap } from "@/lib/content-text";
 import { formatDateMedium } from "@/lib/format-date";
@@ -53,6 +54,7 @@ import {
 	SUBJECT_CATEGORY_LABELS,
 	subjectCategorySchema,
 } from "@/lib/schemas";
+import { cn } from "@/lib/utils";
 import { useQuestionsSearch } from "./-hooks/use-questions-search";
 
 const searchSchema = type({
@@ -206,25 +208,29 @@ function QuestionsListPage() {
 								return (
 									<AdminTableRow key={q.id}>
 										<AdminTableCell className="pl-3">
-											<div className="min-w-0">
-												<Link
-													to="/admin/questions/$questionId"
-													params={{ questionId: q.id.toString() }}
-													className="text-row-title text-foreground hover:text-primary focus-visible:text-primary focus-visible:ring-ring/50 line-clamp-2 rounded-sm whitespace-normal underline-offset-4 outline-none after:absolute after:inset-0 after:content-[''] hover:underline focus-visible:underline focus-visible:ring-2"
-												>
-													{contentPreview || "(Konten kosong)"}
-												</Link>
-												<div className="text-muted-foreground text-meta mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1">
-													<span className="font-mono">#{q.id}</span>
-													<span aria-hidden>·</span>
-													<span>{QUESTION_TYPE_SHORT_LABELS[q.type] ?? q.type}</span>
-													{q.tags?.map((t) => (
-														<Badge key={t} variant="outline" className="text-meta font-normal">
-															{t}
-														</Badge>
-													))}
-												</div>
-											</div>
+											<TableRowStack
+												title={
+													<Link
+														to="/admin/questions/$questionId"
+														params={{ questionId: q.id.toString() }}
+														className={cn(tableRowLinkClass, "line-clamp-2")}
+													>
+														{contentPreview || "(Konten kosong)"}
+													</Link>
+												}
+												subtitle={
+													<>
+														<span className="font-mono">#{q.id}</span>
+														<span aria-hidden>·</span>
+														<span>{QUESTION_TYPE_SHORT_LABELS[q.type] ?? q.type}</span>
+														{q.tags?.map((t) => (
+															<Badge key={t} variant="outline" className="text-meta font-normal">
+																{t}
+															</Badge>
+														))}
+													</>
+												}
+											/>
 										</AdminTableCell>
 										<AdminTableCell className="text-muted-foreground text-meta hidden text-right whitespace-nowrap sm:table-cell">
 											{q.createdAt ? formatDateMedium(new Date(q.createdAt)) : "—"}

@@ -12,6 +12,7 @@ import {
 } from "@/components/admin/admin-table";
 import { TryoutStatus } from "@/components/admin/tryout-status";
 import { Button } from "@/components/ui/button";
+import { TableRowStack, tableRowLinkClass } from "@/components/ui/table-row-stack";
 import { Typography } from "@/components/ui/typography";
 import { formatDateMedium } from "@/lib/format-date";
 import { orpc } from "@/lib/orpc";
@@ -60,22 +61,26 @@ export function RecentTryouts() {
 						{tryouts.map((tryout) => (
 							<AdminTableRow key={tryout.id}>
 								<AdminTableCell className="w-full max-w-0">
-									<div className="min-w-0">
-										<Link
-											to="/admin/tryouts/$tryoutId"
-											params={{ tryoutId: tryout.id.toString() }}
-											className="text-row-title text-foreground hover:text-primary focus-visible:ring-ring/50 block truncate rounded-sm underline-offset-4 outline-none after:absolute after:inset-0 after:content-[''] hover:underline focus-visible:ring-2"
-										>
-											{tryout.title}
-										</Link>
-										<p className="text-muted-foreground text-meta mt-0.5 truncate">
-											{SUBJECT_CATEGORY_LABELS[tryout.category]}
-											<span aria-hidden> · </span>
-											{tryout.subtestCount} subtest
-											<span aria-hidden> · </span>
-											{tryout.attemptCount} percobaan
-										</p>
-									</div>
+									<TableRowStack
+										title={
+											<Link
+												to="/admin/tryouts/$tryoutId"
+												params={{ tryoutId: tryout.id.toString() }}
+												className={tableRowLinkClass}
+											>
+												{tryout.title}
+											</Link>
+										}
+										subtitle={
+											<>
+												{SUBJECT_CATEGORY_LABELS[tryout.category]}
+												<span aria-hidden>·</span>
+												{tryout.subtestCount} subtest
+												<span aria-hidden>·</span>
+												{tryout.attemptCount} percobaan
+											</>
+										}
+									/>
 								</AdminTableCell>
 								<AdminTableCell>
 									<TryoutStatus status={tryout.status} />

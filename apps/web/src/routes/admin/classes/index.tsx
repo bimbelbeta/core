@@ -34,11 +34,13 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { TableRowStack, tableRowLinkClass } from "@/components/ui/table-row-stack";
 import { Typography } from "@/components/ui/typography";
 import { gradeLabel } from "@/lib/formatter";
 import { orpc } from "@/lib/orpc";
 import { SUBJECT_CATEGORY_LABELS, type SubjectCategory, subjectCategorySchema } from "@/lib/schemas";
 import { createMeta } from "@/lib/seo-utils";
+import { cn } from "@/lib/utils";
 
 const searchSchema = type({
 	"q?": "string",
@@ -169,18 +171,18 @@ function RouteComponent() {
 							{items.map((subject) => (
 								<AdminTableRow key={subject.id}>
 									<AdminTableCell className="pl-3">
-										<div className="min-w-0">
-											<Link
-												to={isAdmin ? "/admin/classes/$subjectId" : "/classes/$subjectId"}
-												params={{ subjectId: subject.id.toString() }}
-												className="text-row-title text-foreground hover:text-primary focus-visible:text-primary focus-visible:ring-ring/50 line-clamp-2 rounded-sm whitespace-normal underline-offset-4 outline-none after:absolute after:inset-0 after:content-[''] hover:underline focus-visible:underline focus-visible:ring-2"
-											>
-												{subject.name}
-											</Link>
-											<div className="text-muted-foreground text-meta mt-1">
-												{gradeLabel(subject.category, subject.gradeLevel)}
-											</div>
-										</div>
+										<TableRowStack
+											title={
+												<Link
+													to={isAdmin ? "/admin/classes/$subjectId" : "/classes/$subjectId"}
+													params={{ subjectId: subject.id.toString() }}
+													className={cn(tableRowLinkClass, "line-clamp-2")}
+												>
+													{subject.name}
+												</Link>
+											}
+											subtitle={gradeLabel(subject.category, subject.gradeLevel)}
+										/>
 									</AdminTableCell>
 									<AdminTableCell className="hidden sm:table-cell">
 										<AdminChip>{subject.category}</AdminChip>

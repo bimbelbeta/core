@@ -21,9 +21,11 @@ import {
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { TableRowStack, tableRowLinkClass } from "@/components/ui/table-row-stack";
 import { extractTextFromTiptap } from "@/lib/content-text";
 import type { BodyOutputs } from "@/lib/orpc";
 import { QUESTION_TYPE_SHORT_LABELS } from "@/lib/schemas";
+import { cn } from "@/lib/utils";
 
 interface SubtestQuestionsTableProps {
 	questions: BodyOutputs["admin"]["tryout"]["questionsBulk"]["list"]["questions"];
@@ -65,21 +67,25 @@ export function SubtestQuestionsTable({
 						return (
 							<AdminTableRow key={item.id}>
 								<AdminTableCell className="pl-3">
-									<div className="min-w-0">
-										<Link
-											to="/admin/questions/$questionId"
-											params={{ questionId: item.question.id.toString() }}
-											search={{ tryoutId, subtestId }}
-											className="text-row-title text-foreground hover:text-primary focus-visible:text-primary focus-visible:ring-ring/50 line-clamp-2 rounded-sm whitespace-normal underline-offset-4 outline-none after:absolute after:inset-0 after:content-[''] hover:underline focus-visible:underline focus-visible:ring-2"
-										>
-											{preview || "(Konten kosong)"}
-										</Link>
-										<div className="text-muted-foreground text-meta mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1">
-											<span className="font-mono tabular-nums">Soal {index + 1}</span>
-											<span aria-hidden>·</span>
-											<span>{QUESTION_TYPE_SHORT_LABELS[item.question.type] ?? item.question.type}</span>
-										</div>
-									</div>
+									<TableRowStack
+										title={
+											<Link
+												to="/admin/questions/$questionId"
+												params={{ questionId: item.question.id.toString() }}
+												search={{ tryoutId, subtestId }}
+												className={cn(tableRowLinkClass, "line-clamp-2")}
+											>
+												{preview || "(Konten kosong)"}
+											</Link>
+										}
+										subtitle={
+											<>
+												<span className="font-mono tabular-nums">Soal {index + 1}</span>
+												<span aria-hidden>·</span>
+												<span>{QUESTION_TYPE_SHORT_LABELS[item.question.type] ?? item.question.type}</span>
+											</>
+										}
+									/>
 								</AdminTableCell>
 								<AdminTableCell className="relative z-10 pr-3 text-right">
 									<AlertDialog

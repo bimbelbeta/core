@@ -16,6 +16,7 @@ import { PaginationButtons } from "@/components/admin/pagination-buttons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
+import { TableRowStack } from "@/components/ui/table-row-stack";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatDateTime, formatRelativeDate } from "@/lib/format-date";
@@ -137,10 +138,10 @@ export const TryoutAttemptsTab = ({ subtests }: TryoutAttemptsTabProps) => {
 																{getInitials(user.name)}
 															</AvatarFallback>
 														</Avatar>
-														<div className="flex flex-col">
-															<span className="text-foreground leading-tight font-semibold">{user.name}</span>
-															<span className="text-muted-foreground text-meta leading-tight">{user.email}</span>
-														</div>
+														<TableRowStack
+															title={user.name}
+															subtitle={<span className="truncate">{user.email}</span>}
+														/>
 													</div>
 												</AdminTableCell>
 

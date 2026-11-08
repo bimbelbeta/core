@@ -27,6 +27,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
+import { TableRowStack, tableRowLinkClass } from "@/components/ui/table-row-stack";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 import { AddSubtestDialog } from "./add-subtest-dialog";
@@ -125,19 +126,19 @@ export function TryoutSubtestsTab({ tryoutId, subtests, onUpdate }: TryoutSubtes
 								{subtests.map((subtest) => (
 									<AdminTableRow key={subtest.id} className="group">
 										<AdminTableCell>
-											<Link
-												to="/admin/tryouts/$tryoutId"
-												params={{ tryoutId: tryoutId.toString() }}
-												search={{ tab: "subtests", subtest: subtest.id }}
-												className="group/link focus-visible:ring-ring/50 block rounded-sm outline-none after:absolute after:inset-0 after:content-[''] focus-visible:underline focus-visible:ring-2"
-											>
-												<span className="text-row-title group-hover/link:underline">{subtest.name}</span>
-												{subtest.description && (
-													<Typography variant="caption" className="line-clamp-1">
-														{subtest.description}
-													</Typography>
-												)}
-											</Link>
+											<TableRowStack
+												title={
+													<Link
+														to="/admin/tryouts/$tryoutId"
+														params={{ tryoutId: tryoutId.toString() }}
+														search={{ tab: "subtests", subtest: subtest.id }}
+														className={tableRowLinkClass}
+													>
+														{subtest.name}
+													</Link>
+												}
+												subtitle={subtest.description && <span className="truncate">{subtest.description}</span>}
+											/>
 										</AdminTableCell>
 										<AdminTableCell className="text-meta text-right tabular-nums">
 											{subtest.questionCount}
