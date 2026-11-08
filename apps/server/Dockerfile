@@ -33,7 +33,9 @@ RUN turbo prune server
 RUN turbo build --filter=server
 
 FROM configs AS runner
+WORKDIR /app
 COPY --from=builder /usr/src/app/apps/server/dist/ .
+COPY --from=builder /usr/src/app/packages/db/src/migrations ./migrations
 
 EXPOSE 3001
 CMD ["bun", "./index.js"]

@@ -21,6 +21,7 @@
         "@better-upload/server": "^3.0.20",
         "@bimbelbeta/api": "workspace:*",
         "@bimbelbeta/auth": "workspace:*",
+        "@bimbelbeta/db": "workspace:*",
         "@orpc/arktype": "catalog:",
         "@orpc/experimental-ratelimit": "catalog:",
         "@orpc/openapi": "catalog:",
@@ -28,6 +29,7 @@
         "arktype": "catalog:",
         "better-auth": "catalog:",
         "dotenv": "catalog:",
+        "drizzle-orm": "catalog:",
         "hono": "catalog:",
       },
       "devDependencies": {
