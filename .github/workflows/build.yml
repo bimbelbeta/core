@@ -28,6 +28,7 @@ jobs:
           fetch-depth: 0
       - id: changed
         name: Did this push touch migrations?
+        if: github.event_name == 'push'
         run: |
           before="${{ github.event.before }}"
           if [ "$before" = "0000000000000000000000000000000000000000" ]; then
