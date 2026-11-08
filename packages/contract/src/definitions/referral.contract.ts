@@ -8,6 +8,7 @@ const RedeemInputSchema = type({
 const RedeemOutputSchema = type({
 	message: "string",
 	premiumExpiresAt: "Date",
+	premiumDays: "number",
 });
 
 export const referralContract = {

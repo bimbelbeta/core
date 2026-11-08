@@ -1,10 +1,8 @@
-import { Card } from "@/components/ui/card";
-import { Container } from "@/components/ui/container";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function PremiumSkeleton() {
 	return (
-		<Container className="space-y-8">
+		<div className="flex flex-col gap-8">
 			{/* Header Skeleton */}
 			<div className="rounded-default relative overflow-hidden bg-neutral-200">
 				<div className="grid grid-cols-1 gap-6 px-6 pt-8 pb-0 sm:grid-cols-2 sm:items-center sm:px-10 sm:py-10">
@@ -19,58 +17,45 @@ export function PremiumSkeleton() {
 				</div>
 			</div>
 
-			{/* Packages Section Skeleton */}
-			<div className="space-y-6">
-				<div className="text-center">
-					<Skeleton className="mx-auto mb-2 h-8 w-48" />
-					<Skeleton className="mx-auto h-4 w-full max-w-lg" />
-				</div>
-
-				{/* Premium Cards Skeleton - 2 columns */}
-				<div className="grid gap-4 md:grid-cols-2">
-					{[1, 2].map((i) => (
-						<Card
-							variant="flush"
-							key={i}
-							className="rounded-default h-full border-neutral-200 bg-neutral-100 p-6 shadow-none"
-						>
-							<Skeleton className="mb-4 h-6 w-24" />
-							<Skeleton className="mb-4 h-8 w-32" />
-							<Skeleton className="mb-4 h-4 w-full" />
-							<Skeleton className="mb-4 h-4 w-3/4" />
-							<Skeleton className="mt-auto h-10 w-full rounded-lg" />
-						</Card>
-					))}
-				</div>
-
-				{/* Credits Cards Skeleton - 4 columns */}
-				<div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+			{/* Plan Table Skeleton */}
+			<div className="bg-card overflow-hidden rounded-xl border">
+				<div className="grid grid-cols-4">
 					{[1, 2, 3, 4].map((i) => (
-						<Card
-							variant="flush"
-							key={i}
-							className="rounded-default h-full border-neutral-200 bg-neutral-100 p-5 shadow-none"
-						>
-							<Skeleton className="mb-2 h-5 w-28" />
-							<Skeleton className="mb-4 h-6 w-24" />
-							<Skeleton className="mb-2 h-4 w-full" />
-							<Skeleton className="mb-4 h-4 w-3/4" />
-							<Skeleton className="mt-auto h-9 w-full rounded-lg" />
-						</Card>
+						<div key={i} className="flex flex-col gap-2 border-b border-l px-4 py-3 first:border-l-0">
+							<Skeleton className="h-4 w-20" />
+							<Skeleton className="h-6 w-24" />
+							<Skeleton className="h-3 w-28" />
+							<Skeleton className="mt-2 h-8 w-full rounded-md" />
+						</div>
 					))}
 				</div>
+
+				<div className="bg-muted/40 border-b px-4 py-2">
+					<Skeleton className="h-4 w-32" />
+				</div>
+
+				{[1, 2, 3, 4, 5].map((row) => (
+					<div key={row} className="grid grid-cols-4">
+						<div className="border-b px-4 py-2">
+							<Skeleton className="h-4 w-28" />
+						</div>
+						{[1, 2, 3].map((col) => (
+							<div key={col} className="flex items-center justify-center border-b border-l px-4 py-2">
+								<Skeleton className="size-3.5 rounded-full" />
+							</div>
+						))}
+					</div>
+				))}
 			</div>
 
-			{/* Credit Balance Card Skeleton */}
-			<Card className="border-amber-200 bg-amber-50 p-6">
-				<div className="flex items-center gap-4">
-					<Skeleton className="h-12 w-12 shrink-0 rounded-full" />
-					<div className="flex-1 space-y-2">
-						<Skeleton className="h-5 w-40" />
-						<Skeleton className="h-4 w-full max-w-sm" />
-					</div>
+			{/* Referral Skeleton */}
+			<div className="bg-card flex flex-col gap-3 rounded-xl border p-4">
+				<div className="flex flex-col gap-1">
+					<Skeleton className="h-4 w-36" />
+					<Skeleton className="h-3 w-64" />
 				</div>
-			</Card>
-		</Container>
+				<Skeleton className="h-10 w-full max-w-md rounded-md" />
+			</div>
+		</div>
 	);
 }

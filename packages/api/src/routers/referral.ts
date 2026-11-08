@@ -69,12 +69,13 @@ const redeem = authed.referral.redeem.handler(async ({ input, context, errors })
 			.set({ isPremium: true, premiumExpiresAt: newPremiumExpiresAt, updatedAt: new Date() })
 			.where(eq(user.id, userId));
 
-		return { newPremiumExpiresAt };
+		return { newPremiumExpiresAt, premiumDays: codeRow.premiumDays };
 	});
 
 	return {
 		message: `Selamat! Akun Premium Anda aktif hingga ${result.newPremiumExpiresAt.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}.`,
 		premiumExpiresAt: result.newPremiumExpiresAt,
+		premiumDays: result.premiumDays,
 	};
 });
 

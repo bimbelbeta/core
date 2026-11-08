@@ -1,37 +1,55 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "@tanstack/react-router";
 import type { FormEvent } from "react";
 import { useState } from "react";
-import { toast } from "sonner";
-import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/lib/orpc";
 
 export function useReferral() {
-	const [code, setCode] = useState("");
-	const [successData, setSuccessData] = useState<{ message: string; premiumExpiresAt: Date } | null>(null);
+	const queryClient = useQueryClient();
+	const router = useRouter();
+	const [code, setCodeState] = useState("");
+	const [localError, setLocalError] = useState<string | null>(null);
+	const [success, setSuccess] = useState<{ premiumExpiresAt: Date; premiumDays: number } | null>(null);
+	const [celebrate, setCelebrate] = useState(false);
 
 	const redeemMutation = useMutation(
 		orpc.referral.redeem.mutationOptions({
 			onSuccess: (res) => {
-				setSuccessData(res);
-				setCode("");
-				authClient.getSession({ fetchOptions: { cache: "no-cache" } });
-			},
-			onError: (err) => {
-				toast.error(err.message);
+				setSuccess(res);
+				setCelebrate(true);
+				setCodeState("");
+				void queryClient.invalidateQueries({ queryKey: ["auth", "getSession"] });
+				void router.invalidate();
 			},
 		}),
 	);
+
+	const setCode = (next: string) => {
+		setCodeState(next);
+		setLocalError(null);
+		setSuccess(null);
+		redeemMutation.reset();
+	};
 
 	const handleSubmit = (e: FormEvent) => {
 		e.preventDefault();
 		const trimmed = code.trim();
 		if (!trimmed) return;
 		if (!/^[A-Za-z0-9]+$/.test(trimmed)) {
-			toast.error("Kode tidak valid — hanya huruf dan angka yang diperbolehkan.");
+			setLocalError("Kode hanya boleh berisi huruf dan angka.");
 			return;
 		}
 		redeemMutation.mutate({ code: trimmed });
 	};
 
-	return { code, setCode, successData, setSuccessData, isPending: redeemMutation.isPending, handleSubmit };
+	return {
+		code,
+		setCode,
+		error: localError ?? redeemMutation.error?.message ?? null,
+		success,
+		celebrate,
+		dismissCelebration: () => setCelebrate(false),
+		isPending: redeemMutation.isPending,
+		handleSubmit,
+	};
 }
