@@ -496,6 +496,16 @@ export function createTryoutRepository(client: DbClient) {
 			.where(inArray(questionChoice.questionId, questionIds));
 	}
 
+	async function listExpiredOngoingAttemptIds(now: Date, limit: number): Promise<number[]> {
+		const rows = await client
+			.select({ id: tryoutAttempt.id })
+			.from(tryoutAttempt)
+			.where(and(eq(tryoutAttempt.status, "ongoing"), lt(tryoutAttempt.deadline, now)))
+			.orderBy(asc(tryoutAttempt.deadline))
+			.limit(limit);
+		return rows.map((row) => row.id);
+	}
+
 	async function finishSubtestAttempt(id: number): Promise<void> {
 		await client
 			.update(tryoutSubtestAttempt)
@@ -504,10 +514,12 @@ export function createTryoutRepository(client: DbClient) {
 	}
 
 	async function finishAttempt(id: number): Promise<void> {
+		const now = new Date();
+		await client.update(tryoutAttempt).set({ completedAt: now, status: "finished" }).where(eq(tryoutAttempt.id, id));
 		await client
-			.update(tryoutAttempt)
-			.set({ completedAt: new Date(), status: "finished" })
-			.where(eq(tryoutAttempt.id, id));
+			.update(tryoutSubtestAttempt)
+			.set({ status: "finished", completedAt: now })
+			.where(and(eq(tryoutSubtestAttempt.tryoutAttemptId, id), eq(tryoutSubtestAttempt.status, "ongoing")));
 	}
 
 	async function saveScores(attemptId: number, scores: TryoutScoreResult): Promise<void> {
@@ -837,6 +849,7 @@ export function createTryoutRepository(client: DbClient) {
 		listSubtestQuestionPairs,
 		listQuestionsForScoring,
 		listChoiceCorrectness,
+		listExpiredOngoingAttemptIds,
 		finishSubtestAttempt,
 		finishAttempt,
 		saveScores,

@@ -4,6 +4,41 @@ This document contains incremental updates, patch logs, and developer instructio
 
 ---
 
+## Scheduled Jobs
+
+### Goal
+
+Move work that used to happen only when a member happened to open the app onto a timer: finalizing tryout attempts past their deadline, revoking lapsed premium, and failing stale pending payments.
+
+### Action Required for Developers / Admins
+
+The task exists on the **api** application (`hd4fnowsbqiopn52b4nkz5lh`) as `scheduled-jobs` (`mfuhmnlo5cunqrozeyn6u6q7`):
+
+- Command: `bun ./cron.js`
+- Frequency: `*/5 * * * *`
+- Timeout: 300s
+
+It is **disabled** until an image containing `cron.js` is deployed; the currently running image predates this change, so enabling it now only produces failed runs. Enable it after the first deploy that includes this change:
+
+```bash
+coolify app task update hd4fnowsbqiopn52b4nkz5lh mfuhmnlo5cunqrozeyn6u6q7 --enabled=true
+```
+
+It runs inside the running container from `/app`, where the server image places `cron.js` next to `index.js`. Nothing runs while the container is stopped. The task exits non-zero when an attempt fails to finalize, so a red run in Coolify means the sweep could not finish every attempt; the log names the attempt ids.
+
+Locally: `cd apps/server && bun run cron`.
+
+### Code Changes & Logic
+
+- **Entrypoint**: `apps/server/src/cron.ts` runs `runScheduledJobs()` once and exits. It is built as a second Bun entrypoint, so no long-running scheduler lives inside the API process and a crash cannot take the server down with it.
+- **Composition**: `packages/api/src/cron.ts` wires the three jobs and returns counts. Each job stays in its own feature: `submitService.sweepExpiredAttempts`, `userRepository.revokeExpiredPremium`, `transactionRepository.failExpiredPending`.
+- **Expired attempts**: the sweep takes up to 200 `ongoing` attempts whose `deadline` has passed, oldest first, and finalizes each one with the same scoring path a member's read used to trigger. A failure on one attempt is recorded and the sweep continues; the rest are picked up on the next run. The read-time finalize stays as a fallback for the window between a deadline passing and the next sweep.
+- **Subtest attempts**: `finishAttempt` now also closes any `ongoing` subtest attempt of that attempt. Previously a finished attempt could keep an `ongoing` subtest, which blocked `tryout.review` for it. This applies to every submit path, not only the sweep.
+- **Premium**: `isPremium` is cleared where `premiumExpiresAt` has passed. The per-request lazy revoke in the auth middleware stays, so a lapsed session never sees premium content regardless of sweep timing.
+- **Stale payments**: `pending` transactions past `expiresAt` become `failed` with `payment_expired`. This only covers notifications that never arrived; a real Midtrans `expire` notification still moves the order through the normal processor.
+
+---
+
 ## Payment Provider Layer
 
 ### Goal

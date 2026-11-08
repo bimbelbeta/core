@@ -94,6 +94,15 @@ export function createUserRepository(client: DbClient) {
 			await client.update(user).set({ isPremium: false }).where(eq(user.id, userId));
 		},
 
+		async revokeExpiredPremium(now: Date): Promise<number> {
+			const rows = await client
+				.update(user)
+				.set({ isPremium: false })
+				.where(and(eq(user.isPremium, true), lt(user.premiumExpiresAt, now)))
+				.returning({ id: user.id });
+			return rows.length;
+		},
+
 		async grantPremium(userId: string, expiresAt: Date) {
 			await client.update(user).set({ isPremium: true, premiumExpiresAt: expiresAt }).where(eq(user.id, userId));
 		},

@@ -3,10 +3,11 @@
 	"main": "src/index.ts",
 	"type": "module",
 	"scripts": {
-		"build": "bun build --production --target=bun --minify --sourcemap ./src/index.ts --outdir ./dist",
+		"build": "bun build --production --target=bun --minify --sourcemap ./src/index.ts ./src/cron.ts --outdir ./dist",
 		"compile": "bun build --production --compile --minify --sourcemap --bytecode ./src/index.ts --outfile ./bin/server",
 		"dev": "bun run --hot --port=3001 ./src/index.ts ",
 		"start": "bun ./dist/index.js",
+		"cron": "bun ./src/cron.ts",
 		"check-types": "tsc --noEmit"
 	},
 	"dependencies": {

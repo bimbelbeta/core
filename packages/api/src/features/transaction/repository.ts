@@ -58,6 +58,15 @@ export function createTransactionRepository(client: DbClient) {
 			.where(and(eq(transaction.id, orderId), isNull(transaction.paidAt)));
 	}
 
+	async function failExpiredPending(now: Date): Promise<number> {
+		const rows = await client
+			.update(transaction)
+			.set({ status: "failed", failureCode: "payment_expired", failureDetail: "Pembayaran kedaluwarsa." })
+			.where(and(eq(transaction.status, "pending"), lt(transaction.expiresAt, now), isNull(transaction.paidAt)))
+			.returning({ id: transaction.id });
+		return rows.length;
+	}
+
 	async function sumSuccessfulGrossSince(since: Date, untilBefore?: Date): Promise<{ total: number } | undefined> {
 		const [row] = await client
 			.select({
@@ -92,6 +101,7 @@ export function createTransactionRepository(client: DbClient) {
 		createTransaction,
 		findTransactionWithProduct,
 		updateStatus,
+		failExpiredPending,
 		sumSuccessfulGrossSince,
 		claimOrder,
 	};
