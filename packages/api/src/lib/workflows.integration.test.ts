@@ -18,9 +18,9 @@ import { call, ORPCError } from "@orpc/server";
 import { eq } from "drizzle-orm";
 import { Snap } from "midtrans-client";
 import type { Session } from "@/context";
+import { paymentRepository } from "@/features/transaction/composition";
 import { DomainError } from "@/lib/domain-error";
 import { baseImplementer } from "@/lib/router-definition/base";
-import { paymentRepository } from "@/lib/transactions/repository";
 import { appRouter } from "@/routers";
 
 const enabled = !!process.env.TEST_DATABASE_URL && process.env.DATABASE_URL === process.env.TEST_DATABASE_URL;

@@ -1,13 +1,13 @@
+import { adminContentRouter } from "@/features/content/admin-router";
 import { adminCreditRouter } from "@/features/credit/admin-router";
 import { adminProductRouter } from "@/features/product/admin-router";
 import { questionAdminRouter } from "@/features/question/admin-router";
+import { adminReferralRouter } from "@/features/referral/admin-router";
+import { adminSubjectRouter } from "@/features/subject/admin-router";
 import { adminTryoutRouter } from "@/features/tryout/admin-router";
-import { adminContentRouter } from "@/routers/admin/content";
+import { adminUniversityRouter } from "@/features/university/admin-router";
+import { usersRouter } from "@/features/user/admin-router";
 import { adminDashboardRouter } from "@/routers/admin/dashboard";
-import { adminReferralRouter } from "@/routers/admin/referral";
-import { adminSubjectRouter } from "@/routers/admin/subject";
-import { adminUniversityRouter } from "@/routers/admin/university";
-import { usersRouter } from "@/routers/admin/users";
 
 export const adminRouter = {
 	dashboard: adminDashboardRouter,
@@ -24,7 +24,7 @@ export const adminRouter = {
 	referral: adminReferralRouter,
 };
 
-export type { adminContentRouter } from "@/routers/admin/content";
+export type { adminContentRouter } from "@/features/content/admin-router";
+export type { adminUniversityRouter } from "@/features/university/admin-router";
 export type { adminDashboardRouter } from "@/routers/admin/dashboard";
-export type { adminSubjectRouter } from "@/routers/admin/subject";
-export type { adminUniversityRouter } from "@/routers/admin/university";
+export type { adminSubjectRouter };
