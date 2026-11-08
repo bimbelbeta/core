@@ -14,6 +14,10 @@ Triage uses the five default labels. See `docs/agents/triage-labels.md`.
 
 This repo uses a single-context layout. See `docs/agents/domain.md`.
 
+### Skills
+
+Matt Pocock's engineering skills (issue triage, specs, implement, review) are committed in `.agents/skills/` and work natively in pi, Codex, Zed and Amp. For Claude Code, run `npx skills@latest add mattpocock/skills -a claude-code` once per clone (gitignored). Update with `npx skills@latest update`.
+
 ### Workflow
 
 - Custom hooks for reusable logic in `hooks/`
