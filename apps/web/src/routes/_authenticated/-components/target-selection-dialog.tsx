@@ -14,15 +14,15 @@ import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
 
-// const TIME_ELAPSED_BEFORE_SHOWING_AGAIN = 1000 * 60 * 60 * 24 * 1; // 1 days
+const TIME_ELAPSED_BEFORE_SHOWING_AGAIN = 1000 * 60 * 5;
 
 const saveToStorage = createClientOnlyFn((key: string, data: string) => {
 	localStorage.setItem(key, data);
 });
 
-// const getFromStorage = createClientOnlyFn((key: string) => {
-//   return localStorage.getItem(key);
-// });
+const getFromStorage = createClientOnlyFn((key: string) => {
+	return localStorage.getItem(key);
+});
 
 export function TargetSelectionDialog() {
 	const queryClient = useQueryClient();
@@ -32,8 +32,11 @@ export function TargetSelectionDialog() {
 
 	const [open, setOpen] = useState<boolean>(false);
 	useEffect(() => {
-		if (data && !data.studyProgram) setOpen(true);
-	}, [data]);
+		if (!data || data.studyProgram) return;
+		const dismissedAt = getFromStorage(`target-dialog-dismissed-${userKey}`);
+		if (dismissedAt && Date.now() - new Date(dismissedAt).getTime() < TIME_ELAPSED_BEFORE_SHOWING_AGAIN) return;
+		setOpen(true);
+	}, [data, userKey]);
 
 	const updateMutation = useMutation(
 		orpc.userSettings.update.mutationOptions({
@@ -65,13 +68,13 @@ export function TargetSelectionDialog() {
 	});
 	const { data: universities, isPending } = useQuery(orpc.university.list.queryOptions({ input: {} }));
 
-	const handleClose = () => {
+	const dismiss = () => {
 		setOpen(false);
 		saveToStorage(`target-dialog-dismissed-${userKey}`, new Date().toISOString());
 	};
 
 	return (
-		<Dialog open={open} onOpenChange={setOpen}>
+		<Dialog open={open} onOpenChange={(nextOpen) => (nextOpen ? setOpen(true) : dismiss())}>
 			<DialogContent showCloseButton={true} className="max-h-[85vh] overflow-y-auto">
 				<DialogHeader>
 					<DialogTitle>Set Target Universitas Kamu</DialogTitle>
@@ -190,7 +193,7 @@ export function TargetSelectionDialog() {
 					</form.Subscribe>
 
 					<div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-						<Button type="button" variant="outline" onClick={handleClose} className="sm:w-auto">
+						<Button type="button" variant="outline" onClick={dismiss} className="sm:w-auto">
 							Nanti aja
 						</Button>
 						<form.Subscribe>
