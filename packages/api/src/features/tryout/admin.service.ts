@@ -1,5 +1,5 @@
 import { db } from "@bimbelbeta/db";
-import { readTiptapContent } from "@/lib/content-utils";
+import { readTiptapContent } from "@/features/question/content-utils";
 import { DomainError } from "@/lib/domain-error";
 import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
 import { parseNullableInt, pickDefined } from "@/lib/utils";

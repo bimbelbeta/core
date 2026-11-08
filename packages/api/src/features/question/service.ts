@@ -1,7 +1,7 @@
 import { db } from "@bimbelbeta/db";
-import { normalizeQuestionContent, readTiptapContent } from "@/lib/content-utils";
 import { DomainError } from "@/lib/domain-error";
 import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
+import { normalizeQuestionContent, readTiptapContent } from "./content-utils";
 import { createQuestionRepository, type QuestionRepository, type QuestionRow } from "./repository";
 
 const CHOICE_CODES = ["A", "B", "C", "D", "E", "F", "G"] as const;

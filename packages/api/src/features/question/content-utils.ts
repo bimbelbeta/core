@@ -1,4 +1,4 @@
-import { convertToTiptap } from "@/lib/convert-to-tiptap";
+import { convertToTiptap } from "./convert-to-tiptap";
 
 type TiptapNode = {
 	type: string;
