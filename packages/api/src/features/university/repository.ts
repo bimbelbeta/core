@@ -239,44 +239,42 @@ export function createUniversityRepository(db: DbClient) {
 				query.isActive !== undefined ? eq(university.isActive, query.isActive) : undefined,
 			);
 
-			const rows = await db
-				.select({
-					id: university.id,
-					name: university.name,
-					slug: university.slug,
-					logo: university.logo,
-					description: university.description,
-					location: university.location,
-					website: university.website,
-					rank: university.rank,
-					isActive: university.isActive,
-					updatedAt: university.updatedAt,
-					programCount: sql<number>`count(${universityStudyProgram.id})::int`,
-					scoreMin: sql<number | null>`min(${universityStudyProgram.averageScore})::int`,
-					scoreMax: sql<number | null>`max(${universityStudyProgram.averageScore})::int`,
-				})
-				.from(university)
-				.leftJoin(universityStudyProgram, eq(universityStudyProgram.universityId, university.id))
-				.where(
-					and(
-						query.cursorId !== undefined
-							? query.isBackward
-								? lt(university.id, query.cursorId)
-								: gt(university.id, query.cursorId)
-							: undefined,
-						filters,
-					),
-				)
-				.groupBy(university.id)
-				.orderBy(query.isBackward ? desc(university.id) : asc(university.id))
-				.limit(query.limit + 1);
+			const [rows, [totals]] = await Promise.all([
+				db
+					.select({
+						id: university.id,
+						name: university.name,
+						slug: university.slug,
+						logo: university.logo,
+						description: university.description,
+						location: university.location,
+						website: university.website,
+						rank: university.rank,
+						isActive: university.isActive,
+						updatedAt: university.updatedAt,
+						programCount: sql<number>`count(${universityStudyProgram.id})::int`,
+						scoreMin: sql<number | null>`min(${universityStudyProgram.averageScore})::int`,
+						scoreMax: sql<number | null>`max(${universityStudyProgram.averageScore})::int`,
+					})
+					.from(university)
+					.leftJoin(universityStudyProgram, eq(universityStudyProgram.universityId, university.id))
+					.where(
+						and(
+							query.cursorId !== undefined
+								? query.isBackward
+									? lt(university.id, query.cursorId)
+									: gt(university.id, query.cursorId)
+								: undefined,
+							filters,
+						),
+					)
+					.groupBy(university.id)
+					.orderBy(query.isBackward ? desc(university.id) : asc(university.id))
+					.limit(query.limit + 1),
+				db.select({ count: sql<number>`count(*)::int` }).from(university).where(filters),
+			]);
 
-			const [totals] = await db.select({ count: sql<number>`count(*)::int` }).from(university).where(filters);
-
-			return {
-				rows,
-				totalCount: totals?.count ?? 0,
-			};
+			return { rows, totalCount: totals?.count ?? 0 };
 		},
 
 		async listStudyPrograms(query: StudyProgramPageQuery): Promise<StudyProgramRecordRow[]> {

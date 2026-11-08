@@ -35,7 +35,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: 1.4.4
+          bun-version-file: package.json
       - run: bun install --frozen-lockfile
       - run: bunx drizzle-kit migrate
         working-directory: packages/db
