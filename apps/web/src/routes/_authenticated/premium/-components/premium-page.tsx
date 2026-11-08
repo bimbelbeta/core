@@ -1,16 +1,12 @@
 import { EmptyState } from "@/components/shared/empty-state";
 import { usePremium } from "../-hooks/use-premium";
 import { PlanTable } from "./plan-table";
+import { PlanTableSkeleton } from "./plan-table-skeleton";
 import { PremiumHeader } from "./premium-header";
-import { PremiumSkeleton } from "./premium-skeleton";
 import { ReferralRow } from "./referral-row";
 
 export function PremiumPage() {
 	const { productsQuery, subscriptionProducts, productProducts, isPremium, handlePurchase, isPending } = usePremium();
-
-	if (productsQuery.isLoading) {
-		return <PremiumSkeleton />;
-	}
 
 	const plans = [...(subscriptionProducts ?? []), ...(productProducts ?? [])];
 
@@ -19,7 +15,9 @@ export function PremiumPage() {
 			<PremiumHeader />
 
 			<section className="flex flex-col gap-2">
-				{productsQuery.isError ? (
+				{productsQuery.isLoading ? (
+					<PlanTableSkeleton />
+				) : productsQuery.isError ? (
 					<EmptyState title="Gagal memuat paket" desc="Coba muat ulang halaman." />
 				) : plans.length === 0 ? (
 					<EmptyState title="Paket belum tersedia saat ini" />
