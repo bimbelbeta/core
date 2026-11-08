@@ -54,11 +54,7 @@ function RouteComponent() {
 			{/* Header */}
 			<Card variant="unpadded" className="space-y-6 rounded-xl p-6">
 				<Button variant="default" size="sm" className="bg-[#009CA6] hover:bg-[#008a93]" asChild>
-					<Link
-						to="/tryout/results/$attemptId"
-						params={{ attemptId: attemptId.toString() }}
-						search={{ tab: "results" }}
-					>
+					<Link to="/tryout/results/$attemptId" params={{ attemptId: attemptId.toString() }}>
 						<div className="flex items-center">
 							<ArrowLeftIcon className="mr-2 size-4" />
 							Kembali

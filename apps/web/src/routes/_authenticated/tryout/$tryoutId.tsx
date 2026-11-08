@@ -81,13 +81,13 @@ function RouteComponent() {
 		}
 
 		if (data.attempt.status === "finished") {
-			router.navigate({ to: "/tryout", search: { tab: "results" } });
+			router.navigate({ to: "/tryout" });
 			return;
 		}
 
 		if (data.currentSubtest === null) {
 			toast.success("Tryout selesai!");
-			router.navigate({ to: "/tryout", search: { tab: "results" } });
+			router.navigate({ to: "/tryout" });
 			return;
 		}
 
@@ -108,7 +108,7 @@ function RouteComponent() {
 		) {
 			hasAutoSubmitted.current = true;
 			submitSubtestMutation.mutate({ tryoutId: tryoutId, subtestId: data.currentSubtest.id });
-			router.navigate({ to: "/tryout", search: { tab: "results" } });
+			router.navigate({ to: "/tryout" });
 		}
 	}, [isExpired, data, tryoutId, submitSubtestMutation, router.navigate, canAutoSubmit]);
 

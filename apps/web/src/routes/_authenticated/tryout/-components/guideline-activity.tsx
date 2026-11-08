@@ -1,9 +1,11 @@
-import { ArrowUpRightIcon } from "@phosphor-icons/react";
+import { ArrowUpRightIcon, CalendarBlankIcon, InfoIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
+import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardAction, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Typography } from "@/components/ui/typography";
@@ -46,9 +48,25 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 			*/}
 
 			<section className="space-y-4">
-				<div className="space-y-1">
-					<Typography variant="subtitle2">Tryout yang tersedia</Typography>
-					<Typography tone="muted">Pilih TO publik lalu masukkan kode akses seperti biasa.</Typography>
+				<div className="flex items-end justify-between gap-4">
+					<div className="space-y-1">
+						<Typography variant="subtitle2">Tryout yang tersedia</Typography>
+						<Typography tone="muted">Pilih TO publik lalu masukkan kode akses seperti biasa.</Typography>
+					</div>
+					<Dialog>
+						<DialogTrigger asChild>
+							<Button variant="outline" size="sm">
+								<InfoIcon weight="bold" />
+								Petunjuk Pengerjaan
+							</Button>
+						</DialogTrigger>
+						<DialogContent size="lg">
+							<DialogHeader>
+								<DialogTitle>Petunjuk Pengerjaan Try Out</DialogTitle>
+							</DialogHeader>
+							<TryoutGuidelinesContent />
+						</DialogContent>
+					</Dialog>
 				</div>
 				{(() => {
 					const allowedCategories = LEVEL_CATEGORIES[level];
@@ -70,16 +88,11 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 
 					if (visibleTryouts.length === 0) {
 						return (
-							<Card className="flex items-center justify-between gap-3 p-4">
-								<div>
-									<Typography variant="body" className="font-medium">
-										Belum ada Try Out publik
-									</Typography>
-									<Typography tone="muted">
-										Saat admin mempublikasikan TO baru, judul dan kategorinya akan muncul di sini.
-									</Typography>
-								</div>
-							</Card>
+							<EmptyState
+								icon={<CalendarBlankIcon size={80} />}
+								title="Belum ada Try Out publik"
+								desc="Saat admin mempublikasikan TO baru, judul dan kategorinya akan muncul di sini."
+							/>
 						);
 					}
 
@@ -121,48 +134,6 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 				})()}
 			</section>
 
-			<Card>
-				<CardContent className="space-y-4 text-sm">
-					<Typography variant="subtitle2" className="mb-4">
-						Petunjuk Pengerjaan Try Out
-					</Typography>
-
-					<div className="space-y-2">
-						<Typography variant="subtitle4" className="flex items-center gap-2">
-							<span>🔒</span> Aturan Pengerjaan
-						</Typography>
-						<ul className="list-disc space-y-1 pl-5">
-							<li>Setiap subtes hanya bisa dikerjakan sekali selama masa aktif tryout berlangsung.</li>
-							<li>Setelah kamu menekan “Selesai / Kumpulkan” atau timer habis, subtes tersebut nggak bisa diulang.</li>
-							<li>Pembahasan soal baru terbuka setelah seluruh subtes dalam tryout ini rampung kamu kerjakan.</li>
-							<li>
-								Kalau tiba-tiba keluar dari halaman atau koneksi terputus, kamu masih bisa lanjut. Cukup kembali ke
-								halaman tryout dan pilih “Lanjutkan” — tapi ingat ya, timer tetap berjalan!
-							</li>
-						</ul>
-					</div>
-
-					<div className="space-y-2">
-						<Typography variant="subtitle4" className="flex items-center gap-2">
-							<span>💡</span> Tips
-						</Typography>
-						<ul className="list-disc space-y-1 pl-5">
-							<li>Pastikan baterai perangkat dan koneksi internet dalam kondisi aman dan stabil.</li>
-							<li>Cek dulu jumlah soal & durasi, biar kamu bisa ngatur ritme ngerjainnya.</li>
-							<li>Perhatikan masa aktif tryout, jangan ditunda sampai kedaluwarsa.</li>
-							<li>Siapkan alat tulis atau kertas buat coret-coret hitungan.</li>
-							<li>Kalau ada soal yang bikin ragu, tandai dulu aja—nanti bisa balik lagi kalau masih ada waktu.</li>
-							<li>Setelah tryout selesai, sempetin lihat pembahasan dan perbaiki topik yang masih lemah.</li>
-							<li>Coba kerjain dalam posisi & suasana kayak ujian asli biar makin kebiasa.</li>
-						</ul>
-					</div>
-
-					<Typography variant="body" className="pt-2 font-medium">
-						Siap? Yuk mulai tryoutnya! Semangat 💪🔥
-					</Typography>
-				</CardContent>
-			</Card>
-
 			<Card className="border-secondary-500 bg-secondary-500/20 border">
 				<CardHeader className="flex items-center justify-between gap-4">
 					<CardTitle className="font-normal sm:text-2xl">
@@ -178,6 +149,46 @@ export function GuidelineActivity({ level }: GuidelineActivityProps) {
 				</CardHeader>
 			</Card>
 		</section>
+	);
+}
+
+function TryoutGuidelinesContent() {
+	return (
+		<div className="space-y-4 text-sm">
+			<div className="space-y-2">
+				<Typography variant="subtitle4" className="flex items-center gap-2">
+					<span>🔒</span> Aturan Pengerjaan
+				</Typography>
+				<ul className="list-disc space-y-1 pl-5">
+					<li>Setiap subtes hanya bisa dikerjakan sekali selama masa aktif tryout berlangsung.</li>
+					<li>Setelah kamu menekan “Selesai / Kumpulkan” atau timer habis, subtes tersebut nggak bisa diulang.</li>
+					<li>Pembahasan soal baru terbuka setelah seluruh subtes dalam tryout ini rampung kamu kerjakan.</li>
+					<li>
+						Kalau tiba-tiba keluar dari halaman atau koneksi terputus, kamu masih bisa lanjut. Cukup kembali ke halaman
+						tryout dan pilih “Lanjutkan” — tapi ingat ya, timer tetap berjalan!
+					</li>
+				</ul>
+			</div>
+
+			<div className="space-y-2">
+				<Typography variant="subtitle4" className="flex items-center gap-2">
+					<span>💡</span> Tips
+				</Typography>
+				<ul className="list-disc space-y-1 pl-5">
+					<li>Pastikan baterai perangkat dan koneksi internet dalam kondisi aman dan stabil.</li>
+					<li>Cek dulu jumlah soal & durasi, biar kamu bisa ngatur ritme ngerjainnya.</li>
+					<li>Perhatikan masa aktif tryout, jangan ditunda sampai kedaluwarsa.</li>
+					<li>Siapkan alat tulis atau kertas buat coret-coret hitungan.</li>
+					<li>Kalau ada soal yang bikin ragu, tandai dulu aja—nanti bisa balik lagi kalau masih ada waktu.</li>
+					<li>Setelah tryout selesai, sempetin lihat pembahasan dan perbaiki topik yang masih lemah.</li>
+					<li>Coba kerjain dalam posisi & suasana kayak ujian asli biar makin kebiasa.</li>
+				</ul>
+			</div>
+
+			<Typography variant="body" className="font-medium">
+				Siap? Yuk mulai tryoutnya! Semangat 💪🔥
+			</Typography>
+		</div>
 	);
 }
 
