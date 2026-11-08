@@ -14,7 +14,7 @@ import { and, asc, desc, eq, getTableColumns, gt, ilike, inArray, isNull, lt, or
 import type { CreditRepository } from "@/features/credit/repository";
 import { escapeLikePattern } from "@/lib/utils";
 import type { SubtestQuestionRow } from "./question-utils";
-import type { TryoutScoreResult } from "./scoring";
+import type { SubtestMaxScoreInput, TryoutScoreResult } from "./scoring";
 
 export type TryoutRow = typeof tryout.$inferSelect;
 export type SubtestRow = typeof tryoutSubtest.$inferSelect;
@@ -119,6 +119,7 @@ export type SubtestScorePair = {
 	subtestId: number;
 	score: string | null;
 };
+export type SubtestScoringInput = SubtestMaxScoreInput & { tryoutId: number };
 export type AdminSubtestQuestion = {
 	id: number;
 	order: number | null;
@@ -441,6 +442,17 @@ export function createTryoutRepository(client: DbClient) {
 			.from(tryoutSubtestAttempt)
 			.innerJoin(tryoutSubtest, eq(tryoutSubtest.id, tryoutSubtestAttempt.subtestId))
 			.where(eq(tryoutSubtestAttempt.tryoutAttemptId, attemptId));
+	}
+
+	async function listSubtestScoringInputs(tryoutIds: number[]): Promise<SubtestScoringInput[]> {
+		const questionCount =
+			sql<number>`(select count(*) from ${tryoutSubtestQuestion} where ${tryoutSubtestQuestion.subtestId} = ${tryoutSubtest.id})`.mapWith(
+				Number,
+			);
+		return client
+			.select({ tryoutId: tryoutSubtest.tryoutId, scoringMap: tryoutSubtest.scoringMap, questionCount })
+			.from(tryoutSubtest)
+			.where(inArray(tryoutSubtest.tryoutId, tryoutIds));
 	}
 
 	async function listAnswersWithSelectedChoice(attemptId: number): Promise<ScoringAnswerRow[]> {
@@ -820,6 +832,7 @@ export function createTryoutRepository(client: DbClient) {
 		upsertAnswer,
 		toggleAnswerDoubtful,
 		listSubtestAttemptScoreInputs,
+		listSubtestScoringInputs,
 		listAnswersWithSelectedChoice,
 		listSubtestQuestionPairs,
 		listQuestionsForScoring,
