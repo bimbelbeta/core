@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { question } from "@bimbelbeta/db/schema/question";
+import { transaction } from "@bimbelbeta/db/schema/transaction";
 import {
 	tryout,
 	tryoutAttempt,
@@ -12,6 +13,7 @@ import {
 import { call } from "@orpc/server";
 import { eq, inArray } from "drizzle-orm";
 import type { Session } from "@/context";
+import { runScheduledJobs } from "@/cron";
 import { appRouter } from "@/routers";
 
 const enabled = !!process.env.TEST_DATABASE_URL && process.env.DATABASE_URL === process.env.TEST_DATABASE_URL;
@@ -50,6 +52,8 @@ let openTryoutId = 0;
 let closedTryoutId = 0;
 let scoredTryoutId = 0;
 let scoredAttemptId = 0;
+let sweepTryoutId = 0;
+const sweepTransactionId = `tryout-it-tx-${crypto.randomUUID()}`;
 const createdQuestionIds: number[] = [];
 
 describe.skipIf(!enabled)("tryout feature slice", () => {
@@ -139,9 +143,11 @@ describe.skipIf(!enabled)("tryout feature slice", () => {
 	});
 
 	afterAll(async () => {
+		await db.delete(transaction).where(eq(transaction.id, sweepTransactionId));
 		await db.delete(tryout).where(eq(tryout.id, closedTryoutId));
 		await db.delete(tryout).where(eq(tryout.id, openTryoutId));
 		await db.delete(tryout).where(eq(tryout.id, scoredTryoutId));
+		if (sweepTryoutId) await db.delete(tryout).where(eq(tryout.id, sweepTryoutId));
 		await db.delete(question).where(inArray(question.id, createdQuestionIds));
 		await db.delete(user).where(eq(user.id, id));
 	});
@@ -207,5 +213,57 @@ describe.skipIf(!enabled)("tryout feature slice", () => {
 			code: "BAD_REQUEST",
 			message: "Question IDs tidak boleh kosong",
 		});
+	});
+
+	test("sweeps expired attempts, lapsed premium, and stale pending payments", async () => {
+		const [sweepTryout] = await db
+			.insert(tryout)
+			.values({ title: `${id} sweep`, status: "published", category: "utbk" })
+			.returning();
+		sweepTryoutId = sweepTryout!.id;
+
+		const [sweepSubtest] = await db
+			.insert(tryoutSubtest)
+			.values({ tryoutId: sweepTryoutId, name: "Sweep", duration: 30, order: 1 })
+			.returning();
+		await db
+			.insert(tryoutSubtestQuestion)
+			.values({ subtestId: sweepSubtest!.id, questionId: createdQuestionIds[0]!, order: 1 });
+
+		const expiredAt = new Date(Date.now() - 60_000);
+		const [expiredAttempt] = await db
+			.insert(tryoutAttempt)
+			.values({ userId: id, tryoutId: sweepTryoutId, deadline: expiredAt })
+			.returning();
+		await db
+			.insert(tryoutSubtestAttempt)
+			.values({ tryoutAttemptId: expiredAttempt!.id, subtestId: sweepSubtest!.id, deadline: expiredAt });
+
+		await db.update(user).set({ isPremium: true, premiumExpiresAt: expiredAt }).where(eq(user.id, id));
+		await db
+			.insert(transaction)
+			.values({ id: sweepTransactionId, userId: id, status: "pending", expiresAt: expiredAt });
+
+		const summary = await runScheduledJobs();
+
+		expect(summary.finalizedAttempts).toBeGreaterThanOrEqual(1);
+		expect(summary.failedAttemptIds).toEqual([]);
+		expect(summary.revokedPremium).toBeGreaterThanOrEqual(1);
+		expect(summary.failedTransactions).toBeGreaterThanOrEqual(1);
+
+		const [attempt] = await db.select().from(tryoutAttempt).where(eq(tryoutAttempt.id, expiredAttempt!.id));
+		expect(attempt).toMatchObject({ status: "finished", completedAt: expect.any(Date) });
+
+		const [subtestAttempt] = await db
+			.select()
+			.from(tryoutSubtestAttempt)
+			.where(eq(tryoutSubtestAttempt.tryoutAttemptId, expiredAttempt!.id));
+		expect(subtestAttempt).toMatchObject({ status: "finished", completedAt: expect.any(Date) });
+
+		const [lapsedUser] = await db.select().from(user).where(eq(user.id, id));
+		expect(lapsedUser?.isPremium).toBe(false);
+
+		const [payment] = await db.select().from(transaction).where(eq(transaction.id, sweepTransactionId));
+		expect(payment).toMatchObject({ status: "failed", failureCode: "payment_expired" });
 	});
 });

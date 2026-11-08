@@ -65,6 +65,7 @@ function fakeRepository(): UserRepository {
 		updateUser: async () => undefined,
 		deleteUsers: async () => undefined,
 		revokePremium: async () => undefined,
+		revokeExpiredPremium: async () => 0,
 		grantPremium: async () => undefined,
 		countDashboardStats: async () => undefined,
 	};

@@ -22,6 +22,7 @@ export type SubmitRepository = Pick<
 	| "listSubtestQuestionPairs"
 	| "listQuestionsForScoring"
 	| "listChoiceCorrectness"
+	| "listExpiredOngoingAttemptIds"
 	| "finishSubtestAttempt"
 	| "finishAttempt"
 	| "saveScores"
@@ -116,22 +117,44 @@ async function calculateScores(repository: SubmitRepository, attemptId: number):
 	return { subtests: subtestScores, totalScore };
 }
 
+const EXPIRED_ATTEMPT_BATCH = 200;
+
 export function createSubmitService(deps: SubmitServiceDependencies) {
 	const { repository } = deps;
 
-	async function finalizeExpiredAttempt(attemptId: number): Promise<void> {
+	async function finalizeAttempt(attemptId: number): Promise<void> {
 		const scores = await calculateScores(repository, attemptId);
 
-		await withErrorFallback("Gagal menyimpan skor tryout.", () =>
-			deps.withTransaction(async ({ repository: repo }) => {
-				await repo.finishAttempt(attemptId);
-				await repo.saveScores(attemptId, scores);
-			}),
-		);
+		await deps.withTransaction(async ({ repository: repo }) => {
+			await repo.finishAttempt(attemptId);
+			await repo.saveScores(attemptId, scores);
+		});
+	}
+
+	async function finalizeExpiredAttempt(attemptId: number): Promise<void> {
+		await withErrorFallback("Gagal menyimpan skor tryout.", () => finalizeAttempt(attemptId));
 	}
 
 	return {
 		finalizeExpiredAttempt,
+
+		async sweepExpiredAttempts(now = new Date()): Promise<{ finalized: number; failedAttemptIds: number[] }> {
+			const attemptIds = await repository.listExpiredOngoingAttemptIds(now, EXPIRED_ATTEMPT_BATCH);
+			const failedAttemptIds: number[] = [];
+			let finalized = 0;
+
+			for (const attemptId of attemptIds) {
+				try {
+					await finalizeAttempt(attemptId);
+					finalized++;
+				} catch (error) {
+					failedAttemptIds.push(attemptId);
+					console.error(`[cron] Gagal menyelesaikan pengerjaan ${attemptId}.`, error);
+				}
+			}
+
+			return { finalized, failedAttemptIds };
+		},
 
 		async submitSubtest(input: { tryoutId: number; subtestId: number }, userId: string) {
 			const attempt = await repository.findAttemptForSubmission(input.tryoutId, userId);
