@@ -1,5 +1,5 @@
 import type { productVariantEnum, transaction } from "@bimbelbeta/db/schema/transaction";
-import type { PaymentEvent } from "@/lib/transactions/failures";
+import type { PaymentEvent } from "./failures";
 
 export type TransactionWithProduct = {
 	tx: typeof transaction.$inferSelect;

@@ -1,5 +1,5 @@
-import type { PaymentEvent, PaymentFailureCode } from "@/lib/transactions/failures";
-import type { PurchaseBenefits, TransactionWithProduct } from "@/lib/transactions/types";
+import type { PaymentEvent, PaymentFailureCode } from "./failures";
+import type { PurchaseBenefits, TransactionWithProduct } from "./types";
 
 export type NotificationOutcome =
 	| { action: "already_processed" }

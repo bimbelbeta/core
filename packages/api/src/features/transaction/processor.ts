@@ -3,7 +3,7 @@ import { user } from "@bimbelbeta/db/schema/auth";
 import { creditTransaction } from "@bimbelbeta/db/schema/credit";
 import { transaction } from "@bimbelbeta/db/schema/transaction";
 import { and, eq, isNull, sql } from "drizzle-orm";
-import type { PurchaseBenefits, Settlement, TransactionWithProduct } from "@/lib/transactions/types";
+import type { PurchaseBenefits, Settlement, TransactionWithProduct } from "./types";
 
 export interface ProcessSuccessfulTransactionOpts {
 	trx: DbClient;

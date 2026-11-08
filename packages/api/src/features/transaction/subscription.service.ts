@@ -1,11 +1,13 @@
-import type { auth } from "@bimbelbeta/auth";
-import type { paymentRepository } from "@/lib/transactions/repository";
-import type { PaymentProvider } from "@/lib/transactions/types";
+import type { Session } from "@/context";
+import type { ProductRepository } from "@/features/product/repository";
+import type { TransactionRepository } from "./repository";
+import type { PaymentProvider } from "./types";
 
 const PAYMENT_WINDOW_MS = 24 * 60 * 60 * 1000;
 
 export type SubscriptionServiceDependencies = {
-	repository: Pick<typeof paymentRepository, "findProduct" | "createTransaction">;
+	productRepository: Pick<ProductRepository, "findBySlug">;
+	repository: Pick<TransactionRepository, "createTransaction">;
 	createCheckout: PaymentProvider<unknown>["createCheckout"];
 	providerName: string;
 };
@@ -26,8 +28,8 @@ export const createSubscriptionService = (deps: SubscriptionServiceDependencies)
 	 * @param user Buyer identity and current premium state.
 	 * @returns `ok` with the checkout, `not_found`, `already_premium`, or `payment_failed`.
 	 */
-	async subscribe(slug: string, user: Pick<typeof auth.$Infer.Session.user, "id" | "name" | "email" | "isPremium">) {
-		const plan = await deps.repository.findProduct(slug);
+	async subscribe(slug: string, user: Session["user"]) {
+		const plan = await deps.productRepository.findBySlug(slug);
 		if (!plan) return { status: "not_found" } as const;
 
 		if ((plan.variant === "fixed_date" || plan.variant === "monthly") && user.isPremium) {

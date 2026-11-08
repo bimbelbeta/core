@@ -1,8 +1,8 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import { Snap } from "midtrans-client";
-import { PaymentError } from "@/lib/transactions/errors";
-import type { PaymentEvent, PaymentFailureCode } from "@/lib/transactions/failures";
-import type { Checkout, CheckoutInput, PaymentProvider, PaymentStatus } from "@/lib/transactions/types";
+import { PaymentError } from "../errors";
+import type { PaymentEvent, PaymentFailureCode } from "../failures";
+import type { Checkout, CheckoutInput, PaymentProvider, PaymentStatus } from "../types";
 
 export type MidtransNotification = {
 	order_id: string;
