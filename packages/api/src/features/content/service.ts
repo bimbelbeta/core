@@ -1,5 +1,5 @@
 import { db } from "@bimbelbeta/db";
-import { readTiptapContent } from "@/lib/content-utils";
+import { readTiptapContent } from "@/features/question/content-utils";
 import { DomainError } from "@/lib/domain-error";
 import type { ContentRepository, CreateContentInput } from "./repository";
 import { createContentRepository } from "./repository";

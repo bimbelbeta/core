@@ -1,9 +1,9 @@
 import { canAccessContent } from "@bimbelbeta/contract/common/content-access";
 import { db } from "@bimbelbeta/db";
 import type { Session } from "@/context";
+import { readTiptapContent } from "@/features/question/content-utils";
 import type { QuestionRepository, QuestionRow } from "@/features/question/repository";
 import { createQuestionRepository } from "@/features/question/repository";
-import { readTiptapContent } from "@/lib/content-utils";
 import { DomainError } from "@/lib/domain-error";
 import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
 import { pickDefined } from "@/lib/utils";

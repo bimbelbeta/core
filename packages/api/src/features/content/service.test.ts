@@ -1,5 +1,5 @@
 import { describe, expect, mock, test } from "bun:test";
-import type { TiptapDocument } from "@/lib/content-utils";
+import type { TiptapDocument } from "@/features/question/content-utils";
 import { DomainError } from "@/lib/domain-error";
 import { createContentService } from "./service";
 
