@@ -295,7 +295,7 @@ export function TryoutSettingsTab({ tryout, onUpdate, onFormStateChange }: Tryou
 								<ArrowCounterClockwiseIcon className="size-3.5" />
 								Batalkan
 							</Button>
-							<Button type="submit" size="xs" disabled={!form.state.isDirty || form.state.isSubmitting}>
+							<Button type="submit" size="xs" isPending={form.state.isSubmitting} disabled={!form.state.isDirty}>
 								<FloppyDiskIcon className="size-3.5" />
 								Simpan
 							</Button>
