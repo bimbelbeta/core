@@ -169,7 +169,7 @@ describe("create", () => {
 		const service = makeService(makeState());
 		await expectDomainError(
 			service.create({ premiumDays: 7, code: "PREMAAA" }, sessionUser),
-			"BAD_REQUEST",
+			"UNPROCESSABLE_CONTENT",
 			"Kode referal sudah digunakan. Gunakan kode lain.",
 		);
 	});
@@ -255,7 +255,11 @@ describe("updateStatus", () => {
 describe("bulkDeactivate", () => {
 	test("rejects an empty selection", async () => {
 		const service = makeService(makeState());
-		await expectDomainError(service.bulkDeactivate({ codeIds: [] }), "BAD_REQUEST", "Tidak ada kode yang dipilih.");
+		await expectDomainError(
+			service.bulkDeactivate({ codeIds: [] }),
+			"UNPROCESSABLE_CONTENT",
+			"Tidak ada kode yang dipilih.",
+		);
 	});
 
 	test("deactivates every selected code and reports the count", async () => {
@@ -410,19 +414,27 @@ describe("redeem", () => {
 		const service = makeService(makeState({ status: false }));
 		await expectDomainError(
 			service.redeem({ code: "PREMAAA" }, sessionUser),
-			"BAD_REQUEST",
+			"UNPROCESSABLE_CONTENT",
 			"Kode tidak valid atau sudah dinonaktifkan.",
 		);
 	});
 
 	test("rejects an expired code", async () => {
 		const service = makeService(makeState({ validUntil: new Date(Date.now() - 1) }));
-		await expectDomainError(service.redeem({ code: "PREMAAA" }, sessionUser), "BAD_REQUEST", "Kode sudah kedaluwarsa.");
+		await expectDomainError(
+			service.redeem({ code: "PREMAAA" }, sessionUser),
+			"UNPROCESSABLE_CONTENT",
+			"Kode sudah kedaluwarsa.",
+		);
 	});
 
 	test("rejects a code whose quota is exhausted", async () => {
 		const service = makeService(makeState({ maxUsages: 1, usageCount: 1 }));
-		await expectDomainError(service.redeem({ code: "PREMAAA" }, sessionUser), "BAD_REQUEST", "Kuota kode sudah habis.");
+		await expectDomainError(
+			service.redeem({ code: "PREMAAA" }, sessionUser),
+			"UNPROCESSABLE_CONTENT",
+			"Kuota kode sudah habis.",
+		);
 	});
 
 	test("rejects a second use by the same user", async () => {
@@ -436,7 +448,7 @@ describe("redeem", () => {
 		const service = makeService(state);
 		await expectDomainError(
 			service.redeem({ code: "PREMAAA" }, sessionUser),
-			"BAD_REQUEST",
+			"UNPROCESSABLE_CONTENT",
 			"Anda sudah pernah menggunakan kode ini.",
 		);
 	});

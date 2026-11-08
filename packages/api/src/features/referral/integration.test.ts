@@ -92,7 +92,7 @@ describe.skipIf(!enabled)("referral persistence", () => {
 		expect(row?.status).toBe(true);
 
 		await expect(call(appRouter.referral.redeem, { code }, memberOptions)).rejects.toMatchObject({
-			code: "BAD_REQUEST",
+			code: "UNPROCESSABLE_CONTENT",
 			message: "Anda sudah pernah menggunakan kode ini.",
 		});
 	});

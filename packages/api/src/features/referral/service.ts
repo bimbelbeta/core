@@ -23,7 +23,7 @@ export const createReferralService = (deps: ReferralServiceDependencies) => ({
 		const code = input.code ?? generateReferralCode();
 
 		const existing = await deps.repository.findCodeByCode(code);
-		if (existing) throw new DomainError("BAD_REQUEST", "Kode referal sudah digunakan. Gunakan kode lain.");
+		if (existing) throw new DomainError("UNPROCESSABLE_CONTENT", "Kode referal sudah digunakan. Gunakan kode lain.");
 
 		const id = crypto.randomUUID();
 		const created = await deps.repository.insertCode({
@@ -67,7 +67,7 @@ export const createReferralService = (deps: ReferralServiceDependencies) => ({
 	},
 
 	async bulkDeactivate(input: { codeIds: string[] }) {
-		if (input.codeIds.length === 0) throw new DomainError("BAD_REQUEST", "Tidak ada kode yang dipilih.");
+		if (input.codeIds.length === 0) throw new DomainError("UNPROCESSABLE_CONTENT", "Tidak ada kode yang dipilih.");
 
 		await deps.repository.deactivateCodes(input.codeIds);
 
@@ -116,17 +116,17 @@ export const createReferralService = (deps: ReferralServiceDependencies) => ({
 			const codeRow = await repository.lockCodeByCode(code);
 			if (!codeRow) throw new DomainError("NOT_FOUND", "Kode tidak ditemukan / salah.");
 
-			if (!codeRow.status) throw new DomainError("BAD_REQUEST", "Kode tidak valid atau sudah dinonaktifkan.");
+			if (!codeRow.status) throw new DomainError("UNPROCESSABLE_CONTENT", "Kode tidak valid atau sudah dinonaktifkan.");
 
 			if (codeRow.validUntil && codeRow.validUntil < new Date())
-				throw new DomainError("BAD_REQUEST", "Kode sudah kedaluwarsa.");
+				throw new DomainError("UNPROCESSABLE_CONTENT", "Kode sudah kedaluwarsa.");
 
 			if (codeRow.maxUsages !== null && codeRow.usageCount >= codeRow.maxUsages) {
-				throw new DomainError("BAD_REQUEST", "Kuota kode sudah habis.");
+				throw new DomainError("UNPROCESSABLE_CONTENT", "Kuota kode sudah habis.");
 			}
 
 			const existingUsage = await repository.findUsage(user.id, codeRow.id);
-			if (existingUsage) throw new DomainError("BAD_REQUEST", "Anda sudah pernah menggunakan kode ini.");
+			if (existingUsage) throw new DomainError("UNPROCESSABLE_CONTENT", "Anda sudah pernah menggunakan kode ini.");
 
 			const id = crypto.randomUUID();
 			await repository.recordUsage({ id, userId: user.id, referralCodeId: codeRow.id });
