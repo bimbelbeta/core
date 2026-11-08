@@ -1,7 +1,7 @@
 import { db } from "@bimbelbeta/db";
 import { readTiptapContent } from "@/lib/content-utils";
 import { DomainError } from "@/lib/domain-error";
-import { buildIdCursorPage, parseIdCursor } from "@/lib/pagination/cursor";
+import { buildIdCursorPage, decodePageInput, parseIdCursor } from "@/lib/pagination/cursor";
 import { parseNullableInt, pickDefined } from "@/lib/utils";
 import { generateAccessCode, hashAccessCode } from "./access-code";
 import { createTryoutRepository, type TryoutRepository } from "./repository";
@@ -118,10 +118,8 @@ export function createTryoutAdminService({ repository }: { repository: AdminServ
 		},
 
 		async list(input: ListTryoutInput) {
-			const limit = input.limit ?? 10;
-			const isBackward = !!input.before;
-			const cursorStr = input.before || input.after;
-			const cursorId = cursorStr ? parseIdCursor(cursorStr) : undefined;
+			const { limit, backward: isBackward, cursor, hasCursor } = decodePageInput(input, 10);
+			const cursorId = cursor ? parseIdCursor(cursor) : undefined;
 
 			const rows = await repository.listForAdmin({
 				limit,
@@ -132,7 +130,7 @@ export function createTryoutAdminService({ repository }: { repository: AdminServ
 				status: input.status,
 			});
 
-			return buildIdCursorPage(rows, limit, isBackward, !!cursorStr);
+			return buildIdCursorPage(rows, limit, isBackward, hasCursor);
 		},
 
 		async find(input: { id: number }) {
@@ -213,10 +211,8 @@ export function createTryoutAdminService({ repository }: { repository: AdminServ
 		},
 
 		async listAttempts(input: PaginatedByTryoutInput) {
-			const limit = input.limit ?? 10;
-			const isBackward = !!input.before;
-			const cursorStr = input.before || input.after;
-			const cursorId = cursorStr ? parseIdCursor(cursorStr) : undefined;
+			const { limit, backward: isBackward, cursor, hasCursor } = decodePageInput(input, 10);
+			const cursorId = cursor ? parseIdCursor(cursor) : undefined;
 
 			const rows = await repository.listAttemptsWithUsers(input.id, {
 				limit,
@@ -230,7 +226,7 @@ export function createTryoutAdminService({ repository }: { repository: AdminServ
 				user: row.user,
 			}));
 
-			const { items: pagedItems, pageInfo } = buildIdCursorPage(mappedRows, limit, isBackward, !!cursorStr);
+			const { items: pagedItems, pageInfo } = buildIdCursorPage(mappedRows, limit, isBackward, hasCursor);
 			const attemptIds = pagedItems.map((row) => row.id);
 			const subtestAttemptsByAttemptId = new Map<number, { subtestId: number; score: number | null }[]>();
 

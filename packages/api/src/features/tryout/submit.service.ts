@@ -2,7 +2,7 @@ import { db } from "@bimbelbeta/db";
 
 import { DomainError, withErrorFallback } from "@/lib/domain-error";
 import { computeSubtestDeadline } from "./deadline";
-import { createTryoutRepository, runInTransaction, type TryoutRepository, type TryoutTransaction } from "./repository";
+import { createTryoutRepository, type TryoutRepository, type TryoutTransaction } from "./repository";
 import {
 	calcTotalScore,
 	getScoreFromMap,
@@ -12,6 +12,7 @@ import {
 	scoreMultipleChoice,
 	type TryoutScoreResult,
 } from "./scoring";
+import { runInTransaction } from "./transaction";
 
 export type SubmitRepository = Pick<
 	TryoutRepository,

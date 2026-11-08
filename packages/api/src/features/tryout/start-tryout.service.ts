@@ -4,7 +4,8 @@ import type { Session } from "@/context";
 import { DomainError } from "@/lib/domain-error";
 import { parseNullableInt } from "@/lib/utils";
 import { hashAccessCode } from "./access-code";
-import { createTryoutRepository, runInTransaction, type TryoutRepository, type TryoutTransaction } from "./repository";
+import { createTryoutRepository, type TryoutRepository, type TryoutTransaction } from "./repository";
+import { runInTransaction } from "./transaction";
 
 export type StartTryoutRepository = Pick<
 	TryoutRepository,
