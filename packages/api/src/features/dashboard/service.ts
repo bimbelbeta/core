@@ -13,7 +13,7 @@ export function createDashboardService({ repository }: { repository: DashboardRe
 			const lastMonthStart = monthStart(now, 1);
 
 			const [userCounts, questionCounts, monthlyRevenue, lastMonthRevenue, recentTryouts] = await Promise.all([
-				repository.userCounts(lastMonthStart),
+				repository.userCounts(currentMonthStart),
 				repository.questionCounts(),
 				repository.successfulRevenueSince(currentMonthStart),
 				repository.successfulRevenueSince(lastMonthStart, currentMonthStart),

@@ -42,6 +42,7 @@ describe.skipIf(!enabled)("dashboard feature slice", () => {
 		expect(Object.keys(stats).sort()).toEqual([
 			"essayQuestions",
 			"monthlyRevenue",
+			"premiumUsers",
 			"recentTryouts",
 			"revenueTrend",
 			"totalQuestions",
@@ -50,9 +51,7 @@ describe.skipIf(!enabled)("dashboard feature slice", () => {
 		]);
 		expect(stats.revenueTrend === null || Number.isFinite(stats.revenueTrend)).toBe(true);
 		expect(stats.usersTrend === null || Number.isFinite(stats.usersTrend)).toBe(true);
-		expect(stats.recentTryouts.every((tryout) => Array.isArray(tryout) === false && "subtestCount" in tryout)).toBe(
-			true,
-		);
+		expect(stats.recentTryouts.every((tryout) => "subtestCount" in tryout)).toBe(true);
 		expect(stats.totalUsers).toBeGreaterThanOrEqual(0);
 		expect(stats.premiumUsers).toBeGreaterThanOrEqual(0);
 		expect(stats.monthlyRevenue).toBeGreaterThanOrEqual(0);

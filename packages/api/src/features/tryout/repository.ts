@@ -144,6 +144,21 @@ export type AdminListQuery = {
 	newestFirst: boolean;
 };
 
+type AdminFilters = { search?: string; category?: TryoutRow["category"]; status?: TryoutStatus };
+
+function adminFilters({ search, category, status }: AdminFilters) {
+	return and(
+		search ? ilike(tryout.title, `%${search}%`) : undefined,
+		category ? eq(tryout.category, category) : undefined,
+		status ? eq(tryout.status, status) : undefined,
+	);
+}
+
+const subtestCountColumn =
+	sql<number>`(select count(*) from ${tryoutSubtest} where ${tryoutSubtest.tryoutId} = ${tryout.id})`.mapWith(Number);
+const attemptCountColumn =
+	sql<number>`(select count(*) from ${tryoutAttempt} where ${tryoutAttempt.tryoutId} = ${tryout.id})`.mapWith(Number);
+
 export function createTryoutRepository(client: DbClient) {
 	async function findPublishedTryoutWithSubtests(id: number): Promise<TryoutWithSubtests | undefined> {
 		return client.query.tryout.findFirst({
@@ -516,52 +531,22 @@ export function createTryoutRepository(client: DbClient) {
 		status,
 		newestFirst,
 	}: AdminListQuery): Promise<(TryoutRow & { subtestCount: number; attemptCount: number })[]> {
-		const subtestCount =
-			sql<number>`(select count(*) from ${tryoutSubtest} where ${tryoutSubtest.tryoutId} = ${tryout.id})`.mapWith(
-				Number,
-			);
-		const attemptCount =
-			sql<number>`(select count(*) from ${tryoutAttempt} where ${tryoutAttempt.tryoutId} = ${tryout.id})`.mapWith(
-				Number,
-			);
+		const descending = newestFirst !== backward;
 		return client
-			.select({ ...getTableColumns(tryout), subtestCount, attemptCount })
+			.select({ ...getTableColumns(tryout), subtestCount: subtestCountColumn, attemptCount: attemptCountColumn })
 			.from(tryout)
 			.where(
 				and(
-					search ? ilike(tryout.title, `%${search}%`) : undefined,
-					category ? eq(tryout.category, category) : undefined,
-					status ? eq(tryout.status, status) : undefined,
-					cursorId !== undefined
-						? newestFirst
-							? backward
-								? gt(tryout.id, cursorId)
-								: lt(tryout.id, cursorId)
-							: backward
-								? lt(tryout.id, cursorId)
-								: gt(tryout.id, cursorId)
-						: undefined,
+					adminFilters({ search, category, status }),
+					cursorId !== undefined ? (descending ? lt(tryout.id, cursorId) : gt(tryout.id, cursorId)) : undefined,
 				),
 			)
-			.orderBy(backward ? (newestFirst ? asc : desc)(tryout.id) : (newestFirst ? desc : asc)(tryout.id))
+			.orderBy(descending ? desc(tryout.id) : asc(tryout.id))
 			.limit(limit + 1);
 	}
 
-	async function countForAdmin(filters: {
-		search?: string;
-		category?: TryoutRow["category"];
-		status?: TryoutStatus;
-	}): Promise<number> {
-		const [row] = await client
-			.select({ count: sql<number>`count(*)::int` })
-			.from(tryout)
-			.where(
-				and(
-					filters.search ? ilike(tryout.title, `%${filters.search}%`) : undefined,
-					filters.category ? eq(tryout.category, filters.category) : undefined,
-					filters.status ? eq(tryout.status, filters.status) : undefined,
-				),
-			);
+	async function countForAdmin(filters: AdminFilters): Promise<number> {
+		const [row] = await client.select({ count: sql<number>`count(*)::int` }).from(tryout).where(adminFilters(filters));
 		return row?.count ?? 0;
 	}
 
@@ -794,14 +779,6 @@ export function createTryoutRepository(client: DbClient) {
 			attemptCount: number;
 		}[]
 	> {
-		const subtestCount =
-			sql<number>`(select count(*) from ${tryoutSubtest} where ${tryoutSubtest.tryoutId} = ${tryout.id})`.mapWith(
-				Number,
-			);
-		const attemptCount =
-			sql<number>`(select count(*) from ${tryoutAttempt} where ${tryoutAttempt.tryoutId} = ${tryout.id})`.mapWith(
-				Number,
-			);
 		return client
 			.select({
 				id: tryout.id,
@@ -809,8 +786,8 @@ export function createTryoutRepository(client: DbClient) {
 				status: tryout.status,
 				category: tryout.category,
 				updatedAt: tryout.updatedAt,
-				subtestCount,
-				attemptCount,
+				subtestCount: subtestCountColumn,
+				attemptCount: attemptCountColumn,
 			})
 			.from(tryout)
 			.orderBy(desc(tryout.updatedAt))

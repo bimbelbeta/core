@@ -3,6 +3,30 @@ import { user } from "@bimbelbeta/db/schema/auth";
 import { referralCode, referralUsage } from "@bimbelbeta/db/schema/referral";
 import { and, asc, desc, eq, gt, ilike, inArray, isNotNull, isNull, lt, lte, or, sql } from "drizzle-orm";
 
+export type ReferralCodeFilter = {
+	status: boolean;
+	notExpired?: boolean;
+	hasQuota?: boolean;
+	expired?: boolean;
+	quotaReached?: boolean;
+};
+
+function codeFilter(filter: ReferralCodeFilter | undefined, now: Date) {
+	return filter
+		? and(
+				eq(referralCode.status, filter.status),
+				filter.notExpired ? or(isNull(referralCode.validUntil), gt(referralCode.validUntil, now)) : undefined,
+				filter.hasQuota
+					? or(isNull(referralCode.maxUsages), gt(referralCode.maxUsages, referralCode.usageCount))
+					: undefined,
+				filter.expired ? and(isNotNull(referralCode.validUntil), lte(referralCode.validUntil, now)) : undefined,
+				filter.quotaReached
+					? and(isNotNull(referralCode.maxUsages), lte(referralCode.maxUsages, referralCode.usageCount))
+					: undefined,
+			)
+		: undefined;
+}
+
 export function createReferralRepository(client: DbClient) {
 	async function transaction<T>(fn: (repository: ReferralRepository) => Promise<T>): Promise<T> {
 		return await client.transaction((tx) => fn(createReferralRepository(tx)));
@@ -56,29 +80,9 @@ export function createReferralRepository(client: DbClient) {
 			cursorId?: string;
 			isBackward: boolean;
 			search?: string;
-			filter?: {
-				status: boolean;
-				notExpired?: boolean;
-				hasQuota?: boolean;
-				expired?: boolean;
-				quotaReached?: boolean;
-			};
+			filter?: ReferralCodeFilter;
 		}) {
-			const now = new Date();
-			const filter = query.filter;
-			const statusFilter = filter
-				? and(
-						eq(referralCode.status, filter.status),
-						filter.notExpired ? or(isNull(referralCode.validUntil), gt(referralCode.validUntil, now)) : undefined,
-						filter.hasQuota
-							? or(isNull(referralCode.maxUsages), gt(referralCode.maxUsages, referralCode.usageCount))
-							: undefined,
-						filter.expired ? and(isNotNull(referralCode.validUntil), lte(referralCode.validUntil, now)) : undefined,
-						filter.quotaReached
-							? and(isNotNull(referralCode.maxUsages), lte(referralCode.maxUsages, referralCode.usageCount))
-							: undefined,
-					)
-				: undefined;
+			const statusFilter = codeFilter(query.filter, new Date());
 			return client
 				.select()
 				.from(referralCode)
@@ -96,31 +100,8 @@ export function createReferralRepository(client: DbClient) {
 				.orderBy(query.isBackward ? desc(referralCode.id) : asc(referralCode.id))
 				.limit(query.limit + 1);
 		},
-		async countCodes(query: {
-			search?: string;
-			filter?: {
-				status: boolean;
-				notExpired?: boolean;
-				hasQuota?: boolean;
-				expired?: boolean;
-				quotaReached?: boolean;
-			};
-		}) {
-			const now = new Date();
-			const filter = query.filter;
-			const statusFilter = filter
-				? and(
-						eq(referralCode.status, filter.status),
-						filter.notExpired ? or(isNull(referralCode.validUntil), gt(referralCode.validUntil, now)) : undefined,
-						filter.hasQuota
-							? or(isNull(referralCode.maxUsages), gt(referralCode.maxUsages, referralCode.usageCount))
-							: undefined,
-						filter.expired ? and(isNotNull(referralCode.validUntil), lte(referralCode.validUntil, now)) : undefined,
-						filter.quotaReached
-							? and(isNotNull(referralCode.maxUsages), lte(referralCode.maxUsages, referralCode.usageCount))
-							: undefined,
-					)
-				: undefined;
+		async countCodes(query: { search?: string; filter?: ReferralCodeFilter }) {
+			const statusFilter = codeFilter(query.filter, new Date());
 			const [row] = await client
 				.select({ count: sql<number>`count(*)::int` })
 				.from(referralCode)

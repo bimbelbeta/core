@@ -34,7 +34,7 @@ describe("dashboard service", () => {
 
 		const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 		const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-		expect(userCountsSince).toEqual([lastMonthStart]);
+		expect(userCountsSince).toEqual([currentMonthStart]);
 		expect(revenueSince).toEqual([currentMonthStart, lastMonthStart]);
 		expect(stats).toEqual({
 			totalUsers: 0,
@@ -52,7 +52,7 @@ describe("dashboard service", () => {
 		const revenueCalls: Date[] = [];
 		const service = createDashboardService({
 			repository: makeRepository({
-				userCounts: async () => ({ total: 150, premium: 50, createdSince: 100, premiumExpiringSince: 25 }),
+				userCounts: async () => ({ total: 150, premium: 50, createdSince: 100 }),
 				questionCounts: async () => ({ total: 12, essay: 4 }),
 				successfulRevenueSince: async () => {
 					revenueCalls.push(new Date());

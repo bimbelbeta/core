@@ -13,7 +13,6 @@ export type DashboardUserCounts = {
 	total: number;
 	premium: number;
 	createdSince: number;
-	premiumExpiringSince: number;
 };
 
 export type ListUsersParams = {
@@ -105,7 +104,6 @@ export function createUserRepository(client: DbClient) {
 					total: count(),
 					premium: count(eq(user.isPremium, true)),
 					createdSince: count(gte(user.createdAt, since)),
-					premiumExpiringSince: count(and(eq(user.isPremium, true), gte(user.premiumExpiresAt, since))),
 				})
 				.from(user);
 			return row;
