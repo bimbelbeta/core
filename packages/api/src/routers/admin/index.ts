@@ -1,8 +1,8 @@
 import { adminCreditRouter } from "@/features/credit/admin-router";
 import { adminProductRouter } from "@/features/product/admin-router";
+import { questionAdminRouter } from "@/features/question/admin-router";
 import { adminContentRouter } from "@/routers/admin/content";
 import { adminDashboardRouter } from "@/routers/admin/dashboard";
-import { questionRouter } from "@/routers/admin/question";
 import { adminReferralRouter } from "@/routers/admin/referral";
 import { adminSubjectRouter } from "@/routers/admin/subject";
 import { subtestRouter } from "@/routers/admin/subtest";
@@ -18,7 +18,7 @@ export const adminRouter = {
 	tryout: {
 		...tryoutRouter,
 		subtest: subtestRouter,
-		questions: questionRouter,
+		questions: questionAdminRouter,
 		questionsBulk: subtestQuestionRouter,
 	},
 	university: adminUniversityRouter,
