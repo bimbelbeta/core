@@ -69,7 +69,9 @@ function RouteComponent() {
 
 	const subtestScores = new Map(data.subtestAttempts.map((sa) => [sa.subtestId, sa.score]));
 
-	const isPassed = (data.score ?? 0) >= passingGrade;
+	const score = data.score ?? 0;
+	const normalizedScore = data.maxScore > 0 ? Math.round((score / data.maxScore) * 1000) : 0;
+	const isPassed = normalizedScore >= passingGrade;
 
 	return (
 		<div className="flex flex-col gap-8">
@@ -94,8 +96,8 @@ function RouteComponent() {
 					</CardHeader>
 					<CardContent>
 						<div className="flex items-baseline gap-2">
-							<span className="text-5xl font-semibold text-blue-600">{data.score ?? 0}</span>
-							<span className="text-muted-foreground text-xl font-medium">/ 1000</span>
+							<span className="text-5xl font-semibold text-blue-600">{score}</span>
+							<span className="text-muted-foreground text-xl font-medium">/ {data.maxScore}</span>
 						</div>
 					</CardContent>
 				</Card>

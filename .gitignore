@@ -56,6 +56,9 @@ temp
 #others
 plan.md
 
-# Desloppify local state
-.desloppify/
+
+# Local review screenshots
 .review-shots/
+
+# Agent skills installed locally (e.g. Claude Code)
+.claude/

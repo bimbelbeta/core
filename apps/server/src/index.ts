@@ -3,12 +3,14 @@ import { custom } from "@better-upload/server/clients";
 import { createContext } from "@bimbelbeta/api/context";
 import { appRouter } from "@bimbelbeta/api/routers/index";
 import { auth } from "@bimbelbeta/auth";
+import { db } from "@bimbelbeta/db";
 import { experimental_ArkTypeToJsonSchemaConverter as ArkTypeToJsonSchemaConverter } from "@orpc/arktype";
 import { RatelimitHandlerPlugin } from "@orpc/experimental-ratelimit";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { OpenAPIReferencePlugin } from "@orpc/openapi/plugins";
 import { ORPCError, onError } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
+import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
@@ -107,6 +109,10 @@ app.use("/*", async (c, next) => {
 app.get("/", (c) => {
 	return c.text("OK");
 });
+
+if (process.env.NODE_ENV === "production") {
+	await migrate(db, { migrationsFolder: "./migrations" });
+}
 
 export default {
 	port: process.env.PORT || 3001,

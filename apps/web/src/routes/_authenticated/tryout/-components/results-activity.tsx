@@ -37,7 +37,13 @@ export function ResultsActivity() {
 				</div>
 			) : (
 				attempts.data?.map((result) => (
-					<ResultCard key={result.id} attemptId={result.id} title={result.tryout.title} score={result.score ?? 0} />
+					<ResultCard
+						key={result.id}
+						attemptId={result.id}
+						title={result.tryout.title}
+						score={result.score ?? 0}
+						maxScore={result.maxScore}
+					/>
 				))
 			)}
 		</div>
@@ -62,9 +68,10 @@ type ResultCardProps = {
 	attemptId: number;
 	title: string;
 	score: number;
+	maxScore: number;
 };
 
-const ResultCard = memo(function ResultCard({ attemptId, title, score }: ResultCardProps) {
+const ResultCard = memo(function ResultCard({ attemptId, title, score, maxScore }: ResultCardProps) {
 	return (
 		<Card className="flex flex-col gap-2 p-4">
 			<Typography variant="subtitle4">{title}</Typography>
@@ -72,7 +79,7 @@ const ResultCard = memo(function ResultCard({ attemptId, title, score }: ResultC
 			<div className="text-muted-foreground translate-y-1 text-base">Total Score</div>
 			<div className="mt-auto flex items-center justify-between">
 				<span className="text-3xl">
-					{score} <span className="text-base">/ 1000</span>
+					{score} <span className="text-base">/ {maxScore}</span>
 				</span>
 				<Button size="sm" asChild>
 					<Link to="/tryout/results/$attemptId" params={{ attemptId: attemptId.toString() }}>

@@ -1,10 +1,19 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
-import { tryout } from "@bimbelbeta/db/schema/tryout";
+import { question } from "@bimbelbeta/db/schema/question";
+import { transaction } from "@bimbelbeta/db/schema/transaction";
+import {
+	tryout,
+	tryoutAttempt,
+	tryoutSubtest,
+	tryoutSubtestAttempt,
+	tryoutSubtestQuestion,
+} from "@bimbelbeta/db/schema/tryout";
 import { call } from "@orpc/server";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import type { Session } from "@/context";
+import { runScheduledJobs } from "@/cron";
 import { appRouter } from "@/routers";
 
 const enabled = !!process.env.TEST_DATABASE_URL && process.env.DATABASE_URL === process.env.TEST_DATABASE_URL;
@@ -41,6 +50,11 @@ const options = { context: { session } };
 const MISSING_ID = 2147483647;
 let openTryoutId = 0;
 let closedTryoutId = 0;
+let scoredTryoutId = 0;
+let scoredAttemptId = 0;
+let sweepTryoutId = 0;
+const sweepTransactionId = `tryout-it-tx-${crypto.randomUUID()}`;
+const createdQuestionIds: number[] = [];
 
 describe.skipIf(!enabled)("tryout feature slice", () => {
 	beforeAll(async () => {
@@ -60,12 +74,90 @@ describe.skipIf(!enabled)("tryout feature slice", () => {
 			.returning();
 		openTryoutId = open!.id;
 		closedTryoutId = closed!.id;
+
+		const [scored] = await db
+			.insert(tryout)
+			.values({ title: `${id} scored`, status: "published", category: "utbk" })
+			.returning();
+		scoredTryoutId = scored!.id;
+
+		const [mappedSubtest, linearSubtest] = await db
+			.insert(tryoutSubtest)
+			.values([
+				{ tryoutId: scoredTryoutId, name: "Mapped", duration: 30, order: 1, scoringMap: { "2": 400 } },
+				{ tryoutId: scoredTryoutId, name: "Linear", duration: 30, order: 2, scoringMap: null },
+			])
+			.returning();
+
+		const createdQuestions = await db
+			.insert(question)
+			.values(
+				Array.from({ length: 5 }, (_, index) => ({
+					type: "multiple_choice" as const,
+					content: `${id} soal ${index + 1}`,
+					discussion: "Pembahasan",
+				})),
+			)
+			.returning();
+		createdQuestionIds.push(...createdQuestions.map((row) => row.id));
+
+		await db.insert(tryoutSubtestQuestion).values([
+			{ subtestId: mappedSubtest!.id, questionId: createdQuestions[0]!.id, order: 1 },
+			{ subtestId: mappedSubtest!.id, questionId: createdQuestions[1]!.id, order: 2 },
+			{ subtestId: linearSubtest!.id, questionId: createdQuestions[2]!.id, order: 1 },
+			{ subtestId: linearSubtest!.id, questionId: createdQuestions[3]!.id, order: 2 },
+			{ subtestId: linearSubtest!.id, questionId: createdQuestions[4]!.id, order: 3 },
+		]);
+
+		const [scoredAttempt] = await db
+			.insert(tryoutAttempt)
+			.values({
+				userId: id,
+				tryoutId: scoredTryoutId,
+				deadline: new Date("2100-01-01"),
+				completedAt: new Date(),
+				status: "finished",
+				score: "450",
+			})
+			.returning();
+		scoredAttemptId = scoredAttempt!.id;
+
+		await db.insert(tryoutSubtestAttempt).values([
+			{
+				tryoutAttemptId: scoredAttemptId,
+				subtestId: mappedSubtest!.id,
+				deadline: new Date("2100-01-01"),
+				completedAt: new Date(),
+				status: "finished",
+				score: "400",
+			},
+			{
+				tryoutAttemptId: scoredAttemptId,
+				subtestId: linearSubtest!.id,
+				deadline: new Date("2100-01-01"),
+				completedAt: new Date(),
+				status: "finished",
+				score: "500",
+			},
+		]);
 	});
 
 	afterAll(async () => {
+		await db.delete(transaction).where(eq(transaction.id, sweepTransactionId));
 		await db.delete(tryout).where(eq(tryout.id, closedTryoutId));
 		await db.delete(tryout).where(eq(tryout.id, openTryoutId));
+		await db.delete(tryout).where(eq(tryout.id, scoredTryoutId));
+		if (sweepTryoutId) await db.delete(tryout).where(eq(tryout.id, sweepTryoutId));
+		await db.delete(question).where(inArray(question.id, createdQuestionIds));
 		await db.delete(user).where(eq(user.id, id));
+	});
+
+	test("reports the score against the tryout's real max, not a hardcoded 1000", async () => {
+		const history = await call(appRouter.tryout.history, undefined, options);
+		expect(history).toEqual([expect.objectContaining({ id: scoredAttemptId, score: 450, maxScore: 700 })]);
+
+		const result = await call(appRouter.tryout.result, { attemptId: scoredAttemptId }, options);
+		expect(result.maxScore).toBe(700);
 	});
 
 	test("still returns NOT_FOUND for a bad tryout or subtest id", async () => {
@@ -121,5 +213,57 @@ describe.skipIf(!enabled)("tryout feature slice", () => {
 			code: "BAD_REQUEST",
 			message: "Question IDs tidak boleh kosong",
 		});
+	});
+
+	test("sweeps expired attempts, lapsed premium, and stale pending payments", async () => {
+		const [sweepTryout] = await db
+			.insert(tryout)
+			.values({ title: `${id} sweep`, status: "published", category: "utbk" })
+			.returning();
+		sweepTryoutId = sweepTryout!.id;
+
+		const [sweepSubtest] = await db
+			.insert(tryoutSubtest)
+			.values({ tryoutId: sweepTryoutId, name: "Sweep", duration: 30, order: 1 })
+			.returning();
+		await db
+			.insert(tryoutSubtestQuestion)
+			.values({ subtestId: sweepSubtest!.id, questionId: createdQuestionIds[0]!, order: 1 });
+
+		const expiredAt = new Date(Date.now() - 60_000);
+		const [expiredAttempt] = await db
+			.insert(tryoutAttempt)
+			.values({ userId: id, tryoutId: sweepTryoutId, deadline: expiredAt })
+			.returning();
+		await db
+			.insert(tryoutSubtestAttempt)
+			.values({ tryoutAttemptId: expiredAttempt!.id, subtestId: sweepSubtest!.id, deadline: expiredAt });
+
+		await db.update(user).set({ isPremium: true, premiumExpiresAt: expiredAt }).where(eq(user.id, id));
+		await db
+			.insert(transaction)
+			.values({ id: sweepTransactionId, userId: id, status: "pending", expiresAt: expiredAt });
+
+		const summary = await runScheduledJobs();
+
+		expect(summary.finalizedAttempts).toBeGreaterThanOrEqual(1);
+		expect(summary.failedAttemptIds).toEqual([]);
+		expect(summary.revokedPremium).toBeGreaterThanOrEqual(1);
+		expect(summary.failedTransactions).toBeGreaterThanOrEqual(1);
+
+		const [attempt] = await db.select().from(tryoutAttempt).where(eq(tryoutAttempt.id, expiredAttempt!.id));
+		expect(attempt).toMatchObject({ status: "finished", completedAt: expect.any(Date) });
+
+		const [subtestAttempt] = await db
+			.select()
+			.from(tryoutSubtestAttempt)
+			.where(eq(tryoutSubtestAttempt.tryoutAttemptId, expiredAttempt!.id));
+		expect(subtestAttempt).toMatchObject({ status: "finished", completedAt: expect.any(Date) });
+
+		const [lapsedUser] = await db.select().from(user).where(eq(user.id, id));
+		expect(lapsedUser?.isPremium).toBe(false);
+
+		const [payment] = await db.select().from(transaction).where(eq(transaction.id, sweepTransactionId));
+		expect(payment).toMatchObject({ status: "failed", failureCode: "payment_expired" });
 	});
 });

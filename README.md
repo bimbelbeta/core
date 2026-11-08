@@ -13,6 +13,7 @@ This README is the starting point for running and maintaining the project. Use t
 - [Environment Configuration](#environment-configuration)
 - [Development Workflows](#development-workflows)
 - [Database Operations](#database-operations)
+- [Scheduled Jobs](#scheduled-jobs)
 - [Project Structure](#project-structure)
 - [Feature Documentation](#feature-documentation)
 - [Available Commands](#available-commands)
@@ -180,6 +181,16 @@ bun run db:generate
 Commit the generated files under `packages/db/src/migrations`. The `Build` GitHub Actions workflow (`.github/workflows/build.yml`) detects any change in that directory and runs `bun run db:migrate` against production with the `DATABASE_URL` secret; the build and deploy jobs wait on it. No manual migration step is needed for production.
 
 Back up the database and test the migration against a copy before merging.
+
+## Scheduled Jobs
+
+Background work runs as a one-shot script rather than a scheduler inside the API process:
+
+```bash
+cd apps/server && bun run cron
+```
+
+It finalizes tryout attempts past their deadline, clears lapsed premium, and fails pending payments past their expiry. In production it is the Coolify scheduled task `scheduled-jobs` on the `api` application — command `bun ./cron.js`, frequency `*/5 * * * *`. It is created disabled and must be enabled after the first deploy whose image contains `cron.js`. See the [patch notes](patch_notes.md#scheduled-jobs) for the enable command and behavior details.
 
 ## Project Structure
 

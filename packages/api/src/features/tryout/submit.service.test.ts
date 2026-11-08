@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, spyOn, test } from "bun:test";
 import { DomainError } from "@/lib/domain-error";
 import type { AttemptRow, ScoringAnswerRow, SubmissionAttempt } from "./repository";
 import type { TryoutScoreResult } from "./scoring";
@@ -79,6 +79,9 @@ type InsertedSubtestAttempt = { tryoutAttemptId: number; subtestId: number; dead
 type ServiceRows = {
 	attempts?: Array<SubmissionAttempt | undefined>;
 	attempt?: SubmissionAttempt | undefined;
+	expiredAttemptIds?: number[];
+	failingAttemptIds?: number[];
+	sweepQueries?: Array<{ now: Date; limit: number }>;
 	finishedSubtestAttempts: number[];
 	finishedAttempts: number[];
 	savedScores: Array<{ attemptId: number; scores: TryoutScoreResult }>;
@@ -96,10 +99,16 @@ function makeRepository(rows: ServiceRows) {
 		listSubtestQuestionPairs: async () => [{ subtestId: 1, questionId: 11 }],
 		listQuestionsForScoring: async () => [{ id: 11, type: "multiple_choice" as const, essayCorrectAnswer: null }],
 		listChoiceCorrectness: async () => [],
+		listExpiredOngoingAttemptIds: async (now: Date, limit: number) => {
+			rows.sweepQueries = rows.sweepQueries ?? [];
+			rows.sweepQueries.push({ now, limit });
+			return rows.expiredAttemptIds ?? [];
+		},
 		finishSubtestAttempt: async (id: number) => {
 			rows.finishedSubtestAttempts.push(id);
 		},
 		finishAttempt: async (id: number) => {
+			if (rows.failingAttemptIds?.includes(id)) throw new Error("write failed");
 			rows.finishedAttempts.push(id);
 		},
 		saveScores: async (attemptId: number, scores: TryoutScoreResult) => {
@@ -284,6 +293,43 @@ describe("tryout submission", () => {
 				},
 			},
 		]);
+	});
+
+	test("sweeps expired attempts and keeps going when one fails", async () => {
+		const errorLog = spyOn(console, "error").mockImplementation(() => {});
+		const rows: ServiceRows = {
+			expiredAttemptIds: [8, 9, 10],
+			failingAttemptIds: [9],
+			finishedSubtestAttempts: [],
+			finishedAttempts: [],
+			savedScores: [],
+			insertedSubtestAttempts: [],
+		};
+		const { service } = makeService(rows);
+		const now = new Date("2100-01-01");
+
+		expect(await service.sweepExpiredAttempts(now)).toEqual({ finalized: 2, failedAttemptIds: [9] });
+		expect(rows.sweepQueries).toEqual([{ now, limit: 200 }]);
+		expect(rows.finishedAttempts).toEqual([8, 10]);
+		expect(rows.savedScores.map((s) => s.attemptId)).toEqual([8, 10]);
+		expect(errorLog).toHaveBeenCalledTimes(1);
+		expect(errorLog.mock.calls[0]?.[0]).toContain("9");
+
+		errorLog.mockRestore();
+	});
+
+	test("sweeps nothing when no attempt has expired", async () => {
+		const rows: ServiceRows = {
+			expiredAttemptIds: [],
+			finishedSubtestAttempts: [],
+			finishedAttempts: [],
+			savedScores: [],
+			insertedSubtestAttempts: [],
+		};
+		const { service } = makeService(rows);
+
+		expect(await service.sweepExpiredAttempts()).toEqual({ finalized: 0, failedAttemptIds: [] });
+		expect(rows.finishedAttempts).toEqual([]);
 	});
 
 	test("reports expected failures as DomainError", async () => {

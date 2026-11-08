@@ -82,6 +82,7 @@ const TryoutSubtestAttemptSchema = createSelectSchema(tryoutSubtestAttempt)
 const TryoutHistoryItemSchema = type({
 	id: "number",
 	score: "number | null",
+	maxScore: "number",
 	status: TryoutAttemptStatus,
 	startedAt: "Date",
 	completedAt: "Date | null",
@@ -215,6 +216,7 @@ export const tryoutContract = {
 				id: "number",
 				startedAt: "Date",
 				score: "number | null",
+				maxScore: "number",
 				deadline: "Date",
 				completedAt: "Date | null",
 				status: TryoutAttemptStatus,
