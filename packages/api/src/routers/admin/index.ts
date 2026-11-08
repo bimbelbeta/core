@@ -1,4 +1,4 @@
-import { adminContentRouter } from "@/routers/admin/content";
+import { adminContentRouter } from "@/features/content/admin-router";
 import { adminCreditRouter } from "@/routers/admin/credit";
 import { adminDashboardRouter } from "@/routers/admin/dashboard";
 import { adminProductRouter } from "@/routers/admin/product";
@@ -28,7 +28,7 @@ export const adminRouter = {
 	referral: adminReferralRouter,
 };
 
-export type { adminContentRouter } from "@/routers/admin/content";
+export type { adminContentRouter } from "@/features/content/admin-router";
 export type { adminDashboardRouter } from "@/routers/admin/dashboard";
 export type { adminSubjectRouter } from "@/routers/admin/subject";
 export type { adminUniversityRouter } from "@/routers/admin/university";
