@@ -10,6 +10,7 @@ import type {
 	MemberTryoutListItem,
 	ResultRow,
 	ReviewAttemptRow,
+	SubtestScoringInput,
 	TryoutWithSubtests,
 } from "./repository";
 
@@ -129,6 +130,7 @@ type ReadRepositoryOverrides = {
 	attempt?: AttemptWithSubtestAttempts | undefined;
 	featured?: FeaturedTryoutRow | undefined;
 	history?: HistoryRow[];
+	scoringInputs?: SubtestScoringInput[];
 	result?: ResultRow | undefined;
 	reviewAttempt?: ReviewAttemptRow | undefined;
 	subtestName?: { name: string } | undefined;
@@ -150,6 +152,7 @@ function makeRepository(overrides: ReadRepositoryOverrides) {
 		listForMember: async (): Promise<MemberTryoutListItem[]> => [],
 		findFeatured: async () => overrides.featured,
 		listHistory: async () => overrides.history ?? [],
+		listSubtestScoringInputs: async () => overrides.scoringInputs ?? [],
 		findFinishedAttemptResult: async () => overrides.result,
 		findAttemptForReview: async () => overrides.reviewAttempt,
 		findSubtestName: async () => overrides.subtestName,
@@ -395,6 +398,7 @@ describe("tryout list", () => {
 			listForMember: async () => rows,
 			findFeatured: async () => undefined,
 			listHistory: async () => [],
+			listSubtestScoringInputs: async () => [],
 			findFinishedAttemptResult: async () => undefined,
 			findAttemptForReview: async () => undefined,
 			findSubtestName: async () => undefined,
@@ -436,12 +440,34 @@ describe("history and result", () => {
 			{
 				id: 8,
 				score: 700,
+				maxScore: 0,
 				status: "finished",
 				startedAt: historyRow.startedAt,
 				completedAt: historyRow.completedAt,
 				tryout: { id: 1, title: "Tryout" },
 			},
 		]);
+	});
+
+	test("derives the history max score from the tryout's scoring maps", async () => {
+		const historyRow: HistoryRow = {
+			id: 8,
+			score: "700",
+			status: "finished",
+			startedAt: new Date(),
+			completedAt: new Date(),
+			tryout: { id: 1, title: "Tryout" },
+		};
+		const { service } = makeService({
+			...baseOverrides(),
+			history: [historyRow],
+			scoringInputs: [
+				{ tryoutId: 1, scoringMap: { "10": 800 }, questionCount: 10 },
+				{ tryoutId: 2, scoringMap: null, questionCount: 5 },
+			],
+		});
+		const items = await service.history(caller);
+		expect(items.map((item) => item.maxScore)).toEqual([800]);
 	});
 
 	test("rejects a result that is not the caller's finished attempt", async () => {
@@ -471,9 +497,14 @@ describe("history and result", () => {
 			},
 			subtestAttempts: [{ id: 5, subtestId: 10, status: "finished", completedAt: new Date(), score: "800" }],
 		};
-		const { service } = makeService({ ...baseOverrides(), result });
+		const { service } = makeService({
+			...baseOverrides(),
+			result,
+			scoringInputs: [{ tryoutId: 1, scoringMap: { "10": 800 }, questionCount: 10 }],
+		});
 		const found = await service.result({ attemptId: 8 }, caller);
 		expect(found.score).toBe(700);
+		expect(found.maxScore).toBe(800);
 		expect(found.subtestAttempts).toEqual([
 			{ id: 5, subtestId: 10, status: "finished", completedAt: result.completedAt, score: 800 },
 		]);

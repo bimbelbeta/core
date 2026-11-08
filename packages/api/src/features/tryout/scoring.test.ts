@@ -1,5 +1,12 @@
 import { describe, expect, test } from "bun:test";
-import { calcTotalScore, getScoreFromMap, scoreComplexChoice, scoreEssay, scoreMultipleChoice } from "./scoring";
+import {
+	calcTotalScore,
+	calcTryoutMaxScore,
+	getScoreFromMap,
+	scoreComplexChoice,
+	scoreEssay,
+	scoreMultipleChoice,
+} from "./scoring";
 
 describe("getScoreFromMap", () => {
 	test("returns mapped score when key exists", () => {
@@ -122,6 +129,38 @@ describe("scoreEssay", () => {
 	test("empty correct answer → wrong (no essay to compare against)", () => {
 		expect(scoreEssay("photosynthesis", "")).toBe(false);
 		expect(scoreEssay("photosynthesis", null)).toBe(false);
+	});
+});
+
+describe("calcTryoutMaxScore", () => {
+	test("linear subtests max out at 1000", () => {
+		expect(calcTryoutMaxScore([{ scoringMap: null, questionCount: 20 }])).toBe(1000);
+	});
+
+	test("uses the mapped score for a full-correct count", () => {
+		expect(calcTryoutMaxScore([{ scoringMap: { "10": 850 }, questionCount: 10 }])).toBe(850);
+	});
+
+	test("averages the max of each subtest", () => {
+		const subtests = [
+			{ scoringMap: { "10": 800 }, questionCount: 10 },
+			{ scoringMap: null, questionCount: 15 },
+		];
+		expect(calcTryoutMaxScore(subtests)).toBe(900);
+	});
+
+	test("ignores subtests without questions, like scoring does", () => {
+		expect(calcTryoutMaxScore([{ scoringMap: { "0": 500 }, questionCount: 0 }])).toBe(0);
+		expect(
+			calcTryoutMaxScore([
+				{ scoringMap: { "10": 600 }, questionCount: 10 },
+				{ scoringMap: null, questionCount: 0 },
+			]),
+		).toBe(600);
+	});
+
+	test("no subtests → 0", () => {
+		expect(calcTryoutMaxScore([])).toBe(0);
 	});
 });
 

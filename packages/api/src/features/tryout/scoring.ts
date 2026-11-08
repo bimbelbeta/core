@@ -46,3 +46,16 @@ export function calcTotalScore(scores: number[]): number {
 	if (scores.length === 0) return 0;
 	return Math.round(scores.reduce((sum, s) => sum + s, 0) / scores.length);
 }
+
+export interface SubtestMaxScoreInput {
+	scoringMap: Record<string, number> | null | undefined;
+	questionCount: number;
+}
+
+export function calcTryoutMaxScore(subtests: SubtestMaxScoreInput[]): number {
+	return calcTotalScore(
+		subtests
+			.filter((subtest) => subtest.questionCount > 0)
+			.map((subtest) => getScoreFromMap(subtest.scoringMap, subtest.questionCount, subtest.questionCount)),
+	);
+}

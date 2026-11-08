@@ -5,6 +5,7 @@ import { buildIdCursorPage, decodeIdPage } from "@/lib/pagination/cursor";
 import { parseNullableInt } from "@/lib/utils";
 import { flattenReviewQuestions, flattenTryoutQuestions } from "./question-utils";
 import { createTryoutRepository, type TryoutRepository } from "./repository";
+import { calcTryoutMaxScore } from "./scoring";
 import { submitService } from "./submit.service";
 
 export type ReadRepository = Pick<
@@ -14,6 +15,7 @@ export type ReadRepository = Pick<
 	| "listForMember"
 	| "findFeatured"
 	| "listHistory"
+	| "listSubtestScoringInputs"
 	| "findFinishedAttemptResult"
 	| "findAttemptForReview"
 	| "findSubtestName"
@@ -155,9 +157,11 @@ export function createTryoutReadService(deps: ReadServiceDependencies) {
 
 		async history(caller: Session["user"]) {
 			const attempts = await repository.listHistory(caller.id);
+			const scoringInputs = await repository.listSubtestScoringInputs(attempts.map((attempt) => attempt.tryout.id));
 			return attempts.map((attempt) => ({
 				...attempt,
 				score: parseNullableInt(attempt.score),
+				maxScore: calcTryoutMaxScore(scoringInputs.filter((input) => input.tryoutId === attempt.tryout.id)),
 				tryout: attempt.tryout,
 			}));
 		},
@@ -166,9 +170,12 @@ export function createTryoutReadService(deps: ReadServiceDependencies) {
 			const attempt = await repository.findFinishedAttemptResult(input.attemptId, caller.id);
 			if (!attempt) throw new DomainError("NOT_FOUND", "Gagal menemukan pengerjaan tryout.");
 
+			const scoringInputs = await repository.listSubtestScoringInputs([attempt.tryout.id]);
+
 			return {
 				...attempt,
 				score: parseNullableInt(attempt.score),
+				maxScore: calcTryoutMaxScore(scoringInputs),
 				tryout: attempt.tryout,
 				subtestAttempts: attempt.subtestAttempts.map((sa) => ({
 					...sa,
