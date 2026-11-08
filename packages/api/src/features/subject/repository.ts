@@ -9,7 +9,7 @@ import {
 	userSubjectView,
 	videoMaterial,
 } from "@bimbelbeta/db/schema/subject";
-import { and, desc, eq, gt, ilike, inArray, lt, sql } from "drizzle-orm";
+import { and, count, desc, eq, gt, ilike, inArray, lt, sql } from "drizzle-orm";
 import { escapeLikePattern } from "@/lib/utils";
 
 export type SubjectRow = typeof subject.$inferSelect;
@@ -394,6 +394,11 @@ export function createSubjectRepository(client: DbClient) {
 		return row;
 	}
 
+	async function countAll(): Promise<{ count: number } | undefined> {
+		const [row] = await client.select({ count: count() }).from(subject);
+		return row;
+	}
+
 	async function transaction<T>(fn: (repository: SubjectRepository) => Promise<T>): Promise<T> {
 		return await client.transaction((tx) => fn(createSubjectRepository(tx)));
 	}
@@ -419,6 +424,7 @@ export function createSubjectRepository(client: DbClient) {
 		deleteSubject,
 		reorderSubjects,
 		findSubjectCategory,
+		countAll,
 		transaction,
 	};
 }
