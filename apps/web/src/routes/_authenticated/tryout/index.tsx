@@ -9,7 +9,7 @@ import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
 import { TargetSelectionDialog } from "@/routes/_authenticated/-components/target-selection-dialog";
 import { GuidelineActivity } from "./-components/guideline-activity";
-import { PassingGradeActivity } from "./-components/passing-grade-activity";
+import { PassingGradeDialog } from "./-components/passing-grade-dialog";
 import { ResultsActivity } from "./-components/results-activity";
 
 const levelSchema = type({
@@ -26,22 +26,11 @@ const TRYOUT_LEVELS = {
 		label: "TKA",
 		title: "Tryout TKA",
 		description: "Uji kemampuanmu dengan simulasi tryout TKA yang disesuaikan untuk jenjangmu!",
-		tabs: [
-			{ name: "Guideline", slug: "guideline" },
-			{ name: "Hasil TryOut", slug: "results" },
-		],
-		defaultTab: "guideline",
 	},
 	utbk: {
 		label: "UTBK",
 		title: "Tryout UTBK",
 		description: "Uji kemampuanmu dengan simulasi tryout yang mirip dengan UTBK asli!",
-		tabs: [
-			{ name: "Guideline", slug: "guideline" },
-			{ name: "Passing Grade", slug: "passing_grade" },
-			{ name: "Hasil TryOut", slug: "results" },
-		],
-		defaultTab: "guideline",
 	},
 } as const;
 
@@ -130,19 +119,12 @@ function RouteComponent() {
 				<GuidelineActivity level={activeLevel} />
 
 				<section className="space-y-4">
-					<Typography variant="subtitle2">Hasil TryOut</Typography>
+					<div className="flex items-center gap-4">
+						<Typography variant="subtitle2">Hasil TryOut</Typography>
+						{activeLevel === "utbk" && <PassingGradeDialog className="ml-auto" />}
+					</div>
 					<ResultsActivity />
 				</section>
-
-				{activeLevel === "utbk" && (
-					<section className="space-y-4">
-						<div className="space-y-1">
-							<Typography variant="subtitle2">Passing Grade</Typography>
-							<Typography tone="muted">Referensi skor terakhir untuk universitas dan prodi tujuanmu.</Typography>
-						</div>
-						<PassingGradeActivity />
-					</section>
-				)}
 			</div>
 		</>
 	);
