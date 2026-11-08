@@ -1,5 +1,5 @@
+import { adminCreditRouter } from "@/features/credit/admin-router";
 import { adminContentRouter } from "@/routers/admin/content";
-import { adminCreditRouter } from "@/routers/admin/credit";
 import { adminDashboardRouter } from "@/routers/admin/dashboard";
 import { adminProductRouter } from "@/routers/admin/product";
 import { questionRouter } from "@/routers/admin/question";
