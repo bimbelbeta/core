@@ -3,11 +3,18 @@ import type { DbClient } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { creditTransaction } from "@bimbelbeta/db/schema/credit";
 import { studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
-import { and, asc, desc, eq, gt, inArray, like, lt, or } from "drizzle-orm";
+import { and, asc, count, desc, eq, gt, gte, inArray, like, lt, or } from "drizzle-orm";
 
 export type UserRow = typeof user.$inferSelect;
 
 export type UserUpdateValues = Partial<UserRow>;
+
+export type DashboardUserCounts = {
+	total: number;
+	premium: number;
+	createdSince: number;
+	premiumExpiringSince: number;
+};
 
 export type ListUsersParams = {
 	limit: number;
@@ -127,6 +134,18 @@ export function createUserRepository(client: DbClient) {
 
 		async revokePremium(userId: string) {
 			await client.update(user).set({ isPremium: false }).where(eq(user.id, userId));
+		},
+
+		async countDashboardStats(since: Date): Promise<DashboardUserCounts | undefined> {
+			const [row] = await client
+				.select({
+					total: count(),
+					premium: count(eq(user.isPremium, true)),
+					createdSince: count(gte(user.createdAt, since)),
+					premiumExpiringSince: count(and(eq(user.isPremium, true), gte(user.premiumExpiresAt, since))),
+				})
+				.from(user);
+			return row;
 		},
 	};
 }

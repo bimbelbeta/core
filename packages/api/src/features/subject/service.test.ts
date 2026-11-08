@@ -83,6 +83,7 @@ function makeRepository(overrides: Partial<SubjectRepository> = {}): SubjectRepo
 		deleteSubject: unused,
 		reorderSubjects: unused,
 		findSubjectCategory: unused,
+		countAll: unused,
 		transaction: async (fn) => fn(repository),
 		...overrides,
 	};
