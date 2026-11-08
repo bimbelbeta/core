@@ -71,8 +71,17 @@ export function HeaderDashboard() {
 							}
 
 							return (
-								<Button key={link.to} size="xl" variant={isActive ? "default" : "ghost"} asChild>
-									<Link to={link.to}>{link.name}</Link>
+								<Button key={link.to} size="xl" variant="ghost" asChild className="relative">
+									<Link to={link.to}>
+										{isActive && (
+											<m.span
+												layoutId="nav-active-pill"
+												className="bg-primary absolute inset-0 rounded-md"
+												transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
+											/>
+										)}
+										<span className={`relative z-10 ${isActive ? "text-white" : ""}`}>{link.name}</span>
+									</Link>
 								</Button>
 							);
 						})}
