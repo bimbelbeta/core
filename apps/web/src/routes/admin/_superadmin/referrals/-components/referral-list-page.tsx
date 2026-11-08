@@ -27,8 +27,10 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { TableRowStack, tableRowLinkClass } from "@/components/ui/table-row-stack";
 import { Typography } from "@/components/ui/typography";
 import { formatDateMedium } from "@/lib/format-date";
+import { cn } from "@/lib/utils";
 import { useReferralsList } from "../-hooks/use-referrals-list";
 import { formatDate } from "../-utils";
 import { CreateReferralDialog } from "./create-referral-dialog";
@@ -122,18 +124,22 @@ export function ReferralListPage() {
 								return (
 									<AdminTableRow key={item.id}>
 										<AdminTableCell className="pl-3">
-											<div className="min-w-0">
-												<Link
-													to="/admin/referrals/$codeId"
-													params={{ codeId: item.id }}
-													className="text-row-title text-foreground hover:text-primary focus-visible:ring-ring/50 block rounded-sm font-mono tracking-wide underline-offset-4 outline-none after:absolute after:inset-0 after:content-[''] hover:underline focus-visible:ring-2"
-												>
-													{item.code}
-												</Link>
-												<p className="text-muted-foreground text-meta mt-0.5 truncate">
-													{item.validUntil ? `Berlaku hingga ${formatDate(item.validUntil)}` : "Tanpa batas waktu"}
-												</p>
-											</div>
+											<TableRowStack
+												title={
+													<Link
+														to="/admin/referrals/$codeId"
+														params={{ codeId: item.id }}
+														className={cn(tableRowLinkClass, "font-mono tracking-wide")}
+													>
+														{item.code}
+													</Link>
+												}
+												subtitle={
+													<span className="truncate">
+														{item.validUntil ? `Berlaku hingga ${formatDate(item.validUntil)}` : "Tanpa batas waktu"}
+													</span>
+												}
+											/>
 										</AdminTableCell>
 										<AdminTableCell>
 											{item.status && !isExpired && !isFull ? (

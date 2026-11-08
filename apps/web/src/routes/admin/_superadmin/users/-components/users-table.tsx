@@ -20,6 +20,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { TableRowStack, tableRowLinkClass } from "@/components/ui/table-row-stack";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatDateLong, formatDateMedium, formatDateTime } from "@/lib/format-date";
 import { cn } from "@/lib/utils";
@@ -66,35 +67,35 @@ export function UsersTable() {
 							return (
 								<AdminTableRow key={user.id}>
 									<AdminTableCell className="pl-3">
-										<div className="min-w-0">
-											<Link
-												to="/admin/users/$userId"
-												params={{ userId: user.id }}
-												className="text-row-title text-foreground hover:text-primary focus-visible:ring-ring/50 block truncate rounded-sm underline-offset-4 outline-none after:absolute after:inset-0 after:content-[''] hover:underline focus-visible:ring-2"
-											>
-												{user.name}
-											</Link>
-											<p className="text-muted-foreground text-meta mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1">
-												<span className="truncate">{user.email}</span>
-												{user.isPremium && (
-													<Tooltip>
-														<TooltipTrigger asChild>
-															<AdminStatus
-																tone="positive"
-																className={cn(isPremiumExpired && "line-through decoration-1")}
-															>
-																Premium
-															</AdminStatus>
-														</TooltipTrigger>
-														<TooltipContent>
-															{premiumDate
-																? `Berakhir ${formatPremiumExpiry(premiumDate)} · ${formatDateTime(premiumDate)}`
-																: "Premium aktif"}
-														</TooltipContent>
-													</Tooltip>
-												)}
-											</p>
-										</div>
+										<TableRowStack
+											title={
+												<Link to="/admin/users/$userId" params={{ userId: user.id }} className={tableRowLinkClass}>
+													{user.name}
+												</Link>
+											}
+											subtitle={
+												<>
+													<span className="truncate">{user.email}</span>
+													{user.isPremium && (
+														<Tooltip>
+															<TooltipTrigger asChild>
+																<AdminStatus
+																	tone="positive"
+																	className={cn(isPremiumExpired && "line-through decoration-1")}
+																>
+																	Premium
+																</AdminStatus>
+															</TooltipTrigger>
+															<TooltipContent>
+																{premiumDate
+																	? `Berakhir ${formatPremiumExpiry(premiumDate)} · ${formatDateTime(premiumDate)}`
+																	: "Premium aktif"}
+															</TooltipContent>
+														</Tooltip>
+													)}
+												</>
+											}
+										/>
 									</AdminTableCell>
 
 									<AdminTableCell>

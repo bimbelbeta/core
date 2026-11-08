@@ -11,10 +11,12 @@ import {
 	AdminTableRow,
 } from "@/components/admin/admin-table";
 import { Button } from "@/components/ui/button";
+import { TableRowStack, tableRowLinkClass } from "@/components/ui/table-row-stack";
 import { Typography } from "@/components/ui/typography";
 import { extractTextFromTiptap } from "@/lib/content-text";
 import { formatDateMedium } from "@/lib/format-date";
 import { orpc } from "@/lib/orpc";
+import { cn } from "@/lib/utils";
 
 const TYPE_LABELS: Record<string, string> = {
 	multiple_choice: "Pilihan ganda",
@@ -63,26 +65,30 @@ export function RecentQuestions() {
 						{questions.map((question) => (
 							<AdminTableRow key={question.id}>
 								<AdminTableCell className="w-full max-w-0">
-									<div className="min-w-0">
-										<Link
-											to="/admin/questions/$questionId"
-											params={{ questionId: question.id.toString() }}
-											className="text-row-title text-foreground hover:text-primary focus-visible:ring-ring/50 line-clamp-2 block rounded-sm underline-offset-4 outline-none after:absolute after:inset-0 after:content-[''] hover:underline focus-visible:ring-2 sm:truncate"
-										>
-											{extractTextFromTiptap(question.content) || "(Konten kosong)"}
-										</Link>
-										<p className="text-muted-foreground text-meta mt-0.5 truncate">
-											<span className="font-mono">#{question.id}</span>
-											<span aria-hidden> · </span>
-											{TYPE_LABELS[question.type] ?? question.type}
-											{question.createdAt && (
-												<>
-													<span aria-hidden> · </span>
-													{formatDateMedium(new Date(question.createdAt))}
-												</>
-											)}
-										</p>
-									</div>
+									<TableRowStack
+										title={
+											<Link
+												to="/admin/questions/$questionId"
+												params={{ questionId: question.id.toString() }}
+												className={cn(tableRowLinkClass, "line-clamp-2")}
+											>
+												{extractTextFromTiptap(question.content) || "(Konten kosong)"}
+											</Link>
+										}
+										subtitle={
+											<>
+												<span className="font-mono">#{question.id}</span>
+												<span aria-hidden>·</span>
+												{TYPE_LABELS[question.type] ?? question.type}
+												{question.createdAt && (
+													<>
+														<span aria-hidden>·</span>
+														{formatDateMedium(new Date(question.createdAt))}
+													</>
+												)}
+											</>
+										}
+									/>
 								</AdminTableCell>
 								<AdminTableCell className="text-muted-foreground hidden sm:table-cell">
 									<CaretRightIcon className="size-3.5" />

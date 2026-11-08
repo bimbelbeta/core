@@ -38,13 +38,12 @@ export const createUserService = ({
 			return { university: null, studyProgram: null };
 		}
 
-		const data = await universityRepository.findUniversityProgramDetail(
-			user.targetUniversityId,
-			user.targetStudyProgramId,
+		return (
+			(await universityRepository.findUniversityProgramDetail(user.targetUniversityId, user.targetStudyProgramId)) ?? {
+				university: null,
+				studyProgram: null,
+			}
 		);
-		if (!data) throw new DomainError("NOT_FOUND");
-
-		return data;
 	},
 
 	async updateTarget(user: Session["user"], input: UpdateTargetInput) {

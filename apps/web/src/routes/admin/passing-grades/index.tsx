@@ -31,6 +31,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { TableRowStack, tableRowLinkClass } from "@/components/ui/table-row-stack";
 import { Typography } from "@/components/ui/typography";
 import { usePaginationNavigation } from "@/hooks/use-pagination-navigation";
 import { formatDateMedium } from "@/lib/format-date";
@@ -169,16 +170,18 @@ function RouteComponent() {
 							{data?.items.map((uni) => (
 								<AdminTableRow key={uni.id}>
 									<AdminTableCell className="pl-3">
-										<div className="min-w-0">
-											<Link
-												to="/admin/passing-grades/$universityId"
-												params={{ universityId: uni.id.toString() }}
-												className="text-row-title text-foreground hover:text-primary focus-visible:ring-ring/50 block truncate rounded-sm underline-offset-4 outline-none after:absolute after:inset-0 after:content-[''] hover:underline focus-visible:ring-2"
-											>
-												{uni.name}
-											</Link>
-											<p className="text-muted-foreground text-meta truncate">{uni.location ?? "Lokasi belum diisi"}</p>
-										</div>
+										<TableRowStack
+											title={
+												<Link
+													to="/admin/passing-grades/$universityId"
+													params={{ universityId: uni.id.toString() }}
+													className={tableRowLinkClass}
+												>
+													{uni.name}
+												</Link>
+											}
+											subtitle={<span className="truncate">{uni.location ?? "Lokasi belum diisi"}</span>}
+										/>
 									</AdminTableCell>
 									<AdminTableCell className="text-right">
 										<span className="tabular-nums">{uni.programCount}</span>

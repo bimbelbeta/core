@@ -57,6 +57,7 @@ function SignUpForm() {
 	});
 	const { isPending } = authClient.useSession();
 	const [error, setError] = useState<string | null>(null);
+	const [submitted, setSubmitted] = useState(false);
 
 	const form = useForm({
 		defaultValues: {
@@ -67,6 +68,7 @@ function SignUpForm() {
 		},
 		onSubmit: async ({ value }) => {
 			setError(null);
+			setSubmitted(true);
 			await authClient.signUp.email(
 				{
 					email: value.email,
@@ -80,6 +82,7 @@ function SignUpForm() {
 						});
 					},
 					onError: (ctx) => {
+						setSubmitted(false);
 						setError(translateRegisterError(ctx.error.message || ctx.error.statusText));
 					},
 				},
@@ -233,7 +236,7 @@ function SignUpForm() {
 					<form.Subscribe>
 						{(state) => (
 							<Button
-								isPending={state.isSubmitting}
+								isPending={state.isSubmitting || submitted}
 								type="submit"
 								className="w-full"
 								disabled={!state.canSubmit || state.isSubmitting}

@@ -48,6 +48,7 @@ function SignInForm() {
 	const queryClient = useQueryClient();
 	const { isPending } = authClient.useSession();
 	const [error, setError] = useState<string | null>(null);
+	const [submitted, setSubmitted] = useState(false);
 
 	const onSignInSuccess = async () => {
 		const session = await authClient.getSession();
@@ -66,6 +67,7 @@ function SignInForm() {
 		},
 		onSubmit: async ({ value }) => {
 			setError(null);
+			setSubmitted(true);
 			queryClient.removeQueries();
 			const isEmail = value.identifier.includes("@");
 			if (isEmail) {
@@ -78,6 +80,7 @@ function SignInForm() {
 					{
 						onSuccess: onSignInSuccess,
 						onError: (ctx) => {
+							setSubmitted(false);
 							setError(ctx.error.message || ctx.error.statusText);
 						},
 					},
@@ -92,6 +95,7 @@ function SignInForm() {
 					{
 						onSuccess: onSignInSuccess,
 						onError: (ctx) => {
+							setSubmitted(false);
 							setError(ctx.error.message || ctx.error.statusText);
 						},
 					},
@@ -187,7 +191,7 @@ function SignInForm() {
 					<form.Subscribe>
 						{(state) => (
 							<Button
-								isPending={state.isSubmitting}
+								isPending={state.isSubmitting || submitted}
 								type="submit"
 								className="w-full"
 								disabled={!state.canSubmit || state.isSubmitting}

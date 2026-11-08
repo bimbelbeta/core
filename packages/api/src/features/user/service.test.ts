@@ -93,17 +93,13 @@ describe("user service", () => {
 		expect(result).toEqual(targetRow);
 	});
 
-	test("reports a bare NOT_FOUND domain error for a dangling target", async () => {
+	test("returns null targets for a dangling target", async () => {
 		const service = createUserService({
 			repository: fakeRepository(),
 			universityRepository: fakeUniversityRepository(),
 		});
-		const call = service.getTarget({ ...memberUser, targetUniversityId: 1, targetStudyProgramId: 2 });
-		await expect(call).rejects.toMatchObject({
-			name: "DomainError",
-			code: "NOT_FOUND",
-			message: "",
-		});
+		const result = await service.getTarget({ ...memberUser, targetUniversityId: 1, targetStudyProgramId: 2 });
+		expect(result).toEqual({ university: null, studyProgram: null });
 	});
 
 	test("saves the target when the combination exists", async () => {

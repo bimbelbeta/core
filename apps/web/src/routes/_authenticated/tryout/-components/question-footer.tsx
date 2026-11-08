@@ -93,7 +93,7 @@ export function QuestionFooter() {
 	return (
 		<>
 			<div className="flex items-center justify-between gap-1">
-				<Button onClick={handlePrev} disabled={currentQuestionIndex === 0 || submitSubtestMutation.isPending}>
+				<Button onClick={handlePrev} isPending={submitSubtestMutation.isPending} disabled={currentQuestionIndex === 0}>
 					<ArrowLeftIcon weight="bold" />
 					<span className="max-sm:hidden">Sebelumnya</span>
 				</Button>
@@ -109,7 +109,7 @@ export function QuestionFooter() {
 					Ragu-ragu
 				</Button>
 
-				<Button onClick={handleNext} disabled={submitSubtestMutation.isPending}>
+				<Button onClick={handleNext} isPending={submitSubtestMutation.isPending}>
 					{isLastQuestion ? (
 						<>
 							<span className="max-sm:hidden">Selesai</span>

@@ -95,7 +95,7 @@ describe.skipIf(!enabled)("user feature", () => {
 		expect(result).toEqual({ university: null, studyProgram: null });
 	});
 
-	test("reports NOT_FOUND for a dangling target instead of a server error", async () => {
+	test("returns null targets for a dangling target instead of a server error", async () => {
 		const dangling = {
 			context: {
 				session: {
@@ -104,8 +104,8 @@ describe.skipIf(!enabled)("user feature", () => {
 				},
 			},
 		};
-		const read = call(appRouter.userSettings.findTarget, undefined, dangling);
-		await expect(read).rejects.toMatchObject({ code: "NOT_FOUND" });
+		const read = await call(appRouter.userSettings.findTarget, undefined, dangling);
+		expect(read).toEqual({ university: null, studyProgram: null });
 	});
 
 	test("saves the member target and reads it back", async () => {

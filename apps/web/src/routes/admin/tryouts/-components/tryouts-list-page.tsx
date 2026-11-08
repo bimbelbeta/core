@@ -37,6 +37,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { TableRowStack, tableRowLinkClass } from "@/components/ui/table-row-stack";
 import { Typography } from "@/components/ui/typography";
 import { formatDateMedium } from "@/lib/format-date";
 import { SUBJECT_CATEGORY_LABELS, TRYOUT_STATUS_BADGE, tryoutStatusSchema } from "@/lib/schemas";
@@ -159,20 +160,24 @@ export function TryoutsListPage() {
 							{data?.items.map((tryout) => (
 								<AdminTableRow key={tryout.id}>
 									<AdminTableCell className="pl-3">
-										<div className="min-w-0">
-											<Link
-												to="/admin/tryouts/$tryoutId"
-												params={{ tryoutId: tryout.id.toString() }}
-												className="text-row-title text-foreground hover:text-primary focus-visible:ring-ring/50 block truncate rounded-sm underline-offset-4 outline-none after:absolute after:inset-0 after:content-[''] hover:underline focus-visible:ring-2"
-											>
-												{tryout.title}
-											</Link>
-											<p className="text-muted-foreground text-meta mt-0.5 flex flex-wrap items-center gap-x-1.5">
-												<span>{SUBJECT_CATEGORY_LABELS[tryout.category]}</span>
-												<span>· {tryout.subtestCount} subtest</span>
-												<span>· {tryout.attemptCount} percobaan</span>
-											</p>
-										</div>
+										<TableRowStack
+											title={
+												<Link
+													to="/admin/tryouts/$tryoutId"
+													params={{ tryoutId: tryout.id.toString() }}
+													className={tableRowLinkClass}
+												>
+													{tryout.title}
+												</Link>
+											}
+											subtitle={
+												<>
+													<span>{SUBJECT_CATEGORY_LABELS[tryout.category]}</span>
+													<span>· {tryout.subtestCount} subtest</span>
+													<span>· {tryout.attemptCount} percobaan</span>
+												</>
+											}
+										/>
 									</AdminTableCell>
 									<AdminTableCell>
 										<TryoutStatus status={tryout.status} />
