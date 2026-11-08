@@ -1,8 +1,8 @@
-import { ArrowRightIcon, WarningCircleIcon } from "@phosphor-icons/react";
+import { ArrowRightIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { LastContentViewedCard } from "@/components/classes/last-content-viewed-card";
-// import { LastContentViewedCard } from "@/components/classes";
+import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
@@ -26,19 +26,19 @@ export const LastClasses = () => {
 
 	if (!data || data.length === 0) {
 		return (
-			<section className="">
+			<section>
 				<Typography variant="subtitle2">Kelas terakhirmu</Typography>
-				<div className="flex flex-col items-center justify-center space-y-3 py-8 text-center">
-					<WarningCircleIcon size={80} />
-					<Typography variant="subtitle2" as="p" className="text-black">
-						Kamu belum melihat kelas apapun
-					</Typography>
-					<Button asChild>
-						<Link to="/classes">
-							Belajar Sekarang <ArrowRightIcon className="" />
-						</Link>
-					</Button>
-				</div>
+				<EmptyState
+					title="Kamu belum melihat kelas apapun"
+					desc={null}
+					action={
+						<Button asChild>
+							<Link to="/classes">
+								Belajar Sekarang <ArrowRightIcon />
+							</Link>
+						</Button>
+					}
+				/>
 			</section>
 		);
 	}

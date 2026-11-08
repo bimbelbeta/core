@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
-import { EmptyContentState } from "@/components/classes/empty-content-state";
 import { PracticeQuestion } from "@/components/classes/practice-question";
 import { PracticeQuestionHeader } from "@/components/classes/practice-question-header";
 import { BackButton } from "@/components/shared/back-button";
+import { EmptyState } from "@/components/shared/empty-state";
 import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
@@ -74,7 +74,7 @@ function RouteComponent() {
 
 				<hr />
 
-				<EmptyContentState />
+				<EmptyState />
 			</div>
 		);
 	}

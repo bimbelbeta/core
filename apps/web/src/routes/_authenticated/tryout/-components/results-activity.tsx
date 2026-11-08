@@ -1,7 +1,8 @@
-import { ArrowRightIcon, WarningCircleIcon } from "@phosphor-icons/react";
+import { ArrowRightIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { memo } from "react";
+import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -21,16 +22,18 @@ export function ResultsActivity() {
 					<ResultsActivitySkeleton />
 				</>
 			) : attempts.data?.length === 0 || attempts.isError ? (
-				<div className="col-span-full flex flex-col items-center justify-center space-y-3 py-8 text-center">
-					<WarningCircleIcon size={80} />
-					<Typography variant="subtitle2" as="p">
-						Kamu belum mengikuti tryout apapun
-					</Typography>
-					<Button asChild>
-						<Link to="/tryout">
-							Mulai Tryout <ArrowRightIcon className="" />
-						</Link>
-					</Button>
+				<div className="col-span-full">
+					<EmptyState
+						title="Kamu belum mengikuti tryout apapun"
+						desc={null}
+						action={
+							<Button asChild>
+								<Link to="/tryout">
+									Mulai Tryout <ArrowRightIcon />
+								</Link>
+							</Button>
+						}
+					/>
 				</div>
 			) : (
 				attempts.data?.map((result) => (

@@ -1,12 +1,12 @@
 import { PlusIcon } from "@phosphor-icons/react";
 import { Reorder } from "motion/react";
 import { useEffect, useRef, useState } from "react";
+import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/ui/typography";
 import { useIsAdmin } from "@/hooks/use-is-admin";
 import type { ContentFilter, ContentListItem } from "./classes-types";
 import { ContentCard } from "./content-card";
-import { EmptyContentState } from "./empty-content-state";
 import { ReorderableContentCard } from "./reorderable-content-card";
 
 /**
@@ -134,7 +134,7 @@ export function ContentList({
 				</Typography>
 			)}
 
-			{!isLoading && !error && (!localItems || localItems.length === 0) && <EmptyContentState />}
+			{!isLoading && !error && (!localItems || localItems.length === 0) && <EmptyState />}
 
 			{localItems &&
 				localItems.length > 0 &&

@@ -1,127 +1,37 @@
-import { BookOpenIcon, SparkleIcon } from "@phosphor-icons/react";
-import { AnimatePresence } from "motion/react";
+import { BookOpenIcon } from "@phosphor-icons/react";
 import * as m from "motion/react-m";
-import { useEffect, useState } from "react";
-import { Typography } from "@/components/ui/typography";
+import { cn } from "@/lib/utils";
 
-const MotionTypography = m.create(Typography);
-
-const LOADING_TEXTS = [
-	"Sharpening pencils...",
-	"Brewing coffee for the brain cells...",
-	"Summoning the knowledge spirits...",
-	"Loading wisdom...",
-	"Organizing the library...",
-	"Reviewing notes...",
-	"Checking the syllabus...",
-	"Preparing the classroom...",
-];
-
-export default function Loader() {
-	const [currentText, setCurrentText] = useState(LOADING_TEXTS[0]);
-
-	useEffect(() => {
-		// Set initial random text
-		setCurrentText(LOADING_TEXTS[Math.floor(Math.random() * LOADING_TEXTS.length)]);
-
-		const interval = setInterval(() => {
-			setCurrentText(LOADING_TEXTS[Math.floor(Math.random() * LOADING_TEXTS.length)]);
-		}, 2500);
-
-		return () => clearInterval(interval);
-	}, []);
-
+export default function Loader({ className }: { className?: string }) {
 	return (
-		<div className="flex min-h-[80vh] w-full flex-col items-center justify-center gap-8 p-8">
-			<div className="relative flex items-center justify-center">
-				{/* Book Icon */}
-				<m.div
-					animate={{
-						y: [-8, 8, -8],
-						rotate: [-3, 3, -3],
-					}}
-					transition={{
-						duration: 4,
-						repeat: Number.POSITIVE_INFINITY,
-						ease: "easeInOut",
-					}}
-					className="text-primary relative z-10"
+		<div
+			role="status"
+			aria-live="polite"
+			className={cn("flex min-h-[60vh] w-full items-center justify-center", className)}
+		>
+			{/* Hidden until 400ms so fast navigations never flash it */}
+			<m.div
+				className="flex items-center gap-2.5"
+				initial={{ opacity: 0 }}
+				animate={{ opacity: 1 }}
+				transition={{ delay: 0.4, duration: 0.2 }}
+			>
+				<m.span
+					className="text-primary block"
+					animate={{ rotate: [0, -8, 0] }}
+					transition={{ duration: 1.6, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
 				>
-					<BookOpenIcon size={64} weight="regular" />
-				</m.div>
-
-				{/* Floating Particles */}
-				{[0, 1, 2, 3, 4, 5].map((i) => (
-					<m.div
-						key={i}
-						className="absolute text-yellow-500/80 dark:text-yellow-400/80"
-						initial={{ opacity: 0, scale: 0, x: 0, y: 0 }}
-						animate={{
-							opacity: [0, 1, 0],
-							scale: [0, 1, 0.5],
-							x: (Math.random() - 0.5) * 80,
-							y: -40 - Math.random() * 40,
-							rotate: Math.random() * 360,
-						}}
-						transition={{
-							duration: 2 + Math.random(),
-							repeat: Number.POSITIVE_INFINITY,
-							delay: Math.random() * 2,
-							ease: "easeOut",
-						}}
-					>
-						<SparkleIcon size={16} />
-					</m.div>
-				))}
-
-				{/* Glow effect */}
-				<m.div
-					className="bg-primary/20 absolute -z-10 h-24 w-24 rounded-full blur-xl"
-					animate={{ scale: [1, 1.4, 1], opacity: [0.3, 0.6, 0.3] }}
-					transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
-				/>
-			</div>
-
-			{/* Loading Text */}
-			<div className="flex flex-col items-center gap-3">
-				<div className="h-8 min-w-50">
-					<AnimatePresence mode="wait">
-						<MotionTypography
-							variant="subtitle2"
-							as="p"
-							tone="muted"
-							key={currentText}
-							initial={{ opacity: 0, y: 10 }}
-							animate={{ opacity: 1, y: 0 }}
-							exit={{ opacity: 0, y: -10 }}
-							transition={{ duration: 0.3 }}
-							className="text-center"
-						>
-							{currentText}
-						</MotionTypography>
-					</AnimatePresence>
-				</div>
-
-				{/* Progress Dots */}
-				<div className="flex gap-1.5">
-					{[0, 1, 2].map((i) => (
-						<m.div
-							key={i}
-							className="bg-primary h-2 w-2 rounded-full"
-							animate={{
-								scale: [1, 1.5, 1],
-								opacity: [0.4, 1, 0.4],
-							}}
-							transition={{
-								duration: 1,
-								repeat: Number.POSITIVE_INFINITY,
-								delay: i * 0.2,
-								ease: "easeInOut",
-							}}
-						/>
-					))}
-				</div>
-			</div>
+					<BookOpenIcon className="size-6" weight="fill" />
+				</m.span>
+				<m.span
+					className="text-muted-foreground text-meta"
+					initial={{ opacity: 0 }}
+					animate={{ opacity: 1 }}
+					transition={{ delay: 0.6, duration: 0.25 }}
+				>
+					Memuat…
+				</m.span>
+			</m.div>
 		</div>
 	);
 }

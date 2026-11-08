@@ -5,10 +5,10 @@ import { type } from "arktype";
 import { useState } from "react";
 import type { SubjectFilter } from "@/components/classes/classes-types";
 import { CreateSubjectDialog } from "@/components/classes/create-subject-dialog";
-import { NotFoundContentState } from "@/components/classes/not-found-content-state";
 import { SubjectFilters } from "@/components/classes/subject-filters";
 import { SubjectHeader } from "@/components/classes/subject-header";
 import { SubjectList } from "@/components/classes/subject-list";
+import { EmptyState } from "@/components/shared/empty-state";
 import { SearchInput } from "@/components/ui/search-input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Typography } from "@/components/ui/typography";
@@ -94,7 +94,7 @@ function RouteComponent() {
 				{subjectsQuery.isError && <Typography tone="destructive">Error: {subjectsQuery.error.message}</Typography>}
 
 				{subjectsQuery.data && subjectsQuery.data.items.length === 0 && (
-					<NotFoundContentState
+					<EmptyState
 						title="Tidak ada kelas yang ditemukan"
 						desc="Coba cari dengan kata kunci lain atau hubungi admin."
 					/>

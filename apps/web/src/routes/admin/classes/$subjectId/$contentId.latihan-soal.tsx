@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import { EmptyContentState } from "@/components/classes/empty-content-state";
+import { EmptyState } from "@/components/shared/empty-state";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -139,7 +139,7 @@ function RouteComponent() {
 				<LinkedQuestionsList contentId={contentId} questions={questions} />
 			) : (
 				<div className="flex flex-col items-center justify-center gap-3 py-10">
-					<EmptyContentState title="Belum ada latihan soal" desc="Tambahkan soal dari bank soal untuk konten ini" />
+					<EmptyState title="Belum ada latihan soal" desc="Tambahkan soal dari bank soal untuk konten ini" />
 					<Button size="xs" type="button" onClick={() => setPickerOpen(true)}>
 						<Plus className="mr-1 size-4" />
 						Tambah soal

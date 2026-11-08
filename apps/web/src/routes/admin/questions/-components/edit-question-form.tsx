@@ -100,7 +100,7 @@ export function EditQuestionForm({ question, initialChoices, onSuccess, onCancel
 					<Typography variant="title">Edit soal #{question.id}</Typography>
 				</AdminPageHeaderContent>
 				<AdminPageHeaderActions>
-					<Button type="button" variant="destructive" size="xs" onClick={onCancel}>
+					<Button type="button" variant="outline" size="xs" onClick={onCancel}>
 						Batal
 					</Button>
 					<form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>

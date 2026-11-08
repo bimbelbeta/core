@@ -1,11 +1,11 @@
 import { PlusIcon } from "@phosphor-icons/react";
 import { Reorder } from "motion/react";
 import { useEffect, useRef, useState } from "react";
+import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/ui/typography";
 import { useIsAdmin } from "@/hooks/use-is-admin";
 import type { SubjectListItem } from "./classes-types";
-import { NotFoundContentState } from "./not-found-content-state";
 import { SubjectCard } from "./subject-card";
 
 export function SubjectList({
@@ -73,13 +73,6 @@ export function SubjectList({
 				</Typography>
 			)}
 
-			{/*{items && items.length === 0 && (
-        <NotFoundContentState
-          title="Tidak ada subject yang ditemukan"
-          desc="Coba cari dengan kata kunci lain atau hubungi admin."
-        />
-      )}*/}
-
 			{searchQuery && items && items.length > 0 && (
 				<Typography variant="body" tone="muted" className="mb-4">
 					{items.length} hasil untuk "{searchQuery}"
@@ -87,7 +80,7 @@ export function SubjectList({
 			)}
 
 			{!isLoading && !error && (!localItems || localItems.length === 0) && (
-				<NotFoundContentState
+				<EmptyState
 					title="Tidak ada subject yang ditemukan"
 					desc="Coba cari dengan kata kunci lain atau hubungi admin."
 				/>

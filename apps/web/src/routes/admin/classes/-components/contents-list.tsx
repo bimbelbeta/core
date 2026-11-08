@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Reorder, useDragControls } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import type { ContentListItem } from "@/components/classes/classes-types";
-import { EmptyContentState } from "@/components/classes/empty-content-state";
+import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -174,7 +174,7 @@ export function ContentsList({
 			)}
 
 			{(!localItems || localItems.length === 0) && (
-				<EmptyContentState
+				<EmptyState
 					title={searchQuery ? "Tidak ada hasil" : "Belum ada konten"}
 					desc={
 						searchQuery ? `Tidak ada konten yang cocok dengan "${searchQuery}".` : "Tambahkan konten untuk subject ini."

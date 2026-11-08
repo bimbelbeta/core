@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
-import { EmptyContentState } from "@/components/classes/empty-content-state";
+import { EmptyState } from "@/components/shared/empty-state";
 import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
 import { Typography } from "@/components/ui/typography";
 import { orpc } from "@/lib/orpc";
@@ -62,7 +62,7 @@ function RouteComponent() {
 				<Typography variant="subtitle4" as="p" tone="accent">
 					Catatan Materi
 				</Typography>
-				<EmptyContentState />
+				<EmptyState />
 			</div>
 		);
 	}
