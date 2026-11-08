@@ -80,6 +80,7 @@ packages/api/src/features/
     admin-router.ts  # Admin-facing handlers
     service.ts       # Business rules + wired singleton
     repository.ts    # DB access, client-bound factory
+    composition.ts   # Only when several services compose one feature
 packages/api/src/routers/
   index.ts           # appRouter exports
 packages/db/src/schema/

@@ -1,7 +1,8 @@
 import type { DbClient } from "@bimbelbeta/db";
 import { question, questionChoice } from "@bimbelbeta/db/schema/question";
 import { contentItem, contentPracticeQuestions, noteMaterial, videoMaterial } from "@bimbelbeta/db/schema/subject";
-import { and, asc, eq, inArray, sql } from "drizzle-orm";
+import { and, asc, eq, inArray } from "drizzle-orm";
+import { reorderRows } from "@/lib/reorder";
 
 export type CreateContentInput = {
 	subjectId: number;
@@ -78,35 +79,18 @@ export function createContentRepository(dbClient: DbClient) {
 		},
 
 		async reorderContents(subjectId: number, items: { id: number; order: number }[]) {
-			const caseExpr = sql.join(
-				items.map((item) => sql`WHEN ${contentItem.id} = ${item.id} THEN ${item.order}::int`),
-				sql` `,
-			);
-			await dbClient.transaction(async (tx) => {
-				await tx
-					.update(contentItem)
-					.set({ order: sql`-${contentItem.id}` })
-					.where(
-						and(
-							eq(contentItem.subjectId, subjectId),
-							inArray(
-								contentItem.id,
-								items.map((item) => item.id),
-							),
-						),
-					);
-				await tx
-					.update(contentItem)
-					.set({ order: sql`CASE ${caseExpr} END`, updatedAt: new Date() })
-					.where(
-						and(
-							eq(contentItem.subjectId, subjectId),
-							inArray(
-								contentItem.id,
-								items.map((item) => item.id),
-							),
-						),
-					);
+			await reorderRows(dbClient, {
+				table: contentItem,
+				idColumn: contentItem.id,
+				where: and(
+					eq(contentItem.subjectId, subjectId),
+					inArray(
+						contentItem.id,
+						items.map((item) => item.id),
+					),
+				),
+				items,
+				touchUpdatedAt: true,
 			});
 		},
 
@@ -230,37 +214,17 @@ export function createContentRepository(dbClient: DbClient) {
 		},
 
 		async updatePracticeQuestionOrders(contentItemId: number, links: { questionId: number; order: number }[]) {
-			const caseExpr = sql.join(
-				links.map(
-					(link) => sql`WHEN ${contentPracticeQuestions.questionId} = ${link.questionId} THEN ${link.order}::int`,
+			await reorderRows(dbClient, {
+				table: contentPracticeQuestions,
+				idColumn: contentPracticeQuestions.questionId,
+				where: and(
+					eq(contentPracticeQuestions.contentItemId, contentItemId),
+					inArray(
+						contentPracticeQuestions.questionId,
+						links.map((link) => link.questionId),
+					),
 				),
-				sql` `,
-			);
-			await dbClient.transaction(async (tx) => {
-				await tx
-					.update(contentPracticeQuestions)
-					.set({ order: sql`-${contentPracticeQuestions.questionId}` })
-					.where(
-						and(
-							eq(contentPracticeQuestions.contentItemId, contentItemId),
-							inArray(
-								contentPracticeQuestions.questionId,
-								links.map((link) => link.questionId),
-							),
-						),
-					);
-				await tx
-					.update(contentPracticeQuestions)
-					.set({ order: sql`CASE ${caseExpr} END` })
-					.where(
-						and(
-							eq(contentPracticeQuestions.contentItemId, contentItemId),
-							inArray(
-								contentPracticeQuestions.questionId,
-								links.map((link) => link.questionId),
-							),
-						),
-					);
+				items: links.map((link) => ({ id: link.questionId, order: link.order })),
 			});
 		},
 

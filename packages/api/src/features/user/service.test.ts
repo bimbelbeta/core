@@ -82,7 +82,7 @@ function fakeRepository(): UserRepository {
 
 describe("user service", () => {
 	test("returns null targets when the member has none", async () => {
-		const service = createUserService(fakeRepository());
+		const service = createUserService({ repository: fakeRepository() });
 		const result = await service.getTarget(memberUser);
 		expect(result).toEqual({ university: null, studyProgram: null });
 	});
@@ -90,7 +90,7 @@ describe("user service", () => {
 	test("returns the target pair when the repository finds it", async () => {
 		const repository = fakeRepository();
 		repository.findTarget = async () => targetRow;
-		const service = createUserService(repository);
+		const service = createUserService({ repository });
 		const result = await service.getTarget({
 			...memberUser,
 			targetUniversityId: 1,
@@ -100,7 +100,7 @@ describe("user service", () => {
 	});
 
 	test("reports a bare NOT_FOUND domain error for a dangling target", async () => {
-		const service = createUserService(fakeRepository());
+		const service = createUserService({ repository: fakeRepository() });
 		const call = service.getTarget({ ...memberUser, targetUniversityId: 1, targetStudyProgramId: 2 });
 		await expect(call).rejects.toMatchObject({
 			name: "DomainError",
@@ -117,13 +117,13 @@ describe("user service", () => {
 			targetUniversityId: 1,
 			targetStudyProgramId: 2,
 		});
-		const service = createUserService(repository);
+		const service = createUserService({ repository });
 		const result = await service.updateTarget(memberUser, { universityId: 1, studyProgramId: 2 });
 		expect(result).toEqual({ id: memberUser.id, targetUniversityId: 1, targetStudyProgramId: 2 });
 	});
 
 	test("rejects an invalid combination with BAD_REQUEST", async () => {
-		const service = createUserService(fakeRepository());
+		const service = createUserService({ repository: fakeRepository() });
 		const call = service.updateTarget(memberUser, { universityId: 1, studyProgramId: 2 });
 		await expect(call).rejects.toMatchObject({
 			code: "BAD_REQUEST",
@@ -134,7 +134,7 @@ describe("user service", () => {
 	test("reports INTERNAL_SERVER_ERROR when the target update writes nothing", async () => {
 		const repository = fakeRepository();
 		repository.findUniversityStudyProgram = async () => programRow();
-		const service = createUserService(repository);
+		const service = createUserService({ repository });
 		const call = service.updateTarget(memberUser, { universityId: 1, studyProgramId: 2 });
 		await expect(call).rejects.toMatchObject({ code: "INTERNAL_SERVER_ERROR", message: "Gagal menyimpan target" });
 	});
@@ -142,7 +142,7 @@ describe("user service", () => {
 	test("builds a forward page from the listed rows", async () => {
 		const repository = fakeRepository();
 		repository.listUsers = async () => [userRow("a"), userRow("b"), userRow("c")];
-		const service = createUserService(repository);
+		const service = createUserService({ repository });
 		const result = await service.listUsers({ limit: 2 });
 		expect(result.items.map((row) => row.id)).toEqual(["a", "b"]);
 		expect(result.pageInfo).toMatchObject({ hasNextPage: true, hasPreviousPage: false });
@@ -159,7 +159,7 @@ describe("user service", () => {
 			received = params;
 			return [];
 		};
-		const service = createUserService(repository);
+		const service = createUserService({ repository });
 		await service.listUsers({ limit: 500 });
 		expect(received?.limit).toBe(100);
 		await service.listUsers({});
@@ -169,7 +169,7 @@ describe("user service", () => {
 	test("builds a backward page from the listed rows", async () => {
 		const repository = fakeRepository();
 		repository.listUsers = async () => [userRow("c"), userRow("b"), userRow("a")];
-		const service = createUserService(repository);
+		const service = createUserService({ repository });
 		const result = await service.listUsers({ before: "Yw", limit: 2 });
 		expect(result.items.map((row) => row.id)).toEqual(["b", "c"]);
 		expect(result.pageInfo).toMatchObject({ hasNextPage: true, hasPreviousPage: true });
@@ -190,7 +190,7 @@ describe("user service", () => {
 				createdAt: new Date("2024-02-01"),
 			},
 		];
-		const service = createUserService(repository);
+		const service = createUserService({ repository });
 		const result = await service.findUser(memberUser.id);
 		expect(result.user.id).toBe(memberUser.id);
 		expect(result.creditHistory).toHaveLength(1);
@@ -198,7 +198,7 @@ describe("user service", () => {
 	});
 
 	test("reports NOT_FOUND for a missing user", async () => {
-		const service = createUserService(fakeRepository());
+		const service = createUserService({ repository: fakeRepository() });
 		await expect(service.findUser("missing-user")).rejects.toMatchObject({
 			code: "NOT_FOUND",
 			message: "User tidak ditemukan",
@@ -213,7 +213,7 @@ describe("user service", () => {
 			written = values;
 			return userRow(memberUser.id);
 		};
-		const service = createUserService(repository);
+		const service = createUserService({ repository });
 		const expiresAt = new Date("2030-01-01");
 		const result = await service.updateUser(memberUser.id, {
 			role: "admin",
@@ -226,7 +226,7 @@ describe("user service", () => {
 	});
 
 	test("reports NOT_FOUND when updating a missing user", async () => {
-		const service = createUserService(fakeRepository());
+		const service = createUserService({ repository: fakeRepository() });
 		await expect(service.updateUser("missing-user", { role: "admin" })).rejects.toMatchObject({
 			code: "NOT_FOUND",
 			message: "User tidak ditemukan",
@@ -236,7 +236,7 @@ describe("user service", () => {
 	test("reports NOT_FOUND when the profile update matches no row", async () => {
 		const repository = fakeRepository();
 		repository.findById = async () => userRow(memberUser.id);
-		const service = createUserService(repository);
+		const service = createUserService({ repository });
 		await expect(service.updateUser(memberUser.id, { isPremium: true })).rejects.toMatchObject({
 			code: "NOT_FOUND",
 			message: "User tidak ditemukan",
@@ -250,7 +250,7 @@ describe("user service", () => {
 			deletedIds = userIds;
 			return undefined;
 		};
-		const service = createUserService(repository);
+		const service = createUserService({ repository });
 		const result = await service.deleteUsers(["a", "b"]);
 		expect(result).toEqual({ message: "2 user berhasil dihapus" });
 		expect(deletedIds).toEqual(["a", "b"]);

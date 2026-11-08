@@ -98,7 +98,7 @@ async function reconcileChoices(
 	}
 }
 
-export function createQuestionService(repository: QuestionRepository) {
+export function createQuestionService({ repository }: { repository: QuestionRepository }) {
 	return {
 		async create(input: CreateQuestionInput) {
 			const invalid = validateQuestion(input);
@@ -233,4 +233,4 @@ export function createQuestionService(repository: QuestionRepository) {
 	};
 }
 
-export const questionService = createQuestionService(createQuestionRepository(db));
+export const questionService = createQuestionService({ repository: createQuestionRepository(db) });

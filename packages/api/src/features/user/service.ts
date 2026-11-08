@@ -25,7 +25,7 @@ type UpdateUserInput = {
 	premiumExpiresAt?: Date | null | undefined;
 };
 
-export const createUserService = (repository: UserRepository) => ({
+export const createUserService = ({ repository }: { repository: UserRepository }) => ({
 	async getTarget(user: Session["user"]) {
 		if (!user.targetUniversityId || !user.targetStudyProgramId) {
 			return { university: null, studyProgram: null };
@@ -113,4 +113,4 @@ export const createUserService = (repository: UserRepository) => ({
 	},
 });
 
-export const userService = createUserService(createUserRepository(db));
+export const userService = createUserService({ repository: createUserRepository(db) });

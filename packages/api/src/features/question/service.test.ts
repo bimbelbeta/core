@@ -86,7 +86,7 @@ describe("question service create", () => {
 
 		for (const input of [base, { ...base, choices: [{ content: "Pilihan", isCorrect: true }] }]) {
 			try {
-				await createQuestionService(repository).create(input);
+				await createQuestionService({ repository }).create(input);
 				expect.unreachable();
 			} catch (error) {
 				expect(error).toBeInstanceOf(DomainError);
@@ -113,7 +113,7 @@ describe("question service create", () => {
 			],
 		]) {
 			try {
-				await createQuestionService(repository).create({
+				await createQuestionService({ repository }).create({
 					type: "multiple_choice",
 					content: "Soal",
 					discussion: "Pembahasan",
@@ -132,7 +132,7 @@ describe("question service create", () => {
 		const { repository } = makeRecordingRepository();
 
 		try {
-			await createQuestionService(repository).create({
+			await createQuestionService({ repository }).create({
 				type: "multiple_choice_complex",
 				content: "Soal",
 				discussion: "Pembahasan",
@@ -148,7 +148,7 @@ describe("question service create", () => {
 	test("creates a question with normalized content and choices coded by position", async () => {
 		const { repository, writes } = makeRecordingRepository();
 
-		const created = await createQuestionService(repository).create({
+		const created = await createQuestionService({ repository }).create({
 			type: "multiple_choice",
 			content: "Soal",
 			discussion: { type: "doc", content: [] },
@@ -180,7 +180,7 @@ describe("question service create", () => {
 	test("creates an essay without any choices and default tags", async () => {
 		const { repository, writes } = makeRecordingRepository();
 
-		const created = await createQuestionService(repository).create({
+		const created = await createQuestionService({ repository }).create({
 			type: "essay",
 			content: "Soal",
 			discussion: "Pembahasan",
@@ -212,7 +212,7 @@ describe("question service list", () => {
 			},
 		});
 
-		const page = await createQuestionService(repository).list({});
+		const page = await createQuestionService({ repository }).list({});
 
 		expect(queries).toEqual([{ limit: 10, backward: false, cursorId: undefined }]);
 		expect(page.items.map((item) => item.id)).toEqual([9, 8, 7]);
@@ -241,7 +241,7 @@ describe("question service list", () => {
 			},
 		});
 
-		const page = await createQuestionService(repository).list({ limit: 2, before: createIdCursor(5) });
+		const page = await createQuestionService({ repository }).list({ limit: 2, before: createIdCursor(5) });
 
 		expect(queries).toEqual([{ limit: 2, backward: true, cursorId: 5 }]);
 		expect(page.items.map((item) => item.id)).toEqual([7, 6]);
@@ -291,7 +291,7 @@ describe("question service update", () => {
 		const { repository, writes } = makeUpdateRepository([makeChoiceRow({ id: 1 })], false);
 
 		try {
-			await createQuestionService(repository).update({ id: 7, content: "Soal baru", discussion: "Pembahasan" });
+			await createQuestionService({ repository }).update({ id: 7, content: "Soal baru", discussion: "Pembahasan" });
 			expect.unreachable();
 		} catch (error) {
 			expect(error).toBeInstanceOf(DomainError);
@@ -326,7 +326,7 @@ describe("question service update", () => {
 		];
 		const { repository, writes } = makeUpdateRepository(existing);
 
-		await createQuestionService(repository).update({
+		await createQuestionService({ repository }).update({
 			id: 7,
 			content: "Soal baru",
 			discussion: { type: "doc", content: [] },
@@ -370,7 +370,7 @@ describe("question service update", () => {
 		);
 		const { repository, writes } = makeUpdateRepository(existing);
 
-		await createQuestionService(repository).update({
+		await createQuestionService({ repository }).update({
 			id: 7,
 			content: "Soal baru",
 			discussion: "Pembahasan",
@@ -392,7 +392,7 @@ describe("question service update", () => {
 		];
 		const { repository, writes } = makeUpdateRepository(existing);
 
-		await createQuestionService(repository).update({
+		await createQuestionService({ repository }).update({
 			id: 7,
 			content: "Soal baru",
 			discussion: "Pembahasan",
@@ -411,7 +411,7 @@ describe("question service find", () => {
 			listChoices: async () => [choiceRow],
 		});
 
-		const found = await createQuestionService(repository).find({ id: 7 });
+		const found = await createQuestionService({ repository }).find({ id: 7 });
 
 		expect(found).toEqual({
 			question: {
@@ -435,7 +435,7 @@ describe("question service find", () => {
 		});
 
 		try {
-			await createQuestionService(repository).find({ id: 7 });
+			await createQuestionService({ repository }).find({ id: 7 });
 			expect.unreachable();
 		} catch (error) {
 			expect(error).toBeInstanceOf(DomainError);
@@ -455,7 +455,7 @@ describe("question service remove", () => {
 			},
 		});
 
-		await createQuestionService(repository).remove({ id: 7 });
+		await createQuestionService({ repository }).remove({ id: 7 });
 
 		expect(deletedIds).toEqual([7]);
 	});
@@ -466,7 +466,7 @@ describe("question service remove", () => {
 		});
 
 		try {
-			await createQuestionService(repository).remove({ id: 7 });
+			await createQuestionService({ repository }).remove({ id: 7 });
 			expect.unreachable();
 		} catch (error) {
 			expect(error).toBeInstanceOf(DomainError);
@@ -495,7 +495,7 @@ describe("question service createChoice", () => {
 			makeChoiceRow({ id: 2, code: "B" }),
 		]);
 
-		const created = await createQuestionService(repository).createChoice({
+		const created = await createQuestionService({ repository }).createChoice({
 			questionId: 7,
 			content: "Brokol",
 			isCorrect: true,
@@ -510,7 +510,11 @@ describe("question service createChoice", () => {
 		const { repository, writes } = makeCreateChoiceRepository(existing);
 
 		try {
-			await createQuestionService(repository).createChoice({ questionId: 7, content: "Kelebihan", isCorrect: true });
+			await createQuestionService({ repository }).createChoice({
+				questionId: 7,
+				content: "Kelebihan",
+				isCorrect: true,
+			});
 			expect.unreachable();
 		} catch (error) {
 			expect(error).toBeInstanceOf(DomainError);
@@ -532,7 +536,7 @@ describe("question service updateChoice and removeChoice", () => {
 			},
 		});
 
-		await createQuestionService(repository).updateChoice({ id: 5, content: "Baru" });
+		await createQuestionService({ repository }).updateChoice({ id: 5, content: "Baru" });
 
 		expect(updates).toEqual([{ id: 5, data: { content: "Baru" } }]);
 	});
@@ -544,8 +548,8 @@ describe("question service updateChoice and removeChoice", () => {
 		});
 
 		for (const callable of [
-			() => createQuestionService(repository).updateChoice({ id: 5, content: "Baru" }),
-			() => createQuestionService(repository).removeChoice({ id: 5 }),
+			() => createQuestionService({ repository }).updateChoice({ id: 5, content: "Baru" }),
+			() => createQuestionService({ repository }).removeChoice({ id: 5 }),
 		]) {
 			try {
 				await callable();
@@ -567,7 +571,7 @@ describe("question service updateChoice and removeChoice", () => {
 			},
 		});
 
-		await createQuestionService(repository).removeChoice({ id: 5 });
+		await createQuestionService({ repository }).removeChoice({ id: 5 });
 
 		expect(deletedIds).toEqual([5]);
 	});
