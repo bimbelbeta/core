@@ -1,9 +1,10 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
-import { subject } from "@bimbelbeta/db/schema/subject";
+import { question } from "@bimbelbeta/db/schema/question";
+import { contentItem, subject } from "@bimbelbeta/db/schema/subject";
 import { call } from "@orpc/server";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import type { Session } from "@/context";
 import { appRouter } from "@/routers";
 
@@ -112,5 +113,83 @@ describe.skipIf(!enabled)("admin content feature", () => {
 		await expect(call(appRouter.admin.content.remove, { id: content.contentId }, options)).resolves.toEqual({
 			message: "Konten berhasil dihapus",
 		});
+	});
+	test("reorders content items through the CASE expression", async () => {
+		const first = await call(
+			appRouter.admin.content.create,
+			{ subjectId, title: `${id} c1`, order: 10, note: { content: { type: "doc", content: [] } } },
+			options,
+		);
+		const second = await call(
+			appRouter.admin.content.create,
+			{ subjectId, title: `${id} c2`, order: 11, note: { content: { type: "doc", content: [] } } },
+			options,
+		);
+		const reorderIds = [first.contentId, second.contentId];
+
+		await call(
+			appRouter.admin.content.reorder,
+			{
+				subjectId,
+				items: [
+					{ id: first.contentId, order: 11 },
+					{ id: second.contentId, order: 10 },
+				],
+			},
+			options,
+		);
+
+		const rows = await db
+			.select({ id: contentItem.id, order: contentItem.order })
+			.from(contentItem)
+			.where(inArray(contentItem.id, reorderIds));
+
+		expect(rows.sort((a, b) => a.id - b.id)).toEqual([
+			{ id: first.contentId, order: 11 },
+			{ id: second.contentId, order: 10 },
+		]);
+	});
+
+	test("reorders practice questions through the CASE expression", async () => {
+		const content = await call(
+			appRouter.admin.content.create,
+			{ subjectId, title: `${id} q`, order: 20, note: { content: { type: "doc", content: [] } } },
+			options,
+		);
+		const questionIds: number[] = [];
+
+		for (const label of ["a", "b"]) {
+			const created = await call(
+				appRouter.admin.tryout.questions.create,
+				{
+					type: "essay",
+					content: {
+						type: "doc",
+						content: [{ type: "paragraph", content: [{ type: "text", text: `${id} ${label}` }] }],
+					},
+					discussion: { type: "doc", content: [] },
+					essayCorrectAnswer: "jawaban",
+				},
+				options,
+			);
+			questionIds.push(created.id);
+		}
+
+		try {
+			await call(appRouter.admin.content.setPracticeQuestions, { id: content.contentId, questionIds }, options);
+			await call(
+				appRouter.admin.content.reorderPracticeQuestions,
+				{ id: content.contentId, questionIds: [questionIds[1]!, questionIds[0]!] },
+				options,
+			);
+
+			const listed = await call(appRouter.admin.content.listPracticeQuestions, { id: content.contentId }, options);
+
+			expect(listed.questions.map((q) => q.questionId)).toEqual([questionIds[1]!, questionIds[0]!]);
+			expect(listed.questions.map((q) => q.order)).toEqual([1, 2]);
+		} finally {
+			await call(appRouter.admin.content.remove, { id: content.contentId }, options);
+			await db.delete(question).where(inArray(question.id, questionIds));
+		}
 	});
 });

@@ -375,14 +375,20 @@ export function createSubjectRepository(client: DbClient) {
 	async function reorderSubjects(items: { id: number; order: number }[]): Promise<void> {
 		const ids = items.map((item) => item.id);
 		const caseExpr = sql.join(
-			items.map((item) => sql`WHEN ${subject.id} = ${item.id} THEN ${item.order}`),
+			items.map((item) => sql`WHEN ${subject.id} = ${item.id} THEN ${item.order}::int`),
 			sql` `,
 		);
 
-		await client
-			.update(subject)
-			.set({ order: sql`CASE ${caseExpr} END`, updatedAt: new Date() })
-			.where(inArray(subject.id, ids));
+		await client.transaction(async (tx) => {
+			await tx
+				.update(subject)
+				.set({ order: sql`-${subject.id}` })
+				.where(inArray(subject.id, ids));
+			await tx
+				.update(subject)
+				.set({ order: sql`CASE ${caseExpr} END`, updatedAt: new Date() })
+				.where(inArray(subject.id, ids));
+		});
 	}
 
 	async function findSubjectCategory(subjectId: number): Promise<{ category: SubjectRow["category"] } | undefined> {

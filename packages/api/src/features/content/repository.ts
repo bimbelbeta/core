@@ -79,21 +79,35 @@ export function createContentRepository(dbClient: DbClient) {
 
 		async reorderContents(subjectId: number, items: { id: number; order: number }[]) {
 			const caseExpr = sql.join(
-				items.map((item) => sql`WHEN ${contentItem.id} = ${item.id} THEN ${item.order}`),
+				items.map((item) => sql`WHEN ${contentItem.id} = ${item.id} THEN ${item.order}::int`),
 				sql` `,
 			);
-			await dbClient
-				.update(contentItem)
-				.set({ order: sql`CASE ${caseExpr} END`, updatedAt: new Date() })
-				.where(
-					and(
-						eq(contentItem.subjectId, subjectId),
-						inArray(
-							contentItem.id,
-							items.map((item) => item.id),
+			await dbClient.transaction(async (tx) => {
+				await tx
+					.update(contentItem)
+					.set({ order: sql`-${contentItem.id}` })
+					.where(
+						and(
+							eq(contentItem.subjectId, subjectId),
+							inArray(
+								contentItem.id,
+								items.map((item) => item.id),
+							),
 						),
-					),
-				);
+					);
+				await tx
+					.update(contentItem)
+					.set({ order: sql`CASE ${caseExpr} END`, updatedAt: new Date() })
+					.where(
+						and(
+							eq(contentItem.subjectId, subjectId),
+							inArray(
+								contentItem.id,
+								items.map((item) => item.id),
+							),
+						),
+					);
+			});
 		},
 
 		async insertVideoMaterial(values: {
@@ -217,21 +231,37 @@ export function createContentRepository(dbClient: DbClient) {
 
 		async updatePracticeQuestionOrders(contentItemId: number, links: { questionId: number; order: number }[]) {
 			const caseExpr = sql.join(
-				links.map((link) => sql`WHEN ${contentPracticeQuestions.questionId} = ${link.questionId} THEN ${link.order}`),
+				links.map(
+					(link) => sql`WHEN ${contentPracticeQuestions.questionId} = ${link.questionId} THEN ${link.order}::int`,
+				),
 				sql` `,
 			);
-			await dbClient
-				.update(contentPracticeQuestions)
-				.set({ order: sql`CASE ${caseExpr} END` })
-				.where(
-					and(
-						eq(contentPracticeQuestions.contentItemId, contentItemId),
-						inArray(
-							contentPracticeQuestions.questionId,
-							links.map((link) => link.questionId),
+			await dbClient.transaction(async (tx) => {
+				await tx
+					.update(contentPracticeQuestions)
+					.set({ order: sql`-${contentPracticeQuestions.questionId}` })
+					.where(
+						and(
+							eq(contentPracticeQuestions.contentItemId, contentItemId),
+							inArray(
+								contentPracticeQuestions.questionId,
+								links.map((link) => link.questionId),
+							),
 						),
-					),
-				);
+					);
+				await tx
+					.update(contentPracticeQuestions)
+					.set({ order: sql`CASE ${caseExpr} END` })
+					.where(
+						and(
+							eq(contentPracticeQuestions.contentItemId, contentItemId),
+							inArray(
+								contentPracticeQuestions.questionId,
+								links.map((link) => link.questionId),
+							),
+						),
+					);
+			});
 		},
 
 		async removePracticeQuestion(

@@ -103,6 +103,45 @@ describe.skipIf(!enabled)("subject feature", () => {
 		]);
 	});
 
+	test("reorders subjects through the CASE expression", async () => {
+		const first = await call(
+			appRouter.admin.subject.create,
+			{ name: `${id} r1`, shortName: `${id}-r1`, order: 1, category: "smp", gradeLevel: 7 },
+			adminOptions,
+		);
+		const second = await call(
+			appRouter.admin.subject.create,
+			{ name: `${id} r2`, shortName: `${id}-r2`, order: 2, category: "smp", gradeLevel: 7 },
+			adminOptions,
+		);
+		const reorderIds = [first.id, second.id];
+
+		try {
+			await call(
+				appRouter.admin.subject.reorder,
+				{
+					items: [
+						{ id: first.id, order: 2 },
+						{ id: second.id, order: 1 },
+					],
+				},
+				adminOptions,
+			);
+
+			const rows = await db
+				.select({ id: subject.id, order: subject.order })
+				.from(subject)
+				.where(inArray(subject.id, reorderIds));
+
+			expect(rows.sort((a, b) => a.id - b.id)).toEqual([
+				{ id: first.id, order: 2 },
+				{ id: second.id, order: 1 },
+			]);
+		} finally {
+			await db.delete(subject).where(inArray(subject.id, reorderIds));
+		}
+	});
+
 	test("still returns NOT_FOUND for a bad subject id", async () => {
 		await expect(call(appRouter.subject.listContent, { subjectId: MISSING_ID }, memberOptions)).rejects.toMatchObject({
 			code: "NOT_FOUND",
