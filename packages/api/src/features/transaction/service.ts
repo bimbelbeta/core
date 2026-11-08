@@ -1,6 +1,5 @@
 import type { Session } from "@/context";
 import { DomainError } from "@/lib/domain-error";
-import { AlreadyPremiumError } from "./errors";
 import type { createNotificationService } from "./notification.service";
 import type { MidtransNotification } from "./providers/midtrans";
 import type { TransactionRepository } from "./repository";
@@ -21,7 +20,8 @@ export function createTransactionService(deps: TransactionServiceDependencies) {
 
 			if (result.status === "ok") return result.checkout;
 			if (result.status === "not_found") throw new DomainError("NOT_FOUND", "Produk tidak ditemukan.");
-			if (result.status === "already_premium") throw new AlreadyPremiumError("Kamu sudah menjadi member premium.");
+			if (result.status === "already_premium")
+				throw new DomainError("UNPROCESSABLE_CONTENT", "Kamu sudah menjadi member premium.");
 			throw new DomainError("INTERNAL_SERVER_ERROR", "Gagal memproses pembayaran. Silahkan coba lagi.");
 		},
 

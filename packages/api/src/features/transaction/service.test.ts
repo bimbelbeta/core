@@ -1,7 +1,6 @@
 import { describe, expect, mock, spyOn, test } from "bun:test";
 import type { Session } from "@/context";
 import { DomainError } from "@/lib/domain-error";
-import { AlreadyPremiumError } from "./errors";
 import type { createNotificationService } from "./notification.service";
 import type { MidtransNotification } from "./providers/midtrans";
 import type { TransactionRow } from "./repository";
@@ -106,8 +105,8 @@ describe("transaction service", () => {
 			.subscribe("premium", { ...sessionUser, isPremium: true })
 			.catch((error: unknown) => error);
 
-		expect(error).toBeInstanceOf(AlreadyPremiumError);
-		expect(error).toMatchObject({ message: "Kamu sudah menjadi member premium." });
+		expect(error).toBeInstanceOf(DomainError);
+		expect(error).toMatchObject({ code: "UNPROCESSABLE_CONTENT", message: "Kamu sudah menjadi member premium." });
 	});
 
 	test("subscribe reports a gateway failure as a server error", async () => {

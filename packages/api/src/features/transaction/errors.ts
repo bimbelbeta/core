@@ -28,10 +28,3 @@ export class PaymentError extends Error {
 		super(message, options);
 	}
 }
-
-export class AlreadyPremiumError extends Error {
-	constructor(message: string) {
-		super(message);
-		this.name = "AlreadyPremiumError";
-	}
-}
