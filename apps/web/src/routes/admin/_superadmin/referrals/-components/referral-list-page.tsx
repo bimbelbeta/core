@@ -94,12 +94,12 @@ export function ReferralListPage() {
 				<AdminTableRoot>
 					<AdminTable className="table-fixed">
 						<AdminTableHeader>
-							<AdminTableHead className="w-[36%] pl-3">Kode</AdminTableHead>
-							<AdminTableHead className="w-[14%]">Status</AdminTableHead>
-							<AdminTableHead className="w-[14%] text-right">Penggunaan</AdminTableHead>
+							<AdminTableHead className="w-[38%] pl-3 sm:w-[36%]">Kode</AdminTableHead>
+							<AdminTableHead className="w-[30%] sm:w-[14%]">Status</AdminTableHead>
+							<AdminTableHead className="w-[20%] text-right sm:w-[14%]">Penggunaan</AdminTableHead>
 							<AdminTableHead className="hidden w-[11%] text-right sm:table-cell">Durasi</AdminTableHead>
 							<AdminTableHead className="hidden w-[19%] text-right sm:table-cell">Diperbarui</AdminTableHead>
-							<AdminTableHead className="w-[6%] pr-3 text-right">
+							<AdminTableHead className="w-[12%] pr-3 text-right sm:w-[6%]">
 								<span className="sr-only">Aksi</span>
 							</AdminTableHead>
 						</AdminTableHeader>

@@ -160,7 +160,7 @@ export function ProductForm({ initialData, onSuccess, onCancel }: ProductFormPro
 			<div className="flex flex-col gap-4">
 				<form.Field name="name">
 					{(field) => (
-						<AdminFieldRow label="Nama Product" htmlFor={field.name}>
+						<AdminFieldRow label="Nama Produk" htmlFor={field.name}>
 							<div className="flex flex-col gap-1.5">
 								<Input
 									id={field.name}
@@ -201,7 +201,7 @@ export function ProductForm({ initialData, onSuccess, onCancel }: ProductFormPro
 								value={field.state.value}
 								onBlur={field.handleBlur}
 								onChange={(e) => field.handleChange(e.target.value)}
-								placeholder="Deskripsi product..."
+								placeholder="Deskripsi produk..."
 								rows={4}
 							/>
 						</AdminFieldRow>

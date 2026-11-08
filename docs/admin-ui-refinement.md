@@ -110,11 +110,19 @@ If two consecutive pages stall below 9 with contradictory findings, the remainin
 
 Judges: GLM-5.3-Flash, blind, references scored in the same call (Linear 9.0–9.5, GitHub 8.5–9.0).
 
-| Page          | Round 1 | Round 2 | Outcome |
-| ------------- | ------- | ------- | ------- |
-| Bank soal     | 7.5     | 7.5     | stopped |
-| Tryout list   | 7.0     | 6.8     | stopped |
-| Tryout detail | 6.0     | 7.0     | stopped |
+| Page            | Round 1          | Round 2   | Outcome |
+| --------------- | ---------------- | --------- | ------- |
+| Bank soal       | 7.5              | 7.5       | stopped |
+| Tryout list     | 7.0              | 6.8       | stopped |
+| Tryout detail   | 6.0              | 7.0       | stopped |
+| Pengguna        | 7.0              | 7.0       | stopped |
+| Passing grade   | 7.0              | 7.0       | stopped |
+| Produk          | 8.0 / 4.0 mobile | 7.0 / 4.0 | stopped |
+| Kode referral   | 8.0 / 3.0 mobile | 8.0 / 5.0 | stopped |
+| Detail soal     | 7.0              | 7.0       | stopped |
+| Detail user     | 7.0              | 7.0       | stopped |
+| Detail referral | 6.5              | 7.0       | stopped |
+| Detail produk   | 6.0              | 7.0       | stopped |
 
 Round 1 applied: checkbox gutter 48→32px, Terbit badge on the soft green, footer keeps the total on single-page datasets, tryout meta wraps without a dangling separator.
 
@@ -132,6 +140,27 @@ Tryout detail round 2 findings and why they were not applied:
 - _Soal and Durasi are left-aligned despite `text-right`._ Measured computed `text-align`: `right` on both the `th` and the `td` of every row. Rejected.
 - _The Percobaan empty state offers no next step._ Applied without new navigation: the description now points at the Kode akses tab.
 - _Kadaluarsa shows `mm/dd/yyyy` in an Indonesian console._ Real, but the fix is the existing `Calendar` + `Popover` in place of a native `datetime-local`, which belongs to the forms pass below.
+
+Pengguna, passing grade, produk, kode referral and the four detail pages were reviewed twice each on 2026-11-08. Round 1 applied:
+
+- _Kode referral overlaps its own numbers at 390px._ The status badge ran over the usage count ("Kedaluwarsa0 / 20") and the row action fell outside the viewport. Columns re-split for small screens (Kode 38%, Status 30%, Penggunaan 20%, Aksi 12%). Measured after: worst badge-to-usage gap −2px, action right edge 374 of 390.
+- _Produk wraps its price into three lines at 390px and clips the Langganan chip._ Harga column 14%→22% below `sm`, price `whitespace-nowrap`. Measured after: every price on one line, chip right edge 368 of 390, actions inside.
+- _Produk says "Edit Product", "Nama Product", "Deskripsi product" in an Indonesian console._ Renamed to Produk, matching the sidebar.
+
+Round 1 findings rejected after measuring:
+
+- _Passing grade secondary text is ≈2.7:1._ Measured `oklch(0.5 0 0)` on `oklch(0.973 0.013 234)` = 5.58:1. Passes AA. Rejected.
+- _Produk's label-left rows leave 530px of dead space._ Label-left is the established form pattern (`AdminFieldRow`, item 9 below); stacking labels would undo it. Rejected.
+
+Round 2 findings not applied — identity, density and typeface, not layout:
+
+- avatars in the Pengguna name column, a dedicated STATUS column, a primary action in the header;
+- row height 60→48px across every admin table;
+- hiding columns that happen to be empty in the current dataset (KREDIT);
+- stacked card layouts below 640px for Produk and Kode referral;
+- equal-height paired cards and a 5/7 column split on the detail pages.
+
+Both rounds stalled at 7 with different top findings, and round 1's leading findings were either disproven by measurement or already a recorded decision. The remaining gap is the typeface and brand decision: escalated, not iterated.
 
 ## Item 9 — create and edit forms
 

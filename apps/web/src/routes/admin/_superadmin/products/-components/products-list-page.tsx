@@ -112,12 +112,12 @@ export function ProductsListPage() {
 				<AdminTableRoot>
 					<AdminTable className="table-fixed">
 						<AdminTableHeader>
-							<AdminTableHead className="w-[36%] pl-3">Nama</AdminTableHead>
+							<AdminTableHead className="w-[34%] pl-3 sm:w-[36%]">Nama</AdminTableHead>
 							<AdminTableHead className="w-[16%]">Varian</AdminTableHead>
-							<AdminTableHead className="w-[14%] text-right">Harga</AdminTableHead>
-							<AdminTableHead className="w-[14%]">Tipe</AdminTableHead>
+							<AdminTableHead className="w-[22%] text-right sm:w-[14%]">Harga</AdminTableHead>
+							<AdminTableHead className="w-[16%]">Tipe</AdminTableHead>
 							<AdminTableHead className="hidden w-[14%] text-right sm:table-cell">Diperbarui</AdminTableHead>
-							<AdminTableHead className="w-[6%] pr-3 text-right">
+							<AdminTableHead className="w-[12%] pr-3 text-right sm:w-[6%]">
 								<span className="sr-only">Aksi</span>
 							</AdminTableHead>
 						</AdminTableHeader>
@@ -166,7 +166,7 @@ export function ProductsListPage() {
 										</AdminTableCell>
 
 										<AdminTableCell className="text-right">
-											<span className="tabular-nums">{formatRupiah(product.price)}</span>
+											<span className="whitespace-nowrap tabular-nums">{formatRupiah(product.price)}</span>
 										</AdminTableCell>
 
 										<AdminTableCell>

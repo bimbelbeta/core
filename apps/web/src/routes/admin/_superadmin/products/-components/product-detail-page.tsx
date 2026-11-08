@@ -44,7 +44,7 @@ export function ProductDetailPage() {
 			<AdminPageRoot>
 				<AdminPageHeader>
 					<AdminPageHeaderContent>
-						<Typography variant="title">Product tidak ditemukan</Typography>
+						<Typography variant="title">Produk tidak ditemukan</Typography>
 					</AdminPageHeaderContent>
 				</AdminPageHeader>
 			</AdminPageRoot>
@@ -58,7 +58,7 @@ export function ProductDetailPage() {
 			<AdminPageHeader>
 				<AdminPageHeaderContent>
 					<AdminBackLink to="/admin/products">Kembali ke produk</AdminBackLink>
-					<Typography variant="title">Edit Product</Typography>
+					<Typography variant="title">Edit Produk</Typography>
 				</AdminPageHeaderContent>
 			</AdminPageHeader>
 
