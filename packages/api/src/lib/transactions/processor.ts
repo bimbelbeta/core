@@ -1,4 +1,4 @@
-import type { db } from "@bimbelbeta/db";
+import type { DbClient } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { creditTransaction } from "@bimbelbeta/db/schema/credit";
 import { transaction } from "@bimbelbeta/db/schema/transaction";
@@ -6,7 +6,7 @@ import { and, eq, isNull, sql } from "drizzle-orm";
 import type { PurchaseBenefits, Settlement, TransactionWithProduct } from "@/lib/transactions/types";
 
 export interface ProcessSuccessfulTransactionOpts {
-	trx: Parameters<Parameters<typeof db.transaction>[0]>[0];
+	trx: DbClient;
 	orderId: string;
 	userId: string;
 	existingTransaction: TransactionWithProduct;

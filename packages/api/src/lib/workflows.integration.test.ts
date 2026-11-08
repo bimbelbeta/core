@@ -14,9 +14,12 @@ import {
 	tryoutSubtestQuestion,
 	tryoutUserAnswer,
 } from "@bimbelbeta/db/schema/tryout";
-import { call } from "@orpc/server";
+import { call, ORPCError } from "@orpc/server";
 import { eq } from "drizzle-orm";
 import { Snap } from "midtrans-client";
+import type { Session } from "@/context";
+import { DomainError } from "@/lib/domain-error";
+import { baseImplementer } from "@/lib/router-definition/base";
 import { paymentRepository } from "@/lib/transactions/repository";
 import { appRouter } from "@/routers";
 
@@ -49,7 +52,7 @@ const session = {
 		ipAddress: null,
 		userAgent: null,
 	},
-};
+} satisfies Session;
 const options = { context: { session } };
 let subjectId = 0;
 let tryoutId = 0;
@@ -482,5 +485,30 @@ describe.skipIf(!enabled)("API persistence workflows", () => {
 				{ context: { session: { ...session, user: { ...session.user, role: "user" } } } },
 			),
 		).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+	});
+
+	test("surfaces a thrown domain error as the matching orpc error", async () => {
+		const notFound = baseImplementer.healthCheck.handler(() => {
+			throw new DomainError("NOT_FOUND", "Resource tidak ditemukan");
+		});
+		try {
+			await call(notFound, undefined, options);
+			expect.unreachable();
+		} catch (error) {
+			expect(error).toBeInstanceOf(ORPCError);
+			expect(error).toHaveProperty("code", "NOT_FOUND");
+			expect(error).toHaveProperty("message", "Resource tidak ditemukan");
+		}
+
+		const unexpected = new Error("Galat tak terduga");
+		const untouched = baseImplementer.healthCheck.handler(() => {
+			throw unexpected;
+		});
+		try {
+			await call(untouched, undefined, options);
+			expect.unreachable();
+		} catch (error) {
+			expect(error).toBe(unexpected);
+		}
 	});
 });
