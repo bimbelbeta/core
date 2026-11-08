@@ -1,10 +1,18 @@
 # Agent Guidelines — bimbelbeta
 
-### Docs
+## Agent skills
 
-- Issues and specs live in GitHub Issues for `bimbelbeta/core`. See `docs/agents/issue-tracker.md`.
-- Triage uses the five default labels. See `docs/agents/triage-labels.md`.
-- This repo uses a single-context layout. See `docs/agents/domain.md`.
+### Issue tracker
+
+Issues and specs live in GitHub Issues for `bimbelbeta/core`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Triage uses the five default labels. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+This repo uses a single-context layout. See `docs/agents/domain.md`.
 
 ### Workflow
 
@@ -22,7 +30,7 @@
 bun lint              # Check (Biome)
 bun lint:fix --unsafe # Auto-fix incl unsafe
 bun check-types       # Type check all (build packages first)
-bun build             # Build all packages + apps
+bun run build         # Build all packages + apps
 bun build:packages    # Build packages only
 bun db:push           # Push schema to DB
 bun db:reset          # Reset DB + seed
@@ -72,6 +80,7 @@ packages/api/src/features/
     admin-router.ts  # Admin-facing handlers
     service.ts       # Business rules + wired singleton
     repository.ts    # DB access, client-bound factory
+    composition.ts   # Only when several services compose one feature
 packages/api/src/routers/
   index.ts           # appRouter exports
 packages/db/src/schema/
@@ -83,17 +92,3 @@ apps/web/src/routes/
   _authenticated/    # Protected routes
   -components/       # Shared route components
 ```
-
-## Lessons
-
-- When optimizing package builds, keep generated dts: the team prefers it for faster type inference and LSP performance when editing files.
-- When restructuring package imports, keep the `@/` alias; relative file paths are bad for code structure.
-
-- When writing form labels, keep the bold text to the field name; optional markers, defaults, and explanations go in muted hints, never inside the label text.
-- When building admin dialogs, follow the form-dialog standard: no Batal (X/overlay closes), two-column label-left rows via AdminFieldRow, xs buttons, text-base title, and capped width (sizes carry sm:max-w defaults).
-- When moving form actions into the page header, only do it where an Edit toggle exists (save replaces Edit in place); forms without one (create pages, inline settings) keep their actions at the bottom.
-- When identifying a reference screenshot, read the selected tab and page content before correcting the user.
-
-### Design constraints (do not violate)
-
-- Admin font is **Lexend** (`@fontsource-variable/lexend`, `--font-sans`). Never override the admin font stack (e.g. via `admin-shell`); font-family changes are out of bounds for any UI iteration.

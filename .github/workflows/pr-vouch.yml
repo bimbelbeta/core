@@ -1,0 +1,138 @@
+name: PR Vouch
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, ready_for_review, converted_to_draft]
+  push:
+    branches: [main]
+    paths:
+      - .github/VOUCHED.td
+      - .github/workflows/pr-vouch.yml
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  collect-targets:
+    name: Collect PR targets
+    runs-on: ubuntu-latest
+    outputs:
+      targets: ${{ steps.collect.outputs.targets }}
+    steps:
+      - id: collect
+        uses: actions/github-script@v8
+        with:
+          script: |
+            if (context.eventName === "pull_request_target") {
+              const pr = context.payload.pull_request;
+              core.setOutput("targets", JSON.stringify([{ number: pr.number, user: pr.user.login }]));
+              return;
+            }
+
+            const pulls = await github.paginate(github.rest.pulls.list, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: "open",
+              per_page: 100,
+            });
+            core.setOutput(
+              "targets",
+              JSON.stringify(pulls.map((pull) => ({ number: pull.number, user: pull.user.login }))),
+            );
+
+  label:
+    name: Label PR ${{ matrix.target.number }}
+    needs: collect-targets
+    if: ${{ needs.collect-targets.outputs.targets != '[]' }}
+    runs-on: ubuntu-latest
+    concurrency:
+      group: pr-vouch-${{ matrix.target.number }}
+      cancel-in-progress: true
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJson(needs.collect-targets.outputs.targets) }}
+    steps:
+      - id: vouch
+        uses: mitchellh/vouch/action/check-user@v1
+        with:
+          user: ${{ matrix.target.user }}
+          allow-fail: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Sync PR labels
+        uses: actions/github-script@v8
+        env:
+          PR_NUMBER: ${{ matrix.target.number }}
+          VOUCH_STATUS: ${{ steps.vouch.outputs.status }}
+        with:
+          script: |
+            const issueNumber = Number(process.env.PR_NUMBER);
+            const status = process.env.VOUCH_STATUS;
+            const managedLabels = [
+              { name: "vouch:trusted", color: "1f883d", description: "PR author is trusted (bot, collaborator, or in VOUCHED.td)." },
+              { name: "vouch:unvouched", color: "fbca04", description: "PR author is not yet in VOUCHED.td." },
+              { name: "vouch:denounced", color: "d1242f", description: "PR author is denounced in VOUCHED.td." },
+            ];
+            const managedLabelNames = new Set(managedLabels.map((l) => l.name));
+
+            for (const label of managedLabels) {
+              try {
+                await github.rest.issues.getLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label.name,
+                });
+              } catch (error) {
+                if (error.status !== 404) throw error;
+                try {
+                  await github.rest.issues.createLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    ...label,
+                  });
+                } catch (createError) {
+                  if (createError.status !== 422) throw createError;
+                }
+              }
+            }
+
+            const nextLabelName =
+              status === "denounced" ? "vouch:denounced"
+              : ["bot", "collaborator", "vouched"].includes(status) ? "vouch:trusted"
+              : "vouch:unvouched";
+
+            const { data: currentLabels } = await github.rest.issues.listLabelsOnIssue({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              per_page: 100,
+            });
+
+            for (const label of currentLabels) {
+              if (!managedLabelNames.has(label.name) || label.name === nextLabelName) continue;
+              try {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  name: label.name,
+                });
+              } catch (error) {
+                if (error.status !== 404) throw error;
+              }
+            }
+
+            if (!currentLabels.some((label) => label.name === nextLabelName)) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                labels: [nextLabelName],
+              });
+            }
+
+            core.info(`PR #${issueNumber}: ${status} -> ${nextLabelName}`);

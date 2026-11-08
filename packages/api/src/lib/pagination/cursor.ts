@@ -39,6 +39,32 @@ export function parseStringIdCursor(cursor: string): string {
 	return decodeCursor(cursor);
 }
 
+export interface PageInput {
+	limit?: number | undefined;
+	after?: string | undefined;
+	before?: string | undefined;
+}
+
+export function decodePageInput(input: PageInput | undefined, defaultLimit = 20) {
+	const cursor = input?.after ?? input?.before;
+	return {
+		limit: Math.min(input?.limit ?? defaultLimit, 100),
+		backward: !!input?.before,
+		cursor,
+		hasCursor: !!cursor,
+	};
+}
+
+export function decodeIdPage(input: PageInput | undefined, defaultLimit = 20) {
+	const { limit, backward, cursor, hasCursor } = decodePageInput(input, defaultLimit);
+	return { limit, backward, cursorId: cursor ? parseIdCursor(cursor) : undefined, hasCursor };
+}
+
+export function decodeStringIdPage(input: PageInput | undefined, defaultLimit = 20) {
+	const { limit, backward, cursor, hasCursor } = decodePageInput(input, defaultLimit);
+	return { limit, backward, cursorId: cursor ? parseStringIdCursor(cursor) : undefined, hasCursor };
+}
+
 export interface IdCursorPageInfo {
 	hasNextPage: boolean;
 	hasPreviousPage: boolean;
@@ -83,21 +109,36 @@ export function buildStringIdCursorPage<T extends { id: string }>(
 	limit: number,
 	isBackward: boolean,
 	hasCursor: boolean,
-): { items: T[]; pageInfo: IdCursorPageInfo } {
+): { items: T[]; pageInfo: IdCursorPageInfo };
+export function buildStringIdCursorPage<T, K extends keyof T>(
+	rows: T[],
+	limit: number,
+	isBackward: boolean,
+	hasCursor: boolean,
+	key: K,
+): { items: T[]; pageInfo: IdCursorPageInfo };
+export function buildStringIdCursorPage(
+	rows: Record<string, unknown>[],
+	limit: number,
+	isBackward: boolean,
+	hasCursor: boolean,
+	key?: string,
+): { items: Record<string, unknown>[]; pageInfo: IdCursorPageInfo } {
 	const hasExtra = rows.length > limit;
 	let items = hasExtra ? rows.slice(0, limit) : rows;
 	if (isBackward) items = items.slice().reverse();
 
 	const firstItem = items[0];
 	const lastItem = items[items.length - 1];
+	const cursorKey = key ?? "id";
 
 	return {
 		items,
 		pageInfo: {
 			hasNextPage: isBackward ? hasCursor : hasExtra,
 			hasPreviousPage: isBackward ? hasExtra : hasCursor,
-			startCursor: firstItem ? createStringIdCursor(firstItem.id) : null,
-			endCursor: lastItem ? createStringIdCursor(lastItem.id) : null,
+			startCursor: firstItem ? createStringIdCursor(String(firstItem[cursorKey])) : null,
+			endCursor: lastItem ? createStringIdCursor(String(lastItem[cursorKey])) : null,
 		},
 	};
 }

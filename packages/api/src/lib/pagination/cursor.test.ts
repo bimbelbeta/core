@@ -6,6 +6,7 @@ import {
 	createIdCursor,
 	createStringIdCursor,
 	decodeCursor,
+	decodePageInput,
 	encodeCursor,
 	parseDateCursor,
 	parseIdCursor,
@@ -159,5 +160,54 @@ describe("buildStringIdCursorPage", () => {
 		const { pageInfo } = buildStringIdCursorPage([], 5, false, false);
 		expect(pageInfo.startCursor).toBeNull();
 		expect(pageInfo.endCursor).toBeNull();
+	});
+
+	test("custom key: cursors use the given row key", () => {
+		const rows = Array.from({ length: 3 }, (_, i) => ({ usageId: `usage-${i + 1}`, userId: `user-${i + 1}` }));
+		const { items, pageInfo } = buildStringIdCursorPage(rows, 5, false, false, "usageId");
+		expect(items.map((i) => i.usageId)).toEqual(["usage-1", "usage-2", "usage-3"]);
+		expect(pageInfo.startCursor).toBe(createStringIdCursor("usage-1"));
+		expect(pageInfo.endCursor).toBe(createStringIdCursor("usage-3"));
+	});
+
+	test("custom key: backward pages reverse and keep the extra sentinel flags", () => {
+		const rows = Array.from({ length: 4 }, (_, i) => ({ usageId: `usage-${i + 1}` }));
+		const { items, pageInfo } = buildStringIdCursorPage(rows, 3, true, true, "usageId");
+		expect(items.map((i) => i.usageId)).toEqual(["usage-3", "usage-2", "usage-1"]);
+		expect(pageInfo.hasPreviousPage).toBe(true);
+		expect(pageInfo.hasNextPage).toBe(true);
+	});
+});
+
+describe("decodePageInput", () => {
+	test("decodes a forward page with defaults", () => {
+		expect(decodePageInput({})).toEqual({ limit: 20, backward: false, cursor: undefined, hasCursor: false });
+	});
+
+	test("decodes an undefined input", () => {
+		expect(decodePageInput(undefined)).toEqual({ limit: 20, backward: false, cursor: undefined, hasCursor: false });
+	});
+
+	test("applies the requested limit and clamps it to a hundred", () => {
+		expect(decodePageInput({ limit: 50 }).limit).toBe(50);
+		expect(decodePageInput({ limit: 500 }).limit).toBe(100);
+	});
+
+	test("prefers the after cursor over the before cursor", () => {
+		expect(decodePageInput({ after: "YQ" })).toEqual({
+			limit: 20,
+			backward: false,
+			cursor: "YQ",
+			hasCursor: true,
+		});
+	});
+
+	test("marks a backward page from the before cursor", () => {
+		expect(decodePageInput({ before: "YQ" })).toEqual({
+			limit: 20,
+			backward: true,
+			cursor: "YQ",
+			hasCursor: true,
+		});
 	});
 });
