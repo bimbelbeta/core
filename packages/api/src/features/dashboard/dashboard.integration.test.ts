@@ -1,0 +1,59 @@
+import { describe, expect, test } from "bun:test";
+import { call } from "@orpc/server";
+import type { Session } from "@/context";
+import { appRouter } from "@/routers";
+
+const enabled = !!process.env.TEST_DATABASE_URL && process.env.DATABASE_URL === process.env.TEST_DATABASE_URL;
+const id = `dashboard-it-${crypto.randomUUID()}`;
+const now = new Date();
+const session = {
+	user: {
+		id,
+		name: id,
+		email: `${id}@example.com`,
+		emailVerified: false,
+		image: null,
+		createdAt: now,
+		updatedAt: now,
+		role: "admin",
+		isPremium: false,
+		premiumExpiresAt: null,
+		tryoutCredits: 0,
+		targetUniversityId: null,
+		targetStudyProgramId: null,
+	},
+	session: {
+		id,
+		userId: id,
+		token: id,
+		expiresAt: new Date("2100-01-01"),
+		createdAt: now,
+		updatedAt: now,
+		ipAddress: null,
+		userAgent: null,
+	},
+} satisfies Session;
+const options = { context: { session } };
+
+describe.skipIf(!enabled)("dashboard feature slice", () => {
+	test("admin stats returns the dashboard measures without a server error", async () => {
+		const stats = await call(appRouter.admin.dashboard.stats, undefined, options);
+
+		expect(Object.keys(stats).sort()).toEqual([
+			"activeSubjects",
+			"monthlyRevenue",
+			"premiumTrend",
+			"premiumUsers",
+			"revenueTrend",
+			"subjectsTrend",
+			"totalUsers",
+			"usersTrend",
+		]);
+		expect(Object.values(stats).every((value) => Number.isFinite(value))).toBe(true);
+		expect(stats.totalUsers).toBeGreaterThanOrEqual(0);
+		expect(stats.premiumUsers).toBeGreaterThanOrEqual(0);
+		expect(stats.activeSubjects).toBeGreaterThanOrEqual(0);
+		expect(stats.monthlyRevenue).toBeGreaterThanOrEqual(0);
+		expect(stats.totalUsers).toBeGreaterThanOrEqual(stats.premiumUsers);
+	});
+});

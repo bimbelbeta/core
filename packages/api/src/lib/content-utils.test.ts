@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { normalizeQuestionContent, readTiptapContent } from "./content-utils";
+import { normalizeQuestionContent, readTiptapContent } from "@/lib/content-utils";
 
 // ─── normalizeQuestionContent ───────────────────────────────────────────────────
 
