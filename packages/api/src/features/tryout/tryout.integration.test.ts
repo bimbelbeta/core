@@ -184,7 +184,7 @@ describe.skipIf(!enabled)("tryout feature slice", () => {
 		});
 	});
 
-	test("pages the member list by (startsAt, id) across tied startsAt values", async () => {
+	test("pages the member list by (startsAt, id) across tied and null startsAt values", async () => {
 		const startsAt = new Date("2100-01-02");
 		const created = [];
 		const createdIds: number[] = [];
@@ -197,6 +197,12 @@ describe.skipIf(!enabled)("tryout feature slice", () => {
 				created.push(row!);
 				createdIds.push(row!.id);
 			}
+			const [unscheduled] = await db
+				.insert(tryout)
+				.values({ title: `${id} paged unscheduled`, status: "published", category: "utbk" })
+				.returning();
+			created.push(unscheduled!);
+			createdIds.push(unscheduled!.id);
 			const [first, second, third, fourth] = created;
 
 			const page1 = await call(
@@ -216,10 +222,43 @@ describe.skipIf(!enabled)("tryout feature slice", () => {
 
 			const back = await call(
 				appRouter.tryout.list,
-				{ limit: 100, before: page2.pageInfo.startCursor ?? undefined },
+				{ limit: 2, before: page2.pageInfo.startCursor ?? undefined },
 				options,
 			);
-			expect(back.items.filter((t) => createdIds.includes(t.id)).map((t) => t.id)).toEqual([third!.id, fourth!.id]);
+			expect(back.items.map((t) => t.id)).toEqual([fourth!.id, third!.id]);
+			expect(back.pageInfo.hasPreviousPage).toBe(true);
+
+			const listPage = (input: { limit: number; after?: string; before?: string }) =>
+				call(appRouter.tryout.list, input, options);
+
+			const walked: number[] = [];
+			let cursor: string | null | undefined = createDateIdCursor(null, 0);
+			for (let i = 0; i < 100; i++) {
+				if (!cursor) break;
+				const page = await listPage({ limit: 2, after: cursor });
+				expect(page.items.every((t) => t.startsAt !== null)).toBe(true);
+				walked.push(...page.items.map((t) => t.id));
+				if (!page.pageInfo.hasNextPage) break;
+				cursor = page.pageInfo.endCursor;
+			}
+			expect(walked.filter((wid) => createdIds.includes(wid))).toEqual([fourth!.id, third!.id, second!.id, first!.id]);
+
+			const backWalk: number[] = [];
+			cursor = createDateIdCursor(null, 0);
+			for (let i = 0; i < 100; i++) {
+				if (!cursor) break;
+				const page = await listPage({ limit: 2, before: cursor });
+				expect(page.items.every((t) => t.startsAt === null)).toBe(true);
+				backWalk.push(...page.items.map((t) => t.id));
+				if (!page.pageInfo.hasPreviousPage) break;
+				cursor = page.pageInfo.startCursor;
+			}
+			const knownNulls = backWalk.filter(
+				(wid) => wid === unscheduled!.id || wid === closedTryoutId || wid === openTryoutId,
+			);
+			expect(knownNulls.sort((a, b) => a - b)).toEqual(
+				[openTryoutId, closedTryoutId, unscheduled!.id].sort((a, b) => a - b),
+			);
 		} finally {
 			if (created.length > 0) {
 				await db.delete(tryout).where(inArray(tryout.id, createdIds));

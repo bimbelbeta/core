@@ -39,7 +39,7 @@ export function createDateIdCursor(date: Date | null, id: number): string {
 
 export function parseDateIdCursor(cursor: string): { date: Date | null; id: number } {
 	const decoded = decodeCursor(cursor);
-	const match = /^(-?\d*):(-?\d+)$/.exec(decoded);
+	const match = /^(-?\d+)?:(-?\d+)$/.exec(decoded);
 	if (!match) {
 		throw new DomainError("BAD_REQUEST", "Kursor tidak valid");
 	}

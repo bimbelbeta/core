@@ -164,8 +164,8 @@ const attemptCountColumn =
 function memberCursorFilter(cursor: { date: Date | null; id: number }, backward: boolean) {
 	if (cursor.date === null) {
 		return backward
-			? or(isNotNull(tryout.startsAt), and(isNull(tryout.startsAt), gt(tryout.id, cursor.id)))
-			: and(isNull(tryout.startsAt), lt(tryout.id, cursor.id));
+			? and(isNull(tryout.startsAt), gt(tryout.id, cursor.id))
+			: or(isNotNull(tryout.startsAt), and(isNull(tryout.startsAt), lt(tryout.id, cursor.id)));
 	}
 	return or(
 		backward ? or(isNull(tryout.startsAt), gt(tryout.startsAt, cursor.date)) : lt(tryout.startsAt, cursor.date),
@@ -213,7 +213,7 @@ export function createTryoutRepository(client: DbClient) {
 			.where(
 				and(eq(tryout.status, "published"), cursorStartsAt ? memberCursorFilter(cursorStartsAt, backward) : undefined),
 			)
-			.orderBy(desc(tryout.startsAt), desc(tryout.id))
+			.orderBy(backward ? asc(tryout.startsAt) : desc(tryout.startsAt), backward ? asc(tryout.id) : desc(tryout.id))
 			.limit(limit + 1);
 	}
 
