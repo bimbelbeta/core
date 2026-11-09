@@ -119,3 +119,58 @@ export const useTryoutStore = create<TryoutStore>((set, _get) => ({
 			showQuestionGrid: false,
 		}),
 }));
+
+export interface UpdateTryoutAnswerPayload {
+	questionId: number;
+	selectedChoiceId?: number | null;
+	selectedChoiceIds?: number[] | null;
+	essayAnswer?: string | null;
+	answerType?: string;
+}
+
+export function updateTryoutAnswerCache<
+	T extends
+		| {
+				currentSubtest?: {
+					questions: Array<{
+						id: number;
+						userAnswer?: {
+							selectedChoiceId?: number | null;
+							selectedChoiceIds?: number[] | null;
+							essayAnswer?: string | null;
+							isDoubtful?: boolean;
+						} | null;
+					}>;
+				} | null;
+		  }
+		| undefined,
+>(oldData: T, payload: UpdateTryoutAnswerPayload): T {
+	if (!oldData?.currentSubtest) return oldData;
+
+	return {
+		...oldData,
+		currentSubtest: {
+			...oldData.currentSubtest,
+			questions: oldData.currentSubtest.questions.map((q) => {
+				if (q.id !== payload.questionId) return q;
+
+				const prevUserAnswer = q.userAnswer ?? {
+					selectedChoiceId: null,
+					selectedChoiceIds: null,
+					essayAnswer: null,
+					isDoubtful: false,
+				};
+
+				return {
+					...q,
+					userAnswer: {
+						...prevUserAnswer,
+						...(payload.selectedChoiceId !== undefined ? { selectedChoiceId: payload.selectedChoiceId } : {}),
+						...(payload.selectedChoiceIds !== undefined ? { selectedChoiceIds: payload.selectedChoiceIds } : {}),
+						...(payload.essayAnswer !== undefined ? { essayAnswer: payload.essayAnswer } : {}),
+					},
+				};
+			}),
+		},
+	};
+}
