@@ -14,7 +14,7 @@ export default defineConfig({
 				enabled: true,
 			},
 		}),
-		viteReact(),
+		viteReact({ compiler: true }),
 		tailwindcss(),
 		nitro({
 			vercel: {
