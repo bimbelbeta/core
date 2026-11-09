@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import type { Session } from "@/context";
-import { createIdCursor } from "@/lib/pagination/cursor";
+import { createDateIdCursor } from "@/lib/pagination/cursor";
 import type { ReadServiceDependencies } from "./read.service";
 import { createTryoutReadService } from "./read.service";
 import type {
@@ -407,7 +407,7 @@ describe("tryout list", () => {
 		};
 		const service = createTryoutReadService({ repository, finalizeExpiredAttempt: async () => {} });
 
-		const listed = await service.list({ limit: 20, after: createIdCursor(1) }, caller);
+		const listed = await service.list({ limit: 20, after: createDateIdCursor(rows[0]!.startsAt, 1) }, caller);
 
 		expect(listed.items.map((item) => [item.id, item.isOpen])).toEqual([
 			[1, true],
@@ -418,8 +418,8 @@ describe("tryout list", () => {
 		expect(listed.pageInfo).toEqual({
 			hasNextPage: false,
 			hasPreviousPage: true,
-			startCursor: createIdCursor(1),
-			endCursor: createIdCursor(4),
+			startCursor: createDateIdCursor(rows[0]!.startsAt, 1),
+			endCursor: createDateIdCursor(rows[3]!.startsAt, 4),
 		});
 	});
 });
