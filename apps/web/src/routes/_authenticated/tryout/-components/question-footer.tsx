@@ -1,5 +1,5 @@
 import { ArrowLeftIcon, ArrowRightIcon, CheckIcon, CheckSquareIcon, SquareIcon } from "@phosphor-icons/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useIsMutating, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -24,6 +24,8 @@ export function QuestionFooter() {
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 	const queryClient = useQueryClient();
 	const { currentQuestionIndex, setView, nextQuestion, prevQuestion, currentQuestion, raguRaguIds } = useTryoutStore();
+	const savingAnswerCount = useIsMutating({ mutationKey: orpc.tryout.saveAnswer.mutationKey() });
+	const isSavingAnswer = savingAnswerCount > 0;
 
 	const { data } = useQuery(
 		orpc.tryout.find.queryOptions({
@@ -74,7 +76,7 @@ export function QuestionFooter() {
 	};
 
 	const handleConfirmSubmit = () => {
-		if (!subtestId) return;
+		if (!subtestId || isSavingAnswer) return;
 		submitSubtestMutation.mutate({ tryoutId, subtestId });
 	};
 
@@ -144,11 +146,16 @@ export function QuestionFooter() {
 							<Button variant="outline">Batal</Button>
 						</DialogClose>
 						<Button
-							isPending={submitSubtestMutation.isPending}
+							isPending={submitSubtestMutation.isPending || isSavingAnswer}
+							pendingText={submitSubtestMutation.isPending ? "Memindahkan..." : "Menyimpan jawaban..."}
 							onClick={handleConfirmSubmit}
-							disabled={submitSubtestMutation.isPending}
+							disabled={submitSubtestMutation.isPending || isSavingAnswer}
 						>
-							{"Ya, Lanjutkan"}
+							{submitSubtestMutation.isPending
+								? "Memindahkan..."
+								: isSavingAnswer
+									? "Menyimpan jawaban..."
+									: "Ya, Lanjutkan"}
 						</Button>
 					</DialogFooter>
 				</DialogContent>

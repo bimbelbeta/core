@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
+import { useRef } from "react";
 import { toast } from "sonner";
 import { Item } from "@/components/ui/item";
 import { useDebouncedMutation } from "@/hooks/use-debounced-mutation";
@@ -7,29 +8,109 @@ import type { BodyOutputs } from "@/lib/orpc";
 import { orpc } from "@/lib/orpc";
 import { parseRouteParamToNumber } from "@/lib/tanstack-router-utils";
 import { cn } from "@/lib/utils";
-import { useTryoutStore } from "../-hooks/use-tryout-store";
+import { updateTryoutAnswerCache, useTryoutStore } from "../-hooks/use-tryout-store";
 import { EssayForm } from "./essay-form";
 
 type TryoutQuestion = NonNullable<NonNullable<BodyOutputs["tryout"]["find"]>["currentSubtest"]>["questions"][number];
 type Choice = TryoutQuestion["choices"][number];
+
+interface QuestionMutationState {
+	requestSeq: number;
+	confirmedSeq: number;
+	confirmedChoiceId: number | null;
+	confirmedComplexIds: number[] | null;
+}
 
 export function AnswerPanel() {
 	const { tryoutId: rawTryoutId } = useParams({ from: "/_authenticated/tryout/$tryoutId" });
 	const tryoutId = parseRouteParamToNumber(rawTryoutId);
 
 	const queryClient = useQueryClient();
-	const { answers, setAnswer, complexAnswers, setComplexAnswer, currentQuestion, setEssayAnswer } = useTryoutStore();
+	const {
+		answers,
+		setAnswer,
+		removeAnswer,
+		complexAnswers,
+		setComplexAnswer,
+		removeComplexAnswer,
+		currentQuestion,
+		setEssayAnswer,
+	} = useTryoutStore();
 	const questionId = currentQuestion?.id;
+	const mutationStateRef = useRef<Record<number, QuestionMutationState>>({});
 
 	const saveAnswerMutation = useMutation(
 		orpc.tryout.saveAnswer.mutationOptions({
-			onSuccess: (_data, variables) => {
-				if ("essayAnswer" in variables && typeof variables.essayAnswer === "string") {
-					setEssayAnswer(variables.questionId, variables.essayAnswer);
+			retry: 2,
+			retryDelay: 1000,
+			networkMode: "always",
+			onMutate: async (variables) => {
+				const qId = variables.questionId;
+				const current = mutationStateRef.current[qId] ?? {
+					requestSeq: 0,
+					confirmedSeq: 0,
+					confirmedChoiceId: currentQuestion?.userAnswer?.selectedChoiceId ?? null,
+					confirmedComplexIds: currentQuestion?.userAnswer?.selectedChoiceIds ?? null,
+				};
+				const seq = current.requestSeq + 1;
+				mutationStateRef.current[qId] = {
+					...current,
+					requestSeq: seq,
+				};
+
+				if (variables.answerType === "choice") {
+					setAnswer(qId, variables.selectedChoiceId);
+				} else if (variables.answerType === "complex") {
+					setComplexAnswer(qId, variables.selectedChoiceIds);
+				} else if (variables.answerType === "essay") {
+					setEssayAnswer(qId, variables.essayAnswer);
 				}
-				queryClient.invalidateQueries({ queryKey: orpc.tryout.find.key({ input: { id: tryoutId } }) });
+
+				const queryKey = orpc.tryout.find.queryKey({ input: { id: tryoutId } });
+				await queryClient.cancelQueries({ queryKey });
+
+				return { seq, queryKey };
 			},
-			onError: (error: Error) => {
+			onSuccess: (_data, variables, context) => {
+				const qId = variables.questionId;
+				const state = mutationStateRef.current[qId];
+				if (!context || !state || context.seq < state.confirmedSeq) {
+					return;
+				}
+
+				mutationStateRef.current[qId] = {
+					...state,
+					confirmedSeq: context.seq,
+					confirmedChoiceId: variables.answerType === "choice" ? variables.selectedChoiceId : state.confirmedChoiceId,
+					confirmedComplexIds:
+						variables.answerType === "complex" ? variables.selectedChoiceIds : state.confirmedComplexIds,
+				};
+
+				queryClient.setQueryData(context.queryKey, (old) => updateTryoutAnswerCache(old, variables));
+			},
+			onError: (error, variables, context) => {
+				const qId = variables.questionId;
+				const state = mutationStateRef.current[qId];
+				if (!context || !state || context.seq !== state.requestSeq) {
+					return;
+				}
+
+				if (variables.answerType === "choice") {
+					const confirmed = state.confirmedChoiceId;
+					if (confirmed !== undefined && confirmed !== null) {
+						setAnswer(qId, confirmed);
+					} else {
+						removeAnswer(qId);
+					}
+				} else if (variables.answerType === "complex") {
+					const confirmed = state.confirmedComplexIds;
+					if (confirmed !== undefined && confirmed !== null) {
+						setComplexAnswer(qId, confirmed);
+					} else {
+						removeComplexAnswer(qId);
+					}
+				}
+
 				toast.error(`Gagal menyimpan jawaban: ${error.message}`);
 			},
 		}),
@@ -37,13 +118,16 @@ export function AnswerPanel() {
 
 	const debouncedSaveAnswerMutation = useDebouncedMutation(
 		orpc.tryout.saveAnswer.mutationOptions({
+			networkMode: "always",
 			onSuccess: (_data, variables) => {
 				if ("essayAnswer" in variables && typeof variables.essayAnswer === "string") {
 					setEssayAnswer(variables.questionId, variables.essayAnswer);
 				}
-				queryClient.invalidateQueries({ queryKey: orpc.tryout.find.key({ input: { id: tryoutId } }) });
+				queryClient.setQueryData(orpc.tryout.find.queryKey({ input: { id: tryoutId } }), (old) =>
+					updateTryoutAnswerCache(old, variables),
+				);
 			},
-			onError: (error: Error) => {
+			onError: (error) => {
 				toast.error(`Gagal menyimpan jawaban: ${error.message}`);
 			},
 		}),
@@ -56,7 +140,6 @@ export function AnswerPanel() {
 
 	const handleSelectAnswer = (choiceId: number) => {
 		if (!questionId) return;
-		setAnswer(questionId, choiceId);
 		saveAnswerMutation.mutate({
 			tryoutId,
 			questionId,
@@ -80,7 +163,6 @@ export function AnswerPanel() {
 		const isSelected = selectedComplexIds.includes(choiceId);
 		const updated = isSelected ? selectedComplexIds.filter((id) => id !== choiceId) : [...selectedComplexIds, choiceId];
 
-		setComplexAnswer(questionId, updated);
 		saveAnswerMutation.mutate({
 			tryoutId,
 			questionId,
@@ -107,7 +189,6 @@ export function AnswerPanel() {
 								content={choice.content}
 								selected={selectedAnswerId === choice.id}
 								onSelect={() => handleSelectAnswer(choice.id)}
-								disabled={saveAnswerMutation.isPending}
 							/>
 						))}
 					</fieldset>
@@ -125,13 +206,12 @@ export function AnswerPanel() {
 									className={cn(
 										"w-full flex-nowrap items-start justify-between gap-3 rounded-lg text-left text-base",
 										!isSelected && "hover:bg-secondary/5",
-										saveAnswerMutation.isPending && "opacity-50",
 									)}
 								>
 									<button
 										type="button"
 										aria-pressed={isSelected}
-										disabled={saveAnswerMutation.isPending}
+										className="touch-manipulation"
 										onClick={() => handleToggleComplexCorrect(choice.id)}
 									>
 										<span className="min-w-0 flex-1 break-words whitespace-normal">{choice.content}</span>
@@ -178,27 +258,21 @@ function AnswerOption({
 	content,
 	selected,
 	onSelect,
-	disabled,
 }: {
 	code: string;
 	content: string;
 	selected: boolean;
 	onSelect: () => void;
-	disabled: boolean;
 }) {
 	return (
 		<Item
 			variant="outline"
 			selected={selected}
 			asChild
-			className={cn(
-				"flex-nowrap gap-3 text-start text-base",
-				!selected && "hover:bg-secondary/5",
-				disabled && "opacity-50",
-			)}
+			className={cn("flex-nowrap gap-3 text-start text-base", !selected && "hover:bg-secondary/5")}
 		>
-			<label className="flex w-full cursor-pointer flex-nowrap items-center gap-3">
-				<input type="radio" className="sr-only" checked={selected} disabled={disabled} onChange={onSelect} />
+			<label className="flex w-full cursor-pointer touch-manipulation flex-nowrap items-center gap-3">
+				<input type="radio" className="sr-only" checked={selected} onChange={onSelect} />
 				<span
 					className={cn(
 						"border-foreground/20 rounded-xs border px-2.5 py-0.5 text-sm font-medium",
