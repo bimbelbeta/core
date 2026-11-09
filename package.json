@@ -11,16 +11,16 @@
 			"hono": "^4.13.16",
 			"@orpc/server": "^1.16.1",
 			"@orpc/openapi": "^1.16.1",
-			"@orpc/arktype": "^1.16.1",
-			"@orpc/experimental-ratelimit": "^1.16.1",
-			"better-auth": "^1.7.16",
+			"@orpc/arktype": "^1.16.2",
+			"@orpc/experimental-ratelimit": "^1.16.2",
+			"better-auth": "^1.7.18",
 			"dotenv": "^17.4.2",
 			"drizzle-orm": "^1.0.0-rc.5-ab785fc",
 			"arktype": "^2.2.9",
 			"typescript": "^7.0.2",
 			"midtrans-client": "^1.4.3",
-			"vite": "^8.3.5",
-			"tsdown": "^0.23.4",
+			"vite": "^8.3.6",
+			"tsdown": "^0.23.5",
 			"@orpc/client": "^1.16.1",
 			"@orpc/contract": "^1.16.1"
 		}
@@ -55,7 +55,7 @@
 		"typescript": "^7.0.2"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.6.4",
+		"@biomejs/biome": "^2.6.5",
 		"@types/bun": "^1.4.4",
 		"shadcn": "^4.23.0",
 		"turbo": "^2.11.10"
