@@ -14,7 +14,7 @@ import { call } from "@orpc/server";
 import { eq, inArray } from "drizzle-orm";
 import type { Session } from "@/context";
 import { runScheduledJobs } from "@/cron";
-import { createDateIdCursor } from "@/lib/pagination/cursor";
+import { createDateIdCursor, encodeCursor } from "@/lib/pagination/cursor";
 import { appRouter } from "@/routers";
 
 const enabled = !!process.env.TEST_DATABASE_URL && process.env.DATABASE_URL === process.env.TEST_DATABASE_URL;
@@ -268,6 +268,12 @@ describe.skipIf(!enabled)("tryout feature slice", () => {
 
 	test("a malformed cursor returns BAD_REQUEST", async () => {
 		await expect(call(appRouter.tryout.list, { after: "bogus" }, options)).rejects.toMatchObject({
+			code: "BAD_REQUEST",
+			message: "Kursor tidak valid",
+		});
+		await expect(
+			call(appRouter.tryout.list, { after: encodeCursor("99999999999999999999:1") }, options),
+		).rejects.toMatchObject({
 			code: "BAD_REQUEST",
 			message: "Kursor tidak valid",
 		});

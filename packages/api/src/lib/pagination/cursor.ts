@@ -43,7 +43,11 @@ export function parseDateIdCursor(cursor: string): { date: Date | null; id: numb
 	if (!match) {
 		throw new DomainError("BAD_REQUEST", "Kursor tidak valid");
 	}
-	return { date: match[1] ? new Date(Number(match[1])) : null, id: Number.parseInt(match[2]!, 10) };
+	const date = match[1] ? new Date(Number(match[1])) : null;
+	if (date !== null && Number.isNaN(date.getTime())) {
+		throw new DomainError("BAD_REQUEST", "Kursor tidak valid");
+	}
+	return { date, id: Number.parseInt(match[2]!, 10) };
 }
 
 export function createStringIdCursor(id: string): string {
