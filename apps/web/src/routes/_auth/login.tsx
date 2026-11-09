@@ -1,5 +1,5 @@
 import { ROLES } from "@bimbelbeta/contract/common/roles";
-import { ArrowLeftIcon, GoogleLogoIcon, WarningCircleIcon } from "@phosphor-icons/react";
+import { ArrowLeftIcon, EyeIcon, EyeSlashIcon, GoogleLogoIcon, WarningCircleIcon } from "@phosphor-icons/react";
 import { useForm } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
@@ -26,6 +26,22 @@ export const Route = createFileRoute("/_auth/login")({
 	component: RouteComponent,
 });
 
+type AuthError = { status?: number; message?: string; statusText?: string };
+
+const ZERO_WIDTH = /[\u200B-\u200D\u2060\uFEFF]/g;
+
+const normalizeIdentifier = (raw: string) => {
+	const cleaned = raw.normalize("NFKC").replace(ZERO_WIDTH, "").trim();
+	return cleaned.includes("@") ? cleaned.toLowerCase() : cleaned;
+};
+
+const getAuthErrorMessage = (err: AuthError) => {
+	if (err.status === 400 || err.status === 401) return "Username/email atau password salah.";
+	if (err.status === 429) return "Terlalu banyak percobaan. Coba lagi beberapa saat.";
+	if (!err.status || err.status >= 500) return "Koneksi bermasalah. Periksa jaringan kamu lalu coba lagi.";
+	return "Terjadi kesalahan. Silakan coba lagi.";
+};
+
 function RouteComponent() {
 	return (
 		<main className="relative flex min-h-screen w-full flex-col items-center px-4 pt-40 pb-12">
@@ -47,6 +63,7 @@ function SignInForm() {
 	const queryClient = useQueryClient();
 	const [error, setError] = useState<string | null>(null);
 	const [submitted, setSubmitted] = useState(false);
+	const [showPassword, setShowPassword] = useState(false);
 
 	const navigateAfterSignIn = (role: string | undefined) => {
 		if (role === ROLES.ADMIN || role === ROLES.SUPER_ADMIN) {
@@ -65,43 +82,45 @@ function SignInForm() {
 			setError(null);
 			setSubmitted(true);
 			queryClient.removeQueries();
-			const isEmail = value.identifier.includes("@");
-			if (isEmail) {
-				await authClient.signIn.email(
-					{
-						email: value.identifier,
-						password: value.password,
-						rememberMe: true,
-					},
-					{
-						onSuccess: (ctx) => navigateAfterSignIn(ctx.data?.user.role),
-						onError: (ctx) => {
-							setSubmitted(false);
-							setError(ctx.error.message || ctx.error.statusText);
+			const identifier = normalizeIdentifier(value.identifier);
+
+			const callbacks = {
+				onSuccess: (ctx: { data?: { user?: { role?: string } } }) => navigateAfterSignIn(ctx.data?.user?.role),
+				onError: (ctx: { error: AuthError }) => {
+					setSubmitted(false);
+					setError(getAuthErrorMessage(ctx.error));
+				},
+			};
+
+			try {
+				if (identifier.includes("@")) {
+					await authClient.signIn.email(
+						{
+							email: identifier,
+							password: value.password,
+							rememberMe: true,
 						},
-					},
-				);
-			} else {
-				await authClient.signIn.username(
-					{
-						username: value.identifier,
-						password: value.password,
-						rememberMe: true,
-					},
-					{
-						onSuccess: (ctx) => navigateAfterSignIn(ctx.data?.user.role),
-						onError: (ctx) => {
-							setSubmitted(false);
-							setError(ctx.error.message || ctx.error.statusText);
+						callbacks,
+					);
+				} else {
+					await authClient.signIn.username(
+						{
+							username: identifier,
+							password: value.password,
+							rememberMe: true,
 						},
-					},
-				);
+						callbacks,
+					);
+				}
+			} catch {
+				setSubmitted(false);
+				setError("Terjadi kesalahan saat login. Silakan coba lagi.");
 			}
 		},
 		validators: {
 			onSubmit: type({
-				identifier: "string",
-				password: "string",
+				identifier: "string > 0",
+				password: "string > 0",
 			}),
 		},
 	});
@@ -140,8 +159,14 @@ function SignInForm() {
 										type="text"
 										autoFocus
 										autoComplete="username"
+										autoCapitalize="none"
+										autoCorrect="off"
+										spellCheck={false}
 										value={field.state.value}
-										onBlur={field.handleBlur}
+										onBlur={() => {
+											field.handleChange(normalizeIdentifier(field.state.value));
+											field.handleBlur();
+										}}
 										onChange={(e) => field.handleChange(e.target.value)}
 									/>
 									{field.state.meta.errors.map((error) => (
@@ -159,14 +184,33 @@ function SignInForm() {
 							{(field) => (
 								<div className="space-y-2">
 									<Label htmlFor={field.name}>Password</Label>
-									<Input
-										id={field.name}
-										name={field.name}
-										type="password"
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(e) => field.handleChange(e.target.value)}
-									/>
+									<div className="relative">
+										<Input
+											id={field.name}
+											name={field.name}
+											type={showPassword ? "text" : "password"}
+											autoComplete="current-password"
+											autoCapitalize="none"
+											autoCorrect="off"
+											spellCheck={false}
+											className="pr-12"
+											value={field.state.value}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+										/>
+										<Button
+											type="button"
+											variant="ghost"
+											size="icon"
+											className="absolute top-1/2 right-1 -translate-y-1/2"
+											onMouseDown={(e) => e.preventDefault()}
+											onClick={() => setShowPassword((prev) => !prev)}
+											aria-pressed={showPassword}
+											aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
+										>
+											{showPassword ? <EyeSlashIcon /> : <EyeIcon />}
+										</Button>
+									</div>
 									{field.state.meta.errors.map((error) => (
 										<Typography key={error?.message} variant="caption" tone="destructive">
 											{error?.message}
@@ -204,7 +248,7 @@ function SignInForm() {
 					onClick={() => {
 						authClient.signIn.social({
 							provider: "google",
-							callbackURL: `${window.location.href}/dashboard`,
+							callbackURL: `${window.location.origin}/dashboard`,
 						});
 					}}
 					variant="outline"
