@@ -31,7 +31,7 @@ function RouteComponent() {
 
 	if (isPending) {
 		return (
-			<div className="flex flex-col gap-8 p-4 md:p-8">
+			<div className="flex flex-col gap-6">
 				<div className="space-y-4">
 					<Skeleton className="h-10 w-32" />
 					<Skeleton className="h-10 w-64" />
@@ -50,9 +50,9 @@ function RouteComponent() {
 	}
 
 	return (
-		<div className="flex flex-col gap-8 p-4 md:p-8">
+		<div className="flex flex-col gap-6 sm:gap-8">
 			{/* Header */}
-			<Card variant="unpadded" className="space-y-6 rounded-xl p-6">
+			<Card variant="unpadded" className="space-y-4 rounded-xl p-4 sm:space-y-6 sm:p-6">
 				<Button variant="default" size="sm" className="bg-[#009CA6] hover:bg-[#008a93]" asChild>
 					<Link to="/tryout/results/$attemptId" params={{ attemptId: attemptId.toString() }}>
 						<div className="flex items-center">
@@ -71,7 +71,7 @@ function RouteComponent() {
 			</Card>
 
 			{/* Questions List */}
-			<div className="space-y-4">
+			<div className="space-y-3 sm:space-y-4">
 				{data.questions.map((question, index) => {
 					const correctChoice = question.choices.find((c) => c.isCorrect);
 					const isCorrect = question.userAnswer.selectedChoiceId === correctChoice?.id;

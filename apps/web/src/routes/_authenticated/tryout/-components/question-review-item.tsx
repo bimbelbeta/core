@@ -3,6 +3,7 @@ import { useState } from "react";
 import { TiptapRenderer } from "@/components/tiptap/tiptap-renderer";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Typography } from "@/components/ui/typography";
+import { extractTextFromTiptap } from "@/lib/content-text";
 import { cn } from "@/lib/utils";
 
 type QuestionReviewItemProps = {
@@ -32,6 +33,8 @@ export function QuestionReviewItem({ index, question, isCorrect }: QuestionRevie
 	const [isOpen, setIsOpen] = useState(false);
 
 	const bgColor = isCorrect ? "bg-[#6be2a5]" : "bg-[#ff7b82]";
+	// shortcut: an image-only discussion reads as empty and stays hidden, upgrade if editors start posting image-only explanations
+	const hasDiscussion = extractTextFromTiptap(question.discussion).length > 0;
 
 	const icon = isCorrect ? (
 		<CheckCircleIcon className="size-4 text-black" weight="bold" />
@@ -58,7 +61,7 @@ export function QuestionReviewItem({ index, question, isCorrect }: QuestionRevie
 					</div>
 
 					<div className={cn("mx-auto w-full max-w-[95%] select-none", isOpen && "border-r border-l bg-white")}>
-						<div className="flex w-full justify-between rounded-b-sm border border-t-0 bg-white px-6 py-2 text-xs hover:bg-white/80">
+						<div className="flex w-full justify-between rounded-b-sm border border-t-0 bg-white px-4 py-2 text-xs hover:bg-white/80">
 							<span className="text-muted-foreground font-medium">{isOpen ? "Tutup" : "Penjelasan"}</span>
 							<CaretUpIcon className={`text-muted-foreground size-4 transition-transform ${!isOpen && "rotate-180"}`} />
 						</div>
@@ -67,11 +70,11 @@ export function QuestionReviewItem({ index, question, isCorrect }: QuestionRevie
 			</CollapsibleTrigger>
 
 			<CollapsibleContent className="mx-auto w-full max-w-[95%]">
-				<div className="rounded-b-md border border-t-0 bg-white p-6">
+				<div className="rounded-b-md border border-t-0 bg-white p-4 sm:p-6">
 					<TiptapRenderer content={question.content} />
 
-					<div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
-						<div className="space-y-4">
+					<div className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-2 lg:gap-4">
+						<div className="space-y-3 sm:space-y-4">
 							<Typography variant="body" tone="muted" className="font-medium">
 								Jawaban Kamu
 							</Typography>
@@ -119,13 +122,13 @@ export function QuestionReviewItem({ index, question, isCorrect }: QuestionRevie
 							})}
 						</div>
 
-						{question.discussion != null && (
-							<div className="space-y-4">
+						{hasDiscussion && (
+							<div className="space-y-3 sm:space-y-4">
 								<Typography variant="body" tone="muted" className="font-medium">
 									Kunci Jawaban & Pembahasan
 								</Typography>
-								<div className="rounded-lg border bg-blue-50/30 p-4">
-									<div className="mb-4">
+								<div className="rounded-lg border bg-blue-50/30 p-3 sm:p-4">
+									<div className="mb-3 sm:mb-4">
 										{question.choices
 											.filter((c) => c.isCorrect)
 											.map((c) => (

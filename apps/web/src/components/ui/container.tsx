@@ -13,6 +13,8 @@ export const Container = ({
 	const Comp = asChild ? Slot.Slot : "main";
 
 	return (
-		<Comp className={cn("mx-auto flex w-full max-w-4xl flex-col gap-4 px-4 py-8 md:px-8", className)}>{children}</Comp>
+		<Comp className={cn("mx-auto flex w-full max-w-4xl flex-col gap-4 px-3 py-6 md:px-8 md:py-8", className)}>
+			{children}
+		</Comp>
 	);
 };

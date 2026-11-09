@@ -5,6 +5,7 @@ import {
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
+	useSidebar,
 } from "@/components/ui/sidebar";
 import { Typography } from "@/components/ui/typography";
 
@@ -16,6 +17,8 @@ type NavItem = {
 };
 
 export function NavMain({ groups }: { groups: { label: string; items: NavItem[] }[] }) {
+	const { setOpenMobile } = useSidebar();
+
 	return (
 		<>
 			{groups.map((group) => (
@@ -34,7 +37,7 @@ export function NavMain({ groups }: { groups: { label: string; items: NavItem[] 
 									tooltip={item.title}
 									className="text-muted-foreground hover:text-foreground data-[active=true]:bg-primary/8 data-[active=true]:text-primary text-meta h-8 gap-2.5 rounded-md px-2.5 font-normal transition-colors data-[active=true]:font-semibold"
 								>
-									<Link to={item.url}>
+									<Link to={item.url} onClick={() => setOpenMobile(false)}>
 										<item.icon weight={item.isActive ? "fill" : "regular"} className="size-4" />
 										<span>{item.title}</span>
 									</Link>
