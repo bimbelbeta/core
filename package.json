@@ -14,7 +14,7 @@
 			"@orpc/arktype": "^1.16.2",
 			"@orpc/experimental-ratelimit": "^1.16.2",
 			"better-auth": "^1.7.18",
-			"dotenv": "^17.4.2",
+			"dotenv": "^18.0.9",
 			"drizzle-orm": "^1.0.0-rc.5-ab785fc",
 			"arktype": "^2.2.9",
 			"typescript": "^7.0.2",
@@ -51,7 +51,7 @@
 		"check:tsx-lines": "bun scripts/check-tsx-lines.ts"
 	},
 	"dependencies": {
-		"dotenv": "^17.4.2",
+		"dotenv": "^18.0.9",
 		"typescript": "^7.0.2"
 	},
 	"devDependencies": {
