@@ -3,7 +3,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { type } from "arktype";
 import { toast } from "sonner";
-import Loader from "@/components/shared/loader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -38,7 +37,6 @@ function RouteComponent() {
 function ResetPasswordForm() {
 	const navigate = useNavigate();
 	const search = Route.useSearch();
-	const { isPending } = authClient.useSession();
 
 	const form = useForm({
 		defaultValues: {
@@ -73,10 +71,6 @@ function ResetPasswordForm() {
 			}),
 		},
 	});
-
-	if (isPending) {
-		return <Loader />;
-	}
 
 	return (
 		<div className="w-full max-w-md">

@@ -6,7 +6,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { type } from "arktype";
 import { useState } from "react";
-import Loader from "@/components/shared/loader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -46,14 +45,11 @@ function SignInForm() {
 		from: "/",
 	});
 	const queryClient = useQueryClient();
-	const { isPending } = authClient.useSession();
 	const [error, setError] = useState<string | null>(null);
 	const [submitted, setSubmitted] = useState(false);
 
-	const onSignInSuccess = async () => {
-		const session = await authClient.getSession();
-		const user = session.data?.user;
-		if (user?.role === ROLES.ADMIN || user?.role === ROLES.SUPER_ADMIN) {
+	const navigateAfterSignIn = (role: string | undefined) => {
+		if (role === ROLES.ADMIN || role === ROLES.SUPER_ADMIN) {
 			navigate({ to: "/admin/dashboard" });
 		} else {
 			navigate({ to: "/dashboard" });
@@ -78,7 +74,7 @@ function SignInForm() {
 						rememberMe: true,
 					},
 					{
-						onSuccess: onSignInSuccess,
+						onSuccess: (ctx) => navigateAfterSignIn(ctx.data?.user.role),
 						onError: (ctx) => {
 							setSubmitted(false);
 							setError(ctx.error.message || ctx.error.statusText);
@@ -93,7 +89,7 @@ function SignInForm() {
 						rememberMe: true,
 					},
 					{
-						onSuccess: onSignInSuccess,
+						onSuccess: (ctx) => navigateAfterSignIn(ctx.data?.user.role),
 						onError: (ctx) => {
 							setSubmitted(false);
 							setError(ctx.error.message || ctx.error.statusText);
@@ -109,10 +105,6 @@ function SignInForm() {
 			}),
 		},
 	});
-
-	if (isPending) {
-		return <Loader />;
-	}
 
 	return (
 		<div className="relative w-full max-w-md">
