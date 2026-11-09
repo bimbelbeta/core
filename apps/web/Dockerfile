@@ -1,5 +1,4 @@
 FROM oven/bun:1-alpine AS base
-RUN bun install -g turbo@^2.7.2
 
 FROM base AS configs
 ENV NODE_ENV=production \
@@ -42,7 +41,7 @@ WORKDIR /usr/src/app
 
 COPY --from=installer /usr/src/app ./
 COPY . .
-RUN turbo build --filter=web
+RUN bunx turbo build --filter=web
 
 FROM configs AS runner
 COPY --from=builder /usr/src/app/apps/web/.output/ .
