@@ -1,3 +1,5 @@
+import { DomainError } from "@/lib/domain-error";
+
 export function encodeCursor(cursor: string): string {
 	return Buffer.from(cursor).toString("base64url");
 }
@@ -29,6 +31,19 @@ export function parseIdCursor(cursor: string): number {
 		throw new Error(`Invalid id cursor: ${decodeCursor(cursor)}`);
 	}
 	return id;
+}
+
+export function createDateIdCursor(date: Date | null, id: number): string {
+	return encodeCursor(`${date ? date.getTime() : ""}:${id}`);
+}
+
+export function parseDateIdCursor(cursor: string): { date: Date | null; id: number } {
+	const decoded = decodeCursor(cursor);
+	const match = /^(-?\d*):(-?\d+)$/.exec(decoded);
+	if (!match) {
+		throw new DomainError("BAD_REQUEST", "Kursor tidak valid");
+	}
+	return { date: match[1] ? new Date(Number(match[1])) : null, id: Number.parseInt(match[2]!, 10) };
 }
 
 export function createStringIdCursor(id: string): string {
@@ -65,6 +80,10 @@ export function decodeStringIdPage(input: PageInput | undefined, defaultLimit = 
 	return { limit, backward, cursorId: cursor ? parseStringIdCursor(cursor) : undefined, hasCursor };
 }
 
+export function decodeDateIdPage(input: PageInput | undefined, defaultLimit = 20) {
+	const { limit, backward, cursor, hasCursor } = decodePageInput(input, defaultLimit);
+	return { limit, backward, cursorDateId: cursor ? parseDateIdCursor(cursor) : undefined, hasCursor };
+}
 export interface IdCursorPageInfo {
 	hasNextPage: boolean;
 	hasPreviousPage: boolean;
@@ -73,34 +92,52 @@ export interface IdCursorPageInfo {
 }
 
 /**
- * Applies the standard id-cursor pagination post-processing: slices the extra
+ * Applies the standard cursor pagination post-processing: slices the extra
  * sentinel item, reverses backward results, and builds the pageInfo object.
  * Callers must fetch `limit + 1` rows to enable hasExtra detection.
  */
+function buildCursorPage<T>(
+	rows: T[],
+	limit: number,
+	isBackward: boolean,
+	hasCursor: boolean,
+	cursorOf: (row: T) => string,
+): { items: T[]; pageInfo: IdCursorPageInfo } {
+	const hasExtra = rows.length > limit;
+	const items = hasExtra ? rows.slice(0, limit) : rows;
+	const ordered = isBackward ? items.slice().reverse() : items;
+
+	const firstItem = ordered[0];
+	const lastItem = ordered[ordered.length - 1];
+
+	return {
+		items: ordered,
+		pageInfo: {
+			hasNextPage: isBackward ? hasCursor : hasExtra,
+			hasPreviousPage: isBackward ? hasExtra : hasCursor,
+			startCursor: firstItem ? cursorOf(firstItem) : null,
+			endCursor: lastItem ? cursorOf(lastItem) : null,
+		},
+	};
+}
+
 export function buildIdCursorPage<T extends { id: number }>(
 	rows: T[],
 	limit: number,
 	isBackward: boolean,
 	hasCursor: boolean,
 ): { items: T[]; pageInfo: IdCursorPageInfo } {
-	const hasExtra = rows.length > limit;
-	let items = hasExtra ? rows.slice(0, limit) : rows;
-	if (isBackward) items = items.slice().reverse();
-
-	const firstItem = items[0];
-	const lastItem = items[items.length - 1];
-
-	return {
-		items,
-		pageInfo: {
-			hasNextPage: isBackward ? hasCursor : hasExtra,
-			hasPreviousPage: isBackward ? hasExtra : hasCursor,
-			startCursor: firstItem ? createIdCursor(firstItem.id) : null,
-			endCursor: lastItem ? createIdCursor(lastItem.id) : null,
-		},
-	};
+	return buildCursorPage(rows, limit, isBackward, hasCursor, (row) => createIdCursor(row.id));
 }
 
+export function buildDateIdCursorPage<T extends { startsAt: Date | null; id: number }>(
+	rows: T[],
+	limit: number,
+	isBackward: boolean,
+	hasCursor: boolean,
+): { items: T[]; pageInfo: IdCursorPageInfo } {
+	return buildCursorPage(rows, limit, isBackward, hasCursor, (row) => createDateIdCursor(row.startsAt, row.id));
+}
 /**
  * Like buildIdCursorPage but for tables with string primary keys (e.g. better-auth users).
  */
@@ -124,21 +161,6 @@ export function buildStringIdCursorPage(
 	hasCursor: boolean,
 	key?: string,
 ): { items: Record<string, unknown>[]; pageInfo: IdCursorPageInfo } {
-	const hasExtra = rows.length > limit;
-	let items = hasExtra ? rows.slice(0, limit) : rows;
-	if (isBackward) items = items.slice().reverse();
-
-	const firstItem = items[0];
-	const lastItem = items[items.length - 1];
 	const cursorKey = key ?? "id";
-
-	return {
-		items,
-		pageInfo: {
-			hasNextPage: isBackward ? hasCursor : hasExtra,
-			hasPreviousPage: isBackward ? hasExtra : hasCursor,
-			startCursor: firstItem ? createStringIdCursor(String(firstItem[cursorKey])) : null,
-			endCursor: lastItem ? createStringIdCursor(String(lastItem[cursorKey])) : null,
-		},
-	};
+	return buildCursorPage(rows, limit, isBackward, hasCursor, (row) => createStringIdCursor(String(row[cursorKey])));
 }

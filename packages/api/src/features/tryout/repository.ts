@@ -10,7 +10,7 @@ import {
 	tryoutSubtestQuestion,
 	tryoutUserAnswer,
 } from "@bimbelbeta/db/schema/tryout";
-import { and, asc, desc, eq, getTableColumns, gt, ilike, inArray, isNull, lt, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, getTableColumns, gt, ilike, inArray, isNotNull, isNull, lt, or, sql } from "drizzle-orm";
 import type { CreditRepository } from "@/features/credit/repository";
 import { escapeLikePattern } from "@/lib/utils";
 import type { SubtestQuestionRow } from "./question-utils";
@@ -134,7 +134,7 @@ export type MemberListQuery = {
 	userId: string;
 	limit: number;
 	backward: boolean;
-	cursorId: number | null;
+	cursorStartsAt: { date: Date | null; id: number } | null;
 };
 export type AdminListQuery = {
 	limit: number;
@@ -161,6 +161,18 @@ const subtestCountColumn =
 const attemptCountColumn =
 	sql<number>`(select count(*) from ${tryoutAttempt} where ${tryoutAttempt.tryoutId} = ${tryout.id})`.mapWith(Number);
 
+function memberCursorFilter(cursor: { date: Date | null; id: number }, backward: boolean) {
+	if (cursor.date === null) {
+		return backward
+			? or(isNotNull(tryout.startsAt), and(isNull(tryout.startsAt), gt(tryout.id, cursor.id)))
+			: and(isNull(tryout.startsAt), lt(tryout.id, cursor.id));
+	}
+	return or(
+		backward ? or(isNull(tryout.startsAt), gt(tryout.startsAt, cursor.date)) : lt(tryout.startsAt, cursor.date),
+		and(eq(tryout.startsAt, cursor.date), backward ? gt(tryout.id, cursor.id) : lt(tryout.id, cursor.id)),
+	);
+}
+
 export function createTryoutRepository(client: DbClient) {
 	async function findPublishedTryoutWithSubtests(id: number): Promise<TryoutWithSubtests | undefined> {
 		return client.query.tryout.findFirst({
@@ -182,7 +194,7 @@ export function createTryoutRepository(client: DbClient) {
 	async function listForMember({
 		userId,
 		limit,
-		cursorId,
+		cursorStartsAt,
 		backward,
 	}: MemberListQuery): Promise<MemberTryoutListItem[]> {
 		return client
@@ -199,12 +211,9 @@ export function createTryoutRepository(client: DbClient) {
 			.from(tryout)
 			.leftJoin(tryoutAttempt, and(eq(tryoutAttempt.tryoutId, tryout.id), eq(tryoutAttempt.userId, userId)))
 			.where(
-				and(
-					eq(tryout.status, "published"),
-					cursorId !== null ? (backward ? lt(tryout.id, cursorId) : gt(tryout.id, cursorId)) : undefined,
-				),
+				and(eq(tryout.status, "published"), cursorStartsAt ? memberCursorFilter(cursorStartsAt, backward) : undefined),
 			)
-			.orderBy(backward ? desc(tryout.id) : desc(tryout.startsAt))
+			.orderBy(desc(tryout.startsAt), desc(tryout.id))
 			.limit(limit + 1);
 	}
 

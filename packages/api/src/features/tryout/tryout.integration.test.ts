@@ -14,6 +14,7 @@ import { call } from "@orpc/server";
 import { eq, inArray } from "drizzle-orm";
 import type { Session } from "@/context";
 import { runScheduledJobs } from "@/cron";
+import { createDateIdCursor } from "@/lib/pagination/cursor";
 import { appRouter } from "@/routers";
 
 const enabled = !!process.env.TEST_DATABASE_URL && process.env.DATABASE_URL === process.env.TEST_DATABASE_URL;
@@ -180,6 +181,56 @@ describe.skipIf(!enabled)("tryout feature slice", () => {
 		await expect(call(appRouter.admin.tryout.attempts.list, { id: MISSING_ID }, options)).resolves.toMatchObject({
 			items: [],
 			pageInfo: { hasNextPage: false, hasPreviousPage: false },
+		});
+	});
+
+	test("pages the member list by (startsAt, id) across tied startsAt values", async () => {
+		const startsAt = new Date("2100-01-02");
+		const created = [];
+		const createdIds: number[] = [];
+		try {
+			for (let i = 0; i < 4; i++) {
+				const [row] = await db
+					.insert(tryout)
+					.values({ title: `${id} paged ${i}`, status: "published", category: "utbk", startsAt })
+					.returning();
+				created.push(row!);
+				createdIds.push(row!.id);
+			}
+			const [first, second, third, fourth] = created;
+
+			const page1 = await call(
+				appRouter.tryout.list,
+				{ limit: 2, after: createDateIdCursor(startsAt, MISSING_ID) },
+				options,
+			);
+			expect(page1.items.map((t) => t.id)).toEqual([fourth!.id, third!.id]);
+			expect(page1.pageInfo.hasNextPage).toBe(true);
+
+			const page2 = await call(
+				appRouter.tryout.list,
+				{ limit: 2, after: page1.pageInfo.endCursor ?? undefined },
+				options,
+			);
+			expect(page2.items.map((t) => t.id)).toEqual([second!.id, first!.id]);
+
+			const back = await call(
+				appRouter.tryout.list,
+				{ limit: 100, before: page2.pageInfo.startCursor ?? undefined },
+				options,
+			);
+			expect(back.items.filter((t) => createdIds.includes(t.id)).map((t) => t.id)).toEqual([third!.id, fourth!.id]);
+		} finally {
+			if (created.length > 0) {
+				await db.delete(tryout).where(inArray(tryout.id, createdIds));
+			}
+		}
+	});
+
+	test("a malformed cursor returns BAD_REQUEST", async () => {
+		await expect(call(appRouter.tryout.list, { after: "bogus" }, options)).rejects.toMatchObject({
+			code: "BAD_REQUEST",
+			message: "Kursor tidak valid",
 		});
 	});
 
