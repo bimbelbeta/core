@@ -1,7 +1,7 @@
 {
 	"$schema": "https://turbo.build/schema.json",
 	"ui": "tui",
-	"globalDependencies": ["biome.json", "bunfig.toml", "scripts/**"],
+	"globalDependencies": ["bunfig.toml", "scripts/**"],
 	"remoteCache": {
 		"enabled": true,
 		"teamSlug": "bimbelbeta-production"
@@ -12,9 +12,6 @@
 			"inputs": ["$TURBO_DEFAULT$", ".env*"],
 			"env": ["VITE_SERVER_URL", "VITE_MIDTRANS_CLIENT_KEY", "VITE_PAYMENTS_ENABLED"],
 			"outputs": ["dist/**", ".output/**"]
-		},
-		"lint": {
-			"inputs": ["$TURBO_DEFAULT$", "../../**/*.tsx"]
 		},
 		"check-types": {
 			"cache": true,
