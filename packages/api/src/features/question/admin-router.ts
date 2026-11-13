@@ -26,6 +26,10 @@ const remove = admin.admin.tryout.questions.remove.handler(async ({ input }) => 
 	return { message: "Question berhasil dihapus" };
 });
 
+const listImages = admin.admin.tryout.questions.listImages.handler(async ({ input }) => {
+	return await questionService.listImages(input);
+});
+
 const createChoice = admin.admin.tryout.questions.createChoice.handler(async ({ input }) => {
 	const { id } = await questionService.createChoice(input);
 	return { message: "Choice berhasil dibuat", id };
@@ -47,6 +51,7 @@ export const questionAdminRouter = {
 	find,
 	update,
 	remove,
+	listImages,
 	createChoice,
 	updateChoice,
 	removeChoice,

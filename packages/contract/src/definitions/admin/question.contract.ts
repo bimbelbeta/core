@@ -80,10 +80,11 @@ export const adminQuestionContract = {
 		.input(
 			type({
 				id: "number",
+				"type?": QuestionTypeSchema,
 				content: "unknown",
 				discussion: "unknown",
 				tags: "string[]?",
-				essayCorrectAnswer: "string?",
+				"essayCorrectAnswer?": "string | null",
 				choices: type({ "id?": "number", content: "string", isCorrect: "boolean" }, "[]").optional(),
 			}),
 		)
@@ -92,6 +93,28 @@ export const adminQuestionContract = {
 		.route({ path: "/admin/questions/{id}", method: "DELETE", tags: ["Admin - Questions"] })
 		.input(type({ id: "number" }))
 		.output(MessageResponseSchema),
+	listImages: oc
+		.route({ path: "/admin/questions/images", method: "GET", tags: ["Admin - Questions"] })
+		.input(
+			type({
+				"...": PaginationInputSchema,
+				search: "string?",
+			}),
+		)
+		.output(
+			type({
+				items: type(
+					{
+						url: "string",
+						questionId: "number",
+						questionPreview: "string",
+						createdAt: "Date | null",
+					},
+					"[]",
+				),
+				pageInfo: PageInfoSchema,
+			}),
+		),
 	createChoice: oc
 		.route({ path: "/admin/questions/{questionId}/choices", method: "POST", tags: ["Admin - Questions"] })
 		.input(type({ questionId: "number", content: "string", isCorrect: "boolean" }))

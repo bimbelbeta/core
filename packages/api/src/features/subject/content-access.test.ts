@@ -25,19 +25,19 @@ describe("canAccessContent", () => {
 		expect(canAccessContent(false, "user", 1, 1)).toBe(true);
 	});
 
-	test("free user cannot access non-first subject", () => {
-		expect(canAccessContent(false, "user", 2, 1)).toBe(false);
-		expect(canAccessContent(false, "user", 3, 1)).toBe(false);
+	test("free user can access non-first subject when content is open for all", () => {
+		expect(canAccessContent(false, "user", 2, 1)).toBe(true);
+		expect(canAccessContent(false, "user", 3, 1)).toBe(true);
 	});
 
-	test("free user cannot access non-first content even on first subject", () => {
-		expect(canAccessContent(false, "user", 1, 2)).toBe(false);
-		expect(canAccessContent(false, "user", 1, 3)).toBe(false);
+	test("free user can access non-first content on first subject when content is open for all", () => {
+		expect(canAccessContent(false, "user", 1, 2)).toBe(true);
+		expect(canAccessContent(false, "user", 1, 3)).toBe(true);
 	});
 
 	test("free user with undefined role behaves like regular free user", () => {
 		expect(canAccessContent(false, undefined, 1, 1)).toBe(true);
-		expect(canAccessContent(false, undefined, 2, 1)).toBe(false);
+		expect(canAccessContent(false, undefined, 2, 1)).toBe(true);
 	});
 });
 

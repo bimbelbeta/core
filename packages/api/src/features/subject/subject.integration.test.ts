@@ -171,16 +171,22 @@ describe.skipIf(!enabled)("subject feature", () => {
 		});
 	});
 
-	test("locks content behind premium and serves it with its practice questions", async () => {
+	test("serves content to all authenticated users and includes its practice questions", async () => {
 		const [createdContent] = await db
 			.insert(contentItem)
 			.values({ subjectId, title: `${id} materi`, order: 1 })
 			.returning();
 		contentId = createdContent!.id;
 
-		await expect(call(appRouter.subject.findContent, { contentId }, memberOptions)).rejects.toMatchObject({
-			code: "FORBIDDEN",
-			message: "Konten ini memerlukan akun premium",
+		const memberFound = await call(appRouter.subject.findContent, { contentId }, memberOptions);
+		expect(memberFound).toMatchObject({
+			id: contentId,
+			title: `${id} materi`,
+			order: 1,
+			subjectId,
+			video: null,
+			note: null,
+			practiceQuestions: null,
 		});
 
 		const found = await call(appRouter.subject.findContent, { contentId }, premiumOptions);

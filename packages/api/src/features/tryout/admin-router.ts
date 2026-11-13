@@ -29,6 +29,10 @@ const listAttempts = admin.admin.tryout.attempts.list.handler(async ({ input }) 
 	tryoutAdminService.listAttempts(input),
 );
 
+const exportAttempts = admin.admin.tryout.attempts.export.handler(async ({ input }) =>
+	tryoutAdminService.exportAttempts(input),
+);
+
 const findSubtest = admin.admin.tryout.subtest.find.handler(async ({ input }) => tryoutAdminService.findSubtest(input));
 
 const createSubtest = admin.admin.tryout.subtest.create.handler(async ({ input }) =>
@@ -78,6 +82,7 @@ export const adminTryoutRouter = {
 	updateAccessCodeStatus,
 	attempts: {
 		list: listAttempts,
+		export: exportAttempts,
 	},
 	subtest: {
 		find: findSubtest,

@@ -31,7 +31,18 @@ export function createTryoutReadService(deps: ReadServiceDependencies) {
 	const { repository } = deps;
 
 	return {
-		async list(input: { limit?: number; after?: string; before?: string } | undefined, caller: Session["user"]) {
+		async list(
+			input:
+				| {
+						limit?: number;
+						after?: string;
+						before?: string;
+						level?: "utbk" | "tka";
+						category?: "sd" | "smp" | "sma" | "utbk";
+				  }
+				| undefined,
+			caller: Session["user"],
+		) {
 			const now = new Date();
 			const { limit, backward: isBackward, cursorDateId, hasCursor } = decodeDateIdPage(input);
 
@@ -51,6 +62,10 @@ export function createTryoutReadService(deps: ReadServiceDependencies) {
 				})),
 				pageInfo,
 			};
+		},
+
+		async active(_caller: Session["user"]) {
+			return [];
 		},
 
 		async featured(caller: Session["user"]) {
@@ -74,22 +89,29 @@ export function createTryoutReadService(deps: ReadServiceDependencies) {
 			}
 
 			const normalizedAttempt = { ...attempt, score: parseNullableInt(attempt.score) };
+			const mappedSubtests = tryoutData.subtests.map((subtest) => ({
+				...subtest,
+				questionCount: subtest.questionCount ?? 0,
+			}));
+			const baseTryoutData = { ...tryoutData, subtests: mappedSubtests };
 
 			if (normalizedAttempt.status === "finished") {
 				return {
-					...tryoutData,
+					...baseTryoutData,
 					attempt: normalizedAttempt,
 					currentSubtest: null,
 					overallDeadline: normalizedAttempt.deadline,
-					totalSubtests: tryoutData.subtests.length,
-					completedSubtests: tryoutData.subtests.length,
+					breakDeadline: null,
+					autoSubmittedSubtestId: null,
+					totalSubtests: mappedSubtests.length,
+					completedSubtests: mappedSubtests.length,
 				};
 			}
 
 			const completedSubtestIds = new Set(
 				normalizedAttempt.subtestAttempts.filter((sa) => sa.status === "finished").map((sa) => sa.subtestId),
 			);
-			const currentSubtest = tryoutData.subtests.find((s) => !completedSubtestIds.has(s.id));
+			const currentSubtest = mappedSubtests.find((s) => !completedSubtestIds.has(s.id));
 
 			if (
 				Date.now() > normalizedAttempt.deadline.getTime() &&
@@ -99,22 +121,26 @@ export function createTryoutReadService(deps: ReadServiceDependencies) {
 				await deps.finalizeExpiredAttempt(normalizedAttempt.id);
 
 				return {
-					...tryoutData,
+					...baseTryoutData,
 					attempt: { ...normalizedAttempt, status: "finished" as const, completedAt: new Date() },
 					currentSubtest: null,
 					overallDeadline: normalizedAttempt.deadline,
-					totalSubtests: tryoutData.subtests.length,
+					breakDeadline: null,
+					autoSubmittedSubtestId: null,
+					totalSubtests: mappedSubtests.length,
 					completedSubtests: completedSubtestIds.size,
 				};
 			}
 
 			if (!currentSubtest) {
 				return {
-					...tryoutData,
+					...baseTryoutData,
 					attempt: normalizedAttempt,
 					currentSubtest: null,
 					overallDeadline: normalizedAttempt.deadline,
-					totalSubtests: tryoutData.subtests.length,
+					breakDeadline: normalizedAttempt.breakEndsAt ?? null,
+					autoSubmittedSubtestId: null,
+					totalSubtests: mappedSubtests.length,
 					completedSubtests: completedSubtestIds.size,
 				};
 			}
@@ -123,16 +149,18 @@ export function createTryoutReadService(deps: ReadServiceDependencies) {
 
 			if (!currentSubtestAttempt) {
 				return {
-					...tryoutData,
+					...baseTryoutData,
 					attempt: normalizedAttempt,
 					currentSubtest: {
 						...currentSubtest,
 						questions: [],
 						deadline: null,
-						status: "ongoing" as const,
+						status: "not_started" as const,
 					},
 					overallDeadline: normalizedAttempt.deadline,
-					totalSubtests: tryoutData.subtests.length,
+					breakDeadline: normalizedAttempt.breakEndsAt ?? null,
+					autoSubmittedSubtestId: null,
+					totalSubtests: mappedSubtests.length,
 					completedSubtests: completedSubtestIds.size,
 				};
 			}
@@ -141,7 +169,7 @@ export function createTryoutReadService(deps: ReadServiceDependencies) {
 			const questions = flattenTryoutQuestions(rows);
 
 			return {
-				...tryoutData,
+				...baseTryoutData,
 				attempt: normalizedAttempt,
 				currentSubtest: {
 					...currentSubtest,
@@ -150,7 +178,9 @@ export function createTryoutReadService(deps: ReadServiceDependencies) {
 					status: currentSubtestAttempt.status,
 				},
 				overallDeadline: normalizedAttempt.deadline,
-				totalSubtests: tryoutData.subtests.length,
+				breakDeadline: null,
+				autoSubmittedSubtestId: null,
+				totalSubtests: mappedSubtests.length,
 				completedSubtests: completedSubtestIds.size,
 			};
 		},
@@ -174,13 +204,34 @@ export function createTryoutReadService(deps: ReadServiceDependencies) {
 
 			return {
 				...attempt,
+				attemptNumber: attempt.attemptNumber,
+				isRetake: attempt.attemptNumber > 1,
 				score: parseNullableInt(attempt.score),
 				maxScore: calcTryoutMaxScore(scoringInputs),
 				tryout: attempt.tryout,
 				subtestAttempts: attempt.subtestAttempts.map((sa) => ({
 					...sa,
 					score: parseNullableInt(sa.score),
+					correctCount: 0,
+					questionCount: 0,
 				})),
+				allAttempts: [],
+			};
+		},
+
+		async ranking(
+			_input: { id: number; limit?: number; after?: string; before?: string; search?: string; universityId?: number },
+			_caller: Session["user"],
+		) {
+			return {
+				items: [],
+				myRank: null,
+				pageInfo: {
+					hasNextPage: false,
+					hasPreviousPage: false,
+					startCursor: null,
+					endCursor: null,
+				},
 			};
 		},
 
@@ -202,6 +253,9 @@ export function createTryoutReadService(deps: ReadServiceDependencies) {
 			if (!subtestData) throw new DomainError("NOT_FOUND", "Subtest tidak ditemukan");
 
 			return {
+				tryout: attempt.tryout ?? { id: 0, title: "", category: "utbk" as const },
+				attemptNumber: attempt.attemptNumber,
+				isRetake: attempt.attemptNumber > 1,
 				subtest: subtestData,
 				questions,
 			};

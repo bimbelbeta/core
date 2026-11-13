@@ -1,4 +1,4 @@
-import { handleRequest, type Router, route } from "@better-upload/server";
+import { handleRequest, RejectUpload, type Router, route } from "@better-upload/server";
 import { custom } from "@better-upload/server/clients";
 import { createContext } from "@bimbelbeta/api/context";
 import { appRouter } from "@bimbelbeta/api/routers/index";
@@ -30,6 +30,17 @@ function createS3Router(): Router {
 			tryout: route({
 				fileTypes: ["image/*"],
 				maxFileSize: 1024 * 1024 * 5,
+			}),
+			question: route({
+				fileTypes: ["image/*"],
+				maxFileSize: 1024 * 1024 * 5,
+				onBeforeUpload: async ({ req }) => {
+					const session = await auth.api.getSession({ headers: req.headers });
+					const role = session?.user.role;
+					if (role !== "admin" && role !== "superadmin") {
+						throw new RejectUpload("Akses ditolak");
+					}
+				},
 			}),
 		},
 	};

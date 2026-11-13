@@ -189,7 +189,13 @@ export function createSubmitService(deps: SubmitServiceDependencies) {
 						});
 					}),
 				);
-				return { success: true as const, tryoutCompleted: false as const, nextSubtestId: nextSubtest.id };
+				return {
+					success: true as const,
+					tryoutCompleted: false as const,
+					nextSubtestId: nextSubtest.id,
+					breakDeadline: null,
+					autoCompletedByTimer: false,
+				};
 			}
 
 			const scores = await calculateScores(repository, attempt.id);
@@ -202,7 +208,12 @@ export function createSubmitService(deps: SubmitServiceDependencies) {
 				}),
 			);
 
-			return { success: true as const, tryoutCompleted: true as const, score: scores.totalScore };
+			return {
+				success: true as const,
+				tryoutCompleted: true as const,
+				score: scores.totalScore,
+				autoCompletedByTimer: false,
+			};
 		},
 
 		async submitTryout(input: { tryoutId: number }, userId: string) {

@@ -27,16 +27,25 @@ const TryoutAttemptSchema = createSelectSchema(tryoutAttempt)
 	.pick(
 		"userId",
 		"tryoutId",
+		"attemptNumber",
 		"startedAt",
 		"deadline",
 		"completedAt",
+		"breakEndsAt",
 		"status",
 		"score",
 		"submittedImageUrl",
 		"isRevoked",
 		"usedCredit",
 	)
-	.merge({ id: "number", startedAt: "Date", deadline: "Date", completedAt: "Date | null", score: "number | null" });
+	.merge({
+		id: "number",
+		startedAt: "Date",
+		deadline: "Date",
+		completedAt: "Date | null",
+		breakEndsAt: "Date | null",
+		score: "number | null",
+	});
 
 const AccessCodeSchema = createSelectSchema(tryoutAccessCode)
 	.pick("codePreview", "label", "isActive", "expiresAt", "maxUses", "usedCount", "createdAt", "updatedAt")
@@ -56,8 +65,14 @@ export const adminTryoutAttemptContract = {
 			type({
 				items: type(
 					{
-						attempt: TryoutAttemptSchema,
-						user: { id: "string", name: "string", email: "string", image: "string | null" },
+						attempt: TryoutAttemptSchema.merge({ rank: "number | null" }),
+						user: {
+							id: "string",
+							name: "string",
+							email: "string",
+							image: "string | null",
+							createdAt: "Date",
+						},
 						subtestAttempts: type(
 							{
 								subtestId: "number",
@@ -69,6 +84,52 @@ export const adminTryoutAttemptContract = {
 					"[]",
 				),
 				pageInfo: PageInfoSchema,
+			}),
+		),
+	export: oc
+		.route({ path: "/admin/tryouts/{id}/attempts/export", method: "GET", tags: ["Admin - Tryouts"] })
+		.input(type({ id: "number", "includeRetakes?": "boolean" }))
+		.output(
+			type({
+				tryout: {
+					id: "number",
+					title: "string",
+					category: "'sd' | 'smp' | 'sma' | 'utbk'",
+				},
+				subtests: type(
+					{
+						id: "number",
+						name: "string",
+						order: "number",
+					},
+					"[]",
+				),
+				rows: type(
+					{
+						attemptId: "number",
+						attemptNumber: "number",
+						rank: "number | null",
+						userId: "string",
+						userName: "string",
+						userEmail: "string",
+						targetUniversityName: "string | null",
+						targetStudyProgramName: "string | null",
+						status: "'not_started' | 'ongoing' | 'finished'",
+						startedAt: "Date",
+						completedAt: "Date | null",
+						totalScore: "number | null",
+						subtestScores: type(
+							{
+								subtestId: "number",
+								score: "number | null",
+								correctCount: "number",
+								questionCount: "number",
+							},
+							"[]",
+						),
+					},
+					"[]",
+				),
 			}),
 		),
 };

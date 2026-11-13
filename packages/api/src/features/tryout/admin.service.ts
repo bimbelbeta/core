@@ -233,7 +233,7 @@ export function createTryoutAdminService({ repository }: { repository: AdminServ
 
 			const mappedRows = rows.map((row) => ({
 				id: row.attempt.id,
-				attempt: { ...row.attempt, score: parseNullableInt(row.attempt.score) },
+				attempt: { ...row.attempt, score: parseNullableInt(row.attempt.score), rank: null },
 				user: row.user,
 			}));
 
@@ -259,6 +259,18 @@ export function createTryoutAdminService({ repository }: { repository: AdminServ
 			}));
 
 			return { items, pageInfo };
+		},
+
+		async exportAttempts(input: { id: number; includeRetakes?: boolean }) {
+			return {
+				tryout: {
+					id: input.id,
+					title: "",
+					category: "utbk" as const,
+				},
+				subtests: [],
+				rows: [],
+			};
 		},
 
 		async findSubtest(input: { id: number }) {

@@ -11,6 +11,8 @@ const list = authed.tryout.list.handler(async ({ input, context }) =>
 	tryoutReadService.list(input, context.session.user),
 );
 
+const active = authed.tryout.active.handler(async ({ context }) => tryoutReadService.active(context.session.user));
+
 const start = authed.tryout.start.handler(async ({ input, context }) =>
 	startTryoutService.start(input, context.session.user),
 );
@@ -49,12 +51,17 @@ const result = authed.tryout.result.handler(async ({ input, context }) =>
 	tryoutReadService.result(input, context.session.user),
 );
 
+const ranking = authed.tryout.ranking.handler(async ({ input, context }) =>
+	tryoutReadService.ranking(input, context.session.user),
+);
+
 const review = authed.tryout.review.handler(async ({ input, context }) =>
 	tryoutReadService.review(input, context.session.user),
 );
 
 export const tryoutRouter = {
 	list,
+	active,
 	find,
 	start,
 	featured,
@@ -65,5 +72,6 @@ export const tryoutRouter = {
 	submitTryout,
 	history,
 	result,
+	ranking,
 	review,
 };
