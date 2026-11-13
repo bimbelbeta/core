@@ -22,7 +22,13 @@ export type StartTryoutDependencies = {
 	withTransaction: <T>(fn: (tx: TryoutTransaction<StartTryoutRepository>) => Promise<T>) => Promise<T>;
 };
 
-export type StartTryoutInput = { id: number; imageUrl?: string; useCredit?: boolean; accessCode?: string };
+export type StartTryoutInput = {
+	id: number;
+	imageUrl?: string;
+	useCredit?: boolean;
+	accessCode?: string;
+	retake?: boolean;
+};
 
 export function createStartTryoutService(deps: StartTryoutDependencies) {
 	const { repository } = deps;

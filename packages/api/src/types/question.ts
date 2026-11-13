@@ -57,6 +57,7 @@ export type ReviewQuestion = BaseQuestion & {
 	choices: ChoiceWithAnswer[];
 	userAnswer: UserAnswer;
 	discussion: Record<string, unknown> | null;
+	essayCorrectAnswer: string | null;
 };
 
 /**

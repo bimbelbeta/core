@@ -6,6 +6,7 @@ export type SubtestQuestionRow = {
 	questionContent: string;
 	questionContentJson: unknown;
 	questionType: "multiple_choice" | "multiple_choice_complex" | "essay";
+	essayCorrectAnswer?: string | null;
 	discussion: string;
 	discussionJson: unknown;
 	choiceId: number | null;
@@ -58,6 +59,7 @@ export function flattenReviewQuestions(rows: SubtestQuestionRow[], canSeeDiscuss
 				content: readTiptapContent(row.questionContentJson, row.questionContent),
 				type: row.questionType,
 				discussion: canSeeDiscussion ? readTiptapContent(row.discussionJson, row.discussion) : null,
+				essayCorrectAnswer: canSeeDiscussion ? (row.essayCorrectAnswer ?? null) : null,
 				choices: [],
 				userAnswer: {
 					selectedChoiceId: row.userSelectedChoiceId,

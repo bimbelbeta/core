@@ -35,9 +35,11 @@ const attemptRow = {
 	id: 8,
 	userId: "user-1",
 	tryoutId: 1,
+	attemptNumber: 1,
 	startedAt: new Date(),
 	deadline,
 	completedAt: null,
+	breakEndsAt: null,
 	status: "ongoing" as const,
 	score: null,
 	submittedImageUrl: null,
@@ -219,7 +221,13 @@ describe("tryout submission", () => {
 
 		const result = await service.submitSubtest({ tryoutId: 1, subtestId: 1 }, "user-1");
 
-		expect(result).toEqual({ success: true, tryoutCompleted: false, nextSubtestId: 2 });
+		expect(result).toEqual({
+			success: true,
+			tryoutCompleted: false,
+			nextSubtestId: 2,
+			breakDeadline: null,
+			autoCompletedByTimer: false,
+		});
 		expect(rows.finishedSubtestAttempts).toEqual([5]);
 		expect(rows.finishedAttempts).toEqual([]);
 		expect(rows.savedScores).toEqual([]);
@@ -241,7 +249,7 @@ describe("tryout submission", () => {
 
 		const result = await service.submitSubtest({ tryoutId: 1, subtestId: 2 }, "user-1");
 
-		expect(result).toEqual({ success: true, tryoutCompleted: true, score: 1000 });
+		expect(result).toEqual({ success: true, tryoutCompleted: true, score: 1000, autoCompletedByTimer: false });
 		expect(rows.finishedSubtestAttempts).toEqual([5]);
 		expect(rows.finishedAttempts).toEqual([8]);
 		expect(rows.savedScores).toEqual([

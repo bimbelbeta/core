@@ -37,7 +37,7 @@ export type TryoutStatus = TryoutRow["status"];
 export type AttemptStatus = AttemptRow["status"];
 export type QuestionType = "multiple_choice" | "multiple_choice_complex" | "essay";
 
-export type TryoutWithSubtests = TryoutRow & { subtests: SubtestRow[] };
+export type TryoutWithSubtests = TryoutRow & { subtests: Array<SubtestRow & { questionCount?: number }> };
 export type AttemptWithSubtestAttempts = AttemptRow & { subtestAttempts: SubtestAttemptRow[] };
 export type AccessCodeSummary = Pick<AccessCodeRow, "id" | "isActive" | "expiresAt" | "maxUses" | "usedCount">;
 export type AccessCodeView = Pick<
@@ -62,23 +62,26 @@ export type MemberTryoutListItem = {
 	startsAt: Date | null;
 	endsAt: Date | null;
 	attemptId: number | null;
+	attemptNumber: number | null;
 	category: TryoutRow["category"];
 	attemptStatus: AttemptStatus | null;
 };
-export type FeaturedTryoutRow = MemberTryoutListItem & {
+export type FeaturedTryoutRow = Omit<MemberTryoutListItem, "attemptNumber"> & {
 	startedAt: Date | null;
 	completedAt: Date | null;
 };
 export type HistoryRow = {
 	id: number;
+	attemptNumber: number;
 	score: string | null;
 	status: AttemptStatus;
 	startedAt: Date;
 	completedAt: Date | null;
-	tryout: { id: number; title: string };
+	tryout: { id: number; title: string; category: TryoutRow["category"] };
 };
 export type ResultRow = {
 	id: number;
+	attemptNumber: number;
 	startedAt: Date;
 	score: string | null;
 	deadline: Date;
@@ -95,7 +98,8 @@ export type ResultRow = {
 	};
 	subtestAttempts: Array<Pick<SubtestAttemptRow, "id" | "subtestId" | "status" | "completedAt" | "score">>;
 };
-export type ReviewAttemptRow = Pick<AttemptRow, "id" | "usedCredit" | "usedAccessCode"> & {
+export type ReviewAttemptRow = Pick<AttemptRow, "id" | "attemptNumber" | "usedCredit" | "usedAccessCode"> & {
+	tryout?: { id: number; title: string; category: TryoutRow["category"] } | null;
 	subtestAttempts: SubtestAttemptRow[];
 };
 export type ScoringAnswerRow = {
@@ -112,7 +116,7 @@ export type AnswerFields = {
 };
 export type AdminAttemptItem = {
 	attempt: AttemptRow;
-	user: { id: string; name: string; email: string; image: string | null };
+	user: { id: string; name: string; email: string; image: string | null; createdAt: Date };
 };
 export type SubtestScorePair = {
 	tryoutAttemptId: number;
@@ -205,6 +209,7 @@ export function createTryoutRepository(client: DbClient) {
 				startsAt: tryout.startsAt,
 				endsAt: tryout.endsAt,
 				attemptId: tryoutAttempt.id,
+				attemptNumber: tryoutAttempt.attemptNumber,
 				category: tryout.category,
 				attemptStatus: tryoutAttempt.status,
 			})
@@ -240,10 +245,10 @@ export function createTryoutRepository(client: DbClient) {
 
 	async function listHistory(userId: string): Promise<HistoryRow[]> {
 		const rows = await client.query.tryoutAttempt.findMany({
-			columns: { id: true, score: true, status: true, startedAt: true, completedAt: true },
+			columns: { id: true, attemptNumber: true, score: true, status: true, startedAt: true, completedAt: true },
 			where: { userId: { eq: userId }, status: { eq: "finished" } },
 			orderBy: { startedAt: "desc" },
-			with: { tryout: { columns: { id: true, title: true } } },
+			with: { tryout: { columns: { id: true, title: true, category: true } } },
 		});
 		return rows.map((row) => ({ ...row, tryout: row.tryout! }));
 	}
@@ -252,6 +257,7 @@ export function createTryoutRepository(client: DbClient) {
 		const attempt = await client.query.tryoutAttempt.findFirst({
 			columns: {
 				id: true,
+				attemptNumber: true,
 				startedAt: true,
 				score: true,
 				deadline: true,
@@ -282,9 +288,12 @@ export function createTryoutRepository(client: DbClient) {
 
 	async function findAttemptForReview(attemptId: number, userId: string): Promise<ReviewAttemptRow | undefined> {
 		return client.query.tryoutAttempt.findFirst({
-			columns: { id: true, usedCredit: true, usedAccessCode: true },
+			columns: { id: true, attemptNumber: true, usedCredit: true, usedAccessCode: true },
 			where: { id: { eq: attemptId }, userId: { eq: userId } },
-			with: { subtestAttempts: true },
+			with: {
+				subtestAttempts: true,
+				tryout: { columns: { id: true, title: true, category: true } },
+			},
 		});
 	}
 
@@ -304,6 +313,7 @@ export function createTryoutRepository(client: DbClient) {
 				questionContent: question.content,
 				questionContentJson: question.contentJson,
 				questionType: question.type,
+				essayCorrectAnswer: question.essayCorrectAnswer,
 				discussion: question.discussion,
 				discussionJson: question.discussionJson,
 				choiceId: questionChoice.id,
@@ -667,6 +677,7 @@ export function createTryoutRepository(client: DbClient) {
 					name: user.name,
 					email: user.email,
 					image: user.image,
+					createdAt: user.createdAt,
 				},
 			})
 			.from(tryoutAttempt)

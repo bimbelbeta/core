@@ -92,9 +92,11 @@ const attempt: AttemptWithSubtestAttempts = {
 	id: 8,
 	userId: "user-1",
 	tryoutId: 1,
+	attemptNumber: 1,
 	startedAt: new Date(),
 	deadline: new Date("2100-01-01"),
 	completedAt: null,
+	breakEndsAt: null,
 	status: "ongoing" as const,
 	score: null,
 	submittedImageUrl: null,
@@ -273,7 +275,7 @@ describe("tryout find (resume)", () => {
 		]);
 	});
 
-	test("presents an untouched current subtest as ongoing without questions", async () => {
+	test("presents an untouched current subtest as not_started without questions", async () => {
 		const { service } = makeService({
 			...baseOverrides(),
 			tryout,
@@ -284,7 +286,7 @@ describe("tryout find (resume)", () => {
 			id: 11,
 			questions: [],
 			deadline: null,
-			status: "ongoing",
+			status: "not_started",
 		});
 	});
 
@@ -358,6 +360,7 @@ describe("tryout list", () => {
 				startsAt: null,
 				endsAt: null,
 				attemptId: null,
+				attemptNumber: null,
 				category: "utbk" as const,
 				attemptStatus: null,
 			},
@@ -368,6 +371,7 @@ describe("tryout list", () => {
 				startsAt: new Date(now.getTime() + 60_000),
 				endsAt: null,
 				attemptId: null,
+				attemptNumber: null,
 				category: "utbk" as const,
 				attemptStatus: null,
 			},
@@ -378,6 +382,7 @@ describe("tryout list", () => {
 				startsAt: null,
 				endsAt: new Date(now.getTime() - 60_000),
 				attemptId: null,
+				attemptNumber: null,
 				category: "utbk" as const,
 				attemptStatus: null,
 			},
@@ -388,6 +393,7 @@ describe("tryout list", () => {
 				startsAt: null,
 				endsAt: new Date(now.getTime() + 60_000),
 				attemptId: null,
+				attemptNumber: null,
 				category: "utbk" as const,
 				attemptStatus: null,
 			},
@@ -428,23 +434,25 @@ describe("history and result", () => {
 	test("normalizes history scores and keeps the tryout summary", async () => {
 		const historyRow: HistoryRow = {
 			id: 8,
+			attemptNumber: 1,
 			score: "700",
 			status: "finished",
 			startedAt: new Date(),
 			completedAt: new Date(),
-			tryout: { id: 1, title: "Tryout" },
+			tryout: { id: 1, title: "Tryout", category: "utbk" },
 		};
 		const { service } = makeService({ ...baseOverrides(), history: [historyRow] });
 		const items = await service.history(caller);
 		expect(items).toEqual([
 			{
 				id: 8,
+				attemptNumber: 1,
 				score: 700,
 				maxScore: 0,
 				status: "finished",
 				startedAt: historyRow.startedAt,
 				completedAt: historyRow.completedAt,
-				tryout: { id: 1, title: "Tryout" },
+				tryout: { id: 1, title: "Tryout", category: "utbk" },
 			},
 		]);
 	});
@@ -452,11 +460,12 @@ describe("history and result", () => {
 	test("derives the history max score from the tryout's scoring maps", async () => {
 		const historyRow: HistoryRow = {
 			id: 8,
+			attemptNumber: 1,
 			score: "700",
 			status: "finished",
 			startedAt: new Date(),
 			completedAt: new Date(),
-			tryout: { id: 1, title: "Tryout" },
+			tryout: { id: 1, title: "Tryout", category: "utbk" },
 		};
 		const { service } = makeService({
 			...baseOverrides(),
@@ -481,6 +490,7 @@ describe("history and result", () => {
 	test("normalizes the result scores of the attempt and its subtests", async () => {
 		const result: ResultRow = {
 			id: 8,
+			attemptNumber: 1,
 			startedAt: new Date(),
 			score: "700",
 			deadline: new Date("2100-01-01"),
@@ -506,7 +516,15 @@ describe("history and result", () => {
 		expect(found.score).toBe(700);
 		expect(found.maxScore).toBe(800);
 		expect(found.subtestAttempts).toEqual([
-			{ id: 5, subtestId: 10, status: "finished", completedAt: result.completedAt, score: 800 },
+			{
+				id: 5,
+				subtestId: 10,
+				status: "finished",
+				completedAt: result.completedAt,
+				score: 800,
+				correctCount: 0,
+				questionCount: 0,
+			},
 		]);
 	});
 });
@@ -523,7 +541,13 @@ describe("subtest review", () => {
 	test("rejects a subtest that is not finished", async () => {
 		const { service } = makeService({
 			...baseOverrides(),
-			reviewAttempt: { id: 8, usedCredit: true, usedAccessCode: false, subtestAttempts: [subtestAttemptOngoing] },
+			reviewAttempt: {
+				id: 8,
+				attemptNumber: 1,
+				usedCredit: true,
+				usedAccessCode: false,
+				subtestAttempts: [subtestAttemptOngoing],
+			},
 		});
 		await expect(service.review({ attemptId: 8, subtestId: 11 }, caller)).rejects.toMatchObject({
 			code: "BAD_REQUEST",
@@ -537,6 +561,7 @@ describe("subtest review", () => {
 			...baseOverrides(),
 			reviewAttempt: {
 				id: 8,
+				attemptNumber: 1,
 				usedCredit: true,
 				usedAccessCode: false,
 				subtestAttempts: [subtestAttemptFinished],
@@ -554,6 +579,7 @@ describe("subtest review", () => {
 			...baseOverrides(),
 			reviewAttempt: {
 				id: 8,
+				attemptNumber: 1,
 				usedCredit: false,
 				usedAccessCode: false,
 				subtestAttempts: [subtestAttemptFinished],
@@ -567,6 +593,7 @@ describe("subtest review", () => {
 			...baseOverrides(),
 			reviewAttempt: {
 				id: 8,
+				attemptNumber: 1,
 				usedCredit: false,
 				usedAccessCode: true,
 				subtestAttempts: [subtestAttemptFinished],
@@ -583,7 +610,13 @@ describe("subtest review", () => {
 	test("rejects a removed subtest after the attempt check", async () => {
 		const { service } = makeService({
 			...baseOverrides(),
-			reviewAttempt: { id: 8, usedCredit: true, usedAccessCode: false, subtestAttempts: [subtestAttemptFinished] },
+			reviewAttempt: {
+				id: 8,
+				attemptNumber: 1,
+				usedCredit: true,
+				usedAccessCode: false,
+				subtestAttempts: [subtestAttemptFinished],
+			},
 			subtestName: undefined,
 		});
 		await expect(service.review({ attemptId: 8, subtestId: 10 }, caller)).rejects.toMatchObject({

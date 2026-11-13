@@ -1,0 +1,147 @@
+{
+  "type": "diff",
+  "version": "9",
+  "dialect": "postgres",
+  "id": "aac55fb7-4bbb-4d22-bc83-02c4cb4e2e9d",
+  "prevIds": [
+    "389e8096-6e64-42f3-9767-6d06b8da6a15"
+  ],
+  "footprints": [
+    {
+      "statementType": "drop_unique",
+      "statementTarget": [
+        "table",
+        "app",
+        "tryout_attempt"
+      ],
+      "writes": [
+        "s|uq|app.tryout_attempt.user_tryout_attempt",
+        "n|uq|app.tryout_attempt.user_tryout_attempt",
+        "e|uq|app.tryout_attempt.user_tryout_attempt",
+        "n|con|app.tryout_attempt.user_tryout_attempt",
+        "n|rel|app.user_tryout_attempt"
+      ],
+      "reads": [
+        "n|tbl|app.tryout_attempt",
+        "n|sch|app",
+        "e|col|app.tryout_attempt.user_id",
+        "e|col|app.tryout_attempt.tryout_id"
+      ],
+      "sharedWrites": [
+        "e|uniqueness|app.tryout_attempt.tryout_id.user_id"
+      ]
+    },
+    {
+      "statementType": "add_column",
+      "statementTarget": [
+        "column",
+        "app",
+        "tryout_attempt",
+        "attempt_number"
+      ],
+      "writes": [
+        "s|col|app.tryout_attempt.attempt_number",
+        "n|col|app.tryout_attempt.attempt_number",
+        "e|col|app.tryout_attempt.attempt_number"
+      ],
+      "reads": [
+        "n|tbl|app.tryout_attempt",
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "add_column",
+      "statementTarget": [
+        "column",
+        "app",
+        "tryout_attempt",
+        "break_ends_at"
+      ],
+      "writes": [
+        "s|col|app.tryout_attempt.break_ends_at",
+        "n|col|app.tryout_attempt.break_ends_at",
+        "e|col|app.tryout_attempt.break_ends_at"
+      ],
+      "reads": [
+        "n|tbl|app.tryout_attempt",
+        "n|sch|app"
+      ]
+    },
+    {
+      "statementType": "add_unique",
+      "statementTarget": [
+        "table",
+        "app",
+        "tryout_attempt"
+      ],
+      "writes": [
+        "s|uq|app.tryout_attempt.user_tryout_attempt_number",
+        "n|uq|app.tryout_attempt.user_tryout_attempt_number",
+        "e|uq|app.tryout_attempt.user_tryout_attempt_number",
+        "n|con|app.tryout_attempt.user_tryout_attempt_number",
+        "n|rel|app.user_tryout_attempt_number"
+      ],
+      "reads": [
+        "n|tbl|app.tryout_attempt",
+        "n|sch|app",
+        "n|col|app.tryout_attempt.user_id",
+        "n|col|app.tryout_attempt.tryout_id",
+        "n|col|app.tryout_attempt.attempt_number"
+      ]
+    }
+  ],
+  "deltas": [
+    {
+      "op": "create",
+      "row": {
+        "schema": "app",
+        "table": "tryout_attempt",
+        "name": "attempt_number",
+        "type": "integer",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "1",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "app",
+        "table": "tryout_attempt",
+        "name": "break_ends_at",
+        "type": "timestamp",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "app",
+        "table": "tryout_attempt",
+        "name": "user_tryout_attempt_number",
+        "nameExplicit": true,
+        "columns": [
+          "user_id",
+          "tryout_id",
+          "attempt_number"
+        ],
+        "nullsNotDistinct": false,
+        "entityType": "uniques"
+      }
+    },
+    {
+      "op": "drop",
+      "key": "uniques\u0000[\"app\",\"tryout_attempt\",\"user_tryout_attempt\"]"
+    }
+  ]
+}

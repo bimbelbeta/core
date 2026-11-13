@@ -101,9 +101,11 @@ export const tryoutAttempt = app.table(
 		tryoutId: integer("tryout_id")
 			.notNull()
 			.references(() => tryout.id, { onDelete: "cascade" }),
+		attemptNumber: integer("attempt_number").notNull().default(1),
 		startedAt: timestamp("started_at").notNull().defaultNow(),
 		deadline: timestamp("deadline").notNull(),
 		completedAt: timestamp("completed_at"),
+		breakEndsAt: timestamp("break_ends_at"),
 		status: tryoutAttemptStatus("status").notNull().default("ongoing"),
 		score: numeric("score", { precision: 10, scale: 2 }), // Can be calculated later
 		submittedImageUrl: text("submitted_image_url"),
@@ -112,7 +114,10 @@ export const tryoutAttempt = app.table(
 		usedAccessCode: boolean("used_access_code").notNull().default(false),
 		accessCodeId: integer("access_code_id").references(() => tryoutAccessCode.id, { onDelete: "set null" }),
 	},
-	(t) => [unique("user_tryout_attempt").on(t.userId, t.tryoutId), index("idx_tryout_attempt_tryout_id").on(t.tryoutId)],
+	(t) => [
+		unique("user_tryout_attempt_number").on(t.userId, t.tryoutId, t.attemptNumber),
+		index("idx_tryout_attempt_tryout_id").on(t.tryoutId),
+	],
 );
 
 export const tryoutSubtestAttempt = app.table(

@@ -18,6 +18,7 @@ type ListUsersInput = {
 	search?: string | undefined;
 	role?: Role | undefined;
 	isPremium?: boolean | undefined;
+	sort?: "terbaru" | "terlama" | undefined;
 };
 
 type UpdateUserInput = {

@@ -15,6 +15,7 @@ const UserListInputSchema = type({
 	search: "string?",
 	role: RoleSchema.optional(),
 	isPremium: "boolean?",
+	sort: "'terbaru' | 'terlama'?",
 });
 
 const UserListOutputSchema = type({

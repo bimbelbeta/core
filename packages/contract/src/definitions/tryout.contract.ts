@@ -9,10 +9,11 @@ import {
 import { type } from "arktype";
 import { createSelectSchema } from "drizzle-orm/arktype";
 import { ChoiceSchema, ChoiceWithAnswerSchema } from "@/common/choices";
-import { PageInfoSchema } from "@/common/pagination";
+import { PageInfoSchema, PaginationInputSchema } from "@/common/pagination";
 import { oc } from "@/lib/contract-definition";
 
 const TryoutAttemptStatus = "'not_started' | 'ongoing' | 'finished'";
+const TryoutCategory = "'sd' | 'smp' | 'sma' | 'utbk'";
 
 // ChoiceSchema and ChoiceWithAnswerSchema imported from common/choices
 
@@ -39,7 +40,7 @@ const QuestionBaseSchema = createSelectSchema(question)
 	.merge({ id: "number", content: "Record<string, unknown>" });
 
 const ReviewQuestionBaseSchema = createSelectSchema(question)
-	.pick("type", "discussion")
+	.pick("type", "discussion", "essayCorrectAnswer")
 	.merge({ id: "number", content: "Record<string, unknown>" });
 
 const TryoutQuestionSchema = type({
@@ -57,15 +58,17 @@ const ReviewQuestionSchema = type({
 
 const TryoutSubtestSchema = createSelectSchema(tryoutSubtest)
 	.pick("tryoutId", "name", "description", "duration", "questionOrder", "order", "scoringMap")
-	.merge({ id: "number" });
+	.merge({ id: "number", questionCount: "number" });
 
 const TryoutAttemptSchema = createSelectSchema(tryoutAttempt)
 	.pick(
 		"userId",
 		"tryoutId",
+		"attemptNumber",
 		"startedAt",
 		"deadline",
 		"completedAt",
+		"breakEndsAt",
 		"status",
 		"score",
 		"submittedImageUrl",
@@ -73,7 +76,14 @@ const TryoutAttemptSchema = createSelectSchema(tryoutAttempt)
 		"usedCredit",
 		"usedAccessCode",
 	)
-	.merge({ id: "number", startedAt: "Date", deadline: "Date", completedAt: "Date | null", score: "number | null" });
+	.merge({
+		id: "number",
+		startedAt: "Date",
+		deadline: "Date",
+		completedAt: "Date | null",
+		breakEndsAt: "Date | null",
+		score: "number | null",
+	});
 
 const TryoutSubtestAttemptSchema = createSelectSchema(tryoutSubtestAttempt)
 	.pick("tryoutAttemptId", "subtestId", "startedAt", "completedAt", "deadline", "status", "score")
@@ -81,6 +91,7 @@ const TryoutSubtestAttemptSchema = createSelectSchema(tryoutSubtestAttempt)
 
 const TryoutHistoryItemSchema = type({
 	id: "number",
+	attemptNumber: "number",
 	score: "number | null",
 	maxScore: "number",
 	status: TryoutAttemptStatus,
@@ -89,6 +100,7 @@ const TryoutHistoryItemSchema = type({
 	tryout: {
 		id: "number",
 		title: "string",
+		category: TryoutCategory,
 	},
 });
 
@@ -103,6 +115,8 @@ export const tryoutContract = {
 				"limit?": "number >= 1",
 				"after?": "string",
 				"before?": "string",
+				"level?": "'utbk' | 'tka'",
+				"category?": TryoutCategory,
 			}),
 		)
 		.output(
@@ -111,6 +125,7 @@ export const tryoutContract = {
 					{
 						"...": TryoutListItemSchema,
 						attemptId: "number | null",
+						attemptNumber: "number | null",
 						attemptStatus: `${TryoutAttemptStatus} | null`,
 						isOpen: "boolean",
 					},
@@ -119,6 +134,23 @@ export const tryoutContract = {
 				pageInfo: PageInfoSchema,
 			}),
 		),
+	active: oc.route({ path: "/tryouts/active", method: "GET", tags: ["Tryouts"] }).output(
+		type(
+			{
+				id: "number",
+				attemptId: "number",
+				attemptNumber: "number",
+				title: "string",
+				category: TryoutCategory,
+				totalSubtests: "number",
+				completedSubtests: "number",
+				activeSubtestName: "string | null",
+				activeDeadline: "Date | null",
+				breakDeadline: "Date | null",
+			},
+			"[]",
+		),
+	),
 	featured: oc.route({ path: "/tryouts/featured", method: "GET", tags: ["Tryouts"] }).output(
 		type({
 			"...": TryoutListItemSchema,
@@ -144,21 +176,27 @@ export const tryoutContract = {
 					status: TryoutAttemptStatus,
 				}).or("null"),
 				overallDeadline: "Date",
+				breakDeadline: "Date | null",
+				autoSubmittedSubtestId: "number | null",
 				totalSubtests: "number",
 				completedSubtests: "number",
 			}),
 		),
 	start: oc
 		.route({ path: "/tryouts/{id}/start", method: "POST", tags: ["Tryouts"] })
-		.input(type({ id: "number", imageUrl: "string?", useCredit: "boolean?", accessCode: "string?" }))
+		.input(
+			type({ id: "number", imageUrl: "string?", useCredit: "boolean?", accessCode: "string?", retake: "boolean?" }),
+		)
 		.output(
 			type({
 				id: "number",
 				userId: "string",
 				tryoutId: "number",
+				attemptNumber: "number",
 				startedAt: "Date",
 				deadline: "Date",
 				completedAt: "Date | null",
+				breakEndsAt: "Date | null",
 				status: TryoutAttemptStatus,
 				score: "number | null",
 				submittedImageUrl: "string | null",
@@ -197,9 +235,13 @@ export const tryoutContract = {
 		.route({ path: "/tryouts/{tryoutId}/subtests/{subtestId}/submit", method: "POST", tags: ["Tryouts"] })
 		.input(type({ tryoutId: "number", subtestId: "number" }))
 		.output(
-			type({ success: "true", tryoutCompleted: "false", nextSubtestId: "number" }).or(
-				type({ success: "true", tryoutCompleted: "true", score: "number" }),
-			),
+			type({
+				success: "true",
+				tryoutCompleted: "false",
+				nextSubtestId: "number",
+				breakDeadline: "Date | null",
+				autoCompletedByTimer: "boolean",
+			}).or(type({ success: "true", tryoutCompleted: "true", score: "number", autoCompletedByTimer: "boolean" })),
 		),
 	submitTryout: oc
 		.route({ path: "/tryouts/{tryoutId}/submit", method: "POST", tags: ["Tryouts"] })
@@ -214,6 +256,8 @@ export const tryoutContract = {
 		.output(
 			type({
 				id: "number",
+				attemptNumber: "number",
+				isRetake: "boolean",
 				startedAt: "Date",
 				score: "number | null",
 				maxScore: "number",
@@ -225,7 +269,7 @@ export const tryoutContract = {
 				tryout: {
 					id: "number",
 					title: "string",
-					category: "'sd' | 'smp' | 'sma' | 'utbk'",
+					category: TryoutCategory,
 					passingGrade: "number",
 					subtests: type(
 						{
@@ -243,9 +287,53 @@ export const tryoutContract = {
 						status: TryoutAttemptStatus,
 						completedAt: "Date | null",
 						score: "number | null",
+						correctCount: "number",
+						questionCount: "number",
 					},
 					"[]",
 				),
+				allAttempts: type(
+					{
+						id: "number",
+						attemptNumber: "number",
+						score: "number | null",
+						status: TryoutAttemptStatus,
+						completedAt: "Date | null",
+					},
+					"[]",
+				),
+			}),
+		),
+	ranking: oc
+		.route({ path: "/tryouts/{id}/ranking", method: "GET", tags: ["Tryouts"] })
+		.input(
+			type({
+				"...": PaginationInputSchema,
+				id: "number",
+				"search?": "string",
+				"universityId?": "number",
+			}),
+		)
+		.output(
+			type({
+				items: type(
+					{
+						rank: "number",
+						userId: "string",
+						name: "string",
+						targetUniversityName: "string | null",
+						targetStudyProgramName: "string | null",
+						score: "number",
+					},
+					"[]",
+				),
+				myRank: type({
+					rank: "number",
+					score: "number",
+					totalParticipants: "number",
+					percentile: "number",
+				}).or("null"),
+				pageInfo: PageInfoSchema,
 			}),
 		),
 	review: oc
@@ -255,5 +343,17 @@ export const tryoutContract = {
 			tags: ["Tryouts"],
 		})
 		.input(type({ attemptId: "number", subtestId: "number" }))
-		.output(type({ subtest: { name: "string" }, questions: ReviewQuestionSchema.array() })),
+		.output(
+			type({
+				tryout: {
+					id: "number",
+					title: "string",
+					category: TryoutCategory,
+				},
+				attemptNumber: "number",
+				isRetake: "boolean",
+				subtest: { name: "string" },
+				questions: ReviewQuestionSchema.array(),
+			}),
+		),
 };

@@ -53,10 +53,11 @@ function validateQuestion(input: CreateQuestionInput): CreateQuestionValidation 
 
 type UpdateQuestionInput = {
 	id: number;
+	type?: QuestionRow["type"];
 	content: unknown;
 	discussion: unknown;
 	tags?: string[];
-	essayCorrectAnswer?: string;
+	essayCorrectAnswer?: string | null;
 	choices?: { id?: number; content: string; isCorrect: boolean }[];
 };
 
@@ -179,6 +180,18 @@ export function createQuestionService({ repository }: { repository: QuestionRepo
 		async remove(input: { id: number }) {
 			const removed = await repository.deleteQuestion(input.id);
 			if (!removed) throw new DomainError("NOT_FOUND", "Question tidak ditemukan");
+		},
+
+		async listImages(_input: { limit?: number; after?: string; before?: string; search?: string }) {
+			return {
+				items: [],
+				pageInfo: {
+					hasNextPage: false,
+					hasPreviousPage: false,
+					startCursor: null,
+					endCursor: null,
+				},
+			};
 		},
 
 		async createChoice(input: { questionId: number; content: string; isCorrect: boolean }) {
