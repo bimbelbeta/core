@@ -221,16 +221,13 @@ describe("subject service findContent", () => {
 		await expectDomainError(service.findContent({ contentId: 12 }, caller), "NOT_FOUND", "Konten tidak ditemukan");
 	});
 
-	test("serves content to a non-premium user when content access is open for all", async () => {
-		const service = makeService(
-			makeRepository({
-				findContentDetail: async () => detailRow,
-				listPracticeQuestionLinks: async () => [],
-			}),
-			makeQuestionRepository(),
+	test("throws FORBIDDEN for a non-premium user on locked content", async () => {
+		const service = makeService(makeRepository({ findContentDetail: async () => detailRow }), makeQuestionRepository());
+		await expectDomainError(
+			service.findContent({ contentId: 12 }, caller),
+			"FORBIDDEN",
+			"Konten ini memerlukan akun premium",
 		);
-		const result = await service.findContent({ contentId: 12 }, caller);
-		expect(result.id).toBe(12);
 	});
 
 	test("serves locked content to a premium caller", async () => {

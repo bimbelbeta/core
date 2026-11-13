@@ -1,12 +1,14 @@
 export const BYPASS_ROLES = ["admin", "superadmin"] as const;
 
 export function canAccessContent(
-	_userIsPremium: boolean,
-	_userRole: string | undefined,
-	_subjectOrder: number,
-	_contentOrder: number,
+	userIsPremium: boolean,
+	userRole: string | undefined,
+	subjectOrder: number,
+	contentOrder: number,
 ): boolean {
-	return true;
+	if (userRole && (BYPASS_ROLES as readonly string[]).includes(userRole)) return true;
+	if (userIsPremium) return true;
+	return isFirstSubject(subjectOrder) && isFirstContent(contentOrder);
 }
 
 export function isFirstSubject(subjectOrder: number): boolean {
