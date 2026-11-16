@@ -1,4 +1,5 @@
 import { defineRelationsPart } from "drizzle-orm";
+import { primaryKey } from "drizzle-orm/pg-core";
 import { boolean, index, integer, jsonb, text, timestamp, unique } from "drizzle-orm/pg-core";
 import { app } from "@/schema/app";
 import { user } from "@/schema/auth";
@@ -78,7 +79,7 @@ export const contentPracticeQuestions = app.table(
 	},
 	(t) => [
 		// Composite primary key
-		{ pk: { columns: [t.contentItemId, t.questionId] } },
+		primaryKey({ columns: [t.contentItemId, t.questionId] }),
 		// Ensure unique order per content
 		unique("unique_practice_questions_order").on(t.contentItemId, t.order),
 	],
