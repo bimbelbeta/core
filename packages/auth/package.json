@@ -29,7 +29,7 @@
 		"arktype": "catalog:",
 		"better-auth": "catalog:",
 		"dotenv": "catalog:",
-		"resend": "^6.37.0",
+		"resend": "^6.38.0",
 		"zod": "^4.6.7"
 	}
 }
