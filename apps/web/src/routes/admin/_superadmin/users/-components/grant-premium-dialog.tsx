@@ -85,13 +85,7 @@ export function GrantPremiumDialog({
 							</Button>
 						</PopoverTrigger>
 						<PopoverContent className="w-auto p-0" align="start">
-							<Calendar
-								mode="single"
-								selected={date}
-								onSelect={setDate}
-								disabled={(d) => d < new Date()}
-								initialFocus
-							/>
+							<Calendar mode="single" selected={date} onSelect={setDate} disabled={(d) => d < new Date()} autoFocus />
 						</PopoverContent>
 					</Popover>
 				</AdminFieldRow>
