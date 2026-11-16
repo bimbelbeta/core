@@ -1,0 +1,1 @@
+ALTER TABLE "app"."content_practice_questions" ADD PRIMARY KEY ("content_item_id","question_id");
