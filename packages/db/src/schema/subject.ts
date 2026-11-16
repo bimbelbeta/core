@@ -1,6 +1,5 @@
 import { defineRelationsPart } from "drizzle-orm";
-import { primaryKey } from "drizzle-orm/pg-core";
-import { boolean, index, integer, jsonb, text, timestamp, unique } from "drizzle-orm/pg-core";
+import { boolean, index, integer, jsonb, primaryKey, text, timestamp, unique } from "drizzle-orm/pg-core";
 import { app } from "@/schema/app";
 import { user } from "@/schema/auth";
 import { question } from "@/schema/question";
