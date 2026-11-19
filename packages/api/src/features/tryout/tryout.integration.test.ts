@@ -279,17 +279,92 @@ describe.skipIf(!enabled)("tryout feature slice", () => {
 		});
 	});
 
-	test("still returns FORBIDDEN for a rejected access path", async () => {
-		await expect(call(appRouter.tryout.start, { id: openTryoutId }, options)).rejects.toMatchObject({
-			code: "FORBIDDEN",
-			message: "Upload bukti pembayaran, gunakan kredit tryout, atau masukkan kode akses",
-		});
-		await expect(
-			call(appRouter.tryout.start, { id: openTryoutId, accessCode: "TIDAK-ADA" }, options),
-		).rejects.toMatchObject({
-			code: "FORBIDDEN",
-			message: "Kode akses tidak valid",
-		});
+	test("starts any published tryout for free and surfaces it in tryout.active", async () => {
+		const [freeTryout] = await db
+			.insert(tryout)
+			.values({ title: `${id} free-active`, status: "published", category: "sma" })
+			.returning();
+		try {
+			await db.insert(tryoutSubtest).values([
+				{ tryoutId: freeTryout!.id, name: "Subtest 1", duration: 30, order: 1 },
+				{ tryoutId: freeTryout!.id, name: "Subtest 2", duration: 30, order: 2 },
+			]);
+
+			const started = await call(appRouter.tryout.start, { id: freeTryout!.id }, options);
+			expect(started).toMatchObject({
+				tryoutId: freeTryout!.id,
+				usedCredit: false,
+				usedAccessCode: false,
+				submittedImageUrl: null,
+			});
+
+			const repeated = await call(appRouter.tryout.start, { id: freeTryout!.id, accessCode: "IGNORED" }, options);
+			expect(repeated.id).toBe(started.id);
+
+			const active = await call(appRouter.tryout.active, undefined, options);
+			expect(active).toEqual(
+				expect.arrayContaining([
+					expect.objectContaining({
+						id: freeTryout!.id,
+						attemptId: started.id,
+						attemptNumber: 1,
+						title: `${id} free-active`,
+						category: "sma",
+						totalSubtests: 2,
+						completedSubtests: 0,
+						activeSubtestName: "Subtest 1",
+						activeDeadline: expect.any(Date),
+						breakDeadline: null,
+					}),
+				]),
+			);
+		} finally {
+			await db.delete(tryout).where(eq(tryout.id, freeTryout!.id));
+		}
+	});
+
+	test("filters tryout.list by level, category, and their intersection", async () => {
+		const created = await db
+			.insert(tryout)
+			.values([
+				{ title: `${id} sd`, status: "published", category: "sd" },
+				{ title: `${id} smp`, status: "published", category: "smp" },
+				{ title: `${id} sma`, status: "published", category: "sma" },
+				{ title: `${id} utbk`, status: "published", category: "utbk" },
+			])
+			.returning();
+		const createdIds = created.map((row) => row.id);
+		const [sdRow, smpRow, smaRow, utbkRow] = created;
+		try {
+			const tka = await call(appRouter.tryout.list, { limit: 50, level: "tka" }, options);
+			const tkaIds = tka.items.map((item) => item.id);
+			expect(tkaIds).toContain(sdRow!.id);
+			expect(tkaIds).toContain(smpRow!.id);
+			expect(tkaIds).toContain(smaRow!.id);
+			expect(tkaIds).not.toContain(utbkRow!.id);
+			expect(tka.items.every((item) => ["sd", "smp", "sma"].includes(item.category))).toBe(true);
+
+			const utbk = await call(appRouter.tryout.list, { limit: 50, level: "utbk" }, options);
+			const utbkIds = utbk.items.map((item) => item.id);
+			expect(utbkIds).toContain(utbkRow!.id);
+			expect(utbkIds).not.toContain(sdRow!.id);
+			expect(utbkIds).not.toContain(smpRow!.id);
+			expect(utbkIds).not.toContain(smaRow!.id);
+			expect(utbk.items.every((item) => item.category === "utbk")).toBe(true);
+
+			const smpOnly = await call(appRouter.tryout.list, { limit: 50, category: "smp" }, options);
+			expect(smpOnly.items.map((item) => item.id)).toContain(smpRow!.id);
+			expect(smpOnly.items.every((item) => item.category === "smp")).toBe(true);
+
+			const tkaSmp = await call(appRouter.tryout.list, { limit: 50, level: "tka", category: "smp" }, options);
+			expect(tkaSmp.items.map((item) => item.id)).toContain(smpRow!.id);
+			expect(tkaSmp.items.every((item) => item.category === "smp")).toBe(true);
+
+			const impossible = await call(appRouter.tryout.list, { limit: 50, level: "utbk", category: "smp" }, options);
+			expect(impossible.items).toEqual([]);
+		} finally {
+			await db.delete(tryout).where(inArray(tryout.id, createdIds));
+		}
 	});
 
 	test("still returns BAD_REQUEST for an expired window", async () => {

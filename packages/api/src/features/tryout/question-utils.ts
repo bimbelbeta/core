@@ -50,7 +50,7 @@ export function flattenTryoutQuestions(rows: SubtestQuestionRow[]): TryoutQuesti
 	return Array.from(map.values());
 }
 
-export function flattenReviewQuestions(rows: SubtestQuestionRow[], canSeeDiscussion: boolean): ReviewQuestion[] {
+export function flattenReviewQuestions(rows: SubtestQuestionRow[]): ReviewQuestion[] {
 	const map = new Map<number, ReviewQuestion>();
 	for (const row of rows) {
 		if (!map.has(row.questionId)) {
@@ -58,8 +58,8 @@ export function flattenReviewQuestions(rows: SubtestQuestionRow[], canSeeDiscuss
 				id: row.questionId,
 				content: readTiptapContent(row.questionContentJson, row.questionContent),
 				type: row.questionType,
-				discussion: canSeeDiscussion ? readTiptapContent(row.discussionJson, row.discussion) : null,
-				essayCorrectAnswer: canSeeDiscussion ? (row.essayCorrectAnswer ?? null) : null,
+				discussion: readTiptapContent(row.discussionJson, row.discussion),
+				essayCorrectAnswer: row.essayCorrectAnswer ?? null,
 				choices: [],
 				userAnswer: {
 					selectedChoiceId: row.userSelectedChoiceId,

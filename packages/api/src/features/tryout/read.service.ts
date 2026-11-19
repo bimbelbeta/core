@@ -13,6 +13,7 @@ export type ReadRepository = Pick<
 	| "findPublishedTryoutWithSubtests"
 	| "findAttemptWithSubtestAttempts"
 	| "listForMember"
+	| "listActiveAttempts"
 	| "findFeatured"
 	| "listHistory"
 	| "listSubtestScoringInputs"
@@ -51,6 +52,8 @@ export function createTryoutReadService(deps: ReadServiceDependencies) {
 				limit,
 				backward: isBackward,
 				cursorStartsAt: cursorDateId ?? null,
+				level: input?.level,
+				category: input?.category,
 			});
 
 			const { items, pageInfo } = buildDateIdCursorPage(rows, limit, isBackward, hasCursor);
@@ -64,8 +67,34 @@ export function createTryoutReadService(deps: ReadServiceDependencies) {
 			};
 		},
 
-		async active(_caller: Session["user"]) {
-			return [];
+		async active(caller: Session["user"]) {
+			const rows = await repository.listActiveAttempts(caller.id, new Date());
+			return rows.flatMap((row) => {
+				if (row.tryout?.status !== "published") return [];
+				const tryoutData = row.tryout;
+				const completedSubtestIds = new Set(
+					row.subtestAttempts.filter((sa) => sa.status === "finished").map((sa) => sa.subtestId),
+				);
+				const ongoing = row.subtestAttempts.find((sa) => sa.status === "ongoing");
+				const activeSubtest = ongoing
+					? tryoutData.subtests.find((s) => s.id === ongoing.subtestId)
+					: tryoutData.subtests.find((s) => !completedSubtestIds.has(s.id));
+
+				return [
+					{
+						id: tryoutData.id,
+						attemptId: row.id,
+						attemptNumber: row.attemptNumber,
+						title: tryoutData.title,
+						category: tryoutData.category,
+						totalSubtests: tryoutData.subtests.length,
+						completedSubtests: completedSubtestIds.size,
+						activeSubtestName: activeSubtest?.name ?? null,
+						activeDeadline: ongoing ? ongoing.deadline : null,
+						breakDeadline: ongoing ? null : (row.breakEndsAt ?? null),
+					},
+				];
+			});
 		},
 
 		async featured(caller: Session["user"]) {
@@ -239,15 +268,13 @@ export function createTryoutReadService(deps: ReadServiceDependencies) {
 			const attempt = await repository.findAttemptForReview(input.attemptId, caller.id);
 			if (!attempt) throw new DomainError("NOT_FOUND", "Gagal menemukan pengerjaan tryout.");
 
-			const canSeeDiscussion = caller.isPremium || attempt.usedCredit || attempt.usedAccessCode;
-
 			const subtestAttempt = attempt.subtestAttempts.find((sa) => sa.subtestId === input.subtestId);
 			if (subtestAttempt?.status !== "finished") {
 				throw new DomainError("BAD_REQUEST", "Subtest belum selesai atau tidak ditemukan.");
 			}
 
 			const rows = await repository.listSubtestQuestionRows(input.subtestId, attempt.id);
-			const questions = flattenReviewQuestions(rows, canSeeDiscussion);
+			const questions = flattenReviewQuestions(rows);
 
 			const subtestData = await repository.findSubtestName(input.subtestId);
 			if (!subtestData) throw new DomainError("NOT_FOUND", "Subtest tidak ditemukan");

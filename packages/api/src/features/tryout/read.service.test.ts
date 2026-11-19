@@ -1,12 +1,15 @@
 import { describe, expect, test } from "bun:test";
 import type { Session } from "@/context";
 import { createDateIdCursor } from "@/lib/pagination/cursor";
+import type { SubtestQuestionRow } from "./question-utils";
 import type { ReadServiceDependencies } from "./read.service";
 import { createTryoutReadService } from "./read.service";
 import type {
+	ActiveAttemptRow,
 	AttemptWithSubtestAttempts,
 	FeaturedTryoutRow,
 	HistoryRow,
+	MemberListQuery,
 	MemberTryoutListItem,
 	ResultRow,
 	ReviewAttemptRow,
@@ -112,6 +115,7 @@ const questionRows = [
 		questionContent: "Berapa hasil 1 + 1?",
 		questionContentJson: null,
 		questionType: "multiple_choice" as const,
+		essayCorrectAnswer: null,
 		discussion: "Pembahasan",
 		discussionJson: null,
 		choiceId: 31,
@@ -130,14 +134,15 @@ type ReadRepositoryOverrides = {
 	tryout?: TryoutWithSubtests | undefined;
 	attempts?: Array<AttemptWithSubtestAttempts | undefined>;
 	attempt?: AttemptWithSubtestAttempts | undefined;
+	activeAttempts?: ActiveAttemptRow[];
 	featured?: FeaturedTryoutRow | undefined;
 	history?: HistoryRow[];
 	scoringInputs?: SubtestScoringInput[];
 	result?: ResultRow | undefined;
 	reviewAttempt?: ReviewAttemptRow | undefined;
 	subtestName?: { name: string } | undefined;
-	rows?: (typeof questionRows)[];
-	subtestQuestionRows?: (typeof questionRows)[];
+	rows?: SubtestQuestionRow[][];
+	subtestQuestionRows?: SubtestQuestionRow[][];
 	finalized: number[];
 };
 
@@ -152,6 +157,7 @@ function makeRepository(overrides: ReadRepositoryOverrides) {
 			pendingAttempts.length > 0 ? pendingAttempts.shift() : overrides.attempt,
 		listSubtestsForTryout: async () => subtests,
 		listForMember: async (): Promise<MemberTryoutListItem[]> => [],
+		listActiveAttempts: async (): Promise<ActiveAttemptRow[]> => overrides.activeAttempts ?? [],
 		findFeatured: async () => overrides.featured,
 		listHistory: async () => overrides.history ?? [],
 		listSubtestScoringInputs: async () => overrides.scoringInputs ?? [],
@@ -398,10 +404,15 @@ describe("tryout list", () => {
 				attemptStatus: null,
 			},
 		];
+		const listCalls: MemberListQuery[] = [];
 		const repository = {
 			findPublishedTryoutWithSubtests: async () => undefined,
 			findAttemptWithSubtestAttempts: async () => undefined,
-			listForMember: async () => rows,
+			listForMember: async (query: MemberListQuery) => {
+				listCalls.push(query);
+				return rows;
+			},
+			listActiveAttempts: async () => [],
 			findFeatured: async () => undefined,
 			listHistory: async () => [],
 			listSubtestScoringInputs: async () => [],
@@ -427,6 +438,133 @@ describe("tryout list", () => {
 			startCursor: createDateIdCursor(rows[0]!.startsAt, 1),
 			endCursor: createDateIdCursor(rows[3]!.startsAt, 4),
 		});
+
+		await service.list({ level: "tka", category: "smp" }, caller);
+		expect(listCalls[1]).toMatchObject({
+			userId: caller.id,
+			level: "tka",
+			category: "smp",
+		});
+	});
+});
+
+describe("active tryouts", () => {
+	test("maps ongoing, break, and non-published active attempts", async () => {
+		const ongoingDeadline = new Date("2100-01-01T10:00:00Z");
+		const breakDeadline = new Date("2100-01-01T10:05:00Z");
+		const activeAttempts: ActiveAttemptRow[] = [
+			{
+				id: 101,
+				attemptNumber: 1,
+				breakEndsAt: new Date("2100-01-01T09:59:00Z"),
+				tryout: {
+					id: 1,
+					title: "UTBK Ongoing",
+					category: "utbk",
+					status: "published",
+					subtests: [
+						{ id: 10, name: "PU", order: 1 },
+						{ id: 11, name: "PBM", order: 2 },
+					],
+				},
+				subtestAttempts: [
+					{ subtestId: 10, status: "finished", deadline: new Date("2100-01-01T09:30:00Z") },
+					{ subtestId: 11, status: "ongoing", deadline: ongoingDeadline },
+				],
+			},
+			{
+				id: 102,
+				attemptNumber: 2,
+				breakEndsAt: breakDeadline,
+				tryout: {
+					id: 2,
+					title: "TKA Break",
+					category: "sma",
+					status: "published",
+					subtests: [
+						{ id: 20, name: "Matematika", order: 1 },
+						{ id: 21, name: "Fisika", order: 2 },
+						{ id: 22, name: "Kimia", order: 3 },
+					],
+				},
+				subtestAttempts: [{ subtestId: 20, status: "finished", deadline: new Date("2100-01-01T09:30:00Z") }],
+			},
+			{
+				id: 103,
+				attemptNumber: 1,
+				breakEndsAt: null,
+				tryout: {
+					id: 3,
+					title: "Draft Hidden",
+					category: "sd",
+					status: "draft",
+					subtests: [{ id: 30, name: "Sub", order: 1 }],
+				},
+				subtestAttempts: [{ subtestId: 30, status: "ongoing", deadline: ongoingDeadline }],
+			},
+			{
+				id: 104,
+				attemptNumber: 1,
+				breakEndsAt: null,
+				tryout: null,
+				subtestAttempts: [],
+			},
+			{
+				id: 105,
+				attemptNumber: 1,
+				breakEndsAt: null,
+				tryout: {
+					id: 5,
+					title: "All Finished",
+					category: "smp",
+					status: "published",
+					subtests: [{ id: 50, name: "Only", order: 1 }],
+				},
+				subtestAttempts: [{ subtestId: 50, status: "finished", deadline: new Date("2100-01-01T09:30:00Z") }],
+			},
+		];
+		const { service } = makeService({ ...baseOverrides(), activeAttempts });
+
+		const result = await service.active(caller);
+
+		expect(result).toEqual([
+			{
+				id: 1,
+				attemptId: 101,
+				attemptNumber: 1,
+				title: "UTBK Ongoing",
+				category: "utbk",
+				totalSubtests: 2,
+				completedSubtests: 1,
+				activeSubtestName: "PBM",
+				activeDeadline: ongoingDeadline,
+				breakDeadline: null,
+			},
+			{
+				id: 2,
+				attemptId: 102,
+				attemptNumber: 2,
+				title: "TKA Break",
+				category: "sma",
+				totalSubtests: 3,
+				completedSubtests: 1,
+				activeSubtestName: "Fisika",
+				activeDeadline: null,
+				breakDeadline,
+			},
+			{
+				id: 5,
+				attemptId: 105,
+				attemptNumber: 1,
+				title: "All Finished",
+				category: "smp",
+				totalSubtests: 1,
+				completedSubtests: 1,
+				activeSubtestName: null,
+				activeDeadline: null,
+				breakDeadline: null,
+			},
+		]);
 	});
 });
 
@@ -544,8 +682,6 @@ describe("subtest review", () => {
 			reviewAttempt: {
 				id: 8,
 				attemptNumber: 1,
-				usedCredit: true,
-				usedAccessCode: false,
 				subtestAttempts: [subtestAttemptOngoing],
 			},
 		});
@@ -555,56 +691,47 @@ describe("subtest review", () => {
 		});
 	});
 
-	test("hides discussions without premium, credit, or access code", async () => {
-		const premium = { ...caller, isPremium: true };
-		const credits = makeService({
-			...baseOverrides(),
-			reviewAttempt: {
-				id: 8,
-				attemptNumber: 1,
-				usedCredit: true,
-				usedAccessCode: false,
-				subtestAttempts: [subtestAttemptFinished],
+	test("always exposes discussions and essay correct answers for finished subtests", async () => {
+		const essayRows = [
+			{
+				questionId: 22,
+				questionContent: "Jelaskan!",
+				questionContentJson: null,
+				questionType: "essay" as const,
+				essayCorrectAnswer: "Kunci esai",
+				discussion: "Pembahasan esai",
+				discussionJson: null,
+				choiceId: null,
+				choiceContent: null,
+				choiceCode: null,
+				isCorrectChoice: null,
+				userSelectedChoiceId: null,
+				userSelectedChoiceIds: null,
+				userEssayAnswer: "Jawaban",
+				userIsDoubtful: false,
 			},
-			subtestName: { name: "First" },
-		});
-		const withCredits = await credits.service.review({ attemptId: 8, subtestId: 10 }, caller);
-		expect(withCredits.questions[0]?.discussion).toEqual({
-			type: "doc",
-			content: [{ type: "paragraph", content: [{ type: "text", text: "Pembahasan" }] }],
-		});
-		expect(withCredits.subtest).toEqual({ name: "First" });
-
+		];
 		const free = makeService({
 			...baseOverrides(),
 			reviewAttempt: {
 				id: 8,
 				attemptNumber: 1,
-				usedCredit: false,
-				usedAccessCode: false,
 				subtestAttempts: [subtestAttemptFinished],
 			},
 			subtestName: { name: "First" },
+			subtestQuestionRows: [[...questionRows, ...essayRows]],
 		});
-		const withoutDiscussion = await free.service.review({ attemptId: 8, subtestId: 10 }, caller);
-		expect(withoutDiscussion.questions[0]?.discussion).toBeNull();
-
-		const paidByCode = makeService({
-			...baseOverrides(),
-			reviewAttempt: {
-				id: 8,
-				attemptNumber: 1,
-				usedCredit: false,
-				usedAccessCode: true,
-				subtestAttempts: [subtestAttemptFinished],
-			},
-			subtestName: { name: "First" },
-		});
-		const withCode = await paidByCode.service.review({ attemptId: 8, subtestId: 10 }, premium);
-		expect(withCode.questions[0]?.discussion).toEqual({
+		const result = await free.service.review({ attemptId: 8, subtestId: 10 }, { ...caller, isPremium: false });
+		expect(result.questions[0]?.discussion).toEqual({
 			type: "doc",
 			content: [{ type: "paragraph", content: [{ type: "text", text: "Pembahasan" }] }],
 		});
+		expect(result.questions[1]?.discussion).toEqual({
+			type: "doc",
+			content: [{ type: "paragraph", content: [{ type: "text", text: "Pembahasan esai" }] }],
+		});
+		expect(result.questions[1]?.essayCorrectAnswer).toBe("Kunci esai");
+		expect(result.subtest).toEqual({ name: "First" });
 	});
 
 	test("rejects a removed subtest after the attempt check", async () => {
@@ -613,8 +740,6 @@ describe("subtest review", () => {
 			reviewAttempt: {
 				id: 8,
 				attemptNumber: 1,
-				usedCredit: true,
-				usedAccessCode: false,
 				subtestAttempts: [subtestAttemptFinished],
 			},
 			subtestName: undefined,

@@ -98,9 +98,17 @@ export type ResultRow = {
 	};
 	subtestAttempts: Array<Pick<SubtestAttemptRow, "id" | "subtestId" | "status" | "completedAt" | "score">>;
 };
-export type ReviewAttemptRow = Pick<AttemptRow, "id" | "attemptNumber" | "usedCredit" | "usedAccessCode"> & {
+export type ReviewAttemptRow = Pick<AttemptRow, "id" | "attemptNumber"> & {
 	tryout?: { id: number; title: string; category: TryoutRow["category"] } | null;
 	subtestAttempts: SubtestAttemptRow[];
+};
+export type ActiveAttemptRow = Pick<AttemptRow, "id" | "attemptNumber" | "breakEndsAt"> & {
+	tryout:
+		| (Pick<TryoutRow, "id" | "title" | "category" | "status"> & {
+				subtests: Array<Pick<SubtestRow, "id" | "name" | "order">>;
+		  })
+		| null;
+	subtestAttempts: Array<Pick<SubtestAttemptRow, "subtestId" | "status" | "deadline">>;
 };
 export type ScoringAnswerRow = {
 	questionId: number;
@@ -139,6 +147,8 @@ export type MemberListQuery = {
 	limit: number;
 	backward: boolean;
 	cursorStartsAt: { date: Date | null; id: number } | null;
+	level?: "utbk" | "tka";
+	category?: TryoutRow["category"];
 };
 export type AdminListQuery = {
 	limit: number;
@@ -200,6 +210,8 @@ export function createTryoutRepository(client: DbClient) {
 		limit,
 		cursorStartsAt,
 		backward,
+		level,
+		category,
 	}: MemberListQuery): Promise<MemberTryoutListItem[]> {
 		return client
 			.select({
@@ -216,10 +228,41 @@ export function createTryoutRepository(client: DbClient) {
 			.from(tryout)
 			.leftJoin(tryoutAttempt, and(eq(tryoutAttempt.tryoutId, tryout.id), eq(tryoutAttempt.userId, userId)))
 			.where(
-				and(eq(tryout.status, "published"), cursorStartsAt ? memberCursorFilter(cursorStartsAt, backward) : undefined),
+				and(
+					eq(tryout.status, "published"),
+					category ? eq(tryout.category, category) : undefined,
+					level === "utbk"
+						? eq(tryout.category, "utbk")
+						: level === "tka"
+							? inArray(tryout.category, ["sd", "smp", "sma"])
+							: undefined,
+					cursorStartsAt ? memberCursorFilter(cursorStartsAt, backward) : undefined,
+				),
 			)
 			.orderBy(backward ? asc(tryout.startsAt) : desc(tryout.startsAt), backward ? asc(tryout.id) : desc(tryout.id))
 			.limit(limit + 1);
+	}
+
+	async function listActiveAttempts(userId: string, now: Date): Promise<ActiveAttemptRow[]> {
+		return client.query.tryoutAttempt.findMany({
+			columns: { id: true, attemptNumber: true, breakEndsAt: true },
+			where: { userId: { eq: userId }, status: { eq: "ongoing" }, isRevoked: { eq: false }, deadline: { gt: now } },
+			orderBy: { startedAt: "desc" },
+			with: {
+				tryout: {
+					columns: { id: true, title: true, category: true, status: true },
+					with: {
+						subtests: {
+							orderBy: (subtests, { asc }) => [asc(subtests.order)],
+							columns: { id: true, name: true, order: true },
+						},
+					},
+				},
+				subtestAttempts: {
+					columns: { subtestId: true, status: true, deadline: true },
+				},
+			},
+		});
 	}
 
 	async function findFeatured(userId: string): Promise<FeaturedTryoutRow | undefined> {
@@ -288,7 +331,7 @@ export function createTryoutRepository(client: DbClient) {
 
 	async function findAttemptForReview(attemptId: number, userId: string): Promise<ReviewAttemptRow | undefined> {
 		return client.query.tryoutAttempt.findFirst({
-			columns: { id: true, attemptNumber: true, usedCredit: true, usedAccessCode: true },
+			columns: { id: true, attemptNumber: true },
 			where: { id: { eq: attemptId }, userId: { eq: userId } },
 			with: {
 				subtestAttempts: true,
@@ -406,7 +449,11 @@ export function createTryoutRepository(client: DbClient) {
 	}
 
 	async function insertAttempt(values: AttemptInsert): Promise<AttemptRow | undefined> {
-		const [row] = await client.insert(tryoutAttempt).values(values).returning();
+		const [row] = await client
+			.insert(tryoutAttempt)
+			.values(values)
+			.onConflictDoNothing({ target: [tryoutAttempt.userId, tryoutAttempt.tryoutId, tryoutAttempt.attemptNumber] })
+			.returning();
 		return row;
 	}
 
@@ -844,6 +891,7 @@ export function createTryoutRepository(client: DbClient) {
 		findTryoutById,
 		findTryoutId,
 		listForMember,
+		listActiveAttempts,
 		findFeatured,
 		listHistory,
 		findFinishedAttemptResult,
