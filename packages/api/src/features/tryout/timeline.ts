@@ -206,8 +206,199 @@ export function planSubmitSubtest(input: AttemptTimelineInput, targetSubtestId: 
 	const isTimeout = now.getTime() >= existing.deadline.getTime();
 	const effectiveEnd = isTimeout ? existing.deadline : now;
 	const mutations = [finishSubtestMutation(existing, effectiveEnd, isTimeout)];
-	const nextId = openOrFinalizeWithoutBreak(mutations, remaining[0], effectiveEnd, input.attemptDeadline, now);
-	return nextId === null
-		? { kind: "completed", autoCompletedByTimer: isTimeout, mutations }
-		: { kind: "next", nextSubtestId: nextId, breakDeadline: null, autoCompletedByTimer: isTimeout, mutations };
+	if (remaining.length === 0) {
+		mutations.push(...finalizeAttemptMutations(effectiveEnd, true));
+		return { kind: "completed", autoCompletedByTimer: isTimeout, mutations };
+	}
+	const breakStart = new Date(effectiveEnd.getTime() + INTER_SUBTEST_BREAK_MS);
+	const autoId = isTimeout ? targetSubtestId : null;
+	const advanced = advanceFromBreak(input, now, remaining, breakStart, autoId, mutations);
+	if (advanced.phase.phase === "finished") {
+		return { kind: "completed", autoCompletedByTimer: isTimeout, mutations: advanced.mutations };
+	}
+	return {
+		kind: "next",
+		nextSubtestId: advanced.phase.phase === "break" ? advanced.phase.nextSubtestId : advanced.phase.subtestId,
+		breakDeadline: advanced.phase.phase === "break" ? advanced.phase.breakEndsAt : null,
+		autoCompletedByTimer: isTimeout,
+		mutations: advanced.mutations,
+	};
+}
+
+export const INTER_SUBTEST_BREAK_MS = 60_000;
+
+function startPlan(m: InsertSubtestMutation, mutations: TimelineMutation[]): StartSubtestPlan {
+	return { ...m, kind: "start", mutations };
+}
+
+function advanceFromBreak(
+	input: AttemptTimelineInput,
+	now: Date,
+	remainingSubtests: SubtestSchedule[],
+	initialBreakEndsAt: Date,
+	initialAutoSubmittedId: number | null,
+	priorMutations: TimelineMutation[] = [],
+): TimelineReconciliation {
+	const mutations = [...priorMutations];
+	let breakEndsAt = initialBreakEndsAt;
+	let autoSubmittedId = initialAutoSubmittedId;
+
+	for (let index = 0; index < remainingSubtests.length; index++) {
+		const subtest = remainingSubtests[index]!;
+		const remaining = remainingSubtests.slice(index);
+		if (now.getTime() < breakEndsAt.getTime()) {
+			const overallDeadline = computeOverallDeadline(breakEndsAt, remaining);
+			const shouldEmit =
+				mutations.length > 0 ||
+				input.breakEndsAt?.getTime() !== breakEndsAt.getTime() ||
+				input.attemptDeadline.getTime() !== overallDeadline.getTime();
+			if (shouldEmit) mutations.push(setBreakMutation(breakEndsAt, overallDeadline));
+			return {
+				mutations,
+				phase: { phase: "break", nextSubtestId: subtest.id, breakEndsAt, autoSubmittedSubtestId: autoSubmittedId },
+			};
+		}
+
+		const cursor = breakEndsAt;
+		const subtestDeadline = new Date(cursor.getTime() + subtest.durationMinutes * MS_PER_MINUTE);
+		if (now.getTime() < subtestDeadline.getTime()) {
+			mutations.push(
+				openSubtestMutation(subtest.id, cursor, subtestDeadline),
+				setBreakMutation(null, computeOverallDeadline(cursor, remaining)),
+			);
+			return {
+				mutations,
+				phase: { phase: "ongoing_subtest", subtestId: subtest.id, startedAt: cursor, deadline: subtestDeadline },
+			};
+		}
+
+		mutations.push(closedSubtestMutation(subtest.id, cursor, subtestDeadline, subtestDeadline));
+		autoSubmittedId = subtest.id;
+		if (index === remainingSubtests.length - 1) {
+			mutations.push(...finalizeAttemptMutations(subtestDeadline, true));
+			return { mutations, phase: { phase: "finished", autoSubmittedSubtestId: subtest.id } };
+		}
+		breakEndsAt = new Date(subtestDeadline.getTime() + INTER_SUBTEST_BREAK_MS);
+	}
+
+	return { mutations, phase: { phase: "finished", autoSubmittedSubtestId: autoSubmittedId } };
+}
+
+export function reconcileTimeline(input: AttemptTimelineInput, now: Date): TimelineReconciliation {
+	if (input.attemptStatus === "finished") {
+		return { mutations: [], phase: { phase: "finished", autoSubmittedSubtestId: null } };
+	}
+
+	const { orderedSubtests, attemptBySubtestId } = prepareContext(input);
+	if (orderedSubtests.length === 0) {
+		return {
+			mutations: finalizeAttemptMutations(now, true),
+			phase: { phase: "finished", autoSubmittedSubtestId: null },
+		};
+	}
+
+	const ongoing = input.subtestAttempts.find((sa) => sa.status === "ongoing");
+	if (ongoing) {
+		if (now.getTime() < ongoing.deadline.getTime()) {
+			return {
+				mutations: [],
+				phase: {
+					phase: "ongoing_subtest",
+					subtestId: ongoing.subtestId,
+					startedAt: ongoing.startedAt,
+					deadline: ongoing.deadline,
+				},
+			};
+		}
+		const mutations = [finishSubtestMutation(ongoing, ongoing.deadline, true)];
+		const ongoingIndex = orderedSubtests.findIndex((s) => s.id === ongoing.subtestId);
+		const remaining =
+			ongoingIndex === -1 ? [] : remainingUnfinished(orderedSubtests, attemptBySubtestId, ongoingIndex + 1);
+		if (remaining.length === 0) {
+			mutations.push(...finalizeAttemptMutations(ongoing.deadline, true));
+			return { mutations, phase: { phase: "finished", autoSubmittedSubtestId: ongoing.subtestId } };
+		}
+		const breakStart = new Date(ongoing.deadline.getTime() + INTER_SUBTEST_BREAK_MS);
+		return advanceFromBreak(input, now, remaining, breakStart, ongoing.subtestId, mutations);
+	}
+
+	const nextIndex = orderedSubtests.findIndex((s) => attemptBySubtestId.get(s.id)?.status !== "finished");
+	if (nextIndex === -1) {
+		const lastAttempt = attemptBySubtestId.get(orderedSubtests[orderedSubtests.length - 1]!.id);
+		const completedAt = lastAttempt?.completedAt ?? lastAttempt?.deadline ?? now;
+		return {
+			mutations: finalizeAttemptMutations(completedAt, true),
+			phase: { phase: "finished", autoSubmittedSubtestId: lastAttempt?.autoSubmitted ? lastAttempt.subtestId : null },
+		};
+	}
+
+	let autoSubmittedId: number | null = null;
+	for (let index = nextIndex - 1; index >= 0; index--) {
+		const previous = attemptBySubtestId.get(orderedSubtests[index]!.id);
+		if (previous?.status === "finished") {
+			autoSubmittedId = previous.autoSubmitted ? previous.subtestId : null;
+			break;
+		}
+	}
+
+	const remaining = remainingUnfinished(orderedSubtests, attemptBySubtestId, nextIndex);
+	return advanceFromBreak(input, now, remaining, input.breakEndsAt ?? now, autoSubmittedId);
+}
+
+export function planStartSubtest(input: AttemptTimelineInput, targetSubtestId: number, now: Date): StartSubtestPlan {
+	const { orderedSubtests, attemptBySubtestId } = prepareContext(input);
+	const targetIndex = orderedSubtests.findIndex((s) => s.id === targetSubtestId);
+	if (targetIndex === -1) return { kind: "invalid", reason: "subtest_not_found" };
+
+	const existing = attemptBySubtestId.get(targetSubtestId);
+	if (existing) return { kind: "existing", subtestAttempt: existing, mutations: [] };
+
+	const reconciled = reconcileTimeline(input, now);
+	for (const mutation of reconciled.mutations) {
+		if (mutation.kind === "insert_subtest" && mutation.subtestId === targetSubtestId) {
+			return startPlan(mutation, reconciled.mutations);
+		}
+	}
+
+	if (reconciled.phase.phase === "break" && reconciled.phase.nextSubtestId === targetSubtestId) {
+		const target = orderedSubtests[targetIndex]!;
+		const breakEndsAt = reconciled.phase.breakEndsAt;
+		const startFrom = now.getTime() < breakEndsAt.getTime() ? now : breakEndsAt;
+		const subtestDeadline = new Date(startFrom.getTime() + target.durationMinutes * MS_PER_MINUTE);
+		const openMutation = openSubtestMutation(target.id, startFrom, subtestDeadline);
+		const remaining = remainingUnfinished(orderedSubtests, attemptBySubtestId, targetIndex);
+		const mutations = [
+			...reconciled.mutations.filter((m) => m.kind !== "set_break"),
+			openMutation,
+			setBreakMutation(null, computeOverallDeadline(startFrom, remaining)),
+		];
+		return startPlan(openMutation, mutations);
+	}
+
+	return {
+		kind: "invalid",
+		reason: reconciled.phase.phase === "finished" ? "attempt_finished" : "prerequisite_not_finished",
+	};
+}
+
+export function planMissingSubtestsForFinalization(input: AttemptTimelineInput, now: Date) {
+	const { orderedSubtests, attemptBySubtestId } = prepareContext(input);
+	const mutations: InsertSubtestMutation[] = [];
+	let cursorMs: number | null = null;
+	const nowMs = now.getTime();
+
+	for (const subtest of orderedSubtests) {
+		const existing = attemptBySubtestId.get(subtest.id);
+		if (existing) {
+			cursorMs = (existing.completedAt ?? existing.deadline).getTime() + INTER_SUBTEST_BREAK_MS;
+			continue;
+		}
+		const startedAtMs = cursorMs !== null ? Math.min(cursorMs, nowMs) : nowMs;
+		const completedAtMs = Math.min(startedAtMs + subtest.durationMinutes * MS_PER_MINUTE, nowMs);
+		const completedAt = new Date(completedAtMs);
+		mutations.push(closedSubtestMutation(subtest.id, new Date(startedAtMs), completedAt, completedAt));
+		cursorMs = completedAtMs + INTER_SUBTEST_BREAK_MS;
+	}
+
+	return mutations;
 }
