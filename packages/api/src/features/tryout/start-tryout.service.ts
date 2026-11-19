@@ -4,6 +4,7 @@ import type { Session } from "@/context";
 import { DomainError } from "@/lib/domain-error";
 import { parseNullableInt } from "@/lib/utils";
 import { createTryoutRepository, type TryoutRepository, type TryoutTransaction } from "./repository";
+import { computeOverallDeadline } from "./timeline";
 import { runInTransaction } from "./transaction";
 
 export type StartTryoutRepository = Pick<
@@ -55,15 +56,10 @@ export function createStartTryoutService(deps: StartTryoutDependencies) {
 				throw new DomainError("BAD_REQUEST", "Tryout tidak memiliki subtest");
 			}
 
-			let cumulativeMinutes = 0;
-			const deadlineMap = new Map<number, Date>();
-			for (const subtest of tryoutData.subtests) {
-				cumulativeMinutes += subtest.duration;
-				const deadline = new Date(now.getTime() + cumulativeMinutes * 60 * 1000);
-				deadlineMap.set(subtest.id, deadline);
-			}
-
-			const overallDeadline = deadlineMap.get(tryoutData.subtests[tryoutData.subtests.length - 1]!.id)!;
+			const overallDeadline = computeOverallDeadline(
+				now,
+				tryoutData.subtests.map((s) => ({ id: s.id, order: s.order, durationMinutes: s.duration })),
+			);
 
 			const result = await deps.withTransaction(async ({ repository: repo }) => {
 				const newAttempt = await repo.insertAttempt({
@@ -88,7 +84,7 @@ export function createStartTryoutService(deps: StartTryoutDependencies) {
 				await repo.insertSubtestAttempt({
 					tryoutAttemptId: newAttempt.id,
 					subtestId: firstSubtest.id,
-					deadline: deadlineMap.get(firstSubtest.id)!,
+					deadline: new Date(now.getTime() + firstSubtest.duration * 60_000),
 				});
 
 				return { created: true as const, attempt: newAttempt };

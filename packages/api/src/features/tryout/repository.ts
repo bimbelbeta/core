@@ -48,11 +48,11 @@ export type SubmissionAttempt = AttemptRow & {
 	tryout: TryoutWithSubtests | null;
 	subtestAttempts: SubtestAttemptRow[];
 };
-export type SubtestStartAttempt = Pick<AttemptRow, "id" | "deadline"> & {
+export type SubtestStartAttempt = Pick<AttemptRow, "id" | "status" | "deadline" | "breakEndsAt" | "isRevoked"> & {
 	subtestAttempts: SubtestAttemptRow[];
 	tryout: (Pick<TryoutRow, "id"> & { subtests: SubtestRow[] }) | null;
 };
-export type ActiveSessionAttempt = Pick<AttemptRow, "id"> & {
+export type ActiveSessionAttempt = Pick<AttemptRow, "id" | "breakEndsAt"> & {
 	subtestAttempts: Array<Pick<SubtestAttemptRow, "status" | "deadline">>;
 };
 export type MemberTryoutListItem = {
@@ -379,6 +379,11 @@ export function createTryoutRepository(client: DbClient) {
 			.orderBy(tryoutSubtestQuestion.order);
 	}
 
+	async function lockAttemptByIdForUpdate(id: number): Promise<AttemptRow | undefined> {
+		const [row] = await client.select().from(tryoutAttempt).where(eq(tryoutAttempt.id, id)).for("update").limit(1);
+		return row;
+	}
+
 	async function lockAttemptForUpdate(tryoutId: number, userId: string): Promise<AttemptRow | undefined> {
 		const [row] = await client
 			.select()
@@ -413,7 +418,7 @@ export function createTryoutRepository(client: DbClient) {
 		userId: string,
 	): Promise<ActiveSessionAttempt | undefined> {
 		return client.query.tryoutAttempt.findFirst({
-			columns: { id: true },
+			columns: { id: true, breakEndsAt: true },
 			where: { tryoutId: { eq: tryoutId }, userId: { eq: userId }, status: { eq: "ongoing" } },
 			with: { subtestAttempts: { columns: { status: true, deadline: true } } },
 		});
@@ -429,12 +434,22 @@ export function createTryoutRepository(client: DbClient) {
 		});
 	}
 
+	async function findAttemptForSubmissionById(id: number): Promise<SubmissionAttempt | undefined> {
+		return client.query.tryoutAttempt.findFirst({
+			where: { id: { eq: id } },
+			with: {
+				subtestAttempts: true,
+				tryout: { with: { subtests: { orderBy: (subtests, { asc }) => [asc(subtests.order)] } } },
+			},
+		});
+	}
+
 	async function findAttemptForSubtestStart(
 		tryoutId: number,
 		userId: string,
 	): Promise<SubtestStartAttempt | undefined> {
 		return client.query.tryoutAttempt.findFirst({
-			columns: { id: true, deadline: true },
+			columns: { id: true, status: true, deadline: true, breakEndsAt: true, isRevoked: true },
 			where: { tryoutId: { eq: tryoutId }, userId: { eq: userId } },
 			with: {
 				subtestAttempts: true,
@@ -470,6 +485,19 @@ export function createTryoutRepository(client: DbClient) {
 	async function insertSubtestAttempt(values: SubtestAttemptInsert): Promise<SubtestAttemptRow | undefined> {
 		const [row] = await client.insert(tryoutSubtestAttempt).values(values).returning();
 		return row;
+	}
+
+	async function insertSubtestAttempts(values: SubtestAttemptInsert[]): Promise<SubtestAttemptRow[]> {
+		if (values.length === 0) return [];
+		return client.insert(tryoutSubtestAttempt).values(values).returning();
+	}
+
+	async function updateAttemptBreakAndDeadline(
+		attemptId: number,
+		breakEndsAt: Date | null,
+		deadline: Date,
+	): Promise<void> {
+		await client.update(tryoutAttempt).set({ breakEndsAt, deadline }).where(eq(tryoutAttempt.id, attemptId));
 	}
 
 	async function consumeAccessCodeQuota(codeId: number): Promise<Pick<AccessCodeRow, "id"> | undefined> {
@@ -597,7 +625,7 @@ export function createTryoutRepository(client: DbClient) {
 		const completedAt = options?.completedAt ?? new Date();
 		await client
 			.update(tryoutAttempt)
-			.set({ completedAt, status: "finished" })
+			.set({ completedAt, status: "finished", breakEndsAt: null })
 			.where(and(eq(tryoutAttempt.id, id), eq(tryoutAttempt.status, "ongoing")));
 		await client
 			.update(tryoutSubtestAttempt)
@@ -915,17 +943,21 @@ export function createTryoutRepository(client: DbClient) {
 		findAttemptForReview,
 		findSubtestName,
 		listSubtestQuestionRows,
+		lockAttemptByIdForUpdate,
 		lockAttemptForUpdate,
 		findAttempt,
 		findAttemptWithSubtestAttempts,
 		findOngoingAttemptForSession,
 		findAttemptForSubmission,
+		findAttemptForSubmissionById,
 		findAttemptForSubtestStart,
 		listSubtestsForTryout,
 		countForAdmin,
 		listRecentWithCounts,
 		insertAttempt,
 		insertSubtestAttempt,
+		insertSubtestAttempts,
+		updateAttemptBreakAndDeadline,
 		consumeAccessCodeQuota,
 		upsertAnswer,
 		toggleAnswerDoubtful,

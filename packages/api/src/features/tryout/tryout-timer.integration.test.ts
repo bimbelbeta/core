@@ -101,7 +101,7 @@ describe.skipIf(!enabled)("tryout timer and auto-finish integration", () => {
 		const { tryoutId, s1, s2 } = await setupTwoSubtestTryout("late-nonfinal");
 		const startedAt = new Date(Date.now() - 35 * 60_000);
 		const s1Deadline = new Date(Date.now() - 5 * 60_000);
-		const attemptDeadline = new Date(Date.now() + 25 * 60_000);
+		const attemptDeadline = new Date(s1Deadline.getTime() + 31 * 60_000);
 
 		const [attemptRow] = await db
 			.insert(tryoutAttempt)
@@ -131,7 +131,7 @@ describe.skipIf(!enabled)("tryout timer and auto-finish integration", () => {
 		expect(firstRow.completedAt?.getTime()).toBe(s1Deadline.getTime());
 		expect(secondRow.status).toBe("ongoing");
 		expect(secondRow.autoSubmitted).toBe(false);
-		expect(secondRow.startedAt.getTime()).toBe(s1Deadline.getTime());
+		expect(secondRow.startedAt.getTime()).toBe(s1Deadline.getTime() + 60_000);
 		expect(secondRow.deadline.getTime()).toBe(attemptDeadline.getTime());
 
 		const retry = await call(appRouter.tryout.submitSubtest, { tryoutId, subtestId: s1.id }, options);
@@ -204,12 +204,13 @@ describe.skipIf(!enabled)("tryout timer and auto-finish integration", () => {
 			success: true,
 			tryoutCompleted: false,
 			nextSubtestId: s2.id,
-			breakDeadline: null,
+			breakDeadline: expect.any(Date),
 			autoCompletedByTimer: false,
 		});
 		const retry1 = await call(appRouter.tryout.submitSubtest, { tryoutId, subtestId: s1.id }, options);
 		expect(retry1).toEqual(submit1);
 
+		await call(appRouter.tryout.startSubtest, { tryoutId, subtestId: s2.id }, options);
 		const submit2 = await call(appRouter.tryout.submitSubtest, { tryoutId, subtestId: s2.id }, options);
 		expect(submit2).toEqual({ success: true, tryoutCompleted: true, score: 1000, autoCompletedByTimer: false });
 		const retry2 = await call(appRouter.tryout.submitSubtest, { tryoutId, subtestId: s2.id }, options);
@@ -271,17 +272,25 @@ describe.skipIf(!enabled)("tryout timer and auto-finish integration", () => {
 		expect(finishedFind.autoSubmittedSubtestId).toBeNull();
 
 		const { tryoutId: findOnlyId, s1: fs1, s2: fs2 } = await setupTwoSubtestTryout("find-expiry");
+		const findS1Deadline = new Date(Date.now() - 10_000);
 		const [findAttempt] = await db
 			.insert(tryoutAttempt)
-			.values({ userId: id, tryoutId: findOnlyId, startedAt, deadline: attemptDeadline })
+			.values({
+				userId: id,
+				tryoutId: findOnlyId,
+				startedAt,
+				deadline: new Date(findS1Deadline.getTime() + 31 * 60_000),
+			})
 			.returning();
 		await db
 			.insert(tryoutSubtestAttempt)
-			.values({ tryoutAttemptId: findAttempt!.id, subtestId: fs1.id, startedAt, deadline: s1Deadline });
+			.values({ tryoutAttemptId: findAttempt!.id, subtestId: fs1.id, startedAt, deadline: findS1Deadline });
 
 		const firstFind = await call(appRouter.tryout.find, { id: findOnlyId }, options);
 		expect(firstFind.autoSubmittedSubtestId).toBe(fs1.id);
 		expect(firstFind.currentSubtest?.id).toBe(fs2.id);
+		expect(firstFind.currentSubtest?.status).toBe("not_started");
+		await call(appRouter.tryout.startSubtest, { tryoutId: findOnlyId, subtestId: fs2.id }, options);
 		const secondFind = await call(appRouter.tryout.find, { id: findOnlyId }, options);
 		expect(secondFind.autoSubmittedSubtestId).toBeNull();
 	});
