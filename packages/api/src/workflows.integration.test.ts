@@ -188,6 +188,10 @@ describe.skipIf(!enabled)("API persistence workflows", () => {
 			subtestId: subtests[1]!.id,
 			deadline: started.deadline,
 		});
+		await db
+			.update(tryoutSubtestAttempt)
+			.set({ deadline: new Date(Date.now() - 120_000) })
+			.where(eq(tryoutSubtestAttempt.tryoutAttemptId, started.id));
 		const errorLog = spyOn(console, "error").mockImplementation(() => {});
 		try {
 			await expect(
@@ -204,9 +208,14 @@ describe.skipIf(!enabled)("API persistence workflows", () => {
 		await db
 			.delete(tryoutSubtestAttempt)
 			.where(eq(tryoutSubtestAttempt.id, attemptsAfterFailure.find((item) => item.subtestId === subtests[1]!.id)!.id));
+		await db
+			.update(tryoutSubtestAttempt)
+			.set({ deadline: new Date(Date.now() + 30 * 60_000) })
+			.where(eq(tryoutSubtestAttempt.tryoutAttemptId, started.id));
 		expect(await call(appRouter.tryout.submitSubtest, { tryoutId, subtestId: subtests[0]!.id }, options)).toMatchObject(
 			{ tryoutCompleted: false, nextSubtestId: subtests[1]!.id },
 		);
+		await call(appRouter.tryout.startSubtest, { tryoutId, subtestId: subtests[1]!.id }, options);
 		expect(await call(appRouter.tryout.submitSubtest, { tryoutId, subtestId: subtests[1]!.id }, options)).toMatchObject(
 			{ tryoutCompleted: true, score: 1000 },
 		);

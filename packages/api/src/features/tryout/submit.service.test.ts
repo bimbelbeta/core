@@ -92,32 +92,46 @@ type FinishOptions = { completedAt?: Date; autoSubmitted?: boolean };
 type ServiceRows = {
 	attempts?: Array<SubmissionAttempt | undefined>;
 	attempt?: SubmissionAttempt | undefined;
+	attemptById?: SubmissionAttempt | undefined;
 	expiredAttemptIds?: number[];
 	failingAttemptIds?: number[];
 	sweepQueries?: Array<{ now: Date; limit: number }>;
 	lockedCalls?: number;
+	lockedByIdCalls?: number[];
 	finishedSubtestAttempts: number[];
 	finishedSubtestDetails?: Array<{ id: number; options?: FinishOptions }>;
 	finishedAttempts: number[];
 	finishedAttemptDetails?: Array<{ id: number; options?: FinishOptions }>;
 	savedScores: Array<{ attemptId: number; scores: TryoutScoreResult }>;
 	insertedSubtestAttempts: InsertedSubtestAttempt[];
+	breakUpdates?: Array<{ attemptId: number; breakEndsAt: Date | null; deadline: Date }>;
+	scoreInputs?: Array<{ id: number; subtestId: number; scoringMap: Record<string, number> | null }>;
+	questionPairs?: Array<{ subtestId: number; questionId: number }>;
 };
 
-function makeRepository(rows: ServiceRows) {
+function makeRepository(rows: ServiceRows): SubmitRepository {
 	const pending = rows.attempts ? [...rows.attempts] : [];
 	return {
 		lockAttemptForUpdate: async () => {
 			rows.lockedCalls = (rows.lockedCalls ?? 0) + 1;
 			return rows.attempt;
 		},
+		lockAttemptByIdForUpdate: async (id: number) => {
+			rows.lockedByIdCalls = rows.lockedByIdCalls ?? [];
+			rows.lockedByIdCalls.push(id);
+			return rows.attemptById ?? rows.attempt;
+		},
 		findAttemptForSubmission: async () => (pending.length > 0 ? pending.shift() : rows.attempt),
-		listSubtestAttemptScoreInputs: async () => [{ id: 5, subtestId: 1, scoringMap: null }],
+		findAttemptForSubmissionById: async () => rows.attemptById ?? rows.attempt,
+		listSubtestAttemptScoreInputs: async () => rows.scoreInputs ?? [{ id: 5, subtestId: 1, scoringMap: null }],
 		listAnswersWithSelectedChoice: async (): Promise<ScoringAnswerRow[]> => [
 			{ questionId: 11, selectedChoiceId: 21, selectedChoiceIds: null, essayAnswer: null, selectedChoiceCorrect: true },
 		],
-		listSubtestQuestionPairs: async () => [{ subtestId: 1, questionId: 11 }],
-		listQuestionsForScoring: async () => [{ id: 11, type: "multiple_choice" as const, essayCorrectAnswer: null }],
+		listSubtestQuestionPairs: async () => rows.questionPairs ?? [{ subtestId: 1, questionId: 11 }],
+		listQuestionsForScoring: async () => [
+			{ id: 11, type: "multiple_choice" as const, essayCorrectAnswer: null },
+			{ id: 12, type: "multiple_choice" as const, essayCorrectAnswer: null },
+		],
 		listChoiceCorrectness: async () => [],
 		listExpiredOngoingAttemptIds: async (now: Date, limit: number) => {
 			rows.sweepQueries = rows.sweepQueries ?? [];
@@ -138,9 +152,13 @@ function makeRepository(rows: ServiceRows) {
 		saveScores: async (attemptId: number, scores: TryoutScoreResult) => {
 			rows.savedScores.push({ attemptId, scores });
 		},
-		insertSubtestAttempt: async (values: InsertedSubtestAttempt) => {
-			rows.insertedSubtestAttempts.push(values);
-			return { ...ongoingSubtestAttempt, ...values, id: 6 };
+		insertSubtestAttempts: async (values: InsertedSubtestAttempt[]) => {
+			rows.insertedSubtestAttempts.push(...values);
+			return values.map((v, i) => ({ ...ongoingSubtestAttempt, ...v, id: 6 + i }));
+		},
+		updateAttemptBreakAndDeadline: async (attemptId: number, breakEndsAt: Date | null, deadline: Date) => {
+			rows.breakUpdates = rows.breakUpdates ?? [];
+			rows.breakUpdates.push({ attemptId, breakEndsAt, deadline });
 		},
 	};
 }
@@ -231,7 +249,10 @@ describe("tryout submission", () => {
 		});
 	});
 
-	test("moves to the next subtest, closing the current one and opening the next deadline", async () => {
+	test("moves to 60s break on manual submit without inserting the next subtest row", async () => {
+		const submitNow = new Date("2026-01-01T10:10:00.000Z");
+		const expectedBreak = new Date("2026-01-01T10:11:00.000Z");
+		const expectedOverall = new Date("2026-01-01T10:41:00.000Z");
 		const rows: ServiceRows = {
 			attempt,
 			finishedSubtestAttempts: [],
@@ -241,22 +262,22 @@ describe("tryout submission", () => {
 		};
 		const { service } = makeService(rows);
 
-		const result = await service.submitSubtest({ tryoutId: 1, subtestId: 1 }, "user-1");
+		const result = await service.submitSubtest({ tryoutId: 1, subtestId: 1 }, "user-1", submitNow);
 
 		expect(result).toEqual({
 			success: true,
 			tryoutCompleted: false,
 			nextSubtestId: 2,
-			breakDeadline: null,
+			breakDeadline: expectedBreak,
 			autoCompletedByTimer: false,
 		});
 		expect(rows.lockedCalls).toBe(1);
 		expect(rows.finishedSubtestAttempts).toEqual([5]);
 		expect(rows.finishedSubtestDetails?.[0]?.options?.autoSubmitted).toBe(false);
+		expect(rows.breakUpdates).toEqual([{ attemptId: 8, breakEndsAt: expectedBreak, deadline: expectedOverall }]);
 		expect(rows.finishedAttempts).toEqual([]);
 		expect(rows.savedScores).toEqual([]);
-		expect(rows.insertedSubtestAttempts).toHaveLength(1);
-		expect(rows.insertedSubtestAttempts[0]).toMatchObject({ tryoutAttemptId: 8, subtestId: 2, status: "ongoing" });
+		expect(rows.insertedSubtestAttempts).toEqual([]);
 	});
 
 	test("finishes the tryout on the last subtest and saves the calculated scores", async () => {
@@ -289,11 +310,36 @@ describe("tryout submission", () => {
 		]);
 	});
 
-	test("marks timeout submit autoSubmitted=true and succeeds past attempt.deadline on final subtest", async () => {
+	test("marks timeout submit autoSubmitted=true, enters break or chain-advances, and succeeds past attempt.deadline", async () => {
 		const subtestDeadline = new Date("2026-01-01T10:30:00.000Z");
-		const attemptDeadline = new Date("2026-01-01T11:00:00.000Z");
-		const lateNonFinal = new Date("2026-01-01T10:35:00.000Z");
+		const attemptDeadline = new Date("2026-01-01T11:01:00.000Z");
 
+		const withinBreakRows: ServiceRows = {
+			attempt: {
+				...attempt,
+				deadline: attemptDeadline,
+				subtestAttempts: [{ ...ongoingSubtestAttempt, deadline: subtestDeadline }],
+			},
+			finishedSubtestAttempts: [],
+			finishedAttempts: [],
+			savedScores: [],
+			insertedSubtestAttempts: [],
+		};
+		const withinBreakResult = await makeService(withinBreakRows).service.submitSubtest(
+			{ tryoutId: 1, subtestId: 1 },
+			"user-1",
+			new Date("2026-01-01T10:30:20.000Z"),
+		);
+		expect(withinBreakResult).toEqual({
+			success: true,
+			tryoutCompleted: false,
+			nextSubtestId: 2,
+			breakDeadline: new Date("2026-01-01T10:31:00.000Z"),
+			autoCompletedByTimer: true,
+		});
+		expect(withinBreakRows.insertedSubtestAttempts).toEqual([]);
+
+		const lateNonFinal = new Date("2026-01-01T10:35:00.000Z");
 		const nonFinalRows: ServiceRows = {
 			attempt: {
 				...attempt,
@@ -320,12 +366,12 @@ describe("tryout submission", () => {
 		expect(nonFinalRows.insertedSubtestAttempts[0]).toMatchObject({
 			tryoutAttemptId: 8,
 			subtestId: 2,
-			startedAt: subtestDeadline,
+			startedAt: new Date("2026-01-01T10:31:00.000Z"),
 			deadline: attemptDeadline,
 			status: "ongoing",
 		});
 
-		const finalDeadline = new Date("2026-01-01T11:00:00.000Z");
+		const finalDeadline = new Date("2026-01-01T11:01:00.000Z");
 		const pastAttemptDeadline = new Date("2026-01-01T11:15:00.000Z");
 		const finalRows: ServiceRows = {
 			attempt: {
@@ -353,9 +399,11 @@ describe("tryout submission", () => {
 	});
 
 	test("returns idempotent result with zero writes when retrying manual or timeout submit", async () => {
+		const breakEndsAt = new Date("2026-01-01T10:31:00.000Z");
 		const nonFinalRows: ServiceRows = {
 			attempt: {
 				...attempt,
+				breakEndsAt,
 				subtestAttempts: [{ ...ongoingSubtestAttempt, status: "finished", autoSubmitted: true }],
 			},
 			finishedSubtestAttempts: [],
@@ -363,19 +411,21 @@ describe("tryout submission", () => {
 			savedScores: [],
 			insertedSubtestAttempts: [],
 		};
-		const retryNonFinal = await makeService(nonFinalRows).service.submitSubtest(
+		const retryDuringBreak = await makeService(nonFinalRows).service.submitSubtest(
 			{ tryoutId: 1, subtestId: 1 },
 			"user-1",
+			new Date("2026-01-01T10:30:30.000Z"),
 		);
-		expect(retryNonFinal).toEqual({
+		expect(retryDuringBreak).toEqual({
 			success: true,
 			tryoutCompleted: false,
 			nextSubtestId: 2,
-			breakDeadline: null,
+			breakDeadline: breakEndsAt,
 			autoCompletedByTimer: true,
 		});
 		expect(nonFinalRows.finishedSubtestAttempts).toEqual([]);
 		expect(nonFinalRows.insertedSubtestAttempts).toEqual([]);
+		expect(nonFinalRows.breakUpdates).toBeUndefined();
 
 		const manualFinalRows: ServiceRows = {
 			attempt: {
@@ -407,12 +457,43 @@ describe("tryout submission", () => {
 		expect(manualFinalRows.savedScores).toEqual([]);
 	});
 
-	test("reconcileFindAttempt locks, avoids duplicate writes, and applies expiry mutations", async () => {
+	test("reconcileFindAttempt locks, enters break, chain-advances, and avoids duplicate writes", async () => {
 		const subtestDeadline = new Date("2026-01-01T10:30:00.000Z");
+		const breakRows: ServiceRows = {
+			attempt: {
+				...attempt,
+				deadline: new Date("2026-01-01T11:01:00.000Z"),
+				subtestAttempts: [{ ...ongoingSubtestAttempt, deadline: subtestDeadline }],
+			},
+			finishedSubtestAttempts: [],
+			finishedAttempts: [],
+			savedScores: [],
+			insertedSubtestAttempts: [],
+		};
+		const reconciledBreak = await makeService(breakRows).service.reconcileFindAttempt(
+			1,
+			"user-1",
+			new Date("2026-01-01T10:30:20.000Z"),
+		);
+		expect(breakRows.lockedCalls).toBe(1);
+		expect(reconciledBreak.phase).toEqual({
+			phase: "break",
+			nextSubtestId: 2,
+			breakEndsAt: new Date("2026-01-01T10:31:00.000Z"),
+			autoSubmittedSubtestId: 1,
+		});
+		expect(breakRows.breakUpdates).toEqual([
+			{
+				attemptId: 8,
+				breakEndsAt: new Date("2026-01-01T10:31:00.000Z"),
+				deadline: new Date("2026-01-01T11:01:00.000Z"),
+			},
+		]);
+
 		const expiredRows: ServiceRows = {
 			attempt: {
 				...attempt,
-				deadline: new Date("2026-01-01T11:00:00.000Z"),
+				deadline: new Date("2026-01-01T11:01:00.000Z"),
 				subtestAttempts: [{ ...ongoingSubtestAttempt, deadline: subtestDeadline }],
 			},
 			finishedSubtestAttempts: [],
@@ -426,16 +507,18 @@ describe("tryout submission", () => {
 			new Date("2026-01-01T10:35:00.000Z"),
 		);
 		expect(expiredRows.lockedCalls).toBe(1);
-		expect(reconciled.autoSubmittedSubtestId).toBe(1);
-		expect(expiredRows.finishedSubtestDetails).toEqual([
-			{ id: 5, options: { completedAt: subtestDeadline, autoSubmitted: true } },
-		]);
+		expect(reconciled.phase).toEqual({
+			phase: "ongoing_subtest",
+			subtestId: 2,
+			startedAt: new Date("2026-01-01T10:31:00.000Z"),
+			deadline: new Date("2026-01-01T11:01:00.000Z"),
+		});
 		expect(expiredRows.insertedSubtestAttempts).toHaveLength(1);
 
 		const raceRows: ServiceRows = {
 			attempt: {
 				...attempt,
-				deadline: new Date("2026-01-01T11:00:00.000Z"),
+				deadline: new Date("2026-01-01T11:01:00.000Z"),
 				subtestAttempts: [
 					{ ...ongoingSubtestAttempt, status: "finished", autoSubmitted: true },
 					{ ...ongoingSubtestAttempt, id: 6, subtestId: 2, deadline: new Date("2026-01-01T10:50:00.000Z") },
@@ -451,7 +534,7 @@ describe("tryout submission", () => {
 			"user-1",
 			new Date("2026-01-01T10:35:00.000Z"),
 		);
-		expect(raced.autoSubmittedSubtestId).toBeNull();
+		expect(raced.phase.phase).toBe("ongoing_subtest");
 		expect(raceRows.finishedSubtestAttempts).toEqual([]);
 		expect(raceRows.insertedSubtestAttempts).toEqual([]);
 	});
@@ -474,8 +557,21 @@ describe("tryout submission", () => {
 		expect(rows.savedScores).toHaveLength(1);
 	});
 
-	test("finalizeExpiredAttempt finishes the attempt and persists the scores", async () => {
+	test("finalizeExpiredAttempt inserts missing subtests before scoring across all subtests", async () => {
 		const rows: ServiceRows = {
+			attemptById: {
+				...attempt,
+				deadline: new Date("2026-01-01T11:01:00.000Z"),
+				subtestAttempts: [{ ...ongoingSubtestAttempt, deadline: new Date("2026-01-01T10:30:00.000Z") }],
+			},
+			scoreInputs: [
+				{ id: 5, subtestId: 1, scoringMap: null },
+				{ id: 6, subtestId: 2, scoringMap: null },
+			],
+			questionPairs: [
+				{ subtestId: 1, questionId: 11 },
+				{ subtestId: 2, questionId: 12 },
+			],
 			finishedSubtestAttempts: [],
 			finishedAttempts: [],
 			savedScores: [],
@@ -485,14 +581,23 @@ describe("tryout submission", () => {
 
 		await service.finalizeExpiredAttempt(8);
 
+		expect(rows.lockedByIdCalls).toEqual([8]);
+		expect(rows.insertedSubtestAttempts).toMatchObject([
+			{ tryoutAttemptId: 8, subtestId: 2, status: "finished", autoSubmitted: true },
+		]);
 		expect(rows.finishedAttempts).toEqual([8]);
-		expect(rows.finishedAttemptDetails).toEqual([{ id: 8, options: { autoSubmitted: true } }]);
+		expect(rows.finishedAttemptDetails).toEqual([
+			{ id: 8, options: { completedAt: expect.any(Date), autoSubmitted: true } },
+		]);
 		expect(rows.savedScores).toEqual([
 			{
 				attemptId: 8,
 				scores: {
-					subtests: [{ subtestAttemptId: 5, subtestId: 1, score: 1000, correct: 1, total: 1 }],
-					totalScore: 1000,
+					subtests: [
+						{ subtestAttemptId: 5, subtestId: 1, score: 1000, correct: 1, total: 1 },
+						{ subtestAttemptId: 6, subtestId: 2, score: 0, correct: 0, total: 1 },
+					],
+					totalScore: 500,
 				},
 			},
 		]);

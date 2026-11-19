@@ -5,6 +5,7 @@ import { parseNullableInt } from "@/lib/utils";
 import {
 	createTryoutRepository,
 	type SubmissionAttempt,
+	type SubtestAttemptInsert,
 	type TryoutRepository,
 	type TryoutTransaction,
 } from "./repository";
@@ -17,13 +18,20 @@ import {
 	scoreMultipleChoice,
 	type TryoutScoreResult,
 } from "./scoring";
-import { planSubmitSubtest, reconcileSubtestExpiry, type TimelineMutation } from "./timeline";
+import {
+	planMissingSubtestsForFinalization,
+	planSubmitSubtest,
+	reconcileTimeline,
+	type TimelineMutation,
+} from "./timeline";
 import { runInTransaction } from "./transaction";
 
 export type SubmitRepository = Pick<
 	TryoutRepository,
 	| "lockAttemptForUpdate"
+	| "lockAttemptByIdForUpdate"
 	| "findAttemptForSubmission"
+	| "findAttemptForSubmissionById"
 	| "listSubtestAttemptScoreInputs"
 	| "listAnswersWithSelectedChoice"
 	| "listSubtestQuestionPairs"
@@ -33,7 +41,17 @@ export type SubmitRepository = Pick<
 	| "finishSubtestAttempt"
 	| "finishAttempt"
 	| "saveScores"
-	| "insertSubtestAttempt"
+	| "insertSubtestAttempts"
+	| "updateAttemptBreakAndDeadline"
+>;
+
+export type TimelineMutationRepository = Omit<
+	SubmitRepository,
+	| "lockAttemptForUpdate"
+	| "lockAttemptByIdForUpdate"
+	| "findAttemptForSubmission"
+	| "findAttemptForSubmissionById"
+	| "listExpiredOngoingAttemptIds"
 >;
 
 export function toTimelineInput(
@@ -54,7 +72,7 @@ export type SubmitServiceDependencies = {
 	withTransaction: <T>(fn: (tx: TryoutTransaction<SubmitRepository>) => Promise<T>) => Promise<T>;
 };
 
-async function calculateScores(repository: SubmitRepository, attemptId: number): Promise<TryoutScoreResult> {
+async function calculateScores(repository: TimelineMutationRepository, attemptId: number): Promise<TryoutScoreResult> {
 	const subtestAttempts = await repository.listSubtestAttemptScoreInputs(attemptId);
 	if (subtestAttempts.length === 0) {
 		return { subtests: [], totalScore: 0 };
@@ -142,23 +160,36 @@ const EXPIRED_ATTEMPT_BATCH = 200;
 export function createSubmitService(deps: SubmitServiceDependencies) {
 	const { repository } = deps;
 
-	async function closeAndScoreAttempt(repo: SubmitRepository, attemptId: number, completedAt?: Date) {
+	async function closeAndScoreAttempt(repo: TimelineMutationRepository, attemptId: number, completedAt?: Date) {
 		await repo.finishAttempt(attemptId, { completedAt, autoSubmitted: true });
 		const scores = await calculateScores(repo, attemptId);
 		await repo.saveScores(attemptId, scores);
-		return scores.totalScore;
+		return scores;
 	}
 
-	async function finalizeAttempt(attemptId: number): Promise<void> {
-		await deps.withTransaction(({ repository: repo }) => closeAndScoreAttempt(repo, attemptId));
+	async function finalizeAttempt(attemptId: number, now = new Date()): Promise<void> {
+		await deps.withTransaction(async ({ repository: repo }) => {
+			await repo.lockAttemptByIdForUpdate(attemptId);
+			const attempt = await repo.findAttemptForSubmissionById(attemptId);
+			if (attempt?.status === "finished") return;
+			if (attempt?.tryout) {
+				const missing = planMissingSubtestsForFinalization(toTimelineInput(attempt, attempt.tryout.subtests), now);
+				await repo.insertSubtestAttempts(missing.map(({ kind: _k, ...v }) => ({ tryoutAttemptId: attemptId, ...v })));
+			}
+			await closeAndScoreAttempt(repo, attemptId, now);
+		});
 	}
 
 	async function finalizeExpiredAttempt(attemptId: number): Promise<void> {
 		await withErrorFallback("Gagal menyimpan skor tryout.", () => finalizeAttempt(attemptId));
 	}
 
-	async function applyMutations(repo: SubmitRepository, attemptId: number, mutations: TimelineMutation[]) {
-		let totalScore: number | null = null;
+	async function applyTimelineMutations(
+		repo: TimelineMutationRepository,
+		attemptId: number,
+		mutations: TimelineMutation[],
+	) {
+		const inserts: SubtestAttemptInsert[] = [];
 		for (const m of mutations) {
 			if (m.kind === "finish_subtest") {
 				await repo.finishSubtestAttempt(m.subtestAttemptId, {
@@ -167,17 +198,24 @@ export function createSubmitService(deps: SubmitServiceDependencies) {
 				});
 			} else if (m.kind === "insert_subtest") {
 				const { kind: _kind, ...values } = m;
-				await repo.insertSubtestAttempt({ tryoutAttemptId: attemptId, ...values });
-			} else if (m.kind === "finish_attempt") {
-				totalScore = await withErrorFallback("Gagal menyimpan skor tryout.", () =>
+				inserts.push({ tryoutAttemptId: attemptId, ...values });
+			}
+		}
+		const insertedSubtests = await repo.insertSubtestAttempts(inserts);
+		let scores: TryoutScoreResult | null = null;
+		for (const m of mutations) {
+			if (m.kind === "set_break") await repo.updateAttemptBreakAndDeadline(attemptId, m.breakEndsAt, m.overallDeadline);
+			if (m.kind === "finish_attempt") {
+				scores = await withErrorFallback("Gagal menyimpan skor tryout.", () =>
 					closeAndScoreAttempt(repo, attemptId, m.completedAt),
 				);
 			}
 		}
-		return totalScore;
+		return { insertedSubtests, scores };
 	}
 
 	return {
+		applyTimelineMutations,
 		finalizeExpiredAttempt,
 
 		async reconcileFindAttempt(tryoutId: number, userId: string, now = new Date()) {
@@ -185,18 +223,17 @@ export function createSubmitService(deps: SubmitServiceDependencies) {
 				deps.withTransaction(async ({ repository: repo }) => {
 					await repo.lockAttemptForUpdate(tryoutId, userId);
 					const attempt = await repo.findAttemptForSubmission(tryoutId, userId);
-					if (!attempt || attempt.isRevoked || !attempt.tryout) return { attempt, autoSubmittedSubtestId: null };
+					if (!attempt || attempt.isRevoked || !attempt.tryout) {
+						return { attempt, phase: { phase: "finished" as const, autoSubmittedSubtestId: null } };
+					}
 
-					const { mutations, autoSubmittedSubtestId } = reconcileSubtestExpiry(
-						toTimelineInput(attempt, attempt.tryout.subtests),
-						now,
-					);
-					if (mutations.length === 0) return { attempt, autoSubmittedSubtestId: null };
+					const reconciled = reconcileTimeline(toTimelineInput(attempt, attempt.tryout.subtests), now);
+					if (reconciled.mutations.length === 0) return { attempt, phase: reconciled.phase };
 
-					await applyMutations(repo, attempt.id, mutations);
+					await applyTimelineMutations(repo, attempt.id, reconciled.mutations);
 					return {
 						attempt: (await repo.findAttemptForSubmission(tryoutId, userId)) ?? attempt,
-						autoSubmittedSubtestId,
+						phase: reconciled.phase,
 					};
 				}),
 			);
@@ -209,7 +246,7 @@ export function createSubmitService(deps: SubmitServiceDependencies) {
 
 			for (const attemptId of attemptIds) {
 				try {
-					await finalizeAttempt(attemptId);
+					await finalizeAttempt(attemptId, now);
 					finalized++;
 				} catch (error) {
 					failedAttemptIds.push(attemptId);
@@ -232,7 +269,8 @@ export function createSubmitService(deps: SubmitServiceDependencies) {
 					const plan = planSubmitSubtest(toTimelineInput(attempt, attempt.tryout.subtests), input.subtestId, now);
 					if (plan.kind === "invalid") throw new DomainError("BAD_REQUEST", "Subtest tidak aktif");
 
-					const scoredTotal = plan.mutations.length > 0 ? await applyMutations(repo, attempt.id, plan.mutations) : null;
+					const applied =
+						plan.mutations.length > 0 ? await applyTimelineMutations(repo, attempt.id, plan.mutations) : null;
 					if (plan.kind === "next") {
 						return {
 							success: true as const,
@@ -246,7 +284,7 @@ export function createSubmitService(deps: SubmitServiceDependencies) {
 					return {
 						success: true as const,
 						tryoutCompleted: true as const,
-						score: scoredTotal ?? parseNullableInt(attempt.score) ?? 0,
+						score: applied?.scores?.totalScore ?? parseNullableInt(attempt.score) ?? 0,
 						autoCompletedByTimer: plan.autoCompletedByTimer,
 					};
 				}),

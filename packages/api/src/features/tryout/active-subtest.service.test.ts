@@ -21,8 +21,11 @@ function makeRepository(rows: {
 	};
 }
 
-function sessionWith(subtestAttempts: Array<{ status: "ongoing" | "finished"; deadline: Date }>) {
-	return { id: 42, subtestAttempts };
+function sessionWith(
+	subtestAttempts: Array<{ status: "ongoing" | "finished"; deadline: Date }>,
+	breakEndsAt: Date | null = null,
+) {
+	return { id: 42, breakEndsAt, subtestAttempts };
 }
 
 describe("active subtest service", () => {
@@ -179,6 +182,51 @@ describe("active subtest service", () => {
 			});
 			expect(answers).toEqual([]);
 			expect(toggles).toEqual([]);
+		} finally {
+			setSystemTime();
+		}
+	});
+
+	test("rejects saveAnswer and toggleRaguRagu during active break and unstarted post-break with Subtes belum dimulai", async () => {
+		const now = new Date("2026-06-01T12:00:00.000Z");
+		setSystemTime(now);
+		try {
+			const duringBreakAnswers: RecordedAnswer[] = [];
+			const duringBreakToggles: Array<{ attemptId: number; questionId: number }> = [];
+			const duringBreak = createActiveSubtestService({
+				repository: makeRepository({
+					attempt: sessionWith(
+						[{ status: "finished", deadline: new Date(now.getTime() - 10_000) }],
+						new Date(now.getTime() + 50_000),
+					),
+					answers: duringBreakAnswers,
+					toggles: duringBreakToggles,
+				}),
+			});
+			await expect(
+				duringBreak.saveAnswer({ tryoutId: 1, questionId: 5, answerType: "choice", selectedChoiceId: 3 }, "user-1"),
+			).rejects.toMatchObject({ code: "BAD_REQUEST", message: "Subtes belum dimulai" });
+			await expect(duringBreak.toggleRaguRagu({ tryoutId: 1, questionId: 5 }, "user-1")).rejects.toMatchObject({
+				code: "BAD_REQUEST",
+				message: "Subtes belum dimulai",
+			});
+			expect(duringBreakAnswers).toEqual([]);
+			expect(duringBreakToggles).toEqual([]);
+
+			const expiredBreak = createActiveSubtestService({
+				repository: makeRepository({
+					attempt: sessionWith(
+						[{ status: "finished", deadline: new Date(now.getTime() - 70_000) }],
+						new Date(now.getTime() - 10_000),
+					),
+					answers: [],
+					toggles: [],
+				}),
+			});
+			await expect(expiredBreak.require(1, "user-1")).rejects.toMatchObject({
+				code: "BAD_REQUEST",
+				message: "Subtes belum dimulai",
+			});
 		} finally {
 			setSystemTime();
 		}

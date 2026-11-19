@@ -277,4 +277,22 @@ describe("start tryout service", () => {
 		});
 		expect(rows.insertedAttempts).toEqual([]);
 	});
+
+	test("includes (subtests.length - 1) * 60_000 break buffer in overallDeadline for multi-subtest tryouts", async () => {
+		const multiSubtests = [
+			{ ...subtests[0]!, id: 10, order: 1, duration: 30 },
+			{ ...subtests[0]!, id: 11, order: 2, duration: 20 },
+			{ ...subtests[0]!, id: 12, order: 3, duration: 15 },
+		];
+		const rows = emptyRows({ tryout: { ...tryout, subtests: multiSubtests } });
+		const { service } = makeService(rows);
+
+		const result = await service.start({ id: 1 }, caller);
+		if (!("overallDeadline" in result) || !result.overallDeadline) {
+			throw new Error("expected an overallDeadline on a new attempt");
+		}
+		const firstDeadline = rows.insertedSubtestAttempts[0]!.deadline;
+		expect(result.overallDeadline.getTime() - firstDeadline.getTime()).toBe((20 + 15 + 2) * 60_000);
+		expect(rows.insertedSubtestAttempts).toEqual([{ tryoutAttemptId: 99, subtestId: 10, deadline: firstDeadline }]);
+	});
 });

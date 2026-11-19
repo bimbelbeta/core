@@ -7,7 +7,7 @@ import { flattenReviewQuestions, flattenTryoutQuestions } from "./question-utils
 import { type AttemptWithSubtestAttempts, createTryoutRepository, type TryoutRepository } from "./repository";
 import { calcTryoutMaxScore } from "./scoring";
 import { submitService, toTimelineInput } from "./submit.service";
-import { reconcileSubtestExpiry } from "./timeline";
+import { reconcileTimeline, type TimelinePhase } from "./timeline";
 
 export type ReadRepository = Pick<
 	TryoutRepository,
@@ -26,12 +26,11 @@ export type ReadRepository = Pick<
 
 export type ReadServiceDependencies = {
 	repository: ReadRepository;
-	finalizeExpiredAttempt: (attemptId: number) => Promise<void>;
 	reconcileFindAttempt: (
 		tryoutId: number,
 		userId: string,
 		now: Date,
-	) => Promise<{ attempt: AttemptWithSubtestAttempts | undefined; autoSubmittedSubtestId: number | null }>;
+	) => Promise<{ attempt: AttemptWithSubtestAttempts | undefined; phase: TimelinePhase }>;
 };
 
 export function createTryoutReadService(deps: ReadServiceDependencies) {
@@ -124,13 +123,14 @@ export function createTryoutReadService(deps: ReadServiceDependencies) {
 			}
 
 			const now = new Date();
-			const { mutations } = reconcileSubtestExpiry(toTimelineInput(initialAttempt, tryoutData.subtests), now);
-			const reconciled = mutations.length > 0 ? await deps.reconcileFindAttempt(input.id, caller.id, now) : null;
+			const initialReconciled = reconcileTimeline(toTimelineInput(initialAttempt, tryoutData.subtests), now);
+			const reconciled =
+				initialReconciled.mutations.length > 0 ? await deps.reconcileFindAttempt(input.id, caller.id, now) : null;
 			const attempt = reconciled ? reconciled.attempt : initialAttempt;
 			if (!attempt || attempt.isRevoked) {
 				throw new DomainError("UNAUTHORIZED", "Gagal menemukan pengerjaan tryout.");
 			}
-			const autoSubmittedSubtestId = reconciled?.autoSubmittedSubtestId ?? null;
+			const phase = reconciled ? reconciled.phase : initialReconciled.phase;
 
 			const normalizedAttempt = { ...attempt, score: parseNullableInt(attempt.score) };
 			const mappedSubtests = tryoutData.subtests.map((subtest) => ({
@@ -139,14 +139,14 @@ export function createTryoutReadService(deps: ReadServiceDependencies) {
 			}));
 			const baseTryoutData = { ...tryoutData, subtests: mappedSubtests };
 
-			if (normalizedAttempt.status === "finished") {
+			if (phase.phase === "finished") {
 				return {
 					...baseTryoutData,
 					attempt: normalizedAttempt,
 					currentSubtest: null,
 					overallDeadline: normalizedAttempt.deadline,
 					breakDeadline: null,
-					autoSubmittedSubtestId,
+					autoSubmittedSubtestId: phase.autoSubmittedSubtestId,
 					totalSubtests: mappedSubtests.length,
 					completedSubtests: mappedSubtests.length,
 				};
@@ -155,26 +155,8 @@ export function createTryoutReadService(deps: ReadServiceDependencies) {
 			const completedSubtestIds = new Set(
 				normalizedAttempt.subtestAttempts.filter((sa) => sa.status === "finished").map((sa) => sa.subtestId),
 			);
-			const currentSubtest = mappedSubtests.find((s) => !completedSubtestIds.has(s.id));
-
-			if (
-				now.getTime() >= normalizedAttempt.deadline.getTime() &&
-				!normalizedAttempt.completedAt &&
-				normalizedAttempt.status === "ongoing"
-			) {
-				await deps.finalizeExpiredAttempt(normalizedAttempt.id);
-
-				return {
-					...baseTryoutData,
-					attempt: { ...normalizedAttempt, status: "finished" as const, completedAt: now },
-					currentSubtest: null,
-					overallDeadline: normalizedAttempt.deadline,
-					breakDeadline: null,
-					autoSubmittedSubtestId: null,
-					totalSubtests: mappedSubtests.length,
-					completedSubtests: completedSubtestIds.size,
-				};
-			}
+			const targetSubtestId = phase.phase === "break" ? phase.nextSubtestId : phase.subtestId;
+			const currentSubtest = mappedSubtests.find((s) => s.id === targetSubtestId);
 
 			if (!currentSubtest) {
 				return {
@@ -182,16 +164,14 @@ export function createTryoutReadService(deps: ReadServiceDependencies) {
 					attempt: normalizedAttempt,
 					currentSubtest: null,
 					overallDeadline: normalizedAttempt.deadline,
-					breakDeadline: normalizedAttempt.breakEndsAt ?? null,
-					autoSubmittedSubtestId: null,
+					breakDeadline: phase.phase === "break" ? phase.breakEndsAt : null,
+					autoSubmittedSubtestId: phase.phase === "break" ? phase.autoSubmittedSubtestId : null,
 					totalSubtests: mappedSubtests.length,
 					completedSubtests: completedSubtestIds.size,
 				};
 			}
 
-			const currentSubtestAttempt = normalizedAttempt.subtestAttempts.find((sa) => sa.subtestId === currentSubtest.id);
-
-			if (!currentSubtestAttempt) {
+			if (phase.phase === "break") {
 				return {
 					...baseTryoutData,
 					attempt: normalizedAttempt,
@@ -202,8 +182,8 @@ export function createTryoutReadService(deps: ReadServiceDependencies) {
 						status: "not_started" as const,
 					},
 					overallDeadline: normalizedAttempt.deadline,
-					breakDeadline: normalizedAttempt.breakEndsAt ?? null,
-					autoSubmittedSubtestId: null,
+					breakDeadline: phase.breakEndsAt,
+					autoSubmittedSubtestId: phase.autoSubmittedSubtestId,
 					totalSubtests: mappedSubtests.length,
 					completedSubtests: completedSubtestIds.size,
 				};
@@ -218,12 +198,12 @@ export function createTryoutReadService(deps: ReadServiceDependencies) {
 				currentSubtest: {
 					...currentSubtest,
 					questions,
-					deadline: currentSubtestAttempt.deadline,
-					status: currentSubtestAttempt.status,
+					deadline: phase.deadline,
+					status: "ongoing" as const,
 				},
 				overallDeadline: normalizedAttempt.deadline,
 				breakDeadline: null,
-				autoSubmittedSubtestId,
+				autoSubmittedSubtestId: null,
 				totalSubtests: mappedSubtests.length,
 				completedSubtests: completedSubtestIds.size,
 			};
@@ -307,6 +287,5 @@ export function createTryoutReadService(deps: ReadServiceDependencies) {
 
 export const tryoutReadService = createTryoutReadService({
 	repository: createTryoutRepository(db),
-	finalizeExpiredAttempt: (attemptId) => submitService.finalizeExpiredAttempt(attemptId),
 	reconcileFindAttempt: (tryoutId, userId, now) => submitService.reconcileFindAttempt(tryoutId, userId, now),
 });
