@@ -25,6 +25,7 @@ const subtestAttempt = {
 	deadline,
 	status: "finished" as const,
 	score: "75",
+	autoSubmitted: false,
 };
 const attempt: SubtestStartAttempt = {
 	id: 2,

@@ -1,8 +1,13 @@
 import { db } from "@bimbelbeta/db";
 
 import { DomainError, withErrorFallback } from "@/lib/domain-error";
-import { computeSubtestDeadline } from "./deadline";
-import { createTryoutRepository, type TryoutRepository, type TryoutTransaction } from "./repository";
+import { parseNullableInt } from "@/lib/utils";
+import {
+	createTryoutRepository,
+	type SubmissionAttempt,
+	type TryoutRepository,
+	type TryoutTransaction,
+} from "./repository";
 import {
 	calcTotalScore,
 	getScoreFromMap,
@@ -12,10 +17,12 @@ import {
 	scoreMultipleChoice,
 	type TryoutScoreResult,
 } from "./scoring";
+import { planSubmitSubtest, reconcileSubtestExpiry, type TimelineMutation } from "./timeline";
 import { runInTransaction } from "./transaction";
 
 export type SubmitRepository = Pick<
 	TryoutRepository,
+	| "lockAttemptForUpdate"
 	| "findAttemptForSubmission"
 	| "listSubtestAttemptScoreInputs"
 	| "listAnswersWithSelectedChoice"
@@ -28,6 +35,19 @@ export type SubmitRepository = Pick<
 	| "saveScores"
 	| "insertSubtestAttempt"
 >;
+
+export function toTimelineInput(
+	attempt: Pick<SubmissionAttempt, "status" | "deadline" | "breakEndsAt" | "subtestAttempts">,
+	subtests: NonNullable<SubmissionAttempt["tryout"]>["subtests"],
+) {
+	return {
+		attemptStatus: attempt.status,
+		attemptDeadline: attempt.deadline,
+		breakEndsAt: attempt.breakEndsAt ?? null,
+		subtests: subtests.map((s) => ({ id: s.id, order: s.order, durationMinutes: s.duration })),
+		subtestAttempts: attempt.subtestAttempts,
+	};
+}
 
 export type SubmitServiceDependencies = {
 	repository: SubmitRepository;
@@ -122,21 +142,65 @@ const EXPIRED_ATTEMPT_BATCH = 200;
 export function createSubmitService(deps: SubmitServiceDependencies) {
 	const { repository } = deps;
 
-	async function finalizeAttempt(attemptId: number): Promise<void> {
-		const scores = await calculateScores(repository, attemptId);
+	async function closeAndScoreAttempt(repo: SubmitRepository, attemptId: number, completedAt?: Date) {
+		await repo.finishAttempt(attemptId, { completedAt, autoSubmitted: true });
+		const scores = await calculateScores(repo, attemptId);
+		await repo.saveScores(attemptId, scores);
+		return scores.totalScore;
+	}
 
-		await deps.withTransaction(async ({ repository: repo }) => {
-			await repo.finishAttempt(attemptId);
-			await repo.saveScores(attemptId, scores);
-		});
+	async function finalizeAttempt(attemptId: number): Promise<void> {
+		await deps.withTransaction(({ repository: repo }) => closeAndScoreAttempt(repo, attemptId));
 	}
 
 	async function finalizeExpiredAttempt(attemptId: number): Promise<void> {
 		await withErrorFallback("Gagal menyimpan skor tryout.", () => finalizeAttempt(attemptId));
 	}
 
+	async function applyMutations(repo: SubmitRepository, attemptId: number, mutations: TimelineMutation[]) {
+		let totalScore: number | null = null;
+		for (const m of mutations) {
+			if (m.kind === "finish_subtest") {
+				await repo.finishSubtestAttempt(m.subtestAttemptId, {
+					completedAt: m.completedAt,
+					autoSubmitted: m.autoSubmitted,
+				});
+			} else if (m.kind === "insert_subtest") {
+				const { kind: _kind, ...values } = m;
+				await repo.insertSubtestAttempt({ tryoutAttemptId: attemptId, ...values });
+			} else if (m.kind === "finish_attempt") {
+				totalScore = await withErrorFallback("Gagal menyimpan skor tryout.", () =>
+					closeAndScoreAttempt(repo, attemptId, m.completedAt),
+				);
+			}
+		}
+		return totalScore;
+	}
+
 	return {
 		finalizeExpiredAttempt,
+
+		async reconcileFindAttempt(tryoutId: number, userId: string, now = new Date()) {
+			return withErrorFallback("Gagal memproses batas waktu subtest.", () =>
+				deps.withTransaction(async ({ repository: repo }) => {
+					await repo.lockAttemptForUpdate(tryoutId, userId);
+					const attempt = await repo.findAttemptForSubmission(tryoutId, userId);
+					if (!attempt || attempt.isRevoked || !attempt.tryout) return { attempt, autoSubmittedSubtestId: null };
+
+					const { mutations, autoSubmittedSubtestId } = reconcileSubtestExpiry(
+						toTimelineInput(attempt, attempt.tryout.subtests),
+						now,
+					);
+					if (mutations.length === 0) return { attempt, autoSubmittedSubtestId: null };
+
+					await applyMutations(repo, attempt.id, mutations);
+					return {
+						attempt: (await repo.findAttemptForSubmission(tryoutId, userId)) ?? attempt,
+						autoSubmittedSubtestId,
+					};
+				}),
+			);
+		},
 
 		async sweepExpiredAttempts(now = new Date()): Promise<{ finalized: number; failedAttemptIds: number[] }> {
 			const attemptIds = await repository.listExpiredOngoingAttemptIds(now, EXPIRED_ATTEMPT_BATCH);
@@ -156,69 +220,46 @@ export function createSubmitService(deps: SubmitServiceDependencies) {
 			return { finalized, failedAttemptIds };
 		},
 
-		async submitSubtest(input: { tryoutId: number; subtestId: number }, userId: string) {
-			const attempt = await repository.findAttemptForSubmission(input.tryoutId, userId);
-			if (!attempt) throw new DomainError("BAD_REQUEST", "Gagal menemukan pengerjaan tryout.");
-
-			const currentSubtestAttempt = attempt.subtestAttempts.find(
-				(sa) => sa.subtestId === input.subtestId && sa.status === "ongoing",
-			);
-			if (!currentSubtestAttempt) throw new DomainError("BAD_REQUEST", "Subtest tidak aktif");
-
-			const tryoutData = attempt.tryout;
-			if (!tryoutData) throw new DomainError("NOT_FOUND", "Tryout tidak ditemukan");
-
-			const currentIndex = tryoutData.subtests.findIndex((s) => s.id === input.subtestId);
-			if (currentIndex === -1) throw new DomainError("NOT_FOUND", "Subtest tidak ditemukan");
-
-			const now = new Date();
-			if (attempt.deadline && attempt.deadline < now) {
-				throw new DomainError("BAD_REQUEST", "Tryout telah berakhir");
-			}
-
-			const nextSubtest = tryoutData.subtests[currentIndex + 1];
-			if (nextSubtest) {
-				const nextDeadline = computeSubtestDeadline(nextSubtest.duration, attempt.deadline);
-				await withErrorFallback("Gagal menyimpan progres subtest.", () =>
-					deps.withTransaction(async ({ repository: repo }) => {
-						await repo.finishSubtestAttempt(currentSubtestAttempt.id);
-						await repo.insertSubtestAttempt({
-							tryoutAttemptId: attempt.id,
-							subtestId: nextSubtest.id,
-							deadline: nextDeadline,
-						});
-					}),
-				);
-				return {
-					success: true as const,
-					tryoutCompleted: false as const,
-					nextSubtestId: nextSubtest.id,
-					breakDeadline: null,
-					autoCompletedByTimer: false,
-				};
-			}
-
-			const scores = await calculateScores(repository, attempt.id);
-
-			await withErrorFallback("Gagal menyimpan skor tryout.", () =>
+		async submitSubtest(input: { tryoutId: number; subtestId: number }, userId: string, now = new Date()) {
+			return withErrorFallback("Gagal menyimpan progres subtest.", () =>
 				deps.withTransaction(async ({ repository: repo }) => {
-					await repo.finishSubtestAttempt(currentSubtestAttempt.id);
-					await repo.finishAttempt(attempt.id);
-					await repo.saveScores(attempt.id, scores);
+					await repo.lockAttemptForUpdate(input.tryoutId, userId);
+					const attempt = await repo.findAttemptForSubmission(input.tryoutId, userId);
+					if (!attempt) throw new DomainError("BAD_REQUEST", "Gagal menemukan pengerjaan tryout.");
+					if (attempt.isRevoked) throw new DomainError("FORBIDDEN", "Pengerjaan telah dibatalkan");
+					if (!attempt.tryout) throw new DomainError("NOT_FOUND", "Tryout tidak ditemukan");
+
+					const plan = planSubmitSubtest(toTimelineInput(attempt, attempt.tryout.subtests), input.subtestId, now);
+					if (plan.kind === "invalid") throw new DomainError("BAD_REQUEST", "Subtest tidak aktif");
+
+					const scoredTotal = plan.mutations.length > 0 ? await applyMutations(repo, attempt.id, plan.mutations) : null;
+					if (plan.kind === "next") {
+						return {
+							success: true as const,
+							tryoutCompleted: false as const,
+							nextSubtestId: plan.nextSubtestId,
+							breakDeadline: plan.breakDeadline,
+							autoCompletedByTimer: plan.autoCompletedByTimer,
+						};
+					}
+
+					return {
+						success: true as const,
+						tryoutCompleted: true as const,
+						score: scoredTotal ?? parseNullableInt(attempt.score) ?? 0,
+						autoCompletedByTimer: plan.autoCompletedByTimer,
+					};
 				}),
 			);
-
-			return {
-				success: true as const,
-				tryoutCompleted: true as const,
-				score: scores.totalScore,
-				autoCompletedByTimer: false,
-			};
 		},
 
 		async submitTryout(input: { tryoutId: number }, userId: string) {
 			const attempt = await repository.findAttemptForSubmission(input.tryoutId, userId);
 			if (!attempt) throw new DomainError("BAD_REQUEST", "Gagal menemukan pengerjaan tryout.");
+			if (attempt.isRevoked) throw new DomainError("FORBIDDEN", "Pengerjaan telah dibatalkan");
+			if (attempt.status === "finished") {
+				return { success: true as const, score: parseNullableInt(attempt.score) ?? 0 };
+			}
 
 			const scores = await calculateScores(repository, attempt.id);
 

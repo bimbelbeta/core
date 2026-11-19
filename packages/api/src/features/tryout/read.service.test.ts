@@ -80,6 +80,7 @@ const subtestAttemptFinished = {
 	deadline: new Date("2100-01-01"),
 	status: "finished" as const,
 	score: "800",
+	autoSubmitted: false,
 };
 const subtestAttemptOngoing = {
 	id: 6,
@@ -90,6 +91,7 @@ const subtestAttemptOngoing = {
 	deadline: new Date("2100-01-01"),
 	status: "ongoing" as const,
 	score: null,
+	autoSubmitted: false,
 };
 const attempt: AttemptWithSubtestAttempts = {
 	id: 8,
@@ -144,6 +146,8 @@ type ReadRepositoryOverrides = {
 	rows?: SubtestQuestionRow[][];
 	subtestQuestionRows?: SubtestQuestionRow[][];
 	finalized: number[];
+	reconciled?: Array<{ tryoutId: number; userId: string }>;
+	reconcileResult?: { attempt: AttemptWithSubtestAttempts | undefined; autoSubmittedSubtestId: number | null };
 };
 
 function makeRepository(overrides: ReadRepositoryOverrides) {
@@ -174,6 +178,11 @@ function makeService(overrides: ReadRepositoryOverrides) {
 		repository,
 		finalizeExpiredAttempt: async (attemptId: number) => {
 			overrides.finalized.push(attemptId);
+		},
+		reconcileFindAttempt: async (tryoutId: number, userId: string) => {
+			overrides.reconciled = overrides.reconciled ?? [];
+			overrides.reconciled.push({ tryoutId, userId });
+			return overrides.reconcileResult ?? { attempt: overrides.attempt, autoSubmittedSubtestId: null };
 		},
 	};
 	return { service: createTryoutReadService(deps), repository };
@@ -307,6 +316,79 @@ describe("tryout find (resume)", () => {
 		expect(found.currentSubtest).toBeNull();
 		expect(found.completedSubtests).toBe(2);
 	});
+
+	test("uses lock-free fast path when active subtest has not expired or attempt is finished", async () => {
+		const activeOverrides = baseOverrides();
+		const activeResult = await makeService({
+			...activeOverrides,
+			tryout,
+			attempt: { ...attempt, subtestAttempts: [subtestAttemptFinished, subtestAttemptOngoing] },
+		}).service.find({ id: 1 }, caller);
+		expect(activeOverrides.reconciled).toBeUndefined();
+		expect(activeResult.autoSubmittedSubtestId).toBeNull();
+
+		const finishedOverrides = baseOverrides();
+		const finishedResult = await makeService({
+			...finishedOverrides,
+			tryout,
+			attempt: { ...attempt, status: "finished", completedAt: new Date(), score: "750" },
+		}).service.find({ id: 1 }, caller);
+		expect(finishedOverrides.reconciled).toBeUndefined();
+		expect(finishedResult.autoSubmittedSubtestId).toBeNull();
+	});
+
+	test("reconciles expired ongoing subtest via lock, advancing to next subtest with autoSubmittedSubtestId", async () => {
+		const expiredFirst = { ...subtestAttemptOngoing, id: 5, subtestId: 10, deadline: new Date(Date.now() - 60_000) };
+		const openedSecond = { ...subtestAttemptOngoing, id: 6, subtestId: 11, deadline: new Date(Date.now() + 600_000) };
+		const overrides: ReadRepositoryOverrides = {
+			...baseOverrides(),
+			tryout,
+			attempt: { ...attempt, subtestAttempts: [expiredFirst] },
+			reconcileResult: {
+				attempt: {
+					...attempt,
+					subtestAttempts: [
+						{ ...expiredFirst, status: "finished", completedAt: expiredFirst.deadline, autoSubmitted: true },
+						openedSecond,
+					],
+				},
+				autoSubmittedSubtestId: 10,
+			},
+		};
+		const found = await makeService(overrides).service.find({ id: 1 }, caller);
+		expect(overrides.reconciled).toEqual([{ tryoutId: 1, userId: "user-1" }]);
+		expect(found.autoSubmittedSubtestId).toBe(10);
+		expect(found.currentSubtest).toMatchObject({ id: 11, status: "ongoing", deadline: openedSecond.deadline });
+		expect(found.completedSubtests).toBe(1);
+	});
+
+	test("reconciles expired final subtest to finished status with autoSubmittedSubtestId", async () => {
+		const expiredFinal = { ...subtestAttemptOngoing, id: 6, subtestId: 11, deadline: new Date(Date.now() - 60_000) };
+		const overrides: ReadRepositoryOverrides = {
+			...baseOverrides(),
+			tryout,
+			attempt: { ...attempt, subtestAttempts: [subtestAttemptFinished, expiredFinal] },
+			reconcileResult: {
+				attempt: {
+					...attempt,
+					status: "finished",
+					completedAt: expiredFinal.deadline,
+					score: "900",
+					subtestAttempts: [
+						subtestAttemptFinished,
+						{ ...expiredFinal, status: "finished", completedAt: expiredFinal.deadline, autoSubmitted: true },
+					],
+				},
+				autoSubmittedSubtestId: 11,
+			},
+		};
+		const found = await makeService(overrides).service.find({ id: 1 }, caller);
+		expect(overrides.reconciled).toEqual([{ tryoutId: 1, userId: "user-1" }]);
+		expect(found.attempt.status).toBe("finished");
+		expect(found.attempt.score).toBe(900);
+		expect(found.currentSubtest).toBeNull();
+		expect(found.autoSubmittedSubtestId).toBe(11);
+	});
 });
 
 describe("featured tryout", () => {
@@ -422,7 +504,11 @@ describe("tryout list", () => {
 			listSubtestQuestionRows: async () => [],
 			listSubtestsForTryout: async () => subtests,
 		};
-		const service = createTryoutReadService({ repository, finalizeExpiredAttempt: async () => {} });
+		const service = createTryoutReadService({
+			repository,
+			finalizeExpiredAttempt: async () => {},
+			reconcileFindAttempt: async () => ({ attempt: undefined, autoSubmittedSubtestId: null }),
+		});
 
 		const listed = await service.list({ limit: 20, after: createDateIdCursor(rows[0]!.startsAt, 1) }, caller);
 

@@ -135,6 +135,7 @@ export const tryoutSubtestAttempt = app.table(
 		deadline: timestamp("deadline").notNull(),
 		status: tryoutAttemptStatus("status").notNull().default("ongoing"),
 		score: numeric("score", { precision: 10, scale: 2 }), // Can be calculated later
+		autoSubmitted: boolean("auto_submitted").notNull().default(false),
 	},
 	(t) => [
 		unique("user_tryout_subtest_attempt").on(t.tryoutAttemptId, t.subtestId),

@@ -379,6 +379,16 @@ export function createTryoutRepository(client: DbClient) {
 			.orderBy(tryoutSubtestQuestion.order);
 	}
 
+	async function lockAttemptForUpdate(tryoutId: number, userId: string): Promise<AttemptRow | undefined> {
+		const [row] = await client
+			.select()
+			.from(tryoutAttempt)
+			.where(and(eq(tryoutAttempt.tryoutId, tryoutId), eq(tryoutAttempt.userId, userId)))
+			.for("update")
+			.limit(1);
+		return row;
+	}
+
 	async function findAttempt(tryoutId: number, userId: string): Promise<AttemptRow | undefined> {
 		const [row] = await client
 			.select()
@@ -411,7 +421,7 @@ export function createTryoutRepository(client: DbClient) {
 
 	async function findAttemptForSubmission(tryoutId: number, userId: string): Promise<SubmissionAttempt | undefined> {
 		return client.query.tryoutAttempt.findFirst({
-			where: { tryoutId: { eq: tryoutId }, userId: { eq: userId }, status: { eq: "ongoing" } },
+			where: { tryoutId: { eq: tryoutId }, userId: { eq: userId } },
 			with: {
 				subtestAttempts: true,
 				tryout: { with: { subtests: { orderBy: (subtests, { asc }) => [asc(subtests.order)] } } },
@@ -572,19 +582,26 @@ export function createTryoutRepository(client: DbClient) {
 		return rows.map((row) => row.id);
 	}
 
-	async function finishSubtestAttempt(id: number): Promise<void> {
+	async function finishSubtestAttempt(id: number, options?: { completedAt?: Date; autoSubmitted?: boolean }) {
 		await client
 			.update(tryoutSubtestAttempt)
-			.set({ status: "finished", completedAt: new Date() })
+			.set({
+				status: "finished",
+				completedAt: options?.completedAt ?? new Date(),
+				autoSubmitted: options?.autoSubmitted ?? false,
+			})
 			.where(eq(tryoutSubtestAttempt.id, id));
 	}
 
-	async function finishAttempt(id: number): Promise<void> {
-		const now = new Date();
-		await client.update(tryoutAttempt).set({ completedAt: now, status: "finished" }).where(eq(tryoutAttempt.id, id));
+	async function finishAttempt(id: number, options?: { completedAt?: Date; autoSubmitted?: boolean }) {
+		const completedAt = options?.completedAt ?? new Date();
+		await client
+			.update(tryoutAttempt)
+			.set({ completedAt, status: "finished" })
+			.where(and(eq(tryoutAttempt.id, id), eq(tryoutAttempt.status, "ongoing")));
 		await client
 			.update(tryoutSubtestAttempt)
-			.set({ status: "finished", completedAt: now })
+			.set({ status: "finished", completedAt, autoSubmitted: options?.autoSubmitted ?? false })
 			.where(and(eq(tryoutSubtestAttempt.tryoutAttemptId, id), eq(tryoutSubtestAttempt.status, "ongoing")));
 	}
 
@@ -898,6 +915,7 @@ export function createTryoutRepository(client: DbClient) {
 		findAttemptForReview,
 		findSubtestName,
 		listSubtestQuestionRows,
+		lockAttemptForUpdate,
 		findAttempt,
 		findAttemptWithSubtestAttempts,
 		findOngoingAttemptForSession,

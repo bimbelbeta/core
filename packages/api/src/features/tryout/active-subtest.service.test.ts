@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, setSystemTime, test } from "bun:test";
 import { DomainError } from "@/lib/domain-error";
 import { createActiveSubtestService } from "./active-subtest.service";
 import type { ActiveSessionAttempt, AnswerFields } from "./repository";
@@ -150,5 +150,37 @@ describe("active subtest service", () => {
 			message: "Tidak ada pengerjaan yang aktif",
 		});
 		expect(toggles).toEqual([]);
+	});
+
+	test("rejects saveAnswer and toggleRaguRagu at exact 0-second deadline boundary with zero mutations", async () => {
+		const exactDeadline = new Date("2026-06-01T12:00:00.000Z");
+		const answers: RecordedAnswer[] = [];
+		const toggles: Array<{ attemptId: number; questionId: number }> = [];
+		const service = createActiveSubtestService({
+			repository: makeRepository({
+				attempt: sessionWith([{ status: "ongoing", deadline: exactDeadline }]),
+				answers,
+				toggles,
+			}),
+		});
+
+		setSystemTime(exactDeadline);
+		try {
+			await expect(service.require(1, "user-1")).rejects.toMatchObject({
+				code: "BAD_REQUEST",
+				message: "Batas waktu subtest telah habis",
+			});
+			await expect(
+				service.saveAnswer({ tryoutId: 1, questionId: 5, answerType: "choice", selectedChoiceId: 3 }, "user-1"),
+			).rejects.toMatchObject({ code: "BAD_REQUEST", message: "Batas waktu subtest telah habis" });
+			await expect(service.toggleRaguRagu({ tryoutId: 1, questionId: 5 }, "user-1")).rejects.toMatchObject({
+				code: "BAD_REQUEST",
+				message: "Batas waktu subtest telah habis",
+			});
+			expect(answers).toEqual([]);
+			expect(toggles).toEqual([]);
+		} finally {
+			setSystemTime();
+		}
 	});
 });
