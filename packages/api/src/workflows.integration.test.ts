@@ -169,10 +169,10 @@ describe.skipIf(!enabled)("API persistence workflows", () => {
 			])
 			.returning();
 		await db.insert(tryoutSubtestQuestion).values({ subtestId: subtests[0]!.id, questionId, order: 1 });
-		const started = await call(appRouter.tryout.start, { id: tryoutId, useCredit: true }, options);
-		expect(started.usedCredit).toBe(true);
-		expect((await db.select().from(user).where(eq(user.id, id)))[0]!.tryoutCredits).toBe(0);
-		expect(await db.select().from(creditTransaction).where(eq(creditTransaction.userId, id))).toHaveLength(1);
+		const started = await call(appRouter.tryout.start, { id: tryoutId }, options);
+		expect(started.usedCredit).toBe(false);
+		expect((await db.select().from(user).where(eq(user.id, id)))[0]!.tryoutCredits).toBe(1);
+		expect(await db.select().from(creditTransaction).where(eq(creditTransaction.userId, id))).toHaveLength(0);
 		expect(
 			await db.select().from(tryoutSubtestAttempt).where(eq(tryoutSubtestAttempt.tryoutAttemptId, started.id)),
 		).toHaveLength(1);

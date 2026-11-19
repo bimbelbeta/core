@@ -3,18 +3,12 @@ import type { Session } from "@/context";
 
 import { DomainError } from "@/lib/domain-error";
 import { parseNullableInt } from "@/lib/utils";
-import { hashAccessCode } from "./access-code";
 import { createTryoutRepository, type TryoutRepository, type TryoutTransaction } from "./repository";
 import { runInTransaction } from "./transaction";
 
 export type StartTryoutRepository = Pick<
 	TryoutRepository,
-	| "findPublishedTryoutWithSubtests"
-	| "findAccessCode"
-	| "findAttempt"
-	| "insertAttempt"
-	| "consumeAccessCodeQuota"
-	| "insertSubtestAttempt"
+	"findPublishedTryoutWithSubtests" | "findAttempt" | "insertAttempt" | "insertSubtestAttempt"
 >;
 
 export type StartTryoutDependencies = {
@@ -38,46 +32,7 @@ export function createStartTryoutService(deps: StartTryoutDependencies) {
 			const tryoutData = await repository.findPublishedTryoutWithSubtests(input.id);
 			if (!tryoutData) throw new DomainError("NOT_FOUND", "Tryout tidak ditemukan");
 
-			const isPremiumUser = caller.isPremium;
-			const hasImageProof = !!input.imageUrl;
-			const wantsToUseCredit = !!input.useCredit;
-			const userCredits = caller.tryoutCredits ?? 0;
-
-			const accessCodeInput = input.accessCode?.trim();
 			const now = new Date();
-
-			let validAccessCode = null;
-			if (accessCodeInput) {
-				validAccessCode = (await repository.findAccessCode(input.id, hashAccessCode(accessCodeInput))) ?? null;
-			}
-
-			const usesAccessCode = !!validAccessCode && !wantsToUseCredit && !isPremiumUser && !hasImageProof;
-			const codeIsTheOnlyAttempt = !!accessCodeInput && !isPremiumUser && !hasImageProof && !wantsToUseCredit;
-
-			if (codeIsTheOnlyAttempt && validAccessCode) {
-				if (!validAccessCode.isActive) {
-					throw new DomainError("FORBIDDEN", "Kode akses tidak aktif");
-				}
-				if (validAccessCode.expiresAt && validAccessCode.expiresAt < now) {
-					throw new DomainError("FORBIDDEN", "Kode akses sudah kedaluwarsa");
-				}
-				if (validAccessCode.maxUses !== null && validAccessCode.usedCount >= validAccessCode.maxUses) {
-					throw new DomainError("FORBIDDEN", "Kuota kode akses sudah habis");
-				}
-			}
-
-			if (codeIsTheOnlyAttempt && !validAccessCode) {
-				throw new DomainError("FORBIDDEN", "Kode akses tidak valid");
-			}
-
-			if (!isPremiumUser && !hasImageProof && !wantsToUseCredit && !usesAccessCode) {
-				throw new DomainError("FORBIDDEN", "Upload bukti pembayaran, gunakan kredit tryout, atau masukkan kode akses");
-			}
-
-			const usesCredit = wantsToUseCredit && !isPremiumUser;
-			if (usesCredit && userCredits <= 0) {
-				throw new DomainError("FORBIDDEN", "Kredit tryout tidak cukup");
-			}
 			if (tryoutData.startsAt && tryoutData.startsAt > now) {
 				throw new DomainError("BAD_REQUEST", "Tryout belum dimulai");
 			}
@@ -110,31 +65,23 @@ export function createStartTryoutService(deps: StartTryoutDependencies) {
 
 			const overallDeadline = deadlineMap.get(tryoutData.subtests[tryoutData.subtests.length - 1]!.id)!;
 
-			const attempt = await deps.withTransaction(async ({ repository: repo, credit }) => {
+			const result = await deps.withTransaction(async ({ repository: repo }) => {
 				const newAttempt = await repo.insertAttempt({
 					tryoutId: input.id,
 					userId: caller.id,
-					submittedImageUrl: usesCredit ? null : input.imageUrl,
+					submittedImageUrl: null,
 					deadline: overallDeadline,
-					usedCredit: usesCredit,
-					usedAccessCode: usesAccessCode,
-					accessCodeId: usesAccessCode ? (validAccessCode?.id ?? null) : null,
+					usedCredit: false,
+					usedAccessCode: false,
+					accessCodeId: null,
 				});
-				if (!newAttempt) throw new DomainError("INTERNAL_SERVER_ERROR", "Gagal memulai tryout");
-
-				if (usesAccessCode && validAccessCode) {
-					const consumed = await repo.consumeAccessCodeQuota(validAccessCode.id);
-					if (!consumed) {
-						throw new DomainError("FORBIDDEN", "Kuota kode akses sudah habis");
+				if (!newAttempt) {
+					const existing = await repo.findAttempt(input.id, caller.id);
+					if (!existing) throw new DomainError("INTERNAL_SERVER_ERROR", "Gagal memulai tryout");
+					if (existing.isRevoked) {
+						throw new DomainError("FORBIDDEN", "Pengerjaan telah dibatalkan");
 					}
-				}
-
-				if (usesCredit) {
-					await credit.deductCreditForTryoutAttempt({
-						userId: caller.id,
-						tryoutAttemptId: newAttempt.id,
-						note: `Used for tryout: ${tryoutData.title}`,
-					});
+					return { created: false as const, attempt: existing };
 				}
 
 				const firstSubtest = tryoutData.subtests[0]!;
@@ -144,12 +91,19 @@ export function createStartTryoutService(deps: StartTryoutDependencies) {
 					deadline: deadlineMap.get(firstSubtest.id)!,
 				});
 
-				return newAttempt;
+				return { created: true as const, attempt: newAttempt };
 			});
 
+			if (!result.created) {
+				return {
+					...result.attempt,
+					score: parseNullableInt(result.attempt.score),
+				};
+			}
+
 			return {
-				...attempt,
-				score: parseNullableInt(attempt.score),
+				...result.attempt,
+				score: parseNullableInt(result.attempt.score),
 				overallDeadline,
 			};
 		},
