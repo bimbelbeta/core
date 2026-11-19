@@ -1,0 +1,1 @@
+ALTER TABLE "app"."tryout_subtest_attempt" ADD COLUMN "auto_submitted" boolean DEFAULT false NOT NULL;

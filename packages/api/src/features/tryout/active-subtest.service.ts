@@ -19,7 +19,7 @@ export function createActiveSubtestService({ repository }: { repository: ActiveS
 
 		const subtest = attempt.subtestAttempts.find((item) => item.status === "ongoing");
 		if (!subtest) throw new DomainError("BAD_REQUEST", "Tidak ada subtest yang aktif");
-		if (subtest.deadline && subtest.deadline < new Date()) {
+		if (subtest.deadline && subtest.deadline <= new Date()) {
 			throw new DomainError("BAD_REQUEST", "Batas waktu subtest telah habis");
 		}
 

@@ -1,0 +1,47 @@
+{
+  "type": "diff",
+  "version": "9",
+  "dialect": "postgres",
+  "id": "94ab45f2-1bd5-4580-b6bf-fe24a29ca97b",
+  "prevIds": [
+    "337655bc-0784-4e97-b869-4718242e26c5"
+  ],
+  "footprints": [
+    {
+      "statementType": "add_column",
+      "statementTarget": [
+        "column",
+        "app",
+        "tryout_subtest_attempt",
+        "auto_submitted"
+      ],
+      "writes": [
+        "s|col|app.tryout_subtest_attempt.auto_submitted",
+        "n|col|app.tryout_subtest_attempt.auto_submitted",
+        "e|col|app.tryout_subtest_attempt.auto_submitted"
+      ],
+      "reads": [
+        "n|tbl|app.tryout_subtest_attempt",
+        "n|sch|app"
+      ]
+    }
+  ],
+  "deltas": [
+    {
+      "op": "create",
+      "row": {
+        "schema": "app",
+        "table": "tryout_subtest_attempt",
+        "name": "auto_submitted",
+        "type": "boolean",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "false",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    }
+  ]
+}

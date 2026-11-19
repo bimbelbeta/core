@@ -100,6 +100,7 @@ function makeRepository(rows: RepositoryRows) {
 				deadline: values.deadline,
 				status: "ongoing" as const,
 				score: null,
+				autoSubmitted: false,
 			};
 		},
 	};

@@ -4,9 +4,10 @@ import { DomainError } from "@/lib/domain-error";
 import { buildDateIdCursorPage, decodeDateIdPage } from "@/lib/pagination/cursor";
 import { parseNullableInt } from "@/lib/utils";
 import { flattenReviewQuestions, flattenTryoutQuestions } from "./question-utils";
-import { createTryoutRepository, type TryoutRepository } from "./repository";
+import { type AttemptWithSubtestAttempts, createTryoutRepository, type TryoutRepository } from "./repository";
 import { calcTryoutMaxScore } from "./scoring";
-import { submitService } from "./submit.service";
+import { submitService, toTimelineInput } from "./submit.service";
+import { reconcileSubtestExpiry } from "./timeline";
 
 export type ReadRepository = Pick<
 	TryoutRepository,
@@ -26,6 +27,11 @@ export type ReadRepository = Pick<
 export type ReadServiceDependencies = {
 	repository: ReadRepository;
 	finalizeExpiredAttempt: (attemptId: number) => Promise<void>;
+	reconcileFindAttempt: (
+		tryoutId: number,
+		userId: string,
+		now: Date,
+	) => Promise<{ attempt: AttemptWithSubtestAttempts | undefined; autoSubmittedSubtestId: number | null }>;
 };
 
 export function createTryoutReadService(deps: ReadServiceDependencies) {
@@ -112,10 +118,19 @@ export function createTryoutReadService(deps: ReadServiceDependencies) {
 			const tryoutData = await repository.findPublishedTryoutWithSubtests(input.id);
 			if (!tryoutData) throw new DomainError("NOT_FOUND", "Tryout tidak ditemukan.");
 
-			const attempt = await repository.findAttemptWithSubtestAttempts(input.id, caller.id);
+			const initialAttempt = await repository.findAttemptWithSubtestAttempts(input.id, caller.id);
+			if (!initialAttempt || initialAttempt.isRevoked) {
+				throw new DomainError("UNAUTHORIZED", "Gagal menemukan pengerjaan tryout.");
+			}
+
+			const now = new Date();
+			const { mutations } = reconcileSubtestExpiry(toTimelineInput(initialAttempt, tryoutData.subtests), now);
+			const reconciled = mutations.length > 0 ? await deps.reconcileFindAttempt(input.id, caller.id, now) : null;
+			const attempt = reconciled ? reconciled.attempt : initialAttempt;
 			if (!attempt || attempt.isRevoked) {
 				throw new DomainError("UNAUTHORIZED", "Gagal menemukan pengerjaan tryout.");
 			}
+			const autoSubmittedSubtestId = reconciled?.autoSubmittedSubtestId ?? null;
 
 			const normalizedAttempt = { ...attempt, score: parseNullableInt(attempt.score) };
 			const mappedSubtests = tryoutData.subtests.map((subtest) => ({
@@ -131,7 +146,7 @@ export function createTryoutReadService(deps: ReadServiceDependencies) {
 					currentSubtest: null,
 					overallDeadline: normalizedAttempt.deadline,
 					breakDeadline: null,
-					autoSubmittedSubtestId: null,
+					autoSubmittedSubtestId,
 					totalSubtests: mappedSubtests.length,
 					completedSubtests: mappedSubtests.length,
 				};
@@ -143,7 +158,7 @@ export function createTryoutReadService(deps: ReadServiceDependencies) {
 			const currentSubtest = mappedSubtests.find((s) => !completedSubtestIds.has(s.id));
 
 			if (
-				Date.now() > normalizedAttempt.deadline.getTime() &&
+				now.getTime() >= normalizedAttempt.deadline.getTime() &&
 				!normalizedAttempt.completedAt &&
 				normalizedAttempt.status === "ongoing"
 			) {
@@ -151,7 +166,7 @@ export function createTryoutReadService(deps: ReadServiceDependencies) {
 
 				return {
 					...baseTryoutData,
-					attempt: { ...normalizedAttempt, status: "finished" as const, completedAt: new Date() },
+					attempt: { ...normalizedAttempt, status: "finished" as const, completedAt: now },
 					currentSubtest: null,
 					overallDeadline: normalizedAttempt.deadline,
 					breakDeadline: null,
@@ -208,7 +223,7 @@ export function createTryoutReadService(deps: ReadServiceDependencies) {
 				},
 				overallDeadline: normalizedAttempt.deadline,
 				breakDeadline: null,
-				autoSubmittedSubtestId: null,
+				autoSubmittedSubtestId,
 				totalSubtests: mappedSubtests.length,
 				completedSubtests: completedSubtestIds.size,
 			};
@@ -293,4 +308,5 @@ export function createTryoutReadService(deps: ReadServiceDependencies) {
 export const tryoutReadService = createTryoutReadService({
 	repository: createTryoutRepository(db),
 	finalizeExpiredAttempt: (attemptId) => submitService.finalizeExpiredAttempt(attemptId),
+	reconcileFindAttempt: (tryoutId, userId, now) => submitService.reconcileFindAttempt(tryoutId, userId, now),
 });
