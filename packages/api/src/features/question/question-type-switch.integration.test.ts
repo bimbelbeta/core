@@ -39,26 +39,30 @@ const session = {
 const options = { context: { session } };
 const createdQuestionIds: number[] = [];
 
+
 async function createQuestion(type: "multiple_choice" | "essay") {
-	const created = await call(
-		appRouter.admin.tryout.questions.create,
-		{
-			type,
-			content: `${id} ${type}`,
-			discussion: "Pembahasan",
-			choices:
-				type === "multiple_choice"
-					? [
-							{ content: "Benar", isCorrect: true },
-							{ content: "Salah", isCorrect: false },
-						]
-					: undefined,
-		},
-		options,
-	);
-	createdQuestionIds.push(created.id);
-	return created.id;
+    const created = await call(
+        appRouter.admin.tryout.questions.create,
+        {
+            type,
+            content: `${id} ${type}`,
+            discussion: "Pembahasan",
+            ...(type === "multiple_choice"
+                ? {
+                      choices: [
+                          { content: "Benar", isCorrect: true },
+                          { content: "Salah", isCorrect: false },
+                      ],
+                  }
+                : {}),
+        },
+        options,
+    );
+
+    createdQuestionIds.push(created.id);
+    return created.id;
 }
+
 
 describe.skipIf(!enabled)("question type switch", () => {
 	afterAll(async () => {
