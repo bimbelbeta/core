@@ -96,7 +96,7 @@ describe.skipIf(!enabled)("admin question feature", () => {
 				discussion: "Pembahasan baru",
 				choices: [
 					{ id: initialChoices[0]!.id, content: "Diperbarui", isCorrect: false },
-					{ content: "Brokol", isCorrect: false },
+					{ content: "Brokol", isCorrect: true },
 				],
 			},
 			options,
@@ -111,7 +111,7 @@ describe.skipIf(!enabled)("admin question feature", () => {
 			]),
 		).toEqual([
 			["A", "Diperbarui", false],
-			["B", "Brokol", false],
+			["B", "Brokol", true],
 		]);
 
 		const newChoice = await call(

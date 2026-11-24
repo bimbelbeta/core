@@ -58,12 +58,6 @@
 			"suspicious": {
 				"noDuplicateProperties": "off"
 			},
-			"nursery": {
-				"useTailwindSortedClasses": {
-					"level": "warn",
-					"fix": "safe"
-				}
-			},
 			"style": {
 				"noNonNullAssertion": "off",
 				"noParameterAssign": "error",
@@ -100,9 +94,5 @@
 		"parser": {
 			"tailwindDirectives": true
 		}
-	},
-	"tailwind": {
-		"mergeFunctions": ["clsx", "cn"],
-		"variantFunctions": ["cva"]
 	}
 }

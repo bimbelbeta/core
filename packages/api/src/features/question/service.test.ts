@@ -269,9 +269,10 @@ describe("question service update", () => {
 			insertedChoices: ChoiceInsertData[];
 		} = { questions: [], deletedChoiceIds: [], updatedChoices: [], insertedChoices: [] };
 		const repository = makeRepository({
+			findQuestion: async (id) => (questionExists ? makeQuestionRow({ id }) : undefined),
 			updateQuestion: async (id, data) => {
 				writes.questions.push({ id, data });
-				return questionExists ? makeQuestionRow({ ...data, id }) : undefined;
+				return makeQuestionRow({ ...data, id });
 			},
 			listChoices: async () => existingChoices,
 			deleteChoices: async (ids) => {
@@ -301,19 +302,7 @@ describe("question service update", () => {
 			expect(error).toHaveProperty("message", "Question tidak ditemukan");
 		}
 
-		expect(writes.questions).toEqual([
-			{
-				id: 7,
-				data: {
-					content: "Soal baru",
-					contentJson: null,
-					discussion: "Pembahasan",
-					discussionJson: null,
-					essayCorrectAnswer: undefined,
-					tags: [],
-				},
-			},
-		]);
+		expect(writes.questions).toEqual([]);
 		expect(writes.deletedChoiceIds).toEqual([]);
 		expect(writes.updatedChoices).toEqual([]);
 		expect(writes.insertedChoices).toEqual([]);
@@ -336,10 +325,10 @@ describe("question service update", () => {
 			choices: [
 				{ id: 1, content: "Baru", isCorrect: false },
 				{ content: "Brokol", isCorrect: true },
-				{ id: 7, content: "Wortel", isCorrect: true },
+				{ id: 7, content: "Wortel", isCorrect: false },
 				{ content: "Buncis", isCorrect: false },
-				{ content: "Bayam", isCorrect: true },
-				{ content: "Selada", isCorrect: true },
+				{ content: "Bayam", isCorrect: false },
+				{ content: "Selada", isCorrect: false },
 			],
 		});
 
@@ -347,41 +336,52 @@ describe("question service update", () => {
 			{
 				id: 7,
 				data: {
+					type: "multiple_choice",
 					content: "Soal baru",
 					contentJson: null,
 					discussion: '{"type":"doc","content":[]}',
 					discussionJson: { type: "doc", content: [] },
-					essayCorrectAnswer: undefined,
+					essayCorrectAnswer: null,
 					tags: ["aljabar"],
 				},
 			},
 		]);
 		expect(writes.deletedChoiceIds).toEqual([2, 3]);
-		expect(writes.updatedChoices).toEqual([{ id: 1, data: { content: "Baru", isCorrect: false } }]);
+		expect(writes.updatedChoices).toEqual([
+			{ id: 1, data: { content: "Baru", isCorrect: false } },
+			{ id: 7, data: { content: "Wortel", isCorrect: false } },
+		]);
 		expect(writes.insertedChoices).toEqual([
 			{ questionId: 7, code: "B", content: "Brokol", isCorrect: true },
 			{ questionId: 7, code: "C", content: "Buncis", isCorrect: false },
-			{ questionId: 7, code: "D", content: "Bayam", isCorrect: true },
-			{ questionId: 7, code: "E", content: "Selada", isCorrect: true },
+			{ questionId: 7, code: "D", content: "Bayam", isCorrect: false },
+			{ questionId: 7, code: "E", content: "Selada", isCorrect: false },
 		]);
 	});
 
-	test("skips a new choice once every code is taken", async () => {
+	test("rejects more than seven choices before writing data", async () => {
 		const existing = ["A", "B", "C", "D", "E", "F", "G"].map((code, index) =>
 			makeChoiceRow({ id: index + 1, code, content: "Pilihan", isCorrect: false }),
 		);
 		const { repository, writes } = makeUpdateRepository(existing);
 
-		await createQuestionService({ repository }).update({
-			id: 7,
-			content: "Soal baru",
-			discussion: "Pembahasan",
-			choices: [
-				...existing.map((choice) => ({ id: choice.id, content: choice.content, isCorrect: choice.isCorrect })),
-				{ content: "Kelebihan", isCorrect: true },
-			],
-		});
+		await expect(
+			createQuestionService({ repository }).update({
+				id: 7,
+				content: "Soal baru",
+				discussion: "Pembahasan",
+				choices: [
+					...existing.map((choice, index) => ({
+						id: choice.id,
+						content: choice.content,
+						isCorrect: index === 0,
+					})),
+					{ content: "Kelebihan", isCorrect: false },
+				],
+			}),
+		).rejects.toMatchObject({ code: "BAD_REQUEST", message: "Maksimal 7 pilihan jawaban" });
 
+		expect(writes.questions).toEqual([]);
 		expect(writes.deletedChoiceIds).toEqual([]);
 		expect(writes.updatedChoices).toEqual([]);
 		expect(writes.insertedChoices).toEqual([]);
@@ -398,11 +398,130 @@ describe("question service update", () => {
 			id: 7,
 			content: "Soal baru",
 			discussion: "Pembahasan",
-			choices: [{ content: "Segar", isCorrect: false }],
+			choices: [
+				{ content: "Segar", isCorrect: true },
+				{ content: "Sabar", isCorrect: false },
+			],
 		});
 
 		expect(writes.deletedChoiceIds).toEqual([1, 2]);
-		expect(writes.insertedChoices).toEqual([{ questionId: 7, code: "A", content: "Segar", isCorrect: false }]);
+		expect(writes.insertedChoices).toEqual([
+			{ questionId: 7, code: "A", content: "Segar", isCorrect: true },
+			{ questionId: 7, code: "B", content: "Sabar", isCorrect: false },
+		]);
+	});
+
+	test("switches a choice question to essay and removes every choice", async () => {
+		const existing = [makeChoiceRow({ id: 1 }), makeChoiceRow({ id: 2, code: "B" })];
+		const { repository, writes } = makeUpdateRepository(existing);
+
+		await createQuestionService({ repository }).update({
+			id: 7,
+			type: "essay",
+			content: "Soal essay",
+			discussion: "Pembahasan",
+			essayCorrectAnswer: "Jawaban acuan",
+		});
+
+		expect(writes.questions).toEqual([
+			{
+				id: 7,
+				data: {
+					type: "essay",
+					content: "Soal essay",
+					contentJson: null,
+					discussion: "Pembahasan",
+					discussionJson: null,
+					essayCorrectAnswer: "Jawaban acuan",
+					tags: [],
+				},
+			},
+		]);
+		expect(writes.deletedChoiceIds).toEqual([1, 2]);
+		expect(writes.updatedChoices).toEqual([]);
+		expect(writes.insertedChoices).toEqual([]);
+	});
+
+	test("switches an essay to multiple choice and clears the essay answer", async () => {
+		const { repository, writes } = makeUpdateRepository([]);
+		repository.findQuestion = async (id) => makeQuestionRow({ id, type: "essay", essayCorrectAnswer: "Jawaban lama" });
+
+		await createQuestionService({ repository }).update({
+			id: 7,
+			type: "multiple_choice",
+			content: "Soal pilihan",
+			discussion: "Pembahasan",
+			choices: [
+				{ content: "Benar", isCorrect: true },
+				{ content: "Salah", isCorrect: false },
+			],
+		});
+
+		expect(writes.questions[0]).toEqual({
+			id: 7,
+			data: {
+				type: "multiple_choice",
+				content: "Soal pilihan",
+				contentJson: null,
+				discussion: "Pembahasan",
+				discussionJson: null,
+				essayCorrectAnswer: null,
+				tags: [],
+			},
+		});
+		expect(writes.insertedChoices).toEqual([
+			{ questionId: 7, code: "A", content: "Benar", isCorrect: true },
+			{ questionId: 7, code: "B", content: "Salah", isCorrect: false },
+		]);
+	});
+
+	test("switches between choice types using the target validation rules", async () => {
+		const existing = [
+			makeChoiceRow({ id: 1, code: "A", isCorrect: true }),
+			makeChoiceRow({ id: 2, code: "B", isCorrect: false }),
+		];
+		const { repository, writes } = makeUpdateRepository(existing);
+
+		await createQuestionService({ repository }).update({
+			id: 7,
+			type: "multiple_choice_complex",
+			content: "Soal kompleks",
+			discussion: "Pembahasan",
+			choices: [
+				{ id: 1, content: "Pilihan A diperbarui", isCorrect: true },
+				{ id: 2, content: "Pilihan B", isCorrect: true },
+			],
+		});
+
+		expect(writes.questions[0]?.data).toMatchObject({
+			type: "multiple_choice_complex",
+			essayCorrectAnswer: null,
+		});
+		expect(writes.updatedChoices).toEqual([
+			{ id: 1, data: { content: "Pilihan A diperbarui", isCorrect: true } },
+			{ id: 2, data: { content: "Pilihan B", isCorrect: true } },
+		]);
+	});
+
+	test("rejects an invalid target type before writing data", async () => {
+		const { repository, writes } = makeUpdateRepository([]);
+		repository.findQuestion = async (id) => makeQuestionRow({ id, type: "essay" });
+
+		await expect(
+			createQuestionService({ repository }).update({
+				id: 7,
+				type: "multiple_choice",
+				content: "Soal pilihan",
+				discussion: "Pembahasan",
+				choices: [{ content: "Satu", isCorrect: true }],
+			}),
+		).rejects.toMatchObject({
+			code: "BAD_REQUEST",
+			message: "Multiple choice harus memiliki minimal 2 pilihan",
+		});
+
+		expect(writes.questions).toEqual([]);
+		expect(writes.insertedChoices).toEqual([]);
 	});
 });
 

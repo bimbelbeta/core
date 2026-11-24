@@ -2,7 +2,7 @@ import { db } from "@bimbelbeta/db";
 import { normalizeQuestionContent, readTiptapContent } from "@/lib/content-utils";
 import { DomainError } from "@/lib/domain-error";
 import { buildIdCursorPage, decodeIdPage } from "@/lib/pagination/cursor";
-import { createQuestionRepository, type QuestionRepository, type QuestionRow } from "./repository";
+import { type ChoiceRow, createQuestionRepository, type QuestionRepository, type QuestionRow } from "./repository";
 
 const CHOICE_CODES = ["A", "B", "C", "D", "E", "F", "G"] as const;
 
@@ -26,21 +26,29 @@ type CreateQuestionInput = {
 	choices?: { content: string; isCorrect: boolean }[];
 };
 
-type CreateQuestionValidation =
+type QuestionValidation =
 	| { status: "too_few_choices" }
+	| { status: "too_many_choices" }
 	| { status: "incorrect_choice_count" }
-	| { status: "too_few_complex_choices" };
+	| { status: "too_few_complex_choices" }
+	| { status: "essay_has_choices" };
 
-const CREATE_VALIDATION_MESSAGES: Record<CreateQuestionValidation["status"], string> = {
+const QUESTION_VALIDATION_MESSAGES: Record<QuestionValidation["status"], string> = {
 	too_few_choices: "Multiple choice harus memiliki minimal 2 pilihan",
+	too_many_choices: "Maksimal 7 pilihan jawaban",
 	incorrect_choice_count: "Multiple choice harus memiliki tepat 1 pilihan yang benar",
 	too_few_complex_choices: "Pilihan majemuk kompleks harus memiliki minimal 2 pilihan",
+	essay_has_choices: "Soal essay tidak boleh memiliki pilihan jawaban",
 };
 
-function validateQuestion(input: CreateQuestionInput): CreateQuestionValidation | null {
+function validateQuestion(input: {
+	type: QuestionRow["type"];
+	choices?: { isCorrect: boolean }[];
+}): QuestionValidation | null {
 	const { choices } = input;
 	if (input.type === "multiple_choice") {
 		if (!choices || choices.length < 2) return { status: "too_few_choices" };
+		if (choices.length > CHOICE_CODES.length) return { status: "too_many_choices" };
 		if (choices.filter((choice) => choice.isCorrect).length !== 1) {
 			return { status: "incorrect_choice_count" };
 		}
@@ -48,6 +56,10 @@ function validateQuestion(input: CreateQuestionInput): CreateQuestionValidation 
 	if (input.type === "multiple_choice_complex" && (!choices || choices.length < 2)) {
 		return { status: "too_few_complex_choices" };
 	}
+	if (input.type === "multiple_choice_complex" && choices && choices.length > CHOICE_CODES.length) {
+		return { status: "too_many_choices" };
+	}
+	if (input.type === "essay" && choices && choices.length > 0) return { status: "essay_has_choices" };
 	return null;
 }
 
@@ -65,8 +77,8 @@ async function reconcileChoices(
 	repo: QuestionRepository,
 	questionId: number,
 	choices: { id?: number; content: string; isCorrect: boolean }[],
+	existingChoices: ChoiceRow[],
 ) {
-	const existingChoices = await repo.listChoices(questionId);
 	const incomingIds = new Set(
 		choices.flatMap((choice) => (choice.id !== undefined && choice.id > 0 ? [choice.id] : [])),
 	);
@@ -99,11 +111,25 @@ async function reconcileChoices(
 	}
 }
 
+function hasInvalidChoiceIds(
+	choices: { id?: number; content: string; isCorrect: boolean }[],
+	existingChoices: ChoiceRow[],
+) {
+	const existingIds = new Set(existingChoices.map((choice) => choice.id));
+	const receivedIds = new Set<number>();
+	return choices.some((choice) => {
+		if (choice.id === undefined || choice.id <= 0) return false;
+		if (receivedIds.has(choice.id) || !existingIds.has(choice.id)) return true;
+		receivedIds.add(choice.id);
+		return false;
+	});
+}
+
 export function createQuestionService({ repository }: { repository: QuestionRepository }) {
 	return {
 		async create(input: CreateQuestionInput) {
 			const invalid = validateQuestion(input);
-			if (invalid) throw new DomainError("BAD_REQUEST", CREATE_VALIDATION_MESSAGES[invalid.status]);
+			if (invalid) throw new DomainError("BAD_REQUEST", QUESTION_VALIDATION_MESSAGES[invalid.status]);
 
 			const content = normalizeQuestionContent(input);
 			return await repository.transaction(async (repo) => {
@@ -161,18 +187,46 @@ export function createQuestionService({ repository }: { repository: QuestionRepo
 		async update(input: UpdateQuestionInput) {
 			const content = normalizeQuestionContent(input);
 			await repository.transaction(async (repo) => {
+				const existing = await repo.findQuestion(input.id);
+				if (!existing) throw new DomainError("NOT_FOUND", "Question tidak ditemukan");
+
+				const type = input.type ?? existing.type;
+				const isTypeChange = type !== existing.type;
+				const essayCorrectAnswer =
+					type === "essay"
+						? input.essayCorrectAnswer === undefined
+							? isTypeChange
+								? null
+								: existing.essayCorrectAnswer
+							: input.essayCorrectAnswer
+						: null;
+				if (input.choices !== undefined || isTypeChange) {
+					const invalid = validateQuestion({ type, choices: input.choices });
+					if (invalid) throw new DomainError("BAD_REQUEST", QUESTION_VALIDATION_MESSAGES[invalid.status]);
+				}
+				const existingChoices = type === "essay" || input.choices !== undefined ? await repo.listChoices(input.id) : [];
+				if (input.choices && hasInvalidChoiceIds(input.choices, existingChoices)) {
+					throw new DomainError("BAD_REQUEST", "Pilihan jawaban tidak sesuai dengan soal");
+				}
+
 				const updated = await repo.updateQuestion(input.id, {
+					type,
 					content: content.contentText,
 					contentJson: content.contentJson,
 					discussion: content.discussionText,
 					discussionJson: content.discussionJson,
-					essayCorrectAnswer: input.essayCorrectAnswer,
+					essayCorrectAnswer,
 					tags: input.tags ?? [],
 				});
 				if (!updated) throw new DomainError("NOT_FOUND", "Question tidak ditemukan");
 
-				if (input.choices) {
-					await reconcileChoices(repo, input.id, input.choices);
+				if (type === "essay") {
+					if (existingChoices.length > 0) await repo.deleteChoices(existingChoices.map((choice) => choice.id));
+					return;
+				}
+
+				if (input.choices !== undefined) {
+					await reconcileChoices(repo, input.id, input.choices, existingChoices);
 				}
 			});
 		},
