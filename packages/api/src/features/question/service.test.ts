@@ -40,29 +40,34 @@ function makeQuestionRow(overrides: Partial<QuestionRow>): QuestionRow {
 	return { ...questionRow, ...overrides };
 }
 
+
 function makeRepository(overrides: Partial<QuestionRepository> = {}): QuestionRepository {
-	const unused = async () => {
-		throw new Error("Metode repositori tidak terpakai dalam pengujian ini");
-	};
-	const repository: QuestionRepository = {
-		listQuestions: unused,
-		countQuestions: unused,
-		findQuestion: unused,
-		listChoices: unused,
-		listQuestionsWithChoices: unused,
-		insertQuestion: unused,
-		insertChoices: unused,
-		updateQuestion: unused,
-		deleteQuestion: unused,
-		insertChoice: unused,
-		updateChoice: unused,
-		deleteChoice: unused,
-		deleteChoices: unused,
-		transaction: async (fn) => fn(repository),
-		...overrides,
-	};
-	return repository;
+    const unused = async () => {
+        throw new Error("Metode repositori tidak terpakai dalam pengujian ini");
+    };
+
+    const repository: QuestionRepository = {
+        listQuestions: unused,
+        listImages: unused, // BE-A2
+        countQuestions: unused,
+        findQuestion: unused,
+        listChoices: unused,
+        listQuestionsWithChoices: unused,
+        insertQuestion: unused,
+        insertChoices: unused,
+        updateQuestion: unused,
+        deleteQuestion: unused,
+        insertChoice: unused,
+        updateChoice: unused,
+        deleteChoice: unused,
+        deleteChoices: unused,
+        transaction: async (fn) => fn(repository),
+        ...overrides,
+    };
+
+    return repository;
 }
+
 
 function makeRecordingRepository() {
 	const writes: {

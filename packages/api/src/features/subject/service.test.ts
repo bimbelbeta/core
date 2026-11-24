@@ -124,29 +124,34 @@ const choiceRows: ChoiceRow[] = [
 	},
 ];
 
+
 function makeQuestionRepository(overrides: Partial<QuestionRepository> = {}): QuestionRepository {
-	const unused = async () => {
-		throw new Error("Metode repositori tidak terpakai dalam pengujian ini");
-	};
-	const repository: QuestionRepository = {
-		listQuestions: unused,
-		countQuestions: unused,
-		findQuestion: unused,
-		listChoices: unused,
-		listQuestionsWithChoices: unused,
-		insertQuestion: unused,
-		insertChoices: unused,
-		insertChoice: unused,
-		updateQuestion: unused,
-		updateChoice: unused,
-		deleteQuestion: unused,
-		deleteChoice: unused,
-		deleteChoices: unused,
-		transaction: async (fn) => fn(repository),
-		...overrides,
-	};
-	return repository;
+    const unused = async () => {
+        throw new Error("Metode repositori tidak terpakai dalam pengujian ini");
+    };
+
+    const repository: QuestionRepository = {
+        listQuestions: unused,
+        listImages: unused, // BE-A2
+        countQuestions: unused,
+        findQuestion: unused,
+        listChoices: unused,
+        listQuestionsWithChoices: unused,
+        insertQuestion: unused,
+        insertChoices: unused,
+        insertChoice: unused,
+        updateQuestion: unused,
+        updateChoice: unused,
+        deleteQuestion: unused,
+        deleteChoice: unused,
+        deleteChoices: unused,
+        transaction: async (fn) => fn(repository),
+        ...overrides,
+    };
+
+    return repository;
 }
+
 
 function makeService(repository: SubjectRepository, questionRepository: QuestionRepository = makeQuestionRepository()) {
 	return createSubjectService({ repository, questionRepository });
