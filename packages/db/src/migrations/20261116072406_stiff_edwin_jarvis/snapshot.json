@@ -1,0 +1,48 @@
+{
+  "type": "diff",
+  "version": "9",
+  "dialect": "postgres",
+  "id": "337655bc-0784-4e97-b869-4718242e26c5",
+  "prevIds": [
+    "aac55fb7-4bbb-4d22-bc83-02c4cb4e2e9d"
+  ],
+  "footprints": [
+    {
+      "statementType": "add_pk",
+      "statementTarget": [
+        "table",
+        "app",
+        "content_practice_questions"
+      ],
+      "writes": [
+        "s|pk|app.content_practice_questions",
+        "n|pk|app.content_practice_questions",
+        "e|pk|app.content_practice_questions",
+        "n|con|app.content_practice_questions.content_practice_questions_pkey",
+        "n|rel|app.content_practice_questions_pkey"
+      ],
+      "reads": [
+        "n|tbl|app.content_practice_questions",
+        "n|sch|app",
+        "n|col|app.content_practice_questions.content_item_id",
+        "n|col|app.content_practice_questions.question_id"
+      ]
+    }
+  ],
+  "deltas": [
+    {
+      "op": "create",
+      "row": {
+        "schema": "app",
+        "table": "content_practice_questions",
+        "name": "content_practice_questions_pkey",
+        "columns": [
+          "content_item_id",
+          "question_id"
+        ],
+        "nameExplicit": false,
+        "entityType": "pks"
+      }
+    }
+  ]
+}
