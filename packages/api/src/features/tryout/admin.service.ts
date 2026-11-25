@@ -22,6 +22,8 @@ export type AdminServiceRepository = Pick<
 	| "updateAccessCodeStatus"
 	| "listAttemptsWithUsers"
 	| "listSubtestAttemptScores"
+	| "listExportAttempts"
+	| "listExportSubtestScores"
 	| "findSubtestById"
 	| "maxSubtestOrder"
 	| "insertSubtest"
@@ -262,14 +264,50 @@ export function createTryoutAdminService({ repository }: { repository: AdminServ
 		},
 
 		async exportAttempts(input: { id: number; includeRetakes?: boolean }) {
+			const tryoutData = await repository.findTryoutById(input.id);
+			if (!tryoutData) throw new DomainError("NOT_FOUND", "Tryout tidak ditemukan");
+
+			const [subtests, attempts] = await Promise.all([
+				repository.listSubtestsForTryout(input.id),
+				repository.listExportAttempts(input.id, input.includeRetakes ?? false),
+			]);
+			const scores =
+				attempts.length > 0 ? await repository.listExportSubtestScores(attempts.map((attempt) => attempt.id)) : [];
+			const scoresByAttemptId = new Map<number, (typeof scores)[number][]>();
+
+			for (const score of scores) {
+				const attemptScores = scoresByAttemptId.get(score.tryoutAttemptId) ?? [];
+				attemptScores.push(score);
+				scoresByAttemptId.set(score.tryoutAttemptId, attemptScores);
+			}
+
 			return {
 				tryout: {
-					id: input.id,
-					title: "",
-					category: "utbk" as const,
+					id: tryoutData.id,
+					title: tryoutData.title,
+					category: tryoutData.category,
 				},
-				subtests: [],
-				rows: [],
+				subtests: subtests.map((subtest) => ({ id: subtest.id, name: subtest.name, order: subtest.order })),
+				rows: attempts.map((attempt) => ({
+					attemptId: attempt.id,
+					attemptNumber: attempt.attemptNumber,
+					rank: attempt.rank,
+					userId: attempt.userId,
+					userName: attempt.userName,
+					userEmail: attempt.userEmail,
+					targetUniversityName: attempt.targetUniversityName,
+					targetStudyProgramName: attempt.targetStudyProgramName,
+					status: attempt.status,
+					startedAt: attempt.startedAt,
+					completedAt: attempt.completedAt,
+					totalScore: parseNullableInt(attempt.score),
+					subtestScores: (scoresByAttemptId.get(attempt.id) ?? []).map((score) => ({
+						subtestId: score.subtestId,
+						score: parseNullableInt(score.score),
+						correctCount: score.correctCount,
+						questionCount: score.questionCount,
+					})),
+				})),
 			};
 		},
 

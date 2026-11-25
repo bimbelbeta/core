@@ -119,6 +119,8 @@ function makeRepository(rows: AdminRows): AdminServiceRepository {
 		updateAccessCodeStatus: async () => (rows.tryout ? { id: 7, isActive: false } : undefined),
 		listAttemptsWithUsers: async () => [],
 		listSubtestAttemptScores: async () => [],
+		listExportAttempts: async () => [],
+		listExportSubtestScores: async () => [],
 		findSubtestById: async () => rows.subtest,
 		maxSubtestOrder: async () => rows.maxSubtestOrder ?? null,
 		insertSubtest: async (values: SubtestInsert) => {

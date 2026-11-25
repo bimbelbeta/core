@@ -10,6 +10,7 @@ import {
 	tryoutSubtestQuestion,
 	tryoutUserAnswer,
 } from "@bimbelbeta/db/schema/tryout";
+import { studyProgram, university } from "@bimbelbeta/db/schema/university";
 import { and, asc, desc, eq, getTableColumns, gt, ilike, inArray, isNotNull, isNull, lt, or, sql } from "drizzle-orm";
 import type { CreditRepository } from "@/features/credit/repository";
 import { escapeLikePattern } from "@/lib/utils";
@@ -122,6 +123,24 @@ export type SubtestScorePair = {
 	tryoutAttemptId: number;
 	subtestId: number;
 	score: string | null;
+};
+export type ExportAttemptRow = Pick<
+	AttemptRow,
+	"id" | "attemptNumber" | "status" | "startedAt" | "completedAt" | "score"
+> & {
+	rank: number | null;
+	userId: string;
+	userName: string;
+	userEmail: string;
+	targetUniversityName: string | null;
+	targetStudyProgramName: string | null;
+};
+export type ExportSubtestScoreRow = {
+	tryoutAttemptId: number;
+	subtestId: number;
+	score: string | null;
+	correctCount: number;
+	questionCount: number;
 };
 export type SubtestScoringInput = SubtestMaxScoreInput & { tryoutId: number };
 export type AdminSubtestQuestion = {
@@ -708,6 +727,100 @@ export function createTryoutRepository(client: DbClient) {
 			.orderBy(asc(tryoutSubtestAttempt.subtestId));
 	}
 
+	async function listExportAttempts(tryoutId: number, includeRetakes: boolean): Promise<ExportAttemptRow[]> {
+		const eligibleForRank = sql`
+			${tryoutAttempt.attemptNumber} = 1
+			and ${tryoutAttempt.status} = 'finished'
+			and ${tryoutAttempt.score} is not null
+		`;
+		const rank = sql<number | null>`
+			case when ${eligibleForRank} then dense_rank() over (
+				order by case when ${eligibleForRank} then 0 else 1 end, ${tryoutAttempt.score} desc nulls last
+			) end
+		`.mapWith((value) => (value === null ? null : Number(value)));
+
+		return client
+			.select({
+				id: tryoutAttempt.id,
+				attemptNumber: tryoutAttempt.attemptNumber,
+				rank,
+				userId: user.id,
+				userName: user.name,
+				userEmail: user.email,
+				targetUniversityName: university.name,
+				targetStudyProgramName: studyProgram.name,
+				status: tryoutAttempt.status,
+				startedAt: tryoutAttempt.startedAt,
+				completedAt: tryoutAttempt.completedAt,
+				score: tryoutAttempt.score,
+			})
+			.from(tryoutAttempt)
+			.innerJoin(user, eq(user.id, tryoutAttempt.userId))
+			.leftJoin(university, eq(university.id, user.targetUniversityId))
+			.leftJoin(studyProgram, eq(studyProgram.id, user.targetStudyProgramId))
+			.where(and(eq(tryoutAttempt.tryoutId, tryoutId), includeRetakes ? undefined : eq(tryoutAttempt.attemptNumber, 1)))
+			.orderBy(asc(tryoutAttempt.attemptNumber), asc(tryoutAttempt.id));
+	}
+
+	async function listExportSubtestScores(tryoutAttemptIds: number[]): Promise<ExportSubtestScoreRow[]> {
+		const isCorrect = sql<boolean>`
+			case
+				when ${question.type} = 'multiple_choice' then exists (
+					select 1
+					from ${questionChoice}
+					where ${questionChoice.id} = ${tryoutUserAnswer.selectedChoiceId}
+					and ${questionChoice.isCorrect}
+				)
+				when ${question.type} = 'multiple_choice_complex' then
+					${tryoutUserAnswer.selectedChoiceIds} is not null
+					and not exists (
+						select 1
+						from ${questionChoice}
+						where ${questionChoice.questionId} = ${question.id}
+						and (
+							(${questionChoice.isCorrect} and not (${questionChoice.id} = any(${tryoutUserAnswer.selectedChoiceIds})))
+							or (not ${questionChoice.isCorrect} and ${questionChoice.id} = any(${tryoutUserAnswer.selectedChoiceIds}))
+						)
+					)
+				when ${question.type} = 'essay' then
+					${tryoutUserAnswer.essayAnswer} is not null
+					and ${question.essayCorrectAnswer} is not null
+					and btrim(${tryoutUserAnswer.essayAnswer}) <> ''
+					and btrim(${question.essayCorrectAnswer}) <> ''
+					and lower(btrim(${tryoutUserAnswer.essayAnswer})) = lower(btrim(${question.essayCorrectAnswer}))
+				else false
+			end
+		`;
+
+		return client
+			.select({
+				tryoutAttemptId: tryoutSubtestAttempt.tryoutAttemptId,
+				subtestId: tryoutSubtestAttempt.subtestId,
+				score: tryoutSubtestAttempt.score,
+				correctCount: sql<number>`count(*) filter (where ${isCorrect})`.mapWith(Number),
+				questionCount: sql<number>`count(${question.id})`.mapWith(Number),
+			})
+			.from(tryoutSubtestAttempt)
+			.innerJoin(tryoutSubtest, eq(tryoutSubtest.id, tryoutSubtestAttempt.subtestId))
+			.leftJoin(tryoutSubtestQuestion, eq(tryoutSubtestQuestion.subtestId, tryoutSubtestAttempt.subtestId))
+			.leftJoin(question, eq(question.id, tryoutSubtestQuestion.questionId))
+			.leftJoin(
+				tryoutUserAnswer,
+				and(
+					eq(tryoutUserAnswer.attemptId, tryoutSubtestAttempt.tryoutAttemptId),
+					eq(tryoutUserAnswer.questionId, tryoutSubtestQuestion.questionId),
+				),
+			)
+			.where(inArray(tryoutSubtestAttempt.tryoutAttemptId, tryoutAttemptIds))
+			.groupBy(
+				tryoutSubtestAttempt.tryoutAttemptId,
+				tryoutSubtestAttempt.subtestId,
+				tryoutSubtestAttempt.score,
+				tryoutSubtest.order,
+			)
+			.orderBy(asc(tryoutSubtestAttempt.tryoutAttemptId), asc(tryoutSubtest.order));
+	}
+
 	async function findSubtestById(id: number): Promise<SubtestRow | undefined> {
 		const [row] = await client.select().from(tryoutSubtest).where(eq(tryoutSubtest.id, id)).limit(1);
 		return row;
@@ -883,6 +996,8 @@ export function createTryoutRepository(client: DbClient) {
 		updateAccessCodeStatus,
 		listAttemptsWithUsers,
 		listSubtestAttemptScores,
+		listExportAttempts,
+		listExportSubtestScores,
 		findSubtestById,
 		maxSubtestOrder,
 		insertSubtest,
