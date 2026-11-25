@@ -2,9 +2,10 @@ import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:tes
 import { db } from "@bimbelbeta/db";
 import { user } from "@bimbelbeta/db/schema/auth";
 import { creditTransaction } from "@bimbelbeta/db/schema/credit";
+import { tryout, tryoutAttempt } from "@bimbelbeta/db/schema/tryout";
 import { studyProgram, university, universityStudyProgram } from "@bimbelbeta/db/schema/university";
 import { call } from "@orpc/server";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import type { Session } from "@/context";
 import { appRouter } from "@/routers";
 
@@ -148,6 +149,74 @@ describe.skipIf(!enabled)("user feature", () => {
 		expect(result.items.some((row) => row.id === id)).toBe(true);
 		const premiumOnly = await call(appRouter.admin.users.list, { search: id, isPremium: true }, options);
 		expect(premiumOnly.items.some((row) => row.id === id)).toBe(false);
+	});
+
+	test("exposes registration dates and pages newest and oldest users without gaps", async () => {
+		const marker = `${id}-sort`;
+		const oldestUserId = `${marker}-a`;
+		const firstNewestUserId = `${marker}-b`;
+		const secondNewestUserId = `${marker}-c`;
+		const sortedUserIds = [oldestUserId, firstNewestUserId, secondNewestUserId];
+		const oldest = new Date("2024-01-01T00:00:00.000Z");
+		const newest = new Date("2025-01-01T00:00:00.000Z");
+
+		await db.insert(user).values([
+			{ id: oldestUserId, name: `${marker}-a`, email: `${marker}-a@example.com`, createdAt: oldest },
+			{ id: firstNewestUserId, name: `${marker}-b`, email: `${marker}-b@example.com`, createdAt: newest },
+			{ id: secondNewestUserId, name: `${marker}-c`, email: `${marker}-c@example.com`, createdAt: newest },
+		]);
+
+		try {
+			const firstPage = await call(appRouter.admin.users.list, { search: marker, sort: "terbaru", limit: 2 }, options);
+			expect(firstPage.items.map((row) => ({ id: row.id, createdAt: row.createdAt }))).toEqual([
+				{ id: secondNewestUserId, createdAt: newest },
+				{ id: firstNewestUserId, createdAt: newest },
+			]);
+			expect(firstPage.pageInfo.hasNextPage).toBe(true);
+
+			const secondPage = await call(
+				appRouter.admin.users.list,
+				{ search: marker, sort: "terbaru", limit: 2, after: firstPage.pageInfo.endCursor ?? undefined },
+				options,
+			);
+			expect(secondPage.items.map((row) => ({ id: row.id, createdAt: row.createdAt }))).toEqual([
+				{ id: oldestUserId, createdAt: oldest },
+			]);
+
+			const previousPage = await call(
+				appRouter.admin.users.list,
+				{ search: marker, sort: "terbaru", limit: 2, before: secondPage.pageInfo.startCursor ?? undefined },
+				options,
+			);
+			expect(previousPage.items.map((row) => row.id)).toEqual([secondNewestUserId, firstNewestUserId]);
+
+			const oldestFirst = await call(appRouter.admin.users.list, { search: marker, sort: "terlama" }, options);
+			expect(oldestFirst.items.map((row) => row.id)).toEqual([oldestUserId, firstNewestUserId, secondNewestUserId]);
+		} finally {
+			await db.delete(user).where(inArray(user.id, sortedUserIds));
+		}
+	});
+
+	test("includes the user registration date in admin tryout attempts", async () => {
+		const [createdTryout] = await db
+			.insert(tryout)
+			.values({ title: `${id} registration date`, status: "published" })
+			.returning();
+
+		try {
+			const [registeredUser] = await db.select({ createdAt: user.createdAt }).from(user).where(eq(user.id, id));
+			const [attempt] = await db
+				.insert(tryoutAttempt)
+				.values({ userId: id, tryoutId: createdTryout!.id, deadline: new Date("2100-01-01") })
+				.returning();
+			const result = await call(appRouter.admin.tryout.attempts.list, { id: createdTryout!.id }, options);
+			const listed = result.items.find((item) => item.attempt.id === attempt!.id);
+
+			expect(listed?.user.createdAt).toBeInstanceOf(Date);
+			expect(listed?.user.createdAt).toEqual(registeredUser!.createdAt);
+		} finally {
+			await db.delete(tryout).where(eq(tryout.id, createdTryout!.id));
+		}
 	});
 
 	test("finds a user with its credit history and reports NOT_FOUND for a missing one", async () => {

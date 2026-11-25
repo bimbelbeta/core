@@ -3,7 +3,7 @@ import { db } from "@bimbelbeta/db";
 import type { Session } from "@/context";
 import { createUniversityRepository, type UniversityRepository } from "@/features/university/repository";
 import { DomainError } from "@/lib/domain-error";
-import { buildStringIdCursorPage, decodeStringIdPage } from "@/lib/pagination/cursor";
+import { buildDateStringIdCursorPage, decodeDateStringIdPage } from "@/lib/pagination/cursor";
 import { createUserRepository, type UserRepository } from "./repository";
 
 type UpdateTargetInput = {
@@ -62,18 +62,20 @@ export const createUserService = ({
 	},
 
 	async listUsers(input: ListUsersInput) {
-		const { limit, backward, cursorId, hasCursor } = decodeStringIdPage(input);
+		const { limit, backward, cursorDateStringId, hasCursor } = decodeDateStringIdPage(input);
+		const newestFirst = input.sort !== "terlama";
 
 		const rows = await repository.listUsers({
 			limit,
-			cursorId,
+			cursorCreatedAt: cursorDateStringId,
 			isBackward: backward,
 			search: input.search,
 			role: input.role,
 			isPremium: input.isPremium,
+			newestFirst,
 		});
 
-		return buildStringIdCursorPage(rows, limit, backward, hasCursor);
+		return buildDateStringIdCursorPage(rows, limit, backward, hasCursor);
 	},
 
 	async findUser(userId: string) {

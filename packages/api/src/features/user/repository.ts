@@ -17,12 +17,20 @@ export type DashboardUserCounts = {
 
 export type ListUsersParams = {
 	limit: number;
-	cursorId?: string;
+	cursorCreatedAt?: { date: Date; id: string };
 	isBackward: boolean;
 	search?: string;
 	role?: Role;
 	isPremium?: boolean;
+	newestFirst: boolean;
 };
+
+function userCursorFilter(cursor: { date: Date; id: string }, descending: boolean) {
+	return or(
+		descending ? lt(user.createdAt, cursor.date) : gt(user.createdAt, cursor.date),
+		and(eq(user.createdAt, cursor.date), descending ? lt(user.id, cursor.id) : gt(user.id, cursor.id)),
+	);
+}
 
 export function createUserRepository(client: DbClient) {
 	return {
@@ -44,20 +52,21 @@ export function createUserRepository(client: DbClient) {
 		},
 
 		async listUsers(params: ListUsersParams) {
-			const { limit, cursorId, isBackward, search, role, isPremium } = params;
+			const { limit, cursorCreatedAt, isBackward, search, role, isPremium, newestFirst } = params;
+			const descending = newestFirst !== isBackward;
 
 			const rows = await client
 				.select()
 				.from(user)
 				.where(
 					and(
-						cursorId !== undefined ? (isBackward ? lt(user.id, cursorId) : gt(user.id, cursorId)) : undefined,
+						cursorCreatedAt ? userCursorFilter(cursorCreatedAt, descending) : undefined,
 						search ? or(like(user.name, `%${search}%`), like(user.email, `%${search}%`)) : undefined,
 						role ? eq(user.role, role) : undefined,
 						isPremium !== undefined ? eq(user.isPremium, isPremium) : undefined,
 					),
 				)
-				.orderBy(isBackward ? desc(user.id) : asc(user.id))
+				.orderBy(descending ? desc(user.createdAt) : asc(user.createdAt), descending ? desc(user.id) : asc(user.id))
 				.limit(limit + 1);
 
 			return rows;

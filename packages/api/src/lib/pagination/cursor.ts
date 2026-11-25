@@ -50,6 +50,37 @@ export function parseDateIdCursor(cursor: string): { date: Date | null; id: numb
 	return { date, id: Number.parseInt(match[2]!, 10) };
 }
 
+export function createDateStringIdCursor(date: Date, id: string): string {
+	return encodeCursor(JSON.stringify([date.getTime(), id]));
+}
+
+export function parseDateStringIdCursor(cursor: string): { date: Date; id: string } {
+	let parsed: unknown;
+	try {
+		parsed = JSON.parse(decodeCursor(cursor));
+	} catch {
+		throw new DomainError("BAD_REQUEST", "Kursor tidak valid");
+	}
+
+	if (
+		!Array.isArray(parsed) ||
+		parsed.length !== 2 ||
+		typeof parsed[0] !== "number" ||
+		!Number.isFinite(parsed[0]) ||
+		typeof parsed[1] !== "string" ||
+		parsed[1].length === 0
+	) {
+		throw new DomainError("BAD_REQUEST", "Kursor tidak valid");
+	}
+
+	const date = new Date(parsed[0]);
+	if (Number.isNaN(date.getTime())) {
+		throw new DomainError("BAD_REQUEST", "Kursor tidak valid");
+	}
+
+	return { date, id: parsed[1] };
+}
+
 export function createStringIdCursor(id: string): string {
 	return encodeCursor(id);
 }
@@ -87,6 +118,11 @@ export function decodeStringIdPage(input: PageInput | undefined, defaultLimit = 
 export function decodeDateIdPage(input: PageInput | undefined, defaultLimit = 20) {
 	const { limit, backward, cursor, hasCursor } = decodePageInput(input, defaultLimit);
 	return { limit, backward, cursorDateId: cursor ? parseDateIdCursor(cursor) : undefined, hasCursor };
+}
+
+export function decodeDateStringIdPage(input: PageInput | undefined, defaultLimit = 20) {
+	const { limit, backward, cursor, hasCursor } = decodePageInput(input, defaultLimit);
+	return { limit, backward, cursorDateStringId: cursor ? parseDateStringIdCursor(cursor) : undefined, hasCursor };
 }
 export interface IdCursorPageInfo {
 	hasNextPage: boolean;
@@ -141,6 +177,15 @@ export function buildDateIdCursorPage<T extends { startsAt: Date | null; id: num
 	hasCursor: boolean,
 ): { items: T[]; pageInfo: IdCursorPageInfo } {
 	return buildCursorPage(rows, limit, isBackward, hasCursor, (row) => createDateIdCursor(row.startsAt, row.id));
+}
+
+export function buildDateStringIdCursorPage<T extends { createdAt: Date; id: string }>(
+	rows: T[],
+	limit: number,
+	isBackward: boolean,
+	hasCursor: boolean,
+): { items: T[]; pageInfo: IdCursorPageInfo } {
+	return buildCursorPage(rows, limit, isBackward, hasCursor, (row) => createDateStringIdCursor(row.createdAt, row.id));
 }
 /**
  * Like buildIdCursorPage but for tables with string primary keys (e.g. better-auth users).

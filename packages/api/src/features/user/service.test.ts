@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import type { Session } from "@/context";
+import { createDateStringIdCursor } from "@/lib/pagination/cursor";
 import type { ListUsersParams, UserRepository, UserRow, UserUpdateValues } from "./repository";
 import { createUserService } from "./service";
 
@@ -146,10 +147,8 @@ describe("user service", () => {
 		const result = await service.listUsers({ limit: 2 });
 		expect(result.items.map((row) => row.id)).toEqual(["a", "b"]);
 		expect(result.pageInfo).toMatchObject({ hasNextPage: true, hasPreviousPage: false });
-		expect(result.pageInfo.startCursor && Buffer.from(result.pageInfo.startCursor, "base64url").toString("utf8")).toBe(
-			"a",
-		);
-		expect(result.pageInfo.endCursor && Buffer.from(result.pageInfo.endCursor, "base64url").toString("utf8")).toBe("b");
+		expect(result.pageInfo.startCursor).toBe(createDateStringIdCursor(new Date("2024-01-01"), "a"));
+		expect(result.pageInfo.endCursor).toBe(createDateStringIdCursor(new Date("2024-01-01"), "b"));
 	});
 
 	test("clamps the page size to 100 and defaults it to 20", async () => {
@@ -170,9 +169,23 @@ describe("user service", () => {
 		const repository = fakeRepository();
 		repository.listUsers = async () => [userRow("c"), userRow("b"), userRow("a")];
 		const service = createUserService({ repository, universityRepository: fakeUniversityRepository() });
-		const result = await service.listUsers({ before: "Yw", limit: 2 });
+		const result = await service.listUsers({ before: createDateStringIdCursor(new Date("2024-01-01"), "d"), limit: 2 });
 		expect(result.items.map((row) => row.id)).toEqual(["b", "c"]);
 		expect(result.pageInfo).toMatchObject({ hasNextPage: true, hasPreviousPage: true });
+	});
+
+	test("defaults to newest users and forwards the requested sort", async () => {
+		const repository = fakeRepository();
+		const received: ListUsersParams[] = [];
+		repository.listUsers = async (params) => {
+			received.push(params);
+			return [];
+		};
+		const service = createUserService({ repository, universityRepository: fakeUniversityRepository() });
+		await service.listUsers({});
+		await service.listUsers({ sort: "terlama" });
+
+		expect(received.map((params) => params.newestFirst)).toEqual([true, false]);
 	});
 
 	test("finds a user with its credit history", async () => {

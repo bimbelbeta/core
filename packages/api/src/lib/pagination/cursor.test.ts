@@ -1,14 +1,17 @@
 import { describe, expect, test } from "bun:test";
 import {
+	buildDateStringIdCursorPage,
 	buildIdCursorPage,
 	buildStringIdCursorPage,
 	createDateCursor,
+	createDateStringIdCursor,
 	createIdCursor,
 	createStringIdCursor,
 	decodeCursor,
 	decodePageInput,
 	encodeCursor,
 	parseDateCursor,
+	parseDateStringIdCursor,
 	parseIdCursor,
 	parseStringIdCursor,
 } from "./cursor";
@@ -59,6 +62,34 @@ describe("createDateCursor / parseDateCursor", () => {
 	test("throws on invalid cursor", () => {
 		const badCursor = encodeCursor("not-a-date");
 		expect(() => parseDateCursor(badCursor)).toThrow("Invalid date cursor");
+	});
+});
+
+describe("createDateStringIdCursor / parseDateStringIdCursor", () => {
+	test("round-trips a timestamp and arbitrary string id", () => {
+		const date = new Date("2025-06-15T10:00:00.000Z");
+		expect(parseDateStringIdCursor(createDateStringIdCursor(date, "user:with:colons"))).toEqual({
+			date,
+			id: "user:with:colons",
+		});
+	});
+
+	test("rejects malformed cursors", () => {
+		for (const value of ["not-json", JSON.stringify(["not-a-date", "user"]), JSON.stringify([0, ""])]) {
+			expect(() => parseDateStringIdCursor(encodeCursor(value))).toThrow("Kursor tidak valid");
+		}
+	});
+
+	test("builds stable cursors from createdAt and id", () => {
+		const date = new Date("2025-06-15T10:00:00.000Z");
+		const rows = [
+			{ id: "a", createdAt: date },
+			{ id: "b", createdAt: date },
+		];
+		const result = buildDateStringIdCursorPage(rows, 2, false, false);
+
+		expect(result.pageInfo.startCursor).toBe(createDateStringIdCursor(date, "a"));
+		expect(result.pageInfo.endCursor).toBe(createDateStringIdCursor(date, "b"));
 	});
 });
 
