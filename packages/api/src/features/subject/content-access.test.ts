@@ -2,42 +2,12 @@ import { describe, expect, test } from "bun:test";
 import { canAccessContent, isFirstContent, isFirstSubject } from "@bimbelbeta/contract/common/content-access";
 
 describe("canAccessContent", () => {
-	// ─── role bypass ─────────────────────────────────────────────────────────────
-	test("admin can access any content regardless of premium status or order", () => {
-		expect(canAccessContent(false, "admin", 5, 5)).toBe(true);
-		expect(canAccessContent(false, "admin", 1, 1)).toBe(true);
-	});
-
-	test("superadmin can access any content regardless of premium status or order", () => {
-		expect(canAccessContent(false, "superadmin", 5, 5)).toBe(true);
-		expect(canAccessContent(false, "superadmin", 1, 1)).toBe(true);
-	});
-
-	// ─── premium bypass ───────────────────────────────────────────────────────────
-	test("premium user can access any content", () => {
-		expect(canAccessContent(true, "user", 5, 5)).toBe(true);
-		expect(canAccessContent(true, "user", 2, 3)).toBe(true);
-		expect(canAccessContent(true, undefined, 3, 3)).toBe(true);
-	});
-
-	// ─── free user access ─────────────────────────────────────────────────────────
-	test("free user can access first content of first subject", () => {
+	test("allows content for every premium state, role, subject, and content order", () => {
 		expect(canAccessContent(false, "user", 1, 1)).toBe(true);
-	});
-
-	test("free user cannot access non-first subject", () => {
-		expect(canAccessContent(false, "user", 2, 1)).toBe(false);
-		expect(canAccessContent(false, "user", 3, 1)).toBe(false);
-	});
-
-	test("free user cannot access non-first content even on first subject", () => {
-		expect(canAccessContent(false, "user", 1, 2)).toBe(false);
-		expect(canAccessContent(false, "user", 1, 3)).toBe(false);
-	});
-
-	test("free user with undefined role behaves like regular free user", () => {
-		expect(canAccessContent(false, undefined, 1, 1)).toBe(true);
-		expect(canAccessContent(false, undefined, 2, 1)).toBe(false);
+		expect(canAccessContent(false, "user", 5, 8)).toBe(true);
+		expect(canAccessContent(false, undefined, 3, 4)).toBe(true);
+		expect(canAccessContent(true, "user", 5, 8)).toBe(true);
+		expect(canAccessContent(false, "admin", 5, 8)).toBe(true);
 	});
 });
 

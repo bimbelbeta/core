@@ -226,16 +226,24 @@ describe("subject service findContent", () => {
 		await expectDomainError(service.findContent({ contentId: 12 }, caller), "NOT_FOUND", "Konten tidak ditemukan");
 	});
 
-	test("throws FORBIDDEN for a non-premium user on locked content", async () => {
-		const service = makeService(makeRepository({ findContentDetail: async () => detailRow }), makeQuestionRepository());
-		await expectDomainError(
-			service.findContent({ contentId: 12 }, caller),
-			"FORBIDDEN",
-			"Konten ini memerlukan akun premium",
+	test("serves video and note content to a non-premium caller", async () => {
+		const service = makeService(
+			makeRepository({
+				findContentDetail: async () => detailRow,
+				listPracticeQuestionLinks: async () => [],
+			}),
+			makeQuestionRepository(),
 		);
+		const result = await service.findContent({ contentId: 12 }, caller);
+		expect(result.video).toEqual({
+			id: 55,
+			videoUrl: "https://youtu.be/contoh",
+			content: { type: "doc", content: [] },
+		});
+		expect(result.note).toEqual({ id: 7, content: { type: "doc", content: [] } });
 	});
 
-	test("serves locked content to a premium caller", async () => {
+	test("serves content to a premium caller", async () => {
 		const service = makeService(
 			makeRepository({
 				findContentDetail: async () => detailRow,
@@ -253,7 +261,7 @@ describe("subject service findContent", () => {
 		});
 	});
 
-	test("serves locked content to an admin caller", async () => {
+	test("serves content to an admin caller", async () => {
 		const service = makeService(
 			makeRepository({
 				findContentDetail: async () => detailRow,
@@ -294,7 +302,7 @@ describe("subject service findContent", () => {
 			}),
 		);
 
-		const result = await service.findContent({ contentId: 12 }, premiumCaller);
+		const result = await service.findContent({ contentId: 12 }, caller);
 		expect(result.practiceQuestions?.questions).toEqual([
 			{
 				questionId: 32,

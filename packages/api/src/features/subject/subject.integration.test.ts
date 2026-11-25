@@ -44,7 +44,6 @@ function makeSession(role: Session["user"]["role"], isPremium: boolean): Session
 
 const adminOptions = { context: { session: makeSession("admin", false) } };
 const memberOptions = { context: { session: makeSession("user", false) } };
-const premiumOptions = { context: { session: makeSession("user", true) } };
 const MISSING_ID = 2147483647;
 
 let subjectId = 0;
@@ -171,19 +170,20 @@ describe.skipIf(!enabled)("subject feature", () => {
 		});
 	});
 
-	test("locks content behind premium and serves it with its practice questions", async () => {
+	test("serves all content and practice questions to an authenticated member", async () => {
 		const [createdContent] = await db
 			.insert(contentItem)
 			.values({ subjectId, title: `${id} materi`, order: 1 })
 			.returning();
 		contentId = createdContent!.id;
 
-		await expect(call(appRouter.subject.findContent, { contentId }, memberOptions)).rejects.toMatchObject({
-			code: "FORBIDDEN",
-			message: "Konten ini memerlukan akun premium",
+		await expect(
+			call(appRouter.subject.findContent, { contentId }, { context: { session: null } }),
+		).rejects.toMatchObject({
+			code: "UNAUTHORIZED",
 		});
 
-		const found = await call(appRouter.subject.findContent, { contentId }, premiumOptions);
+		const found = await call(appRouter.subject.findContent, { contentId }, memberOptions);
 		expect(found).toMatchObject({
 			id: contentId,
 			title: `${id} materi`,
@@ -211,7 +211,7 @@ describe.skipIf(!enabled)("subject feature", () => {
 			order: 1,
 		});
 
-		const withQuestions = await call(appRouter.subject.findContent, { contentId }, premiumOptions);
+		const withQuestions = await call(appRouter.subject.findContent, { contentId }, memberOptions);
 		expect(withQuestions.practiceQuestions?.questions).toEqual([
 			{
 				questionId: createdQuestion!.id,
